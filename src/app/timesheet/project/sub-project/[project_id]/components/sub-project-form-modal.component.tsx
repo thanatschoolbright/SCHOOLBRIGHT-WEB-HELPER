@@ -122,20 +122,35 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
             `/api/v1/timesheet/project/sub-project/assignee-search?q=${encodeURIComponent(query)}`,
           );
           if (res.data?.status === 200) {
-            const results = res.data.data;
+            // ✅ คัดลอกข้อมูลเฉพาะที่จำเป็นเพื่อป้องกันโครงสร้างข้อมูลพัวพัน (Circular References)
+            const results = res.data.data.map((u: any) => ({
+              admin_id: u.admin_id,
+              firstname: u.firstname,
+              lastname: u.lastname,
+              nickname: u.nickname,
+              position: u.position,
+              profile_image_path: u.profile_image_path,
+            }));
 
             setUsers((prev) => {
-              const currentAssignees = form.getFieldValue("assignees") || [];
-              const selectedUsers = prev.filter((u) =>
-                currentAssignees.some((ca: any) => ca.userId === u.admin_id),
+              // 🔍 ดึง ID ของพนักงานที่เลือกอยู่ในฟอร์มปัจจุบัน
+              const currentValues = form.getFieldsValue();
+              const currentAssignees = currentValues.assignees || [];
+              const selectedUserIds = new Set(
+                currentAssignees.map((a: any) => a.userId).filter(Boolean),
               );
 
               const newMap = new Map();
-              // ใส่ผลลัพธ์ใหม่ก่อน
+              // 1. ใส่ผลการค้นหาใหม่
               results.forEach((u: any) => newMap.set(u.admin_id, u));
-              // ใส่คนที่ถูกเลือกไว้แล้ว (เพื่อไม้ให้ Label หาย)
-              selectedUsers.forEach((u) => {
-                if (!newMap.has(u.admin_id)) newMap.set(u.admin_id, u);
+              // 2. รักษาพนักงานที่เลือกไว้แล้ว (เพื่อให้ Label ใน Select แสดงผลถูกต้อง)
+              prev.forEach((u) => {
+                if (
+                  selectedUserIds.has(u.admin_id) &&
+                  !newMap.has(u.admin_id)
+                ) {
+                  newMap.set(u.admin_id, u);
+                }
               });
 
               return Array.from(newMap.values());
@@ -232,22 +247,19 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                 setUsers((prev) => {
                   const newMap = new Map();
                   prev.forEach((u) => newMap.set(u.admin_id, u));
-                  fetchedUsers.forEach((u: any) => newMap.set(u.admin_id, u));
+                  fetchedUsers.forEach((u: any) => {
+                    // ✅ เก็บเฉพาะข้อมูลที่จำเป็น
+                    newMap.set(u.admin_id, {
+                      admin_id: u.admin_id,
+                      firstname: u.firstname,
+                      lastname: u.lastname,
+                      nickname: u.nickname,
+                      position: u.position,
+                      profile_image_path: u.profile_image_path,
+                    });
+                  });
                   return Array.from(newMap.values());
                 });
-
-                // 🔄 อัปเดตตำแหน่ง (Position) ให้ตรงกับฐานข้อมูลล่าสุด หากในฟอร์มยังว่างอยู่
-                const currentAssignees = form.getFieldValue("assignees") || [];
-                const updated = currentAssignees.map((a: any) => {
-                  const userProfile = fetchedUsers.find(
-                    (u: any) => u.admin_id === a.userId,
-                  );
-                  return {
-                    ...a,
-                    position: a.position || userProfile?.position || "พนักงาน",
-                  };
-                });
-                form.setFieldsValue({ assignees: updated });
               }
             } catch (err) {
               console.error("Failed to fetch initial assignees:", err);
@@ -617,18 +629,13 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                                   ? "กำลังค้นหา..."
                                   : "ไม่พบข้อมูล"
                               }
-                              onChange={(userId) => {
-                                const selectedUser = users.find(
-                                  (u) => u.admin_id === userId,
-                                );
-                                if (selectedUser) {
-                                  // อัปเดตตำแหน่งอัตโนมัติเมื่อเลือกผู้ใช้งาน (ใช้ setTimeout เพื่อเลี่ยงปัญหา Circular Reference ตอนอัปเดต State)
-                                  setTimeout(() => {
-                                    form.setFieldValue(
-                                      ["assignees", name, "position"],
-                                      selectedUser.position || "พนักงาน",
-                                    );
-                                  }, 0);
+                              onChange={(userId, option: any) => {
+                                if (option) {
+                                  // อัปเดตตำแหน่งอัตโนมัติเมื่อเลือกผู้ใช้งาน
+                                  form.setFieldValue(
+                                    ["assignees", name, "position"],
+                                    option.position || "พนักงาน",
+                                  );
                                 }
                               }}
                               options={users.map((u) => ({
@@ -650,7 +657,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                                   </Flex>
                                 ),
                                 value: u.admin_id,
-                                filterText: `${u.firstname} ${u.lastname} ${u.nickname} ${u.position}`,
+                                position: u.position, // เก็บไว้ใช้ใน onChange
                               }))}
                               prefix={<UserOutlined />}
                             />

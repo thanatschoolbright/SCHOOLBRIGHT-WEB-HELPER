@@ -20,6 +20,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import {
+  App,
   Avatar,
   Badge,
   Button,
@@ -29,7 +30,6 @@ import {
   Dropdown,
   Flex,
   Input,
-  Modal,
   Row,
   Select,
   Space,
@@ -49,7 +49,10 @@ import { toast } from "sonner";
 
 import SummaryCard from "@components/card/summary-card";
 import DashboardLayout from "@components/layouts/backend-layout";
-import StatusModal from "@components/modal/status-modal";
+import {
+  StatusModalComponent,
+  StatusModalType,
+} from "@components/modal/status-modal-component";
 import { HeaderBar } from "@components/typhography/header-bar-component";
 import { useAppSelector } from "@stores/store";
 
@@ -70,6 +73,7 @@ const { Title, Text } = Typography;
 // ==========================================
 
 export default function SubProjectPage() {
+  const { modal } = App.useApp();
   const { t } = useTranslation();
   const router = useRouter();
   const params = useParams();
@@ -104,9 +108,10 @@ export default function SubProjectPage() {
 
   const [statusModal, setStatusModal] = useState<{
     open: boolean;
-    type: "success" | "error";
+    type: StatusModalType;
     title: string;
     message: string;
+    data?: any; // เก็บข้อมูลชั่วคราว เช่น ID ที่จะลบ
   }>({
     open: false,
     type: "success",
@@ -384,44 +389,54 @@ export default function SubProjectPage() {
    * * handleDelete: ลบฟีเจอร์ย่อยออกจากระบบ
    */
   const handleDelete = async (id: number) => {
-    Modal.confirm({
-      title: "คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?",
-      content: "การลบรายการนี้จะไม่สามารถกู้คืนได้",
-      okText: "ใช่, ลบรายการ",
-      okType: "danger",
-      cancelText: "ยกเลิก",
-      centered: true,
-      onOk: async () => {
-        try {
-          const res = await axios.post(
-            "/api/v1/timesheet/project/sub-project/delete",
-            {
-              id,
-              by: adminId,
-            },
-          );
-
-          if (res.data?.status === 200) {
-            setStatusModal({
-              open: true,
-              type: "success",
-              title: "ลบข้อมูลสำเร็จ",
-              message: "ระบบได้ทำการลบรายการฟีเจอร์ย่อยเรียบร้อยแล้ว",
-            });
-            await requestData();
-          } else {
-            throw new Error("Failed to delete");
-          }
-        } catch (error) {
-          setStatusModal({
-            open: true,
-            type: "error",
-            title: "ลบข้อมูลไม่สำเร็จ",
-            message: "เกิดข้อผิดพลาดในการลบข้อมูล กรุณาลองใหม่อีกครั้ง",
-          });
-        }
-      },
+    const target = allSubProjects.find((p) => p.id === id);
+    setStatusModal({
+      open: true,
+      type: "delete",
+      title: "ยืนยันการลบฟีเจอร์",
+      message: `คุณกำลังจะลบฟีเจอร์ "${target?.name || "ไม่ระบุชื่อ"}" ใช่หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้`,
+      data: id,
     });
+  };
+
+  /**
+   * * confirmDelete: ฟังก์ชันที่ทำงานจริงเมื่อกดปุ่มยืนยันใน Modal
+   */
+  const confirmDelete = async () => {
+    const id = statusModal.data;
+    if (!id) return;
+
+    setIsActionLoading(true);
+    try {
+      const res = await axios.post(
+        "/api/v1/timesheet/project/sub-project/delete",
+        {
+          id,
+          by: adminId,
+        },
+      );
+
+      if (res.data?.status === 200) {
+        setStatusModal({
+          open: true,
+          type: "success",
+          title: "ลบข้อมูลสำเร็จ",
+          message: "ระบบได้ทำการลบรายการฟีเจอร์ย่อยเรียบร้อยแล้ว",
+        });
+        await requestData();
+      } else {
+        throw new Error("Failed to delete");
+      }
+    } catch (error) {
+      setStatusModal({
+        open: true,
+        type: "error",
+        title: "ลบข้อมูลไม่สำเร็จ",
+        message: "เกิดข้อผิดพลาดในการลบข้อมูล กรุณาลองใหม่อีกครั้ง",
+      });
+    } finally {
+      setIsActionLoading(false);
+    }
   };
 
   /**
@@ -927,11 +942,13 @@ export default function SubProjectPage() {
           onClose={() => setModalState({ type: null, data: null })}
         />
 
-        <StatusModal
+        <StatusModalComponent
           open={statusModal.open}
           type={statusModal.type}
           title={statusModal.title}
           message={statusModal.message}
+          loading={isActionLoading}
+          onConfirm={statusModal.type === "delete" ? confirmDelete : undefined}
           onClose={() => setStatusModal((prev) => ({ ...prev, open: false }))}
         />
       </div>
