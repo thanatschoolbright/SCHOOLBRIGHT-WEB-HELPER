@@ -123,21 +123,25 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
           );
           if (res.data?.status === 200) {
             // ✅ คัดลอกข้อมูลเฉพาะที่จำเป็นเพื่อป้องกันโครงสร้างข้อมูลพัวพัน (Circular References)
-            const results = res.data.data.map((u: any) => ({
-              admin_id: u.admin_id,
-              firstname: u.firstname,
-              lastname: u.lastname,
-              nickname: u.nickname,
-              position: u.position,
-              profile_image_path: u.profile_image_path,
-            }));
+            const results = (res.data.data || [])
+              .filter((u: any) => u && u.admin_id)
+              .map((u: any) => ({
+                admin_id: u.admin_id,
+                firstname: u.firstname,
+                lastname: u.lastname,
+                nickname: u.nickname,
+                position: u.position,
+                profile_image_path: u.profile_image_path,
+              }));
 
             setUsers((prev) => {
               // 🔍 ดึง ID ของพนักงานที่เลือกอยู่ในฟอร์มปัจจุบัน
               const currentValues = form.getFieldsValue();
               const currentAssignees = currentValues.assignees || [];
               const selectedUserIds = new Set(
-                currentAssignees.map((a: any) => a.userId).filter(Boolean),
+                currentAssignees
+                  .map((a: any) => a?.userId) // ✅ ใช้ Optional Chaining
+                  .filter(Boolean),
               );
 
               const newMap = new Map();
@@ -146,6 +150,8 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
               // 2. รักษาพนักงานที่เลือกไว้แล้ว (เพื่อให้ Label ใน Select แสดงผลถูกต้อง)
               prev.forEach((u) => {
                 if (
+                  u &&
+                  u.admin_id &&
                   selectedUserIds.has(u.admin_id) &&
                   !newMap.has(u.admin_id)
                 ) {
@@ -243,20 +249,24 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                 `/api/v1/timesheet/project/sub-project/assignee-search?ids=${assigneeIds}`,
               );
               if (res.data?.status === 200) {
-                const fetchedUsers = res.data.data;
+                const fetchedUsers = res.data.data || [];
                 setUsers((prev) => {
                   const newMap = new Map();
-                  prev.forEach((u) => newMap.set(u.admin_id, u));
+                  prev.forEach((u) => {
+                    if (u && u.admin_id) newMap.set(u.admin_id, u);
+                  });
                   fetchedUsers.forEach((u: any) => {
-                    // ✅ เก็บเฉพาะข้อมูลที่จำเป็น
-                    newMap.set(u.admin_id, {
-                      admin_id: u.admin_id,
-                      firstname: u.firstname,
-                      lastname: u.lastname,
-                      nickname: u.nickname,
-                      position: u.position,
-                      profile_image_path: u.profile_image_path,
-                    });
+                    if (u && u.admin_id) {
+                      // ✅ เก็บเฉพาะข้อมูลที่จำเป็น
+                      newMap.set(u.admin_id, {
+                        admin_id: u.admin_id,
+                        firstname: u.firstname,
+                        lastname: u.lastname,
+                        nickname: u.nickname,
+                        position: u.position,
+                        profile_image_path: u.profile_image_path,
+                      });
+                    }
                   });
                   return Array.from(newMap.values());
                 });
