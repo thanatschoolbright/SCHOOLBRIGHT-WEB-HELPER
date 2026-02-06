@@ -1078,18 +1078,31 @@ export default function CapturableReportPage() {
                       title: "สัดส่วนงาน (%)",
                       dataIndex: "percent",
                       key: "percent",
-                      width: 250,
+                      width: 200,
                       render: (val) => (
                         <Tooltip title={`${val}% ของโครงการนี้`}>
-                          <Flex align="center" gap={12}>
+                          <Flex
+                            align="center"
+                            gap={12}
+                            style={{ width: "100%" }}
+                          >
                             <Progress
                               percent={val}
-                              size={[120, 10]}
                               strokeColor={token.colorPrimary}
                               trailColor={token.colorFillQuaternary}
                               showInfo={false}
+                              size="small"
+                              style={{ flex: 1, margin: 0 }}
                             />
-                            <Text strong style={{ minWidth: 45 }}>
+                            <Text
+                              strong
+                              style={{
+                                width: 55,
+                                whiteSpace: "nowrap",
+                                textAlign: "right",
+                                fontSize: 13,
+                              }}
+                            >
                               {val}%
                             </Text>
                           </Flex>
