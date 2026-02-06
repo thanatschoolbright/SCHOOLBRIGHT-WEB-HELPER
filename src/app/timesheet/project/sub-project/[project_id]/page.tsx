@@ -16,9 +16,9 @@ import {
   ProjectOutlined,
   ReloadOutlined,
   SearchOutlined,
-  SolutionOutlined,
   SwapOutlined,
   SyncOutlined,
+  UnorderedListOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import {
@@ -123,9 +123,9 @@ export default function SubProjectPage() {
   });
 
   /**
-   * * requestData: ดึงข้อมูลโครงการและฟีเจอร์ย่อยทั้งหมดจาก API
+   * * requestSubProjectData: ดึงข้อมูลโครงการและฟีเจอร์ย่อยทั้งหมดจาก API
    */
-  const requestData = useCallback(async () => {
+  const requestSubProjectData = useCallback(async () => {
     setIsLoading(true);
     try {
       const [projectRes, subProjectRes, statusRes, allProjectsRes] =
@@ -203,11 +203,6 @@ export default function SubProjectPage() {
       }
 
       if (allTicketNumbers.length > 0) {
-        // ในที่นี้เราจะดึงข้อมูลทีละ Ticket หรือจะใช้ keyword search แต่ API ปัจจุบันรองรับ q (keyword)
-        // เพื่อประสิทธิภาพ เราจะดึงข้อมูล Issue details
-        // หมายเหตุ: API /api/v1/backlog/issues สามารถใช้ q เพื่อค้นหาได้
-        // แต่การดึง many issues by keys อาจไม่มี API ตรงๆ ที่รับ array of keys
-        // ดังนั้นเราจะวนลูบคีย์ที่สำคัญ หรือใช้การค้นหาแบบรวม
         hydrationPromises.push(
           Promise.all(
             allTicketNumbers.map((ticket) =>
@@ -253,16 +248,17 @@ export default function SubProjectPage() {
       }
 
       setAllSubProjects(fetchedSubProjects);
+      toast.success("ดาวน์โหลดข้อมูลแสดงรายการฟีเจอร์ย่อยสมบูรณ์");
     } catch (error) {
-      toast.error("ไม่สามารถโหลดข้อมูลได้");
+      toast.error("ไม่สามารถโหลดข้อมูลฟีเจอร์ย่อยได้ในขณะนี้");
     } finally {
       setIsLoading(false);
     }
   }, [projectId]);
 
   useEffect(() => {
-    requestData();
-  }, [requestData]);
+    requestSubProjectData();
+  }, [requestSubProjectData]);
 
   /**
    * * filteredSubProjects: กรองข้อมูลฟีเจอร์ย่อยตามเงื่อนไขค้นหา
@@ -339,7 +335,6 @@ export default function SubProjectPage() {
         ? Math.round((baseStats.processing / baseStats.total) * 100)
         : 0;
 
-    // logic 100 - x ตามมาตรฐาน SchoolBright
     const completedPercent = baseStats.total > 0 ? 100 - processingPercent : 0;
 
     return {
@@ -350,9 +345,9 @@ export default function SubProjectPage() {
   }, [allSubProjects, projectStatuses]);
 
   /**
-   * * handleSubmit: ส่งข้อมูลฟีเจอร์ย่อย (สร้าง/แก้ไข) ไปยัง API
+   * * submitSubProjectForm: ส่งข้อมูลฟีเจอร์ย่อย (สร้าง/แก้ไข) ไปยัง API
    */
-  const handleSubmit = async (values: any) => {
+  const submitSubProjectForm = async (values: any): Promise<boolean> => {
     setIsActionLoading(true);
     try {
       const payload = {
@@ -374,8 +369,9 @@ export default function SubProjectPage() {
         title: values.id ? "อัปเดตข้อมูลสำเร็จ" : "สร้างข้อมูลสำเร็จ",
         message: `บันทึกข้อมูล ${values.name} เรียบร้อยแล้ว`,
       });
-      await requestData();
+      await requestSubProjectData();
       setModalState({ type: null, data: null });
+      return true;
     } catch (error) {
       setStatusModal({
         open: true,
@@ -383,29 +379,30 @@ export default function SubProjectPage() {
         title: "เกิดข้อผิดพลาด",
         message: "ไม่สามารถบันทึกข้อมูลได้ในขณะนี้",
       });
+      return false;
     } finally {
       setIsActionLoading(false);
     }
   };
 
   /**
-   * * handleDelete: ลบฟีเจอร์ย่อยออกจากระบบ
+   * * deleteSubProjectById: เตรียมข้อมูลเพื่อลบฟีเจอร์ย่อย
    */
-  const handleDelete = async (id: number) => {
+  const deleteSubProjectById = async (id: number) => {
     const target = allSubProjects.find((p) => p.id === id);
     setStatusModal({
       open: true,
       type: "delete",
-      title: "ยืนยันการลบฟีเจอร์",
-      message: `คุณกำลังจะลบฟีเจอร์ "${target?.name || "ไม่ระบุชื่อ"}" ใช่หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้`,
+      title: "ยืนยันการลบฟีเจอร์ย่อย",
+      message: `คุณกำลังจะลบฟีเจอร์ย่อย "${target?.name || "ไม่ระบุชื่อ"}" ใช่หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้`,
       data: id,
     });
   };
 
   /**
-   * * confirmDelete: ฟังก์ชันที่ทำงานจริงเมื่อกดปุ่มยืนยันใน Modal
+   * * executeSubProjectDelete: ฟังก์ชันที่ทำงานจริงเมื่อกดปุ่มยืนยันใน Modal เพื่อลบข้อมูล
    */
-  const confirmDelete = async () => {
+  const executeSubProjectDelete = async () => {
     const id = statusModal.data;
     if (!id) return;
 
@@ -426,7 +423,7 @@ export default function SubProjectPage() {
           title: "ลบข้อมูลสำเร็จ",
           message: "ระบบได้ทำการลบรายการฟีเจอร์ย่อยเรียบร้อยแล้ว",
         });
-        await requestData();
+        await requestSubProjectData();
       } else {
         throw new Error("Failed to delete");
       }
@@ -443,9 +440,9 @@ export default function SubProjectPage() {
   };
 
   /**
-   * * handleCopyAllFeatures: คัดลอกรายชื่อฟีเจอร์ทั้งหมดลง Clipboard
+   * * copyAllSubProjectNamesToClipboard: คัดลอกรายชื่อฟีเจอร์ทั้งหมดลง Clipboard
    */
-  const handleCopyAllFeatures = async () => {
+  const copyAllSubProjectNamesToClipboard = async () => {
     try {
       const projectName =
         projectData?.name || t("sub_project_page.default_title");
@@ -459,9 +456,9 @@ export default function SubProjectPage() {
         .join("\n");
       const textToCopy = `${projectName}\n${featureList}\n\n---------------------------------------`;
       await navigator.clipboard.writeText(textToCopy);
-      toast.success(t("sub_project_page.copy_all_success"));
+      toast.success("คัดลอกรายชื่อฟีเจอร์ทั้งหมดลง Clipboard สำเร็จ");
     } catch (error) {
-      toast.error(t("sub_project_page.copy_error"));
+      toast.error("ไม่สามารถคัดลอกข้อมูลได้ในขณะนี้");
     }
   };
 
@@ -693,7 +690,7 @@ export default function SubProjectPage() {
                 label: "ลบรายการ",
                 icon: <DeleteOutlined />,
                 danger: true,
-                onClick: () => handleDelete(record.id),
+                onClick: () => deleteSubProjectById(record.id),
               },
             ],
           }}
@@ -708,7 +705,7 @@ export default function SubProjectPage() {
   return (
     <DashboardLayout>
       <div className="mx-auto p-2 md:p-6 space-y-6">
-        {/* ส่วนที่ 1: หัวข้อหน้าเว็ป */}
+        {/* ส่วนที่ 1: หัวข้อหน้าเว็บ (Header Bar) */}
         <HeaderBar
           icon={<ProjectOutlined />}
           title={projectData?.name || t("sub_project_page.default_title")}
@@ -718,7 +715,7 @@ export default function SubProjectPage() {
             <Space>
               <Button
                 icon={<ReloadOutlined />}
-                onClick={requestData}
+                onClick={requestSubProjectData}
                 style={{ fontWeight: 600 }}
               >
                 รีเฟรชข้อมูล
@@ -735,7 +732,7 @@ export default function SubProjectPage() {
           }
         />
 
-        {/* ส่วนที่ 2: บัตรสรุปข้อมูล (Summary Cards) */}
+        {/* ส่วนที่ 2: บัตรสรุปข้อมูลภาพรวม (Summary Cards) */}
         <Row gutter={[20, 20]}>
           <Col xs={24} sm={12} lg={6}>
             <SummaryCard
@@ -785,17 +782,20 @@ export default function SubProjectPage() {
           style={{ borderRadius: 16 }}
           styles={{ body: { padding: 24 } }}
         >
-          <Flex align="center" gap={8} className="mb-6">
+          <Flex align="center" gap={12} style={{ marginBottom: 16 }}>
             <FilterOutlined
-              style={{ color: token.colorPrimary, fontSize: 18 }}
+              style={{ color: token.colorPrimary, fontSize: "1rem" }}
             />
-            <Title level={5} style={{ margin: 0, fontWeight: 600 }}>
+            <Title
+              level={4}
+              style={{ margin: 0, fontWeight: 600, fontSize: "1rem" }}
+            >
               ตัวกรอง
             </Title>
           </Flex>
 
-          <Row gutter={[24, 16]}>
-            <Col xs={24} md={8}>
+          <Row gutter={[24, 24]}>
+            <Col xs={24} md={12}>
               <Text
                 strong
                 style={{ fontSize: 13, display: "block", marginBottom: 8 }}
@@ -815,7 +815,7 @@ export default function SubProjectPage() {
                 allowClear
               />
             </Col>
-            <Col xs={24} md={8}>
+            <Col xs={24} md={12}>
               <Text
                 strong
                 style={{ fontSize: 13, display: "block", marginBottom: 8 }}
@@ -836,7 +836,7 @@ export default function SubProjectPage() {
                 ]}
               />
             </Col>
-            <Col xs={24} md={8}>
+            <Col xs={24} md={12}>
               <Text
                 strong
                 style={{ fontSize: 13, display: "block", marginBottom: 8 }}
@@ -879,41 +879,47 @@ export default function SubProjectPage() {
               type="primary"
               icon={<SearchOutlined />}
               style={{ fontWeight: 600, padding: "0 32px" }}
-              onClick={requestData}
+              onClick={requestSubProjectData}
             >
               ค้นหาข้อมูล
             </Button>
           </Flex>
         </Card>
 
-        {/* ส่วนที่ 4: ตารางข้อมูลเนื้อหา */}
+        {/* ส่วนที่ 4: ตารางแสดงรายการข้อมูล (Content Table) */}
         <Card
           styles={{ body: { padding: 16 } }}
           style={{
             borderRadius: 16,
             overflow: "hidden",
             border: `1px solid ${token.colorBorderSecondary}`,
+            marginBottom: 24,
           }}
         >
           <Flex
             justify="space-between"
             align="center"
             style={{
-              marginBottom: 12,
+              marginBottom: 16,
             }}
           >
             <Space size={12}>
-              <SolutionOutlined
-                style={{ color: token.colorPrimary, fontSize: 18 }}
+              <UnorderedListOutlined
+                style={{ color: token.colorPrimary, fontSize: "1rem" }}
               />
-              <Title level={5} style={{ margin: 0, fontWeight: 600 }}>
-                {t("sub_project_page.table_title")}
+              <Title
+                level={4}
+                style={{ margin: 0, fontWeight: 600, fontSize: "1rem" }}
+              >
+                รายการฟีเจอร์ย่อย
               </Title>
               <Badge
                 count={filteredSubProjects.length}
+                showZero
                 style={{
                   backgroundColor: token.colorPrimaryBg,
                   color: token.colorPrimary,
+                  fontWeight: 600,
                 }}
               />
             </Space>
@@ -921,8 +927,9 @@ export default function SubProjectPage() {
             <Tooltip title={t("sub_project_page.copy_all_tooltip")}>
               <Button
                 icon={<CopyOutlined />}
-                onClick={handleCopyAllFeatures}
+                onClick={copyAllSubProjectNamesToClipboard}
                 disabled={filteredSubProjects.length === 0}
+                style={{ fontWeight: 600 }}
               >
                 คัดลอกรายชื่อทั้งหมด
               </Button>
@@ -947,11 +954,12 @@ export default function SubProjectPage() {
               showSizeChanger: true,
               showTotal: (total) => `ทั้งหมด ${total} รายการ`,
             }}
-            scroll={{ x: 1000 }}
+            scroll={{ x: 1200 }}
+            style={{ borderRadius: 8 }}
           />
         </Card>
 
-        {/* Modals Logic */}
+        {/* ส่วนของ Modals ต่างๆ */}
         <SubProjectFormModal
           open={
             modalState.type === "create" ||
@@ -961,7 +969,7 @@ export default function SubProjectPage() {
           mode={modalState.type as any}
           data={modalState.data}
           loading={isActionLoading}
-          onSubmit={handleSubmit}
+          onSubmit={submitSubProjectForm}
           statuses={projectStatuses}
           allProjects={allProjects}
           onCancel={() => setModalState({ type: null, data: null })}
@@ -979,7 +987,9 @@ export default function SubProjectPage() {
           title={statusModal.title}
           message={statusModal.message}
           loading={isActionLoading}
-          onConfirm={statusModal.type === "delete" ? confirmDelete : undefined}
+          onConfirm={
+            statusModal.type === "delete" ? executeSubProjectDelete : undefined
+          }
           onClose={() => setStatusModal((prev) => ({ ...prev, open: false }))}
         />
       </div>
