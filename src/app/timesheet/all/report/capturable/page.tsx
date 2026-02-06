@@ -743,10 +743,7 @@ export default function CapturableReportPage() {
         <Modal
           title={
             <Space size={12}>
-              <Badge
-                count={<SearchOutlined style={{ color: "white" }} />}
-                style={{ backgroundColor: token.colorPrimary }}
-              >
+              <Badge style={{ backgroundColor: token.colorPrimary }}>
                 <Avatar
                   shape="square"
                   size="large"
@@ -785,11 +782,11 @@ export default function CapturableReportPage() {
           className="rounded-2xl"
         >
           {selectedProject && (
-            <div className="py-2">
+            <Flex vertical gap={24} className="py-2">
               <Descriptions
                 bordered
                 size="small"
-                className="mb-6 overflow-hidden rounded-xl border-none"
+                className="overflow-hidden rounded-xl border-none"
                 column={{ xs: 1, sm: 2, md: 3 }}
                 items={[
                   {
@@ -802,7 +799,6 @@ export default function CapturableReportPage() {
                         <Text strong>{selectedProject.project_name}</Text>
                       </Space>
                     ),
-                    span: 2,
                   },
                   {
                     label: "ชั่วโมงรวมทั้งหมด",
@@ -831,7 +827,6 @@ export default function CapturableReportPage() {
                         </Text>
                       </Space>
                     ),
-                    span: 3,
                   },
                 ]}
               />
@@ -874,14 +869,17 @@ export default function CapturableReportPage() {
                           <Table
                             dataSource={featureTracking}
                             rowKey="entry_id"
-                            pagination={
-                              featureTracking.length > 5
-                                ? { pageSize: 5, size: "small" }
-                                : false
-                            }
+                            loading={trackingLoading}
+                            pagination={{
+                              pageSize: 10,
+                              size: "small",
+                              showSizeChanger: true,
+                              pageSizeOptions: ["10", "20", "50"],
+                              showTotal: (total) => `ทั้งหมด ${total} รายการ`,
+                            }}
                             size="small"
                             bordered
-                            scroll={{ x: 1000, y: 350 }}
+                            scroll={{ x: 1000 }}
                             columns={[
                               {
                                 title: "ผู้ลงเวลา",
@@ -999,11 +997,7 @@ export default function CapturableReportPage() {
                               },
                             ]}
                             locale={{
-                              emptyText: trackingLoading ? (
-                                <Table.Summary.Cell index={0} align="center">
-                                  <div className="py-4">กำลังโหลดข้อมูล...</div>
-                                </Table.Summary.Cell>
-                              ) : (
+                              emptyText: (
                                 <Empty
                                   image={Empty.PRESENTED_IMAGE_SIMPLE}
                                   description="ไม่พบประวัติการลงเวลา"
@@ -1126,14 +1120,13 @@ export default function CapturableReportPage() {
               </div>
 
               <Alert
-                className="mt-6"
                 message="มาตรฐานการตรวจสอบระบบ (IPO Traceability Protocol)"
                 description="ข้อมูลการลงเวลาถูกแยกประเภทตาม Capitalization Rules โดยระบบรองรับการ Audit รายบุคคล (User-level Drill down) เพื่อใช้เป็นหลักฐานประกอบการลงบัญชี Capitalization ทรัพย์สิน และ Expense รายจ่ายของบริษัท"
                 type="info"
                 showIcon
                 icon={<InfoCircleOutlined />}
               />
-            </div>
+            </Flex>
           )}
         </Modal>
         {contextHolder}
