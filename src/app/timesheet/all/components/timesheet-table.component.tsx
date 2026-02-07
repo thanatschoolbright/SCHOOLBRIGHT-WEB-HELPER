@@ -813,14 +813,20 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                   className="w-full"
                   placeholder="เลือกบทบาท เช่น QA, Developer, Designer..."
                   options={[
-                    { label: "Software Engineer / Developer", value: "Software Engineer" },
+                    {
+                      label: "Software Engineer / Developer",
+                      value: "Software Engineer",
+                    },
                     { label: "QA / Tester", value: "Quality Assurance (QA)" },
                     { label: "System Analyst (SA)", value: "System Analyst" },
                     { label: "UI/UX Designer", value: "UI/UX Designer" },
                     { label: "Project Manager (PM)", value: "Project Manager" },
                     { label: "Product Owner (PO)", value: "Product Owner" },
                     { label: "Graphic Designer", value: "Graphic Designer" },
-                    { label: "Content Creator / Copywriter", value: "Content Creator" },
+                    {
+                      label: "Content Creator / Copywriter",
+                      value: "Content Creator",
+                    },
                   ]}
                   value={selectedRole}
                   onChange={setSelectedRole}
