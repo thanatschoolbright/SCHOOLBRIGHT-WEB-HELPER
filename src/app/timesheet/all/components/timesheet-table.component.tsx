@@ -95,6 +95,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
   const [selectedEngine, setSelectedEngine] = useState<"gemini" | "chatgpt">(
     "gemini",
   );
+  const [selectedRole, setSelectedRole] = useState<string>("Software Engineer");
   const [summaryModalOpen, setSummaryModalOpen] = useState(false);
   const [summaryResults, setSummaryResults] = useState<any[]>([]);
 
@@ -297,6 +298,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
             engine: selectedEngine,
             projectId: selectedProjectId,
             subProjectId: selectedSubProjectId,
+            role: selectedRole,
           },
         );
 
@@ -794,6 +796,50 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                       color: token.colorPrimary,
                     }}
                   >
+                    <TrophyOutlined />
+                  </div>
+                  <Text
+                    strong
+                    style={{
+                      fontSize: 13,
+                      textTransform: "uppercase",
+                      letterSpacing: 0.5,
+                    }}
+                  >
+                    2. เลือกบทบาทที่ทำหน้าที่จริง
+                  </Text>
+                </Flex>
+                <Select
+                  className="w-full"
+                  placeholder="เลือกบทบาท เช่น QA, Developer, Designer..."
+                  options={[
+                    { label: "Software Engineer / Developer", value: "Software Engineer" },
+                    { label: "QA / Tester", value: "Quality Assurance (QA)" },
+                    { label: "System Analyst (SA)", value: "System Analyst" },
+                    { label: "UI/UX Designer", value: "UI/UX Designer" },
+                    { label: "Project Manager (PM)", value: "Project Manager" },
+                    { label: "Product Owner (PO)", value: "Product Owner" },
+                    { label: "Graphic Designer", value: "Graphic Designer" },
+                    { label: "Content Creator / Copywriter", value: "Content Creator" },
+                  ]}
+                  value={selectedRole}
+                  onChange={setSelectedRole}
+                  showSearch
+                  size="large"
+                  style={{ borderRadius: 12 }}
+                />
+              </section>
+
+              <section>
+                <Flex align="center" gap={8} className="mb-3">
+                  <div
+                    style={{
+                      padding: 6,
+                      borderRadius: 8,
+                      background: addAlpha(token.colorPrimary, 0.1),
+                      color: token.colorPrimary,
+                    }}
+                  >
                     <EnvironmentOutlined />
                   </div>
                   <Text
@@ -804,7 +850,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                       letterSpacing: 0.5,
                     }}
                   >
-                    2. กำหนดปลายทาง (ช่วงวันที่)
+                    3. กำหนดปลายทาง (ช่วงวันที่)
                   </Text>
                 </Flex>
                 <RangePicker
@@ -837,7 +883,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                       letterSpacing: 0.5,
                     }}
                   >
-                    3. เลือกโปรเจกต์เป้าหมาย
+                    4. เลือกโปรเจกต์เป้าหมาย
                   </Text>
                 </Flex>
                 <Select
@@ -881,7 +927,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                       letterSpacing: 0.5,
                     }}
                   >
-                    4. เลือกฟีเจอร์ (Feature)
+                    5. เลือกฟีเจอร์ (Feature)
                   </Text>
                 </Flex>
                 <Select
@@ -927,7 +973,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                         letterSpacing: 0.5,
                       }}
                     >
-                      5. ระบุปริมาณงาน (ชั่วโมง)
+                      6. ระบุปริมาณงาน (ชั่วโมง)
                     </Text>
                   </Flex>
                   <InputNumber
@@ -963,7 +1009,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                       letterSpacing: 0.5,
                     }}
                   >
-                    6. เลือกเครื่องยนต์ AI (Engine)
+                    7. เลือกเครื่องยนต์ AI (Engine)
                   </Text>
                 </Flex>
                 <Select

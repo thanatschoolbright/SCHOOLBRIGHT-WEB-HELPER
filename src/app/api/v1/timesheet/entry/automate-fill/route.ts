@@ -35,6 +35,7 @@ export async function POST(request: Request) {
     engine = "gemini",
     projectId: targetProjectId,
     subProjectId: targetSubProjectId,
+    role: targetRole,
   } = body;
   const dates: (string | Date)[] = Array.isArray(date)
     ? date
@@ -106,6 +107,7 @@ export async function POST(request: Request) {
         let subProjectId = targetSubProjectId;
         let projectName = targetProjectName;
         let featureName = targetFeatureName;
+        let role = targetRole;
 
         // Fallback to random history if target not provided
         if (!projectId || !subProjectId) {
@@ -146,6 +148,7 @@ export async function POST(request: Request) {
             history,
             projectName,
             featureName,
+            role,
             fallback: `Working on ${featureName} in project ${projectName}`,
           });
         } else {
@@ -153,6 +156,7 @@ export async function POST(request: Request) {
             history,
             projectName,
             featureName,
+            role,
             fallback: `Working on ${featureName} in project ${projectName}`,
           });
         }

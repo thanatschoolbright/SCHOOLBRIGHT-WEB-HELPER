@@ -11,11 +11,13 @@ export async function generateDescriptionWithChatGPT({
   fallback,
   projectName,
   featureName,
+  role: userRole,
 }: {
   history: HistoryEntry[];
   fallback?: string | null;
   projectName?: string;
   featureName?: string;
+  role?: string;
 }) {
   const apiKey = process.env.CHATGPT_API_KEY;
   if (!apiKey || !history.length) {
@@ -52,9 +54,11 @@ ${JSON.stringify(historySample, null, 2)}`;
 โจทย์ปัจจุบัน:
 Project: ${projectName}
 Feature: ${featureName}
+Role (บทบาทพนักงาน): ${userRole || "ไม่ระบุ"}
 
 คำสั่งพิเศษ:
-- เขียนรายละเอียดงานที่ทำจริงสำหรับ "${featureName}" ของโปรเจกต์ "${projectName}"
+- เขียนรายละเอียดงานที่ทำจริงสำหรับ "${featureName}" ของโปรเจกต์ "${projectName}" ในฐานะพนักงานตำแหน่ง "${userRole || "ไม่ระบุ"}"
+- เนื้อหาต้องสอดคล้องกับบทบาท เช่น ถ้าเป็น QA ต้องเน้นตรวจอบ, ถ้าเป็น Developer ต้องเน้นพัฒนาระบบหรือแก้ Bug
 - อธิบายขั้นตอนหรือเป้าหมายที่พนักงานทำ เช่น การออกแบบระบบ, การจัดการข้อมูล, หรือการปรับปรุงประสิทธิภาพ
 - ห้ามมีคำเกริ่นนำประเภท "พัฒนาฟีเจอร์..." หรือ "ในโปรเจกต์..." ให้เริ่มที่กริยาอาการที่ทำเลย`;
   }
