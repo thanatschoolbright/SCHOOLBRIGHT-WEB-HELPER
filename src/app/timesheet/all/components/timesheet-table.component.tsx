@@ -1,63 +1,58 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import { fetchUserRanking } from "@/services/timesheet/find-ranking.service";
 import {
-  Card,
-  Table,
-  Typography,
-  Space,
-  Tag,
-  Progress,
-  Empty,
-  Button,
-  Modal,
-  Select,
-  DatePicker,
-  InputNumber,
-  Steps,
-  Avatar,
-  Flex,
-  Timeline,
-  Collapse,
-  theme,
-  Badge,
-  Divider,
-} from "antd";
-import { toast } from "sonner";
-import type { ColumnsType, TableProps } from "antd/es/table";
+  GET_PROJECTS,
+  GET_SUB_PROJECTS_BY_PROJECT,
+} from "@/services/timesheet/timesheet-all.service";
 import {
-  UserOutlined,
-  ThunderboltOutlined,
-  InfoCircleOutlined,
-  MailOutlined,
-  PhoneOutlined,
-  TrophyOutlined,
-  SolutionOutlined,
-  RocketOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
-  LoadingOutlined,
   EnvironmentOutlined,
-  CarOutlined,
-  HistoryOutlined,
-  RightOutlined,
   FileTextOutlined,
-  ClockCircleTwoTone,
-  CalendarOutlined,
+  InfoCircleOutlined,
   LinkOutlined,
+  ProjectOutlined,
+  RocketOutlined,
+  SolutionOutlined,
+  ThunderboltOutlined,
+  TrophyOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
-import { useTranslation } from "react-i18next";
-import dayjs from "dayjs";
+import {
+  Avatar,
+  Badge,
+  Button,
+  Collapse,
+  DatePicker,
+  Empty,
+  Flex,
+  InputNumber,
+  Modal,
+  Progress,
+  Select,
+  Space,
+  Steps,
+  Table,
+  Tag,
+  theme,
+  Timeline,
+  Typography,
+} from "antd";
+import type { ColumnsType, TableProps } from "antd/es/table";
 import axios from "axios";
+import dayjs from "dayjs";
+import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { SummaryMetadata, SummaryRecord } from "../types/timesheet.types";
 import {
   buildFullName,
-  formatNickname,
   formatBreakdown,
+  formatNickname,
   getPositionColor,
 } from "../utils/timesheet.helpers";
 import { StatusBadge } from "./status-badge.component";
-import { fetchUserRanking } from "@/services/timesheet/find-ranking.service";
 
 const { RangePicker } = DatePicker;
 const { Text, Title } = Typography;
@@ -103,6 +98,14 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
   const [summaryModalOpen, setSummaryModalOpen] = useState(false);
   const [summaryResults, setSummaryResults] = useState<any[]>([]);
 
+  // --- New States for Project/Feature Selection ---
+  const [projectsList, setProjectsList] = useState<any[]>([]);
+  const [subProjectsList, setSubProjectsList] = useState<any[]>([]);
+  const [selectedProjectId, setSelectedProjectId] = useState<number>();
+  const [selectedSubProjectId, setSelectedSubProjectId] = useState<number>();
+  const [projectsLoading, setProjectsLoading] = useState(false);
+  const [subProjectsLoading, setSubProjectsLoading] = useState(false);
+
   // --- Memos ---
   const userOptions = useMemo(
     () =>
@@ -121,6 +124,44 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
     }
     return 8;
   }, [metadata]);
+
+  // --- Load projects on open ---
+  useEffect(() => {
+    if (autoFillOpen && projectsList.length === 0) {
+      loadProjects();
+    }
+  }, [autoFillOpen, projectsList.length]);
+
+  const loadProjects = async () => {
+    setProjectsLoading(true);
+    try {
+      const data = await GET_PROJECTS({ limit: 100, page: 1 });
+      setProjectsList(data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setProjectsLoading(false);
+    }
+  };
+
+  const loadSubProjects = async (pid: number) => {
+    setSubProjectsLoading(true);
+    try {
+      const data = await GET_SUB_PROJECTS_BY_PROJECT(pid);
+      setSubProjectsList(data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSubProjectsLoading(false);
+    }
+  };
+
+  const handleProjectChange = (pid: number) => {
+    setSelectedProjectId(pid);
+    setSelectedSubProjectId(undefined);
+    setSubProjectsList([]);
+    loadSubProjects(pid);
+  };
 
   // --- Ranking Loader ---
   useEffect(() => {
@@ -254,6 +295,8 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
             hours: tasks[i].hours,
             date: [tasks[i].date],
             engine: selectedEngine,
+            projectId: selectedProjectId,
+            subProjectId: selectedSubProjectId,
           },
         );
 
@@ -682,7 +725,12 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         }
         open={autoFillOpen}
         onOk={requestAutoFillTimesheet}
-        onCancel={onAutoFillClose}
+        onCancel={() => {
+          setSelectedProjectId(undefined);
+          setSelectedSubProjectId(undefined);
+          setSubProjectsList([]);
+          onAutoFillClose?.();
+        }}
         confirmLoading={autoFillLoading}
         width={540}
         centered
@@ -769,6 +817,95 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 />
               </section>
 
+              <section>
+                <Flex align="center" gap={8} className="mb-3">
+                  <div
+                    style={{
+                      padding: 6,
+                      borderRadius: 8,
+                      background: addAlpha(token.colorPrimary, 0.1),
+                      color: token.colorPrimary,
+                    }}
+                  >
+                    <ProjectOutlined />
+                  </div>
+                  <Text
+                    strong
+                    style={{
+                      fontSize: 13,
+                      textTransform: "uppercase",
+                      letterSpacing: 0.5,
+                    }}
+                  >
+                    3. เลือกโปรเจกต์เป้าหมาย
+                  </Text>
+                </Flex>
+                <Select
+                  className="w-full"
+                  placeholder="เลือกโปรเจกต์..."
+                  loading={projectsLoading}
+                  options={projectsList.map((p) => ({
+                    label: p.name,
+                    value: p.id,
+                  }))}
+                  value={selectedProjectId}
+                  onChange={handleProjectChange}
+                  showSearch
+                  filterOption={(input, option) =>
+                    String(option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  size="large"
+                  style={{ borderRadius: 12 }}
+                />
+              </section>
+
+              <section>
+                <Flex align="center" gap={8} className="mb-3">
+                  <div
+                    style={{
+                      padding: 6,
+                      borderRadius: 8,
+                      background: addAlpha(token.colorPrimary, 0.1),
+                      color: token.colorPrimary,
+                    }}
+                  >
+                    <SolutionOutlined />
+                  </div>
+                  <Text
+                    strong
+                    style={{
+                      fontSize: 13,
+                      textTransform: "uppercase",
+                      letterSpacing: 0.5,
+                    }}
+                  >
+                    4. เลือกฟีเจอร์ (Feature)
+                  </Text>
+                </Flex>
+                <Select
+                  className="w-full"
+                  placeholder="เลือกฟีเจอร์..."
+                  loading={subProjectsLoading}
+                  disabled={!selectedProjectId}
+                  options={subProjectsList.map((f) => ({
+                    label: f.name,
+                    value: f.id,
+                  }))}
+                  value={selectedSubProjectId}
+                  onChange={setSelectedSubProjectId}
+                  showSearch
+                  filterOption={(input, option) =>
+                    String(option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  size="large"
+                  style={{ borderRadius: 12 }}
+                />
+              </section>
+
               {selectedRange[0]?.isSame(selectedRange[1], "day") && (
                 <section className="animate-in fade-in slide-in-from-top-2 duration-300">
                   <Flex align="center" gap={8} className="mb-3">
@@ -790,7 +927,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                         letterSpacing: 0.5,
                       }}
                     >
-                      3. ระบุปริมาณงาน (ชั่วโมง)
+                      5. ระบุปริมาณงาน (ชั่วโมง)
                     </Text>
                   </Flex>
                   <InputNumber
@@ -826,7 +963,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                       letterSpacing: 0.5,
                     }}
                   >
-                    4. เลือกเครื่องยนต์ AI (Engine)
+                    6. เลือกเครื่องยนต์ AI (Engine)
                   </Text>
                 </Flex>
                 <Select

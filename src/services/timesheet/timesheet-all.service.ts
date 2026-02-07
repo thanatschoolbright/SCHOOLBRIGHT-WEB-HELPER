@@ -1,11 +1,11 @@
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import { toast } from "sonner";
 
+import type { Project, SubProject } from "@/stores/type";
 import type {
   TimesheetEntry,
   TimesheetExportData,
 } from "@/types/timesheet-table.types";
-import type { Project, SubProject } from "@/stores/type";
 
 //** Interface สำหรับ Response ของ API */
 interface ApiResponse<T> {
@@ -17,13 +17,6 @@ interface ApiResponse<T> {
   };
   message_en?: string;
   message_th?: string;
-}
-
-interface SubProjectResponse {
-  data?: {
-    items: SubProject[];
-    total: number;
-  };
 }
 
 //** Service สำหรับจัดการข้อมูล Timesheet Entries */
@@ -109,7 +102,7 @@ export const GET_SUB_PROJECTS_BY_PROJECT = async (
   const toastId = toast.loading("กำลังโหลดโครงการย่อย...");
 
   try {
-    const response = await axios.post<SubProjectResponse>(
+    const response = await axios.post<ApiResponse<SubProject[]>>(
       "/api/v1/timesheet/project/sub-project/read/",
       {
         limit: 200,
@@ -118,7 +111,7 @@ export const GET_SUB_PROJECTS_BY_PROJECT = async (
       },
     );
 
-    const subProjects = response.data?.data?.items ?? [];
+    const subProjects = response.data?.data ?? [];
     toast.success("โหลดโครงการย่อยสำเร็จ", { id: toastId });
 
     return subProjects;

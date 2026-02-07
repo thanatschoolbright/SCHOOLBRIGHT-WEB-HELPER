@@ -25,9 +25,13 @@ const extractText = (payload: any) =>
 export async function generateDescriptionWithGemini({
   history,
   fallback,
+  projectName,
+  featureName,
 }: {
   history: HistoryEntry[];
   fallback?: string | null;
+  projectName?: string;
+  featureName?: string;
 }) {
   const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
   if (!apiKey || !history.length) {
@@ -40,23 +44,36 @@ export async function generateDescriptionWithGemini({
     feature: item.feature?.name,
   }));
 
-  const prompt = `Role: คุณคือ AI Assistant ที่ช่วยเขียน Timesheet สำหรับบริษัท Software ด้านการศึกษา (EdTech) ที่พัฒนาจัดการโรงเรียนครบวงจร
+  let prompt = `Role: คุณคือ AI Assistant ที่ช่วยเขียน Timesheet สำหรับบริษัท Software ด้านการศึกษา (EdTech) ที่พัฒนาจัดการโรงเรียนครบวงจร
 
 Context:
 - งานต้องเกี่ยวข้องกับระบบการศึกษา เช่น: **ระบบวิชาการ, ระบบเกรด/วัดผล, ระบบพฤติกรรม, ระบบตารางสอน, ระบบห้องเรียน, ระบบการเงินโรงเรียน, ระบบรับสมัครนักเรียน** เป็นต้น
-- ต้องเขียนให้สอดคล้องกับ "Project" และ "Feature" ที่ระบุใน Input เสมอ
+- ต้องเขียนให้คลอบคลุมเนื้องานที่ทำจริง โดยอ้างอิงจาก Feature และ Project
 
 Guidelines:
-1. เขียนบรรยายงานสั้นๆ (One-liner) กระชับ เป็นธรรมชาติ
-2. **ห้าม** สร้างรหัส Ticket MOCK UP (เช่น DEV-123) เด็ดขาด
-3. ถ้าจะใส่รหัสงาน ต้องใช้ Prefix ที่ถูกต้องเท่านั้น: "SB-", "SBAPP-", "ACA-", "SH-", "ACC-"
-4. ถ้าไม่มีรหัสในประวัติ ให้เน้นชื่อ Feature หรือ Module เป็นหลัก
-5. ภาษาที่ใช้: ทางการแต่ทันสมัย (Semi-formal) เหมาะกับคนทำงาน Tech ในสายการศึกษา
+1. **เริ่มประโยคด้วยกริยาการกระทำทันที** เช่น "ดำเนินการ...", "มุ่งเน้นการสร้าง...", "วิจัยและออกแบบ...", "พัฒนาส่วนขยาย..."
+2. **ห้าม** พูดซ้ำว่า "พัฒนาฟีเจอร์ X ในโปรเจกต์ Y" หรือ "สำหรับฟีเจอร์..." เพราะเป็นข้อมูลที่ซ้ำซ้อน
+3. **ตัดส่วนเกริ่นนำทิ้งทั้งหมด** ให้เข้าเรื่องเนื้องานที่ทำในฟีเจอร์นั้นๆ ทันที
+4. **ห้าม** สร้างรหัส Ticket MOCK UP (เช่น DEV-123)
+5. ถ้าจะใส่รหัสงาน ต้องใช้ Prefix: "SB-", "SBAPP-", "ACA-", "SH-", "ACC-"
+6. ภาษาที่ใช้: ทางการแต่ทันสมัย (Semi-formal)
+7. **ความยาวต้องเกิน 100 ตัวอักษร** โดยให้อธิบายถึงรายละเอียดเนื้องานและผลลัพธ์ที่ได้จากการทำฟีเจอร์นั้นๆ อย่างสังเขปแต่ได้ใจความ
 
-Input History (ประวัติงานที่ผ่านมา):
+โจทย์ปัจจุบัน:
+Project: ${projectName}
+Feature: ${featureName}
+
+คำสั่งพิเศษ:
+- เขียนรายละเอียดงานที่ทำจริงสำหรับ "${featureName}" ของโปรเจกต์ "${projectName}"
+- อธิบายขั้นตอนหรือเป้าหมายที่พนักงานทำ เช่น การออกแบบระบบ, การจัดการข้อมูล, หรือการปรับปรุงประสิทธิภาพ
+- ห้ามมีคำเกริ่นนำประเภท "พัฒนาฟีเจอร์..." หรือ "ในโปรเจกต์..." ให้เริ่มที่กริยาอาการที่ทำเลย`;
+
+  prompt += `
+
+Input History (ประวัติงานที่ผ่านมาเพื่อดูสไตล์):
 ${JSON.stringify(historySample, null, 2)}
 
-Output: ขอข้อความสั้นๆ 1 บรรทัด สำหรับรายการล่าสุด`;
+Output: ขอข้อความบรรยายงาน 1 รายการตามโจทย์ที่ได้รับ (ส่งคืนเฉพาะข้อความบรรยายเท่านั้น)`;
 
   const contents = [{ role: "user", parts: [{ text: prompt }] }];
 
@@ -70,7 +87,7 @@ Output: ขอข้อความสั้นๆ 1 บรรทัด สำ�
           headers: { "Content-Type": "application/json" },
           timeout: 8000,
           validateStatus: () => true,
-        }
+        },
       );
       if (response.status >= 200 && response.status < 300) {
         const text = extractText(response);
