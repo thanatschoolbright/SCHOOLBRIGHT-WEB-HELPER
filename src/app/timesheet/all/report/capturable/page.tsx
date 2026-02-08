@@ -892,6 +892,10 @@ export default function CapturableReportPage() {
                                 title: "ผู้ลงเวลา",
                                 key: "user",
                                 width: 240,
+                                sorter: (a: any, b: any) =>
+                                  (a.user_name || "").localeCompare(
+                                    b.user_name || "",
+                                  ),
                                 render: (_, t) => (
                                   <Space>
                                     <Avatar
@@ -922,6 +926,8 @@ export default function CapturableReportPage() {
                                 key: "date",
                                 width: 130,
                                 align: "center",
+                                sorter: (a: any, b: any) =>
+                                  dayjs(a.date).unix() - dayjs(b.date).unix(),
                                 render: (d) => dayjs(d).format("DD/MM/YYYY"),
                               },
                               {
@@ -990,6 +996,7 @@ export default function CapturableReportPage() {
                                 key: "hours",
                                 width: 100,
                                 align: "right",
+                                sorter: (a: any, b: any) => a.hours - b.hours,
                                 render: (h) => (
                                   <Text
                                     strong
@@ -1028,6 +1035,10 @@ export default function CapturableReportPage() {
                       dataIndex: "feature_name",
                       key: "feature_name",
                       width: 500, // เพิ่มความกว้างให้มากที่สุด
+                      sorter: (a: any, b: any) =>
+                        (a.feature_name || "").localeCompare(
+                          b.feature_name || "",
+                        ),
                       render: (text) => (
                         <Text strong style={{ fontSize: 14 }}>
                           {text}
@@ -1040,6 +1051,10 @@ export default function CapturableReportPage() {
                       key: "asset_capture_type",
                       width: 240,
                       align: "center",
+                      sorter: (a: any, b: any) =>
+                        (a.asset_capture_type || "").localeCompare(
+                          b.asset_capture_type || "",
+                        ),
                       render: (type) => (
                         <Tag
                           color={type === "CAPTUREABLE" ? "success" : "default"}
@@ -1062,6 +1077,7 @@ export default function CapturableReportPage() {
                       key: "hours",
                       width: 180,
                       align: "right",
+                      sorter: (a: any, b: any) => a.hours - b.hours,
                       render: (val) => (
                         <Text
                           strong
@@ -1079,6 +1095,7 @@ export default function CapturableReportPage() {
                       dataIndex: "percent",
                       key: "percent",
                       width: 200,
+                      sorter: (a: any, b: any) => a.percent - b.percent,
                       render: (val) => (
                         <Tooltip title={`${val}% ของโครงการนี้`}>
                           <Flex
