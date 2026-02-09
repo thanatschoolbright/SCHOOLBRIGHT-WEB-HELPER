@@ -17,7 +17,7 @@ dayjs.locale("th");
  * ค่าพื้นฐานสำหรับคำนวณเฉดสีและสัดส่วนพื้นฐานของทั้งระบบ
  */
 const BRAND_SEED = {
-  primary: "#F97316", // Orange-500
+  primary: "#FF8C00", // DarkOrange (as requested previously)
   success: "#10B981", // Emerald-500
   warning: "#F59E0B", // Amber-500
   error: "#EF4444", // Red-500
@@ -31,18 +31,18 @@ const BRAND_SEED = {
  */
 const SYSTEM_COLORS = {
   light: {
-    bgLayout: "#F1F5F9",
+    bgLayout: "#F9F8F6", // Minimal Warm Stone
     bgContainer: "#FFFFFF",
-    textMain: "#0F172A",
-    textSub: "#64748B",
-    border: "#E2E8F0",
+    textMain: "#292524", // Stone 900 (Warm Black)
+    textSub: "#78716C", // Stone 500 (Warm Gray)
+    border: "#E7E5E4", // Stone 200 (Subtle Warm)
   },
   dark: {
-    bgLayout: "#000000",
-    bgContainer: "#141414",
-    textMain: "#FFFFFF",
-    textSub: "#CBD5E1",
-    border: "#262626",
+    bgLayout: "#121212", // Charcoal Black
+    bgContainer: "#1E1E1E", // Elevated Gray
+    textMain: "#E0E0E0", // Light Gray
+    textSub: "#B0B0B0", // Medium Gray
+    border: "#444444", // Dark Gray
   },
 };
 
@@ -85,10 +85,10 @@ const getThemeConfig = (isDark: boolean): ThemeConfig => {
       colorError: BRAND_SEED.error,
       colorInfo: BRAND_SEED.info,
 
-      colorBgBase: isDark ? "#000000" : "#FFFFFF",
+      colorBgBase: isDark ? "#121212" : "#FFFFFF",
       colorBgLayout: colors.bgLayout,
       colorBgContainer: colors.bgContainer,
-      colorBgElevated: isDark ? "#1C1C1C" : "#FFFFFF",
+      colorBgElevated: isDark ? "#242424" : "#FFFFFF",
       colorTextBase: colors.textMain,
       colorTextSecondary: colors.textSub,
       colorBorder: colors.border,
@@ -114,28 +114,30 @@ const getThemeConfig = (isDark: boolean): ThemeConfig => {
         colorBorderSecondary: "transparent",
         paddingLG: 24,
         borderRadiusLG: 20,
+        colorBgContainer: isDark ? "#1E1E1E" : "#FFFFFF",
       },
       Table: {
-        headerBg: isDark ? "#1C1C1C" : "#F8FAFC",
+        headerBg: isDark ? "#242424" : "#F5F5F4", // Stone 100 in Light Mode
         headerSplitColor: "transparent",
         headerBorderRadius: 12,
       },
       Input: {
         borderRadius: 12,
-        colorBgContainer: isDark ? "#141414" : "#FFFFFF",
+        colorBgContainer: isDark ? "#121212" : "#FFFFFF",
       },
       Select: {
         borderRadius: 12,
+        colorBgContainer: isDark ? "#121212" : "#FFFFFF",
       },
       Modal: {
         borderRadiusLG: 28,
-        headerBg: isDark ? "#1C1C1C" : "#FFFFFF",
-        contentBg: isDark ? "#1C1C1C" : "#FFFFFF",
-        footerBg: isDark ? "#1C1C1C" : "#FFFFFF",
+        headerBg: isDark ? "#1E1E1E" : "#FFFFFF",
+        contentBg: isDark ? "#1E1E1E" : "#FFFFFF",
+        footerBg: isDark ? "#1E1E1E" : "#FFFFFF",
       },
       Layout: {
         bodyBg: colors.bgLayout,
-        headerBg: isDark ? "rgba(0, 0, 0, 0.85)" : "rgba(255, 255, 255, 0.85)",
+        headerBg: isDark ? "rgba(18, 18, 18, 0.85)" : "rgba(255, 255, 255, 0.85)",
         headerPadding: "0 24px",
       },
       Menu: {
@@ -183,29 +185,29 @@ export default function AntThemeProvider({
             background: transparent;
           }
           ::-webkit-scrollbar-thumb {
-            background: ${isDark ? "#334155" : "#CBD5E1"};
+            background: ${isDark ? "#444444" : "#D6D3D1"};
             border-radius: 10px;
           }
           ::-webkit-scrollbar-thumb:hover {
-            background: ${BRAND_SEED.primary};
+            background: ${isDark ? "#888888" : "#A8A29E"};
           }
 
           /* ✨ Interactive Card Feedback */
           .ant-card {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            border: 1px solid ${isDark ? "#1E293B" : "#E2E8F0"} !important;
+            border: 1px solid ${isDark ? "#444444" : "#E7E5E4"} !important;
           }
 
           /* ลบส่วนนี้ออกทั้งหมด */
           .ant-card:hover {
             box-shadow: ${isDark
               ? "0 12px 30px -10px rgba(0, 0, 0, 0.6)"
-              : "0 12px 30px -10px rgba(15, 23, 42, 0.1)"} !important;
+              : "0 12px 30px -10px rgba(28, 25, 23, 0.05)"} !important;
           }
 
           /* 🔲 Table Wrapper Custom Border */
           .ant-table-wrapper .ant-table {
-            border: 1px solid ${isDark ? "#1E293B" : "#F1F5F9"} !important;
+            border: 1px solid ${isDark ? "#444444" : "#E7E5E4"} !important;
             border-radius: 12px !important;
             overflow: hidden !important;
           }
@@ -216,7 +218,7 @@ export default function AntThemeProvider({
             position: sticky;
             top: 0;
             z-index: 1000;
-            border-bottom: 1px solid ${isDark ? "#1E293B" : "#F1F5F9"} !important;
+            border-bottom: 1px solid ${isDark ? "#444444" : "#E7E5E4"} !important;
           }
         `}</style>
         {children}
