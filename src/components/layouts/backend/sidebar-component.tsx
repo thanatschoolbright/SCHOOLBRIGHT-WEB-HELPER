@@ -1,8 +1,21 @@
 import { useSidebarMenu } from "@/constants/sidebar-menu-constant";
+import { CompassFilled } from "@ant-design/icons";
 import type { MenuProps } from "antd";
-import { Flex, Grid, Menu, Tag, theme } from "antd";
+import {
+  Button,
+  ConfigProvider,
+  Flex,
+  Grid,
+  Menu,
+  Tag,
+  theme,
+  Typography,
+} from "antd";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+
+const { Text } = Typography;
 
 const SB_ORANGE_PRIMARY = "#FF7F00";
 const SB_ORANGE_GRADIENT = "linear-gradient(135deg, #FF9933 0%, #FF6600 100%)";
@@ -12,25 +25,28 @@ const SB_ORANGE_GRADIENT = "linear-gradient(135deg, #FF9933 0%, #FF6600 100%)";
  * Optimized for readability and minimal CSS usage.
  */
 
-const StatusTag = ({ type }: { type: "new" | "revamp" }) => (
-  <Tag
-    bordered={false}
-    style={{
-      marginLeft: "8px",
-      fontSize: 10,
-      fontWeight: 700,
-      borderRadius: 10,
-      padding: "0 6px",
-      background:
-        type === "new"
-          ? SB_ORANGE_GRADIENT
-          : "linear-gradient(135deg, #1890ff 0%, #096dd9 100%)",
-      color: "white",
-    }}
-  >
-    {type.toUpperCase()}
-  </Tag>
-);
+const StatusTag = ({ type }: { type: "new" | "revamp" }) => {
+  const { token } = theme.useToken();
+  return (
+    <Tag
+      bordered={false}
+      style={{
+        marginLeft: "8px",
+        fontSize: 10,
+        fontWeight: 700,
+        borderRadius: 10,
+        padding: "0 6px",
+        background:
+          type === "new"
+            ? SB_ORANGE_GRADIENT
+            : "linear-gradient(135deg, #1890ff 0%, #096dd9 100%)",
+        color: token.colorWhite,
+      }}
+    >
+      {type.toUpperCase()}
+    </Tag>
+  );
+};
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -41,6 +57,7 @@ export default function SidebarContent({
   collapsed?: boolean;
   onMobileClose?: () => void;
 }) {
+  const { t: TRANSLATION } = useTranslation("translate");
   const menu = useSidebarMenu();
   const pathname = usePathname();
   const router = useRouter();
@@ -49,6 +66,25 @@ export default function SidebarContent({
 
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const isDark = token.colorBgBase === "#0B0F19";
+
+  // --- Theme Configuration for Menu ---
+  const sidebarTheme = {
+    components: {
+      Menu: {
+        itemBg: "transparent",
+        itemColor: token.colorTextSecondary,
+        itemHoverBg: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+        itemSelectedBg: isDark
+          ? "rgba(255, 127, 0, 0.2)"
+          : "rgba(255, 127, 0, 0.12)",
+        itemSelectedColor: SB_ORANGE_PRIMARY,
+        itemActiveBg: "transparent",
+        itemMarginInline: 8,
+        itemBorderRadius: 10,
+        subMenuItemBg: "transparent",
+      },
+    },
+  };
 
   // Sync open keys with current pathname
   useEffect(() => {
@@ -65,17 +101,11 @@ export default function SidebarContent({
     return menu.map((m) => {
       const parentKey = m.href || m.label;
 
-      // ✅ เมื่อหุบ Sidebar ให้ใช้ Label เป็น String เพียวๆ เพื่อให้ AntD แสดงผลใน Tooltip และ Popup ได้ถูกต้อง
-      // เมื่อกาง Sidebar ค่อยใช้ JSX เพื่อแสดง Tag และการจัดวางที่สวยงาม
       const label =
         collapsed || !m.tag ? (
           m.label
         ) : (
-          <Flex
-            align="center"
-            justify="space-between"
-            style={{ width: "100%" }}
-          >
+          <Flex align="center" justify="space-between">
             <span>{m.label}</span>
             <Tag
               color="orange"
@@ -107,11 +137,7 @@ export default function SidebarContent({
             collapsed || (!c.news && !c.revamp) ? (
               c.label
             ) : (
-              <Flex
-                align="center"
-                justify="space-between"
-                style={{ width: "100%" }}
-              >
+              <Flex align="center" justify="space-between">
                 <span>{c.label}</span>
                 <Flex gap={4}>
                   {c.news && <StatusTag type="new" />}
@@ -122,7 +148,7 @@ export default function SidebarContent({
         })),
       } as MenuItem;
     });
-  }, [menu, isDark, collapsed]); // ✅ เพิ่ม collapsed เป็น dependency เพื่อสลับประเภทยาเบลสิกตอนหุบ/กาง
+  }, [menu, isDark, collapsed]);
 
   const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
     const target = String(key);
@@ -133,101 +159,91 @@ export default function SidebarContent({
   };
 
   return (
-    <div
-      style={{
-        height: "100%",
-        padding: "12px 0",
-        overflowY: "auto",
-      }}
-    >
-      <Menu
-        mode="inline"
-        inlineCollapsed={collapsed}
-        selectedKeys={[pathname]}
-        openKeys={!collapsed ? openKeys : undefined}
-        onOpenChange={setOpenKeys}
-        onClick={handleMenuClick}
-        items={items}
-        style={{ borderInlineEnd: "none", background: "transparent" }}
-        theme={isDark ? "dark" : "light"}
-        className="sidebar-menu"
-      />
+    <ConfigProvider theme={sidebarTheme}>
+      <Flex
+        vertical
+        style={{
+          height: "100%",
+          padding: "16px 0",
+          overflowY: "auto",
+        }}
+      >
+        {/* 🔸 Sidebar Logo Section */}
+        <Flex
+          justify={collapsed ? "center" : "flex-start"}
+          style={{
+            padding: collapsed ? "0 8px" : "0 16px",
+            marginBottom: 20,
+            transition: "all 0.3s",
+          }}
+        >
+          <Button
+            type="text"
+            onClick={() => router.push("/main")}
+            style={{
+              height: "auto",
+              padding: "6px 8px",
+              borderRadius: 12,
+              display: "flex",
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
+            <Flex align="center" gap={collapsed ? 0 : 12}>
+              <Flex
+                align="center"
+                justify="center"
+                style={{
+                  width: 38,
+                  height: 38,
+                  background: SB_ORANGE_GRADIENT,
+                  borderRadius: 10,
+                  boxShadow: `0 4px 12px ${token.colorPrimary}44`,
+                  flexShrink: 0,
+                }}
+              >
+                <CompassFilled
+                  style={{ fontSize: 20, color: token.colorWhite }}
+                />
+              </Flex>
 
-      <style jsx global>{`
-        /* ปรับแต่งเฉพาะตัว Sidebar Menu */
-        .sidebar-menu.ant-menu {
-          border-inline-end: none !important;
-          background: transparent !important;
-        }
+              {!collapsed && (
+                <Flex vertical align="start">
+                  <Text
+                    strong
+                    style={{
+                      fontSize: 16,
+                      lineHeight: 1.2,
+                      color: token.colorTextHeading,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    School Bright
+                  </Text>
+                  <Text
+                    type="secondary"
+                    style={{ fontSize: 9, lineHeight: 1, whiteSpace: "nowrap" }}
+                  >
+                    {TRANSLATION("navbar.backend_system")}
+                  </Text>
+                </Flex>
+              )}
+            </Flex>
+          </Button>
+        </Flex>
 
-        /* ปรับแต่ง Item เฉพาะเมื่ออยู่ใน Sidebar (ไม่รวม Popup) */
-        .sidebar-menu .ant-menu-item,
-        .sidebar-menu .ant-menu-submenu-title {
-          margin-bottom: 4px !important;
-          border-radius: 8px !important;
-          transition: all 0.3s ease;
-        }
-
-        /* จัดการกาง (Expanded) */
-        .sidebar-menu.ant-menu-inline .ant-menu-item,
-        .sidebar-menu.ant-menu-inline .ant-menu-submenu-title {
-          width: calc(100% - 16px) !important;
-          margin-inline: 8px !important;
-        }
-
-        /* จัดการหุบ (Collapsed) */
-        .sidebar-menu.ant-menu-inline-collapsed .ant-menu-item,
-        .sidebar-menu.ant-menu-inline-collapsed .ant-menu-submenu-title {
-          width: calc(100% - 16px) !important;
-          margin-inline: 8px !important;
-          padding-inline: 0 !important;
-          display: flex !important;
-          justify-content: center !important;
-          align-items: center !important;
-        }
-
-        .sidebar-menu.ant-menu-inline-collapsed .ant-menu-item .anticon,
-        .sidebar-menu.ant-menu-inline-collapsed
-          .ant-menu-submenu-title
-          .anticon {
-          margin: 0 !important;
-          font-size: 20px !important;
-        }
-
-        /* จัดการ Popup Menu (ตัวที่ลอยออกมาตอนหุบ) */
-        .ant-menu-submenu-popup {
-          z-index: 10000 !important;
-        }
-
-        .ant-menu-submenu-popup .ant-menu-item {
-          border-radius: 6px !important;
-          margin: 4px !important;
-        }
-
-        /* สีตัวอักษรใน Popup */
-        .ant-menu-submenu-popup .ant-menu-title-content {
-          font-weight: 500;
-        }
-
-        /* ซ่อนลูกศรเมื่อหุบ */
-        .sidebar-menu.ant-menu-inline-collapsed
-          .ant-menu-submenu-title
-          .ant-menu-submenu-arrow {
-          display: none !important;
-        }
-
-        .sidebar-menu .ant-menu-item-selected {
-          background: ${isDark
-            ? "rgba(255, 127, 0, 0.2)"
-            : "rgba(255, 127, 0, 0.15)"} !important;
-          color: ${SB_ORANGE_PRIMARY} !important;
-          font-weight: 600 !important;
-        }
-
-        .sidebar-menu .ant-menu-item-selected .anticon {
-          color: ${SB_ORANGE_PRIMARY} !important;
-        }
-      `}</style>
-    </div>
+        <Menu
+          mode="inline"
+          inlineCollapsed={collapsed}
+          selectedKeys={[pathname]}
+          openKeys={!collapsed ? openKeys : undefined}
+          onOpenChange={setOpenKeys}
+          onClick={handleMenuClick}
+          items={items}
+          style={{ border: "none" }}
+          theme={isDark ? "dark" : "light"}
+        />
+      </Flex>
+    </ConfigProvider>
   );
 }
