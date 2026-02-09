@@ -715,4 +715,35 @@ export const UserManagementService = {
       throw new Error("ระบบกู้คืนรหัสผ่านล้มเหลวขณะส่งอีเมล: " + err.message);
     }
   },
+
+  // ✅ เปลี่ยนรหัสผ่านโดยตรวจสอบรหัสผ่านเดิม (Self Service)
+  async changePassword(
+    userId: number,
+    oldPassword: string,
+    newPassword: string,
+  ) {
+    const user = await PrismaTimesheet.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new Error("USER_NOT_FOUND");
+    }
+
+    const isPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordCorrect) {
+      throw new Error("INVALID_OLD_PASSWORD");
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    return await PrismaTimesheet.user.update({
+      where: { id: userId },
+      data: {
+        password: hashedPassword,
+        failed_login_attempts: 0,
+        updated_at: new Date(),
+        updated_by: userId,
+      },
+    });
+  },
 };

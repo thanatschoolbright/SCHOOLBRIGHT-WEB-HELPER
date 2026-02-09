@@ -42,29 +42,6 @@ export default function SignInPage() {
   const { token } = theme.useToken();
   const router = useRouter();
 
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (sessionStatus === "authenticated") {
-      router.replace("/main");
-    }
-  }, [sessionStatus, router]);
-
-  if (sessionStatus === "loading" || sessionStatus === "authenticated") {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          background: token.colorBgBase,
-        }}
-      >
-        <LoadingOutlined style={{ fontSize: 48, color: token.colorPrimary }} />
-      </div>
-    );
-  }
-
   // Login Tracking States
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -74,6 +51,24 @@ export default function SignInPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [debugData, setDebugData] = useState<any>(null);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (sessionStatus === "authenticated") {
+      router.replace("/main");
+    }
+  }, [sessionStatus, router]);
+
+  // Check session when window regains focus (e.g. user logged in on another tab)
+  useEffect(() => {
+    const handleFocus = () => {
+      if (typeof window !== "undefined") {
+        router.refresh();
+      }
+    };
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [router]);
 
   const getErrorContent = () => {
     switch (errorCode) {
@@ -208,14 +203,40 @@ export default function SignInPage() {
     }
   };
 
+  const shouldShowGate =
+    sessionStatus === "loading" || sessionStatus === "authenticated";
+
   return (
     <div
       style={{
         minHeight: "100vh",
         backgroundColor: token.colorBgBase,
         overflow: "hidden",
+        position: "relative",
       }}
     >
+      {/* 🚧 Gate Overlay: ป้องกันการเห็นหน้า Login หากเข้าสู่ระบบแล้วหรือกำลังโหลด */}
+      {shouldShowGate && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            backgroundColor: token.colorBgBase,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column",
+            gap: 16,
+          }}
+        >
+          <LoadingOutlined
+            style={{ fontSize: 48, color: token.colorPrimary }}
+          />
+          <Text type="secondary">กำลังตรวจสอบสิทธิ์การเข้าใช้งาน...</Text>
+        </div>
+      )}
+
       <Row style={{ minHeight: "100vh" }}>
         {/* ฝั่งซ้าย: แบรนด์ดิ้งและคำต้อนรับ */}
         <Col

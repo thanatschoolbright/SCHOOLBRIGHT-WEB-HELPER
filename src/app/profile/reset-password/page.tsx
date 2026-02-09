@@ -1,39 +1,43 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  Form,
-  Input,
-  Button,
-  Card,
-  Typography,
-  Divider,
-  Space,
-  App,
-  theme,
-} from "antd";
-import {
-  LockOutlined,
-  KeyOutlined,
-  ArrowLeftOutlined,
-  SaveOutlined,
-  ExclamationCircleOutlined,
-} from "@ant-design/icons";
-import { useRouter } from "next/navigation";
-import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
-import { toast } from "sonner";
-import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
+import {
+  StatusModalComponent,
+  StatusModalType,
+} from "@/components/modal/status-modal-component";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
+import {
+  ArrowLeftOutlined,
+  KeyOutlined,
+  LockOutlined,
+  SaveOutlined,
+} from "@ant-design/icons";
+import DashboardLayout from "@components/layouts/backend-layout";
+import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
+import { Button, Card, Divider, Form, Input, theme, Typography } from "antd";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const { Title, Text } = Typography;
 
 const ResetPasswordPage = () => {
   const router = useRouter();
   const { token } = theme.useToken();
-  const { modal } = App.useApp();
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
+
+  // Status Modal State
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    type: StatusModalType;
+    title: string;
+    message: string;
+  }>({
+    type: "success",
+    title: "",
+    message: "",
+  });
 
   const onFinish = async (values: any) => {
     try {
@@ -55,30 +59,24 @@ const ResetPasswordPage = () => {
       toast.success("เปลี่ยนรหัสผ่านสำเร็จแล้ว");
       form.resetFields();
 
-      // Optional: Redirect or suggest logout
-      modal.success({
+      setModalConfig({
+        type: "success",
         title: "เปลี่ยนรหัสผ่านสำเร็จ",
-        content:
+        message:
           "ระบบได้ทำการเปลี่ยนรหัสผ่านของคุณเรียบร้อยแล้ว กรุณาใช้รหัสผ่านใหม่ในการเข้าสู่ระบบครั้งถัดไป",
-        okText: "ตกลง",
       });
+      setModalOpen(true);
     } catch (error: any) {
       const errorMessage =
         error?.response?.data?.message_th ||
         "เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน";
 
-      modal.error({
-        title: (
-          <Space>
-            <ExclamationCircleOutlined style={{ color: token.colorError }} />
-            <span style={{ fontWeight: 600, color: token.colorError }}>
-              เปลี่ยนรหัสผ่านไม่สำเร็จ
-            </span>
-          </Space>
-        ),
-        content: errorMessage,
-        okText: "ลองอีกครั้ง",
+      setModalConfig({
+        type: "error",
+        title: "เปลี่ยนรหัสผ่านไม่สำเร็จ",
+        message: errorMessage,
       });
+      setModalOpen(true);
       console.error("Change password error:", error);
     } finally {
       setSubmitting(false);
@@ -212,6 +210,14 @@ const ResetPasswordPage = () => {
             </Form>
           </Card>
         </div>
+
+        <StatusModalComponent
+          open={modalOpen}
+          type={modalConfig.type}
+          title={modalConfig.title}
+          message={modalConfig.message}
+          onClose={() => setModalOpen(false)}
+        />
       </DashboardLayout>
     </PermissionLayout>
   );

@@ -1,14 +1,13 @@
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function Home() {
-  const session = await auth();
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-  if (session) {
-    redirect("/main");
-  } else {
-    redirect("/auth/v2/signin");
-  }
+export default function Home() {
+  const router = useRouter();
+  useEffect(() => {
+    router.replace("/auth/v2/signin");
+  }, [router]);
 
-  return null;
+  return <div className="bg-gray-100 text-white"></div>;
 }
