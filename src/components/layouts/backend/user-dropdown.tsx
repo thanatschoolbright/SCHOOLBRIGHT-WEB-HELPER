@@ -15,7 +15,19 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { useAppSelector } from "@stores/store";
-import { Avatar, Flex, Popover, Segmented, theme, Typography } from "antd";
+import {
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  Divider,
+  Flex,
+  Popover,
+  Segmented,
+  Space,
+  theme,
+  Typography,
+} from "antd";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -127,28 +139,37 @@ const RankAvatarDisplay = ({
     RANK_THEME_CONFIG[currentRankLetter] || RANK_THEME_CONFIG.F;
 
   return (
-    <div
-      className="relative inline-block rounded-full transition-transform duration-300 hover:scale-105"
-      style={{
-        boxShadow: `0 0 0 2px ${token.colorBgContainer}, 0 0 0 4px ${rankThemeConfig.color}, 0 4px 12px ${rankThemeConfig.shadowColor}`,
-      }}
+    <Badge
+      count={
+        <div
+          style={{
+            background: rankThemeConfig.color,
+            color: "#fff",
+            borderRadius: "50%",
+            width: 20,
+            height: 20,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 10,
+            border: `2px solid ${token.colorBgContainer}`,
+          }}
+        >
+          {rankThemeConfig.icon}
+        </div>
+      }
+      offset={[-5, avatarSize - 5]}
     >
       <Avatar
         size={avatarSize}
         src={generateAvatarUrl(userProfile)}
-        style={{ backgroundColor: token.colorBgContainer, display: "block" }}
-      />
-      <div
-        className="absolute -bottom-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full text-[10px] shadow-sm"
         style={{
-          background: rankThemeConfig.color,
-          color: "#fff",
-          border: `1px solid ${token.colorBgContainer}`,
+          border: `2px solid ${rankThemeConfig.color}`,
+          backgroundColor: token.colorBgContainer,
+          padding: 2,
         }}
-      >
-        {rankThemeConfig.icon}
-      </div>
-    </div>
+      />
+    </Badge>
   );
 };
 
@@ -172,29 +193,45 @@ const UserRankDetailsCard = ({ userRankDetails }: { userRankDetails: any }) => {
   ).toFixed(1);
 
   return (
-    <div
-      className="relative p-4 rounded-3xl overflow-hidden transition-all duration-500 group"
-      style={{
-        background: isDark ? rankConfig.darkBg : rankConfig.bg,
-        border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)"}`,
-        boxShadow: isDark
-          ? "0 8px 32px rgba(0,0,0,0.4)"
-          : `0 8px 24px ${rankConfig.color}22`,
+    <Card
+      styles={{
+        body: {
+          padding: token.padding,
+          background: isDark ? rankConfig.darkBg : rankConfig.bg,
+          borderRadius: 24,
+          position: "relative",
+          overflow: "hidden",
+        },
       }}
+      bordered={false}
     >
       {/* Background Decoration Icon */}
       <div
-        className="absolute -right-4 -bottom-4 text-7xl opacity-10 pointer-events-none rotate-12 group-hover:rotate-0 transition-transform duration-700"
-        style={{ color: rankConfig.color }}
+        style={{
+          position: "absolute",
+          right: -16,
+          bottom: -16,
+          fontSize: 72,
+          opacity: 0.1,
+          color: rankConfig.color,
+          pointerEvents: "none",
+          transform: "rotate(12deg)",
+        }}
       >
         {rankConfig.icon}
       </div>
 
-      <Flex align="center" justify="space-between" className="mb-4">
+      <Flex align="center" justify="space-between" style={{ marginBottom: 16 }}>
         <Flex align="center" gap={12}>
           <div
-            className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-inner"
             style={{
+              width: 48,
+              height: 48,
+              borderRadius: 16,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 24,
               background: isDark ? "rgba(0,0,0,0.3)" : "#fff",
               color: rankConfig.color,
               border: `1.5px solid ${rankConfig.accent}44`,
@@ -202,42 +239,56 @@ const UserRankDetailsCard = ({ userRankDetails }: { userRankDetails: any }) => {
           >
             {rankConfig.icon}
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span
-                className="text-xs font-black tracking-wider"
-                style={{ color: rankConfig.color }}
-              >
-                {TRANSLATION(rankConfig.labelKey)}
-              </span>
-            </div>
+          <Flex vertical>
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: 900,
+                color: rankConfig.color,
+                letterSpacing: 1,
+              }}
+            >
+              {TRANSLATION(rankConfig.labelKey)}
+            </Text>
             <Title
               level={3}
-              className="m-0 leading-none mt-1 font-black italic tracking-tighter"
-              style={{ color: isDark ? "#fff" : token.colorTextHeading }}
+              style={{
+                margin: 0,
+                fontSize: 24,
+                fontWeight: 900,
+                fontStyle: "italic",
+                color: isDark ? "#fff" : token.colorTextHeading,
+              }}
             >
               RANK {currentRankLetter}
             </Title>
-          </div>
+          </Flex>
         </Flex>
 
-        <div className="text-right">
+        <Flex vertical align="end">
           <Text
-            className="text-[10px] font-bold opacity-50 block mb-0.5 whitespace-nowrap"
-            style={{ color: token.colorTextSecondary }}
+            style={{
+              fontSize: 10,
+              fontWeight: "bold",
+              opacity: 0.5,
+              color: token.colorTextSecondary,
+            }}
           >
             {TRANSLATION("user_dropdown.rank_title")}
           </Text>
           <Text
-            className="text-lg font-black"
-            style={{ color: rankConfig.color }}
+            style={{
+              fontSize: 18,
+              fontWeight: 900,
+              color: rankConfig.color,
+            }}
           >
             #{userRankDetails?.rank || "-"}
           </Text>
-        </div>
+        </Flex>
       </Flex>
 
-      <div className="grid grid-cols-3 gap-2 relative z-10">
+      <Flex gap={8} justify="space-between">
         <StatisticBoxItem
           label={TRANSLATION("user_dropdown.total_hours")}
           value={totalHours}
@@ -257,8 +308,8 @@ const UserRankDetailsCard = ({ userRankDetails }: { userRankDetails: any }) => {
           icon={<ThunderboltFilled />}
           rankColor={rankConfig.color}
         />
-      </div>
-    </div>
+      </Flex>
+    </Card>
   );
 };
 
@@ -273,36 +324,47 @@ const StatisticBoxItem = ({
   const isDark = token.colorBgBase !== "#FFFFFF";
 
   return (
-    <div
-      className="flex flex-col items-center p-2 rounded-2xl transition-all duration-300"
+    <Flex
+      vertical
+      align="center"
+      flex={1}
       style={{
+        padding: "8px 4px",
+        borderRadius: 16,
         background: isDark ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.4)",
         border: `1px solid ${highlight ? rankColor + "44" : "transparent"}`,
         backdropFilter: "blur(8px)",
       }}
     >
-      <span
+      <Text
         style={{
           color: highlight ? rankColor : token.colorTextTertiary,
           fontSize: 14,
-          marginBottom: 2,
         }}
       >
         {icon}
-      </span>
-      <span
-        className="text-[13px] font-black"
-        style={{ color: isDark ? "#fff" : token.colorText }}
+      </Text>
+      <Text
+        style={{
+          fontSize: 13,
+          fontWeight: 900,
+          color: isDark ? "#fff" : token.colorText,
+        }}
       >
         {value}
-      </span>
-      <span
-        className="text-[8px] uppercase font-bold tracking-tighter opacity-60"
-        style={{ color: token.colorTextSecondary }}
+      </Text>
+      <Text
+        style={{
+          fontSize: 8,
+          fontWeight: "bold",
+          textTransform: "uppercase",
+          opacity: 0.6,
+          color: token.colorTextSecondary,
+        }}
       >
         {label}
-      </span>
-    </div>
+      </Text>
+    </Flex>
   );
 };
 
@@ -362,125 +424,140 @@ export default function UserProfileDropdown(): JSX.Element {
     RANK_THEME_CONFIG[currentRankLetter] || RANK_THEME_CONFIG.F;
 
   const userProfileDropdownContent = (
-    <div className="w-[340px] animate-fade-in-up">
-      <div className="flex items-center gap-4 px-1 mb-4">
+    <Flex vertical style={{ width: 340 }}>
+      <Flex
+        gap={16}
+        align="center"
+        style={{ padding: "0 4px", marginBottom: 16 }}
+      >
         <RankAvatarDisplay
           userProfile={userProfileData}
           currentRankLetter={currentRankLetter}
           avatarSize={64}
         />
-        <div className="flex-1 overflow-hidden">
+        <Flex vertical flex={1} style={{ overflow: "hidden" }}>
           <Title
             level={5}
-            className="truncate m-0 leading-tight"
-            style={{ marginBottom: 0, color: token.colorTextHeading }}
+            style={{
+              margin: 0,
+              lineHeight: 1.2,
+              color: token.colorTextHeading,
+            }}
+            ellipsis
           >
             {userProfileData.firstname} {userProfileData.lastname}
           </Title>
-          <span
-            className="text-xs flex items-center gap-1 mt-1"
-            style={{ color: token.colorTextSecondary }}
-          >
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            {userProfileData.position_name ||
-              TRANSLATION("user_dropdown.default_position")}
-          </span>
-        </div>
-      </div>
+          <Flex align="center" gap={4} style={{ marginTop: 4 }}>
+            <Badge status="processing" color="green" />
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              {userProfileData.position_name ||
+                TRANSLATION("user_dropdown.default_position")}
+            </Text>
+          </Flex>
+        </Flex>
+      </Flex>
 
       {userRankData && <UserRankDetailsCard userRankDetails={userRankData} />}
 
-      <div className="mt-5 space-y-3">
-        <div
-          className="p-1 rounded-xl"
-          style={{ backgroundColor: token.colorFillQuaternary }}
-        >
-          <Segmented
-            block
-            options={[
-              {
-                label: TRANSLATION("user_dropdown.lang_th_label"),
-                value: "th",
-                icon: <span className="mr-1 text-base">🇹🇭</span>,
-              },
-              {
-                label: TRANSLATION("user_dropdown.lang_en_label"),
-                value: "en",
-                icon: <span className="mr-1 text-base">🇬🇧</span>,
-              },
-            ]}
-            value={currentLanguageCode}
-            onChange={(val) => handleChangeLanguage(val as string)}
-            className="bg-transparent"
-          />
-        </div>
+      <Flex vertical gap={12} style={{ marginTop: 24 }}>
+        <Segmented
+          block
+          options={[
+            {
+              label: TRANSLATION("user_dropdown.lang_th_label"),
+              value: "th",
+              icon: <span style={{ marginRight: 4 }}>🇹🇭</span>,
+            },
+            {
+              label: TRANSLATION("user_dropdown.lang_en_label"),
+              value: "en",
+              icon: <span style={{ marginRight: 4 }}>🇬🇧</span>,
+            },
+          ]}
+          value={currentLanguageCode}
+          onChange={(val) => handleChangeLanguage(val as string)}
+          style={{
+            background: token.colorFillQuaternary,
+            padding: 4,
+            borderRadius: 12,
+          }}
+        />
 
-        <button
+        <Button
+          block
+          size="large"
+          type="text"
+          icon={<IdcardOutlined />}
           onClick={() => {
             setIsPopoverOpen(false);
             router.push("/profile/personal-information");
           }}
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all duration-200 font-medium text-sm group"
           style={{
-            color: token.colorText,
-            backgroundColor: token.colorFillQuaternary,
+            height: 48,
+            borderRadius: 12,
+            background: token.colorFillQuaternary,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = token.colorFillSecondary)
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = token.colorFillQuaternary)
-          }
         >
-          <IdcardOutlined className="group-hover:scale-110 transition-transform" />
           {TRANSLATION("user_dropdown.personal_info")}
-        </button>
+        </Button>
 
-        <button
+        <Button
+          block
+          size="large"
+          type="text"
+          icon={<LockOutlined />}
           onClick={() => {
             setIsPopoverOpen(false);
             router.push("/profile/reset-password");
           }}
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all duration-200 font-medium text-sm group"
           style={{
-            color: token.colorText,
-            backgroundColor: token.colorFillQuaternary,
+            height: 48,
+            borderRadius: 12,
+            background: token.colorFillQuaternary,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = token.colorFillSecondary)
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = token.colorFillQuaternary)
-          }
         >
-          <LockOutlined className="group-hover:rotate-12 transition-transform" />
-          {TRANSLATION("user_dropdown.change_password")}
-          <span
-            className="px-1.5 py-0.5 rounded-md text-[9px] font-black text-white shadow-sm uppercase animate-pulse"
-            style={{ backgroundColor: token.colorError }}
-          >
-            แก้ไขบัก
-          </span>
-        </button>
+          <Space>
+            {TRANSLATION("user_dropdown.change_password")}
+            <Badge
+              count="แก้ไขบัก"
+              style={{
+                backgroundColor: token.colorError,
+                fontSize: 9,
+                fontWeight: 900,
+                height: 18,
+                lineHeight: "18px",
+              }}
+            />
+          </Space>
+        </Button>
 
-        <button
+        <Divider style={{ margin: "4px 0" }} />
+
+        <Button
+          block
+          size="large"
+          type="text"
+          danger
+          icon={<LogoutOutlined />}
           onClick={handleLogoutAction}
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all duration-200 font-medium text-sm group"
           style={{
-            color: token.colorError,
+            height: 48,
+            borderRadius: 12,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = token.colorErrorBg)
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
         >
-          <LogoutOutlined className="group-hover:-translate-x-1 transition-transform" />
           {TRANSLATION("user_dropdown.logout")}
-        </button>
-      </div>
-    </div>
+        </Button>
+      </Flex>
+    </Flex>
   );
 
   return (
@@ -491,47 +568,46 @@ export default function UserProfileDropdown(): JSX.Element {
       arrow={false}
       onOpenChange={setIsPopoverOpen}
       align={{ offset: [0, 14] }}
-      styles={{
-        body: {
-          padding: "24px",
-          borderRadius: "24px",
-          boxShadow: "0 10px 32px rgba(0,0,0,0.12)",
-          backgroundColor: token.colorBgElevated,
-          border: `1px solid ${token.colorBorderSecondary}`,
-        },
+      overlayInnerStyle={{
+        padding: 24,
+        borderRadius: 24,
+        backgroundColor: token.colorBgElevated,
+        border: `1px solid ${token.colorBorderSecondary}`,
+        boxShadow: "0 10px 32px rgba(0,0,0,0.12)",
       }}
     >
-      <div
-        className={`
-          flex items-center gap-3 pl-3 pr-2 py-1.5 rounded-full cursor-pointer transition-all duration-300 border
-          ${isPopoverOpen ? "translate-y-0.5" : "hover:opacity-80"}
-        `}
+      <Flex
+        align="center"
+        gap={12}
         style={{
+          padding: "6px 8px 6px 16px",
+          borderRadius: 100,
+          cursor: "pointer",
+          transition: "all 0.3s",
+          border: `1px solid ${isPopoverOpen ? token.colorBorder : "transparent"}`,
           backgroundColor: isPopoverOpen
             ? token.colorBgContainer
             : "transparent",
-          borderColor: isPopoverOpen ? token.colorBorder : "transparent",
           boxShadow: isPopoverOpen ? token.boxShadow : "none",
         }}
       >
-        {/* ปรับ Layout ให้ชื่อกับ Rank ชิดกันและอยู่กึ่งกลางแนวตั้ง */}
-        <div className="hidden sm:flex flex-col items-end justify-center mr-1 h-full">
-          <span
-            className="text-sm font-bold leading-tight"
-            style={{ color: token.colorText }}
-          >
+        <Flex vertical align="end" justify="center">
+          <Text strong style={{ fontSize: 14, lineHeight: 1.2 }}>
             {userProfileData.firstname}
-          </span>
-          <span
-            className="text-[9px] font-extrabold px-1.5 py-[2px] rounded mt-1 tracking-wider text-white inline-flex items-center justify-center"
+          </Text>
+          <Badge
+            count={TRANSLATION(currentRankThemeConfig.labelKey).split(" ")[0]}
             style={{
-              background: currentRankThemeConfig.color,
-              lineHeight: 1, // บังคับ line-height ให้พอดีกับตัวอักษร
+              backgroundColor: currentRankThemeConfig.color,
+              fontSize: 9,
+              fontWeight: 800,
+              height: 16,
+              lineHeight: "16px",
+              borderRadius: 4,
+              marginTop: 2,
             }}
-          >
-            {TRANSLATION(currentRankThemeConfig.labelKey).split(" ")[0]}
-          </span>
-        </div>
+          />
+        </Flex>
 
         <RankAvatarDisplay
           userProfile={userProfileData}
@@ -540,12 +616,14 @@ export default function UserProfileDropdown(): JSX.Element {
         />
 
         <DownOutlined
-          className={`text-xs transition-transform duration-300 ${
-            isPopoverOpen ? "rotate-180" : ""
-          }`}
-          style={{ color: token.colorTextQuaternary }}
+          style={{
+            fontSize: 10,
+            color: token.colorTextQuaternary,
+            transform: isPopoverOpen ? "rotate(180deg)" : "none",
+            transition: "transform 0.3s",
+          }}
         />
-      </div>
+      </Flex>
     </Popover>
   );
 }
