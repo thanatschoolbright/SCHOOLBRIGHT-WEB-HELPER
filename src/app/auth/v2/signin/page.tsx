@@ -30,15 +30,40 @@ import {
   theme,
   Typography,
 } from "antd";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const { Title, Text, Paragraph } = Typography;
 
 export default function SignInPage() {
+  const { data: session, status: sessionStatus } = useSession();
   const [loading, setLoading] = useState(false);
   const { token } = theme.useToken();
   const router = useRouter();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (sessionStatus === "authenticated") {
+      router.replace("/main");
+    }
+  }, [sessionStatus, router]);
+
+  if (sessionStatus === "loading" || sessionStatus === "authenticated") {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          background: token.colorBgBase,
+        }}
+      >
+        <LoadingOutlined style={{ fontSize: 48, color: token.colorPrimary }} />
+      </div>
+    );
+  }
 
   // Login Tracking States
   const [isModalVisible, setIsModalVisible] = useState(false);
