@@ -2,7 +2,7 @@
 
 import { CompassFilled } from "@ant-design/icons";
 import UserDropdown from "@components/layouts/backend/user-dropdown";
-import { Flex, Grid, theme, Typography } from "antd";
+import { Button, Flex, Grid, theme, Typography } from "antd";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 
@@ -18,98 +18,73 @@ export default function MainHeader(): JSX.Element {
   // --- Constants ---
   const SB_GRADIENT = "linear-gradient(135deg, #FF9933 0%, #FF6600 100%)";
 
-  const getGlassBackground = (colorHex: string, opacity: number) => {
-    const hex = colorHex.replace("#", "");
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-  };
-
   return (
-    <div
+    <Flex
+      align="center"
+      justify="space-between"
       style={{
         width: "100%",
         height: "100%",
-        background: getGlassBackground(token.colorBgContainer, 0.85),
+        padding: screens.md ? "0 24px" : "0 16px",
+        background: token.colorBgContainer,
         backdropFilter: "blur(12px)",
-        borderBottom: `1px solid ${token.colorSplit}`,
+        borderBottom: `1px solid ${token.colorBorderSecondary}`,
         transition: "all 0.3s ease",
       }}
     >
-      <Flex
-        align="center"
-        justify="space-between"
+      {/* 🔸 Left: Logo Section */}
+      <Button
+        type="text"
+        onClick={() => router.push("/main")}
         style={{
-          width: "100%", // ✅ บังคับให้กว้างเต็มพื้นที่
-          height: "100%",
-          padding: screens.md ? "0 24px" : "0 16px", // ✅ ระยะห่างจากขอบซ้ายขวา (ปรับได้ตามชอบ เช่น 24px หรือ 32px)
-          // maxWidth: 1600,  // ❌ ลบออก เพื่อไม่ให้บีบเข้ามาตรงกลาง
-          // margin: "0 auto", // ❌ ลบออก
+          height: "auto",
+          padding: "4px 8px",
+          borderRadius: 12,
+          display: "flex",
+          alignItems: "center",
         }}
       >
-        {/* 🔸 Left: Logo Section (ชิดซ้ายโดยธรรมชาติจาก justify="space-between") */}
-        <Flex
-          align="center"
-          gap={screens.md ? 16 : 10}
-          onClick={() => router.push("/main")}
-          style={{ cursor: "pointer" }}
-          className="hover:opacity-80 active:scale-95 transition-all group"
-        >
+        <Flex align="center" gap={screens.md ? 12 : 8}>
           <Flex
             align="center"
             justify="center"
             style={{
-              width: screens.md ? 44 : 36,
-              height: screens.md ? 44 : 36,
+              width: screens.md ? 40 : 32,
+              height: screens.md ? 40 : 32,
               background: SB_GRADIENT,
-              borderRadius: screens.md ? 12 : 8,
-              boxShadow: "0 4px 12px rgba(255, 102, 0, 0.25)",
-              transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              borderRadius: screens.md ? 10 : 8,
+              boxShadow: `0 4px 12px ${token.colorPrimary}44`,
             }}
-            className="group-hover:scale-110 group-hover:rotate-3"
           >
             <CompassFilled
-              style={{
-                fontSize: screens.md ? 24 : 20,
-                color: "white",
-              }}
+              style={{ fontSize: screens.md ? 20 : 16, color: "#fff" }}
             />
           </Flex>
 
-          <Flex vertical justify="center" gap={2}>
+          <Flex vertical align="start">
             <Text
               strong
               style={{
-                fontSize: screens.md ? 18 : 15,
-                lineHeight: 1.1,
+                fontSize: screens.md ? 17 : 14,
+                lineHeight: 1.2,
                 color: token.colorTextHeading,
-                letterSpacing: "-0.5px",
               }}
             >
               School Bright
             </Text>
             {screens.sm && (
-              <Text
-                type="secondary"
-                style={{
-                  fontSize: 11,
-                  lineHeight: 1,
-                  opacity: 0.8,
-                  fontWeight: 500,
-                }}
-              >
+              <Text type="secondary" style={{ fontSize: 10, lineHeight: 1 }}>
                 {TRANSLATION("navbar.backend_system")}
               </Text>
             )}
           </Flex>
         </Flex>
+      </Button>
 
-        {/* 🔹 Right: User Profile Section */}
-        <Flex align="center">
-          <UserDropdown />
-        </Flex>
+      {/* 🔹 Right: User Profile Section */}
+      <Flex align="center">
+        <UserDropdown />
       </Flex>
-    </div>
+    </Flex>
   );
 }
