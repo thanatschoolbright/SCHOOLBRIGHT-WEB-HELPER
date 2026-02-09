@@ -1,23 +1,8 @@
 "use client";
 
-import {
-  AppstoreOutlined,
-  BellOutlined,
-  CompassFilled,
-  HomeOutlined,
-} from "@ant-design/icons";
+import { CompassFilled } from "@ant-design/icons";
 import UserDropdown from "@components/layouts/backend/user-dropdown";
-import {
-  Badge,
-  Button,
-  Divider,
-  Flex,
-  Grid,
-  Space,
-  theme,
-  Tooltip,
-  Typography,
-} from "antd";
+import { Flex, Grid, theme, Typography } from "antd";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 
@@ -120,70 +105,10 @@ export default function MainHeader(): JSX.Element {
           </Flex>
         </Flex>
 
-        {/* 🔹 Right: Actions (ชิดขวาโดยธรรมชาติจาก justify="space-between") */}
-        <Space size={screens.md ? 12 : 8} align="center">
-          {screens.md && (
-            <Button
-              type="text"
-              icon={<HomeOutlined />}
-              onClick={() => router.push("/main")}
-              style={{
-                color: token.colorTextSecondary,
-                height: 40,
-                borderRadius: 8,
-              }}
-              className="hover:bg-black/5 dark:hover:bg-white/10"
-            >
-              {TRANSLATION("navbar.home")}
-            </Button>
-          )}
-
-          {screens.sm && (
-            <Tooltip title={TRANSLATION("navbar.applications")}>
-              <Button
-                type="text"
-                shape="circle"
-                icon={<AppstoreOutlined style={{ fontSize: 18 }} />}
-                style={{
-                  color: token.colorTextSecondary,
-                  width: 40,
-                  height: 40,
-                }}
-              />
-            </Tooltip>
-          )}
-
-          <Tooltip title={TRANSLATION("navbar.notifications")}>
-            <Button
-              type="text"
-              shape="circle"
-              icon={
-                <Badge dot color="#FF4D4F" offset={[-1, 1]}>
-                  <BellOutlined
-                    style={{ fontSize: screens.md ? 20 : 18 }}
-                    className="group-hover:animate-swing"
-                  />
-                </Badge>
-              }
-              style={{
-                color: token.colorTextSecondary,
-                width: 40,
-                height: 40,
-                border: `1px solid ${token.colorBorderSecondary}`,
-              }}
-              className="group hover:text-orange-500 hover:border-orange-500 transition-colors"
-            />
-          </Tooltip>
-
-          {screens.sm && (
-            <Divider
-              type="vertical"
-              style={{ height: 28, margin: "0 8px", opacity: 0.5 }}
-            />
-          )}
-
+        {/* 🔹 Right: User Profile Section */}
+        <Flex align="center">
           <UserDropdown />
-        </Space>
+        </Flex>
       </Flex>
     </div>
   );
