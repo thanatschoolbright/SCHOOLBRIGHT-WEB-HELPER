@@ -455,6 +455,12 @@ export default function UserProfileDropdown(): JSX.Element {
         >
           <LockOutlined className="group-hover:rotate-12 transition-transform" />
           {TRANSLATION("user_dropdown.change_password")}
+          <span
+            className="px-1.5 py-0.5 rounded-md text-[9px] font-black text-white shadow-sm uppercase animate-pulse"
+            style={{ backgroundColor: token.colorError }}
+          >
+            แก้ไขบัก
+          </span>
         </button>
 
         <button

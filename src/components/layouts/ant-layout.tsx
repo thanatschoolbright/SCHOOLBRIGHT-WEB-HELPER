@@ -137,7 +137,9 @@ const getThemeConfig = (isDark: boolean): ThemeConfig => {
       },
       Layout: {
         bodyBg: colors.bgLayout,
-        headerBg: isDark ? "rgba(18, 18, 18, 0.85)" : "rgba(255, 255, 255, 0.85)",
+        headerBg: isDark
+          ? "rgba(18, 18, 18, 0.85)"
+          : "rgba(255, 255, 255, 0.85)",
         headerPadding: "0 24px",
       },
       Menu: {
