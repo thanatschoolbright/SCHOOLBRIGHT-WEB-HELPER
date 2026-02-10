@@ -399,16 +399,26 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
               )}
             </div>
             <Flex vertical gap={0}>
-              <Text
-                strong
-                style={{
-                  fontSize: 15,
-                  lineHeight: 1.3,
-                  color: token.colorTextHeading,
-                }}
-              >
-                {buildFullName(record)}
-              </Text>
+              <Flex align="center" gap={8}>
+                <Text
+                  strong
+                  style={{
+                    fontSize: 15,
+                    lineHeight: 1.3,
+                    color: token.colorTextHeading,
+                  }}
+                >
+                  {buildFullName(record)}
+                </Text>
+                {!record.has_started && (
+                  <Tag
+                    color="default"
+                    style={{ fontSize: 10, borderRadius: 4, margin: 0 }}
+                  >
+                    ยังไม่เริ่มงาน
+                  </Tag>
+                )}
+              </Flex>
               <Text
                 type="secondary"
                 style={{ fontSize: 11, color: token.colorTextDescription }}
@@ -456,6 +466,17 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         render: (dept: string) => (
           <Text style={{ fontSize: 13, color: token.colorTextSecondary }}>
             {dept || "-"}
+          </Text>
+        ),
+      },
+      {
+        title: "วันที่เริ่มงาน",
+        dataIndex: "joined_date",
+        key: "joined_date",
+        width: 120,
+        render: (date: string) => (
+          <Text style={{ fontSize: 13, color: token.colorTextSecondary }}>
+            {date ? dayjs(date).format("DD/MM/YYYY") : "-"}
           </Text>
         ),
       },

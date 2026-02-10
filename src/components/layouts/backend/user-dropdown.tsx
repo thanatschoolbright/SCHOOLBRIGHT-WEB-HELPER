@@ -568,12 +568,14 @@ export default function UserProfileDropdown(): JSX.Element {
       arrow={false}
       onOpenChange={setIsPopoverOpen}
       align={{ offset: [0, 14] }}
-      overlayInnerStyle={{
-        padding: 24,
-        borderRadius: 24,
-        backgroundColor: token.colorBgElevated,
-        border: `1px solid ${token.colorBorderSecondary}`,
-        boxShadow: "0 10px 32px rgba(0,0,0,0.12)",
+      styles={{
+        body: {
+          padding: 24,
+          borderRadius: 24,
+          backgroundColor: token.colorBgElevated,
+          border: `1px solid ${token.colorBorderSecondary}`,
+          boxShadow: "0 10px 32px rgba(0,0,0,0.12)",
+        },
       }}
     >
       <Flex

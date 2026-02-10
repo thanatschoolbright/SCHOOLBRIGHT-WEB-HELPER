@@ -19,6 +19,9 @@ export type SummaryRecord = {
   status_label: string;
   completion_rate: number;
   image_profile: string | null;
+  joined_date: string | null;
+  resigned_date: string | null;
+  has_started: boolean;
   progress_text: string;
   breakdown: BreakdownRow[];
   rank: number;

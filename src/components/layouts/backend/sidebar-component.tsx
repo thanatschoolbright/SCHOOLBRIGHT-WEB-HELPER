@@ -1,5 +1,4 @@
 import { useSidebarMenu } from "@/constants/sidebar-menu-constant";
-import { CompassFilled } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import {
   Button,
@@ -190,22 +189,16 @@ export default function SidebarContent({
             }}
           >
             <Flex align="center" gap={collapsed ? 0 : 12}>
-              <Flex
-                align="center"
-                justify="center"
+              <img
+                src="/web-app-manifest-192x192.png"
+                alt="School Bright Logo"
                 style={{
                   width: 38,
                   height: 38,
-                  background: SB_ORANGE_GRADIENT,
-                  borderRadius: 10,
-                  boxShadow: `0 4px 12px ${token.colorPrimary}44`,
+                  borderRadius: 8,
                   flexShrink: 0,
                 }}
-              >
-                <CompassFilled
-                  style={{ fontSize: 20, color: token.colorWhite }}
-                />
-              </Flex>
+              />
 
               {!collapsed && (
                 <Flex vertical align="start">

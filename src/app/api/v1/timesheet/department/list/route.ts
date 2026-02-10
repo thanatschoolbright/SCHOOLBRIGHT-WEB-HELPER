@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { successResponse, errorResponse } from "@/helpers/api/response";
-import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
+import prisma from "@/helpers/prisma-timesheet";
 
 export async function GET() {
   try {
-    const departments = await PrismaTimesheet.department.findMany({
+    const departments = await prisma.department.findMany({
       where: {
         is_deleted: false,
         is_active: true,
@@ -30,7 +30,7 @@ export async function GET() {
       errorResponse({
         message_en: error.message,
         message_th: "ไม่สามารถดึงข้อมูลแผนกได้",
-        error,
+        error: process.env.NODE_ENV === "development" ? error.message : undefined,
       }),
       { status: 500 },
     );

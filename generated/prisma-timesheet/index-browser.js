@@ -216,52 +216,52 @@ exports.Prisma.ProjectStatusScalarFieldEnum = {
 exports.Prisma.ProjectScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  name_en: 'name_en',
   description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdBy: 'createdBy',
+  updatedBy: 'updatedBy',
+  is_deleted: 'is_deleted',
   categoryType: 'categoryType',
+  status: 'status',
   approval: 'approval',
   approval_status: 'approval_status',
-  status: 'status',
-  start_date: 'start_date',
   end_date: 'end_date',
+  group_id: 'group_id',
+  name_en: 'name_en',
+  start_date: 'start_date',
+  projectStatusId: 'projectStatusId',
   completeDate: 'completeDate',
   estimateWorkhours: 'estimateWorkhours',
-  assetCaptureType: 'assetCaptureType',
-  group_id: 'group_id',
-  projectStatusId: 'projectStatusId',
-  is_deleted: 'is_deleted',
-  createdAt: 'createdAt',
-  createdBy: 'createdBy',
-  updatedAt: 'updatedAt',
-  updatedBy: 'updatedBy'
+  assetCaptureType: 'assetCaptureType'
 };
 
 exports.Prisma.FeatureScalarFieldEnum = {
   id: 'id',
   projectId: 'projectId',
   name: 'name',
-  name_en: 'name_en',
-  ticket_number: 'ticket_number',
-  status: 'status',
-  assetCaptureType: 'assetCaptureType',
-  backlogDescription: 'backlogDescription',
-  startDate: 'startDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdBy: 'createdBy',
+  updatedBy: 'updatedBy',
+  is_deleted: 'is_deleted',
   endDate: 'endDate',
+  startDate: 'startDate',
+  backlogDescription: 'backlogDescription',
+  assetCaptureType: 'assetCaptureType',
+  status: 'status',
+  name_en: 'name_en',
+  projectStatusId: 'projectStatusId',
   completeDate: 'completeDate',
   estimateWorkhours: 'estimateWorkhours',
-  projectStatusId: 'projectStatusId',
-  is_deleted: 'is_deleted',
-  createdAt: 'createdAt',
-  createdBy: 'createdBy',
-  updatedAt: 'updatedAt',
-  updatedBy: 'updatedBy'
+  ticket_number: 'ticket_number'
 };
 
 exports.Prisma.ProjectAssigneeScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
   projectId: 'projectId',
   featureId: 'featureId',
+  userId: 'userId',
   position: 'position'
 };
 
@@ -273,11 +273,11 @@ exports.Prisma.TimesheetEntryScalarFieldEnum = {
   hours: 'hours',
   description: 'description',
   status: 'status',
-  is_deleted: 'is_deleted',
   createdAt: 'createdAt',
-  createdBy: 'createdBy',
   updatedAt: 'updatedAt',
-  updatedBy: 'updatedBy'
+  createdBy: 'createdBy',
+  updatedBy: 'updatedBy',
+  is_deleted: 'is_deleted'
 };
 
 exports.Prisma.OvertimeScalarFieldEnum = {
@@ -285,44 +285,44 @@ exports.Prisma.OvertimeScalarFieldEnum = {
   requesterId: 'requesterId',
   requestDate: 'requestDate',
   status: 'status',
-  isDeleted: 'isDeleted',
-  createdAt: 'createdAt',
   createdBy: 'createdBy',
+  updatedBy: 'updatedBy',
+  createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  updatedBy: 'updatedBy'
+  isDeleted: 'isDeleted'
 };
 
 exports.Prisma.OvertimeDescriptionScalarFieldEnum = {
   id: 'id',
   overtimeId: 'overtimeId',
-  assignee: 'assignee',
-  description: 'description',
-  duration: 'duration',
   date: 'date',
-  startDate: 'startDate',
+  duration: 'duration',
+  description: 'description',
+  assignee: 'assignee',
   endDate: 'endDate',
+  startDate: 'startDate',
   proof: 'proof'
 };
 
 exports.Prisma.ApiLogScalarFieldEnum = {
   id: 'id',
-  service_name: 'service_name',
-  endpoint: 'endpoint',
-  url: 'url',
-  method: 'method',
-  ip_address: 'ip_address',
-  user_agent: 'user_agent',
-  request_header: 'request_header',
-  request_body: 'request_body',
-  response_body: 'response_body',
-  status_code: 'status_code',
-  is_success: 'is_success',
-  error_message: 'error_message',
   request_time: 'request_time',
   response_time: 'response_time',
   duration_ms: 'duration_ms',
-  trace_id: 'trace_id',
+  method: 'method',
+  status_code: 'status_code',
+  url: 'url',
+  endpoint: 'endpoint',
+  service_name: 'service_name',
+  request_header: 'request_header',
+  request_body: 'request_body',
+  response_body: 'response_body',
+  ip_address: 'ip_address',
+  user_agent: 'user_agent',
   called_by: 'called_by',
+  trace_id: 'trace_id',
+  error_message: 'error_message',
+  is_success: 'is_success',
   created_at: 'created_at',
   is_archived: 'is_archived'
 };

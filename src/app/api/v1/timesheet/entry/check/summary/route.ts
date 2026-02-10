@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
-import { successResponse, errorResponse } from "@/helpers/api/response";
-import { Service } from "@/services/backend/timesheet/entry.service";
-import axios from "axios";
-import { API_URL } from "@services/api-url";
-import { z } from "zod";
+import { errorResponse, successResponse } from "@/helpers/api/response";
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
+import { Service } from "@/services/backend/timesheet/entry.service";
+import { API_URL } from "@services/api-url";
+import axios from "axios";
+import { NextResponse } from "next/server";
+import { z } from "zod";
 
 const WORKING_HOURS_PER_DAY = 8;
 const WEEKDAY_LABEL_TH = [
@@ -174,14 +174,64 @@ const makeBreakdownRows = (breakdown?: Map<string, number>) => {
     .sort((a, b) => a.date.localeCompare(b.date));
 };
 
+const computeExpectedHours = (
+  start: Date,
+  end: Date,
+  joinedDate?: Date | null,
+  resignedDate?: Date | null,
+) => {
+  const actualStart =
+    joinedDate && joinedDate > start
+      ? new Date(joinedDate.setHours(0, 0, 0, 0))
+      : start;
+  const actualEnd =
+    resignedDate && resignedDate < end
+      ? new Date(resignedDate.setHours(23, 59, 59, 999))
+      : end;
+
+  // ตรวจสอบว่าพนักงานเริ่มงานหรือยัง หรือลาออกไปก่อนช่วงที่ระบุหรือไม่
+  if (
+    actualStart > end ||
+    (resignedDate && resignedDate < start) ||
+    actualStart > actualEnd
+  ) {
+    return { workingDays: 0, expectedHours: 0, hasStarted: false };
+  }
+
+  const cursor = new Date(actualStart);
+  let workingDays = 0;
+
+  while (cursor <= actualEnd) {
+    const day = cursor.getDay();
+    if (day >= 1 && day <= 5) {
+      workingDays += 1;
+    }
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return {
+    workingDays,
+    expectedHours: workingDays * WORKING_HOURS_PER_DAY,
+    hasStarted: true,
+  };
+};
+
 const buildSummaryRecords = (
   users: any[],
   entries: TimesheetEntryRow[],
-  expectedHours: number,
+  globalStart: Date,
+  globalEnd: Date,
 ) => {
   const aggregated = aggregateEntriesByUser(entries);
 
   const records = users.map((user) => {
+    const { expectedHours, hasStarted } = computeExpectedHours(
+      globalStart,
+      globalEnd,
+      user.joined_date,
+      user.resigned_date,
+    );
+
     const key = String(user.admin_id);
     const aggregatedData = aggregated.get(key);
     const totalHours = aggregatedData?.total ?? 0;
@@ -224,6 +274,9 @@ const buildSummaryRecords = (
       email: user.email ?? null,
       tel: user.phone ?? null,
       image_profile: user.profile_image_path ?? null,
+      joined_date: user.joined_date ? toISODate(user.joined_date) : null,
+      resigned_date: user.resigned_date ? toISODate(user.resigned_date) : null,
+      has_started: hasStarted,
       total_hours: roundedHours,
       required_hours: expectedHours,
       hours_gap: hoursGap,
@@ -247,21 +300,6 @@ const buildSummaryRecords = (
   return records
     .sort((a, b) => b.total_hours - a.total_hours)
     .map((record, index) => ({ ...record, rank: index + 1 }));
-};
-
-const computeExpectedHours = (start: Date, end: Date) => {
-  const cursor = new Date(start);
-  let workingDays = 0;
-
-  while (cursor <= end) {
-    const day = cursor.getDay();
-    if (day >= 1 && day <= 5) {
-      workingDays += 1;
-    }
-    cursor.setDate(cursor.getDate() + 1);
-  }
-
-  return { workingDays, expectedHours: workingDays * WORKING_HOURS_PER_DAY };
 };
 
 const extractAxiosMessage = (error: unknown) => {
@@ -323,7 +361,13 @@ export async function POST(request: Request) {
     const summaryRecords = buildSummaryRecords(
       users,
       (entries ?? []) as TimesheetEntryRow[],
-      expectedHours,
+      start,
+      end,
+    );
+
+    const totalExpectedHoursAllMembers = summaryRecords.reduce(
+      (sum, record) => sum + record.required_hours,
+      0,
     );
 
     return NextResponse.json(
@@ -338,11 +382,10 @@ export async function POST(request: Request) {
             },
             working_days: workingDays,
             expected_hours_per_member: expectedHours,
-            total_expected_hours_all_members:
-              expectedHours * summaryRecords.length,
+            total_expected_hours_all_members: totalExpectedHoursAllMembers,
             generated_at: new Date().toISOString(),
             notes:
-              "รวมชั่วโมงเฉพาะวันทำงาน (จันทร์-ศุกร์) ในช่วงวันที่ที่ร้องขอ",
+              "รวมชั่วโมงเฉพาะวันทำงาน (จันทร์-ศุกร์) ปรับลดตามวันที่พนักงานเริ่มงานจริง",
           },
         },
       }),

@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
-import { successResponse, errorResponse } from "@/helpers/api/response";
-import Service from "@services/overtime/overtime.service";
-import { z } from "zod";
+import { errorResponse, successResponse } from "@/helpers/api/response";
 import { validateRequest } from "@helpers/api/validate.request";
 import { handleError } from "@helpers/controller/handle-error.params";
+import Service from "@services/overtime/overtime.service";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 // Schema for change-status body (accept snake_case updated_by)
 const ChangeStatusSchema = z.object({
-  status: z.enum(["pending", "approved", "rejected"]),
+  status: z.enum(["pending", "approved", "rejected", "paid", "payment_failed"]),
   updated_by: z.preprocess((v) => {
     if (typeof v === "string" && v.trim() !== "") return Number(v);
     return v;
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
           message_th: "ต้องระบุพารามิเตอร์ id",
           status: 400,
         }),
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -37,13 +37,13 @@ export async function POST(request: NextRequest) {
           message_th: "ค่า id ไม่ถูกต้อง",
           status: 400,
         }),
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const { data: bodyData, error } = await validateRequest(
       request,
-      ChangeStatusSchema
+      ChangeStatusSchema,
     );
     if (error) return error;
 
@@ -62,12 +62,12 @@ export async function POST(request: NextRequest) {
         message_en: "Status updated",
         message_th: "อัปเดตสถานะเรียบร้อยแล้ว",
       }),
-      { status: 200 }
+      { status: 200 },
     );
   } catch (err: any) {
     return handleError(
       err,
-      "POST /api/v1/timesheet/overtime/change-status error"
+      "POST /api/v1/timesheet/overtime/change-status error",
     );
   }
 }
