@@ -442,7 +442,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         render: (position: string) => (
           <Tag
             color={getPositionColor(position)}
-            variant="borderless"
+            bordered={false}
             style={{
               borderRadius: 4,
               fontSize: 11,
@@ -477,6 +477,22 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         render: (date: string) => (
           <Text style={{ fontSize: 13, color: token.colorTextSecondary }}>
             {date ? dayjs(date).format("DD/MM/YYYY") : "-"}
+          </Text>
+        ),
+      },
+      {
+        title: "วันที่ลาออก",
+        dataIndex: "resigned_date",
+        key: "resigned_date",
+        width: 150,
+        render: (date: string) => (
+          <Text
+            style={{
+              fontSize: 13,
+              color: date ? token.colorError : token.colorSuccess,
+            }}
+          >
+            {date ? dayjs(date).format("DD/MM/YYYY") : "ปัจจุบันยังทำงานอยู่"}
           </Text>
         ),
       },
