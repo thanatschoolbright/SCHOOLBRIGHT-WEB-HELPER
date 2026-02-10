@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { successResponse, errorResponse } from "@/helpers/api/response";
+import { errorResponse, successResponse } from "@/helpers/api/response";
 import prisma from "@/helpers/prisma-timesheet";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
@@ -30,7 +30,8 @@ export async function GET() {
       errorResponse({
         message_en: error.message,
         message_th: "ไม่สามารถดึงข้อมูลแผนกได้",
-        error: process.env.NODE_ENV === "development" ? error.message : undefined,
+        error:
+          process.env.NODE_ENV === "development" ? error.message : undefined,
       }),
       { status: 500 },
     );

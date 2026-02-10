@@ -336,12 +336,14 @@ export default function TimesheetAllPage() {
           />
 
           {/* ส่วนที่ 4 : ตารางข้อมูล (Table Content) */}
-          <div
+          <Flex
+            vertical
             style={{
               background: token.colorBgContainer,
               borderRadius: token.borderRadiusLG,
               border: `1px solid ${token.colorBorderSecondary}`,
               overflow: "hidden",
+              marginTop: 12,
             }}
           >
             {/* Table Header with Actions on the right */}
@@ -406,7 +408,7 @@ export default function TimesheetAllPage() {
             </Flex>
 
             {/* Table Area */}
-            <div style={{ padding: "0" }}>
+            <Flex vertical style={{ padding: 12 }}>
               <TimesheetTable
                 records={filteredRecords}
                 loading={loading}
@@ -415,7 +417,7 @@ export default function TimesheetAllPage() {
                 autoFillOpen={modalStates.autoFillModal}
                 onAutoFillClose={() => responseCloseModal("autoFillModal")}
               />
-            </div>
+            </Flex>
 
             {/* Footer Notes */}
             {metadata?.notes && (
@@ -434,7 +436,7 @@ export default function TimesheetAllPage() {
                 </Text>
               </Flex>
             )}
-          </div>
+          </Flex>
         </Flex>
 
         {/* Modals สำหรับการส่งออกข้อมูล */}
