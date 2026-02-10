@@ -47,4 +47,14 @@ export const OT_STATUS = [
     value: "rejected",
     color: "red",
   },
+  {
+    text: "จ่าย OT สำเร็จ",
+    value: "paid",
+    color: "cyan",
+  },
+  {
+    text: "จ่าย OT ล้มเหลว",
+    value: "payment_failed",
+    color: "volcano",
+  },
 ];

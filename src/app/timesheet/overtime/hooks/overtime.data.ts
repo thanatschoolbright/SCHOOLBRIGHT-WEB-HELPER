@@ -1,22 +1,22 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { Form, Modal } from "antd";
-import { useRouter } from "next/navigation";
+import { callApiService } from "@/services/axios-instance/sb-helper.axios";
+import { useAppSelector } from "@/stores/store";
+import type { TimesheetEntry } from "@/types/timesheet-table.types";
+import { getUserData } from "@helpers/local_storage/user.storage";
+import type { SelectOption, UserProfile } from "@stores/type";
+import { Form } from "antd";
 import dayjs from "dayjs";
+import buddhistEra from "dayjs/plugin/buddhistEra";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import buddhistEra from "dayjs/plugin/buddhistEra";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import type { OvertimeRecord, PaginationState } from "../types/overtime.types";
+import { getCurrentUserId, handleError } from "../utils/overtime.helpers";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(buddhistEra);
-import { useAppSelector } from "@/stores/store";
-import { getUserData } from "@helpers/local_storage/user.storage";
-import { callApiService } from "@/services/axios-instance/sb-helper.axios";
-import type { SelectOption, UserProfile } from "@stores/type";
-import type { TimesheetEntry } from "@/types/timesheet-table.types";
-import type { OvertimeRecord, PaginationState } from "../types/overtime.types";
-import { handleError, getCurrentUserId } from "../utils/overtime.helpers";
 
 const BYPASS_ADMIN_ID = "117";
 
@@ -64,8 +64,8 @@ export const useOvertimeData = () => {
     const pendingCount = overtimeDataSource.filter(
       (item) => item.status === "pending",
     ).length;
-    const approvedCount = overtimeDataSource.filter(
-      (item) => item.status === "approved",
+    const approvedCount = overtimeDataSource.filter((item) =>
+      ["approved", "paid", "payment_failed"].includes(item.status || ""),
     ).length;
 
     return {

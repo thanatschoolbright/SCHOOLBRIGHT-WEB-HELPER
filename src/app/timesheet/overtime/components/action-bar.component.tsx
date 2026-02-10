@@ -145,7 +145,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
                         </div>
                         <div className="text-xs">
                           เปลี่ยนสถานะหลายรายการในคราวเดียว เช่น อนุมัติ,
-                          ปฏิเสธ, หรือรอการพิจารณา
+                          ปฏิเสธ, หรือสถานะการจ่ายเงิน OT
                         </div>
                       </div>
                     }

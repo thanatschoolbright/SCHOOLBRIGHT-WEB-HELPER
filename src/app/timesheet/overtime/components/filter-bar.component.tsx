@@ -1,34 +1,31 @@
 "use client";
 
-import React from "react";
 import {
-  Card,
-  Space,
-  Input,
-  Select,
-  DatePicker,
-  Button,
-  theme,
-  Row,
-  Col,
-  Typography,
-  Tooltip,
-} from "antd";
-import {
-  SearchOutlined,
-  ReloadOutlined,
-  CheckOutlined,
   CalendarOutlined,
-  FilterOutlined,
-  InfoCircleOutlined,
-  ClockCircleOutlined,
   CheckCircleOutlined,
+  ClockCircleOutlined,
   CloseCircleOutlined,
+  FilterOutlined,
+  ReloadOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
+import {
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Input,
+  Row,
+  Select,
+  Space,
+  theme,
+  Typography,
+} from "antd";
+import dayjs from "dayjs";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import type { PaginationState } from "../types/overtime.types";
 import { OT_STATUS } from "../types/overtime.types";
-import dayjs from "dayjs";
 
 const { Text } = Typography;
 
@@ -133,7 +130,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                     <span>
                       {s.value === "pending" ? (
                         <ClockCircleOutlined />
-                      ) : s.value === "approved" ? (
+                      ) : s.value === "approved" || s.value === "paid" ? (
                         <CheckCircleOutlined
                           style={{ color: token.colorSuccess }}
                         />
