@@ -919,6 +919,35 @@ export default function UserManagementPage() {
         };
         const emp = getEmpType(record.employment_type);
 
+        const calculateDuration = (start: any, endInput: any = null) => {
+          if (!start) return "-";
+          const s = dayjs(start).startOf("day");
+          if (!s.isValid()) return "-";
+
+          // ถ้าไม่มี endInput หรือเป็นค่าว่าง/null ให้ใช้วันนี้
+          const e =
+            endInput && endInput !== ""
+              ? dayjs(endInput).startOf("day")
+              : dayjs().startOf("day");
+          if (!e.isValid()) return "-";
+
+          // ถ้าวันเริ่มต้นมากกว่าวันสิ้นสุด (ข้อมูลผิดพลาด)
+          if (s.isAfter(e)) return "0 วัน";
+
+          let years = e.diff(s, "year");
+          let tempDate = s.add(years, "year");
+          let months = e.diff(tempDate, "month");
+          tempDate = tempDate.add(months, "month");
+          let days = e.diff(tempDate, "day");
+
+          const result = [];
+          if (years > 0) result.push(`${years} ปี`);
+          if (months > 0) result.push(`${months} เดือน`);
+          if (days > 0) result.push(`${days} วัน`);
+
+          return result.join(" ") || "0 วัน";
+        };
+
         return (
           <div className="flex flex-col gap-1">
             <Typography.Text style={{ fontWeight: 600 }} className="text-sm">
@@ -950,6 +979,31 @@ export default function UserManagementPage() {
                 </Tag>
               )}
             </div>
+            {(record.joined_date || record.birth_date) && (
+              <div className="flex flex-col gap-0.5 mt-1 pt-1 border-t border-dashed border-gray-100 dark:border-gray-800">
+                {record.joined_date && (
+                  <Typography.Text type="secondary" style={{ fontSize: 10 }}>
+                    <CalendarOutlined style={{ marginRight: 4 }} />
+                    อายุงาน:{" "}
+                    <span className="text-blue-500 font-medium">
+                      {calculateDuration(
+                        record.joined_date,
+                        record.resigned_date,
+                      )}
+                    </span>
+                  </Typography.Text>
+                )}
+                {record.birth_date && (
+                  <Typography.Text type="secondary" style={{ fontSize: 10 }}>
+                    <SolutionOutlined style={{ marginRight: 4 }} />
+                    อายุพนักงาน:{" "}
+                    <span className="text-orange-500 font-medium">
+                      {calculateDuration(record.birth_date)}
+                    </span>
+                  </Typography.Text>
+                )}
+              </div>
+            )}
           </div>
         );
       },
