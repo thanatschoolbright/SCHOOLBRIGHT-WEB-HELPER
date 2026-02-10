@@ -52,6 +52,7 @@ model User {
   status                String      @default("ACTIVE") @map("status")
   email                 String?     @map("email")
   phone                 String?     @map("phone")
+  birth_date            DateTime?   @map("birth_date")
   profile_image_path    String?     @map("profile_image")
   joined_date           DateTime?   @map("joined_date")
   resigned_date         DateTime?   @map("resigned_date")

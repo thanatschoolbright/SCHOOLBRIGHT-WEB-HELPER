@@ -1584,6 +1584,11 @@ export default function UserManagementPage() {
                 <Descriptions.Item label="เบอร์โทรศัพท์">
                   {selectedUser.phone || "-"}
                 </Descriptions.Item>
+                <Descriptions.Item label="วันเกิด">
+                  {selectedUser.birth_date
+                    ? dayjs(selectedUser.birth_date).format("DD MMMM YYYY")
+                    : "-"}
+                </Descriptions.Item>
                 <Descriptions.Item label="Backlog Email">
                   {(selectedUser as any).backlog_email || "-"}
                 </Descriptions.Item>

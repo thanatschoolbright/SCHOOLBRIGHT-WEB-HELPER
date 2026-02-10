@@ -14,6 +14,7 @@ export const CreateUserSchema = z.object({
   department_id: z.number().int().optional().nullable(),
   email: z.string().email().optional().or(z.literal("")),
   phone: z.string().optional(),
+  birth_date: z.string().optional().nullable(),
   role_id: z.number().int().optional(),
   profile_image: z.string().optional().nullable(),
   profile_image_path: z.string().optional().nullable(),
@@ -39,6 +40,7 @@ export const UpdateUserSchema = z.object({
   status: z.string().optional(),
   email: z.string().email().optional().or(z.literal("")),
   phone: z.string().optional(),
+  birth_date: z.string().optional().nullable(),
   role_id: z.number().int().optional().nullable(),
 
   profile_image: z.string().optional().nullable(),

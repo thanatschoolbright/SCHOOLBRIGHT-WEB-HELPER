@@ -133,6 +133,9 @@ export default function CreateUserPage() {
         profile_image: values.profile_image_path,
         admin_id: Number(values.admin_id),
         created_by: adminId,
+        birth_date: values.birth_date
+          ? values.birth_date.format("YYYY-MM-DD")
+          : null,
         joined_date: values.joined_date
           ? values.joined_date.format("YYYY-MM-DD")
           : null,
@@ -459,6 +462,15 @@ export default function CreateUserPage() {
                         </Form.Item>
                       </Col>
                       <Col xs={24} md={12}>
+                        <Form.Item name="birth_date" label="วันเกิด">
+                          <DatePicker
+                            className="w-full"
+                            format="DD/MM/YYYY"
+                            placeholder="เลือกวันเกิด"
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={24}>
                         <Form.Item
                           name="email"
                           label="อีเมล"

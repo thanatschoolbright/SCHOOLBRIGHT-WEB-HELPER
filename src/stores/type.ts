@@ -1,5 +1,4 @@
 import { SubProjectAssetCaptureType } from "@/services/backend/timesheet/sub-project/sub-project.service";
-import { Dayjs, extend } from "dayjs";
 
 // types.ts
 export interface DefaultRedux<T = any> {
@@ -556,6 +555,7 @@ export interface UserProfile {
   nickname?: string;
   email?: string;
   phone?: string;
+  birth_date?: string | Date;
   profile_image_path?: string;
   status: string;
   position_id?: number;

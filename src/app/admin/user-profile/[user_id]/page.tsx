@@ -1,63 +1,53 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { HuaweiBucketStorageService } from "@/services/huawei-bucket-storage.service";
 import {
-  Form,
-  Input,
-  Button,
-  Card,
-  Row,
-  Col,
-  Flex,
-  Select,
-  Typography,
-  Divider,
-  Avatar,
-  Space,
-  Badge,
-  Skeleton,
-  Tag,
-  Alert,
-  Modal,
-  theme,
-  DatePicker,
-  Steps,
-} from "antd";
-import {
-  UserOutlined,
-  MailOutlined,
-  PhoneOutlined,
-  IdcardOutlined,
   ArrowLeftOutlined,
-  SaveOutlined,
+  CalendarOutlined,
+  CameraOutlined,
   CheckCircleOutlined,
   ExclamationCircleOutlined,
-  TeamOutlined,
-  SolutionOutlined,
   HistoryOutlined,
-  ApartmentOutlined,
-  CalendarOutlined,
-  ClockCircleOutlined,
+  IdcardOutlined,
   LinkOutlined,
-  SafetyCertificateOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
-import { useRouter, useParams } from "next/navigation";
-import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
-import { toast } from "sonner";
-import dayjs from "dayjs";
-import { HuaweiBucketStorageService } from "@/services/huawei-bucket-storage.service";
-import { Upload, message } from "antd";
-import type { UploadProps } from "antd";
-import {
   LoadingOutlined,
-  CameraOutlined,
-  DeleteOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  SafetyCertificateOutlined,
+  SaveOutlined,
+  SearchOutlined,
+  SolutionOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
+import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
+import {
+  Alert,
+  Avatar,
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Divider,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Steps,
+  Tag,
+  Typography,
+  Upload,
+  theme,
+} from "antd";
+import dayjs from "dayjs";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
-import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
+import DashboardLayout from "@components/layouts/backend-layout";
 
 const { Title, Text } = Typography;
 
@@ -208,6 +198,7 @@ const UserEditPage = () => {
         profile_image: user.profile_image_path,
         joined_date: user.joined_date ? dayjs(user.joined_date) : null,
         resigned_date: user.resigned_date ? dayjs(user.resigned_date) : null,
+        birth_date: user.birth_date ? dayjs(user.birth_date) : null,
         employment_type: user.employment_type || "FULL_TIME",
       });
     } catch (error: any) {
@@ -269,6 +260,9 @@ const UserEditPage = () => {
           : null,
         resigned_date: values.resigned_date
           ? dayjs(values.resigned_date).format("YYYY-MM-DD")
+          : null,
+        birth_date: values.birth_date
+          ? dayjs(values.birth_date).format("YYYY-MM-DD")
           : null,
         // Ensure these are numbers or undefined (not null) if that's what backend expects
         position_id: values.position_id || undefined,
@@ -584,6 +578,37 @@ const UserEditPage = () => {
                           </Text>
                         </div>
                       </Space>
+
+                      <Space align="start" size={12}>
+                        <div
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 8,
+                            backgroundColor: token.colorFillAlter,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <CalendarOutlined
+                            style={{ color: token.colorWarning }}
+                          />
+                        </div>
+                        <div>
+                          <Text
+                            type="secondary"
+                            style={{ fontSize: 12, display: "block" }}
+                          >
+                            วันเกิด (Birthday)
+                          </Text>
+                          <Text strong>
+                            {userData?.birth_date
+                              ? dayjs(userData.birth_date).format("DD MMM YYYY")
+                              : "ไม่ได้ระบุ"}
+                          </Text>
+                        </div>
+                      </Space>
                     </Space>
                   </div>
                 </Card>
@@ -725,6 +750,15 @@ const UserEditPage = () => {
                       <Col xs={24} md={12}>
                         <Form.Item label="ชื่อเล่น" name="nickname">
                           <Input placeholder="ชื่อเล่น" />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={12}>
+                        <Form.Item label="วันเกิด" name="birth_date">
+                          <DatePicker
+                            placeholder="เลือกวันเกิด"
+                            style={{ width: "100%" }}
+                            format="DD/MM/YYYY"
+                          />
                         </Form.Item>
                       </Col>
                     </Row>

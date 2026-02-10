@@ -16,6 +16,7 @@ export interface CreateUserDto {
   department_id?: number | null;
   email?: string;
   phone?: string;
+  birth_date?: string | Date | null;
   role_id?: number | null;
   position_id?: number | null;
   profile_image?: string | null;
@@ -41,6 +42,7 @@ export interface UpdateUserDto {
   status?: string;
   email?: string;
   phone?: string;
+  birth_date?: string | Date | null;
   role_id?: number | null;
   position_id?: number | null;
   profile_image?: string | null;
@@ -70,6 +72,7 @@ export const UserManagementService = {
         department_id: data.department_id ?? undefined,
         email: data.email,
         phone: data.phone || (data as any).tel,
+        birth_date: data.birth_date ? new Date(data.birth_date) : undefined,
         status: "ACTIVE",
         role_id: data.role_id ?? undefined,
         position_id: data.position_id ?? undefined,
@@ -97,6 +100,7 @@ export const UserManagementService = {
       department_id: data.department_id ?? undefined,
       email: data.email,
       phone: data.phone || (data as any).tel,
+      birth_date: data.birth_date ? new Date(data.birth_date) : undefined,
       status: data.status,
       role_id: data.role_id ?? undefined,
       position_id: data.position_id ?? undefined,
