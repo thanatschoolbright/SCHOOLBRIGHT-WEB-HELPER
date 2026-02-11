@@ -3,6 +3,7 @@ import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 export interface ProjectStatDetail {
   feature_id: number | null;
   feature_name: string;
+  is_deleted: boolean; // Add this
   asset_capture_type: string;
   hours: number;
   percent: number;
@@ -12,6 +13,7 @@ export interface ProjectStatResult {
   project_id: number;
   project_code: string;
   project_name: string;
+  is_deleted: boolean; // Add this
   capturable_percent: number;
   uncapturable_percent: number;
   capturable_hours: number;
@@ -49,16 +51,17 @@ export const Service = {
 
     const projects = await PrismaTimesheet.project.findMany({
       where: {
-        is_deleted: false,
+        // is_deleted: false,
       },
       select: {
         id: true,
         name: true,
+        is_deleted: true,
         timesheets: {
           where: {
-            is_deleted: false,
+            // is_deleted: false, // REMOVE FILTER
             feature: {
-              is_deleted: false,
+              // is_deleted: false, // REMOVE FILTER
             },
             date: {
               gte: start,
@@ -67,10 +70,12 @@ export const Service = {
           },
           select: {
             hours: true,
+            is_deleted: true,
             feature: {
               select: {
                 id: true,
                 name: true,
+                is_deleted: true,
                 assetCaptureType: true,
               },
             },
@@ -106,6 +111,7 @@ export const Service = {
           featureMap[compositeKey] = {
             feature_id: entry.feature?.id || null,
             feature_name: featureName,
+            is_deleted: entry.feature?.is_deleted || false,
             asset_capture_type: captureType,
             hours: 0,
             percent: 0,
@@ -139,6 +145,7 @@ export const Service = {
         project_id: project.id,
         project_code: project.id.toString().padStart(4, "0"),
         project_name: project.name,
+        is_deleted: project.is_deleted,
         capturable_percent: Number(capturablePercent.toFixed(2)),
         uncapturable_percent: Number(uncapturablePercent.toFixed(2)),
         capturable_hours: Number(capturableHours.toFixed(2)),
@@ -200,7 +207,7 @@ export const Service = {
     // 2. Count all active projects (even those with 0 hours)
     const totalProjectsCount = await PrismaTimesheet.project.count({
       where: {
-        is_deleted: false,
+        // is_deleted: false,
       },
     });
 

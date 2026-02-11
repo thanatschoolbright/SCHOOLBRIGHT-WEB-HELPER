@@ -60,6 +60,7 @@ const { Title, Text } = Typography;
 interface ProjectStatDetail {
   feature_id: number | null;
   feature_name: string;
+  is_deleted: boolean;
   asset_capture_type: string;
   hours: number;
   percent: number;
@@ -69,6 +70,7 @@ interface CapturableData {
   project_id: number;
   project_code: string;
   project_name: string;
+  is_deleted: boolean;
   capturable_percent: number;
   uncapturable_percent: number;
   capturable_hours: number;
@@ -321,10 +323,21 @@ export default function CapturableReportPage() {
       key: "project_name",
       width: 280,
       sorter: (a, b) => a.project_name.localeCompare(b.project_name),
-      render: (name: string) => (
-        <Text strong style={{ fontWeight: 600 }}>
-          {name}
-        </Text>
+      render: (name: string, record: CapturableData) => (
+        <Space direction="vertical" size={0}>
+          <Text strong style={{ fontWeight: 600 }}>
+            {name}
+          </Text>
+          {record.is_deleted && (
+            <Tag
+              color="error"
+              bordered={false}
+              style={{ fontSize: 10, lineHeight: "14px", marginTop: 2 }}
+            >
+              ถูกลบ
+            </Tag>
+          )}
+        </Space>
       ),
     },
     {
@@ -1039,10 +1052,21 @@ export default function CapturableReportPage() {
                         (a.feature_name || "").localeCompare(
                           b.feature_name || "",
                         ),
-                      render: (text) => (
-                        <Text strong style={{ fontSize: 14 }}>
-                          {text}
-                        </Text>
+                      render: (text, record: ProjectStatDetail) => (
+                        <Space direction="vertical" size={0}>
+                          <Text strong style={{ fontSize: 14 }}>
+                            {text}
+                          </Text>
+                          {record.is_deleted && (
+                            <Tag
+                              color="error"
+                              bordered={false}
+                              style={{ fontSize: 10, lineHeight: "14px" }}
+                            >
+                              ถูกลบ
+                            </Tag>
+                          )}
+                        </Space>
                       ),
                     },
                     {

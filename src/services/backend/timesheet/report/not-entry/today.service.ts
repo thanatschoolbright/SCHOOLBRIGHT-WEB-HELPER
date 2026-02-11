@@ -11,7 +11,10 @@ export const Service = {
 
     // 1.1 คนที่เคยมีประวัติ
     const allHistoryUsers = await PrismaTimesheet.timesheetEntry.findMany({
-      where: { is_deleted: false, createdBy: { not: null } },
+      where: {
+        // is_deleted: false,
+        createdBy: { not: null },
+      },
       distinct: ["createdBy"],
       select: { createdBy: true },
     });
@@ -19,7 +22,7 @@ export const Service = {
     // 1.2 คนที่ลงวันนี้
     const todayUsers = await PrismaTimesheet.timesheetEntry.findMany({
       where: {
-        is_deleted: false,
+        // is_deleted: false,
         createdBy: { not: null },
         date: { gte: startOfDay, lte: endOfDay },
       },
@@ -46,7 +49,7 @@ export const Service = {
     const entries = await PrismaTimesheet.timesheetEntry.groupBy({
       by: ["createdBy"],
       where: {
-        is_deleted: false,
+        // is_deleted: false,
         createdBy: { not: null },
         date: { gte: startOfDay, lte: endOfDay },
       },
