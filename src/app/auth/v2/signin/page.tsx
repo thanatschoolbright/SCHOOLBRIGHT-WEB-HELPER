@@ -2,9 +2,8 @@
 
 import { loginAction } from "@/actions/auth";
 import LogoHeader from "@/components/auth/logo-header";
+import { StatusModalComponent } from "@/components/modal/status-modal-component";
 import {
-  BugOutlined,
-  CheckCircleOutlined,
   CloseCircleOutlined,
   GoogleOutlined,
   LoadingOutlined,
@@ -14,7 +13,6 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import {
-  Alert,
   Badge,
   Button,
   Col,
@@ -22,7 +20,6 @@ import {
   Form,
   Input,
   Modal,
-  Result,
   Row,
   Space,
   Steps,
@@ -533,13 +530,11 @@ export default function SignInPage() {
           </div>
         </Col>
       </Row>
-
-      {/* Login Tracking Modal */}
+      {/* 🚀 Login Processing Modal (แสดงขั้นตอนการเชื่อมต่อ) */}
       <Modal
-        open={isModalVisible}
+        open={isModalVisible && loginStatus === "process"}
         footer={null}
-        closable={loginStatus === "error"}
-        onCancel={() => setIsModalVisible(false)}
+        closable={false}
         centered
         width={480}
         styles={{
@@ -548,66 +543,31 @@ export default function SignInPage() {
         }}
       >
         <div style={{ textAlign: "center", marginBottom: 32 }}>
-          {loginStatus === "process" && (
-            <div
-              style={{
-                width: 64,
-                height: 64,
-                background: token.colorInfoBg,
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 16px",
-              }}
-            >
-              <LoadingOutlined
-                style={{ fontSize: 32, color: token.colorPrimary }}
-              />
-            </div>
-          )}
-          {loginStatus === "finish" && (
-            <Result
-              status="success"
-              title="เข้าสู่ระบบสำเร็จ"
-              subTitle="เชื่อมต่อกับดาวเทียม SchoolBright เรียบร้อยแล้ว"
-              icon={
-                <CheckCircleOutlined
-                  style={{ color: token.colorSuccess, fontSize: 64 }}
-                />
-              }
+          <div
+            style={{
+              width: 64,
+              height: 64,
+              background: token.colorInfoBg,
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 16px",
+            }}
+          >
+            <LoadingOutlined
+              style={{ fontSize: 32, color: token.colorPrimary }}
             />
-          )}
-          {loginStatus === "error" && (
-            <div
-              style={{
-                width: 64,
-                height: 64,
-                background: errorContent.bg,
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 16px",
-              }}
-            >
-              {errorContent.icon}
-            </div>
-          )}
-
-          {loginStatus !== "finish" && (
-            <Title level={4} style={{ margin: 0 }}>
-              {loginStatus === "error"
-                ? errorContent.title
-                : "กำลังนำคุณเข้าสู่ระบบ..."}
-            </Title>
-          )}
+          </div>
+          <Title level={4} style={{ margin: 0 }}>
+            กำลังนำคุณเข้าสู่ระบบ...
+          </Title>
         </div>
 
         <Steps
           direction="vertical"
           current={currentStep}
-          status={loginStatus === "error" ? "error" : "process"}
+          status="process"
           style={{ paddingLeft: 24 }}
           items={[
             {
@@ -648,91 +608,27 @@ export default function SignInPage() {
             },
           ]}
         />
-
-        {loginStatus === "error" && (
-          <div style={{ marginTop: 24 }}>
-            <Alert
-              message="รายละเอียดข้อผิดพลาด"
-              description={errorMessage}
-              type="error"
-              showIcon
-              style={{ borderRadius: 12 }}
-            />
-
-            <div style={{ marginTop: 20 }}>
-              <Text
-                strong
-                style={{ fontSize: 13, display: "block", marginBottom: 8 }}
-              >
-                แนวทางการแก้ไข:
-              </Text>
-              <ul
-                style={{
-                  paddingLeft: 20,
-                  margin: 0,
-                  color: token.colorTextSecondary,
-                  fontSize: 13,
-                }}
-              >
-                {errorContent.steps.map((step, idx) => (
-                  <li key={idx} style={{ marginBottom: 4 }}>
-                    {step}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <Divider dashed style={{ margin: "24px 0" }} />
-
-            <div
-              style={{
-                background: token.colorFillAlter,
-                padding: 16,
-                borderRadius: 16,
-                border: `1px solid ${token.colorBorderSecondary}`,
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  marginBottom: 12,
-                }}
-              >
-                <BugOutlined style={{ color: token.colorTextSecondary }} />
-                <Text strong style={{ fontSize: 13 }}>
-                  Debug Information
-                </Text>
-              </div>
-              <pre
-                style={{
-                  fontSize: 11,
-                  margin: 0,
-                  whiteSpace: "pre-wrap",
-                  color: token.colorError,
-                  fontFamily: "monospace",
-                  maxHeight: 150,
-                  overflowY: "auto",
-                }}
-              >
-                {JSON.stringify(debugData, null, 2)}
-              </pre>
-            </div>
-
-            <Button
-              block
-              type="primary"
-              danger
-              size="large"
-              onClick={() => setIsModalVisible(false)}
-              style={{ marginTop: 24, borderRadius: 12, height: 48 }}
-            >
-              ลองใหม่อีกครั้ง
-            </Button>
-          </div>
-        )}
       </Modal>
+
+      {/* ✅ Login Success Modal (ใช้ Component กลาง) */}
+      <StatusModalComponent
+        open={isModalVisible && loginStatus === "finish"}
+        type="success"
+        title="เข้าสู่ระบบสำเร็จ"
+        message="เชื่อมต่อกับดาวเทียม SchoolBright เรียบร้อยแล้ว"
+        onClose={() => setIsModalVisible(false)}
+      />
+
+      {/* ❌ Login Error Modal (ใช้ Component กลาง) */}
+      <StatusModalComponent
+        open={isModalVisible && loginStatus === "error"}
+        type="error"
+        title={errorContent.title}
+        message={errorMessage ?? "เข้าสู่ระบบไม่สำเร็จ"}
+        errorDetails={debugData}
+        confirmLabel="ลองใหม่อีกครั้ง"
+        onClose={() => setIsModalVisible(false)}
+      />
 
       <style jsx global>{`
         .ant-input-affix-wrapper:focus,

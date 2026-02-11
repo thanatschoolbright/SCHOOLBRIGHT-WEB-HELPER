@@ -67,7 +67,11 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
 
   const handleConfirm = () => {
     if (isDelete && confirmInput !== "Delete") return;
-    onConfirm?.();
+    if (onConfirm) {
+      onConfirm();
+    } else {
+      handleClose();
+    }
     setConfirmInput("");
   };
 
@@ -187,10 +191,10 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
           </Space>
         )}
 
-        {/* ส่วนแสดงรายละเอียด Error (Truncate & Scroll ภายใน Typography) */}
+        {/* ส่วนแสดงรายละเอียด Error (แสดง Debug Info ในบรรทัดเดียวกับ Label) */}
         {isError && errorDetails && (
           <Flex
-            vertical
+            gap="small"
             style={{
               width: "100%",
               background: token.colorFillAlter,
@@ -198,16 +202,16 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
               borderRadius: token.borderRadiusLG,
             }}
           >
-            <Text strong type="danger">
+            <Text strong type="danger" style={{ whiteSpace: "nowrap" }}>
               Debug Information:
             </Text>
             <Paragraph
               code
-              ellipsis={{ rows: 5, expandable: true, symbol: "ดูเพิ่มเติม" }}
-              style={{ marginBlock: token.marginXS, whiteSpace: "pre-wrap" }}
+              ellipsis={{ rows: 2, expandable: true, symbol: "ดูเพิ่มเติม" }}
+              style={{ margin: 0, whiteSpace: "pre-wrap", flex: 1 }}
             >
               {typeof errorDetails === "object"
-                ? JSON.stringify(errorDetails, null, 2)
+                ? JSON.stringify(errorDetails)
                 : String(errorDetails)}
             </Paragraph>
           </Flex>
