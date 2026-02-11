@@ -102,6 +102,20 @@ export default function TimesheetAllPage() {
   );
 
   /**
+   * สรุปผลรวมเวลาทำงานทั้งหมด
+   */
+  const totalSummary = useMemo(() => {
+    return filteredRecords.reduce(
+      (acc, rec) => {
+        acc.total += rec.total_hours || 0;
+        acc.required += rec.required_hours || 0;
+        return acc;
+      },
+      { total: 0, required: 0 },
+    );
+  }, [filteredRecords]);
+
+  /**
    * เปิด Modal สำหรับการเติมข้อมูลอัตโนมัติ
    */
   const requestOpenAutoFillModal = useCallback(() => {
@@ -417,6 +431,65 @@ export default function TimesheetAllPage() {
                 autoFillOpen={modalStates.autoFillModal}
                 onAutoFillClose={() => responseCloseModal("autoFillModal")}
               />
+
+              {/* สรุปผลรวมท้ายตาราง */}
+              {!loading && filteredRecords.length > 0 && (
+                <Flex
+                  justify="flex-end"
+                  align="center"
+                  style={{
+                    padding: "16px 24px",
+                    background: token.colorFillAlter,
+                    borderRadius: token.borderRadiusLG,
+                    marginTop: 12,
+                    border: `1px dashed ${token.colorBorder}`,
+                  }}
+                >
+                  <Space size={16}>
+                    <Text type="secondary" style={{ fontSize: 14 }}>
+                      สรุปผลรวมเวลาทำงาน:
+                    </Text>
+                    <Flex align="baseline" gap={4}>
+                      <Typography.Title
+                        level={4}
+                        style={{
+                          margin: 0,
+                          fontWeight: 800,
+                          color: token.colorPrimary,
+                        }}
+                      >
+                        {totalSummary.total.toLocaleString()}
+                      </Typography.Title>
+                      <Text
+                        strong
+                        style={{
+                          fontSize: 18,
+                          color: token.colorTextDescription,
+                          opacity: 0.5,
+                        }}
+                      >
+                        /
+                      </Text>
+                      <Typography.Title
+                        level={4}
+                        style={{
+                          margin: 0,
+                          fontWeight: 800,
+                          color: token.colorTextDescription,
+                        }}
+                      >
+                        {totalSummary.required.toLocaleString()}
+                      </Typography.Title>
+                      <Text
+                        type="secondary"
+                        style={{ marginLeft: 4, fontWeight: 500 }}
+                      >
+                        ชั่วโมง
+                      </Text>
+                    </Flex>
+                  </Space>
+                </Flex>
+              )}
             </Flex>
 
             {/* Footer Notes */}

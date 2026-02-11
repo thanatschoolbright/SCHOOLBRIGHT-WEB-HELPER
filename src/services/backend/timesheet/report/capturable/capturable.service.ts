@@ -31,12 +31,12 @@ export const Service = {
         hours: true,
       },
       where: {
-        is_deleted: false,
+        // is_deleted: false,
         project: {
-          is_deleted: false,
+          // is_deleted: false,
         },
         feature: {
-          is_deleted: false,
+          // is_deleted: false,
         },
         date: {
           gte: start,
@@ -163,12 +163,12 @@ export const Service = {
     // 1. Get total hours aggregated by capture type
     const entries = await PrismaTimesheet.timesheetEntry.findMany({
       where: {
-        is_deleted: false,
+        // is_deleted: false,
         project: {
-          is_deleted: false,
+          // is_deleted: false,
         },
         feature: {
-          is_deleted: false,
+          // is_deleted: false,
         },
         date: {
           gte: start,
