@@ -33,12 +33,12 @@ export const Service = {
         hours: true,
       },
       where: {
-        // is_deleted: false,
+        is_deleted: false,
         project: {
-          // is_deleted: false,
+          is_deleted: false,
         },
         feature: {
-          // is_deleted: false,
+          is_deleted: false,
         },
         date: {
           gte: start,
@@ -51,7 +51,7 @@ export const Service = {
 
     const projects = await PrismaTimesheet.project.findMany({
       where: {
-        // is_deleted: false,
+        is_deleted: false,
       },
       select: {
         id: true,
@@ -59,9 +59,9 @@ export const Service = {
         is_deleted: true,
         timesheets: {
           where: {
-            // is_deleted: false, // REMOVE FILTER
+            is_deleted: false, // REMOVE FILTER
             feature: {
-              // is_deleted: false, // REMOVE FILTER
+              is_deleted: false, // REMOVE FILTER
             },
             date: {
               gte: start,
@@ -170,12 +170,12 @@ export const Service = {
     // 1. Get total hours aggregated by capture type
     const entries = await PrismaTimesheet.timesheetEntry.findMany({
       where: {
-        // is_deleted: false,
+        is_deleted: false,
         project: {
-          // is_deleted: false,
+          is_deleted: false,
         },
         feature: {
-          // is_deleted: false,
+          is_deleted: false,
         },
         date: {
           gte: start,
@@ -207,7 +207,7 @@ export const Service = {
     // 2. Count all active projects (even those with 0 hours)
     const totalProjectsCount = await PrismaTimesheet.project.count({
       where: {
-        // is_deleted: false,
+        is_deleted: false,
       },
     });
 
