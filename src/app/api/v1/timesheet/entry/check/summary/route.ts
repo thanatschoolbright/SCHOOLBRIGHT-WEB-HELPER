@@ -224,78 +224,88 @@ const buildSummaryRecords = (
 ) => {
   const aggregated = aggregateEntriesByUser(entries);
 
-  const records = users.map((user) => {
-    const { expectedHours, hasStarted } = computeExpectedHours(
-      globalStart,
-      globalEnd,
-      user.joined_date,
-      user.resigned_date,
-    );
+  const records = users
+    .map((user) => {
+      const { expectedHours, hasStarted } = computeExpectedHours(
+        globalStart,
+        globalEnd,
+        user.joined_date,
+        user.resigned_date,
+      );
 
-    const key = String(user.admin_id);
-    const aggregatedData = aggregated.get(key);
-    const totalHours = aggregatedData?.total ?? 0;
-    const roundedHours = Number(totalHours.toFixed(2));
-    const hoursGap = Number((expectedHours - roundedHours).toFixed(2));
+      const key = String(user.admin_id);
+      const aggregatedData = aggregated.get(key);
+      const totalHours = aggregatedData?.total ?? 0;
 
-    const statusLabel =
-      hoursGap > 0
-        ? `ขาด ${formatHoursText(hoursGap)} ชั่วโมง`
-        : hoursGap < 0
-          ? `เกิน ${formatHoursText(Math.abs(hoursGap))} ชั่วโมง`
-          : "ครบ";
+      // Skip users who have already resigned and have no data in the selected period to keep the list relevant
+      if (user.status !== "ACTIVE" && totalHours === 0 && expectedHours === 0) {
+        return null;
+      }
 
-    const completionRate = expectedHours
-      ? Number(((roundedHours / expectedHours) * 100).toFixed(2))
-      : 0;
+      const roundedHours = Number(totalHours.toFixed(2));
+      const hoursGap = Number((expectedHours - roundedHours).toFixed(2));
 
-    const positionName =
-      user.position_ref?.name_th ||
-      user.position_ref?.name_en ||
-      user.position ||
-      "-";
+      const statusLabel =
+        hoursGap > 0
+          ? `ขาด ${formatHoursText(hoursGap)} ชั่วโมง`
+          : hoursGap < 0
+            ? `เกิน ${formatHoursText(Math.abs(hoursGap))} ชั่วโมง`
+            : "ครบ";
 
-    const departmentName =
-      user.department?.name_th || user.department?.name_en || "-";
+      const completionRate = expectedHours
+        ? Number(((roundedHours / expectedHours) * 100).toFixed(2))
+        : 0;
 
-    return {
-      admin_id: user.admin_id,
-      full_name:
-        [user.firstname_th, user.lastname_th]
-          .filter(Boolean)
-          .join(" ")
-          .trim() ||
-        user.username ||
-        "-",
-      nickname: user.nickname ?? null,
-      employee_code: user.employee_code ?? null,
-      position: positionName,
-      department: departmentName,
-      email: user.email ?? null,
-      tel: user.phone ?? null,
-      image_profile: user.profile_image_path ?? null,
-      joined_date: user.joined_date ? toISODate(user.joined_date) : null,
-      resigned_date: user.resigned_date ? toISODate(user.resigned_date) : null,
-      has_started: hasStarted,
-      total_hours: roundedHours,
-      required_hours: expectedHours,
-      hours_gap: hoursGap,
-      status_label: statusLabel,
-      completion_rate: completionRate,
-      progress_text: `${formatHoursText(roundedHours)}/${formatHoursText(
-        expectedHours,
-      )} ชั่วโมง`,
-      breakdown: makeBreakdownRows(aggregatedData?.breakdown),
-      entries: aggregatedData?.entries
-        ? aggregatedData.entries
-            .sort((a, b) => b.date.getTime() - a.date.getTime())
-            .map((e: any) => ({
-              ...e,
-              date_str: formatThaiDate(e.date),
-            }))
-        : [],
-    };
-  });
+      const positionName =
+        user.position_ref?.name_th ||
+        user.position_ref?.name_en ||
+        user.position ||
+        "-";
+
+      const departmentName =
+        user.department?.name_th || user.department?.name_en || "-";
+
+      return {
+        admin_id: user.admin_id,
+        full_name:
+          [user.firstname_th, user.lastname_th]
+            .filter(Boolean)
+            .join(" ")
+            .trim() ||
+          user.username ||
+          "-",
+        nickname: user.nickname ?? null,
+        employee_code: user.employee_code ?? null,
+        position: positionName,
+        department: departmentName,
+        email: user.email ?? null,
+        tel: user.phone ?? null,
+        image_profile: user.profile_image_path ?? null,
+        joined_date: user.joined_date ? toISODate(user.joined_date) : null,
+        resigned_date: user.resigned_date
+          ? toISODate(user.resigned_date)
+          : null,
+        has_started: hasStarted,
+        total_hours: roundedHours,
+        required_hours: expectedHours,
+        hours_gap: hoursGap,
+        status_label: statusLabel,
+        completion_rate: completionRate,
+        progress_text: `${formatHoursText(roundedHours)}/${formatHoursText(
+          expectedHours,
+        )} ชั่วโมง`,
+        breakdown: makeBreakdownRows(aggregatedData?.breakdown),
+        entries: aggregatedData?.entries
+          ? aggregatedData.entries
+              .sort((a, b) => b.date.getTime() - a.date.getTime())
+              .map((e: any) => ({
+                ...e,
+                date_str: formatThaiDate(e.date),
+              }))
+          : [],
+      };
+    })
+    .filter((r): r is NonNullable<typeof r> => r !== null);
 
   return records
     .sort((a, b) => b.total_hours - a.total_hours)
@@ -339,13 +349,13 @@ export async function POST(request: Request) {
       throw new Error("Missing SB Helper API base URL configuration");
     }
 
-    const entries = await Service.findEntriesBetween(start, end);
+    const entries = await Service.findEntriesBetween(start, end, true);
 
     // ⚡ เปลี่ยนจากการเรียก API ภายนอกมาเป็น Query จาก DB โดยตรง (Direct DB Query for maximum reliability)
     const users = (await PrismaTimesheet.user.findMany({
       where: {
         is_deleted: false,
-        status: "ACTIVE",
+        // Include both ACTIVE and RESIGNED users to ensure total hours match audit reports
         ...(department_ids && department_ids.length > 0
           ? { department_id: { in: department_ids } }
           : department_id

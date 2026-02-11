@@ -33,13 +33,6 @@ export const Service = {
         hours: true,
       },
       where: {
-        is_deleted: false,
-        project: {
-          is_deleted: false,
-        },
-        feature: {
-          is_deleted: false,
-        },
         date: {
           gte: start,
           lte: end,
@@ -59,10 +52,6 @@ export const Service = {
         is_deleted: true,
         timesheets: {
           where: {
-            is_deleted: false, // REMOVE FILTER
-            feature: {
-              is_deleted: false, // REMOVE FILTER
-            },
             date: {
               gte: start,
               lte: end,

@@ -34,7 +34,7 @@ export const Service = {
     query: { limit?: number; skip?: number; user_id?: number } = {
       limit: 50,
       skip: 0,
-    }
+    },
   ) {
     const [items, total] = await Promise.all([
       PrismaTimesheet.timesheetEntry.findMany({
@@ -135,10 +135,14 @@ export const Service = {
     });
   },
 
-  async findEntriesBetween(startDate: Date, endDate: Date) {
+  async findEntriesBetween(
+    startDate: Date,
+    endDate: Date,
+    includeDeleted: boolean = false,
+  ) {
     return PrismaTimesheet.timesheetEntry.findMany({
       where: {
-        is_deleted: false,
+        ...(includeDeleted ? {} : { is_deleted: false }),
         date: {
           gte: startDate,
           lte: endDate,
