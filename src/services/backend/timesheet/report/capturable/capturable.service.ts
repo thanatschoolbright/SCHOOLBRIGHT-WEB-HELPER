@@ -25,14 +25,16 @@ export interface ProjectStatResult {
 
 export const Service = {
   async getProjectStats(startDate: string, endDate: string) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    // ⚡️ Fix Timezone Offset: Use T00:00:00 to ensure local time parsing (ICT+7) which aligns with Summary API
+    const start = new Date(`${startDate}T00:00:00`);
+    const end = new Date(`${endDate}T23:59:59.999`);
 
     const grandTotalAgg = await PrismaTimesheet.timesheetEntry.aggregate({
       _sum: {
         hours: true,
       },
       where: {
+        // Note: We include deleted records here to match the "Manage Time Records" summary logic
         date: {
           gte: start,
           lte: end,
@@ -44,7 +46,21 @@ export const Service = {
 
     const projects = await PrismaTimesheet.project.findMany({
       where: {
-        is_deleted: false,
+        // Include both active projects and deleted ones that have activity in this period
+        // to ensure the total hours in the project breakdown matches the Grand Total (Summary).
+        OR: [
+          { is_deleted: false },
+          {
+            timesheets: {
+              some: {
+                date: {
+                  gte: start,
+                  lte: end,
+                },
+              },
+            },
+          },
+        ],
       },
       select: {
         id: true,
@@ -56,6 +72,7 @@ export const Service = {
               gte: start,
               lte: end,
             },
+            // Note: We include deleted records here to match the "Manage Time Records" summary logic
           },
           select: {
             hours: true,
@@ -73,77 +90,79 @@ export const Service = {
       },
     });
 
-    const results = projects.map((project): ProjectStatResult => {
-      let totalHours = 0;
-      let capturableHours = 0;
-      let uncapturableHours = 0;
+    const results = projects
+      .map((project): ProjectStatResult => {
+        let totalHours = 0;
+        let capturableHours = 0;
+        let uncapturableHours = 0;
 
-      // Group by feature to provide detailed breakdown
-      const featureMap: Record<string, ProjectStatDetail> = {};
+        // Group by feature to provide detailed breakdown
+        const featureMap: Record<string, ProjectStatDetail> = {};
 
-      project.timesheets.forEach((entry) => {
-        const hoursValue = Number(entry.hours);
-        totalHours += hoursValue;
+        project.timesheets.forEach((entry) => {
+          const hoursValue = Number(entry.hours);
+          totalHours += hoursValue;
 
-        const featureId = entry.feature?.id || 0;
-        const featureName = entry.feature?.name || "No Feature/Sub-task";
-        const captureType = entry.feature?.assetCaptureType || "UNCAPTUREABLE";
+          const featureId = entry.feature?.id || 0;
+          const featureName = entry.feature?.name || "No Feature/Sub-task";
+          const captureType = entry.feature?.assetCaptureType || "UNCAPTUREABLE";
 
-        if (captureType === "CAPTUREABLE") {
-          capturableHours += hoursValue;
-        } else {
-          uncapturableHours += hoursValue;
-        }
+          if (captureType === "CAPTUREABLE") {
+            capturableHours += hoursValue;
+          } else {
+            uncapturableHours += hoursValue;
+          }
 
-        const compositeKey = `${featureId}-${captureType}`;
-        if (!featureMap[compositeKey]) {
-          featureMap[compositeKey] = {
-            feature_id: entry.feature?.id || null,
-            feature_name: featureName,
-            is_deleted: entry.feature?.is_deleted || false,
-            asset_capture_type: captureType,
-            hours: 0,
-            percent: 0,
-          };
-        }
-        featureMap[compositeKey].hours += hoursValue;
-      });
+          const compositeKey = `${featureId}-${captureType}`;
+          if (!featureMap[compositeKey]) {
+            featureMap[compositeKey] = {
+              feature_id: entry.feature?.id || null,
+              feature_name: featureName,
+              is_deleted: entry.feature?.is_deleted || false,
+              asset_capture_type: captureType,
+              hours: 0,
+              percent: 0,
+            };
+          }
+          featureMap[compositeKey].hours += hoursValue;
+        });
 
-      const details = Object.values(featureMap).map((detail) => ({
-        ...detail,
-        hours: Number(detail.hours.toFixed(2)),
-        percent:
-          totalHours > 0
-            ? Number(((detail.hours / totalHours) * 100).toFixed(2))
-            : 0,
-      }));
+        const details = Object.values(featureMap).map((detail) => ({
+          ...detail,
+          hours: Number(detail.hours.toFixed(2)),
+          percent:
+            totalHours > 0
+              ? Number(((detail.hours / totalHours) * 100).toFixed(2))
+              : 0,
+        }));
 
-      // Sort details by hours descending
-      details.sort(
-        (firstDetail, secondDetail) => secondDetail.hours - firstDetail.hours,
-      );
+        // Sort details by hours descending
+        details.sort(
+          (firstDetail, secondDetail) => secondDetail.hours - firstDetail.hours,
+        );
 
-      const capturablePercent =
-        totalHours > 0 ? (capturableHours / totalHours) * 100 : 0;
-      const uncapturablePercent =
-        totalHours > 0 ? (uncapturableHours / totalHours) * 100 : 0;
-      const hoursPercent =
-        globalTotalHours > 0 ? (totalHours / globalTotalHours) * 100 : 0;
+        const capturablePercent =
+          totalHours > 0 ? (capturableHours / totalHours) * 100 : 0;
+        const uncapturablePercent =
+          totalHours > 0 ? (uncapturableHours / totalHours) * 100 : 0;
+        const hoursPercent =
+          globalTotalHours > 0 ? (totalHours / globalTotalHours) * 100 : 0;
 
-      return {
-        project_id: project.id,
-        project_code: project.id.toString().padStart(4, "0"),
-        project_name: project.name,
-        is_deleted: project.is_deleted,
-        capturable_percent: Number(capturablePercent.toFixed(2)),
-        uncapturable_percent: Number(uncapturablePercent.toFixed(2)),
-        capturable_hours: Number(capturableHours.toFixed(2)),
-        uncapturable_hours: Number(uncapturableHours.toFixed(2)),
-        hours: Number(totalHours.toFixed(2)),
-        hours_percent: Number(hoursPercent.toFixed(2)),
-        details,
-      };
-    });
+        return {
+          project_id: project.id,
+          project_code: project.id.toString().padStart(4, "0"),
+          project_name: project.name + (project.is_deleted ? " (DELETED)" : ""),
+          is_deleted: project.is_deleted,
+          capturable_percent: Number(capturablePercent.toFixed(2)),
+          uncapturable_percent: Number(uncapturablePercent.toFixed(2)),
+          capturable_hours: Number(capturableHours.toFixed(2)),
+          uncapturable_hours: Number(uncapturableHours.toFixed(2)),
+          hours: Number(totalHours.toFixed(2)),
+          hours_percent: Number(hoursPercent.toFixed(2)),
+          details,
+        };
+      })
+      .filter((p) => p.hours > 0 || !p.is_deleted);
 
     results.sort(
       (firstResult, secondResult) => secondResult.hours - firstResult.hours,
@@ -153,19 +172,14 @@ export const Service = {
   },
 
   async getSummary(startDate: string, endDate: string) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    // ⚡️ Fix Timezone Offset: Use T00:00:00 to ensure local time parsing (ICT+7) which aligns with Summary API
+    const start = new Date(`${startDate}T00:00:00`);
+    const end = new Date(`${endDate}T23:59:59.999`);
 
     // 1. Get total hours aggregated by capture type
     const entries = await PrismaTimesheet.timesheetEntry.findMany({
       where: {
-        is_deleted: false,
-        project: {
-          is_deleted: false,
-        },
-        feature: {
-          is_deleted: false,
-        },
+        // Note: We include deleted records here to match the "Manage Time Records" summary logic
         date: {
           gte: start,
           lte: end,
@@ -176,9 +190,15 @@ export const Service = {
         feature: {
           select: {
             assetCaptureType: true,
+            is_deleted: true, // Also track if feature is deleted
           },
         },
         projectId: true,
+        project: {
+          select: {
+            is_deleted: true, // Also track if project is deleted
+          }
+        }
       },
     });
 

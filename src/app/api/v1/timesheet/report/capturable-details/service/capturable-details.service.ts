@@ -25,8 +25,9 @@ export const CapturableDetailsService = {
     startDate: string,
     endDate: string,
   ): Promise<CapturableUserEntry[]> {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    // ⚡️ Fix Timezone Offset: Use T00:00:00 to ensure local time parsing (ICT+7) which aligns with Summary API
+    const start = new Date(`${startDate}T00:00:00`);
+    const end = new Date(`${endDate}T23:59:59.999`);
 
     // 1. ดึงข้อมูล TimesheetEntry พร้อม Feature
     const entries = await PrismaTimesheet.timesheetEntry.findMany({
