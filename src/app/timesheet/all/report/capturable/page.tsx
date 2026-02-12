@@ -249,9 +249,9 @@ export default function CapturableReportPage() {
       link.href = url;
       link.setAttribute(
         "download",
-        `capturable-report-${dateRange[0].format(
-          "YYYY-MM-DD",
-        )}-to-${dateRange[1].format("YYYY-MM-DD")}.xlsx`,
+        `รายงานการบันทึกทรัพย์สินบริษัท (Capitalization Report) ประจำวันที่ ${dateRange[0].format(
+          "DD-MM-YYYY",
+        )} ถึง วันที่ ${dateRange[1].format("DD-MM-YYYY")}.xlsx`,
       );
       document.body.appendChild(link);
       link.click();
