@@ -72,7 +72,7 @@ import { AppDispatch, RootState } from "@stores/store";
 // * Internal Components
 import ColoredBadge from "@/components/ant-design/table/table-badge-color";
 import SharedBulkUpdateSection from "@/components/backlog/bulk-update-section";
-import AiUpdateDrawer from "@/components/backlog/issue-drawer/ai-update-drawer";
+import AiUpdateModal from "@/components/backlog/issue-drawer/ai-update-modal";
 import type { Issue } from "@/components/backlog/issue-drawer/types";
 import SummaryCard from "@/components/card/summary-card";
 import DashboardLayout from "@/components/layouts/backend-layout";
@@ -649,7 +649,7 @@ const IssuesListTable: React.FC<{
         onClose={() => setDetailModal({ open: false, issue: null })}
       />
 
-      <AiUpdateDrawer
+      <AiUpdateModal
         aiState={aiModal}
         onApprove={handleApplyAiUpdate}
         onClose={() =>

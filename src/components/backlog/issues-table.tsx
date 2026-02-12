@@ -39,7 +39,7 @@ import {
   setPagination,
   setSelectedRowKeys,
 } from "@stores/reducers/issues-slice";
-import AiUpdateDrawer from "@components/backlog/issue-drawer/ai-update-drawer";
+import AiUpdateModal from "@components/backlog/issue-drawer/ai-update-modal";
 import AIProcessingModal from "@components/modal/ai-processing-modal";
 
 interface IssuesTableProps {
@@ -754,7 +754,7 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
         }}
         loading={loading}
       />
-      <AiUpdateDrawer
+      <AiUpdateModal
         aiState={aiModal}
         onApprove={doApproveUpdate}
         onClose={handleAiClose}

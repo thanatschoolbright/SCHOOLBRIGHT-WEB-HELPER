@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
-import { z } from "zod";
 import { QA_TASK_SUMMARY_TASK_PROMPT } from "@/constants/prompts";
-import { successResponse, errorResponse } from "@/helpers/api/response";
+import { errorResponse, successResponse } from "@/helpers/api/response";
 import { logger } from "@/helpers/logger";
+import axios from "axios";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 // ** 1. ลำดับ Model ที่ต้องการให้ระบบลองเรียก (จากรุ่นใหม่/แรง ไปรุ่นสำรอง)
 const AVAILABLE_MODELS = [
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
   if (!apiKey) {
     return NextResponse.json(
       errorResponse({ status: 500, message_th: "API Key missing" }),
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
   if (!result.success) {
     return NextResponse.json(
       errorResponse({ status: 400, message_th: "ข้อมูลไม่ถูกต้อง" }),
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
           timeout: 20000,
           // ให้ axios ไม่โยน Error ถ้าเจอ 429 เพื่อให้เราเช็ค status เองได้นิ่งขึ้น
           // หรือจะใช้ catch แบบเดิมก็ได้ครับ
-        }
+        },
       );
 
       if (response.status === 200) {
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
             successResponse({
               data: { markdown, model_used: modelName },
               message_th: "สรุปสำเร็จ",
-            })
+            }),
           );
         }
       }
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
       // 429 = Quota หมด / 500, 503 = Server มีปัญหาหรือคิวแน่น
       if (statusCode === 429 || statusCode === 500 || statusCode === 503) {
         logger.warn(
-          `[${requestId}] Model ${modelName} failed (${statusCode}). Trying next model...`
+          `[${requestId}] Model ${modelName} failed (${statusCode}). Trying next model...`,
         );
         continue;
       }
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
 
   // ** 4. ถ้าหลุดออกมาจาก Loop แสดงว่าลองทุกตัวแล้วไม่สำเร็จ
   logger.error(
-    `[${requestId}] All models exhausted or critical error occurred`
+    `[${requestId}] All models exhausted or critical error occurred`,
   );
 
   return NextResponse.json(
@@ -129,6 +129,6 @@ export async function POST(request: NextRequest) {
       message_th:
         "ขณะนี้ AI ทุกรุ่นไม่พร้อมใช้งาน (Quota เต็ม) กรุณารอสักครู่แล้วลองใหม่",
     }),
-    { status: lastError?.response?.status || 500 }
+    { status: lastError?.response?.status || 500 },
   );
 }
