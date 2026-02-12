@@ -80,9 +80,14 @@ export async function POST(request: NextRequest) {
       );
 
       if (response.status === 200) {
-        const markdown =
+        const aiMarkdown =
           response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (markdown) {
+        if (aiMarkdown) {
+          // ** Append original description to protect data as requested by user **
+          const markdown = `${aiMarkdown}\n\n---\n### 📄 Original Description / รายละเอียดต้นฉบับ\n${
+            description || "_No original description provided_"
+          }`;
+
           logger.info(`[${requestId}] Success with ${modelName}`);
           return NextResponse.json(
             successResponse({

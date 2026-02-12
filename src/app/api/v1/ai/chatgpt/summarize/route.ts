@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
-import { z } from "zod";
 import { QA_TASK_SUMMARY_TASK_PROMPT } from "@/constants/prompts";
-import { successResponse, errorResponse } from "@/helpers/api/response";
+import { errorResponse, successResponse } from "@/helpers/api/response";
 import { logger } from "@/helpers/logger";
+import axios from "axios";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 const requestSchema = z.object({
   summary: z.string().min(1, "Summary is required").optional(),
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
         status: 500,
         message_th: "ChatGPT API Key missing (CHATGPT_API_KEY)",
       }),
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
   if (!result.success) {
     return NextResponse.json(
       errorResponse({ status: 400, message_th: "ข้อมูลไม่ถูกต้อง" }),
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     logger.info(
       `[${requestId}] Attempting ChatGPT Summarization for ${
         issueKey || "Unknown Issue"
-      }`
+      }`,
     );
 
     // Extract valid metadata from details if available
@@ -92,18 +92,23 @@ ${JSON.stringify(details || {}, null, 2)}
           "Content-Type": "application/json",
         },
         timeout: 30000,
-      }
+      },
     );
 
-    const markdown = response.data?.choices?.[0]?.message?.content;
+    const aiMarkdown = response.data?.choices?.[0]?.message?.content;
 
-    if (markdown) {
+    if (aiMarkdown) {
+      // ** Append original description to protect data as requested by user **
+      const markdown = `${aiMarkdown}\n\n---\n### 📄 Original Description / รายละเอียดต้นฉบับ\n${
+        description || "_No original description provided_"
+      }`;
+
       logger.info(`[${requestId}] Success with ChatGPT`);
       return NextResponse.json(
         successResponse({
           data: { markdown, model_used: "gpt-4o-mini" },
           message_th: "สรุปด้วย ChatGPT สำเร็จ",
-        })
+        }),
       );
     } else {
       throw new Error("No content returned from OpenAI");
@@ -119,7 +124,7 @@ ${JSON.stringify(details || {}, null, 2)}
         message_en: errorMessage,
         message_th: "เกิดข้อผิดพลาดในการเรียกใช้ ChatGPT",
       }),
-      { status: statusCode }
+      { status: statusCode },
     );
   }
 }
