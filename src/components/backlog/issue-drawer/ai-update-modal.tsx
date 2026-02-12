@@ -1,25 +1,24 @@
 "use client";
 
-import React from "react";
 import {
-  Modal,
+  ArrowRightOutlined,
+  CheckCircleOutlined,
+  FileTextOutlined,
+  ReloadOutlined,
+  RobotOutlined,
+} from "@ant-design/icons";
+import {
   Button,
   Card,
-  Typography,
-  Space,
   Flex,
-  Skeleton,
   Input,
-  theme,
+  Modal,
+  Skeleton,
+  Space,
   Tag,
+  theme,
+  Typography,
 } from "antd";
-import {
-  RobotOutlined,
-  CheckCircleOutlined,
-  ReloadOutlined,
-  ArrowRightOutlined,
-  FileTextOutlined,
-} from "@ant-design/icons";
 import type { AiUpdateState } from "./types";
 
 const { Text, Title, Paragraph } = Typography;
@@ -62,7 +61,9 @@ export default function AiUpdateModal({
               justifyContent: "center",
             }}
           >
-            <RobotOutlined style={{ color: token.colorPrimary, fontSize: 24 }} />
+            <RobotOutlined
+              style={{ color: token.colorPrimary, fontSize: 24 }}
+            />
           </div>
           <Flex vertical gap={0}>
             <Title level={5} style={{ margin: 0 }}>
@@ -103,54 +104,85 @@ export default function AiUpdateModal({
       }
       styles={{
         body: {
-          paddingBlock: 24,
+          paddingInline: 32,
+          paddingBlock: 32,
           background: token.colorBgLayout,
+        },
+        header: {
+          paddingInline: 32,
+          paddingTop: 24,
+          paddingBottom: 16,
+          background: token.colorBgContainer,
+          borderBottom: `1px solid ${token.colorBorderSecondary}`,
+          margin: 0,
+          borderRadius: "16px 16px 0 0",
+        },
+        footer: {
+          paddingInline: 32,
+          paddingBlock: 20,
+          background: token.colorBgContainer,
+          borderTop: `1px solid ${token.colorBorderSecondary}`,
+          margin: 0,
+          borderRadius: "0 0 16px 16px",
         },
       }}
     >
-      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+      <Space direction="vertical" size={32} style={{ width: "100%" }}>
         {/* Issue Header Info */}
         <Card
           size="small"
-          styles={{ body: { padding: "12px 16px" } }}
+          styles={{ body: { padding: "16px 20px" } }}
           style={{
             borderRadius: 12,
             border: `1px solid ${token.colorBorderSecondary}`,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.03)",
           }}
         >
-          <Flex align="center" gap={12}>
-            <Tag color="cyan" style={{ borderRadius: 4, margin: 0, fontWeight: 600 }}>
+          <Flex align="center" gap={16}>
+            <Tag
+              color="cyan"
+              style={{
+                borderRadius: 6,
+                margin: 0,
+                fontWeight: 700,
+                paddingInline: 12,
+                height: 28,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
               {aiState.issue?.issueKey}
             </Tag>
-            <Text strong style={{ fontSize: "1rem" }}>
+            <Text strong style={{ fontSize: "1.05rem" }}>
               {aiState.issue?.summary}
             </Text>
           </Flex>
         </Card>
 
         {/* Comparison Section */}
-        <Flex gap={20} align="stretch" style={{ minHeight: 500 }}>
+        <Flex gap={32} align="stretch" style={{ minHeight: 520 }}>
           {/* Left Panel: Original Source */}
           <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-            <Flex align="center" gap={8} style={{ marginBottom: 12 }}>
-              <FileTextOutlined style={{ color: token.colorTextDescription }} />
-              <Text strong style={{ color: token.colorTextSecondary }}>
+            <Flex align="center" gap={10} style={{ marginBottom: 16 }}>
+              <FileTextOutlined
+                style={{ color: token.colorTextDescription, fontSize: 16 }}
+              />
+              <Text strong style={{ color: token.colorTextSecondary, fontSize: "0.95rem" }}>
                 รายละเอียดเดิม (Source)
               </Text>
             </Flex>
             <div
               style={{
                 flex: 1,
-                maxHeight: 500,
+                maxHeight: 520,
                 overflowY: "auto",
                 background: token.colorBgContainerDisabled,
                 border: `1px solid ${token.colorBorderSecondary}`,
-                borderRadius: 12,
-                padding: 20,
-                fontSize: "0.9rem",
+                borderRadius: 16,
+                padding: 24,
+                fontSize: "0.95rem",
                 color: token.colorTextDescription,
-                lineHeight: 1.6,
+                lineHeight: 1.8,
               }}
             >
               {aiState.issue?.description ? (
@@ -166,44 +198,51 @@ export default function AiUpdateModal({
           </div>
 
           {/* Divider with Arrow */}
-          <Flex vertical align="center" justify="center" style={{ width: 40 }}>
+          <Flex vertical align="center" justify="center" style={{ width: 60 }}>
             <div
               style={{
                 background: token.colorBgContainer,
-                width: 36,
-                height: 36,
+                width: 44,
+                height: 44,
                 borderRadius: "50%",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
                 border: `1px solid ${token.colorBorderSecondary}`,
                 zIndex: 1,
               }}
             >
-              <ArrowRightOutlined style={{ color: token.colorPrimary }} />
+              <ArrowRightOutlined
+                style={{ color: token.colorPrimary, fontSize: 18 }}
+              />
             </div>
           </Flex>
 
           {/* Right Panel: AI Transformation */}
           <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-            <Flex align="center" gap={8} style={{ marginBottom: 12 }} justify="space-between">
-              <Space>
+            <Flex
+              align="center"
+              gap={10}
+              style={{ marginBottom: 16 }}
+              justify="space-between"
+            >
+              <Space size={12}>
                 <div
                   style={{
-                    width: 8,
-                    height: 8,
+                    width: 10,
+                    height: 10,
                     background: token.colorSuccess,
                     borderRadius: "50%",
-                    boxShadow: `0 0 8px ${token.colorSuccess}`,
+                    boxShadow: `0 0 10px ${token.colorSuccess}80`,
                   }}
                 />
-                <Text strong style={{ color: token.colorTextHeading }}>
+                <Text strong style={{ color: token.colorTextHeading, fontSize: "0.95rem" }}>
                   สรุปใหม่โดย AI (Draft)
                 </Text>
               </Space>
               {aiState.generating && (
-                <Tag color="processing" bordered={false}>
+                <Tag color="processing" bordered={false} style={{ borderRadius: 6, paddingInline: 12 }}>
                   AI Is Thinking...
                 </Tag>
               )}
@@ -214,25 +253,25 @@ export default function AiUpdateModal({
                   flex: 1,
                   background: token.colorBgContainer,
                   border: `1px solid ${token.colorBorderSecondary}`,
-                  borderRadius: 12,
-                  padding: 24,
+                  borderRadius: 16,
+                  padding: 32,
                 }}
               >
-                <Skeleton active paragraph={{ rows: 12 }} />
+                <Skeleton active paragraph={{ rows: 14 }} />
               </div>
             ) : (
               <TextArea
                 value={aiState.newText}
                 onChange={(e) => onUpdateText(e.target.value)}
-                autoSize={{ minRows: 15, maxRows: 15 }}
+                autoSize={{ minRows: 16, maxRows: 16 }}
                 style={{
                   flex: 1,
-                  borderRadius: 12,
-                  padding: 20,
-                  fontSize: "0.95rem",
+                  borderRadius: 16,
+                  padding: 24,
+                  fontSize: "1rem",
                   fontFamily: "inherit",
                   border: `2px solid ${token.colorPrimaryBg}`,
-                  boxShadow: "0 4px 16px rgba(0,0,0,0.05)",
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.06)",
                   transition: "all 0.3s",
                 }}
                 placeholder="AI กำลังร่างข้อความ..."
@@ -244,4 +283,3 @@ export default function AiUpdateModal({
     </Modal>
   );
 }
-

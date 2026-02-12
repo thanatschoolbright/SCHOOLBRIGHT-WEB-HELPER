@@ -1,19 +1,20 @@
 "use client";
 
 import {
+  CalendarOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
+  EditOutlined,
+  FileTextOutlined,
   LoadingOutlined,
+  PaperClipOutlined,
+  PushpinOutlined,
   RobotOutlined,
   SearchOutlined,
-  FileTextOutlined,
-  EditOutlined,
   SendOutlined,
-  PaperClipOutlined,
-  CalendarOutlined,
   UserOutlined,
-  PushpinOutlined,
 } from "@ant-design/icons";
+import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import {
   Avatar,
   Button,
@@ -29,18 +30,17 @@ import type { ColumnsType } from "antd/es/table";
 import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
-import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 
 import ColoredBadge from "@components/ant-design/table/table-badge-color";
 import TableSearchFilter from "@components/ant-design/table/table-search-component";
+import AiUpdateModal from "@components/backlog/issue-drawer/ai-update-modal";
 import type { Issue } from "@components/backlog/issue-drawer/types";
-import { RootState } from "@stores/store";
+import AIProcessingModal from "@components/modal/ai-processing-modal";
 import {
   setPagination,
   setSelectedRowKeys,
 } from "@stores/reducers/issues-slice";
-import AiUpdateModal from "@components/backlog/issue-drawer/ai-update-modal";
-import AIProcessingModal from "@components/modal/ai-processing-modal";
+import { RootState } from "@stores/store";
 
 interface IssuesTableProps {
   listCardStyle: React.CSSProperties;
@@ -134,7 +134,7 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
   ];
 
   const [aiEngine, setAiEngine] = React.useState<"gemini" | "chatgpt">(
-    "gemini"
+    "gemini",
   );
 
   const onClickAI = async (issue: Issue, engine: "gemini" | "chatgpt") => {
@@ -219,7 +219,7 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
           "เรียก AI ไม่สำเร็จ",
         {
           duration: 3000,
-        }
+        },
       );
     }
   };
@@ -250,7 +250,7 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
     } catch (error: any) {
       toast.error(
         error?.response?.data?.message || error?.message || "อัปเดตไม่สำเร็จ",
-        { id: toastId }
+        { id: toastId },
       );
     }
   };
@@ -290,11 +290,11 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
       text
         .replace(
           /!\[([^\]]*)\]\(([^)]+)\)/g,
-          '<img alt="$1" src="$2" style="max-width:100%; border-radius:8px;" />'
+          '<img alt="$1" src="$2" style="max-width:100%; border-radius:8px;" />',
         )
         .replace(
           /\[([^\]]+)\]\(([^)]+)\)/g,
-          '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+          '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>',
         )
         .replace(/`([^`]+)`/g, "<code>$1</code>")
         .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
@@ -303,7 +303,7 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
     const flushParagraph = (buffer: string[]) => {
       if (!buffer.length) return;
       html += `<p style="margin:0;">${renderInline(
-        buffer.join(" ").trim()
+        buffer.join(" ").trim(),
       )}</p>`;
       buffer.length = 0;
     };
@@ -360,7 +360,7 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
         flushParagraph(buffer);
         const level = trimmed.indexOf(" ");
         html += `<h${level} style="margin:0 0 6px;">${renderInline(
-          headingMatch[1].trim()
+          headingMatch[1].trim(),
         )}</h${level}>`;
         continue;
       }
@@ -551,7 +551,7 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
                 window.open(
                   `https://${space}.backlog.com/view/${record.issueKey}`,
                   "_blank",
-                  "noopener,noreferrer"
+                  "noopener,noreferrer",
                 );
               }}
             >
@@ -705,7 +705,7 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
       onChange: (keys: React.Key[]) => dispatch(setSelectedRowKeys(keys)),
       preserveSelectedRowKeys: true,
     }),
-    [selectedRowKeys, dispatch]
+    [selectedRowKeys, dispatch],
   );
 
   return (
