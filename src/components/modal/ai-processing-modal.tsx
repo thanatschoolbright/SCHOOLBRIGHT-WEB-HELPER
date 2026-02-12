@@ -1,6 +1,6 @@
-import React from "react";
-import { Modal, Steps, Typography, Progress, Spin, theme } from "antd";
 import { LoadingOutlined, RobotOutlined } from "@ant-design/icons";
+import { Modal, Progress, Spin, Steps, theme, Typography } from "antd";
+import React from "react";
 
 const { Title, Text } = Typography;
 
@@ -51,7 +51,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
   const currentStepData = steps[currentStep];
   const progressPercent = Math.min(
     ((currentStep + 1) / steps.length) * 100,
-    100
+    100,
   );
 
   return (
@@ -263,32 +263,32 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
             const iconColor = isCompleted
               ? token.colorSuccess
               : isCurrent
-              ? token.colorPrimary
-              : token.colorTextDisabled;
+                ? token.colorPrimary
+                : token.colorTextDisabled;
 
             const titleColor = isCompleted
               ? token.colorSuccessText
               : isCurrent
-              ? token.colorPrimaryText
-              : token.colorTextDisabled;
+                ? token.colorPrimaryText
+                : token.colorTextDisabled;
 
             const descColor = isCompleted
               ? token.colorSuccessTextActive
               : isCurrent
-              ? token.colorPrimaryTextActive
-              : token.colorTextQuaternary;
+                ? token.colorPrimaryTextActive
+                : token.colorTextQuaternary;
 
             const iconBg = isCompleted
               ? token.colorSuccessBg
               : isCurrent
-              ? token.colorPrimaryBg
-              : token.colorFillQuaternary;
+                ? token.colorPrimaryBg
+                : token.colorFillQuaternary;
 
             const iconBorder = isCompleted
               ? token.colorSuccess
               : isCurrent
-              ? token.colorPrimary
-              : token.colorBorder;
+                ? token.colorPrimary
+                : token.colorBorder;
 
             return {
               title: (
