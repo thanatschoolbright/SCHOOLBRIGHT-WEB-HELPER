@@ -2,33 +2,43 @@
 
 import {
   AppstoreAddOutlined,
-  AppstoreOutlined,
-  ArrowLeftOutlined,
+  AuditOutlined,
   BarChartOutlined,
-  BugOutlined,
+  CalendarOutlined,
   CheckCircleOutlined,
+  ClearOutlined,
   ClockCircleOutlined,
+  EyeOutlined,
   FileTextOutlined,
   FilterOutlined,
+  HistoryOutlined,
   InfoCircleOutlined,
-  ProjectOutlined,
+  PushpinOutlined,
   RobotOutlined,
   RocketOutlined,
+  SearchOutlined,
+  SendOutlined,
+  TagOutlined,
   TrophyOutlined,
+  UnorderedListOutlined,
   UserOutlined,
-  WarningOutlined,
 } from "@ant-design/icons";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import {
   Avatar,
-  Badge,
   Button,
   Card,
   Col,
+  DatePicker,
+  Descriptions,
+  Divider,
+  Flex,
+  Grid,
+  Input,
   Layout,
   Modal,
-  Progress,
   Row,
+  Select,
   Space,
   Spin,
   Statistic,
@@ -39,6 +49,7 @@ import {
   Typography,
 } from "antd";
 import type { HookAPI } from "antd/es/modal/useModal";
+import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
@@ -59,13 +70,695 @@ import {
 import { AppDispatch, RootState } from "@stores/store";
 
 // * Internal Components
+import ColoredBadge from "@/components/ant-design/table/table-badge-color";
 import SharedBulkUpdateSection from "@/components/backlog/bulk-update-section";
+import AiUpdateDrawer from "@/components/backlog/issue-drawer/ai-update-drawer";
 import type { Issue } from "@/components/backlog/issue-drawer/types";
-import IssueFilter from "@/components/backlog/issue-filter";
-import IssuesTable from "@/components/backlog/issues-table";
+import SummaryCard from "@/components/card/summary-card";
 import DashboardLayout from "@/components/layouts/backend-layout";
+import AIProcessingModal from "@/components/modal/ai-processing-modal";
+import { StatusModalComponent } from "@/components/modal/status-modal-component";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
 
 const { Content } = Layout;
+const { Title, Text } = Typography;
+const { RangePicker } = DatePicker;
+
+// ==========================================
+// * Utilities
+// ==========================================
+
+// ! ฟังก์ชันจัดรูปแบบวันที่ให้เป็นมาตรฐานไทย
+const formatDateThai = (value?: string | null) =>
+  value
+    ? new Date(value).toLocaleDateString("th-TH", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+    : "-";
+
+// ! แปลง Markdown เป็น HTML เบื้องต้น (No Emoji)
+const markdownToHtmlSimple = (value?: string | null) => {
+  if (!value) return "-";
+  return value
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .map((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) return "<br/>";
+      return `<p style="margin:0;">${trimmed}</p>`;
+    })
+    .join("");
+};
+
+// ==========================================
+// * Internal Components (Integrated)
+// ==========================================
+
+/**
+ * � IssueDetailModal: แสดงรายละเอียดงานแบบเจาะลึก
+ */
+const IssueDetailModal: React.FC<{
+  open: boolean;
+  onClose: () => void;
+  issue: Issue | null;
+  space: string;
+}> = ({ open, onClose, issue, space }) => {
+  const { token } = theme.useToken();
+  const screens = Grid.useBreakpoint();
+  const isDesktop = screens.lg || screens.xl || screens.xxl;
+
+  if (!issue) return null;
+
+  return (
+    <Modal
+      title={
+        <Flex align="center" gap={8}>
+          <InfoCircleOutlined style={{ color: token.colorPrimary }} />
+          <span>รายละเอียดงาน [{issue.issueKey}]</span>
+        </Flex>
+      }
+      open={open}
+      onCancel={onClose}
+      width={1000}
+      footer={[
+        <Button key="close" onClick={onClose} type="primary">
+          ปิดหน้าต่าง
+        </Button>,
+      ]}
+      centered
+      style={{ top: 20 }}
+    >
+      <div style={{ maxHeight: "70vh", overflowY: "auto", paddingRight: 8 }}>
+        <Descriptions
+          bordered
+          column={{ xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }}
+          size="small"
+        >
+          <Descriptions.Item label="รหัสงาน">
+            <Typography.Link
+              href={`https://${space}.backlog.com/view/${issue.issueKey}`}
+              target="_blank"
+              strong
+            >
+              {issue.issueKey}
+            </Typography.Link>
+          </Descriptions.Item>
+          <Descriptions.Item label="ประเภท">
+            <Tag color={issue.issueType?.color || "default"}>
+              {issue.issueType?.name || "N/A"}
+            </Tag>
+          </Descriptions.Item>
+          <Descriptions.Item label="หัวข้องาน" span={isDesktop ? 2 : 1}>
+            <Text strong>{issue.summary}</Text>
+          </Descriptions.Item>
+          <Descriptions.Item label="สถานะ">
+            {issue.status ? (
+              <ColoredBadge
+                text={issue.status.name}
+                color={issue.status.color}
+              />
+            ) : (
+              "-"
+            )}
+          </Descriptions.Item>
+          <Descriptions.Item label="ความสำคัญ">
+            <Tag
+              color={
+                issue.priority?.name === "High"
+                  ? "volcano"
+                  : issue.priority?.name === "Normal"
+                    ? "blue"
+                    : "default"
+              }
+            >
+              {issue.priority?.name || "N/A"}
+            </Tag>
+          </Descriptions.Item>
+          <Descriptions.Item label="ผู้รับผิดชอบ">
+            <Space>
+              <Avatar
+                size="small"
+                src={issue.assignee?.nulabAccount?.iconUrl}
+                icon={<UserOutlined />}
+              />
+              <Text>{issue.assignee?.name || "-"}</Text>
+            </Space>
+          </Descriptions.Item>
+          <Descriptions.Item label="ผู้สร้างงาน">
+            <Space>
+              <Avatar
+                size="small"
+                src={(issue as any).createdUser?.nulabAccount?.iconUrl}
+                icon={<UserOutlined />}
+              />
+              <Text>{(issue as any).createdUser?.name || "-"}</Text>
+            </Space>
+          </Descriptions.Item>
+          <Descriptions.Item label="หมวดหมู่">
+            <Space wrap>
+              {issue.category?.map((c) => (
+                <Tag key={c.id} icon={<TagOutlined />}>
+                  {c.name}
+                </Tag>
+              )) || "-"}
+            </Space>
+          </Descriptions.Item>
+          <Descriptions.Item label="Milestone">
+            <Space wrap>
+              {issue.milestone?.map((m) => (
+                <Tag key={m.id} color="processing" icon={<TrophyOutlined />}>
+                  {m.name}
+                </Tag>
+              )) || "-"}
+            </Space>
+          </Descriptions.Item>
+          <Descriptions.Item label="วันที่เริ่ม">
+            <Space>
+              <CalendarOutlined style={{ color: token.colorTextDescription }} />
+              {issue.startDate ? formatDateThai(issue.startDate) : "-"}
+            </Space>
+          </Descriptions.Item>
+          <Descriptions.Item label="กำหนดส่ง">
+            <Space>
+              <CalendarOutlined style={{ color: token.colorTextDescription }} />
+              {issue.dueDate ? formatDateThai(issue.dueDate) : "-"}
+            </Space>
+          </Descriptions.Item>
+          <Descriptions.Item label="ประมาณการเวลา">
+            {(issue as any).estimatedHours
+              ? `${(issue as any).estimatedHours} ชม.`
+              : "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label="เวลาที่ใช้จริง">
+            {(issue as any).actualHours
+              ? `${(issue as any).actualHours} ชม.`
+              : "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label="สร้างเมื่อ">
+            <Space>
+              <ClockCircleOutlined
+                style={{ color: token.colorTextDescription }}
+              />
+              {issue.created ? formatDateThai(issue.created) : "-"}
+            </Space>
+          </Descriptions.Item>
+          <Descriptions.Item label="อัปเดตล่าสุด">
+            <Space>
+              <HistoryOutlined style={{ color: token.colorTextDescription }} />
+              {issue.updated ? formatDateThai(issue.updated) : "-"}
+            </Space>
+          </Descriptions.Item>
+        </Descriptions>
+
+        <Divider orientation="left" style={{ marginBlock: 16 }}>
+          <Space>
+            <AuditOutlined />
+            <span>คำอธิบายงาน</span>
+          </Space>
+        </Divider>
+
+        <div
+          style={{
+            padding: 16,
+            background: token.colorBgContainerDisabled,
+            borderRadius: 8,
+            border: `1px solid ${token.colorBorderSecondary}`,
+            minHeight: 100,
+          }}
+          dangerouslySetInnerHTML={{
+            __html: markdownToHtmlSimple(issue.description),
+          }}
+        />
+
+        {issue.attachments && issue.attachments.length > 0 && (
+          <>
+            <Divider orientation="left" style={{ marginBlock: 16 }}>
+              <Space>
+                <FileTextOutlined />
+                <span>ไฟล์แนบ ({issue.attachments.length})</span>
+              </Space>
+            </Divider>
+            <Space wrap>
+              {issue.attachments.map((file) => (
+                <Card
+                  key={file.id}
+                  size="small"
+                  style={{ width: 200 }}
+                  styles={{ body: { padding: 8 } }}
+                >
+                  <Flex align="center" gap={8}>
+                    <FileTextOutlined
+                      style={{ fontSize: 20, color: token.colorPrimary }}
+                    />
+                    <div style={{ overflow: "hidden" }}>
+                      <Text ellipsis title={file.name}>
+                        {file.name}
+                      </Text>
+                      <br />
+                      <Text type="secondary" style={{ fontSize: 10 }}>
+                        {Math.round(file.size / 1024)} KB
+                      </Text>
+                    </div>
+                  </Flex>
+                </Card>
+              ))}
+            </Space>
+          </>
+        )}
+      </div>
+    </Modal>
+  );
+};
+
+/**
+ * �🛠️ ส่วนแสดงผลตารางรายการงาน
+ * จัดการข้อมูลและการแสดงผลในรูปแบบตาราง พร้อมระบบ AI สรุปงาน
+ */
+const IssuesListTable: React.FC<{
+  onReload: () => void;
+  space: string;
+}> = ({ onReload, space }) => {
+  const { token } = theme.useToken();
+  const dispatch = useDispatch<AppDispatch>();
+  const { issues, total, page, pageSize, loading, selectedRowKeys } =
+    useSelector((state: RootState) => state.issues);
+
+  const [aiModal, setAiModal] = useState<{
+    generating: boolean;
+    issue: Issue | null;
+    newText: string;
+    open: boolean;
+  }>({
+    generating: false,
+    issue: null,
+    newText: "",
+    open: false,
+  });
+
+  const [detailModal, setDetailModal] = useState<{
+    open: boolean;
+    issue: Issue | null;
+  }>({
+    open: false,
+    issue: null,
+  });
+
+  const [aiProcessing, setAiProcessing] = useState<{
+    open: boolean;
+    currentStep: number;
+    processingTime: number;
+  }>({
+    open: false,
+    currentStep: 0,
+    processingTime: 0,
+  });
+
+  const [engineSelectModal, setEngineSelectModal] = useState<{
+    open: boolean;
+    issue: Issue | null;
+  }>({
+    open: false,
+    issue: null,
+  });
+
+  const [aiEngine, setAiEngine] = useState<"gemini" | "chatgpt">("gemini");
+
+  // ! ฟังก์ชันเรียกใช้ AI ในการสรุปผลงาน
+  const handleInvokeAiAnalysis = async (
+    issue: Issue,
+    engine: "gemini" | "chatgpt",
+  ) => {
+    setAiEngine(engine);
+    setAiProcessing({ open: true, currentStep: 0, processingTime: 0 });
+
+    const startTime = Date.now();
+    const timer = setInterval(() => {
+      setAiProcessing((prev) => ({
+        ...prev,
+        processingTime: Math.floor((Date.now() - startTime) / 1000),
+      }));
+    }, 1000);
+
+    try {
+      setAiProcessing((prev) => ({ ...prev, currentStep: 2 }));
+      const endpoint =
+        engine === "chatgpt"
+          ? "/api/v1/ai/chatgpt/summarize"
+          : "/api/v1/ai/gemini/summarize";
+
+      const response = await axios.post(endpoint, {
+        summary: issue.summary,
+        description: issue.description,
+        details: issue,
+        issueKey: issue.issueKey || String(issue.id),
+      });
+
+      const markdown: string = response?.data?.data?.markdown || "";
+      clearInterval(timer);
+      setAiProcessing({ open: false, currentStep: 0, processingTime: 0 });
+      setAiModal({ open: true, issue, generating: false, newText: markdown });
+
+      toast.success("ประมวลผลด้วย AI สำเร็จ");
+    } catch (error) {
+      clearInterval(timer);
+      setAiProcessing({ open: false, currentStep: 0, processingTime: 0 });
+      toast.error("เรียกใช้งาน AI ไม่สำเร็จ กรุณาลองใหม่");
+    }
+  };
+
+  const handleApplyAiUpdate = async () => {
+    if (!aiModal.issue) return;
+    const toastId = toast.loading("กำลังอัปเดตข้อมูลด้วย AI...");
+    try {
+      const currentSummary = aiModal.issue.summary;
+      const finalSummary = currentSummary.includes("[AI]")
+        ? currentSummary
+        : `${currentSummary} [AI]`;
+
+      await axios.post("/api/v1/backlog/issues/update", {
+        space,
+        issueKeyOrId: aiModal.issue.issueKey || aiModal.issue.id,
+        description: aiModal.newText,
+        summary: finalSummary,
+      });
+      toast.success("อัปเดตข้อมูลสำเร็จ", { id: toastId });
+      setAiModal({ open: false, issue: null, generating: false, newText: "" });
+      onReload();
+    } catch (error) {
+      toast.error("อัปเดตข้อมูลไม่สำเร็จ", { id: toastId });
+    }
+  };
+
+  const columns: ColumnsType<Issue> = [
+    {
+      title: "รหัสงาน",
+      dataIndex: "issueKey",
+      key: "issueKey",
+      width: 120,
+      fixed: "left",
+      sorter: (a, b) => a.issueKey.localeCompare(b.issueKey),
+      render: (key: string) => (
+        <Typography.Link
+          href={`https://${space}.backlog.com/view/${key}`}
+          target="_blank"
+          strong
+          style={{ fontWeight: 600 }}
+        >
+          {key}
+        </Typography.Link>
+      ),
+    },
+    {
+      title: "ประเภท",
+      dataIndex: ["issueType", "name"],
+      key: "issueType",
+      width: 100,
+      render: (_, record) => (
+        <Tag color={record.issueType?.color || "default"}>
+          {record.issueType?.name || "N/A"}
+        </Tag>
+      ),
+    },
+    {
+      title: "หัวข้อ",
+      dataIndex: "summary",
+      key: "summary",
+      ellipsis: true,
+      width: 250,
+      sorter: (a, b) => a.summary.localeCompare(b.summary),
+      render: (text: string, record: Issue) => (
+        <Tooltip title={text}>
+          <Text style={{ fontWeight: 500 }}>{text}</Text>
+        </Tooltip>
+      ),
+    },
+    {
+      title: "สถานะ",
+      dataIndex: ["status", "name"],
+      key: "status",
+      width: 130,
+      sorter: (a, b) =>
+        (a.status?.name || "").localeCompare(b.status?.name || ""),
+      render: (_, record) =>
+        record.status ? (
+          <ColoredBadge text={record.status.name} color={record.status.color} />
+        ) : (
+          "-"
+        ),
+    },
+    {
+      title: "ความสำคัญ",
+      dataIndex: ["priority", "name"],
+      key: "priority",
+      width: 100,
+      sorter: (a, b) =>
+        (a.priority?.name || "").localeCompare(b.priority?.name || ""),
+      render: (name) => (
+        <Tag
+          color={
+            name === "High" ? "volcano" : name === "Normal" ? "blue" : "default"
+          }
+          icon={<PushpinOutlined />}
+        >
+          {name || "N/A"}
+        </Tag>
+      ),
+    },
+    {
+      title: "หมวดหมู่",
+      key: "category",
+      width: 150,
+      ellipsis: true,
+      render: (_, record) => (
+        <Space wrap size={[0, 4]}>
+          {record.category?.map((c) => <Tag key={c.id}>{c.name}</Tag>) || "-"}
+        </Space>
+      ),
+    },
+    {
+      title: "ผู้รับผิดชอบ",
+      key: "assignee",
+      width: 180,
+      sorter: (a, b) =>
+        (a.assignee?.name || "").localeCompare(b.assignee?.name || ""),
+      render: (_, record) => (
+        <Space size={8}>
+          <Avatar
+            size="small"
+            src={record.assignee?.nulabAccount?.iconUrl}
+            icon={<UserOutlined />}
+          />
+          <Text style={{ fontWeight: 500, fontSize: 13 }}>
+            {record.assignee?.name || "-"}
+          </Text>
+        </Space>
+      ),
+    },
+    {
+      title: "กำหนดส่ง",
+      dataIndex: "dueDate",
+      key: "dueDate",
+      width: 120,
+      sorter: (a, b) =>
+        dayjs(a.dueDate || 0).unix() - dayjs(b.dueDate || 0).unix(),
+      render: (date) => (
+        <Space size={4}>
+          <CalendarOutlined
+            style={{ fontSize: 12, color: token.colorTextDescription }}
+          />
+          <Text style={{ fontSize: 13 }}>{formatDateThai(date)}</Text>
+        </Space>
+      ),
+    },
+    {
+      title: "อัปเดตเมื่อ",
+      dataIndex: "updated",
+      key: "updated",
+      width: 120,
+      sorter: (a, b) =>
+        dayjs(a.updated || 0).unix() - dayjs(b.updated || 0).unix(),
+      render: (date) => (
+        <Space size={4}>
+          <HistoryOutlined
+            style={{ fontSize: 12, color: token.colorTextDescription }}
+          />
+          <Text style={{ fontSize: 13 }}>{formatDateThai(date)}</Text>
+        </Space>
+      ),
+    },
+    {
+      title: "จัดการ",
+      key: "actions",
+      width: 120,
+      fixed: "right",
+      align: "center",
+      render: (_, record) => (
+        <Space size={8}>
+          <Tooltip title="ดูรายละเอียด">
+            <Button
+              shape="circle"
+              icon={<EyeOutlined />}
+              onClick={() => setDetailModal({ open: true, issue: record })}
+            />
+          </Tooltip>
+          <Tooltip title="ใช้งาน AI วิเคราะห์งาน">
+            <Button
+              shape="circle"
+              icon={<RobotOutlined />}
+              onClick={() =>
+                setEngineSelectModal({ open: true, issue: record })
+              }
+            />
+          </Tooltip>
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <>
+      <Table<Issue>
+        columns={columns}
+        dataSource={
+          issues.length > pageSize ? issues.slice(0, pageSize) : issues
+        }
+        rowKey={(r) => r.id}
+        loading={loading}
+        pagination={{
+          total,
+          current: page,
+          pageSize,
+          showSizeChanger: true,
+          onChange: (p, ps) =>
+            dispatch(setPagination({ page: p, pageSize: ps })),
+        }}
+        rowSelection={{
+          selectedRowKeys,
+          onChange: (keys) => dispatch(setSelectedRowKeys(keys)),
+        }}
+        scroll={{ x: 1500 }}
+        size="middle"
+      />
+
+      <IssueDetailModal
+        open={detailModal.open}
+        issue={detailModal.issue}
+        space={space}
+        onClose={() => setDetailModal({ open: false, issue: null })}
+      />
+
+      <AiUpdateDrawer
+        aiState={aiModal}
+        onApprove={handleApplyAiUpdate}
+        onClose={() =>
+          setAiModal({
+            open: false,
+            issue: null,
+            generating: false,
+            newText: "",
+          })
+        }
+        onRegenerate={() =>
+          aiModal.issue && handleInvokeAiAnalysis(aiModal.issue, aiEngine)
+        }
+        onUpdateText={(val) =>
+          setAiModal((prev) => ({ ...prev, newText: val }))
+        }
+      />
+
+      <AIProcessingModal
+        open={aiProcessing.open}
+        currentStep={aiProcessing.currentStep}
+        processingTime={aiProcessing.processingTime}
+        onCancel={() =>
+          setAiProcessing({ open: false, currentStep: 0, processingTime: 0 })
+        }
+        steps={[
+          {
+            key: "1",
+            title: "เตรียมข้อมูล",
+            description: "กำลังรวบรวมรายละเอียดงาน",
+            icon: <FileTextOutlined />,
+            status:
+              aiProcessing.currentStep >= 0
+                ? aiProcessing.currentStep === 0
+                  ? "process"
+                  : "finish"
+                : "wait",
+          },
+          {
+            key: "2",
+            title: "ส่งข้อมูลไปยัง AI",
+            description: `กำลังประมวลผลด้วย ${aiEngine}`,
+            icon: <SendOutlined />,
+            status:
+              aiProcessing.currentStep >= 1
+                ? aiProcessing.currentStep === 1
+                  ? "process"
+                  : "finish"
+                : "wait",
+          },
+          {
+            key: "3",
+            title: "กำลังประมวลผล",
+            description: "AI กำลังสร้างสรุปเนื้อหา",
+            icon: <RobotOutlined />,
+            status:
+              aiProcessing.currentStep >= 2
+                ? aiProcessing.currentStep === 2
+                  ? "process"
+                  : "finish"
+                : "wait",
+          },
+          {
+            key: "4",
+            title: "เสร็จสิ้น",
+            description: "สรุปสำเร็จ",
+            icon: <CheckCircleOutlined />,
+            status: aiProcessing.currentStep >= 3 ? "finish" : "wait",
+          },
+        ]}
+      />
+
+      <Modal
+        title="เลือกเครื่องมือประมวลผล AI"
+        open={engineSelectModal.open}
+        onCancel={() => setEngineSelectModal({ open: false, issue: null })}
+        footer={null}
+        centered
+      >
+        <Flex vertical gap={12} style={{ paddingBlock: 12 }}>
+          <Button
+            size="large"
+            type="primary"
+            className="h-16"
+            onClick={() => {
+              if (engineSelectModal.issue)
+                handleInvokeAiAnalysis(engineSelectModal.issue, "gemini");
+              setEngineSelectModal({ open: false, issue: null });
+            }}
+          >
+            Google Gemini (รวดเร็ว)
+          </Button>
+          <Button
+            size="large"
+            className="h-16"
+            style={{ backgroundColor: "#10a37f", color: "white" }}
+            onClick={() => {
+              if (engineSelectModal.issue)
+                handleInvokeAiAnalysis(engineSelectModal.issue, "chatgpt");
+              setEngineSelectModal({ open: false, issue: null });
+            }}
+          >
+            OpenAI ChatGPT (ละเอียด)
+          </Button>
+        </Flex>
+      </Modal>
+    </>
+  );
+};
 
 // ==========================================
 // * Types Definition
@@ -223,6 +916,50 @@ const useIssuesPageData = ({
     showErrorModal,
   ]);
 
+  const [summaryStats, setSummaryStats] = useState({
+    total: 0,
+    closed: 0,
+    progress: 0,
+  });
+
+  // ! ฟังก์ชันโหลดสถิติภาพรวมของโปรเจกต์ (แบบไม่กรองตาม Table)
+  const loadSummaryStats = useCallback(
+    async (statusList: any[]) => {
+      try {
+        const closedStatusIds = statusList
+          .filter((s: any) =>
+            /closed|done|completed|finish|สำเร็จ|ปิดงาน/i.test(s?.name ?? ""),
+          )
+          .map((s: any) => s.id);
+
+        const [totalRes, closedRes] = await Promise.all([
+          axios.get("/api/v1/backlog/issues", {
+            params: { space, projectId, count: 1 },
+          }),
+          closedStatusIds.length > 0
+            ? axios.get("/api/v1/backlog/issues", {
+                params: {
+                  space,
+                  projectId,
+                  count: 1,
+                  statusId: closedStatusIds,
+                },
+              })
+            : Promise.resolve({ data: { data: { total: 0 } } }),
+        ]);
+
+        const total = totalRes.data?.data?.total || 0;
+        const closed = closedRes.data?.data?.total || 0;
+        const progress = total > 0 ? Math.round((closed / total) * 100) : 0;
+
+        setSummaryStats({ total, closed, progress });
+      } catch (error) {
+        console.error("Failed to load summary stats", error);
+      }
+    },
+    [space, projectId],
+  );
+
   // * ฟังก์ชันโหลด Options (สถานะ, ผู้รับผิดชอบ ฯลฯ)
   const loadOptions = useCallback(async () => {
     if (!projectReady) return;
@@ -261,6 +998,9 @@ const useIssuesPageData = ({
           assigneeOptions,
         }),
       );
+
+      // ? โหลดสถิติรวมของโปรเจกต์
+      loadSummaryStats(statusesRes?.data?.data || []);
 
       // ? ตั้งค่า Filter เริ่มต้น (เลือกสถานะที่ไม่ใช่ Closed)
       const openStatusIds = (statusesRes?.data?.data || [])
@@ -311,8 +1051,17 @@ const useIssuesPageData = ({
     [dispatch, pageSize],
   );
 
+  // ! Auto-reload data when pagination changes
+  useEffect(() => {
+    if (projectReady && state.issues.length > 0) {
+      loadIssues();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize]);
+
   return {
     state,
+    summaryStats,
     loadIssues,
     loadOptions,
     handleSearchKeyword,
@@ -321,269 +1070,38 @@ const useIssuesPageData = ({
 };
 
 // ==========================================
-// * Sub-Components (UI Views)
+// * Data Visualization Components
 // ==========================================
 
-// ? ส่วนหัวของหน้า (Header)
-function HeaderSection({
-  title,
-  subtitle,
-  onBack,
-  onClickSummary,
-}: {
-  title: string;
-  subtitle: string;
-  onBack: () => void;
-  onClickSummary: () => void;
-}) {
-  return (
-    <div className="flex justify-between items-center w-full mb-4">
-      <Space align="center" size={16}>
-        <Button
-          icon={<ArrowLeftOutlined />}
-          onClick={onBack}
-          size="large"
-          shape="circle"
-          className="shadow-sm border-0"
-        />
-        <div className="flex flex-col">
-          <Typography.Title
-            level={3}
-            style={{ margin: 0, fontWeight: 700 }}
-            className="flex items-center gap-2"
-          >
-            <RocketOutlined className="text-blue-600" /> {title}
-          </Typography.Title>
-          <Typography.Text type="secondary" className="flex items-center gap-1">
-            <AppstoreOutlined /> {subtitle}
-          </Typography.Text>
-        </div>
-      </Space>
-      <Button
-        icon={<BarChartOutlined />}
-        onClick={onClickSummary}
-        size="large"
-        type="primary"
-        className="bg-gradient-to-r from-blue-600 to-cyan-500 border-0 shadow-lg hover:shadow-xl transition-all"
-      >
-        รายงานสรุปผลงาน
-      </Button>
-    </div>
-  );
-}
-
-// ? การ์ดแสดงสถิติเบื้องต้น (Summary Cards)
-function SummaryCards({
-  total,
-  space,
-  projectName,
-}: {
-  total: number;
-  space: string;
-  projectName: string;
-}) {
-  const { token } = theme.useToken();
-  return (
-    <Row gutter={[16, 16]}>
-      <Col xs={24} sm={12} lg={8}>
-        <Card
-          size="small"
-          bordered={false}
-          style={{
-            borderRadius: 20,
-            background: "linear-gradient(135deg, #3b82f6 0%, #2dd4bf 100%)",
-            boxShadow: "0 10px 25px -5px rgba(59, 130, 246, 0.4)",
-          }}
-          className="hover:-translate-y-1 transition-transform duration-300"
-        >
-          <div className="flex items-center justify-between p-4 text-white">
-            <div>
-              <Typography.Text className="text-white/90 font-medium block mb-1">
-                จำนวนงานทั้งหมด
-              </Typography.Text>
-              <Typography.Title
-                level={2}
-                style={{ margin: 0, color: "white", fontWeight: 800 }}
-              >
-                {total?.toLocaleString() ?? 0}
-              </Typography.Title>
-              <div className="mt-2 text-xs text-white/80 bg-white/20 px-2 py-1 rounded inline-block">
-                รายการที่พบในระบบ
-              </div>
-            </div>
-            <div className="bg-white/20 p-4 rounded-2xl backdrop-blur-sm">
-              <FileTextOutlined style={{ fontSize: 32, color: "white" }} />
-            </div>
-          </div>
-        </Card>
-      </Col>
-      <Col xs={24} sm={12} lg={8}>
-        <Card
-          size="small"
-          bordered={false}
-          style={{
-            borderRadius: 20,
-            boxShadow: token.boxShadowTertiary as string,
-          }}
-          className="hover:-translate-y-1 transition-transform duration-300"
-        >
-          <div className="flex items-center justify-between p-4">
-            <Space direction="vertical" size={2}>
-              <Typography.Text type="secondary" className="font-medium">
-                รหัสพื้นที่ทำงาน
-              </Typography.Text>
-              <Typography.Title
-                level={4}
-                style={{ margin: 0, fontWeight: 700 }}
-              >
-                {space || "-"}
-              </Typography.Title>
-              <Tag color="geekblue" className="mt-1 border-0">
-                พื้นที่จัดเก็บ
-              </Tag>
-            </Space>
-            <div className="bg-blue-50 p-4 rounded-2xl text-blue-500">
-              <AppstoreOutlined style={{ fontSize: 24 }} />
-            </div>
-          </div>
-        </Card>
-      </Col>
-      <Col xs={24} sm={12} lg={8}>
-        <Card
-          size="small"
-          bordered={false}
-          style={{
-            borderRadius: 20,
-            boxShadow: token.boxShadowTertiary as string,
-          }}
-          className="hover:-translate-y-1 transition-transform duration-300"
-        >
-          <div className="flex items-center justify-between p-4">
-            <Space direction="vertical" size={2}>
-              <Typography.Text type="secondary" className="font-medium">
-                ชื่อโปรเจกต์
-              </Typography.Text>
-              <Typography.Title
-                level={4}
-                style={{ margin: 0, fontWeight: 700 }}
-              >
-                {projectName || "-"}
-              </Typography.Title>
-              <Tag color="cyan" className="mt-1 border-0">
-                โปรเจกต์ที่ใช้งานอยู่
-              </Tag>
-            </Space>
-            <div className="bg-cyan-50 p-4 rounded-2xl text-cyan-500">
-              <ProjectOutlined style={{ fontSize: 24 }} />
-            </div>
-          </div>
-        </Card>
-      </Col>
-    </Row>
-  );
-}
-
-// ? แถบเครื่องมือ Actions (Filter / Bulk Update)
-function ActionToolbar({
-  onOpenFilter,
-  onOpenBulk,
-  activeFilterCount,
-}: {
-  onOpenFilter: () => void;
-  onOpenBulk: () => void;
-  activeFilterCount: number;
-}) {
-  return (
-    <Card
-      size="small"
-      style={{ borderRadius: 16 }}
-      bodyStyle={{ padding: "12px 16px" }}
-      className="shadow-sm"
-    >
-      <Row justify="space-between" align="middle" gutter={[16, 16]}>
-        <Col>
-          <Space>
-            {/* Filter Button */}
-            <Tooltip
-              title={
-                <Space direction="vertical" size={0}>
-                  <span>คลิกเพื่อเปิด "ตัวกรองขั้นสูง"</span>
-                  <span className="text-xs text-gray-300">
-                    ค้นหาตามสถานะ, ผู้รับผิดชอบ ฯลฯ
-                  </span>
-                </Space>
-              }
-            >
-              <Button
-                type={activeFilterCount > 0 ? "primary" : "default"}
-                icon={<FilterOutlined />}
-                onClick={onOpenFilter}
-                size="middle"
-                className="flex items-center gap-1"
-              >
-                ตัวกรองข้อมูล
-                {activeFilterCount > 0 && (
-                  <Badge
-                    count={activeFilterCount}
-                    style={{ backgroundColor: "#52c41a", marginLeft: 4 }}
-                  />
-                )}
-              </Button>
-            </Tooltip>
-
-            {/* Help / Info */}
-            <Tooltip title="ระบบจะแสดงรายการงานล่าสุดตามเงื่อนไขที่เลือก">
-              <Button
-                type="text"
-                icon={<InfoCircleOutlined className="text-gray-400" />}
-              />
-            </Tooltip>
-          </Space>
-        </Col>
-
-        <Col>
-          {/* Bulk Update Button */}
-          <Tooltip
-            title={
-              <Space direction="vertical" size={0}>
-                <span>คลิกเพื่อเปิด "อัปเดตหลายรายการ"</span>
-                <span className="text-xs text-gray-300">
-                  จัดการงานทีละหลายรายการพร้อมกัน
-                </span>
-              </Space>
-            }
-          >
-            <Button
-              type="dashed"
-              icon={<AppstoreAddOutlined />}
-              onClick={onOpenBulk}
-              className="text-blue-600 border-blue-300 hover:border-blue-500 hover:text-blue-700"
-            >
-              จัดการข้อมูลหลายรายการ (Bulk Action)
-            </Button>
-          </Tooltip>
-        </Col>
-      </Row>
-    </Card>
-  );
-}
-
-// ? Modal สำหรับตัวกรอง
-function FilterModal({
-  open,
-  onClose,
-  onSearch,
-}: {
+/**
+ * 📊 IssueSummaryModal: สรุปภาพรวมของงานในรูปแบบกราฟและสถิติ
+ */
+const IssueSummaryModal: React.FC<{
   open: boolean;
   onClose: () => void;
-  onSearch: () => void;
-}) {
+  issues: Issue[];
+  total: number;
+}> = ({ open, onClose, issues, total }) => {
+  const { token } = theme.useToken();
+  const stats = useMemo(() => {
+    const closed = issues.filter((i) =>
+      ["closed", "done", "completed", "finish"].some((s) =>
+        i.status?.name?.toLowerCase().includes(s),
+      ),
+    ).length;
+    const highPriority = issues.filter(
+      (i) => i.priority?.name === "High",
+    ).length;
+    return { closed, open: issues.length - closed, highPriority };
+  }, [issues]);
+
   return (
     <Modal
       title={
-        <span className="text-lg font-bold">
-          <FilterOutlined /> ตัวกรองข้อมูล (Filters)
-        </span>
+        <Flex align="center" gap={8}>
+          <BarChartOutlined style={{ color: token.colorPrimary }} />
+          <span>รายงานสรุปผลงาน</span>
+        </Flex>
       }
       open={open}
       onCancel={onClose}
@@ -591,37 +1109,79 @@ function FilterModal({
         <Button key="close" onClick={onClose}>
           ปิดหน้าต่าง
         </Button>,
-        <Button
-          key="apply"
-          type="primary"
-          onClick={() => {
-            onSearch();
-            onClose();
-          }}
-        >
-          ค้นหาเลย
-        </Button>,
       ]}
-      width={1000}
+      width={700}
       centered
-      destroyOnHidden
     >
-      <div className="pt-4">
-        <IssueFilter
-          onSearch={onSearch}
-          elevatedCardStyle={{
-            boxShadow: "none",
-            border: "1px solid #f0f0f0",
-            borderRadius: 12,
-          }}
-        />
+      <div style={{ paddingBlock: 16 }}>
+        <Row gutter={[16, 16]}>
+          <Col span={8}>
+            <Card
+              size="small"
+              style={{ textAlign: "center", borderRadius: 12 }}
+            >
+              <Statistic
+                title="งานทั้งหมดที่ดึงมา"
+                value={issues.length}
+                suffix={`/ ${total}`}
+              />
+            </Card>
+          </Col>
+          <Col span={8}>
+            <Card
+              size="small"
+              style={{ textAlign: "center", borderRadius: 12 }}
+            >
+              <Statistic
+                title="งานที่เสร็จสิ้น"
+                value={stats.closed}
+                valueStyle={{ color: token.colorSuccess }}
+              />
+            </Card>
+          </Col>
+          <Col span={8}>
+            <Card
+              size="small"
+              style={{ textAlign: "center", borderRadius: 12 }}
+            >
+              <Statistic
+                title="งานด่วน (High)"
+                value={stats.highPriority}
+                valueStyle={{ color: token.colorError }}
+              />
+            </Card>
+          </Col>
+        </Row>
+        <div style={{ marginTop: 24, textAlign: "center" }}>
+          <Text type="secondary">
+            หมายเหตุ: ข้อมูลนี้คำนวณจากรายการงานจำนวน {issues.length}{" "}
+            รายการที่แสดงอยู่ในหน้าจอปัจจุบัน
+          </Text>
+        </div>
       </div>
     </Modal>
   );
-}
+};
 
-// ? Modal สำหรับ Bulk Update
-function BulkUpdateModal({
+/**
+ * 📦 BulkUpdateModal: จัดการอัปเดตข้อมูลจำนวนมาก
+ */
+const BulkUpdateModal: React.FC<{
+  open: boolean;
+  onClose: () => void;
+  projectName: string;
+  projectId: number;
+  space: string;
+  onUpdateComplete: () => void;
+  minimized: boolean;
+  onRequestMinimize: () => void;
+  onProgress: (progress: {
+    percent: number;
+    status: string;
+    success: number;
+    total: number;
+  }) => void;
+}> = ({
   open,
   onClose,
   projectName,
@@ -631,378 +1191,56 @@ function BulkUpdateModal({
   minimized,
   onRequestMinimize,
   onProgress,
-}: {
-  open: boolean;
-  onClose: () => void;
-  projectName: string;
-  projectId: number;
-  space: string;
-  onUpdateComplete: () => void;
-  minimized: boolean;
-  onRequestMinimize: () => void;
-  onProgress: (p: any) => void;
-}) {
-  return (
-    <Modal
-      title={null}
-      // If minimized, we keep 'open' true but hide via CSS to keep state alive
-      open={open}
-      // Mask false when minimized to allow interacting with page
-      mask={!minimized}
-      onCancel={onClose}
-      footer={null}
-      width={900}
-      centered
-      destroyOnHidden={false} // ! Keep mounted
-      maskClosable={!minimized}
-      wrapClassName={minimized ? "hidden" : ""}
-      style={{ display: minimized ? "none" : undefined }}
-    >
-      {/* Use a wrapper div to ensure content persists */}
-      <div className="pt-2">
-        <SharedBulkUpdateSection
-          elevatedCardStyle={{
-            boxShadow: "none",
-            border: "1px solid #f0f0f0",
-            borderRadius: 8,
-          }}
-          projectName={projectName}
-          projectId={projectId}
-          space={space}
-          onUpdateComplete={() => {
-            onUpdateComplete();
-            onClose();
-          }}
-          onRequestMinimize={onRequestMinimize}
-          onProgressUpdate={onProgress}
-          minimized={minimized}
-        />
-      </div>
-    </Modal>
-  );
-}
-
-// ? หน้าจอ Error
-function FallbackError({ onAction }: { onAction: () => void }) {
-  return (
-    <div className="flex h-[80vh] items-center justify-center bg-gray-50/50">
-      <Card
-        bordered={false}
-        className="shadow-2xl text-center p-12"
-        style={{ borderRadius: 32, width: 500 }}
-      >
-        <Space
-          direction="vertical"
-          size={32}
-          align="center"
-          style={{ width: "100%" }}
-        >
-          <div className="bg-red-50 p-8 rounded-full">
-            <WarningOutlined style={{ fontSize: 64, color: "#ff4d4f" }} />
-          </div>
-          <div>
-            <Typography.Title level={3} style={{ margin: 0, fontWeight: 800 }}>
-              ข้อมูลไม่ครบถ้วน
-            </Typography.Title>
-            <Typography.Text
-              type="secondary"
-              className="block mt-4 text-gray-500 text-lg"
-            >
-              ไม่พบรหัสโครงการ (Project ID) หรือ Space Key <br />
-              กรุณาเข้าใช้งานใหม่ผ่านหน้าหลัก
-            </Typography.Text>
-          </div>
-          <Button
-            type="primary"
-            size="large"
-            onClick={onAction}
-            icon={<ArrowLeftOutlined />}
-            style={{ height: 48, borderRadius: 24 }}
-          >
-            กลับไปหน้าหลัก
-          </Button>
-        </Space>
-      </Card>
-    </div>
-  );
-}
-
-// ? Modal รายงานสรุป
-function IssueSummaryModal({
-  open,
-  onClose,
-  issues,
-  total,
-}: {
-  open: boolean;
-  onClose: () => void;
-  issues: Issue[];
-  total: number;
-}) {
-  const { assigneeStats, overallStats } = useMemo(() => {
-    const stats: Record<string, any> = {};
-    let totalOverdue = 0,
-      totalClosed = 0;
-
-    issues.forEach((issue) => {
-      const assigneeName = issue.assignee?.name || "Unassigned";
-      if (!stats[assigneeName])
-        stats[assigneeName] = {
-          name: assigneeName,
-          total: 0,
-          closed: 0,
-          open: 0,
-          overdue: 0,
-          issueTypes: {},
-          score: 0,
-        };
-      const s = stats[assigneeName];
-      s.total++;
-      const isClosed = ["closed", "done", "completed", "finish"].some((st) =>
-        issue.status?.name?.toLowerCase().includes(st),
-      );
-      if (isClosed) {
-        s.closed++;
-        totalClosed++;
-      } else {
-        s.open++;
-      }
-      if (
-        !isClosed &&
-        issue.dueDate &&
-        dayjs(issue.dueDate).isBefore(dayjs(), "day")
-      ) {
-        s.overdue++;
-        totalOverdue++;
-      }
-      const typeName = issue.issueType?.name || "Other";
-      s.issueTypes[typeName] = (s.issueTypes[typeName] || 0) + 1;
-    });
-
-    const computedStats = Object.values(stats).map((s: any) => {
-      const completionRate = s.total > 0 ? (s.closed / s.total) * 100 : 0;
-      let score = completionRate - s.overdue * 5;
-      if (s.total >= 5 && s.overdue === 0) score += 10;
-      return { ...s, score: Math.max(0, Math.min(100, Math.round(score))) };
-    });
-
-    return {
-      assigneeStats: computedStats.sort((a: any, b: any) => b.score - a.score),
-      overallStats: {
-        totalLoaded: issues.length,
-        totalClosed,
-        totalOverdue,
-        completionRate:
-          issues.length > 0
-            ? Math.round((totalClosed / issues.length) * 100)
-            : 0,
-      },
-    };
-  }, [issues]);
-
-  const topPerformer = assigneeStats[0];
-  const getScoreColor = (score: number) =>
-    score >= 80 ? "#52c41a" : score >= 50 ? "#1890ff" : "#ff4d4f";
-  const getIssueTypeIcon = (type: string) => {
-    const lower = type.toLowerCase();
-    if (lower.includes("bug")) return <BugOutlined />;
-    if (lower.includes("task")) return <CheckCircleOutlined />;
-    return <FileTextOutlined />;
-  };
-
+}) => {
+  if (minimized) return null;
   return (
     <Modal
       title={
-        <div className="flex items-center gap-3 py-2">
-          <div className="bg-yellow-100 p-2 rounded-lg">
-            <TrophyOutlined style={{ color: "#faad14", fontSize: 24 }} />
-          </div>
-          <div>
-            <Typography.Text strong style={{ fontSize: 18, display: "block" }}>
-              รายงานสรุปผลงานทีม
-            </Typography.Text>
-            <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-              Team Performance Report
-            </Typography.Text>
-          </div>
-        </div>
+        <Flex align="center" gap={8}>
+          <AppstoreAddOutlined />
+          <span>Bulk Action: {projectName}</span>
+        </Flex>
       }
       open={open}
       onCancel={onClose}
-      width={1100}
       footer={null}
-      destroyOnHidden
+      width={1000}
       style={{ top: 20 }}
-      centered
     >
-      <Space direction="vertical" size="large" className="w-full mt-6">
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <Card variant="borderless" className="shadow-sm bg-blue-50/50">
-            <Statistic
-              title={
-                <span className="font-semibold text-blue-800">งานทั้งหมด</span>
-              }
-              value={overallStats.totalLoaded}
-              suffix={`/ ${total}`}
-              prefix={
-                <ClockCircleOutlined className="text-blue-500 text-2xl mr-2" />
-              }
-              valueStyle={{ color: "#1890ff", fontWeight: 700 }}
-            />
-          </Card>
-          <Card variant="borderless" className="shadow-sm bg-green-50/50">
-            <Statistic
-              title={
-                <span className="font-semibold text-green-800">สำเร็จ</span>
-              }
-              value={overallStats.completionRate}
-              suffix="%"
-              prefix={
-                <CheckCircleOutlined className="text-green-500 text-2xl mr-2" />
-              }
-              valueStyle={{ color: "#52c41a", fontWeight: 700 }}
-            />
-            <Progress
-              percent={overallStats.completionRate}
-              showInfo={false}
-              strokeColor="#52c41a"
-              size="small"
-              className="mt-2"
-            />
-          </Card>
-          <Card variant="borderless" className="shadow-sm bg-red-50/50">
-            <Statistic
-              title={<span className="font-semibold text-red-800">ล่าช้า</span>}
-              value={overallStats.totalOverdue}
-              prefix={
-                <WarningOutlined className="text-red-500 text-2xl mr-2" />
-              }
-              valueStyle={{ color: "#ff4d4f", fontWeight: 700 }}
-            />
-          </Card>
-          <Card variant="borderless" className="shadow-sm bg-amber-50/50">
-            <Statistic
-              title={
-                <span className="font-semibold text-amber-800">
-                  Top Performer
-                </span>
-              }
-              value={topPerformer?.name || "-"}
-              prefix={
-                <TrophyOutlined className="text-amber-500 text-2xl mr-2" />
-              }
-              valueStyle={{ color: "#d48806", fontWeight: 700, fontSize: 18 }}
-            />
-            {topPerformer && (
-              <Tag color="gold" className="mt-2 font-bold">
-                Score: {topPerformer.score}
-              </Tag>
-            )}
-          </Card>
-        </div>
-        <Card
-          title="ประสิทธิภาพรายบุคคล (Individual Performance)"
-          className="shadow-sm rounded-xl"
-        >
-          <Table
-            dataSource={assigneeStats}
-            rowKey="name"
-            pagination={{ pageSize: 5 }}
-            size="middle"
-            columns={[
-              {
-                title: "อันดับ",
-                key: "rank",
-                width: 80,
-                align: "center",
-                render: (_, __, i) =>
-                  i < 3 ? (
-                    <TrophyOutlined
-                      style={{
-                        color: ["#FFD700", "#C0C0C0", "#CD7F32"][i],
-                        fontSize: 24,
-                      }}
-                    />
-                  ) : (
-                    <span className="text-gray-400 font-bold text-lg">
-                      {i + 1}
-                    </span>
-                  ),
-              },
-              {
-                title: "ชื่อ",
-                dataIndex: "name",
-                key: "name",
-                render: (text) => (
-                  <Space>
-                    <Avatar
-                      style={{ backgroundColor: "#1890ff" }}
-                      icon={<UserOutlined />}
-                      size="default"
-                    />
-                    <Typography.Text strong>{text}</Typography.Text>
-                  </Space>
-                ),
-              },
-              {
-                title: "คะแนน",
-                dataIndex: "score",
-                key: "score",
-                align: "center",
-                render: (score) => (
-                  <div className="text-center bg-gray-50 rounded-lg p-1">
-                    <span
-                      style={{
-                        fontWeight: "bold",
-                        fontSize: 16,
-                        color: getScoreColor(score),
-                      }}
-                    >
-                      {score}
-                    </span>
-                  </div>
-                ),
-              },
-              {
-                title: "จำนวนงาน",
-                dataIndex: "total",
-                align: "center",
-                render: (val) => <Tag>{val}</Tag>,
-              },
-              {
-                title: "ล่าช้า",
-                dataIndex: "overdue",
-                align: "center",
-                render: (val) =>
-                  val > 0 ? (
-                    <Tag color="error">{val}</Tag>
-                  ) : (
-                    <CheckCircleOutlined className="text-green-500" />
-                  ),
-              },
-            ]}
-          />
-        </Card>
-      </Space>
+      <SharedBulkUpdateSection
+        space={space}
+        projectId={projectId}
+        projectName={projectName}
+        elevatedCardStyle={{ border: "none", boxShadow: "none" }}
+        onUpdateComplete={() => {
+          onUpdateComplete();
+          onClose();
+        }}
+        onRequestMinimize={onRequestMinimize}
+        onProgressUpdate={onProgress}
+        minimized={minimized}
+      />
     </Modal>
   );
-}
+};
 
 // ==========================================
 // * Main Page Component
 // ==========================================
 
 function ProjectIssuesPageContent(): JSX.Element {
+  const { token } = theme.useToken();
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
-  const [modalApi, contextHolder] = Modal.useModal();
+  const dispatch = useDispatch<AppDispatch>();
   const [showSummary, setShowSummary] = useState(false);
 
-  // * State สำหรับ Modal ของ Filter และ Bulk Update
-  const [showFilter, setShowFilter] = useState(false);
+  const { statusOptions, priorityOptions, assigneeOptions } = useSelector(
+    (state: RootState) => state.issues,
+  );
 
-  // * State for Bulk Update (Minimize Logic)
+  // * State สำหรับ Modal ของ Filter และ Bulk Update
   const [showBulk, setShowBulk] = useState(false);
   const [isBulkMinimized, setIsBulkMinimized] = useState(false);
   const [bulkProgress, setBulkProgress] = useState<{
@@ -1024,113 +1262,255 @@ function ProjectIssuesPageContent(): JSX.Element {
   const projectReady = !isNaN(projectId) && projectId > 0 && !!space;
 
   // * Use Custom Hook logic
-  const { state, loadIssues, loadOptions, resetAction } = useIssuesPageData({
-    projectId,
-    space,
-    projectReady,
-    modalApi,
-  });
+  const { state, summaryStats, loadIssues, loadOptions, resetAction } =
+    useIssuesPageData({
+      projectId,
+      space,
+      projectReady,
+    });
 
   // ? Initial Data Load
   useEffect(() => {
     if (!projectReady) return;
-    loadOptions().then(() => loadIssues());
+    loadOptions().then(() => {
+      loadIssues();
+      toast.success("ดาวน์โหลดข้อมูลแสดงรายการงานสมบูรณ์");
+    });
     return () => {
       resetAction();
     };
   }, [projectReady, projectId, space]);
 
-  if (!projectReady)
-    return <FallbackError onAction={() => router.push("/backlogs/report")} />;
-
-  // คำนวณจำนวน Filter ที่ใช้อยู่เพื่อแสดง Badge
-  const activeFilterCount = Object.values(state.filters).filter((v) =>
-    Array.isArray(v) ? v.length > 0 : !!v,
-  ).length;
+  if (!projectReady) {
+    return (
+      <StatusModalComponent
+        open={true}
+        type="error"
+        title="ข้อมูลไม่ครบถ้วน"
+        message="ไม่พบรหัสโครงการหรือพื้นที่ทำงาน กรุณารีเฟรชหน้าจอหรือกลับไปหน้าหลัก"
+        onClose={() => router.push("/backlogs/report")}
+      />
+    );
+  }
 
   return (
     <DashboardLayout>
-      {contextHolder}
       <Layout className="bg-transparent">
         <Content>
-          <Space direction="vertical" size={20} className="w-full">
-            {/* 1. ส่วนหัว */}
-            <HeaderSection
-              title={projectName || `Project ${projectId}`}
-              subtitle={`Space: ${space}`}
-              onBack={() => router.back()}
-              onClickSummary={() => setShowSummary(true)}
-            />
-
-            {/* 2. การ์ดสรุปข้อมูล */}
-            <SummaryCards
-              total={state.total}
-              space={space}
-              projectName={projectName}
-            />
-
-            {/* 3. Action Toolbar (Minimal) */}
-            <ActionToolbar
-              onOpenFilter={() => setShowFilter(true)}
-              onOpenBulk={() => {
-                setShowBulk(true);
-                setIsBulkMinimized(false);
-              }}
-              activeFilterCount={activeFilterCount}
-            />
-
-            {/* 4. ตารางแสดงข้อมูล */}
-            <Card
-              variant="outlined"
-              title={
-                <span className="font-bold text-lg">
-                  <FileTextOutlined className="text-blue-500 mr-2" /> รายการงาน
-                  (Issues List)
-                </span>
-              }
-              style={{ borderRadius: 16 }}
-              className="shadow-sm"
+          <Flex vertical gap={24}>
+            {/* ส่วนที่ 1 : ส่วนหัวของหน้าหน้าจอ */}
+            <HeaderBar
+              icon={<RocketOutlined />}
+              title={projectName || `โครงการ ${projectId}`}
+              subTitle={`พื้นที่ทำงาน: ${space}`}
+              showBackButton
               extra={
-                <Tag
-                  color={state.loading ? "processing" : "success"}
-                  icon={
-                    state.loading ? (
-                      <Spin indicator={<ClockCircleOutlined spin />} />
-                    ) : (
-                      <CheckCircleOutlined />
-                    )
-                  }
+                <Button
+                  icon={<BarChartOutlined />}
+                  onClick={() => setShowSummary(true)}
+                  size="large"
+                  type="primary"
+                  style={{ fontWeight: 600 }}
                 >
-                  {state.loading ? "กำลังโหลดข้อมูล..." : "ข้อมูลล่าสุด"}
-                </Tag>
+                  รายงานสรุปผลงาน
+                </Button>
+              }
+            />
+
+            {/* ส่วนที่ 2 : Summary Cards (สรุปภาพรวม) */}
+            <Row gutter={[16, 16]}>
+              <Col xs={24} sm={8}>
+                <SummaryCard
+                  title="จำนวนงานทั้งหมด"
+                  value={summaryStats.total}
+                  subtitle="รายการในระบบ"
+                  icon={<FileTextOutlined />}
+                  color={token.colorPrimary}
+                  isLoading={state.loading}
+                />
+              </Col>
+              <Col xs={24} sm={8}>
+                <SummaryCard
+                  title="งานที่เสร็จสิ้น"
+                  value={summaryStats.closed}
+                  subtitle="รายการที่ปิดงานแล้ว"
+                  icon={<CheckCircleOutlined />}
+                  color={token.colorSuccess}
+                  percent={summaryStats.progress}
+                  isLoading={state.loading}
+                />
+              </Col>
+              <Col xs={24} sm={8}>
+                <SummaryCard
+                  title="อัตราความสำเร็จ"
+                  value={`${summaryStats.progress}%`}
+                  subtitle="เปอร์เซ็นต์รวม"
+                  icon={<TrophyOutlined />}
+                  color="#faad14"
+                  percent={summaryStats.progress}
+                  isLoading={state.loading}
+                />
+              </Col>
+            </Row>
+
+            {/* ส่วนที่ 3 : ตัวกรองข้อมูล (Filter) */}
+            <Card
+              styles={{ body: { padding: 24 } }}
+              style={{
+                borderRadius: 16,
+                border: `1px solid ${token.colorBorderSecondary}`,
+              }}
+            >
+              <Flex align="center" gap={12} style={{ marginBottom: 16 }}>
+                <FilterOutlined
+                  style={{ color: token.colorPrimary, fontSize: "1.25rem" }}
+                />
+                <Title
+                  level={4}
+                  style={{
+                    margin: 0,
+                    fontWeight: 600,
+                    fontSize: "1.25rem",
+                  }}
+                >
+                  ตัวกรองข้อมูล
+                </Title>
+              </Flex>
+
+              <Row gutter={[16, 16]}>
+                <Col xs={24} md={12}>
+                  <Space direction="vertical" className="w-full" size={4}>
+                    <Text strong>ค้นหาจากคำสำคัญ</Text>
+                    <Input
+                      placeholder="ระบุชื่อรหัสงาน หรือหัวข้องาน..."
+                      prefix={<SearchOutlined />}
+                      value={state.filters.keyword}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        dispatch(setFilters({ keyword: e.target.value }))
+                      }
+                      onPressEnter={() => loadIssues()}
+                    />
+                  </Space>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Space direction="vertical" className="w-full" size={4}>
+                    <Text strong>สถานะงาน</Text>
+                    <Select
+                      mode="multiple"
+                      className="w-full"
+                      placeholder="เลือกสถานะงาน..."
+                      options={statusOptions}
+                      value={state.filters.statusIds}
+                      onChange={(val) =>
+                        dispatch(setFilters({ statusIds: val }))
+                      }
+                    />
+                  </Space>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Space direction="vertical" className="w-full" size={4}>
+                    <Text strong>ผู้รับผิดชอบ</Text>
+                    <Select
+                      mode="multiple"
+                      className="w-full"
+                      placeholder="เลือกผู้รับผิดชอบ..."
+                      options={assigneeOptions}
+                      value={state.filters.assigneeIds}
+                      onChange={(val) =>
+                        dispatch(setFilters({ assigneeIds: val }))
+                      }
+                    />
+                  </Space>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Space direction="vertical" className="w-full" size={4}>
+                    <Text strong>ช่วงเวลาอัปเดต</Text>
+                    <RangePicker
+                      className="w-full"
+                      value={state.filters.dateRange}
+                      onChange={(dates) =>
+                        dispatch(setFilters({ dateRange: dates }))
+                      }
+                    />
+                  </Space>
+                </Col>
+              </Row>
+
+              <Flex justify="end" gap={12} style={{ marginTop: 24 }}>
+                <Button icon={<ClearOutlined />} onClick={() => resetAction()}>
+                  ล้างการค้นหา
+                </Button>
+                <Button
+                  type="primary"
+                  icon={<SearchOutlined />}
+                  onClick={() => loadIssues()}
+                >
+                  ค้นหาข้อมูล
+                </Button>
+              </Flex>
+            </Card>
+
+            {/* ส่วนที่ 4 : ตารางข้อมูลเนื้อหา */}
+            <Card
+              styles={{ body: { padding: 16 } }}
+              style={{
+                borderRadius: 16,
+                overflow: "hidden",
+                border: `1px solid ${token.colorBorderSecondary}`,
+              }}
+              title={
+                <Flex align="center" gap={12}>
+                  <UnorderedListOutlined
+                    style={{ color: token.colorPrimary }}
+                  />
+                  <span style={{ fontSize: "1rem", fontWeight: 600 }}>
+                    รายการงาน
+                  </span>
+                </Flex>
+              }
+              extra={
+                <Space>
+                  <Button
+                    icon={<AppstoreAddOutlined />}
+                    onClick={() => {
+                      setShowBulk(true);
+                      setIsBulkMinimized(false);
+                    }}
+                    style={{ fontWeight: 600 }}
+                  >
+                    Bulk Action
+                  </Button>
+                  <Tag
+                    color={state.loading ? "processing" : "success"}
+                    icon={
+                      state.loading ? (
+                        <Spin size="small" />
+                      ) : (
+                        <CheckCircleOutlined />
+                      )
+                    }
+                  >
+                    {state.loading ? "กำลังโหลด..." : "ข้อมูลล่าสุด"}
+                  </Tag>
+                </Space>
               }
             >
-              <IssuesTable
-                listCardStyle={{}}
-                onReload={loadIssues}
-                space={space}
-              />
+              <IssuesListTable onReload={loadIssues} space={space} />
             </Card>
-          </Space>
+          </Flex>
         </Content>
       </Layout>
 
-      {/* Modals Popup (Filtered & Bulk) */}
+      {/* MODALS SECTION */}
       <IssueSummaryModal
         open={showSummary}
         onClose={() => setShowSummary(false)}
         issues={state.issues || []}
         total={state.total}
       />
-      <FilterModal
-        open={showFilter}
-        onClose={() => setShowFilter(false)}
-        onSearch={loadIssues}
-      />
 
-      {/* Bulk Update Modal with Minimize capability */}
       <BulkUpdateModal
-        open={showBulk} // Keep open true even if minimized (we hide via CSS)
+        open={showBulk}
         onClose={() => {
           setShowBulk(false);
           setIsBulkMinimized(false);
@@ -1138,145 +1518,39 @@ function ProjectIssuesPageContent(): JSX.Element {
         projectName={projectName}
         projectId={projectId}
         space={space}
-        onUpdateComplete={loadIssues}
+        onUpdateComplete={() => {
+          loadIssues();
+          toast.success("อัปเดตข้อมูลจำนวนมากสำเร็จ");
+        }}
         minimized={isBulkMinimized}
         onRequestMinimize={() => setIsBulkMinimized(true)}
         onProgress={setBulkProgress}
       />
 
-      {/* Floating Animated AI Widget */}
+      {/* Floating AI Widget (Pinned) */}
       {isBulkMinimized && showBulk && (
-        <>
-          <style jsx global>{`
-            @keyframes ai-glow {
-              0% {
-                box-shadow:
-                  0 0 10px rgba(24, 144, 255, 0.5),
-                  0 0 20px rgba(139, 92, 246, 0.3);
-                transform: scale(1);
-              }
-              50% {
-                box-shadow:
-                  0 0 25px rgba(24, 144, 255, 0.8),
-                  0 0 40px rgba(139, 92, 246, 0.6);
-                transform: scale(1.02);
-              }
-              100% {
-                box-shadow:
-                  0 0 10px rgba(24, 144, 255, 0.5),
-                  0 0 20px rgba(139, 92, 246, 0.3);
-                transform: scale(1);
-              }
-            }
-            @keyframes ai-spin-slow {
-              0% {
-                transform: rotate(0deg);
-              }
-              100% {
-                transform: rotate(360deg);
-              }
-            }
-            .ai-widget-container {
-              position: fixed;
-              bottom: 40px;
-              right: 40px;
-              z-index: 1000;
-              cursor: pointer;
-              transition: all 0.3s ease;
-            }
-            .ai-widget-glass {
-              background: rgba(255, 255, 255, 0.85);
-              backdrop-filter: blur(12px);
-              border: 1px solid rgba(255, 255, 255, 0.5);
-              border-radius: 24px;
-              padding: 12px 20px 12px 16px;
-              display: flex;
-              align-items: center;
-              gap: 12px;
-              box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
-              animation: ai-glow 3s infinite ease-in-out;
-            }
-            .ai-icon-wrapper {
-              width: 44px;
-              height: 44px;
-              border-radius: 50%;
-              background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              position: relative;
-            }
-            .ai-icon-ring {
-              position: absolute;
-              width: 100%;
-              height: 100%;
-              border-radius: 50%;
-              border: 2px solid transparent;
-              border-top-color: #fff;
-              border-left-color: rgba(255, 255, 255, 0.5);
-              animation: ai-spin-slow 2s linear infinite;
-            }
-          `}</style>
-
-          <div
-            className="ai-widget-container"
-            onClick={() => setIsBulkMinimized(false)}
-          >
-            <div className="ai-widget-glass">
-              {/* Icon Section */}
-              <div className="ai-icon-wrapper">
-                {bulkProgress.status === "completed" ? (
-                  <CheckCircleOutlined
-                    style={{ color: "white", fontSize: 24 }}
-                  />
-                ) : bulkProgress.status === "error" ? (
-                  <WarningOutlined style={{ color: "white", fontSize: 24 }} />
-                ) : (
-                  <>
-                    <div className="ai-icon-ring" />
-                    <RobotOutlined style={{ color: "white", fontSize: 22 }} />
-                  </>
-                )}
-              </div>
-
-              {/* Text Section */}
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                  <span
-                    style={{
-                      fontWeight: 700,
-                      background: "linear-gradient(90deg, #2563eb, #7c3aed)",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                      fontSize: 16,
-                    }}
-                  >
-                    {bulkProgress.status === "completed"
-                      ? "ประมวลผลเสร็จสิ้น"
-                      : bulkProgress.status === "error"
-                        ? "เกิดข้อผิดพลาด"
-                        : "Gemini AI Processing"}
-                  </span>
-                  {bulkProgress.status === "processing" && (
-                    <Tag
-                      color="processing"
-                      className="m-0 border-0 bg-blue-100 text-blue-600 font-bold rounded-full px-2 text-xs"
-                    >
-                      {bulkProgress.percent}%
-                    </Tag>
-                  )}
-                </div>
-                <span className="text-xs text-slate-500 font-medium">
-                  {bulkProgress.status === "completed"
-                    ? "คลิกเพื่อดูผลลัพธ์"
-                    : bulkProgress.status === "error"
-                      ? "คลิกเพื่อตรวจสอบ"
-                      : `กำลังวิเคราะห์ข้อมูล ${bulkProgress.success}/${bulkProgress.total}`}
-                </span>
-              </div>
-            </div>
-          </div>
-        </>
+        <div
+          onClick={() => setIsBulkMinimized(false)}
+          style={{
+            position: "fixed",
+            bottom: 40,
+            right: 40,
+            zIndex: 1000,
+            cursor: "pointer",
+            padding: "12px 24px",
+            background: "white",
+            borderRadius: 24,
+            boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+            border: `1px solid ${token.colorPrimary}`,
+          }}
+        >
+          <Flex align="center" gap={12}>
+            <RobotOutlined
+              style={{ color: token.colorPrimary, fontSize: 20 }}
+            />
+            <Text strong>AI กำลังทำงาน ({bulkProgress.percent}%)</Text>
+          </Flex>
+        </div>
       )}
     </DashboardLayout>
   );

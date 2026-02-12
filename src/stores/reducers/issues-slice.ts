@@ -1,5 +1,5 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { Issue, OptionItem } from "@components/backlog/issue-drawer/types";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Dayjs } from "dayjs";
 
 type DateRangeValue = [Dayjs | null, Dayjs | null] | null;
@@ -60,7 +60,7 @@ const issuesSlice = createSlice({
   reducers: {
     setIssues: (
       state,
-      action: PayloadAction<{ issues: Issue[]; total: number }>
+      action: PayloadAction<{ issues: Issue[]; total: number }>,
     ) => {
       state.issues = action.payload.issues;
       state.total = action.payload.total;
@@ -73,14 +73,15 @@ const issuesSlice = createSlice({
     },
     setPagination: (
       state,
-      action: PayloadAction<{ page: number; pageSize: number }>
+      action: PayloadAction<{ page: number; pageSize: number }>,
     ) => {
       state.page = action.payload.page;
       state.pageSize = action.payload.pageSize;
+      state.loading = true;
     },
     setFilters: (
       state,
-      action: PayloadAction<Partial<IssuesState["filters"]>>
+      action: PayloadAction<Partial<IssuesState["filters"]>>,
     ) => {
       state.filters = { ...state.filters, ...action.payload };
     },
@@ -101,7 +102,7 @@ const issuesSlice = createSlice({
             | "assigneeOptions"
           >
         >
-      >
+      >,
     ) => {
       state.statusOptions = action.payload.statusOptions ?? state.statusOptions;
       state.priorityOptions =
