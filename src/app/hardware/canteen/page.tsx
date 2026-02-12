@@ -523,12 +523,19 @@ export default function CanteenAppManager() {
       // ปิด modal ฟอร์มก่อนเริ่มส่ง
       setVersionFormModalVisible(false);
 
-      const submissionApi =
-        versionFormMode === "add"
-          ? POST_CREATE_APPLICATION_VERSION
-          : POST_UPDATE_APPLICATION_VERSION;
-
-      const apiResponse = await submissionApi(submissionFormData);
+      let apiResponse;
+      if (versionFormMode === "add") {
+        apiResponse = await POST_CREATE_APPLICATION_VERSION(submissionFormData);
+      } else {
+        const versionId = formValues.versionID;
+        if (!versionId) {
+          throw new Error("ไม่พบรหัสเวอร์ชัน (Version ID) สำหรับการแก้ไข");
+        }
+        apiResponse = await POST_UPDATE_APPLICATION_VERSION(
+          submissionFormData,
+          versionId,
+        );
+      }
 
       // ✅ ตรวจสอบสถานะการทำงานภายใน response (บาง API ส่ง 200 แต่ status: failed)
       const isFailed =

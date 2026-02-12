@@ -38,10 +38,13 @@ export const POST_CREATE_APPLICATION_VERSION = async (formData: FormData) => {
 };
 
 //** อัปเดตข้อมูลเวอร์ชันที่มีอยู่
-export const POST_UPDATE_APPLICATION_VERSION = async (formData: FormData) => {
+export const POST_UPDATE_APPLICATION_VERSION = async (
+  formData: FormData,
+  versionId: string | number,
+) => {
   try {
     const response = await axios.post(
-      "/api/v1/hardware/canteen/update",
+      `/api/v1/hardware/canteen/update?version_id=${versionId}`,
       formData,
     );
     return response.data;
