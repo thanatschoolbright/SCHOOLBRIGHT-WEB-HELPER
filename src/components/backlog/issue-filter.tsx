@@ -1,26 +1,26 @@
 "use client";
 
+import { ClearOutlined, SearchOutlined } from "@ant-design/icons";
+import { resetFilters, setFilters } from "@stores/reducers/issues-slice";
+import { RootState } from "@stores/store";
 import {
+  Badge,
   Button,
   Card,
+  Col,
   DatePicker,
+  Divider,
   Input,
+  Row,
   Select,
   Skeleton,
   Space,
   Typography,
-  Row,
-  Col,
-  Divider,
-  Badge,
 } from "antd";
 import type { RangePickerProps } from "antd/es/date-picker";
 import type { Dayjs } from "dayjs";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { resetFilters, setFilters } from "@stores/reducers/issues-slice";
-import { RootState } from "@stores/store";
-import { SearchOutlined, ClearOutlined } from "@ant-design/icons";
 
 type DateRangeValue = [Dayjs | null, Dayjs | null] | null;
 
@@ -79,7 +79,7 @@ const IssueFilter: React.FC<IssueFilterProps> = ({
   };
 
   const handleAiSummaryFilterChange = (
-    value: "all" | "with_ai" | "without_ai"
+    value: "all" | "with_ai" | "without_ai",
   ) => {
     dispatch(setFilters({ aiSummaryFilter: value }));
   };
@@ -144,6 +144,7 @@ const IssueFilter: React.FC<IssueFilterProps> = ({
                 value={dateRange ?? null}
                 onChange={handleDateRangeChange}
                 style={{ width: "100%" }}
+                format="DD/MM/YYYY"
               />
             </Col>
             <Col xs={24} md={12} lg={8}>

@@ -88,15 +88,9 @@ const { RangePicker } = DatePicker;
 // * Utilities
 // ==========================================
 
-// ! ฟังก์ชันจัดรูปแบบวันที่ให้เป็นมาตรฐานไทย
+// ! ฟังก์ชันจัดรูปแบบวันที่ให้เป็น DD/MM/YYYY
 const formatDateThai = (value?: string | null) =>
-  value
-    ? new Date(value).toLocaleDateString("th-TH", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      })
-    : "-";
+  value ? dayjs(value).format("DD/MM/YYYY") : "-";
 
 // ! แปลง Markdown เป็น HTML เบื้องต้น (No Emoji)
 const markdownToHtmlSimple = (value?: string | null) => {
@@ -1474,6 +1468,7 @@ function ProjectIssuesPageContent(): JSX.Element {
                     <Text strong>ช่วงเวลาอัปเดต</Text>
                     <RangePicker
                       className="w-full"
+                      format="DD/MM/YYYY"
                       value={state.filters.dateRange}
                       onChange={(dates) =>
                         dispatch(setFilters({ dateRange: dates }))

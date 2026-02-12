@@ -1,8 +1,9 @@
 "use client";
 
 import { Button, Card, Popconfirm, Space, Tag, theme, Typography } from "antd";
-import { useMemo } from "react";
+import dayjs from "dayjs";
 import type { ReactNode } from "react";
+import { useMemo } from "react";
 
 import type { Milestone } from "@components/backlog/issue-drawer/types";
 
@@ -60,7 +61,7 @@ export default function MilestoneCard({
       boxShadow,
       transition: "box-shadow 0.3s ease, border-color 0.3s ease",
     }),
-    [borderColor, boxShadow, colorBgContainer]
+    [borderColor, boxShadow, colorBgContainer],
   );
 
   return (
@@ -110,9 +111,9 @@ export default function MilestoneCard({
 }
 
 function formatDate(value?: string | null) {
-  //** แปลงวันที่เป็นรูปแบบสั้นอ่านง่าย หากไม่มีข้อมูลให้คืนค่า '-' **
+  //** แปลงวันที่เป็นรูปแบบ DD/MM/YYYY **
   if (!value) return "-";
-  return new Date(value).toLocaleDateString();
+  return dayjs(value).format("DD/MM/YYYY");
 }
 
 function deriveMilestoneStatus(milestone: Milestone) {

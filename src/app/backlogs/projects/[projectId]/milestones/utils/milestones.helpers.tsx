@@ -1,6 +1,5 @@
-"use client";
-
 import { Typography } from "antd";
+import dayjs from "dayjs";
 
 export const buildErrorContent = (message: string, errorStack?: string) => (
   <div className="flex flex-col gap-2">
@@ -15,10 +14,4 @@ export const buildErrorContent = (message: string, errorStack?: string) => (
 );
 
 export const formatDateDisplay = (value?: string | null) =>
-  value
-    ? new Date(value).toLocaleDateString("th-TH", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      })
-    : "-";
+  value ? dayjs(value).format("DD/MM/YYYY") : "-";

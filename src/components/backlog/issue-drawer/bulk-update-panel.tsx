@@ -264,6 +264,7 @@ export default function BulkUpdatePanel({
               size="large"
               style={{ borderRadius: 12 }}
               placeholder="คลิกเพื่อเลือกวันเริ่มงาน"
+              format="DD/MM/YYYY"
               value={bulkStartDate}
               onChange={(value) => onStartDateChange(value ?? null)}
             />
@@ -283,6 +284,7 @@ export default function BulkUpdatePanel({
               size="large"
               style={{ borderRadius: 12 }}
               placeholder="วันครบกำหนด (Due Date)"
+              format="DD/MM/YYYY"
               value={bulkDueDate}
               onChange={(value) => onDueDateChange(value ?? null)}
             />

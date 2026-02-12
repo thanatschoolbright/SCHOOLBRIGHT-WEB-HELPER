@@ -27,6 +27,7 @@ import {
   theme,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import dayjs from "dayjs";
 import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
@@ -408,13 +409,7 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
   };
 
   const formatDate = (value?: string | null) =>
-    value
-      ? new Date(value).toLocaleDateString("th-TH", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        })
-      : "-";
+    value ? dayjs(value).format("DD/MM/YYYY") : "-";
 
   const renderAssignee = (issue: Issue) => {
     const assignee = issue.assignee;
