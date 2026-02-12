@@ -1,4 +1,3 @@
-import type { UploadFile } from "antd/es/upload/interface";
 import type { VersionFormValues } from "../../../types/canteen.type";
 
 //** สร้าง FormData สำหรับส่งข้อมูลเวอร์ชันไปยัง API
@@ -39,10 +38,16 @@ export const buildSchoolOptions = (
     return [{ label: "ทุกโรงเรียน", value: "" }];
   }
 
-  const schoolOptions = schools.map((item: any) => ({
-    label: item.SchoolName,
-    value: String(item.SchoolID),
-  }));
+  const schoolOptions = schools.map((item: any) => {
+    const schoolId = item.school_id || item.SchoolID;
+    const thaiName = item.SchoolName || item.company_name;
+    const englishName = item.SchoolNameEN || "";
+
+    return {
+      label: `[${schoolId}] ${thaiName}${englishName ? ` (${englishName})` : ""}`,
+      value: String(schoolId),
+    };
+  });
 
   return [{ label: "ทุกโรงเรียน", value: "" }, ...schoolOptions];
 };

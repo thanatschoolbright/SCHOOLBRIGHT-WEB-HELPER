@@ -82,7 +82,6 @@ import type {
   VersionRecord,
 } from "@/types/canteen.type";
 import DashboardLayout from "@components/layouts/backend-layout";
-import { useAppSelector } from "@stores/store";
 
 // ✅ ใช้งาน Plugin สำหรับปี พ.ศ. (BBBB)
 dayjs.extend(buddhistEra);
@@ -342,7 +341,6 @@ const useColumnSearch = <RecordType,>(
 
 export default function CanteenAppManager() {
   const { token } = theme.useToken();
-  const schoolListData = useAppSelector((state) => state.callSchoolList);
   const passwordAuth = usePasswordProtection();
 
   // States
@@ -350,6 +348,7 @@ export default function CanteenAppManager() {
     [],
   );
   const [isApplicationLoading, setIsApplicationLoading] = useState(false);
+  const [schoolList, setSchoolList] = useState<any[]>([]);
   const [selectedApplication, setSelectedApplication] =
     useState<ApplicationRecord | null>(null);
   const [versionHistoryModalVisible, setVersionHistoryModalVisible] =
@@ -381,11 +380,21 @@ export default function CanteenAppManager() {
     useColumnSearch<VersionRecord>(searchInputRefs);
 
   const schoolOptions = useMemo(
-    () => buildSchoolOptions(schoolListData?.response?.data ?? []),
-    [schoolListData],
+    () => buildSchoolOptions(schoolList),
+    [schoolList],
   );
 
   // Data Fetchers
+  const fetchSchools = useCallback(async () => {
+    try {
+      const response = await axios.get("/api/v1/school/get-detail");
+      // response format: { data: { data: [...] }, curl: ... }
+      setSchoolList(response.data?.data?.data ?? []);
+    } catch (error) {
+      console.error("Failed to fetch schools", error);
+    }
+  }, []);
+
   const fetchApplications = useCallback(async () => {
     setIsApplicationLoading(true);
     try {
@@ -425,7 +434,8 @@ export default function CanteenAppManager() {
 
   useEffect(() => {
     fetchApplications();
-  }, [fetchApplications]);
+    fetchSchools();
+  }, [fetchApplications, fetchSchools]);
 
   const handleExportHistory = async () => {
     if (!selectedApplication) return;
@@ -709,7 +719,7 @@ export default function CanteenAppManager() {
       width: 160,
       sorter: (a, b) => dayjs(a.updated_at).unix() - dayjs(b.updated_at).unix(),
       render: (updatedDate) =>
-        updatedDate ? dayjs(updatedDate).format("D MMM BBBB HH:mm") : "-",
+        updatedDate ? dayjs(updatedDate).format("DD/MM/YYYY HH:mm") : "-",
     },
     {
       title: "จัดการ",
@@ -760,7 +770,7 @@ export default function CanteenAppManager() {
                   appID: appIdStr !== "undefined" ? appIdStr : "",
                   versionID: versionIdStr !== "undefined" ? versionIdStr : "",
                   versionName: record.version_name || "",
-                  env: record.env || "",
+                  env: record.env || "Production",
                   note: record.note || "",
                   schoolID: record.school_id?.map((id) => String(id)),
                   isLatestVersion: Boolean(record.is_lastest_version),
@@ -917,6 +927,7 @@ export default function CanteenAppManager() {
 
                 versionFormInstance.setFieldsValue({
                   appID: appIdStr !== "undefined" ? appIdStr : "",
+                  env: "Production",
                   isLatestVersion: false,
                   forceUpdate: false,
                 });
