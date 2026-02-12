@@ -681,20 +681,22 @@ export default function CapturableReportPage() {
                 </Popover>
               </Space>
 
-              <Button
-                icon={<FileExcelOutlined />}
-                onClick={requestExportExcel}
-                loading={exportLoading}
-                disabled={data.length === 0}
-                className={
-                  data.length > 0
-                    ? "text-emerald-600 border-emerald-200 bg-emerald-50"
-                    : ""
-                }
-                style={{ fontWeight: 600 }}
-              >
-                ดาวน์โหลด Excel
-              </Button>
+              <Badge count="ใหม่" color="red" offset={[5, -5]}>
+                <Button
+                  icon={<FileExcelOutlined />}
+                  onClick={requestExportExcel}
+                  loading={exportLoading}
+                  disabled={data.length === 0}
+                  className={
+                    data.length > 0
+                      ? "text-emerald-600 border-emerald-200 bg-emerald-50"
+                      : ""
+                  }
+                  style={{ fontWeight: 600 }}
+                >
+                  ดาวน์โหลด Excel
+                </Button>
+              </Badge>
             </Flex>
 
             <Table<CapturableData>

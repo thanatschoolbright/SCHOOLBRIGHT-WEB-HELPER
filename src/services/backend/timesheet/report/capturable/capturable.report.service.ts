@@ -51,14 +51,14 @@ export const ExcelService = {
 
     const headerRowIndex = 5;
     const headerValues = [
-      "Project Code",
-      "Project Name",
-      "Capturable (Hrs)",
-      "Capturable (%)",
-      "Uncapturable (Hrs)",
-      "Uncapturable (%)",
-      "Total Hours",
-      "Impact (%)",
+      "รหัสโครงการ (Code)",
+      "ชื่อโครงการ",
+      "รวมจำนวนชั่วโมง\nCapitalization (บันทึกทรัพย์สิน)",
+      "งานสร้างใหม่ (%)",
+      "รวมจำนวนชั่วโมง\nExpense (ค่าใช้จ่าย)",
+      "งานบำรุงรักษา (%)",
+      "จำนวนรวมชั่วโมงทั้งหมด",
+      "สัดส่วน (%)",
     ];
 
     const headerRow = worksheet.getRow(headerRowIndex);
@@ -76,7 +76,11 @@ export const ExcelService = {
         pattern: "solid",
         fgColor: { argb: "1F4E78" },
       };
-      cell.alignment = { vertical: "middle", horizontal: "center" };
+      cell.alignment = {
+        vertical: "middle",
+        horizontal: "center",
+        wrapText: true,
+      };
       cell.border = {
         top: { style: "thin" },
         left: { style: "thin" },
@@ -84,7 +88,7 @@ export const ExcelService = {
         right: { style: "thin" },
       };
     });
-    headerRow.height = 30;
+    headerRow.height = 50;
 
     data.forEach((item) => {
       const row = worksheet.addRow({
@@ -135,6 +139,47 @@ export const ExcelService = {
             break;
         }
       });
+    });
+
+    // * Add Total Footer
+    const totalRow = worksheet.addRow({
+      project_code: "",
+      project_name: "รวมทั้งหมด",
+      capturable_hours: data.reduce(
+        (sum, item) => sum + item.capturable_hours,
+        0,
+      ),
+      capturable_percent: null,
+      uncapturable_hours: data.reduce(
+        (sum, item) => sum + item.uncapturable_hours,
+        0,
+      ),
+      uncapturable_percent: null,
+      hours: data.reduce((sum, item) => sum + item.hours, 0),
+      hours_percent: null,
+    });
+
+    totalRow.height = 30;
+    totalRow.eachCell((cell, colNumber) => {
+      cell.font = { name: "Angsana New", size: 16, bold: true };
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "D9E1F2" },
+      };
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "double" },
+        right: { style: "thin" },
+      };
+
+      if (colNumber === 2) {
+        cell.alignment = { vertical: "middle", horizontal: "center" };
+      } else if ([3, 5, 7].includes(colNumber)) {
+        cell.numFmt = "#,##0.00";
+        cell.alignment = { vertical: "middle", horizontal: "right" };
+      }
     });
 
     const buffer = await workbook.xlsx.writeBuffer();
