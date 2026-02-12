@@ -167,7 +167,10 @@ export default function AiUpdateModal({
               <FileTextOutlined
                 style={{ color: token.colorTextDescription, fontSize: 16 }}
               />
-              <Text strong style={{ color: token.colorTextSecondary, fontSize: "0.95rem" }}>
+              <Text
+                strong
+                style={{ color: token.colorTextSecondary, fontSize: "0.95rem" }}
+              >
                 รายละเอียดเดิม (Source)
               </Text>
             </Flex>
@@ -237,12 +240,19 @@ export default function AiUpdateModal({
                     boxShadow: `0 0 10px ${token.colorSuccess}80`,
                   }}
                 />
-                <Text strong style={{ color: token.colorTextHeading, fontSize: "0.95rem" }}>
+                <Text
+                  strong
+                  style={{ color: token.colorTextHeading, fontSize: "0.95rem" }}
+                >
                   สรุปใหม่โดย AI (Draft)
                 </Text>
               </Space>
               {aiState.generating && (
-                <Tag color="processing" bordered={false} style={{ borderRadius: 6, paddingInline: 12 }}>
+                <Tag
+                  color="processing"
+                  bordered={false}
+                  style={{ borderRadius: 6, paddingInline: 12 }}
+                >
                   AI Is Thinking...
                 </Tag>
               )}
