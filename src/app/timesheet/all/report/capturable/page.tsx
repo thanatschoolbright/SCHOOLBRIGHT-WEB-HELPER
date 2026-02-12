@@ -45,7 +45,7 @@ import type { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import dayjs, { Dayjs } from "dayjs";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import SummaryCard from "@/components/card/summary-card";
@@ -142,6 +142,26 @@ export default function CapturableReportPage() {
     avgCapturable: 0,
     avgUncapturable: 0,
   });
+
+  // * Export Flow States
+  const [exportModalVisible, setExportModalVisible] = useState(false);
+  const [countdown, setCountdown] = useState(3);
+  const [isCounting, setIsCounting] = useState(false);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isCounting && countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    } else if (isCounting && countdown === 0) {
+      setIsCounting(false);
+      setExportModalVisible(false);
+      setCountdown(3); // Reset for next time
+      requestExportExcel();
+    }
+    return () => clearTimeout(timer);
+  }, [isCounting, countdown]);
 
   /**
    * * Fetch Tracking Details for a specific project
@@ -684,7 +704,11 @@ export default function CapturableReportPage() {
               <Badge count="ใหม่" color="red" offset={[5, -5]}>
                 <Button
                   icon={<FileExcelOutlined />}
-                  onClick={requestExportExcel}
+                  onClick={() => {
+                    setExportModalVisible(true);
+                    setCountdown(3);
+                    setIsCounting(false);
+                  }}
                   loading={exportLoading}
                   disabled={data.length === 0}
                   className={
@@ -1192,6 +1216,80 @@ export default function CapturableReportPage() {
             </Flex>
           )}
         </Modal>
+
+        {/* Export Confirmation Modal */}
+        <Modal
+          title={
+            <Space>
+              <FileExcelOutlined style={{ color: "#107c10" }} />
+              <Text strong>ยืนยันการดาวน์โหลดรายงาน</Text>
+            </Space>
+          }
+          open={exportModalVisible}
+          onCancel={() => {
+            setExportModalVisible(false);
+            setIsCounting(false);
+          }}
+          footer={[
+            <Button
+              key="cancel"
+              onClick={() => {
+                setExportModalVisible(false);
+                setIsCounting(false);
+              }}
+            >
+              ยกเลิก
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              disabled={isCounting}
+              onClick={() => setIsCounting(true)}
+            >
+              ตกลง
+            </Button>,
+          ]}
+          centered
+        >
+          <Flex vertical gap={12}>
+            <Text>คุณต้องการดาวน์โหลดไฟล์รายงาน:</Text>
+            <Text
+              strong
+              code
+              style={{
+                fontSize: 13,
+                display: "block",
+                padding: "8px",
+                whiteSpace: "normal",
+                wordBreak: "break-word",
+              }}
+            >
+              รายงานการบันทึกทรัพย์สินบริษัท (Capitalization Report) ประจำวันที่{" "}
+              {dateRange[0].format("DD/MM/YYYY")} ถึง วันที่{" "}
+              {dateRange[1].format("DD/MM/YYYY")}
+            </Text>
+            {isCounting && (
+              <Alert
+                message={
+                  <Text>
+                    กำลังดาวน์โหลดไฟล์ในอีก{" "}
+                    <Text
+                      strong
+                      style={{ color: token.colorError, fontSize: 18 }}
+                    >
+                      {countdown}
+                    </Text>{" "}
+                    วินาที...
+                  </Text>
+                }
+                type="warning"
+                showIcon
+                icon={<ClockCircleOutlined />}
+              />
+            )}
+          </Flex>
+        </Modal>
+
         {contextHolder}
       </DashboardLayout>
     </PermissionLayout>
