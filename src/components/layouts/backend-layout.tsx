@@ -30,7 +30,6 @@ export default function DashboardLayout({
   const { Sider, Content, Header } = Layout;
   const screens = Grid.useBreakpoint();
 
-  // 📱 States
   const [collapsed, setCollapsed] = useState<boolean>(false);
   const [mobileOpen, setMobileOpen] = useState<boolean>(false);
 

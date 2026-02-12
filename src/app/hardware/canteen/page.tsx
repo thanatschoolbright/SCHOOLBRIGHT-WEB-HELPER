@@ -1,20 +1,33 @@
 "use client";
 
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
 import {
-  Alert,
-  Badge,
+  AndroidOutlined,
+  ApiOutlined,
+  AppleOutlined,
+  AppstoreOutlined,
+  CloudUploadOutlined,
+  CodeOutlined,
+  DeleteOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  EyeOutlined,
+  FileTextOutlined,
+  GlobalOutlined,
+  InfoCircleOutlined,
+  LockOutlined,
+  PlusOutlined,
+  RocketOutlined,
+  SearchOutlined,
+  TeamOutlined,
+  WarningOutlined,
+  WindowsOutlined,
+} from "@ant-design/icons";
+import type { InputRef } from "antd";
+import {
   Button,
   Card,
   Col,
   Descriptions,
-  Empty,
   Flex,
   Form,
   Input,
@@ -24,59 +37,30 @@ import {
   Row,
   Select,
   Space,
+  Spin,
+  Statistic,
   Steps,
   Switch,
   Table,
   Tag,
-  Tooltip,
+  theme,
   Typography,
   Upload,
-  Skeleton,
-  Spin,
-  theme,
-  Statistic,
-  Divider,
 } from "antd";
-import type { InputRef } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import type { UploadChangeParam, UploadFile } from "antd/es/upload/interface";
-import {
-  AndroidOutlined,
-  AppleOutlined,
-  CheckCircleOutlined,
-  CloudUploadOutlined,
-  CodeOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  ExclamationCircleOutlined,
-  EyeOutlined,
-  GlobalOutlined,
-  LockOutlined,
-  PlusOutlined,
-  RocketOutlined,
-  SearchOutlined,
-  TeamOutlined,
-  WindowsOutlined,
-  LoadingOutlined,
-  DownloadOutlined,
-  AppstoreOutlined,
-  FileTextOutlined,
-  QuestionCircleOutlined,
-  InfoCircleOutlined,
-  WarningOutlined,
-  SafetyOutlined,
-  ClockCircleOutlined,
-  HistoryOutlined,
-  ApiOutlined,
-} from "@ant-design/icons";
-import dayjs from "dayjs";
-import buddhistEra from "dayjs/plugin/buddhistEra";
-import { toast } from "sonner";
 import axios from "axios";
+import dayjs from "dayjs";
 import "dayjs/locale/th";
+import buddhistEra from "dayjs/plugin/buddhistEra";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { toast } from "sonner";
 
-import DashboardLayout from "@components/layouts/backend-layout";
-import { HeaderBar } from "@/components/typhography/header-bar-component";
 import {
   DELETE_APPLICATION_VERSION,
   GET_APPLICATION_LIST,
@@ -86,10 +70,9 @@ import {
 } from "@/app/hardware/canteen/canteen-api.helper";
 import {
   buildSchoolOptions,
-  copyToClipboard,
   validatePassword,
 } from "@/app/hardware/canteen/canteen.helper";
-import { useAppSelector } from "@stores/store";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
 import type {
   ApplicationRecord,
   SearchableColumnKey,
@@ -98,6 +81,8 @@ import type {
   VersionFormValues,
   VersionRecord,
 } from "@/types/canteen.type";
+import DashboardLayout from "@components/layouts/backend-layout";
+import { useAppSelector } from "@stores/store";
 
 // ✅ ใช้งาน Plugin สำหรับปี พ.ศ. (BBBB)
 dayjs.extend(buddhistEra);
@@ -642,6 +627,8 @@ export default function CanteenAppManager() {
       dataIndex: "version_name",
       fixed: "left",
       width: 180,
+      sorter: (a, b) =>
+        (a.version_name || "").localeCompare(b.version_name || ""),
       render: (versionName, record) => (
         <Flex vertical gap={4}>
           <AntText strong>{versionName}</AntText>
@@ -665,6 +652,7 @@ export default function CanteenAppManager() {
       title: "กลุ่มเป้าหมาย",
       dataIndex: "school_id",
       width: 150,
+      sorter: (a, b) => (a.school_id?.length || 0) - (b.school_id?.length || 0),
       render: (schoolIds: any[]) => {
         if (!schoolIds || schoolIds.length === 0) {
           return <Tag color="default">ทุกโรงเรียน</Tag>;
@@ -710,6 +698,7 @@ export default function CanteenAppManager() {
       title: "สภาพแวดล้อม",
       dataIndex: "env",
       width: 120,
+      sorter: (a, b) => (a.env || "").localeCompare(b.env || ""),
       render: (environment) => (
         <Tag color={getEnvironmentTagColor(environment)}>{environment}</Tag>
       ),
@@ -718,6 +707,7 @@ export default function CanteenAppManager() {
       title: "วันที่อัปเดต",
       dataIndex: "updated_at",
       width: 160,
+      sorter: (a, b) => dayjs(a.updated_at).unix() - dayjs(b.updated_at).unix(),
       render: (updatedDate) =>
         updatedDate ? dayjs(updatedDate).format("D MMM BBBB HH:mm") : "-",
     },
