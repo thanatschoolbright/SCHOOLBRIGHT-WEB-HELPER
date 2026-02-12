@@ -1219,73 +1219,109 @@ export default function CapturableReportPage() {
 
         {/* Export Confirmation Modal */}
         <Modal
-          title={
-            <Space>
-              <FileExcelOutlined style={{ color: "#107c10" }} />
-              <Text strong>ยืนยันการดาวน์โหลดรายงาน</Text>
-            </Space>
-          }
           open={exportModalVisible}
           onCancel={() => {
-            setExportModalVisible(false);
-            setIsCounting(false);
+            if (!isCounting) {
+              setExportModalVisible(false);
+              setIsCounting(false);
+            }
           }}
-          footer={[
-            <Button
-              key="cancel"
-              onClick={() => {
-                setExportModalVisible(false);
-                setIsCounting(false);
-              }}
-            >
-              ยกเลิก
-            </Button>,
-            <Button
-              key="submit"
-              type="primary"
-              disabled={isCounting}
-              onClick={() => setIsCounting(true)}
-            >
-              ตกลง
-            </Button>,
-          ]}
+          footer={null}
           centered
+          width={500}
+          styles={{ body: { padding: "32px 24px" } }}
         >
-          <Flex vertical gap={12}>
-            <Text>คุณต้องการดาวน์โหลดไฟล์รายงาน:</Text>
-            <Text
-              strong
-              code
+          <Flex vertical align="center" gap={24}>
+            <div
               style={{
-                fontSize: 13,
-                display: "block",
-                padding: "8px",
-                whiteSpace: "normal",
-                wordBreak: "break-word",
+                width: 80,
+                height: 80,
+                borderRadius: "20px",
+                backgroundColor: "#e6f4ea",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              รายงานการบันทึกทรัพย์สินบริษัท (Capitalization Report) ประจำวันที่{" "}
-              {dateRange[0].format("DD/MM/YYYY")} ถึง วันที่{" "}
-              {dateRange[1].format("DD/MM/YYYY")}
-            </Text>
-            {isCounting && (
-              <Alert
-                message={
-                  <Text>
-                    กำลังดาวน์โหลดไฟล์ในอีก{" "}
+              <FileExcelOutlined style={{ fontSize: 40, color: "#107c10" }} />
+            </div>
+
+            <div style={{ textAlign: "center" }}>
+              <Title level={3} style={{ margin: 0 }}>
+                ดาวน์โหลดรายงาน Excel
+              </Title>
+              <Text type="secondary">
+                ตรวจสอบความถูกต้องของช่วงเวลาและชื่อไฟล์ก่อนดำเนินการ
+              </Text>
+            </div>
+
+            <div
+              style={{
+                width: "100%",
+                padding: "16px",
+                backgroundColor: token.colorFillAlter,
+                borderRadius: "12px",
+                border: `1px solid ${token.colorBorder}`,
+              }}
+            >
+              <Flex vertical gap={4}>
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                  ชื่อไฟล์ที่จะได้รับ:
+                </Text>
+                <Text strong style={{ fontSize: 13, color: token.colorText }}>
+                  รายงานการบันทึกทรัพย์สินบริษัท (Capitalization Report)
+                  ประจำวันที่ {dateRange[0].format("DD/MM/YYYY")} ถึง วันที่{" "}
+                  {dateRange[1].format("DD/MM/YYYY")}
+                </Text>
+              </Flex>
+            </div>
+
+            {isCounting ? (
+              <Flex vertical align="center" gap={16}>
+                <Progress
+                  type="circle"
+                  percent={(countdown / 3) * 100}
+                  format={() => (
                     <Text
                       strong
-                      style={{ color: token.colorError, fontSize: 18 }}
+                      style={{ fontSize: 24, color: token.colorError }}
                     >
                       {countdown}
-                    </Text>{" "}
-                    วินาที...
-                  </Text>
-                }
-                type="warning"
-                showIcon
-                icon={<ClockCircleOutlined />}
-              />
+                    </Text>
+                  )}
+                  size={80}
+                  strokeColor={token.colorError}
+                />
+                <Text strong type="danger" style={{ fontSize: 16 }}>
+                  กำลังเตรียมการดาวน์โหลด...
+                </Text>
+              </Flex>
+            ) : (
+              <Flex gap={12} style={{ width: "100%" }}>
+                <Button
+                  block
+                  size="large"
+                  onClick={() => setExportModalVisible(false)}
+                  style={{ borderRadius: 8, height: 48 }}
+                >
+                  ยกเลิก
+                </Button>
+                <Button
+                  type="primary"
+                  block
+                  size="large"
+                  onClick={() => setIsCounting(true)}
+                  style={{
+                    borderRadius: 8,
+                    backgroundColor: "#107c10",
+                    borderColor: "#107c10",
+                    fontWeight: 600,
+                    height: 48,
+                  }}
+                >
+                  ยืนยันและเริ่มดาวน์โหลด
+                </Button>
+              </Flex>
             )}
           </Flex>
         </Modal>
