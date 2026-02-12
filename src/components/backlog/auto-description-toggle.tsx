@@ -1,7 +1,7 @@
 "use client";
 
-import { Space, Switch, Typography, Tooltip } from "antd";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import { EditOutlined, OpenAIOutlined } from "@ant-design/icons";
+import { Flex, Switch, Typography, theme } from "antd";
 import { memo } from "react";
 
 export type AutoAiDescriptionToggleComponentProps = {
@@ -13,37 +13,85 @@ export type AutoAiDescriptionToggleComponentProps = {
   activeColor?: string;
 };
 
-//** ปุ่มสลับสำหรับสั่งให้ AI สรุปรายละเอียดให้โดยอัตโนมัติ
 function AutoAiDescriptionToggleComponent({
   disabled,
   enabled,
   onChange,
   label = "สรุปรายละเอียดด้วย AI",
-  description = "เมื่อเปิด ระบบจะสรุปรายละเอียดให้อัตโนมัติ",
+  description = "ย่อเนื้อหาให้สั้นกระชับและคงใจความสำคัญ",
   activeColor = "#0c7ff2",
 }: AutoAiDescriptionToggleComponentProps) {
+  const { token } = theme.useToken();
+  const isChatGPT = label.toLowerCase().includes("chatgpt");
+
   return (
-    <Space direction="vertical" size={4} style={{ minWidth: 220 }}>
-      <Typography.Text strong className="flex items-center gap-1">
-        {label}
-        <Tooltip title={description}>
-          <InfoCircleOutlined className="text-gray-300 cursor-help" />
-        </Tooltip>
-      </Typography.Text>
-      <Space align="center" size={12}>
+    <div
+      onClick={() => !disabled && onChange(!enabled)}
+      style={{
+        padding: "16px 20px",
+        borderRadius: 12,
+        background: enabled
+          ? isChatGPT
+            ? "#f6ffed"
+            : "#e6f4ff"
+          : token.colorFillAlter,
+        border: `1px solid ${enabled ? (isChatGPT ? "#b7eb8f" : "#91caff") : token.colorBorderSecondary}`,
+        cursor: disabled ? "not-allowed" : "pointer",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        opacity: disabled ? 0.6 : 1,
+      }}
+    >
+      <Flex align="center" justify="space-between">
+        <Flex gap={12} align="center">
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 8,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: enabled ? "#fff" : token.colorBgContainer,
+              boxShadow: "none",
+            }}
+          >
+            {isChatGPT ? (
+              <OpenAIOutlined
+                style={{
+                  fontSize: 18,
+                  color: enabled ? "#52c41a" : token.colorTextSecondary,
+                }}
+              />
+            ) : (
+              <EditOutlined
+                style={{
+                  fontSize: 18,
+                  color: enabled ? activeColor : token.colorTextSecondary,
+                }}
+              />
+            )}
+          </div>
+          <div>
+            <Typography.Text strong style={{ fontSize: 14, display: "block" }}>
+              {label}
+            </Typography.Text>
+            <Typography.Text
+              type="secondary"
+              style={{ fontSize: 12, display: "block", marginTop: 1 }}
+            >
+              {description}
+            </Typography.Text>
+          </div>
+        </Flex>
         <Switch
+          size="small"
           checked={enabled}
           disabled={disabled}
-          onChange={onChange}
-          checkedChildren="เปิด"
-          unCheckedChildren="ปิด"
-          style={{ backgroundColor: enabled ? activeColor : undefined }}
+          onChange={(checked) => onChange(checked)}
+          onClick={(e) => e.stopPropagation()}
         />
-        <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-          {enabled ? "เปิดใช้งานระบบสรุป" : "ปิดระบบสรุป"}
-        </Typography.Text>
-      </Space>
-    </Space>
+      </Flex>
+    </div>
   );
 }
 

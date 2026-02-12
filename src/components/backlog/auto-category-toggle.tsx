@@ -1,7 +1,7 @@
 "use client";
 
-import { Space, Switch, Typography, Tooltip } from "antd";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import { RobotOutlined } from "@ant-design/icons";
+import { Flex, Switch, Typography, theme } from "antd";
 import { memo } from "react";
 
 export type AutoCategoryToggleProps = {
@@ -10,34 +10,67 @@ export type AutoCategoryToggleProps = {
   onChange: (checked: boolean) => void;
 };
 
-//** ปุ่มสลับสำหรับสั่งให้ Gemini จัด Category ให้โดยอัตโนมัติ
 function AutoCategoryToggleComponent({
   disabled,
   enabled,
   onChange,
 }: AutoCategoryToggleProps) {
+  const { token } = theme.useToken();
+
   return (
-    <Space direction="vertical" size={4} style={{ minWidth: 220 }}>
-      <Typography.Text strong className="flex items-center gap-1">
-        วิเคราะห์หมวดหมู่ด้วย AI
-        <Tooltip title="ระบบจะใช้ Gemini วิเคราะห์เนื้อหาของงาน และเลือกหมวดหมู่ที่เหมาะสมที่สุดให้โดยอัตโนมัติ">
-          <InfoCircleOutlined className="text-gray-300 cursor-help" />
-        </Tooltip>
-      </Typography.Text>
-      <Space align="center" size={12}>
+    <div
+      onClick={() => !disabled && onChange(!enabled)}
+      style={{
+        padding: "20px 24px",
+        borderRadius: 16,
+        background: enabled ? "#e6f4ff" : token.colorFillAlter,
+        border: `1px solid ${enabled ? "#91caff" : token.colorBorderSecondary}`,
+        cursor: disabled ? "not-allowed" : "pointer",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        opacity: disabled ? 0.6 : 1,
+      }}
+    >
+      <Flex align="center" justify="space-between">
+        <Flex gap={16} align="center">
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 12,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: enabled ? "#fff" : token.colorBgContainer,
+              boxShadow: "none",
+            }}
+          >
+            <RobotOutlined
+              style={{
+                fontSize: 24,
+                color: enabled ? token.colorPrimary : token.colorTextSecondary,
+              }}
+            />
+          </div>
+          <div>
+            <Typography.Text strong style={{ fontSize: 16, display: "block" }}>
+              วิเคราะห์หมวดหมู่ (Gemini)
+            </Typography.Text>
+            <Typography.Text
+              type="secondary"
+              style={{ fontSize: 13, display: "block", marginTop: 2 }}
+            >
+              จำแนกประเภทงานอัตโนมัติจากเนื้อหา
+            </Typography.Text>
+          </div>
+        </Flex>
         <Switch
           checked={enabled}
           disabled={disabled}
-          onChange={onChange}
-          checkedChildren="เปิด"
-          unCheckedChildren="ปิด"
-          style={{ backgroundColor: enabled ? "#1677ff" : undefined }}
+          onChange={(checked) => onChange(checked)}
+          onClick={(e) => e.stopPropagation()}
         />
-        <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-          เลือกหมวดหมู่อัตโนมัติ
-        </Typography.Text>
-      </Space>
-    </Space>
+      </Flex>
+    </div>
   );
 }
 

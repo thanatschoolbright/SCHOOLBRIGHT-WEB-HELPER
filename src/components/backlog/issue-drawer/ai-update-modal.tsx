@@ -47,7 +47,7 @@ export default function AiUpdateModal({
     <Modal
       open={aiState.open}
       onCancel={onClose}
-      width={1100}
+      width={1200}
       centered
       title={
         <Flex align="center" gap={12}>
@@ -103,6 +103,9 @@ export default function AiUpdateModal({
         </Flex>
       }
       styles={{
+        content: {
+          boxShadow: "none",
+        },
         body: {
           paddingInline: 32,
           paddingBlock: 32,
@@ -135,7 +138,7 @@ export default function AiUpdateModal({
           style={{
             borderRadius: 12,
             border: `1px solid ${token.colorBorderSecondary}`,
-            boxShadow: "0 4px 12px rgba(0,0,0,0.03)",
+            boxShadow: "none",
           }}
         >
           <Flex align="center" gap={16}>
@@ -211,7 +214,7 @@ export default function AiUpdateModal({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                boxShadow: "none",
                 border: `1px solid ${token.colorBorderSecondary}`,
                 zIndex: 1,
               }}
@@ -237,7 +240,7 @@ export default function AiUpdateModal({
                     height: 10,
                     background: token.colorSuccess,
                     borderRadius: "50%",
-                    boxShadow: `0 0 10px ${token.colorSuccess}80`,
+                    boxShadow: "none",
                   }}
                 />
                 <Text
@@ -281,7 +284,7 @@ export default function AiUpdateModal({
                   fontSize: "1rem",
                   fontFamily: "inherit",
                   border: `2px solid ${token.colorPrimaryBg}`,
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.06)",
+                  boxShadow: "none",
                   transition: "all 0.3s",
                 }}
                 placeholder="AI กำลังร่างข้อความ..."

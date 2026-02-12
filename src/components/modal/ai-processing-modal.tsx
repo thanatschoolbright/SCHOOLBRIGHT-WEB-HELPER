@@ -68,6 +68,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
           borderRadius: "16px",
           margin: isMobile ? "8px" : "auto",
           backgroundColor: token.colorBgContainer, // Dynamic background
+          boxShadow: "none",
         },
         mask: {
           backgroundColor: "rgba(0, 0, 0, 0.7)",
@@ -197,7 +198,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: `0 4px 20px -5px ${token.colorPrimary}`,
+                    boxShadow: "none",
                   }}
                 >
                   <Spin
@@ -242,7 +243,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
           background: token.colorBgContainer,
           borderRadius: "12px",
           padding: "24px",
-          boxShadow: token.boxShadowTertiary, // Use theme shadow
+          boxShadow: "none",
           marginBottom: "16px",
           border: `1px solid ${token.colorBorderSecondary}`,
         }}
@@ -348,9 +349,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
                     justifyContent: "center",
                     border: `${isMobile ? "2px" : "3px"} solid ${iconBorder}`,
                     transition: "all 0.3s ease",
-                    boxShadow: isCurrent
-                      ? `0 0 12px ${token.colorPrimaryBg}`
-                      : "none",
+                    boxShadow: "none",
                   }}
                 >
                   {isCompleted ? (

@@ -1,25 +1,25 @@
 import {
+  CalendarOutlined,
+  CheckCircleOutlined,
+  ClearOutlined,
+  FlagOutlined,
+  InfoCircleOutlined,
+  SaveOutlined,
+  TagOutlined,
+} from "@ant-design/icons";
+import {
   Button,
+  Col,
   DatePicker,
+  Divider,
+  Flex,
+  Row,
   Select,
   Space,
   Tag,
   theme,
   Typography,
-  Row,
-  Col,
-  Tooltip,
-  Divider,
 } from "antd";
-import {
-  InfoCircleOutlined,
-  CalendarOutlined,
-  TagOutlined,
-  FlagOutlined,
-  CheckCircleOutlined,
-  ClearOutlined,
-  SaveOutlined,
-} from "@ant-design/icons";
 import type { Dayjs } from "dayjs";
 import type { OptionItem } from "./types";
 
@@ -81,35 +81,36 @@ export default function BulkUpdatePanel({
   const { token } = theme.useToken();
 
   return (
-    <div className="flex flex-col gap-8">
-      {/* Top Section: Selection Summary & AI Indicators */}
+    <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
+      {/* Top Section: Quick Summary */}
       <div
-        className="p-5 rounded-2xl"
         style={{
-          backgroundColor: token.colorFillAlter,
+          background: token.colorFillAlter,
+          padding: "24px 32px",
+          borderRadius: 20,
           border: `1px solid ${token.colorBorderSecondary}`,
         }}
       >
-        <Row align="middle" justify="space-between" gutter={[16, 16]}>
+        <Row align="middle" justify="space-between">
           <Col>
-            <Space size={16}>
-              <Typography.Text type="secondary" style={{ fontSize: 14 }}>
-                รายการที่เลือกทั้งหมด:{" "}
+            <Flex align="center" gap={24}>
+              <Typography.Text style={{ fontSize: 16 }}>
+                เลือกงานไว้ทั้งหมด:{" "}
                 <Typography.Text
                   strong
-                  style={{ fontSize: 18, color: token.colorPrimary }}
+                  style={{ fontSize: 24, color: token.colorPrimary }}
                 >
                   {selectedCount}
                 </Typography.Text>{" "}
                 รายการ
               </Typography.Text>
-              <Divider type="vertical" style={{ height: 24 }} />
-              <Space size={8}>
+              <Divider type="vertical" style={{ height: 32 }} />
+              <Space size={12}>
                 {autoCategoryEnabled && (
                   <Tag
                     color="green"
                     icon={<CheckCircleOutlined />}
-                    className="px-3 py-1 rounded-lg"
+                    style={{ padding: "4px 12px", borderRadius: 8, margin: 0 }}
                   >
                     หมวดหมู่โดย AI
                   </Tag>
@@ -118,7 +119,7 @@ export default function BulkUpdatePanel({
                   <Tag
                     color="blue"
                     icon={<CheckCircleOutlined />}
-                    className="px-3 py-1 rounded-lg"
+                    style={{ padding: "4px 12px", borderRadius: 8, margin: 0 }}
                   >
                     สรุปรายละเอียดโดย AI
                   </Tag>
@@ -127,17 +128,17 @@ export default function BulkUpdatePanel({
                   <Typography.Text
                     type="secondary"
                     italic
-                    style={{ fontSize: 12 }}
+                    style={{ fontSize: 13 }}
                   >
                     (ไม่ได้เปิดใช้งานระบบ AI สำหรับคำขอนี้)
                   </Typography.Text>
                 )}
               </Space>
-            </Space>
+            </Flex>
           </Col>
           <Col>
-            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              <InfoCircleOutlined className="mr-1" />{" "}
+            <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+              <InfoCircleOutlined style={{ marginRight: 8 }} />{" "}
               ตรวจสอบข้อมูลก่อนกดปุ่มอัปเดตด้านล่าง
             </Typography.Text>
           </Col>
@@ -145,23 +146,23 @@ export default function BulkUpdatePanel({
       </div>
 
       {/* Middle Section: Manual Input Fields */}
-      <Row gutter={[32, 32]}>
+      <Row gutter={[40, 40]}>
         {/* Row 1: Status & Priority */}
         <Col xs={24} md={12}>
-          <Space direction="vertical" size={6} className="w-full">
-            <Typography.Text strong className="flex items-center gap-1">
-              <CheckCircleOutlined style={{ color: token.colorPrimary }} />{" "}
+          <Space direction="vertical" size={12} className="w-full">
+            <Typography.Text strong style={{ fontSize: 15 }}>
+              <CheckCircleOutlined
+                style={{ color: token.colorPrimary, marginRight: 8 }}
+              />{" "}
               สถานะงาน
-              <Tooltip title="เปลี่ยนสถานะของงานทั้งหมดที่เลือก เช่น จาก Open เป็น Closed">
-                <InfoCircleOutlined className="text-gray-400 cursor-help" />
-              </Tooltip>
             </Typography.Text>
             <Select
               allowClear
               options={statusOptions}
-              placeholder="เลือกสถานะใหม่..."
+              placeholder="เลือกสถานะเพื่อเปลี่ยนทั้งหมด..."
               className="w-full"
               size="large"
+              style={{ borderRadius: 12 }}
               value={bulkStatusId}
               onChange={(value) => onStatusChange(value as number | undefined)}
             />
@@ -169,12 +170,10 @@ export default function BulkUpdatePanel({
         </Col>
 
         <Col xs={24} md={12}>
-          <Space direction="vertical" size={6} className="w-full">
-            <Typography.Text strong className="flex items-center gap-1">
-              <FlagOutlined style={{ color: "#fa8c16" }} /> ระดับความสำคัญ
-              <Tooltip title="ปรับระดับความสำคัญของงาน เช่น High, Normal, Low">
-                <InfoCircleOutlined className="text-gray-400 cursor-help" />
-              </Tooltip>
+          <Space direction="vertical" size={12} className="w-full">
+            <Typography.Text strong style={{ fontSize: 15 }}>
+              <FlagOutlined style={{ color: "#fa8c16", marginRight: 8 }} />{" "}
+              ระดับความสำคัญ
             </Typography.Text>
             <Select
               allowClear
@@ -182,6 +181,7 @@ export default function BulkUpdatePanel({
               placeholder="เลือกระดับความสำคัญใหม่..."
               className="w-full"
               size="large"
+              style={{ borderRadius: 12 }}
               value={bulkPriorityId}
               onChange={(value) =>
                 onPriorityChange(value as number | undefined)
@@ -192,13 +192,13 @@ export default function BulkUpdatePanel({
 
         {/* Row 2: Milestone & Category */}
         <Col xs={24} md={12}>
-          <Space direction="vertical" size={6} className="w-full">
+          <Space direction="vertical" size={12} className="w-full">
             <div className="flex justify-between items-center">
-              <Typography.Text strong className="flex items-center gap-1">
-                <TagOutlined style={{ color: token.colorSuccess }} /> ไมล์สโตน
-                <Tooltip title="ระบุไมล์สโตน (Milestone) หรือรอบการทำงาน">
-                  <InfoCircleOutlined className="text-gray-400 cursor-help" />
-                </Tooltip>
+              <Typography.Text strong style={{ fontSize: 15 }}>
+                <TagOutlined
+                  style={{ color: token.colorSuccess, marginRight: 8 }}
+                />{" "}
+                ไมล์สโตน
               </Typography.Text>
               <Button
                 size="small"
@@ -206,7 +206,7 @@ export default function BulkUpdatePanel({
                 onClick={onManageMilestone}
                 className="p-0 h-auto"
               >
-                เพิ่ม/แก้ไขไมล์สโตน
+                + เพิ่ม/แก้ไข
               </Button>
             </div>
             <Select
@@ -217,6 +217,7 @@ export default function BulkUpdatePanel({
               placeholder="เลือกไมล์สโตน..."
               className="w-full"
               size="large"
+              style={{ borderRadius: 12 }}
               value={bulkMilestoneIds}
               onChange={(values) => onMilestoneChange(values || [])}
             />
@@ -224,18 +225,10 @@ export default function BulkUpdatePanel({
         </Col>
 
         <Col xs={24} md={12}>
-          <Space direction="vertical" size={6} className="w-full">
-            <Typography.Text strong className="flex items-center gap-1">
-              <TagOutlined style={{ color: "#722ed1" }} /> หมวดหมู่
-              <Tooltip
-                title={
-                  autoCategoryEnabled
-                    ? "AI กำลังจัดการหมวดหมู่ให้อัตโนมัติ"
-                    : "เลือกหมวดหมู่ที่เหมาะสมกับรายการงาน"
-                }
-              >
-                <InfoCircleOutlined className="text-gray-400 cursor-help" />
-              </Tooltip>
+          <Space direction="vertical" size={12} className="w-full">
+            <Typography.Text strong style={{ fontSize: 15 }}>
+              <TagOutlined style={{ color: "#722ed1", marginRight: 8 }} />{" "}
+              หมวดหมู่
             </Typography.Text>
             <Select
               allowClear
@@ -245,11 +238,12 @@ export default function BulkUpdatePanel({
               options={categoryOptions}
               placeholder={
                 autoCategoryEnabled
-                  ? "AI กำลังเลือกหมวดหมู่ให้..."
+                  ? "AI กำลังจัดการให้ (ไม่สามารถเลือกเองได้)"
                   : "เลือกหมวดหมู่..."
               }
               className="w-full"
               size="large"
+              style={{ borderRadius: 12 }}
               value={bulkCategoryIds}
               onChange={(values) => onCategoryChange(values || [])}
             />
@@ -258,18 +252,18 @@ export default function BulkUpdatePanel({
 
         {/* Row 3: Dates */}
         <Col xs={24} md={12}>
-          <Space direction="vertical" size={6} className="w-full">
-            <Typography.Text strong className="flex items-center gap-1">
-              <CalendarOutlined style={{ color: token.colorInfo }} />{" "}
+          <Space direction="vertical" size={12} className="w-full">
+            <Typography.Text strong style={{ fontSize: 15 }}>
+              <CalendarOutlined
+                style={{ color: token.colorInfo, marginRight: 8 }}
+              />{" "}
               วันที่เริ่มต้น
-              <Tooltip title="ตั้งวันเริ่มงานใหม่สำหรับทุกรายการ">
-                <InfoCircleOutlined className="text-gray-400 cursor-help" />
-              </Tooltip>
             </Typography.Text>
             <DatePicker
               className="w-full"
               size="large"
-              placeholder="วันที่เริ่มงาน"
+              style={{ borderRadius: 12 }}
+              placeholder="คลิกเพื่อเลือกวันเริ่มงาน"
               value={bulkStartDate}
               onChange={(value) => onStartDateChange(value ?? null)}
             />
@@ -277,18 +271,18 @@ export default function BulkUpdatePanel({
         </Col>
 
         <Col xs={24} md={12}>
-          <Space direction="vertical" size={6} className="w-full">
-            <Typography.Text strong className="flex items-center gap-1">
-              <CalendarOutlined style={{ color: token.colorError }} />{" "}
+          <Space direction="vertical" size={12} className="w-full">
+            <Typography.Text strong style={{ fontSize: 15 }}>
+              <CalendarOutlined
+                style={{ color: token.colorError, marginRight: 8 }}
+              />{" "}
               วันที่สิ้นสุด
-              <Tooltip title="ตั้งกำหนดส่งงาน (Due Date) ใหม่">
-                <InfoCircleOutlined className="text-gray-400 cursor-help" />
-              </Tooltip>
             </Typography.Text>
             <DatePicker
               className="w-full"
               size="large"
-              placeholder="วันที่ครบกำหนด"
+              style={{ borderRadius: 12 }}
+              placeholder="วันครบกำหนด (Due Date)"
               value={bulkDueDate}
               onChange={(value) => onDueDateChange(value ?? null)}
             />
@@ -297,36 +291,44 @@ export default function BulkUpdatePanel({
       </Row>
 
       {/* Bottom Section: Action Buttons */}
-      <div className="mt-4 pt-6 border-t border-gray-100">
-        <Row gutter={16} justify="end">
-          <Col>
-            <Button
-              icon={<ClearOutlined />}
-              onClick={onClear}
-              disabled={bulkUpdating}
-              size="large"
-              className="px-6 rounded-xl hover:bg-gray-50"
-            >
-              ล้างค่าทั้งหมด
-            </Button>
-          </Col>
-          <Col>
-            <Button
-              type="primary"
-              size="large"
-              icon={<SaveOutlined />}
-              loading={bulkUpdating}
-              disabled={
-                submitDisabled ||
-                (autoCategoryEnabled && !categoryOptions.length)
-              }
-              onClick={onSubmit}
-              className="px-12 rounded-xl shadow-lg shadow-blue-100"
-            >
-              อัปเดตงานทั้งหมด
-            </Button>
-          </Col>
-        </Row>
+      <div
+        style={{
+          marginTop: 16,
+          paddingTop: 40,
+          borderTop: `1px solid ${token.colorBorderSecondary}`,
+        }}
+      >
+        <Flex gap={20} justify="end">
+          <Button
+            icon={<ClearOutlined />}
+            onClick={onClear}
+            disabled={bulkUpdating}
+            size="large"
+            style={{ minWidth: 160, borderRadius: 12 }}
+          >
+            ล้างค่าที่กรอก
+          </Button>
+          <Button
+            type="primary"
+            size="large"
+            icon={<SaveOutlined />}
+            loading={bulkUpdating}
+            disabled={
+              submitDisabled || (autoCategoryEnabled && !categoryOptions.length)
+            }
+            onClick={onSubmit}
+            style={{
+              minWidth: 220,
+              borderRadius: 12,
+              height: 48,
+              fontSize: 16,
+              fontWeight: 600,
+              boxShadow: "none",
+            }}
+          >
+            อัปเดตงานทั้งหมด ({selectedCount} รายการ)
+          </Button>
+        </Flex>
       </div>
     </div>
   );

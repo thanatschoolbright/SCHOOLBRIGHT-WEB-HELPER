@@ -1192,26 +1192,73 @@ const BulkUpdateModal: React.FC<{
   onRequestMinimize,
   onProgress,
 }) => {
+  const { token } = theme.useToken();
   if (minimized) return null;
   return (
     <Modal
       title={
-        <Flex align="center" gap={8}>
-          <AppstoreAddOutlined />
-          <span>Bulk Action: {projectName}</span>
+        <Flex align="center" gap={12} style={{ paddingBottom: 8 }}>
+          <div
+            style={{
+              background: token.colorInfoBg,
+              padding: 10,
+              borderRadius: 12,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <AppstoreAddOutlined
+              style={{ color: token.colorInfo, fontSize: 24 }}
+            />
+          </div>
+          <Flex vertical gap={2}>
+            <span style={{ fontSize: "1.15rem", fontWeight: 700 }}>
+              Batch Operations / Bulk Action
+            </span>
+            <span
+              style={{
+                fontSize: "0.85rem",
+                fontWeight: 400,
+                color: token.colorTextSecondary,
+              }}
+            >
+              Project: {projectName}
+            </span>
+          </Flex>
         </Flex>
       }
       open={open}
       onCancel={onClose}
       footer={null}
-      width={1000}
+      width={1300}
+      centered
+      styles={{
+        content: {
+          boxShadow: "none",
+        },
+        body: {
+          padding: 0,
+          background: token.colorBgLayout,
+          borderRadius: "0 0 16px 16px",
+          overflow: "hidden",
+        },
+        header: {
+          padding: "24px 32px 16px 32px",
+          margin: 0,
+        },
+      }}
       style={{ top: 20 }}
     >
       <SharedBulkUpdateSection
         space={space}
         projectId={projectId}
         projectName={projectName}
-        elevatedCardStyle={{ border: "none", boxShadow: "none" }}
+        elevatedCardStyle={{
+          border: "none",
+          boxShadow: "none",
+          background: "transparent",
+        }}
         onUpdateComplete={() => {
           onUpdateComplete();
           onClose();
@@ -1540,7 +1587,7 @@ function ProjectIssuesPageContent(): JSX.Element {
             padding: "12px 24px",
             background: "white",
             borderRadius: 24,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+            boxShadow: "none",
             border: `1px solid ${token.colorPrimary}`,
           }}
         >

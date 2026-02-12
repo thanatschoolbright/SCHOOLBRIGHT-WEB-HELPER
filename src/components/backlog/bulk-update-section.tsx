@@ -1,45 +1,42 @@
 "use client";
 
 import {
-  Card,
-  Skeleton,
-  Space,
-  Tabs,
-  Typography,
-  Modal,
-  Table,
-  Tag,
-  Button,
-  Progress,
-  Divider,
-  theme,
-  Tooltip,
-  Row,
-  Col,
-} from "antd";
-import { useRouter } from "next/navigation";
-import React, { useState, useRef, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { toast } from "sonner";
-import {
   CheckCircleOutlined,
-  CloseCircleOutlined,
-  LoadingOutlined,
-  RobotOutlined,
-  ReloadOutlined,
   ClockCircleOutlined,
-  InfoCircleOutlined,
-  MinusOutlined,
-  AppstoreAddOutlined,
+  CloseCircleOutlined,
   EditOutlined,
+  InfoCircleOutlined,
+  LoadingOutlined,
+  MinusOutlined,
+  ReloadOutlined,
+  RobotOutlined,
 } from "@ant-design/icons";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
+import {
+  Button,
+  Card,
+  Col,
+  Flex,
+  Modal,
+  Progress,
+  Row,
+  Skeleton,
+  Space,
+  Table,
+  Tag,
+  theme,
+  Typography,
+} from "antd";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
 
 import AutoCategoryToggle from "@components/backlog/auto-category-toggle";
 import AutoAiDescriptionToggle from "@components/backlog/auto-description-toggle";
 import BulkUpdatePanel from "@components/backlog/issue-drawer/bulk-update-panel";
-import { RootState } from "@stores/store";
 import { Issue } from "@components/backlog/issue-drawer/types";
+import { RootState } from "@stores/store";
 
 interface BulkUpdateSectionProps {
   elevatedCardStyle: React.CSSProperties;
@@ -432,71 +429,55 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
 
   return (
     <Card
-      size="small"
-      styles={{ body: { padding: 24 } }}
+      styles={{ body: { padding: "32px 40px" } }}
       style={{
         ...elevatedCardStyle,
         border: "none",
         boxShadow: "none",
-        borderRadius: 24,
+        background: "transparent",
       }}
-      title={
-        <div className="flex items-center justify-between py-2">
-          <Space align="center" size={16}>
-            <div className="bg-blue-50 p-3 rounded-2xl">
-              <AppstoreAddOutlined
-                style={{ color: token.colorPrimary, fontSize: 24 }}
-              />
-            </div>
-            <div>
-              <Typography.Title
-                level={4}
-                style={{ margin: 0, fontWeight: 800 }}
-              >
-                จัดการหลายรายการพร้อมกัน
-              </Typography.Title>
-              <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-                จัดการข้อมูลและใช้ AI ช่วยสรุปงานจำนวนมากในครั้งเดียว
-              </Typography.Text>
-            </div>
-          </Space>
-          <Tag
-            color="blue"
-            style={{
-              borderRadius: 12,
-              padding: "4px 12px",
-              fontSize: 13,
-              fontWeight: 600,
-            }}
-          >
-            เลือกแล้ว {selectedRowKeys.length} รายการ
-          </Tag>
-        </div>
-      }
     >
       <Skeleton
         active
         loading={optionsLoading}
-        paragraph={{ rows: 8 }}
+        paragraph={{ rows: 12 }}
         title={false}
       >
-        <Row gutter={[40, 40]}>
+        <Row gutter={[48, 48]}>
           {/* Left Column: AI Power Tools */}
-          <Col xs={24} lg={9}>
-            <div className="flex flex-col gap-6">
-              <Divider orientation="left" style={{ margin: "0 0 16px 0" }}>
-                <Space>
-                  <RobotOutlined style={{ color: token.colorPrimary }} />
-                  <Typography.Text strong>
-                    เครื่องมือ AI อัจฉริยะ
-                  </Typography.Text>
-                  <Tooltip title="ใช้ AI เพื่อประมวลผลข้อมูลอัตโนมัติ ช่วยลดเวลาการทำงานซ้ำ ๆ">
-                    <InfoCircleOutlined className="text-gray-300" />
-                  </Tooltip>
-                </Space>
-              </Divider>
+          <Col xs={24} lg={10}>
+            <div
+              style={{
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                gap: 32,
+              }}
+            >
+              <div>
+                <Typography.Title
+                  level={4}
+                  style={{
+                    margin: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                  }}
+                >
+                  <RobotOutlined
+                    style={{ color: token.colorPrimary, fontSize: 24 }}
+                  />
+                  ระบบช่วยอัปเดต (AI)
+                </Typography.Title>
+                <Typography.Text
+                  type="secondary"
+                  style={{ fontSize: 14, display: "block", marginTop: 8 }}
+                >
+                  เพิ่มความเร็วในการจัดกลุ่มและสรุปข้อมูลด้วยพลังของ AI
+                </Typography.Text>
+              </div>
 
-              <div className="flex flex-col gap-8">
+              <Space direction="vertical" size={20} style={{ width: "100%" }}>
                 <AutoCategoryToggle
                   disabled={
                     autoCategoryLoading ||
@@ -507,48 +488,95 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                   onChange={handleAutoCategoryToggle}
                 />
 
-                <div className="flex flex-col gap-4">
+                <div
+                  style={{
+                    padding: "24px",
+                    background: token.colorFillAlter,
+                    borderRadius: 20,
+                    border: `1px solid ${token.colorBorderSecondary}`,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 16,
+                  }}
+                >
+                  <Typography.Text
+                    strong
+                    style={{
+                      fontSize: 13,
+                      textTransform: "uppercase",
+                      letterSpacing: 1,
+                      color: token.colorTextDescription,
+                    }}
+                  >
+                    สรุปเนื้อหางานอัตโนมัติ
+                  </Typography.Text>
+
                   <AutoAiDescriptionToggle
-                    label="สรุปด้วย Gemini"
-                    description="เหมาะสำหรับการวิเคราะห์งานทั่วไปที่รวดเร็ว"
+                    label="Gemini Speed"
+                    description="เน้นความเร็วและการสรุปเบื้องต้น"
                     enabled={autoGeminiEnabled}
                     onChange={handleAutoGeminiToggle}
                     disabled={bulkUpdating}
                   />
 
                   <AutoAiDescriptionToggle
-                    label="สรุปด้วย ChatGPT"
-                    description="สรุปได้ลึกซึ้ง เหมาะสำหรับงานที่ซับซ้อน (GPT-4o)"
+                    label="ChatGPT Pro"
+                    description="เน้นความละเอียดและบริบทที่ครบถ้วน"
                     activeColor="#10a37f"
                     enabled={autoChatGptEnabled}
                     onChange={handleAutoChatGptToggle}
                     disabled={bulkUpdating}
                   />
                 </div>
-              </div>
+              </Space>
 
-              <div className="bg-gray-50/50 p-4 rounded-2xl mt-4">
-                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  <InfoCircleOutlined className="mr-2" />* เมื่อเปิดใช้งาน AI
-                  ระบบจะทำการประมวลผลทีละรายการอัตโนมัติหลังจากที่คุณกดปุ่ม
-                  "อัปเดตงานทั้งหมด"
-                </Typography.Text>
+              <div
+                style={{
+                  padding: 24,
+                  background: "#fff7e6",
+                  borderRadius: 16,
+                  border: `1px solid #ffe7ba`,
+                }}
+              >
+                <Flex gap={12}>
+                  <InfoCircleOutlined
+                    style={{ color: "#fa8c16", marginTop: 4, fontSize: 16 }}
+                  />
+                  <Typography.Text
+                    style={{ fontSize: 13, lineHeight: 1.6, color: "#874d00" }}
+                  >
+                    ระบบ AI จะเริ่มทำงานหลังจากกดปุ่มอัปเดต
+                    คุณสามารถตรวจสอบและแก้ไขผลลัพธ์จาก AI
+                    ได้ทุกรายการก่อนบันทึกจริงลงฐานข้อมูล
+                  </Typography.Text>
+                </Flex>
               </div>
             </div>
           </Col>
 
           {/* Right Column: Manual Updates Fields */}
-          <Col xs={24} lg={15}>
-            <div className="flex flex-col gap-6">
-              <Divider orientation="left" style={{ margin: "0 0 16px 0" }}>
-                <Space>
-                  <EditOutlined style={{ color: "#faad14" }} />
-                  <Typography.Text strong>ตั้งค่าข้อมูลพื้นฐาน</Typography.Text>
-                  <Tooltip title="ใส่ข้อมูลที่ต้องการให้มีผลกับทุกรายการงานที่เลือก">
-                    <InfoCircleOutlined className="text-gray-300" />
-                  </Tooltip>
-                </Space>
-              </Divider>
+          <Col xs={24} lg={14}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+              <div>
+                <Typography.Title
+                  level={4}
+                  style={{
+                    margin: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                  }}
+                >
+                  <EditOutlined style={{ color: "#faad14", fontSize: 24 }} />
+                  ข้อมูลพื้นฐาน (Manual)
+                </Typography.Title>
+                <Typography.Text
+                  type="secondary"
+                  style={{ fontSize: 14, display: "block", marginTop: 8 }}
+                >
+                  กําหนดค่าพื้นฐานให้มีผลกับทุกรายการงานที่เลือกไว้
+                </Typography.Text>
+              </div>
 
               <BulkUpdatePanel
                 autoCategoryEnabled={autoCategoryEnabled}
@@ -600,43 +628,63 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
         open={resultsModalVisible && !minimized}
         onCancel={() => setResultsModalVisible(false)}
         footer={null}
-        width={1400}
-        styles={{ body: { padding: "40px" } }}
+        width={1300}
         centered
+        styles={{
+          content: {
+            boxShadow: "none",
+          },
+          body: {
+            padding: "48px 64px",
+            background: token.colorBgLayout,
+          },
+        }}
         maskClosable={false}
         destroyOnHidden={false}
       >
-        <div style={{ marginBottom: 40 }}>
-          <div className="flex justify-between items-center mb-10">
+        <Space direction="vertical" size={40} style={{ width: "100%" }}>
+          <Flex justify="space-between" align="center">
             <Space align="center" size={24}>
-              <div className="bg-blue-50 p-2 rounded-xl">
+              <div
+                style={{
+                  background: token.colorPrimaryBg,
+                  padding: 12,
+                  borderRadius: 12,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
                 <RobotOutlined
-                  style={{ color: token.colorPrimary, fontSize: 20 }}
+                  style={{ color: token.colorPrimary, fontSize: 24 }}
                 />
               </div>
-              <div>
+              <Flex vertical gap={4}>
                 <Typography.Title level={4} style={{ margin: 0 }}>
                   ผลลัพธ์การประมวลผลด้วย AI
                 </Typography.Title>
                 <Typography.Text type="secondary">
                   ประมวลผลเสร็จสิ้น{" "}
-                  {
-                    processingResults.filter(
-                      (r) => r.status === "success" || r.status === "error",
-                    ).length
-                  }{" "}
+                  <Typography.Text strong>
+                    {
+                      processingResults.filter(
+                        (r) => r.status === "success" || r.status === "error",
+                      ).length
+                    }
+                  </Typography.Text>{" "}
                   / {processingResults.length} รายการ
                 </Typography.Text>
-              </div>
+              </Flex>
             </Space>
             {onRequestMinimize && (
               <Button
                 type="text"
+                shape="circle"
                 icon={<MinusOutlined />}
                 onClick={onRequestMinimize}
               />
             )}
-          </div>
+          </Flex>
 
           <Progress
             percent={Math.round(
@@ -651,47 +699,77 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
               "0%": token.colorPrimary,
               "100%": token.colorSuccess,
             }}
-            strokeWidth={12}
-            className="mb-0"
+            strokeWidth={14}
           />
-        </div>
 
-        <div className="border border-gray-100 rounded-2xl overflow-hidden mb-6">
           <Table
             dataSource={processingResults}
             rowKey={(r) => String(r.issueKeyOrId)}
             pagination={false}
-            scroll={{ y: 500 }}
+            scroll={{ y: 550 }}
             size="middle"
+            style={{
+              borderRadius: 16,
+              overflow: "hidden",
+              border: `1px solid ${token.colorBorderSecondary}`,
+            }}
             expandable={{
               expandedRowRender: (record) => (
-                <div className="p-4 bg-gray-50/50 rounded-xl m-2 border border-gray-100">
+                <div
+                  style={{
+                    padding: 24,
+                    background: token.colorFillAlter,
+                    borderRadius: 12,
+                    margin: 12,
+                    border: `1px solid ${token.colorBorderSecondary}`,
+                  }}
+                >
                   {record.status === "error" && (
-                    <div className="mb-4">
-                      <Typography.Text
-                        type="danger"
-                        strong
-                        className="flex items-center gap-2"
-                      >
+                    <Space
+                      direction="vertical"
+                      size={12}
+                      style={{ marginBottom: 20, width: "100%" }}
+                    >
+                      <Typography.Text type="danger" strong>
                         <CloseCircleOutlined /> ข้อผิดพลาดทางเทคนิค:
                       </Typography.Text>
-                      <Typography.Paragraph
-                        type="danger"
-                        className="mt-1 mb-0 border-l-4 border-red-200 pl-4 py-1 italic"
+                      <div
+                        style={{
+                          padding: "12px 16px",
+                          borderLeft: `4px solid ${token.colorError}`,
+                          background: token.colorErrorBg,
+                          fontSize: 13,
+                        }}
                       >
                         {record.message}
-                      </Typography.Paragraph>
-                    </div>
+                      </div>
+                    </Space>
                   )}
                   {record.summary && (
-                    <div>
+                    <Space
+                      direction="vertical"
+                      size={12}
+                      style={{ width: "100%" }}
+                    >
                       <Typography.Text type="secondary" strong>
                         ตัวอย่างคําอธิบายที่สร้างใหม่:
                       </Typography.Text>
-                      <div className="mt-2 p-3 bg-white border border-gray-100 rounded-lg max-h-[150px] overflow-auto text-sm leading-relaxed">
+                      <div
+                        style={{
+                          padding: 20,
+                          background: token.colorBgContainer,
+                          border: `1px solid ${token.colorBorderSecondary}`,
+                          borderRadius: 12,
+                          maxHeight: 250,
+                          overflow: "auto",
+                          fontSize: 14,
+                          lineHeight: 1.7,
+                          whiteSpace: "pre-wrap",
+                        }}
+                      >
                         {record.summary}
                       </div>
-                    </div>
+                    </Space>
                   )}
                 </div>
               ),
@@ -705,7 +783,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                 key: "title",
                 width: 180,
                 render: (text) => (
-                  <Typography.Text strong className="text-blue-600">
+                  <Typography.Text strong style={{ color: token.colorPrimary }}>
                     {text}
                   </Typography.Text>
                 ),
@@ -746,7 +824,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                     <Tag
                       color={config.color}
                       icon={config.icon}
-                      className="rounded-full px-3"
+                      style={{ borderRadius: 20, paddingInline: 12 }}
                     >
                       {config.text}
                     </Tag>
@@ -760,7 +838,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                 render: (md, row) => {
                   if (row.status === "error")
                     return (
-                      <Typography.Text type="danger" style={{ fontSize: 12 }}>
+                      <Typography.Text type="danger" style={{ fontSize: 13 }}>
                         {row.message}
                       </Typography.Text>
                     );
@@ -769,7 +847,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                       <Typography.Text
                         type="secondary"
                         italic
-                        style={{ fontSize: 12 }}
+                        style={{ fontSize: 13 }}
                       >
                         กําลังวิเคราะห์ข้อมูล...
                       </Typography.Text>
@@ -778,97 +856,104 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                     <Typography.Text
                       type="secondary"
                       ellipsis
-                      style={{ fontSize: 12, maxWidth: 300 }}
+                      style={{ fontSize: 13, maxWidth: 400 }}
                     >
-                      {md.replace(/<[^>]*>?/gm, "").slice(0, 80)}...
+                      {md.replace(/<[^>]*>?/gm, "").slice(0, 100)}...
                     </Typography.Text>
                   );
                 },
               },
             ]}
           />
-        </div>
 
-        <div className="flex justify-between items-center">
-          <Button
-            icon={<ReloadOutlined />}
-            onClick={async () => {
-              // Retry logic
-              const failedRows = processingResults.filter(
-                (r) => r.status === "error",
-              );
-              if (!failedRows.length) return;
-
-              const payloads = perIssuePayloadsRef.current || [];
-              const targets = failedRows
-                .map((fr) =>
-                  payloads.find(
-                    (p) => String(p.issueKeyOrId) === String(fr.issueKeyOrId),
-                  ),
-                )
-                .filter(Boolean);
-
-              if (!targets.length) return;
-
-              setProcessingResults((prev) =>
-                prev.map((r) =>
-                  failedRows.some(
-                    (fr) => String(fr.issueKeyOrId) === String(r.issueKeyOrId),
-                  )
-                    ? { ...r, status: "pending", message: undefined }
-                    : r,
-                ),
-              );
-
-              for (const payload of targets) {
-                await processSingle(
-                  payload,
-                  new Map(issues.map((i) => [i.issueKey || String(i.id), i])),
-                );
-              }
-              toast.success("ลองใหม่สำเร็จ");
-            }}
-            disabled={!processingResults.some((r) => r.status === "error")}
-          >
-            ลองใหม่รายการที่ล้มเหลว
-          </Button>
-
-          <Space>
-            <Button onClick={() => setResultsModalVisible(false)}>
-              ปิดหน้าต่าง
-            </Button>
+          <Flex justify="space-between" align="center">
             <Button
-              type="primary"
+              size="large"
+              icon={<ReloadOutlined />}
               onClick={async () => {
-                const entries = (perIssuePayloadsRef.current || []).filter(
-                  (p) => p.updates?.description,
+                const failedRows = processingResults.filter(
+                  (r) => r.status === "error",
                 );
-                if (!entries.length) return;
-                setSaving(true);
-                try {
-                  await axios.post("/api/v1/backlog/issues/bulk-update", {
-                    space,
-                    entries,
-                  });
-                  toast.success(`บันทึก ${entries.length} รายการสำเร็จ`);
-                  setResultsModalVisible(false);
-                  onUpdateComplete();
-                  clearBulkForm();
-                } catch (e: any) {
-                  toast.error(e.message || "บันทึกไม่สำเร็จ");
-                } finally {
-                  setSaving(false);
+                if (!failedRows.length) return;
+
+                const payloads = perIssuePayloadsRef.current || [];
+                const targets = failedRows
+                  .map((fr) =>
+                    payloads.find(
+                      (p) => String(p.issueKeyOrId) === String(fr.issueKeyOrId),
+                    ),
+                  )
+                  .filter(Boolean);
+
+                if (!targets.length) return;
+
+                setProcessingResults((prev) =>
+                  prev.map((r) =>
+                    failedRows.some(
+                      (fr) =>
+                        String(fr.issueKeyOrId) === String(r.issueKeyOrId),
+                    )
+                      ? { ...r, status: "pending", message: undefined }
+                      : r,
+                  ),
+                );
+
+                for (const payload of targets) {
+                  await processSingle(
+                    payload,
+                    new Map(issues.map((i) => [i.issueKey || String(i.id), i])),
+                  );
                 }
+                toast.success("ลองใหม่สำเร็จ");
               }}
-              loading={saving}
-              disabled={
-                saving || !processingResults.some((r) => r.status === "success")
-              }
+              disabled={!processingResults.some((r) => r.status === "error")}
             >
-              บันทึกการเปลี่ยนแปลง
+              ลองใหม่รายการที่ล้มเหลว
             </Button>
-          </Space>
-        </div>
+
+            <Space size={16}>
+              <Button
+                size="large"
+                onClick={() => setResultsModalVisible(false)}
+              >
+                ปิดหน้าต่าง
+              </Button>
+              <Button
+                type="primary"
+                size="large"
+                style={{ minWidth: 200, fontWeight: 600 }}
+                onClick={async () => {
+                  const entries = (perIssuePayloadsRef.current || []).filter(
+                    (p) => p.updates?.description,
+                  );
+                  if (!entries.length) return;
+                  setSaving(true);
+                  try {
+                    await axios.post("/api/v1/backlog/issues/bulk-update", {
+                      space,
+                      entries,
+                    });
+                    toast.success(`บันทึก ${entries.length} รายการสำเร็จ`);
+                    setResultsModalVisible(false);
+                    onUpdateComplete();
+                    clearBulkForm();
+                  } catch (e: any) {
+                    toast.error(e.message || "บันทึกไม่สำเร็จ");
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+                loading={saving}
+                disabled={
+                  saving ||
+                  !processingResults.some((r) => r.status === "success")
+                }
+              >
+                บันทึกการเปลี่ยนแปลงทั้งหมด
+              </Button>
+            </Space>
+          </Flex>
+        </Space>
       </Modal>
 
       {/* Error Detail Modal */}
