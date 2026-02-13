@@ -416,17 +416,17 @@ const IssuesListTable: React.FC<{
       setAiProcessing({ open: false, currentStep: 0, processingTime: 0 });
       setAiModal({ open: true, issue, generating: false, newText: markdown });
 
-      toast.success("ประมวลผลด้วย AI สำเร็จ");
+      toast.success("ประมวลผลสรุปงานด้วย AI สำเร็จ");
     } catch (error) {
       clearInterval(timer);
       setAiProcessing({ open: false, currentStep: 0, processingTime: 0 });
-      toast.error("เรียกใช้งาน AI ไม่สำเร็จ กรุณาลองใหม่");
+      toast.error("เรียกใช้งาน AI เพื่อสรุปงานไม่สำเร็จ");
     }
   };
 
   const handleApplyAiUpdate = async () => {
     if (!aiModal.issue) return;
-    const toastId = toast.loading("กำลังอัปเดตข้อมูลด้วย AI...");
+    const toastId = toast.loading("กำลังอัปเดตข้อมูลไปยัง Backlog...");
     try {
       const currentSummary = aiModal.issue.summary;
       const finalSummary = currentSummary.includes("[AI]")
@@ -439,11 +439,11 @@ const IssuesListTable: React.FC<{
         description: aiModal.newText,
         summary: finalSummary,
       });
-      toast.success("อัปเดตข้อมูลสำเร็จ", { id: toastId });
+      toast.success("อัปเดตข้อมูลบน Backlog สำเร็จ", { id: toastId });
       setAiModal({ open: false, issue: null, generating: false, newText: "" });
       onReload();
     } catch (error) {
-      toast.error("อัปเดตข้อมูลไม่สำเร็จ", { id: toastId });
+      toast.error("อัปเดตข้อมูลบน Backlog ไม่สำเร็จ", { id: toastId });
     }
   };
 
@@ -888,7 +888,7 @@ const useIssuesPageData = ({
   const loadIssues = useCallback(async () => {
     if (!projectReady) return;
 
-    const toastId = toast.loading("กำลังโหลดรายการงาน...");
+    const toastId = toast.loading("กำลังดาวน์โหลดข้อมูลจาก Backlog...");
     dispatch(setLoading(true));
 
     try {
@@ -933,9 +933,9 @@ const useIssuesPageData = ({
 
       dispatch(setIssues({ issues: items, total: totalItems }));
       dispatch(setSelectedRowKeys([]));
-      toast.success("โหลดข้อมูลสำเร็จ", { id: toastId });
+      toast.success("ดาวน์โหลดข้อมูล Backlog สำเร็จ", { id: toastId });
     } catch (error) {
-      toast.error("เกิดข้อผิดพลาดในการโหลดข้อมูล", { id: toastId });
+      toast.error("ดาวน์โหลดข้อมูล Backlog ไม่สำเร็จ", { id: toastId });
       showErrorModal("ไม่สามารถโหลดรายการงานได้", error);
     } finally {
       dispatch(setLoading(false));
@@ -1000,7 +1000,7 @@ const useIssuesPageData = ({
     if (!projectReady) return;
 
     dispatch(setOptionsLoading(true));
-    const toastId = toast.loading("กำลังเตรียมข้อมูลเริ่มต้น...");
+    const toastId = toast.loading("กำลังดาวน์โหลดข้อมูลตัวกรอง...");
 
     try {
       // ? ยิง API พร้อมกันเพื่อความเร็ว
@@ -1071,9 +1071,9 @@ const useIssuesPageData = ({
         );
       }
 
-      toast.success("เตรียมข้อมูลสำเร็จ", { id: toastId });
+      toast.success("ดาวน์โหลดข้อมูลตัวกรองสำเร็จ", { id: toastId });
     } catch (error) {
-      toast.error("ไม่สามารถโหลดข้อมูลเริ่มต้นได้", { id: toastId });
+      toast.error("ดาวน์โหลดข้อมูลตัวกรองไม่สำเร็จ", { id: toastId });
       showErrorModal("เกิดข้อผิดพลาดในการเตรียมข้อมูล", error);
     } finally {
       dispatch(setOptionsLoading(false));
@@ -1354,7 +1354,7 @@ function ProjectIssuesPageContent(): JSX.Element {
     if (!projectReady) return;
     loadOptions().then(() => {
       loadIssues();
-      toast.success("ดาวน์โหลดข้อมูลแสดงรายการงานสมบูรณ์");
+      toast.success("ดาวน์โหลดข้อมูล Backlog ล่าสุดสำเร็จ");
     });
     return () => {
       resetAction();
@@ -1634,7 +1634,7 @@ function ProjectIssuesPageContent(): JSX.Element {
         space={space}
         onUpdateComplete={() => {
           loadIssues();
-          toast.success("อัปเดตข้อมูลจำนวนมากสำเร็จ");
+          toast.success("ดำเนินการอัปเดตข้อมูลจำนวนมากสำเร็จ");
         }}
         minimized={isBulkMinimized}
         onRequestMinimize={() => setIsBulkMinimized(true)}
