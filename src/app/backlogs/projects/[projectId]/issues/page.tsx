@@ -1037,19 +1037,21 @@ const useIssuesPageData = ({
       // ? โหลดสถิติรวมของโปรเจกต์
       loadSummaryStats(statusesRes?.data?.data || []);
 
-      // ? ตั้งค่า Filter เริ่มต้น (เลือกสถานะที่ไม่ใช่ Closed)
+      // ? ตั้งค่า Filter เริ่มต้น (เลือกสถานะ Open และประเภทงาน Bug)
       const openStatusIds = (statusesRes?.data?.data || [])
-        .filter((s: any) => !/closed/i.test(s?.name ?? ""))
+        .filter((s: any) => /open/i.test(s?.name ?? ""))
         .map((s: any) => s.id);
+
+      const bugTypeIds = (issueTypesRes?.data?.data || [])
+        .filter((it: any) => /bug/i.test(it?.name ?? ""))
+        .map((it: any) => it.id);
 
       dispatch(
         setFilters({
           statusIds: openStatusIds,
+          issueTypeIds: bugTypeIds,
           priorityIds: priorityOptions
             .map((p: any) => Number(p.value))
-            .filter((v: number) => !isNaN(v)),
-          issueTypeIds: issueTypeOptions
-            .map((it: any) => Number(it.value))
             .filter((v: number) => !isNaN(v)),
         }),
       );
