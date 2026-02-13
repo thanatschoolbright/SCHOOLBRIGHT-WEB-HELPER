@@ -481,15 +481,6 @@ export default function SubProjectPage() {
               >
                 {record.ticket_number}
               </Tag>
-              {(record as any).backlogSummary && (
-                <Text
-                  type="secondary"
-                  style={{ fontSize: 11, display: "block" }}
-                  ellipsis
-                >
-                  {(record as any).backlogSummary}
-                </Text>
-              )}
             </Space>
           </Tooltip>
         ) : (
