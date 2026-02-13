@@ -5,9 +5,12 @@ import {
   AuditOutlined,
   BarChartOutlined,
   CalendarOutlined,
+  CheckCircleFilled,
   CheckCircleOutlined,
   ClearOutlined,
   ClockCircleOutlined,
+  CloseCircleFilled,
+  ExclamationCircleOutlined,
   EyeOutlined,
   FileTextOutlined,
   FilterOutlined,
@@ -488,6 +491,28 @@ const IssuesListTable: React.FC<{
       ),
     },
     {
+      title: "สรุปด้วย AI",
+      key: "aiStatus",
+      width: 120,
+      align: "center",
+      render: (_, record) => {
+        const hasAi = record.summary?.includes("AI");
+        return hasAi ? (
+          <Tooltip title="สรุปด้วย AI เรียบร้อยแล้ว">
+            <CheckCircleFilled
+              style={{ color: token.colorSuccess, fontSize: 18 }}
+            />
+          </Tooltip>
+        ) : (
+          <Tooltip title="ยังไม่ได้สรุปด้วย AI">
+            <CloseCircleFilled
+              style={{ color: token.colorError, fontSize: 18 }}
+            />
+          </Tooltip>
+        );
+      },
+    },
+    {
       title: "สถานะ",
       dataIndex: ["status", "name"],
       key: "status",
@@ -526,7 +551,16 @@ const IssuesListTable: React.FC<{
       ellipsis: true,
       render: (_, record) => (
         <Space wrap size={[0, 4]}>
-          {record.category?.map((c) => <Tag key={c.id}>{c.name}</Tag>) || "-"}
+          {record.category?.length ? (
+            record.category.map((c: any) => <Tag key={c.id}>{c.name}</Tag>)
+          ) : (
+            <Space size={4}>
+              <ExclamationCircleOutlined style={{ color: token.colorError }} />
+              <Text type="danger" style={{ fontSize: 13 }}>
+                ไม่ได้ระบุ
+              </Text>
+            </Space>
+          )}
         </Space>
       ),
     },
@@ -536,18 +570,26 @@ const IssuesListTable: React.FC<{
       width: 180,
       sorter: (a, b) =>
         (a.assignee?.name || "").localeCompare(b.assignee?.name || ""),
-      render: (_, record) => (
-        <Space size={8}>
-          <Avatar
-            size="small"
-            src={record.assignee?.nulabAccount?.iconUrl}
-            icon={<UserOutlined />}
-          />
-          <Text style={{ fontWeight: 500, fontSize: 13 }}>
-            {record.assignee?.name || "-"}
-          </Text>
-        </Space>
-      ),
+      render: (_, record) =>
+        record.assignee ? (
+          <Space size={8}>
+            <Avatar
+              size="small"
+              src={record.assignee?.nulabAccount?.iconUrl}
+              icon={<UserOutlined />}
+            />
+            <Text style={{ fontWeight: 500, fontSize: 13 }}>
+              {record.assignee?.name}
+            </Text>
+          </Space>
+        ) : (
+          <Space size={4}>
+            <ExclamationCircleOutlined style={{ color: token.colorError }} />
+            <Text type="danger" style={{ fontSize: 13 }}>
+              ไม่ได้ระบุ
+            </Text>
+          </Space>
+        ),
     },
     {
       title: "กำหนดส่ง",
@@ -556,14 +598,22 @@ const IssuesListTable: React.FC<{
       width: 120,
       sorter: (a, b) =>
         dayjs(a.dueDate || 0).unix() - dayjs(b.dueDate || 0).unix(),
-      render: (date) => (
-        <Space size={4}>
-          <CalendarOutlined
-            style={{ fontSize: 12, color: token.colorTextDescription }}
-          />
-          <Text style={{ fontSize: 13 }}>{formatDateThai(date)}</Text>
-        </Space>
-      ),
+      render: (date) =>
+        date ? (
+          <Space size={4}>
+            <CalendarOutlined
+              style={{ fontSize: 12, color: token.colorTextDescription }}
+            />
+            <Text style={{ fontSize: 13 }}>{formatDateThai(date)}</Text>
+          </Space>
+        ) : (
+          <Space size={4}>
+            <ExclamationCircleOutlined style={{ color: token.colorError }} />
+            <Text type="danger" style={{ fontSize: 13 }}>
+              ไม่ได้ระบุ
+            </Text>
+          </Space>
+        ),
     },
     {
       title: "อัปเดตเมื่อ",
@@ -876,16 +926,9 @@ const useIssuesPageData = ({
 
       // * Client-side Filtering สำหรับ AI Summary
       if (aiSummaryFilter === "with_ai") {
-        items = items.filter(
-          (issue: any) =>
-            issue.summary?.includes("AI") || issue.description?.includes("AI"),
-        );
+        items = items.filter((issue: any) => issue.summary?.includes("AI"));
       } else if (aiSummaryFilter === "without_ai") {
-        items = items.filter(
-          (issue: any) =>
-            !issue.summary?.includes("AI") &&
-            !issue.description?.includes("AI"),
-        );
+        items = items.filter((issue: any) => !issue.summary?.includes("AI"));
       }
 
       dispatch(setIssues({ issues: items, total: totalItems }));
@@ -1469,6 +1512,24 @@ function ProjectIssuesPageContent(): JSX.Element {
                       onChange={(val) =>
                         dispatch(setFilters({ assigneeIds: val }))
                       }
+                    />
+                  </Space>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Space direction="vertical" className="w-full" size={4}>
+                    <Text strong>สถานะ AI Summary</Text>
+                    <Select
+                      className="w-full"
+                      placeholder="กรองสถานะการสรุปด้วย AI..."
+                      value={state.filters.aiSummaryFilter}
+                      onChange={(val) =>
+                        dispatch(setFilters({ aiSummaryFilter: val }))
+                      }
+                      options={[
+                        { label: "ทั้งหมด", value: "all" },
+                        { label: "ถูกสรุปด้วย AI แล้ว", value: "with_ai" },
+                        { label: "ยังไม่ถูกสรุปด้วย AI", value: "without_ai" },
+                      ]}
                     />
                   </Space>
                 </Col>
