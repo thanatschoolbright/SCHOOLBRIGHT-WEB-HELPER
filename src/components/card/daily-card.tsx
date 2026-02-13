@@ -1,23 +1,23 @@
 "use client";
 
 import {
+  CalendarOutlined,
+  CheckCircleFilled,
+  ClockCircleFilled,
+  ClockCircleOutlined,
+  ExclamationCircleFilled,
+  FireFilled,
+} from "@ant-design/icons";
+import {
+  Flex,
   Progress,
+  Skeleton,
   Space,
   Tag,
   theme,
-  Typography,
-  Skeleton,
   Tooltip,
-  Flex,
+  Typography,
 } from "antd";
-import {
-  CheckCircleFilled,
-  ClockCircleFilled,
-  ExclamationCircleFilled,
-  FireFilled,
-  CalendarOutlined,
-  ClockCircleOutlined,
-} from "@ant-design/icons";
 import dayjs from "dayjs";
 import React, { useMemo } from "react";
 
@@ -99,11 +99,11 @@ export const DailyCard: React.FC<DailyCardProps> = ({
     const cardBackground = isDark
       ? `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${addAlpha(
           accentColor,
-          0.05
+          0.05,
         )} 100%)`
       : `linear-gradient(135deg, ${token.colorBgContainer} 0%, ${addAlpha(
           accentColor,
-          0.02
+          0.02,
         )} 100%)`;
 
     return {
@@ -152,7 +152,7 @@ export const DailyCard: React.FC<DailyCardProps> = ({
         padding: "16px 14px 12px",
         border: `1px solid ${addAlpha(
           computedData.accentColor,
-          computedData.borderOpacity
+          computedData.borderOpacity,
         )}`,
         position: "relative",
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -162,17 +162,17 @@ export const DailyCard: React.FC<DailyCardProps> = ({
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = addAlpha(
           computedData.accentColor,
-          isDark ? 0.6 : 0.4
+          isDark ? 0.6 : 0.4,
         );
         e.currentTarget.style.backgroundColor = addAlpha(
           computedData.accentColor,
-          isDark ? 0.1 : 0.03
+          isDark ? 0.1 : 0.03,
         );
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderColor = addAlpha(
           computedData.accentColor,
-          computedData.borderOpacity
+          computedData.borderOpacity,
         );
         e.currentTarget.style.backgroundColor = isDark ? "transparent" : "";
       }}
@@ -219,7 +219,7 @@ export const DailyCard: React.FC<DailyCardProps> = ({
               borderRadius: 10,
               background: addAlpha(
                 computedData.accentColor,
-                computedData.bgOpacity
+                computedData.bgOpacity,
               ),
               color: computedData.accentColor,
               display: "flex",
@@ -279,7 +279,7 @@ export const DailyCard: React.FC<DailyCardProps> = ({
               isDark ? token.colorFillTertiary : token.colorFillSecondary
             }
             showInfo={false}
-            strokeWidth={6}
+            size={{ strokeWidth: 6 }}
             strokeLinecap="round"
           />
         </div>

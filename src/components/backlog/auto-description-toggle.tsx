@@ -30,11 +30,6 @@ function AutoAiDescriptionToggleComponent({
       style={{
         padding: "16px 20px",
         borderRadius: 12,
-        background: enabled
-          ? isChatGPT
-            ? "#f6ffed"
-            : "#e6f4ff"
-          : token.colorFillAlter,
         border: `1px solid ${enabled ? (isChatGPT ? "#b7eb8f" : "#91caff") : token.colorBorderSecondary}`,
         cursor: disabled ? "not-allowed" : "pointer",
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -51,7 +46,7 @@ function AutoAiDescriptionToggleComponent({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              background: enabled ? "#fff" : token.colorBgContainer,
+              border: `1px solid ${enabled ? token.colorBorder : "transparent"}`,
               boxShadow: "none",
             }}
           >
@@ -88,7 +83,7 @@ function AutoAiDescriptionToggleComponent({
           checked={enabled}
           disabled={disabled}
           onChange={(checked) => onChange(checked)}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(_, e) => e.stopPropagation()}
         />
       </Flex>
     </div>

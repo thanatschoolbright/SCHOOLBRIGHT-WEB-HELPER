@@ -85,7 +85,6 @@ export default function BulkUpdatePanel({
       {/* Top Section: Quick Summary */}
       <div
         style={{
-          background: token.colorFillAlter,
           padding: "24px 32px",
           borderRadius: 20,
           border: `1px solid ${token.colorBorderSecondary}`,

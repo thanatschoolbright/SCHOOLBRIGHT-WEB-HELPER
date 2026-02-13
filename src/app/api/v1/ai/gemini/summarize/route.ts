@@ -83,8 +83,14 @@ export async function POST(request: NextRequest) {
         const aiMarkdown =
           response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
         if (aiMarkdown) {
+          // ** Post-process to fix incorrect image syntax ![text](url) -> ![text][url] for Backlog **
+          const fixedMarkdown = aiMarkdown.replace(
+            /!\[(.*?)\]\((.*?)\)/g,
+            "![$1][$2]",
+          );
+
           // ** Append original description to protect data as requested by user **
-          const markdown = `${aiMarkdown}\n\n---\n### 📄 Original Description / รายละเอียดต้นฉบับ\n${
+          const markdown = `${fixedMarkdown}\n\n---\n### 📄 Original Description / รายละเอียดต้นฉบับ\n${
             description || "_No original description provided_"
           }`;
 

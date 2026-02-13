@@ -1105,8 +1105,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                           autoFillProgress.length) *
                           100,
                       )}
-                      size={80}
-                      strokeWidth={10}
+                      size={{ width: 80, strokeWidth: 10 }}
                       strokeColor={{
                         "0%": token.colorPrimary,
                         "100%": token.colorInfo,

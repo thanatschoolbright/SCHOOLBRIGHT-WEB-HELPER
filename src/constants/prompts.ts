@@ -21,24 +21,14 @@ export const QA_CANCEL_SALES_CHAT_PROMPT = `
 - เมื่อแสดงผลลัพธ์ให้ผู้ใช้ ต้องมี code block ที่เป็น JSON โครงสร้างเดียวกับ cancellationPayload เสมอ เช่น \n\`\`\`json\n{\n  "SchoolID": "...",\n  "sID": "...",\n  "sID2": "...",\n  "sSellID": "..."\n}\n\`\`\`
 - หากยังข้อมูลไม่ครบ ให้ระบุอย่างสุภาพว่าต้องการข้อมูลใดเพิ่มเติม และยกตัวอย่างข้อความการกรอกให้เข้าใจง่าย
 `;
-// ** 1. ข้อความแจ้งเตือน (ภาษาไทย/กระชับ) **
-export const SUPPORT_PROBLEM = `
-> ⚠️ **ข้อมูลไม่ครบถ้วน (กรุณาระบุ):**
-> 1. **ปัญหา/สิ่งที่ขอ:** (Pain Point)
-> 2. **เมนู/ลิงก์:** (Scope/URL)
-> 3. **ผู้ใช้งาน:** (User Role)
-> 4. **หลักฐาน:** (ภาพ/ไฟล์)
-> 5. **วันที่ใช้:** (Deadline)
-`;
-
 // ** 2. Logic Config (Mapping เป็นภาษาไทยเพื่อการแสดงผลที่ถูกต้อง) **
 export const DEFAULT_KNOWLEDGE = `
 RULES:
-1. TYPE_MAPPING: 
+1. TYPE_MAPPING:
    - Bug -> [🐛 บั๊ก]
    - Feature -> [✨ ฟีเจอร์]
    - Request -> [📝 รีเควส]
-   
+
 2. QA_ASSIGNEE_LOGIC (Roles):
    - **นายคมกริช อินทะแสง (บูม)**
      - Primary: School Bright Web (SB)
@@ -46,14 +36,14 @@ RULES:
    - **ชญานนท์ เรืองฤทธ์ (กอล์ฟ)**
      - Primary: School Bright App (SBAPP), Account/Finance (ACC)
      - Secondary: SB Web System (SB)
-     
+
    - **ธนัชทัศน์ เรืองพลับพลา (วุฒิ)**
      - Primary: Academic (ACA), School Bus (SBB), Grading (SBG)
-     
+
    - **ธรรมวุธ เกตุศิริ (ท็อป)**
      - Primary: Shop Web (SH), Shop Win (SHOP), Exam (SBE)
      - Secondary: Academic (ACA)
-     
+
    - **DEPRECATED / LOW PRIORITY:**
      - Robodocs (0), Activity (SBACTIVITY), Checker (CHK)
 
@@ -65,10 +55,6 @@ RULES:
    - Canteen/General -> ยู
    - Academic -> กริชนัน, กอล์ฟ
    - Library/Exam -> Dev คนจีน
-
-
-4. VALIDATION: 
-   - IF Type == [✨ ฟีเจอร์] AND Missing (PainPoint OR Role OR Deadline) -> SHOW_ALERT = TRUE
 `;
 
 // src/constants/prompts.ts
@@ -104,8 +90,10 @@ export const QA_TASK_SUMMARY_TASK_PROMPT = `
 ## ⚡ SYSTEM INSTRUCTION
 1. **วิเคราะห์ Module:** อ่านข้อมูลดิบเพื่อดูว่าเกี่ยวกับระบบไหน (เช่น ถ้าเกี่ยวกับ App ต้องเป็นกอล์ฟ, ถ้าวิชาการต้องเป็นวุฒิ)
 2. **จับคู่ Assignee:** เลือกทั้ง Dev และ QA ให้สอดคล้องกันตาม Logic
-3. **ตรวจสอบความสมบูรณ์:** หากเป็น [✨ ฟีเจอร์] แต่ไม่มี Pain Point หรือ Deadline ให้เปิดโหมด SHOW_ALERT
-4. **สรุปเนื้อหา:** เขียนรายละเอียดแบบ Step-by-step ให้อ่านง่าย
+3. **สรุปเนื้อหา:** เขียนรายละเอียดแบบ Step-by-step ให้อ่านง่าย
+4. **🚨 กฎเหล็กเรื่องรูปภาพ:** ห้ามใช้รูปแบบ ![image](url) ให้ใช้ ![image][filename] เท่านั้น (ตัวอย่างเช่น ![image][attachment.png])
+5. **Attachments Table:** แสดงไฟล์แนบทั้งหมดในรูปแบบตาราง Markdown โดยใส่ในหัวข้อ ### 📎 หลักฐานไฟล์แนบ (Attachments) และเรียงลำดับ 1, 2, 3...
+6. **Date Format:** แสดงวันที่ในรูปแบบ dd/mm/yyyy เสมอ (เช่น 15/02/2026) หากไม่ทราบให้ระบุเป็น ASAP
 
 ---
 
@@ -113,19 +101,15 @@ export const QA_TASK_SUMMARY_TASK_PROMPT = `
 
 # [ประเภทงาน] : [ชื่อหัวข้อ กระชับ สื่อความหมาย]
 
-{{ IF SHOW_ALERT }}
-${SUPPORT_PROBLEM}
-{{ END IF }}
-
 **💡 AI Recommendation:** [วิเคราะห์เทคนิคเบื้องต้น 1 บรรทัด]
 
 ### 📋 ข้อมูลการมอบหมาย (Assignment)
 | บทบาท | รายชื่อผู้รับผิดชอบ | ระบบ/Module |
 | :--- | :--- | :--- |
-| 🛡️ **QA Reviewer** | **[เลือกชื่อ QA ตาม Logic]** | [ชื่อระบบที่ QA คุม] |
-| 👨‍💻 **Dev Assignee** | **[เลือกชื่อ Dev ตาม Logic]** | [ชื่อ Module ที่ Dev คุม] |
-| 🏫 **โรงเรียน (ID)** | [ชื่อโรงเรียน] ([SchoolID]) | - |
-| 📅 **Deadline** | [วันที่ / ASAP] | - |
+| 🛡️ **ผู้ตรวจสอบระบบ (QA)** | **[เลือกชื่อ QA ตาม Logic]** | [ชื่อระบบที่ QA คุม] |
+| 👨‍💻 **นักพัฒนาระบบ (Dev Assignee)** | **[เลือกชื่อ Dev ตาม Logic]** | [ชื่อ Module ที่ Dev คุม] |
+| 🏫 **รหัสโรงเรียน (School ID)** | [ชื่อโรงเรียน] ([SchoolID]) | - |
+| 📅 **วันที่สิ้นสุด (Deadline)** | [วันที่ในรูปแบบ dd/mm/yyyy / ASAP] | - |
 
 ### 📌 รายละเอียดงาน (Requirement)
 * **พฤติกรรมที่พบ:** [อธิบายปัญหาหรือสิ่งที่เกิดขึ้น]
@@ -136,8 +120,12 @@ ${SUPPORT_PROBLEM}
 2. ✅ [ขั้นตอนการแก้ไข 2]
 3. 🧪 **QA Test Note:** [แนะนำจุดที่ QA ควรเน้นทดสอบพิเศษ]
 
-### 📎 Attachments
-![image][ชื่อไฟล์]
+### 📎 หลักฐานไฟล์แนบ (Attachments)
+| ลำดับ (No.) | รูปภาพประกอบ (Image) |
+| :--- | :--- |
+| 1 | ![image][ชื่อไฟล์1] |
+| 2 | ![image][ชื่อไฟล์2] |
+[... ลำดับถัดไป]
 
 ---
 > **Original:** [ข้อความต้นฉบับ]

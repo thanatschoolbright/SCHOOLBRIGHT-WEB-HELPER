@@ -10,12 +10,14 @@ import {
   MinusOutlined,
   ReloadOutlined,
   RobotOutlined,
+  UnorderedListOutlined,
 } from "@ant-design/icons";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import {
   Button,
   Card,
   Col,
+  Divider,
   Flex,
   Modal,
   Progress,
@@ -28,14 +30,16 @@ import {
   Typography,
 } from "antd";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 
+import ColoredBadge from "@/components/ant-design/table/table-badge-color";
 import AutoCategoryToggle from "@components/backlog/auto-category-toggle";
 import AutoAiDescriptionToggle from "@components/backlog/auto-description-toggle";
 import BulkUpdatePanel from "@components/backlog/issue-drawer/bulk-update-panel";
 import { Issue } from "@components/backlog/issue-drawer/types";
+import { setSelectedRowKeys } from "@stores/reducers/issues-slice";
 import { RootState } from "@stores/store";
 
 interface BulkUpdateSectionProps {
@@ -77,6 +81,13 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
     selectedRowKeys,
     issues,
   } = useSelector((state: RootState) => state.issues);
+
+  // ! กองรายการงานเฉพาะที่ถูกเลือกไว้
+  const selectedIssuesData = useMemo(() => {
+    return issues.filter((issue) =>
+      selectedRowKeys.some((key) => String(key) === String(issue.id)),
+    );
+  }, [issues, selectedRowKeys]);
 
   const [bulkTabKey, setBulkTabKey] = useState<"ai" | "manual">("ai");
   const [autoCategoryEnabled, setAutoCategoryEnabled] = useState(false);
@@ -289,19 +300,23 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
     try {
       if (autoCategoryEnabled || autoGeminiEnabled || autoChatGptEnabled) {
         // AI-assisted update
-        const selectedIssueMap = new Map(
-          issues.map((issueItem) => {
-            const key = issueItem.issueKey || String(issueItem.id);
-            return [key, issueItem];
-          }),
-        );
+        // ! สร้าง Map ที่รองรับทั้ง id (สำหรับ selectedRowKeys) และ issueKey (สำหรับ payload)
+        const selectedIssueMap = new Map<string, Issue>();
+        issues.forEach((issueItem) => {
+          selectedIssueMap.set(String(issueItem.id), issueItem);
+          if (issueItem.issueKey) {
+            selectedIssueMap.set(issueItem.issueKey, issueItem);
+          }
+        });
 
         const selectedIssues = selectedRowKeys
           .map((key) => selectedIssueMap.get(String(key)))
           .filter((item): item is Issue => Boolean(item));
 
         if (!selectedIssues.length) {
-          throw new Error("ไม่พบข้อมูลงานที่เลือก");
+          throw new Error(
+            "ไม่พบข้อมูลงานที่เลือกในหน้านี้ กรุณาเลือกงานจากตารางก่อน",
+          );
         }
 
         let perIssuePayloads = selectedIssues.map((issue) => ({
@@ -434,7 +449,6 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
         ...elevatedCardStyle,
         border: "none",
         boxShadow: "none",
-        background: "transparent",
       }}
     >
       <Skeleton
@@ -491,7 +505,6 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                 <div
                   style={{
                     padding: "24px",
-                    background: token.colorFillAlter,
                     borderRadius: 20,
                     border: `1px solid ${token.colorBorderSecondary}`,
                     display: "flex",
@@ -533,7 +546,6 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
               <div
                 style={{
                   padding: 24,
-                  background: "#fff7e6",
                   borderRadius: 16,
                   border: `1px solid #ffe7ba`,
                 }}
@@ -620,6 +632,124 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
             </div>
           </Col>
         </Row>
+
+        {/* ส่วนที่ 3 : รายการงานที่ถูกเลือก (ตารางย่อยใน Modal) */}
+        {selectedRowKeys.length > 0 && (
+          <div style={{ marginTop: 48 }}>
+            <Divider style={{ marginBlock: 32 }} />
+            <Flex vertical gap={24}>
+              <Flex align="center" gap={12}>
+                <div
+                  style={{
+                    padding: 8,
+                    borderRadius: 10,
+                  }}
+                >
+                  <UnorderedListOutlined
+                    style={{ color: token.colorPrimary, fontSize: 18 }}
+                  />
+                </div>
+                <Typography.Title level={4} style={{ margin: 0, fontSize: 18 }}>
+                  รายการงานที่กำลังดำเนินการ ({selectedRowKeys.length} รายการ)
+                </Typography.Title>
+              </Flex>
+
+              <Table<Issue>
+                dataSource={selectedIssuesData}
+                rowKey="id"
+                pagination={false}
+                size="middle"
+                scroll={{ y: 300 }}
+                style={{
+                  borderRadius: 16,
+                  overflow: "hidden",
+                  border: `1px solid ${token.colorBorderSecondary}`,
+                }}
+                columns={[
+                  {
+                    title: "รหัสงาน",
+                    dataIndex: "issueKey",
+                    key: "issueKey",
+                    width: 140,
+                    render: (val) => (
+                      <Tag
+                        color="blue"
+                        style={{
+                          borderRadius: 6,
+                          fontWeight: 600,
+                          paddingInline: 8,
+                        }}
+                      >
+                        {val}
+                      </Tag>
+                    ),
+                  },
+                  {
+                    title: "หัวข้อนาน",
+                    dataIndex: "summary",
+                    key: "summary",
+                    ellipsis: true,
+                    render: (val) => (
+                      <Typography.Text strong style={{ fontSize: 13 }}>
+                        {val}
+                      </Typography.Text>
+                    ),
+                  },
+                  {
+                    title: "สถานะ",
+                    dataIndex: ["status", "name"],
+                    key: "status",
+                    width: 160,
+                    render: (val, record) => (
+                      <ColoredBadge text={val} color={record.status?.color} />
+                    ),
+                  },
+                  {
+                    title: "ความสำคัญ",
+                    dataIndex: ["priority", "name"],
+                    key: "priority",
+                    width: 120,
+                    render: (val) => {
+                      const color =
+                        val === "High"
+                          ? "volcano"
+                          : val === "Normal"
+                            ? "blue"
+                            : "default";
+                      return (
+                        <Tag color={color} style={{ borderRadius: 4 }}>
+                          {val}
+                        </Tag>
+                      );
+                    },
+                  },
+                  {
+                    title: "",
+                    key: "action",
+                    width: 60,
+                    align: "center",
+                    render: (_, record) => (
+                      <Button
+                        type="text"
+                        danger
+                        icon={<CloseCircleOutlined />}
+                        onClick={() => {
+                          dispatch(
+                            setSelectedRowKeys(
+                              selectedRowKeys.filter(
+                                (k) => String(k) !== String(record.id),
+                              ),
+                            ),
+                          );
+                        }}
+                      />
+                    ),
+                  },
+                ]}
+              />
+            </Flex>
+          </div>
+        )}
       </Skeleton>
 
       {/* Results Modal */}
@@ -636,7 +766,6 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
           },
           body: {
             padding: "48px 64px",
-            background: token.colorBgLayout,
           },
         }}
         maskClosable={false}
@@ -647,7 +776,6 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
             <Space align="center" size={24}>
               <div
                 style={{
-                  background: token.colorPrimaryBg,
                   padding: 12,
                   borderRadius: 12,
                   display: "flex",
@@ -699,7 +827,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
               "0%": token.colorPrimary,
               "100%": token.colorSuccess,
             }}
-            strokeWidth={14}
+            size={{ strokeWidth: 14 }}
           />
 
           <Table
@@ -718,7 +846,6 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                 <div
                   style={{
                     padding: 24,
-                    background: token.colorFillAlter,
                     borderRadius: 12,
                     margin: 12,
                     border: `1px solid ${token.colorBorderSecondary}`,
@@ -737,7 +864,6 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                         style={{
                           padding: "12px 16px",
                           borderLeft: `4px solid ${token.colorError}`,
-                          background: token.colorErrorBg,
                           fontSize: 13,
                         }}
                       >
@@ -757,7 +883,6 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                       <div
                         style={{
                           padding: 20,
-                          background: token.colorBgContainer,
                           border: `1px solid ${token.colorBorderSecondary}`,
                           borderRadius: 12,
                           maxHeight: 250,
@@ -898,11 +1023,14 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                   ),
                 );
 
+                const retryMap = new Map<string, Issue>();
+                issues.forEach((i) => {
+                  retryMap.set(String(i.id), i);
+                  if (i.issueKey) retryMap.set(i.issueKey, i);
+                });
+
                 for (const payload of targets) {
-                  await processSingle(
-                    payload,
-                    new Map(issues.map((i) => [i.issueKey || String(i.id), i])),
-                  );
+                  await processSingle(payload, retryMap);
                 }
                 toast.success("ลองใหม่สำเร็จ");
               }}
@@ -974,11 +1102,11 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
       >
         <div
           style={{
-            background: "#f5f5f5",
             padding: 12,
             borderRadius: 8,
             maxHeight: 400,
             overflow: "auto",
+            border: `1px solid ${token.colorBorderSecondary}`,
           }}
         >
           <pre style={{ margin: 0, fontSize: 12, whiteSpace: "pre-wrap" }}>

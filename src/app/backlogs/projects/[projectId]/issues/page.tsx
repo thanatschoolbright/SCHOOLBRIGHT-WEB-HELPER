@@ -276,7 +276,6 @@ const IssueDetailModal: React.FC<{
         <div
           style={{
             padding: 16,
-            background: token.colorBgContainerDisabled,
             borderRadius: 8,
             border: `1px solid ${token.colorBorderSecondary}`,
             minHeight: 100,
@@ -739,7 +738,6 @@ const IssuesListTable: React.FC<{
           <Button
             size="large"
             className="h-16"
-            style={{ backgroundColor: "#10a37f", color: "white" }}
             onClick={() => {
               if (engineSelectModal.issue)
                 handleInvokeAiAnalysis(engineSelectModal.issue, "chatgpt");
@@ -1194,7 +1192,6 @@ const BulkUpdateModal: React.FC<{
         <Flex align="center" gap={12} style={{ paddingBottom: 8 }}>
           <div
             style={{
-              background: token.colorInfoBg,
               padding: 10,
               borderRadius: 12,
               display: "flex",
@@ -1233,7 +1230,6 @@ const BulkUpdateModal: React.FC<{
         },
         body: {
           padding: 0,
-          background: token.colorBgLayout,
           borderRadius: "0 0 16px 16px",
           overflow: "hidden",
         },
@@ -1251,7 +1247,6 @@ const BulkUpdateModal: React.FC<{
         elevatedCardStyle={{
           border: "none",
           boxShadow: "none",
-          background: "transparent",
         }}
         onUpdateComplete={() => {
           onUpdateComplete();
@@ -1277,9 +1272,8 @@ function ProjectIssuesPageContent(): JSX.Element {
   const dispatch = useDispatch<AppDispatch>();
   const [showSummary, setShowSummary] = useState(false);
 
-  const { statusOptions, priorityOptions, assigneeOptions } = useSelector(
-    (state: RootState) => state.issues,
-  );
+  const { statusOptions, priorityOptions, issueTypeOptions, assigneeOptions } =
+    useSelector((state: RootState) => state.issues);
 
   // * State สำหรับ Modal ของ Filter และ Bulk Update
   const [showBulk, setShowBulk] = useState(false);
@@ -1336,7 +1330,7 @@ function ProjectIssuesPageContent(): JSX.Element {
 
   return (
     <DashboardLayout>
-      <Layout className="bg-transparent">
+      <Layout>
         <Content>
           <Flex vertical gap={24}>
             {/* ส่วนที่ 1 : ส่วนหัวของหน้าหน้าจอ */}
@@ -1444,6 +1438,21 @@ function ProjectIssuesPageContent(): JSX.Element {
                       value={state.filters.statusIds}
                       onChange={(val) =>
                         dispatch(setFilters({ statusIds: val }))
+                      }
+                    />
+                  </Space>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Space direction="vertical" className="w-full" size={4}>
+                    <Text strong>ประเภทงาน (Issue Type)</Text>
+                    <Select
+                      mode="multiple"
+                      className="w-full"
+                      placeholder="เลือกประเภทงาน (เช่น Bug, Task)..."
+                      options={issueTypeOptions}
+                      value={state.filters.issueTypeIds}
+                      onChange={(val) =>
+                        dispatch(setFilters({ issueTypeIds: val }))
                       }
                     />
                   </Space>
@@ -1580,7 +1589,6 @@ function ProjectIssuesPageContent(): JSX.Element {
             zIndex: 1000,
             cursor: "pointer",
             padding: "12px 24px",
-            background: "white",
             borderRadius: 24,
             boxShadow: "none",
             border: `1px solid ${token.colorPrimary}`,
@@ -1603,7 +1611,7 @@ export default function ProjectIssuesPage(): JSX.Element {
   return (
     <Suspense
       fallback={
-        <div className="flex h-screen items-center justify-center bg-gray-50">
+        <div className="flex h-screen items-center justify-center">
           <Card
             style={{ borderRadius: 24, padding: 32 }}
             className="shadow-lg text-center"

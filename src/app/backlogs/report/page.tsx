@@ -331,7 +331,7 @@ export default function Page(): JSX.Element {
             </Tag>
           )}
           {!record.useGit && !record.useSubversion && (
-            <Text type="secondary" disable>
+            <Text type="secondary" disabled>
               ไม่มี
             </Text>
           )}
