@@ -36,7 +36,6 @@ import {
   Descriptions,
   Divider,
   Flex,
-  Grid,
   Input,
   Layout,
   Modal,
@@ -123,8 +122,6 @@ const IssueDetailModal: React.FC<{
   space: string;
 }> = ({ open, onClose, issue, space }) => {
   const { token } = theme.useToken();
-  const screens = Grid.useBreakpoint();
-  const isDesktop = screens.lg || screens.xl || screens.xxl;
 
   if (!issue) return null;
 
@@ -167,7 +164,7 @@ const IssueDetailModal: React.FC<{
               {issue.issueType?.name || "N/A"}
             </Tag>
           </Descriptions.Item>
-          <Descriptions.Item label="หัวข้องาน" span={isDesktop ? 2 : 1}>
+          <Descriptions.Item label="หัวข้องาน" span={2}>
             <Text strong>{issue.summary}</Text>
           </Descriptions.Item>
           <Descriptions.Item label="สถานะ">
