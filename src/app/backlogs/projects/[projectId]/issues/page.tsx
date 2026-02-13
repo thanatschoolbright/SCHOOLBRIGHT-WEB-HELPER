@@ -853,10 +853,15 @@ const useIssuesPageData = ({
   projectReady,
   modalApi,
 }: IssuesPageParams) => {
+  const { token } = theme.useToken();
   const dispatch = useDispatch<AppDispatch>();
   const { page, pageSize, filters, total, loading, issues } = useSelector(
     (state: RootState) => state.issues,
   );
+
+  // * state สำหรับเช็คว่าตัวกรองพร้อมสำหรับการค้นหาครั้งแรกหรือยัง
+  const [isOptionsReady, setIsOptionsReady] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   // * รวมข้อมูล State ที่จำเป็นส่งออกไปใช้งาน
   const state = useMemo(
@@ -870,10 +875,20 @@ const useIssuesPageData = ({
       const { message, details } = buildErrorDetails(error);
       const contentNode = (
         <div className="flex flex-col gap-2">
-          <span>{message}</span>
-          <details className="text-xs text-gray-500">
+          <span style={{ color: token.colorText }}>{message}</span>
+          <details className="text-xs" style={{ color: token.colorTextDescription }}>
             <summary className="cursor-pointer">ดูรายละเอียดทางเทคนิค</summary>
-            <pre className="whitespace-pre-wrap text-gray-500 mt-2">
+            <pre 
+              className="whitespace-pre-wrap mt-2"
+              style={{
+                color: token.colorTextSecondary,
+                backgroundColor: token.colorFillAlter,
+                padding: 10,
+                borderRadius: 8,
+                border: `1px solid ${token.colorBorderSecondary}`,
+                fontSize: "11px",
+              }}
+            >
               {details}
             </pre>
           </details>
@@ -881,14 +896,14 @@ const useIssuesPageData = ({
       );
       (modalApi ?? Modal).error({ title, content: contentNode });
     },
-    [modalApi],
+    [modalApi, token],
   );
 
   // * ฟังก์ชันโหลดรายการ Issues
   const loadIssues = useCallback(async () => {
     if (!projectReady) return;
 
-    const toastId = toast.loading("กำลังดาวน์โหลดข้อมูลจาก Backlog...");
+    const toastId = toast.loading("กำลังค้นหาข้อมูลงานจาก Backlog...");
     dispatch(setLoading(true));
 
     try {
@@ -1025,6 +1040,9 @@ const useIssuesPageData = ({
       const issueTypeOptions = mapOption(issueTypesRes?.data?.data);
       const assigneeOptions = mapOption(usersRes?.data?.data);
 
+      // ? ตั้งค่า Pagination เริ่มต้นเป็น 20 รายการ/หน้า
+      dispatch(setPagination({ page: 1, pageSize: 20 }));
+
       dispatch(
         setOptions({
           statusOptions,
@@ -1053,6 +1071,8 @@ const useIssuesPageData = ({
           priorityIds: priorityOptions
             .map((p: any) => Number(p.value))
             .filter((v: number) => !isNaN(v)),
+          aiSummaryFilter: "all",
+          keyword: "",
         }),
       );
 
@@ -1072,13 +1092,16 @@ const useIssuesPageData = ({
       }
 
       toast.success("ดาวน์โหลดข้อมูลตัวกรองสำเร็จ", { id: toastId });
+      setIsOptionsReady(true);
+      return true; // คืนค่าเพื่อให้เรียก loadIssues ต่อได้
     } catch (error) {
       toast.error("ดาวน์โหลดข้อมูลตัวกรองไม่สำเร็จ", { id: toastId });
       showErrorModal("เกิดข้อผิดพลาดในการเตรียมข้อมูล", error);
+      return false;
     } finally {
       dispatch(setOptionsLoading(false));
     }
-  }, [dispatch, projectReady, projectId, space, showErrorModal]);
+  }, [dispatch, projectReady, projectId, space, showErrorModal, loadSummaryStats]);
 
   const handleSearchKeyword = useCallback(
     (value: string) => {
@@ -1088,13 +1111,28 @@ const useIssuesPageData = ({
     [dispatch, pageSize],
   );
 
-  // ! Auto-reload data when pagination changes
+  const resetAction = useCallback(() => {
+    dispatch(resetFilters());
+  }, [dispatch]);
+
+  // ! ค้นหาข้อมูลอัตโนมัติ (Trigger หลังโหลด Option เสร็จ หรือ เปลี่ยนหน้า)
   useEffect(() => {
-    if (projectReady && state.issues.length > 0) {
+    if (!projectReady) return;
+
+    // 1. กรณีโหลด Options ครั้งแรกเสร็จสิ้น (รันครั้งเดียวเพื่อกระตุ้นการค้นหาอัติโนมัติ)
+    if (isOptionsReady && !hasInitialized) {
+      loadIssues();
+      setIsOptionsReady(false);
+      setHasInitialized(true);
+      return;
+    }
+
+    // 2. กรณีมีการเปลี่ยนหน้าหรือขนาดหน้า (Pagination) หลังจากผ่านการ initialization แล้ว
+    if (hasInitialized && !isOptionsReady) {
       loadIssues();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize]);
+  }, [isOptionsReady, page, pageSize, projectReady, hasInitialized]);
 
   return {
     state,
@@ -1102,7 +1140,7 @@ const useIssuesPageData = ({
     loadIssues,
     loadOptions,
     handleSearchKeyword,
-    resetAction: () => dispatch(resetFilters()),
+    resetAction,
   };
 };
 
@@ -1349,17 +1387,14 @@ function ProjectIssuesPageContent(): JSX.Element {
       projectReady,
     });
 
-  // ? Initial Data Load
+  // ? Initial Data Load (เรียกเฉพาะ loadOptions ส่วน loadIssues จะถูก Trigger ภายใน Hook)
   useEffect(() => {
     if (!projectReady) return;
-    loadOptions().then(() => {
-      loadIssues();
-      toast.success("ดาวน์โหลดข้อมูล Backlog ล่าสุดสำเร็จ");
-    });
+    loadOptions(); 
     return () => {
       resetAction();
     };
-  }, [projectReady, projectId, space]);
+  }, [projectReady, projectId, space, loadOptions, resetAction]);
 
   if (!projectReady) {
     return (
