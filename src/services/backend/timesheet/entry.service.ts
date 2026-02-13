@@ -40,7 +40,7 @@ export const Service = {
       PrismaTimesheet.timesheetEntry.findMany({
         take: query.limit,
         skip: query.skip,
-        orderBy: { createdAt: "desc" },
+        orderBy: [{ date: "desc" }, { createdAt: "desc" }],
         where: { is_deleted: false, createdBy: query.user_id },
         include: {
           project: {

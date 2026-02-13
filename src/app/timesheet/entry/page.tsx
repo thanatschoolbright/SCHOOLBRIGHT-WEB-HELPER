@@ -1108,7 +1108,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({
   const rightColSpan = 16;
 
   return (
-    <Row gutter={[24, 24]} style={{ alignItems: "stretch" }}>
+    <Row gutter={[32, 32]} style={{ alignItems: "stretch" }}>
       {/* Rank Board Column */}
       <Col
         xs={24}
@@ -1126,7 +1126,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({
 
       {/* Stats Right Column */}
       <Col xs={24} lg={15} xl={17}>
-        <Flex vertical gap={24} style={{ height: "100%" }}>
+        <Flex vertical gap={32} style={{ height: "100%" }}>
           {/* Weekly Chart */}
           <div className="flex-1">
             <Badge.Ribbon
@@ -1162,7 +1162,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({
           </div>
 
           {/* Small Stat Cards Row */}
-          <Row gutter={[24, 24]}>
+          <Row gutter={[32, 32]}>
             <Col xs={24} sm={12}>
               <TimesheetStatCard
                 title={
@@ -3488,7 +3488,7 @@ export default function TimesheetEntryPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Space direction="vertical" size={24} style={{ width: "100%" }}>
+          <Space direction="vertical" size={32} style={{ width: "100%" }}>
             <PageHeader
               admin_name={admin_name}
               admin_id={admin_id}
