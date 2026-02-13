@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     const ensureAiPrefix = (summary: string | null | undefined): string => {
       if (!summary) return "";
       const hasAiPrefix = summary.includes("AI") || summary.includes("🤖");
-      return hasAiPrefix ? summary : summary + " " + "[AI 🤖]";
+      return hasAiPrefix ? summary : summary + " " + "[สรุปด้วย LIGHT AI 🤖]";
     };
 
     // เตรียมฟอร์มข้อมูลที่จะส่งให้ Backlog (x-www-form-urlencoded)

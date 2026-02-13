@@ -496,7 +496,7 @@ const IssuesListTable: React.FC<{
       width: 120,
       align: "center",
       render: (_, record) => {
-        const hasAi = record.summary?.includes("AI");
+        const hasAi = record.description?.includes("AI");
         return hasAi ? (
           <Tooltip title="สรุปด้วย AI เรียบร้อยแล้ว">
             <CheckCircleFilled
@@ -876,9 +876,12 @@ const useIssuesPageData = ({
       const contentNode = (
         <div className="flex flex-col gap-2">
           <span style={{ color: token.colorText }}>{message}</span>
-          <details className="text-xs" style={{ color: token.colorTextDescription }}>
+          <details
+            className="text-xs"
+            style={{ color: token.colorTextDescription }}
+          >
             <summary className="cursor-pointer">ดูรายละเอียดทางเทคนิค</summary>
-            <pre 
+            <pre
               className="whitespace-pre-wrap mt-2"
               style={{
                 color: token.colorTextSecondary,
@@ -941,9 +944,11 @@ const useIssuesPageData = ({
 
       // * Client-side Filtering สำหรับ AI Summary
       if (aiSummaryFilter === "with_ai") {
-        items = items.filter((issue: any) => issue.summary?.includes("AI"));
+        items = items.filter((issue: any) => issue.description?.includes("AI"));
       } else if (aiSummaryFilter === "without_ai") {
-        items = items.filter((issue: any) => !issue.summary?.includes("AI"));
+        items = items.filter(
+          (issue: any) => !issue.description?.includes("AI"),
+        );
       }
 
       dispatch(setIssues({ issues: items, total: totalItems }));
@@ -1101,7 +1106,14 @@ const useIssuesPageData = ({
     } finally {
       dispatch(setOptionsLoading(false));
     }
-  }, [dispatch, projectReady, projectId, space, showErrorModal, loadSummaryStats]);
+  }, [
+    dispatch,
+    projectReady,
+    projectId,
+    space,
+    showErrorModal,
+    loadSummaryStats,
+  ]);
 
   const handleSearchKeyword = useCallback(
     (value: string) => {
@@ -1390,7 +1402,7 @@ function ProjectIssuesPageContent(): JSX.Element {
   // ? Initial Data Load (เรียกเฉพาะ loadOptions ส่วน loadIssues จะถูก Trigger ภายใน Hook)
   useEffect(() => {
     if (!projectReady) return;
-    loadOptions(); 
+    loadOptions();
     return () => {
       resetAction();
     };
