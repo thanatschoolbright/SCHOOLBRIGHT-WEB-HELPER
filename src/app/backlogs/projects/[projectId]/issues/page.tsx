@@ -429,9 +429,12 @@ const IssuesListTable: React.FC<{
     const toastId = toast.loading("กำลังอัปเดตข้อมูลไปยัง Backlog...");
     try {
       const currentSummary = aiModal.issue.summary;
-      const finalSummary = currentSummary.includes("[AI]")
-        ? currentSummary
-        : `${currentSummary} [AI]`;
+      const finalSummary =
+        currentSummary.includes("AI") ||
+        currentSummary.includes("✨") ||
+        currentSummary.includes("🤖")
+          ? currentSummary
+          : `${currentSummary} [สรุปด้วย LIGHT AI ✨]`;
 
       await axios.post("/api/v1/backlog/issues/update", {
         space,

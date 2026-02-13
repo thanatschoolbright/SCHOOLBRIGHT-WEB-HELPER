@@ -43,6 +43,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // ตรวจสอบและเพิ่ม [สรุปด้วย LIGHT AI ✨] ต่อท้าย summary
+    const ensureAiPrefix = (val: string | null | undefined): string => {
+      if (!val) return "";
+      const hasAiPrefix =
+        val.includes("AI") || val.includes("✨") || val.includes("🤖");
+      return hasAiPrefix ? val : val + " " + "[สรุปด้วย LIGHT AI ✨]";
+    };
+
     // --- Auto Fill Logic ---
     // 1. Fetch current issue details to check for empty fields
     let currentIssue: any = null;
@@ -66,7 +74,7 @@ export async function POST(req: NextRequest) {
 
     const form = new URLSearchParams();
     form.set("description", description);
-    form.set("summary", summary);
+    form.set("summary", ensureAiPrefix(summary));
 
     // 2. Auto Fill Start Date (Today) if empty
     if (!currentIssue.startDate) {

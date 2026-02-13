@@ -64,11 +64,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ตรวจสอบและเพิ่ม [AI 🤖] ต่อท้าย summary
+    // ตรวจสอบและเพิ่ม [สรุปด้วย LIGHT AI ✨] ต่อท้าย summary
     const ensureAiPrefix = (summary: string | null | undefined): string => {
       if (!summary) return "";
-      const hasAiPrefix = summary.includes("AI") || summary.includes("🤖");
-      return hasAiPrefix ? summary : summary + " " + "[สรุปด้วย LIGHT AI 🤖]";
+      const hasAiPrefix =
+        summary.includes("AI") ||
+        summary.includes("✨") ||
+        summary.includes("🤖");
+      return hasAiPrefix ? summary : summary + " " + "[สรุปด้วย LIGHT AI ✨]";
     };
 
     // เตรียมฟอร์มข้อมูลที่จะส่งให้ Backlog (x-www-form-urlencoded)
