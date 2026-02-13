@@ -107,7 +107,7 @@ ${JSON.stringify(details || {}, null, 2)}
       // ** Append original description to protect data as requested by user **
       const markdown = `${fixedMarkdown}\n\n---\n### ข้อความต้นฉบับ (Original Description)\n\`\`\`\n${
         description || "_No original description provided_"
-      }\n\`\`\``;
+      }\n\`\`\`\n\n✨ **ข้อความถูกปรับโดยอัตโนมัติ โดย Light AI** *เวอร์ชัน 1.0.2*`;
 
       logger.info(`[${requestId}] Success with ChatGPT`);
       return NextResponse.json(
