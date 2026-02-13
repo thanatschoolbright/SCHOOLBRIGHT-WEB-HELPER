@@ -1356,57 +1356,27 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
     () => [
       {
         title: (
-          <Space>
-            <CalendarOutlined style={{ color: token.colorPrimary }} />
-            <Typography.Text strong style={{ fontSize: 13 }}>
-              {t("timesheet_entry_page.table_date", "วันที่")}
-            </Typography.Text>
-          </Space>
+          <Typography.Text strong style={{ fontSize: 13 }}>
+            {t("timesheet_entry_page.table_date", "วันที่")}
+          </Typography.Text>
         ),
         dataIndex: "date",
-        width: 100,
+        width: 120,
         align: "center",
         responsive: ["md"],
         sorter: (a: TimesheetEntry, b: TimesheetEntry) =>
           dayjs(a.date).valueOf() - dayjs(b.date).valueOf(),
         render: (value: string) => (
-          <Flex
-            vertical
-            align="center"
-            justify="center"
-            style={{
-              width: 60,
-              height: 60,
-              borderRadius: 12,
-              margin: "0 auto",
-              background: token.colorFillAlter,
-              border: `1px solid ${token.colorBorderSecondary}`,
-            }}
-          >
-            <Typography.Text strong style={{ fontSize: 20, lineHeight: 1 }}>
-              {dayjs(value).format("DD")}
-            </Typography.Text>
-            <Typography.Text
-              type="secondary"
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                textTransform: "uppercase",
-              }}
-            >
-              {dayjs(value).format("MMM YYYY")}
-            </Typography.Text>
-          </Flex>
+          <Typography.Text style={{ fontSize: 13 }}>
+            {dayjs(value).format("DD/MM/YYYY")}
+          </Typography.Text>
         ),
       },
       {
         title: (
-          <Space>
-            <ProjectOutlined style={{ color: token.colorPrimary }} />
-            <Typography.Text strong style={{ fontSize: 13 }}>
-              {t("timesheet_entry_page.project_and_task", "โครงการ / งาน")}
-            </Typography.Text>
-          </Space>
+          <Typography.Text strong style={{ fontSize: 13 }}>
+            {t("timesheet_entry_page.project_and_task", "โครงการ / งาน")}
+          </Typography.Text>
         ),
         dataIndex: "project_name",
         width: 350,
@@ -1447,12 +1417,9 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
       },
       {
         title: (
-          <Space>
-            <CheckCircleOutlined style={{ color: token.colorSuccess }} />
-            <Typography.Text strong style={{ fontSize: 13 }}>
-              {t("timesheet_entry_page.table_status", "สถานะ")}
-            </Typography.Text>
-          </Space>
+          <Typography.Text strong style={{ fontSize: 13 }}>
+            {t("timesheet_entry_page.table_status", "สถานะ")}
+          </Typography.Text>
         ),
         dataIndex: "status",
         width: 150,
@@ -1508,12 +1475,9 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
       },
       {
         title: (
-          <Space>
-            <FileTextOutlined style={{ color: token.colorInfo }} />
-            <Typography.Text strong style={{ fontSize: 13 }}>
-              {t("timesheet_entry_page.table_description", "รายละเอียด")}
-            </Typography.Text>
-          </Space>
+          <Typography.Text strong style={{ fontSize: 13 }}>
+            {t("timesheet_entry_page.table_description", "รายละเอียด")}
+          </Typography.Text>
         ),
         dataIndex: "description",
         width: 300,
@@ -1536,12 +1500,9 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
       },
       {
         title: (
-          <Space>
-            <ClockCircleOutlined style={{ color: token.colorWarning }} />
-            <Typography.Text strong style={{ fontSize: 13 }}>
-              {t("timesheet_entry_page.table_hours", "เวลา")}
-            </Typography.Text>
-          </Space>
+          <Typography.Text strong style={{ fontSize: 13 }}>
+            {t("timesheet_entry_page.table_hours", "เวลา")}
+          </Typography.Text>
         ),
         dataIndex: "hours",
         width: 120,
@@ -1623,33 +1584,33 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
   return (
     <Card
       title={
-        <Flex align="center" gap={16} style={{ padding: "8px 0" }}>
+        <Flex align="center" gap={20} style={{ padding: "12px 0" }}>
           <div
             style={{
-              width: 44,
-              height: 44,
-              borderRadius: 12,
+              width: 52,
+              height: 52,
+              borderRadius: 16,
               background: token.colorPrimary,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: `0 4px 12px ${token.colorPrimary}40`,
+              boxShadow: `0 6px 16px ${token.colorPrimary}40`,
             }}
           >
-            <ThunderboltOutlined style={{ fontSize: 24, color: "#fff" }} />
+            <ThunderboltOutlined style={{ fontSize: 28, color: "#fff" }} />
           </div>
-          <Flex vertical gap={0}>
+          <Flex vertical gap={4}>
             <Typography.Title level={4} style={{ margin: 0 }}>
               {t("timesheet_entry_page.timesheet_log")}
             </Typography.Title>
-            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            <Typography.Text type="secondary" style={{ fontSize: 13 }}>
               {t("timesheet_entry_page.manage_and_check_timesheet")}
             </Typography.Text>
           </Flex>
         </Flex>
       }
       extra={
-        <Space size="middle">
+        <Space size={24}>
           <Popover
             content={
               <Flex vertical gap={12} style={{ minWidth: 200, padding: 4 }}>
@@ -1719,37 +1680,38 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
       }
       style={{
         margin: "24px 0",
-        borderRadius: 20,
+        borderRadius: 24,
         overflow: "hidden",
         border: `1px solid ${token.colorBorderSecondary}`,
-        boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.06)",
       }}
-      styles={{ body: { padding: 0 } }}
     >
-      <Table<TimesheetEntry>
-        rowKey={(r) => String(r.id)}
-        columns={filteredColumns}
-        dataSource={entries}
-        loading={loading}
-        rowSelection={{
-          selectedRowKeys,
-          onChange: onRowSelect,
-          columnWidth: 48,
-        }}
-        scroll={{ x: 1000 }}
-        pagination={{
-          current: currentPage,
-          pageSize,
-          total: totalItems,
-          onChange: onPageChange,
-          showSizeChanger: true,
-          position: ["bottomCenter"],
-        }}
-        onRow={(r) => ({
-          onClick: () => onRowClick(r),
-          style: { cursor: "pointer" },
-        })}
-      />
+      <div style={{ padding: token.paddingLG }}>
+        <Table<TimesheetEntry>
+          rowKey={(r) => String(r.id)}
+          columns={filteredColumns}
+          dataSource={entries}
+          loading={loading}
+          rowSelection={{
+            selectedRowKeys,
+            onChange: onRowSelect,
+            columnWidth: 48,
+          }}
+          scroll={{ x: 1000 }}
+          pagination={{
+            current: currentPage,
+            pageSize,
+            total: totalItems,
+            onChange: onPageChange,
+            showSizeChanger: true,
+            position: ["bottomCenter"],
+          }}
+          onRow={(r) => ({
+            onClick: () => onRowClick(r),
+            style: { cursor: "pointer" },
+          })}
+        />
+      </div>
     </Card>
   );
 };
