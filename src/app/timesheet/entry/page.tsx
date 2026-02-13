@@ -1425,47 +1425,26 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
         width: 150,
         align: "center",
         render: (value: string) => {
-          const config = getStatusConfig(value || "IN_PROGRESS");
           const label =
-            STATUS_OPTIONS.find((s) => s.value === value)?.label_th ||
-            config.text;
+            STATUS_OPTIONS.find((s) => s.value === value)?.label_th || value;
 
-          const statusMap: any = {
-            IN_PROGRESS: {
-              icon: <SyncOutlined spin />,
-              color: token.colorPrimary,
-            },
-            COMPLETED: {
-              icon: <CheckCircleFilled />,
-              color: token.colorSuccess,
-            },
-            APPROVED: {
-              icon: <SafetyCertificateFilled />,
-              color: token.colorSuccess,
-            },
-            REJECTED: { icon: <CloseCircleFilled />, color: token.colorError },
-            DRAFT: {
-              icon: <ClockCircleOutlined />,
-              color: token.colorTextSecondary,
-            },
-          };
-
-          const current = statusMap[value] || {
-            icon: <TagOutlined />,
-            color: token.colorWarning,
+          const statusMap: Record<string, string> = {
+            IN_PROGRESS: "processing",
+            DONE: "success",
+            APPROVED: "cyan",
+            REJECTED: "error",
+            DRAFT: "default",
           };
 
           return (
             <Tag
-              icon={current.icon}
-              color={current.color}
+              bordered={false}
+              color={statusMap[value] || "warning"}
               style={{
-                borderRadius: 20,
-                padding: "4px 12px",
+                borderRadius: 12,
+                paddingInline: 12,
                 fontWeight: 600,
-                border: "none",
-                background: `${current.color}15`,
-                color: current.color,
+                fontSize: 12,
               }}
             >
               {label}
@@ -1807,9 +1786,9 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
         if (formMode === "create") {
           form.resetFields();
           form.setFieldsValue({
-            status: "IN_PROGRESS",
+            status: "DONE",
             date: dayjs(),
-            work_hour: 8,
+            work_hour: 2.0,
           });
         } else if ((formMode === "edit" || formMode === "copy") && record) {
           form.setFieldsValue({
