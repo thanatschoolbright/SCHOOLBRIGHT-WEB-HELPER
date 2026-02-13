@@ -48,8 +48,8 @@ RULES:
      - Robodocs (0), Activity (SBACTIVITY), Checker (CHK)
 
 3. DEV_ASSIGNEE_LOGIC:
-   - Mobile/Backend -> เสือ
-   - Frontend App -> เตชินท์
+   - Mobile/Backend/SBAPP API -> เสือ, โจ้
+   - Frontend App (SBAPP) -> เตชินท์
    - Accounting -> ตั๊ก
    - Person/Student -> ดีน
    - Canteen/General -> ยู
@@ -74,12 +74,11 @@ export const QA_TASK_SUMMARY_TASK_PROMPT = `
    - **ธรรมวุธ เกตุศิริ (ท็อป):** [Primary: SH/SHOP (ร้านค้า), SBE (ระบบสอบ)] | [Secondary: ACA (วิชาการ)]
 
 2. **DEV ASSIGNEE MAPPING (เลือก Dev ตาม Module):**
+   - [เตชินท์ / เสือ / โจ้]: SBAPP / Mobile / API (กรณี QA เป็นกอล์ฟ หรือเกี่ยวกับแอป)
    - [ตั๊ก]: Accounting / Finance
    - [ดีน]: Person / Student
    - [ยู]: Canteen / General / Shop
    - [กริชนัน / กอล์ฟ]: Academic
-   - [เสือ]: Mobile / Backend
-   - [เตชินท์]: Frontend App
    - [Dev คนจีน]: Library / Exam
 
 3. **TYPE MAPPING:**
@@ -95,6 +94,7 @@ export const QA_TASK_SUMMARY_TASK_PROMPT = `
 5. **Attachments Table:** แสดงไฟล์แนบทั้งหมดในรูปแบบตาราง Markdown โดยใส่ในหัวข้อ ### 📎 หลักฐานไฟล์แนบ (Attachments) และเรียงลำดับ 1, 2, 3...
 6. **Date Format:** แสดงวันที่ในรูปแบบ dd/mm/yyyy เสมอ (เช่น 15/02/2026) หากไม่ทราบให้ระบุเป็น ASAP
 7. **AI Recommendation:** ต้องขึ้นต้นด้วย "**💡 ข้อแนะนำจาก Light AI:**" และลงท้ายประโยคด้วย "ครับผม" เสมอ
+8. **Deadline Rule:** หากงานเป็นประเภท Bug (🐛) ต้องระบุหมายเหตุในตารางว่า "ไม่ควรเกิน 3 วัน"
 
 ---
 
@@ -105,12 +105,12 @@ export const QA_TASK_SUMMARY_TASK_PROMPT = `
 **💡 ข้อแนะนำจาก Light AI:** [วิเคราะห์เทคนิคเบื้องต้น 1 บรรทัด] ครับผม
 
 ### 📋 ข้อมูลการมอบหมาย (Assignment)
-| บทบาท | รายชื่อผู้รับผิดชอบ | ระบบ/Module |
+| บทบาท | ชื่อผู้เกี่ยวข้อง | ระบบ/Module |
 | :--- | :--- | :--- |
-| 🛡️ **ผู้ตรวจสอบระบบ (QA)** | **[เลือกชื่อ QA ตาม Logic]** | [ชื่อระบบที่ QA คุม] |
-| 👨‍💻 **นักพัฒนาระบบ (Dev Assignee)** | **[เลือกชื่อ Dev ตาม Logic]** | [ชื่อ Module ที่ Dev คุม] |
-| 🏫 **รหัสโรงเรียน (School ID)** | [ชื่อโรงเรียน] ([SchoolID]) | - |
-| 📅 **วันที่สิ้นสุด (Deadline)** | [วันที่ในรูปแบบ dd/mm/yyyy / ASAP] | - |
+| 🛡️ **ผู้ตรวจสอบระบบ (QA)** | **[ชื่อ QA]** | [ชื่อระบบที่ QA คุม] |
+| 👨‍💻 **นักพัฒนาระบบ (Dev Assignee)** | **[ชื่อ Dev]** | [Module] |
+| 🏫 **รหัสโรงเรียน (School ID)** | [ชื่อโรงเรียน] ([SchoolID]) | ([SchoolID]) |
+| 📅 **วันที่สิ้นสุด (Deadline)** | [วันที่ dd/mm/yyyy] | [หมายเหตุ: ไม่ควรเกิน 3 วัน (กรณีเป็น Bug) / ASAP] |
 
 ### 📌 รายละเอียดงาน (Requirement)
 * **พฤติกรรมที่พบ:** [อธิบายปัญหาหรือสิ่งที่เกิดขึ้น]
