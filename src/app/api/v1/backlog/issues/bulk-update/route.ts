@@ -1,6 +1,7 @@
-import axios from "axios";
-import { NextRequest, NextResponse } from "next/server";
 import { errorResponse, successResponse } from "@/helpers/api/response";
+import axios from "axios";
+import dayjs from "dayjs";
+import { NextRequest, NextResponse } from "next/server";
 
 const DOMAINS = ["backlog.com", "backlogtool.com", "backlog.jp"] as const;
 
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
           message_en: "BACKLOG_API_KEY is not configured",
           message_th: "ยังไม่ได้ตั้งค่า BACKLOG_API_KEY",
         }),
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -59,15 +60,18 @@ export async function POST(request: NextRequest) {
           message_en: "Missing space or issues",
           message_th: "กรุณาระบุ space และรายการ issues",
         }),
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    // ตรวจสอบและเพิ่ม [AI 🤖] ต่อท้าย summary
+    // ตรวจสอบและเพิ่ม [สรุปด้วย LIGHT AI ✨] ต่อท้าย summary
     const ensureAiPrefix = (summary: string | null | undefined): string => {
       if (!summary) return "";
-      const hasAiPrefix = summary.includes("AI") || summary.includes("🤖");
-      return hasAiPrefix ? summary : summary + " " + "[AI 🤖]";
+      const hasAiPrefix =
+        summary.includes("AI") ||
+        summary.includes("✨") ||
+        summary.includes("🤖");
+      return hasAiPrefix ? summary : summary + " " + "[สรุปด้วย LIGHT AI ✨]";
     };
 
     // เตรียมฟอร์มข้อมูลที่จะส่งให้ Backlog (x-www-form-urlencoded)
@@ -133,6 +137,67 @@ export async function POST(request: NextRequest) {
     for (const { issueKeyOrId, form } of workItems) {
       let done = false;
       let lastError: any;
+
+      // --- Auto Fill Logic for Bulk Update ---
+      try {
+        let currentIssue: any = null;
+        let activeDomain = DOMAINS[0];
+
+        // Fetch current issue details
+        for (const domain of DOMAINS) {
+          try {
+            const url = `https://${space}.${domain}/api/v2/issues/${issueKeyOrId}`;
+            const resp = await axios.get(url, { params: { apiKey } });
+            currentIssue = resp.data;
+            activeDomain = domain;
+            break;
+          } catch (e) {
+            // continue
+          }
+        }
+
+        if (currentIssue) {
+          // 1. Start Date (Today) if empty AND not in form
+          if (!currentIssue.startDate && !form.has("startDate")) {
+            form.set("startDate", dayjs().format("YYYY-MM-DD"));
+          }
+          // 2. Due Date (Today + 4) if empty AND not in form
+          if (!currentIssue.dueDate && !form.has("dueDate")) {
+            form.set("dueDate", dayjs().add(4, "day").format("YYYY-MM-DD"));
+          }
+          // 3. Estimated Hours (2) if empty AND not in form
+          if (
+            (currentIssue.estimatedHours === null ||
+              currentIssue.estimatedHours === undefined) &&
+            !form.has("estimatedHours")
+          ) {
+            form.set("estimatedHours", "2");
+          }
+          // 4. Milestone/Version if empty AND not in form
+          if (
+            (!currentIssue.milestone || currentIssue.milestone.length === 0) &&
+            !form.has("milestoneId[]")
+          ) {
+            try {
+              const projectId = currentIssue.projectId;
+              const versionsUrl = `https://${space}.${activeDomain}/api/v2/projects/${projectId}/versions`;
+              const vResp = await axios.get(versionsUrl, {
+                params: { apiKey },
+              });
+              const versions = vResp.data;
+              if (versions && versions.length > 0) {
+                const latest = versions[versions.length - 1];
+                form.append("milestoneId[]", String(latest.id));
+              }
+            } catch (e) {
+              /* ignore */
+            }
+          }
+        }
+      } catch (err) {
+        console.error(`Auto-fill failed for ${issueKeyOrId}:`, err);
+      }
+
       for (const domain of DOMAINS) {
         try {
           const url = `https://${space}.${domain}/api/v2/issues/${issueKeyOrId}`;
@@ -160,7 +225,7 @@ export async function POST(request: NextRequest) {
         data: results,
         message_en: "Bulk update finished",
         message_th: "อัปเดตแบบกลุ่มเสร็จสิ้น",
-      })
+      }),
     );
   } catch (error: any) {
     const status = error?.response?.status || 500;
@@ -173,7 +238,7 @@ export async function POST(request: NextRequest) {
         message_th: "อัปเดตแบบกลุ่มไม่สำเร็จ",
         error,
       }),
-      { status }
+      { status },
     );
   }
 }

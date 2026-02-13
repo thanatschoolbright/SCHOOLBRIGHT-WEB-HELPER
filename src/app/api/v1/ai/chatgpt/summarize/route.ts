@@ -98,10 +98,16 @@ ${JSON.stringify(details || {}, null, 2)}
     const aiMarkdown = response.data?.choices?.[0]?.message?.content;
 
     if (aiMarkdown) {
+      // ** Post-process to fix incorrect image syntax ![text](url) -> ![text][url] for Backlog **
+      const fixedMarkdown = aiMarkdown.replace(
+        /!\[(.*?)\]\((.*?)\)/g,
+        "![$1][$2]",
+      );
+
       // ** Append original description to protect data as requested by user **
-      const markdown = `${aiMarkdown}\n\n---\n### 📄 Original Description / รายละเอียดต้นฉบับ\n${
+      const markdown = `${fixedMarkdown}\n\n---\n### ข้อความต้นฉบับ (Original Description)\n\`\`\`\n${
         description || "_No original description provided_"
-      }`;
+      }\n\`\`\`\n\n✨ **ข้อความถูกปรับโดยอัตโนมัติ โดย Light AI** *เวอร์ชัน 1.0.2*`;
 
       logger.info(`[${requestId}] Success with ChatGPT`);
       return NextResponse.json(

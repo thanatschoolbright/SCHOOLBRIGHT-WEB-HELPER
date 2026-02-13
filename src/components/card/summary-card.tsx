@@ -45,18 +45,16 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
   const { token } = theme.useToken();
 
   const cardStyle: React.CSSProperties = {
-    background: token.colorBgContainer,
     borderRadius: 16,
     border: `1px solid ${token.colorBorderSecondary}`,
     height: "100%",
-    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-    cursor: "pointer",
+    transition: "all 0.3s ease",
+    cursor: "default",
+    boxShadow: "none",
   };
 
   const cardHoverStyle = {
-    transform: "translateY(-4px)",
-    boxShadow: `0 12px 24px -4px ${token.colorPrimary}20, 0 8px 16px -8px ${token.colorPrimary}30`,
-    borderColor: token.colorPrimary,
+    borderColor: token.colorPrimaryBorder,
   };
 
   const iconBoxStyle = (c?: string, bg?: string): React.CSSProperties => ({
@@ -68,17 +66,13 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
     justifyContent: "center",
     fontSize: 24,
     color: c || token.colorPrimary,
-    background: bg || token.colorFillSecondary,
+    border: `1px solid ${token.colorBorderSecondary}`,
     transition: "all 0.3s ease",
   });
 
   if (isLoading) {
     return (
-      <Card
-        variant="borderless"
-        style={cardStyle}
-        styles={{ body: { padding: 24 } }}
-      >
+      <Card style={cardStyle} styles={{ body: { padding: 24 } }}>
         <Skeleton active paragraph={{ rows: 2 }} title={{ width: "60%" }} />
       </Card>
     );
@@ -86,28 +80,13 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
 
   return (
     <Card
-      variant="borderless"
       styles={{ body: { padding: 24 } }}
       style={cardStyle}
       onMouseEnter={(e) => {
-        Object.assign(e.currentTarget.style, cardHoverStyle);
-        const iconBox = e.currentTarget.querySelector(
-          ".icon-box",
-        ) as HTMLElement;
-        if (iconBox) {
-          iconBox.style.transform = "rotate(5deg) scale(1.1)";
-        }
+        e.currentTarget.style.borderColor = token.colorPrimary;
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = "none";
         e.currentTarget.style.borderColor = token.colorBorderSecondary;
-        const iconBox = e.currentTarget.querySelector(
-          ".icon-box",
-        ) as HTMLElement;
-        if (iconBox) {
-          iconBox.style.transform = "rotate(0deg) scale(1)";
-        }
       }}
     >
       <Flex justify="space-between" align="start">

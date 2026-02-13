@@ -5,9 +5,12 @@ import {
   AuditOutlined,
   BarChartOutlined,
   CalendarOutlined,
+  CheckCircleFilled,
   CheckCircleOutlined,
   ClearOutlined,
   ClockCircleOutlined,
+  CloseCircleFilled,
+  ExclamationCircleOutlined,
   EyeOutlined,
   FileTextOutlined,
   FilterOutlined,
@@ -33,7 +36,6 @@ import {
   Descriptions,
   Divider,
   Flex,
-  Grid,
   Input,
   Layout,
   Modal,
@@ -120,8 +122,6 @@ const IssueDetailModal: React.FC<{
   space: string;
 }> = ({ open, onClose, issue, space }) => {
   const { token } = theme.useToken();
-  const screens = Grid.useBreakpoint();
-  const isDesktop = screens.lg || screens.xl || screens.xxl;
 
   if (!issue) return null;
 
@@ -164,7 +164,7 @@ const IssueDetailModal: React.FC<{
               {issue.issueType?.name || "N/A"}
             </Tag>
           </Descriptions.Item>
-          <Descriptions.Item label="หัวข้องาน" span={isDesktop ? 2 : 1}>
+          <Descriptions.Item label="หัวข้องาน" span={2}>
             <Text strong>{issue.summary}</Text>
           </Descriptions.Item>
           <Descriptions.Item label="สถานะ">
@@ -276,7 +276,6 @@ const IssueDetailModal: React.FC<{
         <div
           style={{
             padding: 16,
-            background: token.colorBgContainerDisabled,
             borderRadius: 8,
             border: `1px solid ${token.colorBorderSecondary}`,
             minHeight: 100,
@@ -414,22 +413,25 @@ const IssuesListTable: React.FC<{
       setAiProcessing({ open: false, currentStep: 0, processingTime: 0 });
       setAiModal({ open: true, issue, generating: false, newText: markdown });
 
-      toast.success("ประมวลผลด้วย AI สำเร็จ");
+      toast.success("ประมวลผลสรุปงานด้วย AI สำเร็จ");
     } catch (error) {
       clearInterval(timer);
       setAiProcessing({ open: false, currentStep: 0, processingTime: 0 });
-      toast.error("เรียกใช้งาน AI ไม่สำเร็จ กรุณาลองใหม่");
+      toast.error("เรียกใช้งาน AI เพื่อสรุปงานไม่สำเร็จ");
     }
   };
 
   const handleApplyAiUpdate = async () => {
     if (!aiModal.issue) return;
-    const toastId = toast.loading("กำลังอัปเดตข้อมูลด้วย AI...");
+    const toastId = toast.loading("กำลังอัปเดตข้อมูลไปยัง Backlog...");
     try {
       const currentSummary = aiModal.issue.summary;
-      const finalSummary = currentSummary.includes("[AI]")
-        ? currentSummary
-        : `${currentSummary} [AI]`;
+      const finalSummary =
+        currentSummary.includes("AI") ||
+        currentSummary.includes("✨") ||
+        currentSummary.includes("🤖")
+          ? currentSummary
+          : `${currentSummary} [สรุปด้วย LIGHT AI ✨]`;
 
       await axios.post("/api/v1/backlog/issues/update", {
         space,
@@ -437,11 +439,11 @@ const IssuesListTable: React.FC<{
         description: aiModal.newText,
         summary: finalSummary,
       });
-      toast.success("อัปเดตข้อมูลสำเร็จ", { id: toastId });
+      toast.success("อัปเดตข้อมูลบน Backlog สำเร็จ", { id: toastId });
       setAiModal({ open: false, issue: null, generating: false, newText: "" });
       onReload();
     } catch (error) {
-      toast.error("อัปเดตข้อมูลไม่สำเร็จ", { id: toastId });
+      toast.error("อัปเดตข้อมูลบน Backlog ไม่สำเร็จ", { id: toastId });
     }
   };
 
@@ -489,6 +491,28 @@ const IssuesListTable: React.FC<{
       ),
     },
     {
+      title: "สรุปด้วย AI",
+      key: "aiStatus",
+      width: 120,
+      align: "center",
+      render: (_, record) => {
+        const hasAi = record.description?.includes("AI");
+        return hasAi ? (
+          <Tooltip title="สรุปด้วย AI เรียบร้อยแล้ว">
+            <CheckCircleFilled
+              style={{ color: token.colorSuccess, fontSize: 18 }}
+            />
+          </Tooltip>
+        ) : (
+          <Tooltip title="ยังไม่ได้สรุปด้วย AI">
+            <CloseCircleFilled
+              style={{ color: token.colorError, fontSize: 18 }}
+            />
+          </Tooltip>
+        );
+      },
+    },
+    {
       title: "สถานะ",
       dataIndex: ["status", "name"],
       key: "status",
@@ -527,7 +551,16 @@ const IssuesListTable: React.FC<{
       ellipsis: true,
       render: (_, record) => (
         <Space wrap size={[0, 4]}>
-          {record.category?.map((c) => <Tag key={c.id}>{c.name}</Tag>) || "-"}
+          {record.category?.length ? (
+            record.category.map((c: any) => <Tag key={c.id}>{c.name}</Tag>)
+          ) : (
+            <Space size={4}>
+              <ExclamationCircleOutlined style={{ color: token.colorError }} />
+              <Text type="danger" style={{ fontSize: 13 }}>
+                ไม่ได้ระบุ
+              </Text>
+            </Space>
+          )}
         </Space>
       ),
     },
@@ -537,18 +570,26 @@ const IssuesListTable: React.FC<{
       width: 180,
       sorter: (a, b) =>
         (a.assignee?.name || "").localeCompare(b.assignee?.name || ""),
-      render: (_, record) => (
-        <Space size={8}>
-          <Avatar
-            size="small"
-            src={record.assignee?.nulabAccount?.iconUrl}
-            icon={<UserOutlined />}
-          />
-          <Text style={{ fontWeight: 500, fontSize: 13 }}>
-            {record.assignee?.name || "-"}
-          </Text>
-        </Space>
-      ),
+      render: (_, record) =>
+        record.assignee ? (
+          <Space size={8}>
+            <Avatar
+              size="small"
+              src={record.assignee?.nulabAccount?.iconUrl}
+              icon={<UserOutlined />}
+            />
+            <Text style={{ fontWeight: 500, fontSize: 13 }}>
+              {record.assignee?.name}
+            </Text>
+          </Space>
+        ) : (
+          <Space size={4}>
+            <ExclamationCircleOutlined style={{ color: token.colorError }} />
+            <Text type="danger" style={{ fontSize: 13 }}>
+              ไม่ได้ระบุ
+            </Text>
+          </Space>
+        ),
     },
     {
       title: "กำหนดส่ง",
@@ -557,14 +598,22 @@ const IssuesListTable: React.FC<{
       width: 120,
       sorter: (a, b) =>
         dayjs(a.dueDate || 0).unix() - dayjs(b.dueDate || 0).unix(),
-      render: (date) => (
-        <Space size={4}>
-          <CalendarOutlined
-            style={{ fontSize: 12, color: token.colorTextDescription }}
-          />
-          <Text style={{ fontSize: 13 }}>{formatDateThai(date)}</Text>
-        </Space>
-      ),
+      render: (date) =>
+        date ? (
+          <Space size={4}>
+            <CalendarOutlined
+              style={{ fontSize: 12, color: token.colorTextDescription }}
+            />
+            <Text style={{ fontSize: 13 }}>{formatDateThai(date)}</Text>
+          </Space>
+        ) : (
+          <Space size={4}>
+            <ExclamationCircleOutlined style={{ color: token.colorError }} />
+            <Text type="danger" style={{ fontSize: 13 }}>
+              ไม่ได้ระบุ
+            </Text>
+          </Space>
+        ),
     },
     {
       title: "อัปเดตเมื่อ",
@@ -739,7 +788,6 @@ const IssuesListTable: React.FC<{
           <Button
             size="large"
             className="h-16"
-            style={{ backgroundColor: "#10a37f", color: "white" }}
             onClick={() => {
               if (engineSelectModal.issue)
                 handleInvokeAiAnalysis(engineSelectModal.issue, "chatgpt");
@@ -805,10 +853,15 @@ const useIssuesPageData = ({
   projectReady,
   modalApi,
 }: IssuesPageParams) => {
+  const { token } = theme.useToken();
   const dispatch = useDispatch<AppDispatch>();
   const { page, pageSize, filters, total, loading, issues } = useSelector(
     (state: RootState) => state.issues,
   );
+
+  // * state สำหรับเช็คว่าตัวกรองพร้อมสำหรับการค้นหาครั้งแรกหรือยัง
+  const [isOptionsReady, setIsOptionsReady] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   // * รวมข้อมูล State ที่จำเป็นส่งออกไปใช้งาน
   const state = useMemo(
@@ -822,10 +875,23 @@ const useIssuesPageData = ({
       const { message, details } = buildErrorDetails(error);
       const contentNode = (
         <div className="flex flex-col gap-2">
-          <span>{message}</span>
-          <details className="text-xs text-gray-500">
+          <span style={{ color: token.colorText }}>{message}</span>
+          <details
+            className="text-xs"
+            style={{ color: token.colorTextDescription }}
+          >
             <summary className="cursor-pointer">ดูรายละเอียดทางเทคนิค</summary>
-            <pre className="whitespace-pre-wrap text-gray-500 mt-2">
+            <pre
+              className="whitespace-pre-wrap mt-2"
+              style={{
+                color: token.colorTextSecondary,
+                backgroundColor: token.colorFillAlter,
+                padding: 10,
+                borderRadius: 8,
+                border: `1px solid ${token.colorBorderSecondary}`,
+                fontSize: "11px",
+              }}
+            >
               {details}
             </pre>
           </details>
@@ -833,14 +899,14 @@ const useIssuesPageData = ({
       );
       (modalApi ?? Modal).error({ title, content: contentNode });
     },
-    [modalApi],
+    [modalApi, token],
   );
 
   // * ฟังก์ชันโหลดรายการ Issues
   const loadIssues = useCallback(async () => {
     if (!projectReady) return;
 
-    const toastId = toast.loading("กำลังโหลดรายการงาน...");
+    const toastId = toast.loading("กำลังค้นหาข้อมูลงานจาก Backlog...");
     dispatch(setLoading(true));
 
     try {
@@ -878,23 +944,18 @@ const useIssuesPageData = ({
 
       // * Client-side Filtering สำหรับ AI Summary
       if (aiSummaryFilter === "with_ai") {
-        items = items.filter(
-          (issue: any) =>
-            issue.summary?.includes("AI") || issue.description?.includes("AI"),
-        );
+        items = items.filter((issue: any) => issue.description?.includes("AI"));
       } else if (aiSummaryFilter === "without_ai") {
         items = items.filter(
-          (issue: any) =>
-            !issue.summary?.includes("AI") &&
-            !issue.description?.includes("AI"),
+          (issue: any) => !issue.description?.includes("AI"),
         );
       }
 
       dispatch(setIssues({ issues: items, total: totalItems }));
       dispatch(setSelectedRowKeys([]));
-      toast.success("โหลดข้อมูลสำเร็จ", { id: toastId });
+      toast.success("ดาวน์โหลดข้อมูล Backlog สำเร็จ", { id: toastId });
     } catch (error) {
-      toast.error("เกิดข้อผิดพลาดในการโหลดข้อมูล", { id: toastId });
+      toast.error("ดาวน์โหลดข้อมูล Backlog ไม่สำเร็จ", { id: toastId });
       showErrorModal("ไม่สามารถโหลดรายการงานได้", error);
     } finally {
       dispatch(setLoading(false));
@@ -959,7 +1020,7 @@ const useIssuesPageData = ({
     if (!projectReady) return;
 
     dispatch(setOptionsLoading(true));
-    const toastId = toast.loading("กำลังเตรียมข้อมูลเริ่มต้น...");
+    const toastId = toast.loading("กำลังดาวน์โหลดข้อมูลตัวกรอง...");
 
     try {
       // ? ยิง API พร้อมกันเพื่อความเร็ว
@@ -984,6 +1045,9 @@ const useIssuesPageData = ({
       const issueTypeOptions = mapOption(issueTypesRes?.data?.data);
       const assigneeOptions = mapOption(usersRes?.data?.data);
 
+      // ? ตั้งค่า Pagination เริ่มต้นเป็น 20 รายการ/หน้า
+      dispatch(setPagination({ page: 1, pageSize: 20 }));
+
       dispatch(
         setOptions({
           statusOptions,
@@ -996,20 +1060,24 @@ const useIssuesPageData = ({
       // ? โหลดสถิติรวมของโปรเจกต์
       loadSummaryStats(statusesRes?.data?.data || []);
 
-      // ? ตั้งค่า Filter เริ่มต้น (เลือกสถานะที่ไม่ใช่ Closed)
+      // ? ตั้งค่า Filter เริ่มต้น (เลือกสถานะ Open และประเภทงาน Bug)
       const openStatusIds = (statusesRes?.data?.data || [])
-        .filter((s: any) => !/closed/i.test(s?.name ?? ""))
+        .filter((s: any) => /open/i.test(s?.name ?? ""))
         .map((s: any) => s.id);
+
+      const bugTypeIds = (issueTypesRes?.data?.data || [])
+        .filter((it: any) => /bug/i.test(it?.name ?? ""))
+        .map((it: any) => it.id);
 
       dispatch(
         setFilters({
           statusIds: openStatusIds,
+          issueTypeIds: bugTypeIds,
           priorityIds: priorityOptions
             .map((p: any) => Number(p.value))
             .filter((v: number) => !isNaN(v)),
-          issueTypeIds: issueTypeOptions
-            .map((it: any) => Number(it.value))
-            .filter((v: number) => !isNaN(v)),
+          aiSummaryFilter: "all",
+          keyword: "",
         }),
       );
 
@@ -1028,14 +1096,24 @@ const useIssuesPageData = ({
         );
       }
 
-      toast.success("เตรียมข้อมูลสำเร็จ", { id: toastId });
+      toast.success("ดาวน์โหลดข้อมูลตัวกรองสำเร็จ", { id: toastId });
+      setIsOptionsReady(true);
+      return true; // คืนค่าเพื่อให้เรียก loadIssues ต่อได้
     } catch (error) {
-      toast.error("ไม่สามารถโหลดข้อมูลเริ่มต้นได้", { id: toastId });
+      toast.error("ดาวน์โหลดข้อมูลตัวกรองไม่สำเร็จ", { id: toastId });
       showErrorModal("เกิดข้อผิดพลาดในการเตรียมข้อมูล", error);
+      return false;
     } finally {
       dispatch(setOptionsLoading(false));
     }
-  }, [dispatch, projectReady, projectId, space, showErrorModal]);
+  }, [
+    dispatch,
+    projectReady,
+    projectId,
+    space,
+    showErrorModal,
+    loadSummaryStats,
+  ]);
 
   const handleSearchKeyword = useCallback(
     (value: string) => {
@@ -1045,13 +1123,28 @@ const useIssuesPageData = ({
     [dispatch, pageSize],
   );
 
-  // ! Auto-reload data when pagination changes
+  const resetAction = useCallback(() => {
+    dispatch(resetFilters());
+  }, [dispatch]);
+
+  // ! ค้นหาข้อมูลอัตโนมัติ (Trigger หลังโหลด Option เสร็จ หรือ เปลี่ยนหน้า)
   useEffect(() => {
-    if (projectReady && state.issues.length > 0) {
+    if (!projectReady) return;
+
+    // 1. กรณีโหลด Options ครั้งแรกเสร็จสิ้น (รันครั้งเดียวเพื่อกระตุ้นการค้นหาอัติโนมัติ)
+    if (isOptionsReady && !hasInitialized) {
+      loadIssues();
+      setIsOptionsReady(false);
+      setHasInitialized(true);
+      return;
+    }
+
+    // 2. กรณีมีการเปลี่ยนหน้าหรือขนาดหน้า (Pagination) หลังจากผ่านการ initialization แล้ว
+    if (hasInitialized && !isOptionsReady) {
       loadIssues();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize]);
+  }, [isOptionsReady, page, pageSize, projectReady, hasInitialized]);
 
   return {
     state,
@@ -1059,7 +1152,7 @@ const useIssuesPageData = ({
     loadIssues,
     loadOptions,
     handleSearchKeyword,
-    resetAction: () => dispatch(resetFilters()),
+    resetAction,
   };
 };
 
@@ -1194,7 +1287,6 @@ const BulkUpdateModal: React.FC<{
         <Flex align="center" gap={12} style={{ paddingBottom: 8 }}>
           <div
             style={{
-              background: token.colorInfoBg,
               padding: 10,
               borderRadius: 12,
               display: "flex",
@@ -1233,7 +1325,6 @@ const BulkUpdateModal: React.FC<{
         },
         body: {
           padding: 0,
-          background: token.colorBgLayout,
           borderRadius: "0 0 16px 16px",
           overflow: "hidden",
         },
@@ -1251,7 +1342,6 @@ const BulkUpdateModal: React.FC<{
         elevatedCardStyle={{
           border: "none",
           boxShadow: "none",
-          background: "transparent",
         }}
         onUpdateComplete={() => {
           onUpdateComplete();
@@ -1277,9 +1367,8 @@ function ProjectIssuesPageContent(): JSX.Element {
   const dispatch = useDispatch<AppDispatch>();
   const [showSummary, setShowSummary] = useState(false);
 
-  const { statusOptions, priorityOptions, assigneeOptions } = useSelector(
-    (state: RootState) => state.issues,
-  );
+  const { statusOptions, priorityOptions, issueTypeOptions, assigneeOptions } =
+    useSelector((state: RootState) => state.issues);
 
   // * State สำหรับ Modal ของ Filter และ Bulk Update
   const [showBulk, setShowBulk] = useState(false);
@@ -1310,17 +1399,14 @@ function ProjectIssuesPageContent(): JSX.Element {
       projectReady,
     });
 
-  // ? Initial Data Load
+  // ? Initial Data Load (เรียกเฉพาะ loadOptions ส่วน loadIssues จะถูก Trigger ภายใน Hook)
   useEffect(() => {
     if (!projectReady) return;
-    loadOptions().then(() => {
-      loadIssues();
-      toast.success("ดาวน์โหลดข้อมูลแสดงรายการงานสมบูรณ์");
-    });
+    loadOptions();
     return () => {
       resetAction();
     };
-  }, [projectReady, projectId, space]);
+  }, [projectReady, projectId, space, loadOptions, resetAction]);
 
   if (!projectReady) {
     return (
@@ -1336,7 +1422,7 @@ function ProjectIssuesPageContent(): JSX.Element {
 
   return (
     <DashboardLayout>
-      <Layout className="bg-transparent">
+      <Layout>
         <Content>
           <Flex vertical gap={24}>
             {/* ส่วนที่ 1 : ส่วนหัวของหน้าหน้าจอ */}
@@ -1450,6 +1536,21 @@ function ProjectIssuesPageContent(): JSX.Element {
                 </Col>
                 <Col xs={24} md={12}>
                   <Space direction="vertical" className="w-full" size={4}>
+                    <Text strong>ประเภทงาน (Issue Type)</Text>
+                    <Select
+                      mode="multiple"
+                      className="w-full"
+                      placeholder="เลือกประเภทงาน (เช่น Bug, Task)..."
+                      options={issueTypeOptions}
+                      value={state.filters.issueTypeIds}
+                      onChange={(val) =>
+                        dispatch(setFilters({ issueTypeIds: val }))
+                      }
+                    />
+                  </Space>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Space direction="vertical" className="w-full" size={4}>
                     <Text strong>ผู้รับผิดชอบ</Text>
                     <Select
                       mode="multiple"
@@ -1460,6 +1561,24 @@ function ProjectIssuesPageContent(): JSX.Element {
                       onChange={(val) =>
                         dispatch(setFilters({ assigneeIds: val }))
                       }
+                    />
+                  </Space>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Space direction="vertical" className="w-full" size={4}>
+                    <Text strong>สถานะ AI Summary</Text>
+                    <Select
+                      className="w-full"
+                      placeholder="กรองสถานะการสรุปด้วย AI..."
+                      value={state.filters.aiSummaryFilter}
+                      onChange={(val) =>
+                        dispatch(setFilters({ aiSummaryFilter: val }))
+                      }
+                      options={[
+                        { label: "ทั้งหมด", value: "all" },
+                        { label: "ถูกสรุปด้วย AI แล้ว", value: "with_ai" },
+                        { label: "ยังไม่ถูกสรุปด้วย AI", value: "without_ai" },
+                      ]}
                     />
                   </Space>
                 </Col>
@@ -1562,7 +1681,7 @@ function ProjectIssuesPageContent(): JSX.Element {
         space={space}
         onUpdateComplete={() => {
           loadIssues();
-          toast.success("อัปเดตข้อมูลจำนวนมากสำเร็จ");
+          toast.success("ดำเนินการอัปเดตข้อมูลจำนวนมากสำเร็จ");
         }}
         minimized={isBulkMinimized}
         onRequestMinimize={() => setIsBulkMinimized(true)}
@@ -1580,7 +1699,6 @@ function ProjectIssuesPageContent(): JSX.Element {
             zIndex: 1000,
             cursor: "pointer",
             padding: "12px 24px",
-            background: "white",
             borderRadius: 24,
             boxShadow: "none",
             border: `1px solid ${token.colorPrimary}`,
@@ -1603,7 +1721,7 @@ export default function ProjectIssuesPage(): JSX.Element {
   return (
     <Suspense
       fallback={
-        <div className="flex h-screen items-center justify-center bg-gray-50">
+        <div className="flex h-screen items-center justify-center">
           <Card
             style={{ borderRadius: 24, padding: 32 }}
             className="shadow-lg text-center"

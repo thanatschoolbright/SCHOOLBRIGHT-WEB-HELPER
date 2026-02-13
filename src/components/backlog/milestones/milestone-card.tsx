@@ -40,28 +40,16 @@ export default function MilestoneCard({
     if (status === "completed") return colorSuccess;
     return colorBorderSecondary;
   }, [colorBorderSecondary, colorSuccess, colorWarning, status]);
-  const boxShadow = useMemo(() => {
-    if (status === "completed") return "none";
-    const baseShadow = isDarkMode
-      ? "rgba(0,0,0,0.45)"
-      : "rgba(15, 23, 42, 0.06)";
-    const accentShadow =
-      status === "in-progress"
-        ? isDarkMode
-          ? "rgba(250, 173, 20, 0.35)"
-          : "rgba(250, 173, 20, 0.18)"
-        : baseShadow;
-    return `0 16px 32px ${accentShadow}`;
-  }, [isDarkMode, status]);
+  const boxShadow = "none";
   const cardStyle = useMemo(
     () => ({
       background: colorBgContainer,
       border: `1px solid ${borderColor}`,
       borderRadius: 18,
-      boxShadow,
-      transition: "box-shadow 0.3s ease, border-color 0.3s ease",
+      boxShadow: "none",
+      transition: "border-color 0.3s ease",
     }),
-    [borderColor, boxShadow, colorBgContainer],
+    [borderColor, colorBgContainer],
   );
 
   return (

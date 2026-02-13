@@ -16,6 +16,7 @@ export type Issue = {
   milestone?: Array<{ id: number; name: string }>;
   startDate?: string | null;
   dueDate?: string | null;
+  estimatedHours?: number | null;
   attachments?: Array<any>;
 };
 

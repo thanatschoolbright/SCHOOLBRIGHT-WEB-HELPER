@@ -1170,7 +1170,7 @@ export default function Page() {
                       percent={Math.round(getFormProgress())}
                       strokeColor={token.colorPrimary}
                       showInfo={false}
-                      strokeWidth={6}
+                      size={{ strokeWidth: 6 }}
                       status="active"
                     />
                     <Text

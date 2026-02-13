@@ -231,13 +231,15 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
     try {
       toast.message("กำลังส่งคำอธิบายใหม่ไปยัง Backlog", { id: toastId });
 
-      // ตรวจสอบว่า summary มีคำว่า AI หรือ [AI 🤖] อยู่แล้วหรือไม่
+      // ตรวจสอบว่า summary มีคำว่า AI หรือ [สรุปด้วย LIGHT AI ✨] อยู่แล้วหรือไม่
       const currentSummary = aiModal.issue.summary;
       const hasAiPrefix =
-        currentSummary.includes("AI") || currentSummary.includes("🤖");
+        currentSummary.includes("AI") ||
+        currentSummary.includes("✨") ||
+        currentSummary.includes("🤖");
       const finalSummary = hasAiPrefix
         ? currentSummary
-        : currentSummary + " " + "[AI 🤖] ";
+        : currentSummary + " " + "[สรุปด้วย LIGHT AI ✨] ";
 
       await axios.post("/api/v1/backlog/issues/update", {
         space,

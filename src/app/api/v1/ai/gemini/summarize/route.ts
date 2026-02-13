@@ -83,10 +83,16 @@ export async function POST(request: NextRequest) {
         const aiMarkdown =
           response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
         if (aiMarkdown) {
+          // ** Post-process to fix incorrect image syntax ![text](url) -> ![text][url] for Backlog **
+          const fixedMarkdown = aiMarkdown.replace(
+            /!\[(.*?)\]\((.*?)\)/g,
+            "![$1][$2]",
+          );
+
           // ** Append original description to protect data as requested by user **
-          const markdown = `${aiMarkdown}\n\n---\n### 📄 Original Description / รายละเอียดต้นฉบับ\n${
+          const markdown = `${fixedMarkdown}\n\n---\n### ข้อความต้นฉบับ (Original Description)\n\`\`\`\n${
             description || "_No original description provided_"
-          }`;
+          }\n\`\`\`\n\n✨ **ข้อความถูกปรับโดยอัตโนมัติ โดย Light AI** *เวอร์ชัน 1.0.2*`;
 
           logger.info(`[${requestId}] Success with ${modelName}`);
           return NextResponse.json(
