@@ -1,39 +1,38 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
 import {
+  CheckCircleFilled,
+  DollarOutlined,
+  ShopOutlined,
+} from "@ant-design/icons";
+import {
+  Alert,
   Button,
   Card,
+  Col,
   Descriptions,
   Form,
+  Image,
   InputNumber,
+  Row,
   Select,
   Space,
   Spin,
   Typography,
-  Row,
-  Col,
-  Image,
-  Alert,
 } from "antd";
-import {
-  CheckCircleFilled,
-  ShopOutlined,
-  DollarOutlined,
-} from "@ant-design/icons";
-import { toast } from "sonner";
+import axios from "axios";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
+import { toast } from "sonner";
 
+import BaseLoadingComponent from "@/components/loading/loading-component-1";
 import DashboardLayout from "@components/layouts/backend-layout";
-import ContentCard from "@components/layouts/backend/content";
+import { HeaderBar } from "@components/typhography/header-bar-component";
+import { CallAPI as POST_QRCODE_HEALTH_CHECK } from "@stores/actions/mobile/qrcode-health-check/action";
 import { AppDispatch, useAppSelector } from "@stores/store";
 import { RequestQRCodeGenerator } from "@stores/type";
-import { CallAPI as POST_QRCODE_HEALTH_CHECK } from "@stores/actions/mobile/qrcode-health-check/action";
-import BaseLoadingComponent from "@/components/loading/loading-component-1";
-import { HeaderBar } from "@components/typhography/header-bar-component";
 
 export default function Page() {
   const dispatch = useDispatch<AppDispatch>();
-  const schoolState = useAppSelector((s) => s.callSchoolList);
   const qrState = useAppSelector((s) => s.callQRCodeHealthCheckReducer);
 
   const [form] = Form.useForm<RequestQRCodeGenerator["draftValues"]>();
@@ -41,18 +40,38 @@ export default function Page() {
     RequestQRCodeGenerator["draftValues"] | null
   >(null);
 
-  const isLoading = schoolState.loading;
+  const [schoolList, setSchoolList] = useState<any[]>([]);
+  const [isSchoolLoading, setIsSchoolLoading] = useState(false);
+
+  const fetchSchools = useCallback(async () => {
+    setIsSchoolLoading(true);
+    try {
+      const response = await axios.get("/api/v1/school/get-detail");
+      // response format: { data: { data: [...] }, curl: ... }
+      setSchoolList(response.data?.data?.data ?? []);
+    } catch (error) {
+      console.error("Failed to fetch schools", error);
+      toast.error("โหลดข้อมูลโรงเรียนไม่สำเร็จ");
+    } finally {
+      setIsSchoolLoading(false);
+    }
+  }, []);
 
   const schoolOptions = useMemo(() => {
-    const data = schoolState?.draftValues?.data ?? [];
-    return (Array.isArray(data) ? data : []).map((school: any) => ({
-      label: `${school.SchoolName} (${school.SchoolID})`,
-      value: String(school.SchoolID),
-    }));
-  }, [schoolState]);
+    return (Array.isArray(schoolList) ? schoolList : []).map((school: any) => {
+      const schoolId = school.school_id || school.SchoolID;
+      const schoolName = school.SchoolName || school.company_name;
+      const schoolNameEn = school.SchoolNameEN || "";
+
+      return {
+        label: `[${schoolId}] ${schoolName}${schoolNameEn ? ` (${schoolNameEn})` : ""}`,
+        value: String(schoolId),
+      };
+    });
+  }, [schoolList]);
 
   const handleSubmit = async (
-    values: RequestQRCodeGenerator["draftValues"]
+    values: RequestQRCodeGenerator["draftValues"],
   ) => {
     try {
       const payload = {
@@ -71,12 +90,16 @@ export default function Page() {
   };
 
   useEffect(() => {
+    fetchSchools();
+  }, [fetchSchools]);
+
+  useEffect(() => {
     if (qrState.success) {
       toast.success("ตรวจสอบสำเร็จ", {
         description: JSON.stringify(
           qrState.response?.data?.data ?? {},
           null,
-          2
+          2,
         ),
       });
     }
@@ -85,7 +108,7 @@ export default function Page() {
         description: JSON.stringify(
           qrState.error ?? qrState.response ?? {},
           null,
-          2
+          2,
         ),
       });
     }
@@ -160,8 +183,13 @@ export default function Page() {
 
   return (
     <DashboardLayout>
-      <HeaderBar title="QR Code Health Check" subTitle="เครื่องมือสร้าง QR Code สำหรับการตรวจสุขภาพ" icon={<CheckCircleFilled />} color="none" />
-      {isLoading && <BaseLoadingComponent />}
+      <HeaderBar
+        title="QR Code Health Check"
+        subTitle="เครื่องมือสร้าง QR Code สำหรับการตรวจสุขภาพ"
+        icon={<CheckCircleFilled />}
+        color="none"
+      />
+      {isSchoolLoading && <BaseLoadingComponent />}
 
       <Space direction="vertical" size={24} style={{ width: "100%" }}>
         <Card title="ทดสอบระบบ QR Code">
@@ -241,7 +269,7 @@ export default function Page() {
                 height={200}
                 alt="QR Code"
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
-                  qrState.response.data.data.results[0].response_body.qrCode
+                  qrState.response.data.data.results[0].response_body.qrCode,
                 )}`}
               />
             </Space>
