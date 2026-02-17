@@ -7,7 +7,6 @@ import {
   AppstoreOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
-  CloudDownloadOutlined,
   CloudUploadOutlined,
   CodeOutlined,
   DeleteOutlined,
@@ -1370,13 +1369,13 @@ export default function CanteenAppManager() {
         width={850}
         centered
       >
-        <div style={{ marginBottom: 24 }}>
+        <Flex vertical gap={24} style={{ marginBottom: 24 }}>
           <AntText type="secondary">
             ใช้สำหรับจำลองการตรวจสอบว่าโรงเรียนที่ระบุ
             จะได้รับแจ้งเตือนให้อัปเดตแอปพลิเคชันหรือไม่ โดยอ้างอิงจาก App ID:{" "}
             <AntText code>{selectedApplication?.app_id}</AntText>
           </AntText>
-        </div>
+        </Flex>
 
         <Form
           form={checkFormInstance}
@@ -1413,9 +1412,9 @@ export default function CanteenAppManager() {
                   placeholder="เลือกหรือพิมพ์เวอร์ชัน..."
                   options={availableVersionOptions}
                   dropdownRender={(menu) => (
-                    <>
+                    <Space direction="vertical" style={{ width: "100%" }}>
                       {menu}
-                      <div
+                      <Flex
                         style={{
                           padding: "8px 12px",
                           borderTop: `1px solid ${token.colorBorderSecondary}`,
@@ -1424,8 +1423,8 @@ export default function CanteenAppManager() {
                         <AntText type="secondary" style={{ fontSize: 11 }}>
                           * สามารถพิมพ์เวอร์ชันใหม่ที่ไม่มีในรายการได้
                         </AntText>
-                      </div>
-                    </>
+                      </Flex>
+                    </Space>
                   )}
                   onSearch={(value) => {
                     // อนุญาตให้พิมพ์ค่าใหม่ได้ หากไม่มีในตัวเลือก
@@ -1449,155 +1448,176 @@ export default function CanteenAppManager() {
         </Form>
 
         {checkUpdateResult && (
-          <div style={{ marginTop: 24 }}>
-            <div
-              style={{
-                padding: 20,
-                borderRadius: 12,
-                border: `1px solid ${
-                  checkUpdateResult.error
-                    ? token.colorErrorBorder
-                    : checkUpdateResult.data?.data?.update_required
-                      ? token.colorWarningBorder
-                      : token.colorSuccessBorder
-                }`,
-                backgroundColor: checkUpdateResult.error
-                  ? token.colorErrorBg
-                  : checkUpdateResult.data?.data?.update_required
-                    ? token.colorWarningBg
-                    : token.colorSuccessBg,
-              }}
-            >
-              {checkUpdateResult.error ? (
-                <Flex align="start" gap={12}>
-                  <CloseCircleOutlined
-                    style={{ color: token.colorError, fontSize: 24 }}
-                  />
-                  <div>
-                    <Typography.Title level={5} style={{ margin: 0 }}>
-                      เกิดข้อผิดพลาด
-                    </Typography.Title>
-                    <AntText>{checkUpdateResult.message}</AntText>
-                  </div>
-                </Flex>
-              ) : (
-                <Flex align="start" gap={12}>
-                  {checkUpdateResult.data?.data?.update_required ? (
-                    <CloudDownloadOutlined
-                      style={{ color: "#faad14", fontSize: 28 }}
-                    />
-                  ) : (
-                    <CheckCircleOutlined
-                      style={{ color: token.colorSuccess, fontSize: 28 }}
-                    />
-                  )}
-                  <div style={{ flex: 1 }}>
-                    <Typography.Title level={5} style={{ margin: 0 }}>
-                      <Space>
-                        {checkUpdateResult.data?.data?.update_required ? (
-                          <>
+          <Row style={{ marginTop: 24 }}>
+            <Col span={24}>
+              <Card
+                variant="borderless"
+                styles={{
+                  body: {
+                    padding: 24,
+                    borderRadius: 12,
+                    border: `1px solid ${
+                      checkUpdateResult.error
+                        ? token.colorErrorBorder
+                        : checkUpdateResult.data?.data?.update_required
+                          ? token.colorWarningBorder
+                          : token.colorSuccessBorder
+                    }`,
+                    backgroundColor: checkUpdateResult.error
+                      ? token.colorErrorBg
+                      : checkUpdateResult.data?.data?.update_required
+                        ? token.colorWarningBg
+                        : token.colorSuccessBg,
+                  },
+                }}
+              >
+                {checkUpdateResult.error ? (
+                  <Flex align="start" gap={12}>
+                    <Col flex="none">
+                      <CloseCircleOutlined
+                        style={{ color: token.colorError, fontSize: 24 }}
+                      />
+                    </Col>
+                    <Col flex="auto">
+                      <Typography.Title level={5} style={{ margin: 0 }}>
+                        เกิดข้อผิดพลาด
+                      </Typography.Title>
+                      <AntText>{checkUpdateResult.message}</AntText>
+                    </Col>
+                  </Flex>
+                ) : (
+                  <Flex align="start" gap={12}>
+                    <Col flex="none">
+                      {checkUpdateResult.data?.data?.update_required ? (
+                        <RocketOutlined
+                          style={{ color: "#faad14", fontSize: 28 }}
+                        />
+                      ) : (
+                        <CheckCircleOutlined
+                          style={{ color: token.colorSuccess, fontSize: 28 }}
+                        />
+                      )}
+                    </Col>
+                    <Col flex="auto">
+                      <Typography.Title level={5} style={{ margin: 0 }}>
+                        <Space>
+                          {checkUpdateResult.data?.data?.update_required ? (
                             <span>พบเวอร์ชันใหม่ (Update Available)</span>
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircleOutlined
-                              style={{ color: token.colorSuccess }}
-                            />
+                          ) : (
                             <span>เป็นเวอร์ชันล่าสุดแล้ว (Up to Date)</span>
-                          </>
-                        )}
-                      </Space>
-                    </Typography.Title>
-                    <div style={{ marginTop: 8 }}>
-                      <AntText>{checkUpdateResult.data?.data?.message}</AntText>
-                    </div>
-
-                    {checkUpdateResult.data?.data?.update_required && (
-                      <div
-                        style={{
-                          marginTop: 16,
-                          padding: 20,
-                          backgroundColor: token.colorBgContainer,
-                          borderRadius: 12,
-                          border: `1px solid ${token.colorBorderSecondary}`,
-                          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                        }}
+                          )}
+                        </Space>
+                      </Typography.Title>
+                      <Typography.Paragraph
+                        style={{ marginTop: 8, marginBottom: 0 }}
                       >
-                        <Row gutter={[24, 16]}>
-                          <Col span={12}>
-                            <div style={{ marginBottom: 16 }}>
-                              <AntText
-                                type="secondary"
-                                style={{ display: "block", fontSize: 12 }}
+                        <AntText>
+                          {checkUpdateResult.data?.data?.message}
+                        </AntText>
+                      </Typography.Paragraph>
+
+                      {checkUpdateResult.data?.data?.update_required && (
+                        <Card
+                          size="small"
+                          style={{
+                            marginTop: 16,
+                            backgroundColor: token.colorBgContainer,
+                            borderRadius: 12,
+                            border: `1px solid ${token.colorBorderSecondary}`,
+                            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                          }}
+                        >
+                          <Row gutter={[24, 16]}>
+                            <Col span={12}>
+                              <Space
+                                direction="vertical"
+                                size={16}
+                                style={{ width: "100%" }}
                               >
-                                เวอร์ชันล่าสุดที่ปล่อย
-                              </AntText>
-                              <Tag
-                                color="processing"
-                                style={{
-                                  fontSize: 16,
-                                  padding: "4px 12px",
-                                  marginTop: 4,
-                                  borderRadius: 6,
-                                }}
+                                <Space direction="vertical" size={4}>
+                                  <AntText
+                                    type="secondary"
+                                    style={{ display: "block", fontSize: 12 }}
+                                  >
+                                    เวอร์ชันล่าสุดที่ปล่อย
+                                  </AntText>
+                                  <Tag
+                                    color="processing"
+                                    style={{
+                                      fontSize: 16,
+                                      padding: "4px 12px",
+                                      borderRadius: 6,
+                                      margin: 0,
+                                    }}
+                                  >
+                                    {
+                                      checkUpdateResult.data?.data
+                                        ?.latest_version
+                                    }
+                                  </Tag>
+                                </Space>
+                                <Space direction="vertical" size={4}>
+                                  <AntText
+                                    type="secondary"
+                                    style={{ display: "block", fontSize: 12 }}
+                                  >
+                                    วันที่ปล่อยอัปเดต
+                                  </AntText>
+                                  <AntText strong style={{ fontSize: 14 }}>
+                                    {dayjs(
+                                      checkUpdateResult.data?.data?.updated_at,
+                                    ).format("DD/MM/BBBB HH:mm")}
+                                  </AntText>
+                                </Space>
+                              </Space>
+                            </Col>
+                            <Col span={12}>
+                              <Space
+                                direction="vertical"
+                                size={16}
+                                style={{ width: "100%" }}
                               >
-                                {checkUpdateResult.data?.data?.latest_version}
-                              </Tag>
-                            </div>
-                            <div>
-                              <AntText
-                                type="secondary"
-                                style={{ display: "block", fontSize: 12 }}
-                              >
-                                วันที่ปล่อยอัปเดต
-                              </AntText>
-                              <AntText strong style={{ fontSize: 14 }}>
-                                {dayjs(
-                                  checkUpdateResult.data?.data?.updated_at,
-                                ).format("DD/MM/BBBB HH:mm")}
-                              </AntText>
-                            </div>
-                          </Col>
-                          <Col span={12}>
-                            <div style={{ marginBottom: 16 }}>
-                              <AntText
-                                type="secondary"
-                                style={{ display: "block", fontSize: 12 }}
-                              >
-                                ลิงก์ดาวน์โหลด
-                              </AntText>
-                              <Button
-                                type="link"
-                                icon={<DownloadOutlined />}
-                                style={{ padding: 0, height: "auto" }}
-                                onClick={() =>
-                                  window.open(
-                                    checkUpdateResult.data?.data?.url,
-                                    "_blank",
-                                  )
-                                }
-                              >
-                                คลิกเพื่อดาวน์โหลด .apk
-                              </Button>
-                            </div>
-                            <AntText
-                              copyable={{
-                                text: checkUpdateResult.data?.data?.url,
-                              }}
-                              type="secondary"
-                              style={{ fontSize: 11 }}
-                            >
-                              คัดลอก URL
-                            </AntText>
-                          </Col>
-                        </Row>
-                      </div>
-                    )}
-                  </div>
-                </Flex>
-              )}
-            </div>
-          </div>
+                                <Space direction="vertical" size={4}>
+                                  <AntText
+                                    type="secondary"
+                                    style={{ display: "block", fontSize: 12 }}
+                                  >
+                                    ลิงก์ดาวน์โหลด
+                                  </AntText>
+                                  <Button
+                                    type="link"
+                                    icon={<DownloadOutlined />}
+                                    style={{ padding: 0, height: "auto" }}
+                                    onClick={() =>
+                                      window.open(
+                                        checkUpdateResult.data?.data?.url,
+                                        "_blank",
+                                      )
+                                    }
+                                  >
+                                    คลิกเพื่อดาวน์โหลด .apk
+                                  </Button>
+                                </Space>
+                                <AntText
+                                  copyable={{
+                                    text: checkUpdateResult.data?.data?.url,
+                                  }}
+                                  type="secondary"
+                                  style={{ fontSize: 11 }}
+                                >
+                                  คัดลอก URL
+                                </AntText>
+                              </Space>
+                            </Col>
+                          </Row>
+                        </Card>
+                      )}
+                    </Col>
+                  </Flex>
+                )}
+              </Card>
+            </Col>
+          </Row>
         )}
       </Modal>
 
