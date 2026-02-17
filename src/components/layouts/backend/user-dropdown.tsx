@@ -203,7 +203,6 @@ const UserRankDetailsCard = ({ userRankDetails }: { userRankDetails: any }) => {
           overflow: "hidden",
         },
       }}
-      bordered={false}
     >
       {/* Background Decoration Icon */}
       <div
