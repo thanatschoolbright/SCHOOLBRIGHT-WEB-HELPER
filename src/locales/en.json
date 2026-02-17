@@ -481,7 +481,8 @@
       "canteen": "Canteen & POS",
       "kindergarten": "Nursery & Preschool",
       "activity": "Activity Tracking",
-      "exam": "Exam Management"
+      "exam": "Exam Management",
+      "bus": "School Bus System"
     },
     "targets": {
       "system": "Core administrative tools, school hierarchy, and primary configurations.",
@@ -491,7 +492,8 @@
       "canteen": "Vendor management, food menus, and cashless canteen operations.",
       "kindergarten": "Early childhood development tracking and nursery activities.",
       "activity": "Record learner development scores and student clubs records.",
-      "exam": "Test banks, online examinations, and performance analytics."
+      "exam": "Test banks, online examinations, and performance analytics.",
+      "bus": "Manage bus routes, driver information, and track school transportation status."
     },
     "environments": {
       "production": "PRODUCTION",

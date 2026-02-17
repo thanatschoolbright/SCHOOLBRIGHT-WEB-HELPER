@@ -5,6 +5,7 @@ import {
   ArrowRightOutlined,
   BankOutlined,
   BookOutlined,
+  CarOutlined,
   FileProtectOutlined,
   FireOutlined,
   GlobalOutlined,
@@ -44,6 +45,7 @@ const TARGET_ICON_MAP: Record<string, React.ReactNode> = {
   kindergarten: <SmileOutlined />,
   activity: <FireOutlined />,
   exam: <FileProtectOutlined />,
+  bus: <CarOutlined />,
 };
 
 type BypassSelectionModalProps = {
@@ -74,6 +76,7 @@ export default function BypassSelectionModal({
     kindergarten: TRANSLATION("bypass_page.targets.kindergarten"),
     activity: TRANSLATION("bypass_page.targets.activity"),
     exam: TRANSLATION("bypass_page.targets.exam"),
+    bus: TRANSLATION("bypass_page.targets.bus"),
   };
 
   const ENV_DESC_MAP: Record<string, string> = {
