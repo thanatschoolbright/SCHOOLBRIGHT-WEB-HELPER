@@ -1367,7 +1367,7 @@ export default function CanteenAppManager() {
           if (!isCheckingUpdate) setCheckUpdateModalVisible(false);
         }}
         footer={null}
-        width={700}
+        width={850}
         centered
       >
         <div style={{ marginBottom: 24 }}>
@@ -1493,9 +1493,20 @@ export default function CanteenAppManager() {
                   )}
                   <div style={{ flex: 1 }}>
                     <Typography.Title level={5} style={{ margin: 0 }}>
-                      {checkUpdateResult.data?.data?.update_required
-                        ? "🚀 พบเวอร์ชันใหม่ (Update Available)"
-                        : "✅ เป็นเวอร์ชันล่าสุดแล้ว (Up to Date)"}
+                      <Space>
+                        {checkUpdateResult.data?.data?.update_required ? (
+                          <>
+                            <span>พบเวอร์ชันใหม่ (Update Available)</span>
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircleOutlined
+                              style={{ color: token.colorSuccess }}
+                            />
+                            <span>เป็นเวอร์ชันล่าสุดแล้ว (Up to Date)</span>
+                          </>
+                        )}
+                      </Space>
                     </Typography.Title>
                     <div style={{ marginTop: 8 }}>
                       <AntText>{checkUpdateResult.data?.data?.message}</AntText>
@@ -1505,33 +1516,81 @@ export default function CanteenAppManager() {
                       <div
                         style={{
                           marginTop: 16,
-                          padding: 12,
-                          backgroundColor: token.colorFillAlter,
-                          borderRadius: 8,
+                          padding: 20,
+                          backgroundColor: token.colorBgContainer,
+                          borderRadius: 12,
                           border: `1px solid ${token.colorBorderSecondary}`,
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
                         }}
                       >
-                        <Descriptions size="small" column={1}>
-                          <Descriptions.Item label="เวอร์ชันล่าสุด">
-                            <Tag color="green">
-                              {checkUpdateResult.data?.data?.latest_version}
-                            </Tag>
-                          </Descriptions.Item>
-                          <Descriptions.Item label="วันที่ปล่อย">
-                            {dayjs(
-                              checkUpdateResult.data?.data?.updated_at,
-                            ).format("DD MMMM BBBB HH:mm")}
-                          </Descriptions.Item>
-                          <Descriptions.Item label="URL">
+                        <Row gutter={[24, 16]}>
+                          <Col span={12}>
+                            <div style={{ marginBottom: 16 }}>
+                              <AntText
+                                type="secondary"
+                                style={{ display: "block", fontSize: 12 }}
+                              >
+                                เวอร์ชันล่าสุดที่ปล่อย
+                              </AntText>
+                              <Tag
+                                color="processing"
+                                style={{
+                                  fontSize: 16,
+                                  padding: "4px 12px",
+                                  marginTop: 4,
+                                  borderRadius: 6,
+                                }}
+                              >
+                                {checkUpdateResult.data?.data?.latest_version}
+                              </Tag>
+                            </div>
+                            <div>
+                              <AntText
+                                type="secondary"
+                                style={{ display: "block", fontSize: 12 }}
+                              >
+                                วันที่ปล่อยอัปเดต
+                              </AntText>
+                              <AntText strong style={{ fontSize: 14 }}>
+                                {dayjs(
+                                  checkUpdateResult.data?.data?.updated_at,
+                                ).format("DD/MM/BBBB HH:mm")}
+                              </AntText>
+                            </div>
+                          </Col>
+                          <Col span={12}>
+                            <div style={{ marginBottom: 16 }}>
+                              <AntText
+                                type="secondary"
+                                style={{ display: "block", fontSize: 12 }}
+                              >
+                                ลิงก์ดาวน์โหลด
+                              </AntText>
+                              <Button
+                                type="link"
+                                icon={<DownloadOutlined />}
+                                style={{ padding: 0, height: "auto" }}
+                                onClick={() =>
+                                  window.open(
+                                    checkUpdateResult.data?.data?.url,
+                                    "_blank",
+                                  )
+                                }
+                              >
+                                คลิกเพื่อดาวน์โหลด .apk
+                              </Button>
+                            </div>
                             <AntText
-                              copyable
-                              ellipsis
-                              style={{ maxWidth: 300, fontSize: 11 }}
+                              copyable={{
+                                text: checkUpdateResult.data?.data?.url,
+                              }}
+                              type="secondary"
+                              style={{ fontSize: 11 }}
                             >
-                              {checkUpdateResult.data?.data?.url}
+                              คัดลอก URL
                             </AntText>
-                          </Descriptions.Item>
-                        </Descriptions>
+                          </Col>
+                        </Row>
                       </div>
                     )}
                   </div>
