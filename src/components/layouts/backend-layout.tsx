@@ -48,7 +48,7 @@ export default function DashboardLayout({
 
   // Constants
   const isDesktop = !!screens.lg;
-  const sidebarWidth = 260;
+  const sidebarWidth = 300;
   const collapsedWidth = 80;
 
   // 🦴 Skeleton Fallback
