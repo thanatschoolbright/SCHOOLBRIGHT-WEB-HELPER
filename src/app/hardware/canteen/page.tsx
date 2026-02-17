@@ -5,6 +5,9 @@ import {
   ApiOutlined,
   AppleOutlined,
   AppstoreOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  CloudDownloadOutlined,
   CloudUploadOutlined,
   CodeOutlined,
   DeleteOutlined,
@@ -65,6 +68,7 @@ import {
   DELETE_APPLICATION_VERSION,
   GET_APPLICATION_LIST,
   GET_APPLICATION_VERSION_BY_APPID,
+  GET_CHECK_VERSION,
   POST_CREATE_APPLICATION_VERSION,
   POST_UPDATE_APPLICATION_VERSION,
 } from "@/app/hardware/canteen/canteen-api.helper";
@@ -369,6 +373,12 @@ export default function CanteenAppManager() {
   const [deleteTargetRecord, setDeleteTargetRecord] =
     useState<VersionRecord | null>(null);
 
+  // Verification Simulator States
+  const [checkUpdateModalVisible, setCheckUpdateModalVisible] = useState(false);
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
+  const [checkUpdateResult, setCheckUpdateResult] = useState<any>(null);
+  const [checkFormInstance] = Form.useForm();
+
   const [versionFormInstance] = Form.useForm<VersionFormValues>();
   const searchInputRefs = useRef<
     Partial<Record<SearchableColumnKey, InputRef | null>>
@@ -383,6 +393,15 @@ export default function CanteenAppManager() {
     () => buildSchoolOptions(schoolList),
     [schoolList],
   );
+
+  const availableVersionOptions = useMemo(() => {
+    // ดึงรายชื่อเวอร์ชันที่ไม่ซ้ำกันจากประวัติมาแสดงใน dropdown
+    const versions = versionDataset.data.map((v) => v.version_name);
+    const uniqueVersions = Array.from(new Set(versions)).sort((a, b) =>
+      b.localeCompare(a, undefined, { numeric: true, sensitivity: "base" }),
+    );
+    return uniqueVersions.map((v) => ({ label: v, value: v }));
+  }, [versionDataset.data]);
 
   // Data Fetchers
   const fetchSchools = useCallback(async () => {
@@ -584,6 +603,36 @@ export default function CanteenAppManager() {
         fetchApplicationVersions(selectedApplication.app_id);
     } catch (error) {
       toast.error("ลบข้อมูลไม่สำเร็จ");
+    }
+  };
+
+  const handleCheckUpdateSimulation = async () => {
+    try {
+      const values = await checkFormInstance.validateFields();
+      setIsCheckingUpdate(true);
+      setCheckUpdateResult(null);
+
+      const response = await GET_CHECK_VERSION({
+        app_id: selectedApplication?.app_id || "",
+        version_name: values.versionName,
+        school_id: values.schoolID,
+      });
+
+      // API return format defined by proxy
+      setCheckUpdateResult(response);
+    } catch (error: any) {
+      console.error("Check Error:", error);
+      const apiErrorData = error.response?.data;
+      setCheckUpdateResult({
+        error: true,
+        message:
+          apiErrorData?.message ||
+          error.message ||
+          "เกิดข้อผิดพลาดในการตรวจสอบ",
+        debug: apiErrorData,
+      });
+    } finally {
+      setIsCheckingUpdate(false);
     }
   };
 
@@ -918,6 +967,18 @@ export default function CanteenAppManager() {
           >
             ส่งออกประวัติ (Excel)
           </Button>
+
+          <Button
+            icon={<SearchOutlined />}
+            onClick={() => {
+              checkFormInstance.resetFields();
+              setCheckUpdateResult(null);
+              setCheckUpdateModalVisible(true);
+            }}
+          >
+            จำลองการตรวจสอบอัปเดต
+          </Button>
+
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -1290,6 +1351,194 @@ export default function CanteenAppManager() {
               </div>
             )}
           </Result>
+        )}
+      </Modal>
+
+      {/* 🟢 Verification Simulator Modal */}
+      <Modal
+        title={
+          <Space>
+            <SearchOutlined style={{ color: token.colorPrimary }} />
+            <span>จำลองการตรวจสอบการอัปเดต (Update Simulator)</span>
+          </Space>
+        }
+        open={checkUpdateModalVisible}
+        onCancel={() => {
+          if (!isCheckingUpdate) setCheckUpdateModalVisible(false);
+        }}
+        footer={null}
+        width={700}
+        centered
+      >
+        <div style={{ marginBottom: 24 }}>
+          <AntText type="secondary">
+            ใช้สำหรับจำลองการตรวจสอบว่าโรงเรียนที่ระบุ
+            จะได้รับแจ้งเตือนให้อัปเดตแอปพลิเคชันหรือไม่ โดยอ้างอิงจาก App ID:{" "}
+            <AntText code>{selectedApplication?.app_id}</AntText>
+          </AntText>
+        </div>
+
+        <Form
+          form={checkFormInstance}
+          layout="vertical"
+          onFinish={handleCheckUpdateSimulation}
+        >
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="schoolID"
+                label="เลือกโรงเรียนที่ต้องการทดสอบ"
+                rules={[{ required: true, message: "กรุณาเลือกโรงเรียน" }]}
+              >
+                <Select
+                  showSearch
+                  placeholder="ค้นหาชื่อโรงเรียน..."
+                  options={schoolOptions}
+                  filterOption={(input, option) =>
+                    (option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="versionName"
+                label="เวอร์ชันที่ต้องการทดสอบ"
+                rules={[{ required: true, message: "กรุณาเลือกเวอร์ชัน" }]}
+              >
+                <Select
+                  showSearch
+                  placeholder="เลือกหรือพิมพ์เวอร์ชัน..."
+                  options={availableVersionOptions}
+                  dropdownRender={(menu) => (
+                    <>
+                      {menu}
+                      <div
+                        style={{
+                          padding: "8px 12px",
+                          borderTop: `1px solid ${token.colorBorderSecondary}`,
+                        }}
+                      >
+                        <AntText type="secondary" style={{ fontSize: 11 }}>
+                          * สามารถพิมพ์เวอร์ชันใหม่ที่ไม่มีในรายการได้
+                        </AntText>
+                      </div>
+                    </>
+                  )}
+                  onSearch={(value) => {
+                    // อนุญาตให้พิมพ์ค่าใหม่ได้ หากไม่มีในตัวเลือก
+                  }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={24}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={isCheckingUpdate}
+                block
+                size="large"
+                icon={<SearchOutlined />}
+              >
+                {isCheckingUpdate ? "กำลังตรวจสอบ..." : "ตรวจสอบสถานะการอัปเดต"}
+              </Button>
+            </Col>
+          </Row>
+        </Form>
+
+        {checkUpdateResult && (
+          <div style={{ marginTop: 24 }}>
+            <div
+              style={{
+                padding: 20,
+                borderRadius: 12,
+                border: `1px solid ${
+                  checkUpdateResult.error
+                    ? token.colorErrorBorder
+                    : checkUpdateResult.data?.data?.update_required
+                      ? token.colorWarningBorder
+                      : token.colorSuccessBorder
+                }`,
+                backgroundColor: checkUpdateResult.error
+                  ? token.colorErrorBg
+                  : checkUpdateResult.data?.data?.update_required
+                    ? token.colorWarningBg
+                    : token.colorSuccessBg,
+              }}
+            >
+              {checkUpdateResult.error ? (
+                <Flex align="start" gap={12}>
+                  <CloseCircleOutlined
+                    style={{ color: token.colorError, fontSize: 24 }}
+                  />
+                  <div>
+                    <Typography.Title level={5} style={{ margin: 0 }}>
+                      เกิดข้อผิดพลาด
+                    </Typography.Title>
+                    <AntText>{checkUpdateResult.message}</AntText>
+                  </div>
+                </Flex>
+              ) : (
+                <Flex align="start" gap={12}>
+                  {checkUpdateResult.data?.data?.update_required ? (
+                    <CloudDownloadOutlined
+                      style={{ color: "#faad14", fontSize: 28 }}
+                    />
+                  ) : (
+                    <CheckCircleOutlined
+                      style={{ color: token.colorSuccess, fontSize: 28 }}
+                    />
+                  )}
+                  <div style={{ flex: 1 }}>
+                    <Typography.Title level={5} style={{ margin: 0 }}>
+                      {checkUpdateResult.data?.data?.update_required
+                        ? "🚀 พบเวอร์ชันใหม่ (Update Available)"
+                        : "✅ เป็นเวอร์ชันล่าสุดแล้ว (Up to Date)"}
+                    </Typography.Title>
+                    <div style={{ marginTop: 8 }}>
+                      <AntText>{checkUpdateResult.data?.data?.message}</AntText>
+                    </div>
+
+                    {checkUpdateResult.data?.data?.update_required && (
+                      <div
+                        style={{
+                          marginTop: 16,
+                          padding: 12,
+                          backgroundColor: token.colorFillAlter,
+                          borderRadius: 8,
+                          border: `1px solid ${token.colorBorderSecondary}`,
+                        }}
+                      >
+                        <Descriptions size="small" column={1}>
+                          <Descriptions.Item label="เวอร์ชันล่าสุด">
+                            <Tag color="green">
+                              {checkUpdateResult.data?.data?.latest_version}
+                            </Tag>
+                          </Descriptions.Item>
+                          <Descriptions.Item label="วันที่ปล่อย">
+                            {dayjs(
+                              checkUpdateResult.data?.data?.updated_at,
+                            ).format("DD MMMM BBBB HH:mm")}
+                          </Descriptions.Item>
+                          <Descriptions.Item label="URL">
+                            <AntText
+                              copyable
+                              ellipsis
+                              style={{ maxWidth: 300, fontSize: 11 }}
+                            >
+                              {checkUpdateResult.data?.data?.url}
+                            </AntText>
+                          </Descriptions.Item>
+                        </Descriptions>
+                      </div>
+                    )}
+                  </div>
+                </Flex>
+              )}
+            </div>
+          </div>
         )}
       </Modal>
 

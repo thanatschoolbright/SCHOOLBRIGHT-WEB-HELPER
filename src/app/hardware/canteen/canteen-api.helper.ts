@@ -66,3 +66,25 @@ export const DELETE_APPLICATION_VERSION = async (
     throw error;
   }
 };
+
+//** ตรวจสอบการอัปเดตแอปพลิเคชันสำหรับโรงเรียนที่ระบุ
+export const GET_CHECK_VERSION = async (params: {
+  app_id: string;
+  version_name: string;
+  school_id: string;
+  current_ver?: string;
+}) => {
+  try {
+    const response = await axios.get("/api/v1/hardware/canteen/check", {
+      params: {
+        app_id: params.app_id,
+        version_name: params.version_name,
+        SchoolID: params.school_id,
+        current_ver: params.current_ver || "",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
