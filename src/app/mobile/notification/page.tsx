@@ -1,19 +1,25 @@
 "use client";
 
+import SummaryCard from "@/components/card/summary-card";
+import { StatusModalComponent } from "@/components/modal/status-modal-component";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
 import type { ResponseNotification, ResponseUserList } from "@/stores/type";
 import {
   BankOutlined,
   CheckCircleOutlined,
+  ClearOutlined,
   CloseCircleOutlined,
   CodeOutlined,
   CopyOutlined,
   EyeOutlined,
   FileTextOutlined,
+  FilterOutlined,
   InfoCircleOutlined,
   LeftOutlined,
   MessageOutlined,
   RightOutlined,
   SearchOutlined,
+  UnorderedListOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
@@ -33,17 +39,18 @@ import {
   Card,
   Col,
   Descriptions,
+  Flex,
   Form,
   Input,
   Modal,
   Row,
   Select,
   Space,
-  Statistic,
   Steps,
   Table,
   Tabs,
   Tag,
+  theme,
   Tooltip,
   Typography,
 } from "antd";
@@ -68,7 +75,9 @@ type SearchableColumnKey =
   | "nType"
   | "nStatus"
   | "sTitle"
-  | "sMessage";
+  | "sMessage"
+  | "school_id"
+  | "letter_id";
 
 type TableColumn = ColumnType<ResponseNotification> & {
   key: keyof ResponseNotification | string;
@@ -76,6 +85,8 @@ type TableColumn = ColumnType<ResponseNotification> & {
 
 export default function Page() {
   const dispatch = useDispatch<AppDispatch>();
+  const { token } = theme.useToken();
+  const { Title, Text } = Typography;
 
   const [form] = Form.useForm<{ schoolID: string; userID: string }>();
   const [activeTab, setActiveTab] = useState<string>(TODAY);
@@ -89,6 +100,12 @@ export default function Page() {
     loading: false,
   });
   const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [statusModal, setStatusModal] = useState<{
+    open: boolean;
+    type: "success" | "error" | "confirm" | "delete";
+    title?: string;
+    message?: string;
+  }>({ open: false, type: "success" });
   const [page, setPage] = useState<number>(1);
   const [curlToday, setCurlToday] = useState<string>("");
   const [curlWeek, setCurlWeek] = useState<string>("");
@@ -224,10 +241,27 @@ export default function Page() {
   );
 
   const handleFormSubmit = useCallback(async () => {
-    const values = await form.validateFields();
-    setPage(1);
-    await fetchNotifications(values.userID, 1);
+    try {
+      const values = await form.validateFields();
+      setPage(1);
+      await fetchNotifications(values.userID, 1);
+    } catch (error) {
+      //
+    }
   }, [fetchNotifications, form]);
+
+  /**
+   * ล้างตัวกรองและข้อมูล
+   */
+  const handleClearForm = useCallback(() => {
+    form.resetFields();
+    setCurrentStep(0);
+    setTodayDataset({ data: [], loading: false });
+    setWeekDataset({ data: [], loading: false });
+    setCurlToday("");
+    setCurlWeek("");
+    toast.success("ล้างข้อมูลการค้นหาเรียบร้อยแล้ว");
+  }, [form]);
 
   const handlePageChange = useCallback(
     async (nextPage: number) => {
@@ -348,33 +382,60 @@ export default function Page() {
         fixed: "left",
       },
       {
-        title: "รหัสข้อความ",
+        title: "Message ID",
         dataIndex: "nMessageID",
         width: 120,
+        align: "center",
         sorter: (a, b) => Number(a.nMessageID) - Number(b.nMessageID),
         ...getColumnSearchProps("nMessageID", "รหัสข้อความ"),
+        render: (value) => (
+          <Typography.Text copyable style={{ fontFamily: "monospace" }}>
+            {value}
+          </Typography.Text>
+        ),
+      },
+      {
+        title: "Letter ID",
+        dataIndex: "letter_id",
+        width: 120,
+        align: "center",
+        sorter: (a, b) => Number(a.letter_id || 0) - Number(b.letter_id || 0),
+        ...getColumnSearchProps("letter_id", "Letter ID"),
+        render: (value) => (
+          <Text type="secondary" style={{ fontFamily: "monospace" }}>
+            {value || "-"}
+          </Text>
+        ),
+      },
+      {
+        title: "School ID",
+        dataIndex: "school_id",
+        width: 100,
+        align: "center",
+        sorter: (a, b) => Number(a.school_id || 0) - Number(b.school_id || 0),
+        ...getColumnSearchProps("school_id", "รหัสโรงเรียน"),
+        render: (value) => <Tag color="orange">{value || "-"}</Tag>,
       },
       {
         title: "วันที่ส่ง",
         dataIndex: "dSend",
-        width: 150,
+        width: 160,
         sorter: (a, b) => dayjs(a.dSend).valueOf() - dayjs(b.dSend).valueOf(),
         render: (value: string) => (
-          <div style={{ whiteSpace: "nowrap" }}>
+          <Text style={{ fontSize: 13, whiteSpace: "nowrap" }}>
             {convertTimeZoneToThai(new Date(value))}
-          </div>
+          </Text>
         ),
-        ...getColumnSearchProps("dSend", "วันที่ส่ง"),
       },
       {
         title: "ประเภท",
         dataIndex: "nType",
         key: "nType",
-        width: 120,
+        width: 130,
         align: "center",
         sorter: (a, b) => Number(a.nType) - Number(b.nType),
         render: (value: number) => (
-          <Tag color="blue" style={{ marginRight: 0 }}>
+          <Tag color="geekblue" style={{ margin: 0, borderRadius: 4 }}>
             {getNotificationType(value)}
           </Tag>
         ),
@@ -388,16 +449,16 @@ export default function Page() {
         title: "สถานะ",
         dataIndex: "nStatus",
         key: "nStatus",
-        width: 100,
+        width: 110,
         align: "center",
         sorter: (a, b) => Number(a.nStatus) - Number(b.nStatus),
         render: (value: number) => (
           <Tag
-            color={value === 1 ? "success" : "error"}
+            color={value === 1 ? "success" : "default"}
             icon={
               value === 1 ? <CheckCircleOutlined /> : <CloseCircleOutlined />
             }
-            style={{ borderRadius: "20px", padding: "0 10px", marginRight: 0 }}
+            style={{ borderRadius: "12px", padding: "0 10px", margin: 0 }}
           >
             {getNotificationRead(value)}
           </Tag>
@@ -411,30 +472,63 @@ export default function Page() {
       {
         title: "หัวข้อ",
         dataIndex: "sTitle",
-        width: 200,
+        width: 180,
+        sorter: (a, b) => (a.sTitle || "").localeCompare(b.sTitle || ""),
         ...getColumnSearchProps("sTitle", "หัวข้อ"),
         render: (text: string) => (
-          <Typography.Text
-            style={{ width: "100%", margin: 0 }}
-            ellipsis={{ tooltip: true }}
-          >
+          <Text strong style={{ fontSize: 13, display: "block" }}>
             {text || "-"}
-          </Typography.Text>
+          </Text>
         ),
       },
       {
         title: "ข้อความ",
         dataIndex: "sMessage",
-        width: 300,
+        width: 350,
+        sorter: (a, b) => (a.sMessage || "").localeCompare(b.sMessage || ""),
         ...getColumnSearchProps("sMessage", "ข้อความ"),
         render: (text: string) => (
           <Typography.Paragraph
-            style={{ width: "100%", margin: 0 }}
-            ellipsis={{ rows: 2, tooltip: true, expandable: false }}
+            style={{
+              width: "100%",
+              margin: 0,
+              fontSize: 13,
+              lineHeight: "1.5",
+            }}
+            ellipsis={{ rows: 2, tooltip: true }}
           >
             {text || "-"}
           </Typography.Paragraph>
         ),
+      },
+      {
+        title: "Log Status",
+        dataIndex: "LogStatus",
+        width: 100,
+        align: "center",
+        sorter: (a, b) => Number(a.LogStatus || 0) - Number(b.LogStatus || 0),
+        render: (value) =>
+          value ? (
+            <Tag bordered={false} color="purple">
+              {value}
+            </Tag>
+          ) : (
+            "-"
+          ),
+      },
+      {
+        title: "ไฟล์แนบ",
+        dataIndex: "file",
+        width: 100,
+        align: "center",
+        render: (hasFile) =>
+          hasFile ? (
+            <Tag color="cyan" icon={<FileTextOutlined />}>
+              YES
+            </Tag>
+          ) : (
+            <Text type="secondary">-</Text>
+          ),
       },
       {
         title: "โลโก้",
@@ -466,7 +560,8 @@ export default function Page() {
         render: (_value, record) => (
           <Tooltip title="ดูรายละเอียดเต็ม">
             <Button
-              type="text"
+              type="primary"
+              variant="text"
               shape="circle"
               icon={<EyeOutlined />}
               onClick={() => openDetailModal(record.nMessageID)}
@@ -517,8 +612,7 @@ export default function Page() {
           columns={columns}
           rowKey={(record) => String(record.nMessageID)}
           pagination={false}
-          scroll={{ x: 1300 }}
-          bordered
+          scroll={{ x: 1620 }}
           size="middle"
         />
       ),
@@ -537,8 +631,7 @@ export default function Page() {
           columns={columns}
           rowKey={(record) => String(record.nMessageID)}
           pagination={false}
-          scroll={{ x: 1300 }}
-          bordered
+          scroll={{ x: 1620 }}
           size="middle"
         />
       ),
@@ -762,35 +855,44 @@ export default function Page() {
 
   return (
     <DashboardLayout>
-      <Space direction="vertical" size="large" style={{ width: "100%" }}>
-        {/* Header Section */}
-        <Row gutter={[16, 16]}>
-          <Col xs={24} md={12}>
-            <Typography.Title level={3} style={{ margin: 0 }}>
-              ตรวจสอบการแจ้งเตือน (Notification Logs)
-            </Typography.Title>
-            <Typography.Text type="secondary">
-              ค้นหาและตรวจสอบประวัติการแจ้งเตือนของผู้ใช้งานรายบุคคล
-            </Typography.Text>
-          </Col>
-        </Row>
+      <Flex vertical gap={24} style={{ width: "100%" }}>
+        {/* ส่วนที่ 1: ส่วนหัวของหน้า (Header Bar) */}
+        <HeaderBar
+          icon={<MessageOutlined />}
+          title="ตรวจสอบการแจ้งเตือน (Notification Logs)"
+          subTitle="ค้นหาและตรวจสอบประวัติการแจ้งเตือนของผู้ใช้งานรายบุคคล"
+        />
 
-        {/* Search Card with Steps */}
+        {/* ส่วนที่ 3: ฟิลเตอร์ข้อมูล (Filter) และ ปุ่มที่เกี่ยวข้อง */}
         <Card
           variant="borderless"
-          style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}
+          styles={{ body: { padding: 24 } }}
+          style={{
+            borderRadius: 16,
+            border: `1px solid ${token.colorBorderSecondary}`,
+          }}
         >
+          <Flex align="center" gap={12} style={{ marginBottom: 16 }}>
+            <FilterOutlined
+              style={{ color: token.colorPrimary, fontSize: "1rem" }}
+            />
+            <Title
+              level={4}
+              style={{ margin: 0, fontWeight: 600, fontSize: "1rem" }}
+            >
+              ตัวกรอง
+            </Title>
+          </Flex>
+
           <Steps
             current={currentStep}
             items={[
               {
                 title: "เลือกโรงเรียน",
-                description: "ค้นหาและเลือกโรงเรียนที่ต้องการ",
                 icon: <BankOutlined />,
               },
               {
                 title: "เลือกผู้ใช้",
-                description: "เลือกผู้ใช้ที่ต้องการตรวจสอบ",
                 icon: <UserOutlined />,
               },
             ]}
@@ -803,18 +905,13 @@ export default function Page() {
             onFinish={handleFormSubmit}
             initialValues={{ schoolID: undefined, userID: undefined }}
           >
-            <Row gutter={16}>
-              <Col xs={24} md={10}>
+            <Row gutter={[24, 16]}>
+              <Col xs={24} md={12}>
                 <Form.Item
                   label={
                     <Space>
                       <BankOutlined />
                       <span>เลือกโรงเรียน</span>
-                      <Tooltip title="ค้นหาด้วยชื่อโรงเรียน หรือ School ID">
-                        <InfoCircleOutlined
-                          style={{ color: "rgba(0,0,0,0.45)" }}
-                        />
-                      </Tooltip>
                     </Space>
                   }
                   name="schoolID"
@@ -837,150 +934,168 @@ export default function Page() {
                 </Form.Item>
               </Col>
 
-              {/* Show User Select & Button only after School is selected (currentStep >= 1) */}
-              {currentStep >= 1 && (
-                <>
-                  <Col xs={24} md={10}>
-                    <Form.Item
-                      label={
-                        <Space>
-                          <UserOutlined />
-                          <span>เลือกผู้ใช้</span>
-                          <Tooltip title="ค้นหาด้วยชื่อ-นามสกุล หรือ User ID">
-                            <InfoCircleOutlined
-                              style={{ color: "rgba(0,0,0,0.45)" }}
-                            />
-                          </Tooltip>
-                        </Space>
-                      }
-                      name="userID"
-                      rules={[{ required: true, message: "กรุณาเลือกผู้ใช้" }]}
-                    >
-                      <Select
-                        showSearch
-                        placeholder="พิมพ์ชื่อ หรือ ID เพื่อค้นหา..."
-                        options={userOptions}
-                        loading={userState.loading}
-                        filterOption={(input, option) =>
-                          String(option?.label ?? "")
-                            .toLowerCase()
-                            .includes(input.toLowerCase())
-                        }
-                        size="large"
-                        suffixIcon={<UserOutlined />}
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col
-                    xs={24}
-                    md={4}
-                    style={{ display: "flex", alignItems: "end" }}
-                  >
-                    <Form.Item style={{ width: "100%" }}>
-                      <Button
-                        type="primary"
-                        htmlType="submit"
-                        loading={overallLoading}
-                        size="large"
-                        block
-                        icon={<SearchOutlined />}
-                      >
-                        ตรวจสอบ
-                      </Button>
-                    </Form.Item>
-                  </Col>
-                </>
-              )}
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label={
+                    <Space>
+                      <UserOutlined />
+                      <span>เลือกผู้ใช้</span>
+                    </Space>
+                  }
+                  name="userID"
+                  rules={[{ required: true, message: "กรุณาเลือกผู้ใช้" }]}
+                >
+                  <Select
+                    showSearch
+                    disabled={currentStep < 1}
+                    placeholder={
+                      currentStep < 1
+                        ? "กรุณาเลือกโรงเรียนก่อน"
+                        : "พิมพ์ชื่อ หรือ ID เพื่อค้นหา..."
+                    }
+                    options={userOptions}
+                    loading={userState.loading}
+                    filterOption={(input, option) =>
+                      String(option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    size="large"
+                    suffixIcon={<UserOutlined />}
+                  />
+                </Form.Item>
+              </Col>
             </Row>
+
+            <Flex justify="end" gap={12} style={{ marginTop: 24 }}>
+              <Button
+                size="large"
+                icon={<ClearOutlined />}
+                onClick={handleClearForm}
+              >
+                ล้างการค้นหา
+              </Button>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={overallLoading}
+                size="large"
+                icon={<SearchOutlined />}
+                style={{ padding: "0 32px" }}
+              >
+                ค้นหาข้อมูล
+              </Button>
+            </Flex>
           </Form>
         </Card>
 
-        {/* Summary Stats & Results - Only visible when data is loaded */}
+        {/* ส่วนที่ 2: Summary Metrics (สรุปภาพรวม) */}
         {(todayDataset.data.length > 0 || weekDataset.data.length > 0) && (
-          <>
-            <Row gutter={16}>
-              <Col xs={24} sm={8}>
-                <Card
-                  variant="borderless"
-                  style={{ background: "#e6f7ff", borderColor: "#91d5ff" }}
-                >
-                  <Statistic
-                    title="ข้อความทั้งหมด"
-                    value={summaryStats.total}
-                    prefix={<MessageOutlined />}
-                    valueStyle={{ color: "#1890ff" }}
-                  />
-                </Card>
-              </Col>
-              <Col xs={24} sm={8}>
-                <Card
-                  variant="borderless"
-                  style={{ background: "#f6ffed", borderColor: "#b7eb8f" }}
-                >
-                  <Statistic
-                    title="อ่านแล้ว"
-                    value={summaryStats.read}
-                    prefix={<CheckCircleOutlined />}
-                    valueStyle={{ color: "#52c41a" }}
-                  />
-                </Card>
-              </Col>
-              <Col xs={24} sm={8}>
-                <Card
-                  variant="borderless"
-                  style={{ background: "#fff1f0", borderColor: "#ffa39e" }}
-                >
-                  <Statistic
-                    title="ยังไม่อ่าน"
-                    value={summaryStats.unread}
-                    prefix={<CloseCircleOutlined />}
-                    valueStyle={{ color: "#cf1322" }}
-                  />
-                </Card>
-              </Col>
-            </Row>
+          <Row gutter={[20, 20]}>
+            <Col xs={24} sm={8}>
+              <SummaryCard
+                title="ข้อความทั้งหมด"
+                value={summaryStats.total.toLocaleString()}
+                subtitle="จำนวนการแจ้งเตือนที่พบในระบบ"
+                icon={<MessageOutlined />}
+                color={token.colorPrimary}
+              />
+            </Col>
+            <Col xs={24} sm={8}>
+              <SummaryCard
+                title="อ่านแล้ว"
+                value={summaryStats.read.toLocaleString()}
+                subtitle="จำนวนข้อความที่ผู้ใช้เปิดอ่านแล้ว"
+                icon={<CheckCircleOutlined />}
+                color={token.colorSuccess}
+              />
+            </Col>
+            <Col xs={24} sm={8}>
+              <SummaryCard
+                title="ยังไม่อ่าน"
+                value={summaryStats.unread.toLocaleString()}
+                subtitle="จำนวนข้อความที่ยังไม่ได้เปิดอ่าน"
+                icon={<CloseCircleOutlined />}
+                color={token.colorError}
+              />
+            </Col>
+          </Row>
+        )}
 
-            <Card
-              variant="borderless"
-              style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}
-              extra={
+        {/* ส่วนที่ 4: ตารางข้อมูลเนื้อหา */}
+        {(todayDataset.data.length > 0 || weekDataset.data.length > 0) && (
+          <Card
+            variant="borderless"
+            styles={{ body: { padding: 16 } }}
+            style={{
+              borderRadius: 16,
+              overflow: "hidden",
+              border: `1px solid ${token.colorBorderSecondary}`,
+            }}
+          >
+            <Flex vertical gap={16}>
+              <Flex justify="space-between" align="center">
+                <Flex align="center" gap={12}>
+                  <UnorderedListOutlined
+                    style={{ color: token.colorPrimary, fontSize: "1rem" }}
+                  />
+                  <Title level={5} style={{ margin: 0, fontSize: "1rem" }}>
+                    รายการแจ้งเตือน
+                  </Title>
+                </Flex>
+
                 <Space>
                   {(curlToday || curlWeek) && (
-                    <Tooltip title="คัดลอกคำสั่ง CURL สำหรับ QA/Dev เพื่อนำไป Debug API">
-                      <Button icon={<CodeOutlined />} onClick={copyCurl}>
-                        Copy CURL Log
+                    <Tooltip title="คัดลอกคำสั่ง CURL สำหรับ QA/Dev">
+                      <Button
+                        type="text"
+                        icon={<CodeOutlined />}
+                        onClick={copyCurl}
+                        style={{ color: token.colorWarning, fontWeight: 600 }}
+                      >
+                        Copy CURL
                       </Button>
                     </Tooltip>
                   )}
-                  <Tooltip title="หน้าก่อนหน้า">
-                    <Button
-                      icon={<LeftOutlined />}
-                      onClick={() => handlePageChange(Math.max(page - 1, 1))}
-                      disabled={page <= 1}
-                    />
-                  </Tooltip>
-                  <Tooltip title="หน้าถัดไป">
-                    <Button
-                      icon={<RightOutlined />}
-                      onClick={() => handlePageChange(page + 1)}
-                    />
-                  </Tooltip>
+                  <Button
+                    icon={<LeftOutlined />}
+                    onClick={() => handlePageChange(Math.max(page - 1, 1))}
+                    disabled={page <= 1}
+                  />
+                  <Tag
+                    color="blue"
+                    style={{ margin: 0, padding: "2px 12px", borderRadius: 6 }}
+                  >
+                    หน้า {page}
+                  </Tag>
+                  <Button
+                    icon={<RightOutlined />}
+                    onClick={() => handlePageChange(page + 1)}
+                  />
                 </Space>
-              }
-            >
+              </Flex>
+
               <Tabs
                 activeKey={activeTab}
                 onChange={setActiveTab}
                 items={tabs}
                 type="card"
-                size="large"
               />
-            </Card>
-          </>
+            </Flex>
+          </Card>
         )}
-      </Space>
+      </Flex>
 
+      {/* Modals & Feedback */}
       {detailModalVisible && renderDetailModal()}
+
+      <StatusModalComponent
+        open={statusModal.open}
+        type={statusModal.type}
+        title={statusModal.title}
+        message={statusModal.message}
+        onClose={() => setStatusModal((prev) => ({ ...prev, open: false }))}
+      />
     </DashboardLayout>
   );
 }
