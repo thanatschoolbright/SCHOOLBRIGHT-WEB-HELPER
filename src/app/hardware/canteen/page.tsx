@@ -1015,6 +1015,13 @@ export default function CanteenAppManager() {
                 <Form.Item name="appID" label="รหัสแอปพลิเคชัน (App ID)">
                   <Input disabled />
                 </Form.Item>
+                {/*
+                  ⚠️ Hidden field สำหรับเก็บ Version ID เพื่อใช้ในการแก้ไข (Update)
+                  หากไม่มีฟิลด์นี้ validateFields() จะไม่คืนค่า versionID ออกมา
+                */}
+                <Form.Item name="versionID" hidden>
+                  <Input />
+                </Form.Item>
               </Col>
               <Col span={12}>
                 <Form.Item
