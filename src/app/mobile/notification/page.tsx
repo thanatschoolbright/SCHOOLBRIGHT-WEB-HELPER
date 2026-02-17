@@ -6,6 +6,7 @@ import { HeaderBar } from "@/components/typhography/header-bar-component";
 import type { ResponseNotification, ResponseUserList } from "@/stores/type";
 import {
   BankOutlined,
+  BookOutlined,
   CheckCircleOutlined,
   ClearOutlined,
   CloseCircleOutlined,
@@ -662,164 +663,221 @@ export default function Page() {
       <Modal
         title={
           <Space>
-            <FileTextOutlined style={{ color: "#1890ff" }} />
+            <MessageOutlined style={{ color: token.colorPrimary }} />
             <Typography.Title level={5} style={{ margin: 0 }}>
               รายละเอียดข้อความแจ้งเตือน
             </Typography.Title>
           </Space>
         }
         open={detailModalVisible}
-        onCancel={() => {
-          setDetailModalVisible(false);
-        }}
+        onCancel={() => setDetailModalVisible(false)}
         footer={[
           <Button key="close" onClick={() => setDetailModalVisible(false)}>
             ปิดหน้าต่าง
           </Button>,
         ]}
-        width={700} // ปรับความกว้างให้พอดีกับ 1 Column
+        width={800}
         centered
-        styles={{ body: { padding: "24px" } }}
+        styles={{ body: { padding: "20px" } }}
       >
-        <Space direction="vertical" style={{ width: "100%" }} size="middle">
-          {/* ส่วนข้อความหลัก */}
+        <Space direction="vertical" style={{ width: "100%" }} size="large">
+          {/* 📌 ส่วนข้อความแจ้งเตือน (Header Card) */}
           <Card
-            bordered
+            bordered={false}
             style={{
-              background: "#fafafa",
-              borderColor: "#f0f0f0",
+              background: token.colorFillAlter,
+              borderRadius: 12,
+              borderLeft: `4px solid ${token.colorPrimary}`,
             }}
           >
-            <Typography.Title
-              level={5}
-              style={{ marginTop: 0, color: "#262626" }}
-            >
-              {detail.sTitle}
-            </Typography.Title>
-            <Typography.Paragraph
-              style={{
-                fontSize: "15px",
-                color: "#595959",
-                whiteSpace: "pre-wrap",
-                marginBottom: 0,
-              }}
-            >
-              {detail.sMessage ?? "-"}
-            </Typography.Paragraph>
+            <Flex vertical gap="small">
+              <Typography.Title level={4} style={{ margin: 0 }}>
+                {detail.sTitle || "ไม่มีหัวข้อ"}
+              </Typography.Title>
+              <Typography.Paragraph
+                style={{
+                  fontSize: "15px",
+                  lineHeight: "1.6",
+                  color: token.colorText,
+                  whiteSpace: "pre-wrap",
+                  marginBottom: 0,
+                  padding: "8px 0",
+                }}
+              >
+                {detail.sMessage ?? "-"}
+              </Typography.Paragraph>
+              <Flex align="center" gap="small" wrap="wrap">
+                <Tag color="geekblue" icon={<InfoCircleOutlined />}>
+                  {getNotificationType(detail.nType ?? 0)}
+                </Tag>
+                <Tag
+                  color={detail.nStatus === 1 ? "success" : "warning"}
+                  icon={
+                    detail.nStatus === 1 ? (
+                      <CheckCircleOutlined />
+                    ) : (
+                      <EyeOutlined />
+                    )
+                  }
+                >
+                  {getNotificationRead(detail.nStatus ?? 0)}
+                </Tag>
+                {detail.LogStatus !== undefined && (
+                  <Tag bordered={false} color="purple">
+                    Log Status: {detail.LogStatus}
+                  </Tag>
+                )}
+              </Flex>
+            </Flex>
           </Card>
 
-          {/* ส่วนข้อมูลทั่วไปแบบ 1:1 (Single Column) */}
+          {/* ℹ️ ข้อมูลพื้นฐาน (Basic Info) */}
           <Descriptions
-            title="ข้อมูลทั่วไป"
+            title={
+              <Space>
+                <UnorderedListOutlined />
+                ข้อมูลพื้นฐาน
+              </Space>
+            }
             bordered
-            column={1} // ✅ บังคับแสดง 1 Column
-            size="small" // ใช้ size small เพื่อให้บรรทัดไม่ห่างกันเกินไป
-            labelStyle={{ width: "180px", background: "#fafafa" }} // กำหนดความกว้าง Label ให้เท่ากันสวยงาม
+            size="small"
+            column={{ xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }}
+            labelStyle={{
+              width: "140px",
+              background: token.colorFillAlter,
+              fontWeight: 600,
+            }}
           >
-            <Descriptions.Item
-              label={
-                <LabelWithIcon icon={<CodeOutlined />} label="Message ID" />
-              }
-            >
-              <Typography.Text copyable>
+            <Descriptions.Item label="Message ID">
+              <Typography.Text copyable strong>
                 {detail.nMessageID ?? "-"}
               </Typography.Text>
             </Descriptions.Item>
-
-            <Descriptions.Item
-              label={
-                <LabelWithIcon icon={<BankOutlined />} label="School ID" />
-              }
-            >
-              <Typography.Text>{detail.school_id ?? "-"}</Typography.Text>
+            <Descriptions.Item label="School ID">
+              <Tag color="orange">{detail.school_id ?? "-"}</Tag>
             </Descriptions.Item>
-
-            <Descriptions.Item
-              label={
-                <LabelWithIcon
-                  icon={<CheckCircleOutlined />}
-                  label="สถานะการอ่าน"
-                />
-              }
-            >
-              <Tag color={detail.nStatus === 1 ? "success" : "volcano"}>
-                {getNotificationRead(detail.nStatus ?? 0)}
-              </Tag>
-            </Descriptions.Item>
-
-            <Descriptions.Item
-              label={
-                <LabelWithIcon icon={<InfoCircleOutlined />} label="ประเภท" />
-              }
-            >
-              <Tag color="geekblue">
-                {getNotificationType(detail.nType ?? 0)}
-              </Tag>
-            </Descriptions.Item>
-
-            <Descriptions.Item
-              label={
-                <LabelWithIcon
-                  icon={<CheckCircleOutlined />}
-                  label="วันที่ส่ง"
-                />
-              }
-            >
+            <Descriptions.Item label="วันที่ส่ง">
               {detail.dSend
                 ? convertTimeZoneToThai(new Date(detail.dSend))
                 : "-"}
             </Descriptions.Item>
-
-            <Descriptions.Item
-              label={
-                <LabelWithIcon icon={<FileTextOutlined />} label="ไฟล์แนบ" />
-              }
-            >
-              {detail.file ? (
-                <Tag color="blue">มีไฟล์แนบ</Tag>
-              ) : (
-                <Tag>ไม่มีไฟล์</Tag>
-              )}
+            <Descriptions.Item label="Letter ID">
+              <Typography.Text type="secondary">
+                {detail.letter_id ?? "-"}
+              </Typography.Text>
+            </Descriptions.Item>
+            <Descriptions.Item label="Scheduled ID">
+              <Typography.Text type="secondary">
+                {detail.scheduled_id ?? "-"}
+              </Typography.Text>
+            </Descriptions.Item>
+            <Descriptions.Item label="Push ID">
+              <Typography.Text type="secondary">
+                {detail.push_id ?? "-"}
+              </Typography.Text>
             </Descriptions.Item>
           </Descriptions>
 
-          {/* ส่วนรายละเอียดการบ้าน (ถ้ามี) แบบ 1:1 */}
-          {detail.homework && (
+          {/* 📂 ข้อมูลเพิ่มเติม (Additional Details) */}
+          {(detail.homework_id ||
+            detail.sell_id ||
+            detail.ReplyType ||
+            detail.file) && (
             <Descriptions
-              title="รายละเอียดการบ้าน"
+              title={
+                <Space>
+                  <FileTextOutlined />
+                  ข้อมูลระบบทางเทคนิค
+                </Space>
+              }
               bordered
-              column={1}
               size="small"
-              labelStyle={{ width: "180px", background: "#fffbe6" }} // สีพื้นหลัง Label ต่างออกไปเล็กน้อย
-              style={{ marginTop: 8 }}
+              column={{ xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }}
+              labelStyle={{
+                width: "140px",
+                background: token.colorFillAlter,
+                fontWeight: 600,
+              }}
             >
-              <Descriptions.Item label="ช่วงเวลา">
-                {detail.homework.daystart} - {detail.homework.dayend}
+              <Descriptions.Item label="Homework ID">
+                {detail.homework_id ?? "-"}
               </Descriptions.Item>
-              <Descriptions.Item label="ครูผู้สอน">
-                {detail.homework.teachername ?? "-"}
+              <Descriptions.Item label="Sell ID">
+                {detail.sell_id ?? "-"}
               </Descriptions.Item>
-              <Descriptions.Item label="รายละเอียดเพิ่มเติม">
-                {detail.homework.detail ?? "-"}
+              <Descriptions.Item label="Reply Type">
+                {detail.ReplyType || "-"}
+              </Descriptions.Item>
+              <Descriptions.Item label="ไฟล์แนบ">
+                {detail.file ? (
+                  <Tag color="blue" icon={<FileTextOutlined />}>
+                    มีไฟล์แนบ
+                  </Tag>
+                ) : (
+                  "ไม่มีไฟล์"
+                )}
+              </Descriptions.Item>
+              <Descriptions.Item label="สถานะการตอบกลับ">
+                <Tag color={detail.replyStatus ? "blue" : "default"}>
+                  {detail.replyStatus ? "เปิดการตอบกลับ" : "ปิด"}
+                </Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="ผู้สร้างข่าว">
+                {detail.NewsCreatedBy ?? "-"}
               </Descriptions.Item>
             </Descriptions>
           )}
 
-          {/* ส่วนสำหรับ Developer (CURL) */}
-          {notificationMessageState?.response?.curl && (
-            <div style={{ marginTop: 16 }}>
-              <Space
-                style={{
-                  marginBottom: 8,
-                  justifyContent: "space-between",
-                  width: "100%",
+          {/* 📝 รายละเอียดการบ้าน (Homework - Only if data exists) */}
+          {detail.homework &&
+            (detail.homework.teachername || detail.homework.detail) && (
+              <Descriptions
+                title={
+                  <Space>
+                    <BookOutlined />
+                    รายละเอียดการบ้าน
+                  </Space>
+                }
+                bordered
+                size="small"
+                column={1}
+                labelStyle={{
+                  width: "140px",
+                  background: token.colorWarningBg,
+                  color: token.colorWarningText,
+                  fontWeight: 600,
                 }}
               >
+                <Descriptions.Item label="ครูผู้สอน">
+                  {detail.homework.teachername ?? "-"}
+                </Descriptions.Item>
+                <Descriptions.Item label="วิชาที่สอน">
+                  {detail.homework.planename ?? "-"}
+                </Descriptions.Item>
+                <Descriptions.Item label="ช่วงเวลา">
+                  {detail.homework.daystart && detail.homework.dayend
+                    ? `${detail.homework.daystart} - ${detail.homework.dayend}`
+                    : "-"}
+                </Descriptions.Item>
+                <Descriptions.Item label="รายละเอียด">
+                  <div style={{ whiteSpace: "pre-wrap" }}>
+                    {detail.homework.detail ?? "-"}
+                  </div>
+                </Descriptions.Item>
+              </Descriptions>
+            )}
+
+          {/* 🛠️ Developer Logs (CURL) */}
+          {notificationMessageState?.response?.curl && (
+            <div style={{ marginTop: 8 }}>
+              <Flex align="center" justify="space-between" style={{ mb: 8 }}>
                 <Typography.Text type="secondary" strong>
                   <CodeOutlined /> Developer Info (CURL)
                 </Typography.Text>
                 <Button
                   size="small"
+                  variant="filled"
+                  color="default"
                   icon={<CopyOutlined />}
                   onClick={() => {
                     navigator.clipboard.writeText(
@@ -828,20 +886,21 @@ export default function Page() {
                     toast.success("คัดลอก CURL แล้ว");
                   }}
                 >
-                  Copy Command
+                  คัดลอกคำสั่ง
                 </Button>
-              </Space>
+              </Flex>
               <div
                 style={{
-                  background: "#282c34",
-                  color: "#abb2bf",
+                  background: token.colorFillAlter,
                   padding: "12px",
-                  borderRadius: "6px",
+                  borderRadius: "8px",
                   fontSize: "12px",
                   fontFamily: "monospace",
-                  maxHeight: "120px",
+                  marginTop: 8,
+                  maxHeight: "150px",
                   overflowY: "auto",
-                  border: "1px solid #d9d9d9",
+                  border: `1px solid ${token.colorBorderSecondary}`,
+                  color: token.colorTextSecondary,
                 }}
               >
                 {notificationMessageState.response.curl}
