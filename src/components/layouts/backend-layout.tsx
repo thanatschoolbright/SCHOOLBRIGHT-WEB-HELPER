@@ -28,20 +28,20 @@ export default function DashboardLayout({
   const [mobileOpen, setMobileOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    const savedState = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
-    if (savedState !== null) {
-      setCollapsed(savedState === "true");
+    const savedSidebarState = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
+    if (savedSidebarState !== null) {
+      setCollapsed(savedSidebarState === "true");
     }
   }, []);
 
-  const handleToggleCollapse = () => {
-    const newState = !collapsed;
-    setCollapsed(newState);
-    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(newState));
+  const handleToggleSidebarCollapse = () => {
+    const nextCollapsedState = !collapsed;
+    setCollapsed(nextCollapsedState);
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(nextCollapsedState));
   };
 
-  const isDesktop = !!screens.lg;
-  const sidebarWidth = 300;
+  const isDesktopView = !!screens.lg;
+  const sidebarWidth = 360;
   const collapsedWidth = 80;
 
   const contentSkeleton = useMemo(
@@ -104,7 +104,7 @@ export default function DashboardLayout({
         }}
       />
 
-      {!isDesktop && (
+      {!isDesktopView && (
         <Drawer
           placement="left"
           onClose={() => setMobileOpen(false)}
@@ -123,11 +123,11 @@ export default function DashboardLayout({
         </Drawer>
       )}
 
-      {isDesktop && (
+      {isDesktopView && (
         <Sider
           collapsible
           collapsed={collapsed}
-          onCollapse={handleToggleCollapse}
+          onCollapse={handleToggleSidebarCollapse}
           trigger={null}
           width={sidebarWidth}
           collapsedWidth={collapsedWidth}
@@ -138,13 +138,13 @@ export default function DashboardLayout({
             height: "100vh",
             position: "sticky",
             top: 0,
-            overflow: "hidden", // Use hidden here, and allow internal Flex to scroll if needed
+            overflow: "hidden",
             transition: "all 0.3s cubic-bezier(0.2, 0, 0, 1) 0s",
           }}
         >
           <MemoSidebarContent
             collapsed={collapsed}
-            onToggle={handleToggleCollapse}
+            onToggle={handleToggleSidebarCollapse}
           />
         </Sider>
       )}
@@ -176,7 +176,7 @@ export default function DashboardLayout({
         </Content>
       </Layout>
 
-      {!isDesktop && (
+      {!isDesktopView && (
         <Button
           type="primary"
           shape="circle"

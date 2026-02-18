@@ -64,9 +64,9 @@ export default function SidebarContent({
   onToggle?: () => void;
   onMobileClose?: () => void;
 }) {
-  const { t: TRANSLATION } = useTranslation("translate");
-  const menu = useSidebarMenu();
-  const pathname = usePathname();
+  const { t: translate } = useTranslation("translate");
+  const sidebarMenu = useSidebarMenu();
+  const currentPathname = usePathname();
   const router = useRouter();
   const { token } = theme.useToken();
   const screens = Grid.useBreakpoint();
@@ -86,25 +86,24 @@ export default function SidebarContent({
   useEffect(() => {
     if (collapsed) return;
     const findActiveParent = (items: any[]): any | undefined => {
-      for (const item of items) {
-        if (item.href === pathname) return item;
-        if (item.children) {
-          const child = findActiveParent(item.children);
-          if (child) return item;
+      for (const menuItem of items) {
+        if (menuItem.href === currentPathname) return menuItem;
+        if (menuItem.children) {
+          const childItem = findActiveParent(menuItem.children);
+          if (childItem) return menuItem;
         }
       }
       return undefined;
     };
-    const activeParent = findActiveParent(menu);
+    const activeParent = findActiveParent(sidebarMenu);
     if (activeParent)
       setOpenKeys((prev) => Array.from(new Set([...prev, activeParent.label])));
-  }, [menu, pathname, collapsed]);
+  }, [sidebarMenu, currentPathname, collapsed]);
 
-  const mapMenuItems = (item: any): MenuItem => {
-    const { label, icon, href, children, tag } = item;
+  const mapMenuItems = (menuItem: any): MenuItem => {
+    const { label, icon, href, children, tag } = menuItem;
     const parentKey = href || label;
 
-    // Use Level 1: Extra Bold (Department level)
     const level1Style: React.CSSProperties = {
       fontWeight: 800,
       fontSize: "14px",
@@ -112,13 +111,13 @@ export default function SidebarContent({
     };
 
     const displayLabel =
-      collapsed || (!tag && !item.maintenance) ? (
+      collapsed || (!tag && !menuItem.maintenance) ? (
         <span style={level1Style}>{label}</span>
       ) : (
         <Flex align="center" justify="space-between" style={{ width: "100%" }}>
           <span style={level1Style}>{label}</span>
           <Flex gap={4}>
-            {item.maintenance && <StatusTag type="maintenance" />}
+            {menuItem.maintenance && <StatusTag type="maintenance" />}
             {tag && (
               <Tag
                 color="orange"
@@ -137,25 +136,23 @@ export default function SidebarContent({
         </Flex>
       );
 
-    const childLabel = (c: any, depth: number) => {
-      // Depth 2: Semi-bold (System level)
-      // Depth 3: Medium (Leaf/Link level)
+    const childLabel = (child: any, depth: number) => {
       const labelStyle: React.CSSProperties = {
         fontWeight: depth === 2 ? 600 : 400,
         fontSize: depth === 2 ? "13.5px" : "13px",
       };
 
-      if (collapsed || (!c.news && !c.revamp && !c.maintenance)) {
-        return <span style={labelStyle}>{c.label}</span>;
+      if (collapsed || (!child.news && !child.revamp && !child.maintenance)) {
+        return <span style={labelStyle}>{child.label}</span>;
       }
 
       return (
         <Flex align="center" justify="space-between" style={{ width: "100%" }}>
-          <span style={labelStyle}>{c.label}</span>
+          <span style={labelStyle}>{child.label}</span>
           <Flex gap={4}>
-            {c.news && <StatusTag type="new" />}
-            {c.revamp && <StatusTag type="revamp" />}
-            {c.maintenance && <StatusTag type="maintenance" />}
+            {child.news && <StatusTag type="new" />}
+            {child.revamp && <StatusTag type="revamp" />}
+            {child.maintenance && <StatusTag type="maintenance" />}
           </Flex>
         </Flex>
       );
@@ -165,13 +162,13 @@ export default function SidebarContent({
       key: parentKey,
       icon,
       label: displayLabel,
-      children: children?.map((c: any) => {
-        if (c.children) {
+      children: children?.map((child: any) => {
+        if (child.children) {
           return {
-            key: c.label || c.href,
-            icon: c.icon,
-            label: childLabel(c, 2),
-            children: c.children.map((sub: any) => ({
+            key: child.label || child.href,
+            icon: child.icon,
+            label: childLabel(child, 2),
+            children: child.children.map((sub: any) => ({
               key: sub.href || sub.label,
               icon: sub.icon,
               label: childLabel(sub, 3),
@@ -179,25 +176,25 @@ export default function SidebarContent({
           };
         }
         return {
-          key: c.href || c.label,
-          icon: c.icon,
-          label: childLabel(c, 2), // If no sub-children, it's Level 2 leaf
+          key: child.href || child.label,
+          icon: child.icon,
+          label: childLabel(child, 2),
         };
       }),
     } as MenuItem;
   };
 
-  const items: MenuItem[] = useMemo(() => {
-    return menu.map((m) => mapMenuItems(m));
-  }, [menu, collapsed]);
+  const sidebarMenuItems: MenuItem[] = useMemo(() => {
+    return sidebarMenu.map((menuItem) => mapMenuItems(menuItem));
+  }, [sidebarMenu, collapsed]);
 
   const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
-    const target = String(key);
-    if (target.startsWith("/")) {
-      router.push(target);
+    const clickTarget = String(key);
+    if (clickTarget.startsWith("/")) {
+      router.push(clickTarget);
       if (!screens.md) onMobileClose?.();
-    } else if (target.startsWith("http")) {
-      window.open(target, "_blank");
+    } else if (clickTarget.startsWith("http")) {
+      window.open(clickTarget, "_blank");
     }
   };
 
@@ -247,7 +244,7 @@ export default function SidebarContent({
                   type="secondary"
                   style={{ fontSize: 9, lineHeight: 1, whiteSpace: "nowrap" }}
                 >
-                  {TRANSLATION("navbar.backend_system")}
+                  {translate("navbar.backend_system")}
                 </Text>
               </Flex>
             </Flex>
@@ -270,11 +267,11 @@ export default function SidebarContent({
           <Menu
             mode="inline"
             inlineCollapsed={collapsed}
-            selectedKeys={[pathname]}
+            selectedKeys={[currentPathname]}
             openKeys={!collapsed ? openKeys : undefined}
             onOpenChange={setOpenKeys}
             onClick={handleMenuClick}
-            items={items}
+            items={sidebarMenuItems}
             style={{ border: "none" }}
           />
         </Flex>
