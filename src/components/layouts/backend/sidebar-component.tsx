@@ -1,6 +1,10 @@
 import { useSidebarMenu } from "@/constants/sidebar-menu-constant";
-import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
-import DarkModeToggle from "@components/toggle/dark-mode-toggle-component";
+import {
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  MoonOutlined,
+  SunOutlined,
+} from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import {
   Button,
@@ -8,6 +12,7 @@ import {
   Flex,
   Grid,
   Menu,
+  Switch,
   Tag,
   theme,
   Typography,
@@ -17,6 +22,77 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const { Text } = Typography;
+
+const DarkModeToggle = () => {
+  const { token } = theme.useToken();
+  const [isDarkModeActive, setIsDarkModeActive] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const prefersDarkMode = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      setIsDarkModeActive(prefersDarkMode);
+      setIsInitialized(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isInitialized) return;
+    const documentRoot = document.documentElement;
+    if (isDarkModeActive) {
+      documentRoot.classList.add("dark");
+    } else {
+      documentRoot.classList.remove("dark");
+    }
+  }, [isDarkModeActive, isInitialized]);
+
+  return (
+    <Flex
+      align="center"
+      justify="space-between"
+      style={{
+        paddingTop: 24,
+        marginTop: 24,
+        borderTop: `1px solid ${token.colorBorderSecondary}`,
+        width: "100%",
+      }}
+    >
+      <Flex align="center" gap={12}>
+        <Flex
+          align="center"
+          justify="center"
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: 12,
+            background: isDarkModeActive
+              ? token.colorFillSecondary
+              : token.colorPrimaryBg,
+            color: isDarkModeActive ? token.colorText : token.colorPrimary,
+          }}
+        >
+          {isDarkModeActive ? <MoonOutlined /> : <SunOutlined />}
+        </Flex>
+        <Flex vertical>
+          <Text strong style={{ fontSize: 14 }}>
+            {isDarkModeActive ? "โหมดมืด" : "โหมดสว่าง"}
+          </Text>
+          <Text type="secondary" style={{ fontSize: 11 }}>
+            {isDarkModeActive ? "ปกป้องดวงตาของคุณ" : "มองเห็นได้ชัดเจน"}
+          </Text>
+        </Flex>
+      </Flex>
+      <Switch
+        checked={isDarkModeActive}
+        onChange={(checkedValue) => setIsDarkModeActive(checkedValue)}
+        checkedChildren={<MoonOutlined />}
+        unCheckedChildren={<SunOutlined />}
+      />
+    </Flex>
+  );
+};
 
 const StatusTag = ({ type }: { type: "new" | "revamp" | "maintenance" }) => {
   const { t } = useTranslation("menu");
