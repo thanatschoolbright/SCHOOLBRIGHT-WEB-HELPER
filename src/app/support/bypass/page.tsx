@@ -39,8 +39,12 @@ import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import BypassSelectionModal from "./components/bypass-selection-modal.component";
+import { useBypassPageData } from "./hooks/bypass.data";
+import type { SchoolDetail } from "./types/bypass.types";
+import { calculateStatistics } from "./utils/bypass.helpers";
+import { calculateProvinceStatistics } from "./utils/province-stats.helpers";
+import { calculateSaleStatistics } from "./utils/sale-stats.helpers";
 
-// 🚀 Dynamic Imports (Optimize Bundle Size)
 const ProvinceRankingModal = dynamic(
   () => import("./components/province-ranking-modal.component"),
   {
@@ -54,19 +58,9 @@ const SaleRankingModal = dynamic(
   },
 );
 
-import { useBypassPageData } from "./hooks/bypass.data";
-import type { SchoolDetail } from "./types/bypass.types";
-import { calculateStatistics } from "./utils/bypass.helpers";
-import { calculateProvinceStatistics } from "./utils/province-stats.helpers";
-import { calculateSaleStatistics } from "./utils/sale-stats.helpers";
-
 const { Title, Text } = Typography;
 
-/**
- * Generates a color for the Avatar based on the provided name.
- * @param institutionName The name of the school or company.
- */
-const getAvatarColor = (institutionName: string) => {
+const generateAvatarBackgroundColor = (institutionName: string) => {
   const colors = [
     "#f5222d",
     "#fa541c",
@@ -95,14 +89,13 @@ const getAvatarColor = (institutionName: string) => {
 };
 
 export default function BypassPage(): JSX.Element {
-  const { t: TRANSLATION } = useTranslation("translate");
+  const { t: translate } = useTranslation("translate");
   const { token } = theme.useToken();
-  const { state, handlers } = useBypassPageData();
+  const { state: bypassState, handlers: bypassHandlers } = useBypassPageData();
 
-  // * Local UI State
   const [showProvinceRanking, setShowProvinceRanking] = useState(false);
   const [showSaleRanking, setShowSaleRanking] = useState(false);
-  const [bypassModal, setBypassModal] = useState<{
+  const [bypassSelectionModalState, setBypassSelectionModalState] = useState<{
     open: boolean;
     school: SchoolDetail | null;
   }>({
@@ -110,30 +103,25 @@ export default function BypassPage(): JSX.Element {
     school: null,
   });
 
-  // * Calculate Statistics from original data as per requirement (Instruction 2.b)
-  // * Summary statistics from the dataset (Bypasses active filters)
-  const overallStatistics = useMemo(
-    () => calculateStatistics(state.schoolDetails ?? []),
-    [state.schoolDetails],
+  const overallBypassStatistics = useMemo(
+    () => calculateStatistics(bypassState.schoolDetails ?? []),
+    [bypassState.schoolDetails],
   );
 
-  // * Calculate Province Ranking Data (Standalone from table filters)
-  const provinceStatistics = useMemo(
-    () => calculateProvinceStatistics(state.schoolDetails),
-    [state.schoolDetails],
+  const provinceRankingStatistics = useMemo(
+    () => calculateProvinceStatistics(bypassState.schoolDetails),
+    [bypassState.schoolDetails],
   );
 
-  // * Calculate Sale Ranking Data (Standalone from table filters)
-  const saleStatistics = useMemo(
-    () => calculateSaleStatistics(state.schoolDetails),
-    [state.schoolDetails],
+  const saleTeamStatistics = useMemo(
+    () => calculateSaleStatistics(bypassState.schoolDetails),
+    [bypassState.schoolDetails],
   );
 
-  // * Define Table Columns with sorting enabled
   const columns: ColumnsType<SchoolDetail> = useMemo(
     () => [
       {
-        title: TRANSLATION("bypass_page.col_school_id"),
+        title: translate("bypass_page.col_school_id"),
         dataIndex: "school_id",
         key: "school_id",
         width: 120,
@@ -157,7 +145,7 @@ export default function BypassPage(): JSX.Element {
         ),
       },
       {
-        title: TRANSLATION("bypass_page.col_institution"),
+        title: translate("bypass_page.col_institution"),
         key: "school",
         width: 300,
         sorter: (firstSchool, secondSchool) =>
@@ -168,7 +156,9 @@ export default function BypassPage(): JSX.Element {
           <Flex align="center" gap={12}>
             <Avatar
               style={{
-                backgroundColor: getAvatarColor(record.company_name ?? ""),
+                backgroundColor: generateAvatarBackgroundColor(
+                  record.company_name ?? "",
+                ),
               }}
               shape="square"
               size={40}
@@ -187,7 +177,7 @@ export default function BypassPage(): JSX.Element {
         ),
       },
       {
-        title: TRANSLATION("bypass_page.col_province"),
+        title: translate("bypass_page.col_province"),
         dataIndex: "province",
         key: "province",
         width: 140,
@@ -197,7 +187,7 @@ export default function BypassPage(): JSX.Element {
           ),
       },
       {
-        title: TRANSLATION("bypass_page.col_type_level"),
+        title: translate("bypass_page.col_type_level"),
         key: "type_class",
         width: 180,
         sorter: (firstSchool, secondSchool) =>
@@ -211,16 +201,16 @@ export default function BypassPage(): JSX.Element {
               bordered={false}
               style={{ fontSize: 11, width: "fit-content", margin: 0 }}
             >
-              {record.school_type || TRANSLATION("bypass_page.not_specified")}
+              {record.school_type || translate("bypass_page.not_specified")}
             </Tag>
             <Text type="secondary" style={{ fontSize: 11 }}>
-              {record.school_class || TRANSLATION("bypass_page.not_specified")}
+              {record.school_class || translate("bypass_page.not_specified")}
             </Text>
           </Flex>
         ),
       },
       {
-        title: TRANSLATION("bypass_page.col_team"),
+        title: translate("bypass_page.col_team"),
         key: "team",
         width: 220,
         sorter: (firstSchool, secondSchool) =>
@@ -243,7 +233,7 @@ export default function BypassPage(): JSX.Element {
         ),
       },
       {
-        title: TRANSLATION("bypass_page.col_contract"),
+        title: translate("bypass_page.col_contract"),
         dataIndex: "school_data_type",
         key: "school_data_type",
         width: 130,
@@ -258,7 +248,7 @@ export default function BypassPage(): JSX.Element {
         ),
       },
       {
-        title: TRANSLATION("bypass_page.col_launch"),
+        title: translate("bypass_page.col_launch"),
         dataIndex: "active_date",
         key: "active_date",
         width: 120,
@@ -269,7 +259,7 @@ export default function BypassPage(): JSX.Element {
           ),
       },
       {
-        title: TRANSLATION("bypass_page.col_grade"),
+        title: translate("bypass_page.col_grade"),
         dataIndex: "school_grade",
         key: "school_grade",
         width: 80,
@@ -292,7 +282,7 @@ export default function BypassPage(): JSX.Element {
         ),
       },
       {
-        title: TRANSLATION("bypass_page.col_student_count"),
+        title: translate("bypass_page.col_student_count"),
         dataIndex: "student_count",
         key: "student_count",
         width: 120,
@@ -307,7 +297,7 @@ export default function BypassPage(): JSX.Element {
         ),
       },
       {
-        title: TRANSLATION("bypass_page.col_status"),
+        title: translate("bypass_page.col_status"),
         dataIndex: "isActive",
         key: "isActive",
         width: 120,
@@ -329,8 +319,8 @@ export default function BypassPage(): JSX.Element {
                   }}
                 >
                   {isInactive
-                    ? TRANSLATION("bypass_page.status_inactive").toUpperCase()
-                    : TRANSLATION("bypass_page.status_active").toUpperCase()}
+                    ? translate("bypass_page.status_inactive").toUpperCase()
+                    : translate("bypass_page.status_active").toUpperCase()}
                 </Text>
               }
             />
@@ -338,7 +328,7 @@ export default function BypassPage(): JSX.Element {
         },
       },
       {
-        title: TRANSLATION("bypass_page.col_actions"),
+        title: translate("bypass_page.col_actions"),
         key: "action",
         width: 140,
         fixed: "right",
@@ -347,68 +337,67 @@ export default function BypassPage(): JSX.Element {
           <Button
             type="primary"
             icon={<LoginOutlined />}
-            onClick={() => setBypassModal({ open: true, school: record })}
+            onClick={() =>
+              setBypassSelectionModalState({ open: true, school: record })
+            }
             style={{ borderRadius: 8, fontWeight: 600 }}
           >
-            {TRANSLATION("bypass_page.btn_login")}
+            {translate("bypass_page.btn_login")}
           </Button>
         ),
       },
     ],
-    [token, TRANSLATION],
+    [token, translate],
   );
 
   return (
     <DashboardLayout>
       <Flex vertical gap={32}>
-        {/* Section 1: Page Header */}
         <HeaderBar
           icon={<LoginOutlined />}
-          title={TRANSLATION("bypass_page.title")}
-          subTitle={TRANSLATION("bypass_page.subtitle")}
+          title={translate("bypass_page.title")}
+          subTitle={translate("bypass_page.subtitle")}
         />
 
-        {/* Section 2: Summary Metrics */}
         <Row gutter={[20, 20]}>
           <Col xs={24} sm={12} lg={6}>
             <SummaryCard
-              title={TRANSLATION("bypass_page.stats_total")}
-              value={overallStatistics.total.toLocaleString()}
-              subtitle={TRANSLATION("bypass_page.stats_total_desc")}
+              title={translate("bypass_page.stats_total")}
+              value={overallBypassStatistics.total.toLocaleString()}
+              subtitle={translate("bypass_page.stats_total_desc")}
               icon={<BankOutlined />}
               color={token.colorPrimary}
             />
           </Col>
           <Col xs={24} sm={12} lg={6}>
             <SummaryCard
-              title={TRANSLATION("bypass_page.stats_active")}
-              value={overallStatistics.active.toLocaleString()}
-              subtitle={TRANSLATION("bypass_page.stats_active_desc")}
+              title={translate("bypass_page.stats_active")}
+              value={overallBypassStatistics.active.toLocaleString()}
+              subtitle={translate("bypass_page.stats_active_desc")}
               icon={<ThunderboltOutlined />}
               color={token.colorSuccess}
             />
           </Col>
           <Col xs={24} sm={12} lg={6}>
             <SummaryCard
-              title={TRANSLATION("bypass_page.stats_inactive")}
-              value={overallStatistics.inactive.toLocaleString()}
-              subtitle={TRANSLATION("bypass_page.stats_inactive_desc")}
+              title={translate("bypass_page.stats_inactive")}
+              value={overallBypassStatistics.inactive.toLocaleString()}
+              subtitle={translate("bypass_page.stats_inactive_desc")}
               icon={<CloseCircleOutlined />}
               color={token.colorError}
             />
           </Col>
           <Col xs={24} sm={12} lg={6}>
             <SummaryCard
-              title={TRANSLATION("bypass_page.stats_grade_a")}
-              value={overallStatistics.gradeA.toLocaleString()}
-              subtitle={TRANSLATION("bypass_page.stats_grade_a_desc")}
+              title={translate("bypass_page.stats_grade_a")}
+              value={overallBypassStatistics.gradeA.toLocaleString()}
+              subtitle={translate("bypass_page.stats_grade_a_desc")}
               icon={<TrophyOutlined />}
               color={token.colorWarning}
             />
           </Col>
         </Row>
 
-        {/* Section 3: Filter Interface */}
         <Card variant="borderless" styles={{ body: { padding: 24 } }}>
           <Flex vertical gap={24}>
             <Flex align="center" gap={8}>
@@ -416,7 +405,7 @@ export default function BypassPage(): JSX.Element {
                 style={{ color: token.colorPrimary, fontSize: 18 }}
               />
               <Title level={5} style={{ margin: 0 }}>
-                {TRANSLATION("bypass_page.filter_title")}
+                {translate("bypass_page.filter_title")}
               </Title>
             </Flex>
 
@@ -425,17 +414,15 @@ export default function BypassPage(): JSX.Element {
                 <Flex vertical gap={16}>
                   <Flex vertical gap={8}>
                     <Text strong style={{ fontSize: 13 }}>
-                      {TRANSLATION("bypass_page.label_search")}
+                      {translate("bypass_page.label_search")}
                     </Text>
                     <Input
                       size="large"
-                      placeholder={TRANSLATION(
-                        "bypass_page.placeholder_search",
-                      )}
+                      placeholder={translate("bypass_page.placeholder_search")}
                       prefix={<SearchOutlined style={{ opacity: 0.5 }} />}
-                      value={state.filters.search}
+                      value={bypassState.filters.search}
                       onChange={(event) =>
-                        handlers.handleFilterChange(
+                        bypassHandlers.handleFilterChange(
                           "search",
                           event.target.value,
                         )
@@ -444,16 +431,16 @@ export default function BypassPage(): JSX.Element {
                   </Flex>
                   <Flex vertical gap={8}>
                     <Text strong style={{ fontSize: 13 }}>
-                      {TRANSLATION("bypass_page.label_group")}
+                      {translate("bypass_page.label_group")}
                     </Text>
                     <Select
                       style={{ width: "100%" }}
                       size="large"
-                      placeholder={TRANSLATION("bypass_page.placeholder_group")}
-                      options={state.filterOptions.schoolGroups}
-                      value={state.filters.schoolGroup}
+                      placeholder={translate("bypass_page.placeholder_group")}
+                      options={bypassState.filterOptions.schoolGroups}
+                      value={bypassState.filters.schoolGroup}
                       onChange={(selectedValue) =>
-                        handlers.handleFilterChange(
+                        bypassHandlers.handleFilterChange(
                           "schoolGroup",
                           selectedValue,
                         )
@@ -470,19 +457,19 @@ export default function BypassPage(): JSX.Element {
                     <Col span={12}>
                       <Flex vertical gap={8}>
                         <Text strong style={{ fontSize: 13 }}>
-                          {TRANSLATION("bypass_page.label_province")}
+                          {translate("bypass_page.label_province")}
                         </Text>
                         <Select
                           style={{ width: "100%" }}
                           size="large"
-                          placeholder={TRANSLATION(
+                          placeholder={translate(
                             "bypass_page.placeholder_province",
                           )}
                           showSearch
-                          options={state.filterOptions.provinces}
-                          value={state.filters.province}
+                          options={bypassState.filterOptions.provinces}
+                          value={bypassState.filters.province}
                           onChange={(selectedValue) =>
-                            handlers.handleFilterChange(
+                            bypassHandlers.handleFilterChange(
                               "province",
                               selectedValue,
                             )
@@ -494,18 +481,21 @@ export default function BypassPage(): JSX.Element {
                     <Col span={12}>
                       <Flex vertical gap={8}>
                         <Text strong style={{ fontSize: 13 }}>
-                          {TRANSLATION("bypass_page.label_grade")}
+                          {translate("bypass_page.label_grade")}
                         </Text>
                         <Select
                           style={{ width: "100%" }}
                           size="large"
-                          placeholder={TRANSLATION(
+                          placeholder={translate(
                             "bypass_page.placeholder_grade",
                           )}
-                          options={state.filterOptions.grades}
-                          value={state.filters.grade}
+                          options={bypassState.filterOptions.grades}
+                          value={bypassState.filters.grade}
                           onChange={(selectedValue) =>
-                            handlers.handleFilterChange("grade", selectedValue)
+                            bypassHandlers.handleFilterChange(
+                              "grade",
+                              selectedValue,
+                            )
                           }
                           allowClear
                         />
@@ -514,26 +504,27 @@ export default function BypassPage(): JSX.Element {
                   </Row>
                   <Flex vertical gap={8}>
                     <Text strong style={{ fontSize: 13 }}>
-                      {TRANSLATION("bypass_page.label_status")}
+                      {translate("bypass_page.label_status")}
                     </Text>
                     <Select
                       style={{ width: "100%" }}
                       size="large"
-                      placeholder={TRANSLATION(
-                        "bypass_page.placeholder_status",
-                      )}
-                      value={state.filters.status}
+                      placeholder={translate("bypass_page.placeholder_status")}
+                      value={bypassState.filters.status}
                       onChange={(selectedValue) =>
-                        handlers.handleFilterChange("status", selectedValue)
+                        bypassHandlers.handleFilterChange(
+                          "status",
+                          selectedValue,
+                        )
                       }
                       allowClear
                       options={[
                         {
-                          label: TRANSLATION("bypass_page.status_active"),
+                          label: translate("bypass_page.status_active"),
                           value: "active",
                         },
                         {
-                          label: TRANSLATION("bypass_page.status_inactive"),
+                          label: translate("bypass_page.status_inactive"),
                           value: "inactive",
                         },
                       ]}
@@ -549,9 +540,9 @@ export default function BypassPage(): JSX.Element {
               <Button
                 size="large"
                 icon={<ClearOutlined />}
-                onClick={handlers.handleClearFilters}
+                onClick={bypassHandlers.handleClearFilters}
               >
-                {TRANSLATION("bypass_page.btn_clear")}
+                {translate("bypass_page.btn_clear")}
               </Button>
               <Button
                 type="primary"
@@ -559,13 +550,12 @@ export default function BypassPage(): JSX.Element {
                 icon={<SearchOutlined />}
                 style={{ padding: "0 32px" }}
               >
-                {TRANSLATION("bypass_page.btn_search")}
+                {translate("bypass_page.btn_search")}
               </Button>
             </Flex>
           </Flex>
         </Card>
 
-        {/* Section 4: Main Data Table */}
         <Card
           variant="borderless"
           styles={{ body: { padding: 16 } }}
@@ -578,10 +568,10 @@ export default function BypassPage(): JSX.Element {
                   style={{ color: token.colorPrimary, fontSize: 18 }}
                 />
                 <Title level={5} style={{ margin: 0 }}>
-                  {TRANSLATION("bypass_page.table_title")}
+                  {translate("bypass_page.table_title")}
                 </Title>
                 <Badge
-                  count={state.filteredSchools.length}
+                  count={bypassState.filteredSchools.length}
                   overflowCount={9999}
                   showZero
                   color={token.colorSuccess}
@@ -595,7 +585,7 @@ export default function BypassPage(): JSX.Element {
                   type="text"
                   style={{ color: "#8b5cf6", fontWeight: 600 }}
                 >
-                  {TRANSLATION("bypass_page.btn_province_ranking")}
+                  {translate("bypass_page.btn_province_ranking")}
                 </Button>
                 <Button
                   onClick={() => setShowSaleRanking(true)}
@@ -603,53 +593,54 @@ export default function BypassPage(): JSX.Element {
                   type="text"
                   style={{ color: "#f59e0b", fontWeight: 600 }}
                 >
-                  {TRANSLATION("bypass_page.btn_sale_ranking")}
+                  {translate("bypass_page.btn_sale_ranking")}
                 </Button>
               </Flex>
             </Flex>
 
             <Table<SchoolDetail>
               columns={columns}
-              dataSource={state.filteredSchools}
-              loading={state.loading}
+              dataSource={bypassState.filteredSchools}
+              loading={bypassState.loading}
               rowKey={(schoolRecord) => String(schoolRecord.school_id)}
               pagination={{
-                pageSize: state.pageSize,
+                pageSize: bypassState.pageSize,
                 showSizeChanger: true,
                 showTotal: (totalCount) =>
-                  TRANSLATION("bypass_page.total_records", {
+                  translate("bypass_page.total_records", {
                     total: totalCount,
                   }),
               }}
               scroll={{ x: 2000 }}
-              onChange={handlers.handleTableChange}
+              onChange={bypassHandlers.handleTableChange}
             />
           </Flex>
         </Card>
 
-        {/* Modals Section */}
         <ProvinceRankingModal
           open={showProvinceRanking}
           onClose={() => setShowProvinceRanking(false)}
-          data={provinceStatistics}
+          data={provinceRankingStatistics}
         />
         <SaleRankingModal
           open={showSaleRanking}
           onClose={() => setShowSaleRanking(false)}
-          data={saleStatistics}
+          data={saleTeamStatistics}
         />
 
         <BypassSelectionModal
-          open={bypassModal.open}
-          school={bypassModal.school}
-          onClose={() => setBypassModal({ open: false, school: null })}
-          onSelect={(targetKey, envKey) => {
-            if (bypassModal.school) {
-              void handlers.handleBypassClick(
-                `${targetKey}|${envKey}`,
-                bypassModal.school,
+          open={bypassSelectionModalState.open}
+          school={bypassSelectionModalState.school}
+          onClose={() =>
+            setBypassSelectionModalState({ open: false, school: null })
+          }
+          onSelect={(targetKey, environmentKey) => {
+            if (bypassSelectionModalState.school) {
+              void bypassHandlers.handleBypassClick(
+                `${targetKey}|${environmentKey}`,
+                bypassSelectionModalState.school,
               );
-              setBypassModal({ open: false, school: null });
+              setBypassSelectionModalState({ open: false, school: null });
             }
           }}
         />

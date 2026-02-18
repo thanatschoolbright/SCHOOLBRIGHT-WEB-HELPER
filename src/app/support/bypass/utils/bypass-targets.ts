@@ -36,6 +36,20 @@ export const BYPASS_TARGETS: Record<string, BypassTarget> = {
       },
     },
   },
+  bus: {
+    label: "School Bus System",
+    environments: {
+      production: {
+        label: "Production",
+        url: "https://sbbus.schoolbright.co/home/getToken?token=",
+        extendPath: "&page=Travel",
+      },
+      development: {
+        label: "Development",
+        url: "https://sbbus-dev.schoolbright.co/home/getToken?token=",
+      },
+    },
+  },
   accounting: {
     label: "Accounting & Finance",
     environments: {
@@ -117,20 +131,6 @@ export const BYPASS_TARGETS: Record<string, BypassTarget> = {
       development: {
         label: "Development",
         url: "https://dev-exam.schoolbright.co/home/getToken?token=",
-      },
-    },
-  },
-  bus: {
-    label: "School Bus System",
-    environments: {
-      production: {
-        label: "Production",
-        url: "https://sbbus.schoolbright.co/home/getToken?token=",
-        extendPath: "&page=Travel",
-      },
-      development: {
-        label: "Development",
-        url: "https://sbbus-dev.schoolbright.co/home/getToken?token=",
       },
     },
   },
