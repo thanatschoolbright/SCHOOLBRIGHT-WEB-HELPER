@@ -17,6 +17,7 @@ import {
 } from "@ant-design/icons";
 import {
   Alert,
+  App,
   Button,
   Card,
   Col,
@@ -43,14 +44,15 @@ type BypassSelectionModalProps = {
   onSelect: (targetKey: string, environmentKey: string) => void;
 };
 
-export default function BypassSelectionModal({
+const BypassSelectionModal = ({
   open,
   onClose,
   school,
   onSelect,
-}: BypassSelectionModalProps) {
+}: BypassSelectionModalProps) => {
   const { t: translate } = useTranslation("translate");
   const { token } = theme.useToken();
+  const { modal } = App.useApp();
 
   const isDarkModeActive = useMemo(
     () => token.colorBgBase !== "#ffffff",
@@ -109,6 +111,142 @@ export default function BypassSelectionModal({
     [translate],
   );
 
+  const coreSystemKeys = useMemo(
+    () => ["system", "academic", "accounting", "canteen"],
+    [],
+  );
+
+  const secondarySystemKeys = useMemo(
+    () => ["bus", "kindergarten", "activity", "exam", "library"],
+    [],
+  );
+
+  const renderBypassCards = (targetKeys: string[]) => (
+    <Flex vertical gap={24}>
+      {targetKeys.map((targetKey) => {
+        const targetConfiguration = BYPASS_TARGETS[targetKey];
+        if (!targetConfiguration) {
+          return null;
+        }
+
+        const isExamDisabled = targetKey === "exam";
+
+        return (
+          <Card
+            key={targetKey}
+            variant="borderless"
+            style={{
+              background: isExamDisabled
+                ? token.colorFillTertiary
+                : token.colorFillAlter,
+              borderRadius: 24,
+              opacity: isExamDisabled ? 0.6 : 1,
+            }}
+            styles={{ body: { padding: 32 } }}
+          >
+            <Flex vertical gap={24}>
+              <Flex justify="space-between" align="start">
+                <Flex gap={20}>
+                  <Flex
+                    justify="center"
+                    align="center"
+                    style={{
+                      width: 56,
+                      height: 56,
+                      borderRadius: 16,
+                      fontSize: 28,
+                      background: token.colorBgContainer,
+                      color: isExamDisabled
+                        ? token.colorTextDisabled
+                        : token.colorPrimary,
+                    }}
+                  >
+                    {targetIconMap[targetKey] || <GlobalOutlined />}
+                  </Flex>
+                  <Flex vertical gap={6}>
+                    <Flex align="center" gap={12}>
+                      <Title level={4} style={{ margin: 0, fontWeight: 700 }}>
+                        {translate(`bypass_page.target_labels.${targetKey}`) ||
+                          targetConfiguration.label}
+                      </Title>
+                      {targetKey === "bus" && (
+                        <Tag color="cyan" bordered={false}>
+                          {translate("bypass_page.selection_modal.new_system")}
+                        </Tag>
+                      )}
+                      {isExamDisabled && (
+                        <Tag color="warning" bordered={false}>
+                          {translate("bypass_page.selection_modal.maintenance")}
+                        </Tag>
+                      )}
+                    </Flex>
+                    <Text type="secondary" style={{ fontSize: 14 }}>
+                      {isExamDisabled
+                        ? translate(
+                            "bypass_page.selection_modal.maintenance_desc",
+                          )
+                        : targetDescriptionMap[targetKey]}
+                    </Text>
+                  </Flex>
+                </Flex>
+                <Tooltip title={targetDescriptionMap[targetKey]}>
+                  <InfoCircleOutlined
+                    style={{ color: token.colorTextQuaternary }}
+                  />
+                </Tooltip>
+              </Flex>
+
+              <Row gutter={[16, 16]}>
+                {Object.entries(targetConfiguration.environments).map(
+                  ([environmentKey, environmentConfiguration]) => {
+                    const isProductionEnvironment =
+                      environmentKey === "production";
+                    return (
+                      <Col xs={12} sm={8} key={environmentKey}>
+                        <Tooltip
+                          title={environmentDescriptionMap[environmentKey]}
+                        >
+                          <Button
+                            block
+                            size="large"
+                            type={
+                              isProductionEnvironment ? "primary" : "default"
+                            }
+                            icon={<ArrowRightOutlined />}
+                            iconPosition="end"
+                            onClick={() => onSelect(targetKey, environmentKey)}
+                            disabled={isExamDisabled}
+                            style={{
+                              height: 54,
+                              borderRadius: 16,
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              fontWeight: 800,
+                              fontSize: 14,
+                              letterSpacing: "0.5px",
+                              fontFamily: "'Segoe UI', Roboto, sans-serif",
+                              boxShadow: isProductionEnvironment
+                                ? `0 4px 12px ${token.colorPrimary}40`
+                                : "none",
+                            }}
+                          >
+                            {environmentNameMap[environmentKey] ||
+                              environmentConfiguration.label}
+                          </Button>
+                        </Tooltip>
+                      </Col>
+                    );
+                  },
+                )}
+              </Row>
+            </Flex>
+          </Card>
+        );
+      })}
+    </Flex>
+  );
+
   if (!school) {
     return null;
   }
@@ -118,7 +256,7 @@ export default function BypassSelectionModal({
       open={open}
       onCancel={onClose}
       footer={null}
-      width={1300}
+      width={1400}
       centered
       styles={{
         content: {
@@ -135,12 +273,12 @@ export default function BypassSelectionModal({
       title={null}
       closable={false}
     >
-      <Row gutter={0} style={{ minHeight: 600 }}>
+      <Row gutter={0} style={{ minHeight: 700 }}>
         <Col
           xs={24}
           md={8}
           style={{
-            padding: 40,
+            padding: 48,
             background: isDarkModeActive
               ? "rgba(255,255,255,0.02)"
               : "rgba(0,0,0,0.02)",
@@ -149,19 +287,19 @@ export default function BypassSelectionModal({
         >
           <Flex
             vertical
-            gap={40}
+            gap={48}
             justify="space-between"
             style={{ height: "100%" }}
           >
-            <Flex vertical gap={24}>
+            <Flex vertical gap={32}>
               <Flex
                 justify="center"
                 align="center"
                 style={{
-                  width: 64,
-                  height: 64,
-                  borderRadius: 20,
-                  fontSize: 32,
+                  width: 72,
+                  height: 72,
+                  borderRadius: 24,
+                  fontSize: 36,
                   color: "#fff",
                   boxShadow: `0 8px 16px ${token.colorPrimary}40`,
                   background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
@@ -170,35 +308,35 @@ export default function BypassSelectionModal({
                 <BankOutlined />
               </Flex>
 
-              <Flex vertical gap={8}>
+              <Flex vertical gap={12}>
                 <Title level={3} style={{ margin: 0, fontWeight: 800 }}>
                   {translate("bypass_page.selection_modal.access_title")}
                 </Title>
-                <Text type="secondary" style={{ fontSize: 14 }}>
+                <Text type="secondary" style={{ fontSize: 16 }}>
                   {translate("bypass_page.selection_modal.access_subtitle")}
                 </Text>
                 <Text
                   strong
                   style={{
                     color: token.colorPrimary,
-                    fontSize: 22,
-                    marginTop: 8,
+                    fontSize: 24,
+                    marginTop: 12,
                   }}
                 >
                   {school.company_name}
                 </Text>
               </Flex>
 
-              <Divider style={{ margin: "8px 0" }} />
+              <Divider style={{ margin: "12px 0" }} />
 
-              <Flex vertical gap={24}>
-                <Flex vertical gap={4}>
+              <Flex vertical gap={32}>
+                <Flex vertical gap={8}>
                   <Text
                     type="secondary"
                     style={{
                       fontSize: 12,
                       textTransform: "uppercase",
-                      letterSpacing: "1px",
+                      letterSpacing: "1.5px",
                       fontWeight: 700,
                     }}
                   >
@@ -206,34 +344,34 @@ export default function BypassSelectionModal({
                   </Text>
                   <Text
                     strong
-                    style={{ fontSize: 24, fontFamily: "monospace" }}
+                    style={{ fontSize: 28, fontFamily: "monospace" }}
                   >
                     {school.school_id || "-"}
                   </Text>
                 </Flex>
-                <Flex vertical gap={4}>
+                <Flex vertical gap={8}>
                   <Text
                     type="secondary"
                     style={{
                       fontSize: 12,
                       textTransform: "uppercase",
-                      letterSpacing: "1px",
+                      letterSpacing: "1.5px",
                       fontWeight: 700,
                     }}
                   >
                     {translate("bypass_page.selection_modal.label_province")}
                   </Text>
-                  <Text strong style={{ fontSize: 20 }}>
+                  <Text strong style={{ fontSize: 22 }}>
                     {school.province || "-"}
                   </Text>
                 </Flex>
-                <Flex vertical gap={4}>
+                <Flex vertical gap={8}>
                   <Text
                     type="secondary"
                     style={{
                       fontSize: 12,
                       textTransform: "uppercase",
-                      letterSpacing: "1px",
+                      letterSpacing: "1.5px",
                       fontWeight: 700,
                     }}
                   >
@@ -245,7 +383,8 @@ export default function BypassSelectionModal({
                     style={{
                       fontSize: 16,
                       width: "fit-content",
-                      padding: "4px 12px",
+                      padding: "6px 16px",
+                      borderRadius: 10,
                     }}
                   >
                     {school.school_group ||
@@ -260,10 +399,10 @@ export default function BypassSelectionModal({
               size="large"
               onClick={onClose}
               style={{
-                borderRadius: 16,
-                height: 54,
+                borderRadius: 18,
+                height: 60,
                 fontWeight: 700,
-                fontSize: 16,
+                fontSize: 18,
               }}
             >
               {translate("bypass_page.selection_modal.btn_cancel")}
@@ -275,175 +414,81 @@ export default function BypassSelectionModal({
           xs={24}
           md={16}
           style={{
-            padding: 40,
+            padding: 48,
             maxHeight: "90vh",
             overflowY: "auto",
           }}
         >
-          <Flex vertical gap={32}>
+          <Flex vertical gap={48}>
             <Alert
               message={
-                <Text strong style={{ fontSize: 16 }}>
+                <Text strong style={{ fontSize: 18 }}>
                   {translate("bypass_page.selection_modal.guide_title")}
                 </Text>
               }
               description={
-                <Flex vertical gap={6} style={{ marginTop: 8 }}>
-                  <Text>
+                <Flex vertical gap={10} style={{ marginTop: 12 }}>
+                  <Text style={{ fontSize: 15 }}>
                     {translate("bypass_page.selection_modal.guide_1")}
                   </Text>
-                  <Text>
+                  <Text style={{ fontSize: 15 }}>
                     {translate("bypass_page.selection_modal.guide_2")}
                   </Text>
-                  <Text>
+                  <Text style={{ fontSize: 15 }}>
                     {translate("bypass_page.selection_modal.guide_3")}
                   </Text>
                 </Flex>
               }
               type="info"
               showIcon
-              icon={<InfoCircleOutlined style={{ fontSize: 24 }} />}
-              style={{ borderRadius: 20, padding: 20 }}
+              icon={<InfoCircleOutlined style={{ fontSize: 28 }} />}
+              style={{ borderRadius: 24, padding: 24 }}
             />
 
-            <Flex vertical gap={20}>
-              {Object.entries(BYPASS_TARGETS).map(
-                ([targetKey, targetConfiguration]) => {
-                  const isExamDisabled = targetKey === "exam";
-
-                  return (
-                    <Card
-                      key={targetKey}
-                      variant="borderless"
+            <Flex vertical gap={56}>
+              <Flex vertical gap={24}>
+                <Divider orientation="left" style={{ margin: 0 }}>
+                  <Flex align="center" gap={12}>
+                    <Flex
                       style={{
-                        background: isExamDisabled
-                          ? token.colorFillTertiary
-                          : token.colorFillAlter,
-                        borderRadius: 24,
-                        opacity: isExamDisabled ? 0.6 : 1,
+                        width: 10,
+                        height: 28,
+                        borderRadius: 5,
+                        background: token.colorPrimary,
                       }}
-                      styles={{ body: { padding: 24 } }}
-                    >
-                      <Flex vertical gap={20}>
-                        <Flex justify="space-between" align="start">
-                          <Flex gap={16}>
-                            <Flex
-                              justify="center"
-                              align="center"
-                              style={{
-                                width: 48,
-                                height: 48,
-                                borderRadius: 12,
-                                fontSize: 24,
-                                background: token.colorBgContainer,
-                                color: isExamDisabled
-                                  ? token.colorTextDisabled
-                                  : token.colorPrimary,
-                              }}
-                            >
-                              {targetIconMap[targetKey] || <GlobalOutlined />}
-                            </Flex>
-                            <Flex vertical gap={4}>
-                              <Flex align="center" gap={8}>
-                                <Title
-                                  level={4}
-                                  style={{ margin: 0, fontWeight: 700 }}
-                                >
-                                  {translate(
-                                    `bypass_page.target_labels.${targetKey}`,
-                                  ) || targetConfiguration.label}
-                                </Title>
-                                {targetKey === "bus" && (
-                                  <Tag color="cyan" bordered={false}>
-                                    {translate(
-                                      "bypass_page.selection_modal.new_system",
-                                    )}
-                                  </Tag>
-                                )}
-                                {isExamDisabled && (
-                                  <Tag color="warning" bordered={false}>
-                                    {translate(
-                                      "bypass_page.selection_modal.maintenance",
-                                    )}
-                                  </Tag>
-                                )}
-                              </Flex>
-                              <Text type="secondary" style={{ fontSize: 13 }}>
-                                {isExamDisabled
-                                  ? translate(
-                                      "bypass_page.selection_modal.maintenance_desc",
-                                    )
-                                  : targetDescriptionMap[targetKey]}
-                              </Text>
-                            </Flex>
-                          </Flex>
-                          <Tooltip title={targetDescriptionMap[targetKey]}>
-                            <InfoCircleOutlined
-                              style={{ color: token.colorTextQuaternary }}
-                            />
-                          </Tooltip>
-                        </Flex>
+                    />
+                    <Title level={4} style={{ margin: 0, fontWeight: 800 }}>
+                      {translate("bypass_page.selection_modal.group_core")}
+                    </Title>
+                  </Flex>
+                </Divider>
+                {renderBypassCards(coreSystemKeys)}
+              </Flex>
 
-                        <Row gutter={[12, 12]}>
-                          {Object.entries(targetConfiguration.environments).map(
-                            ([environmentKey, environmentConfiguration]) => {
-                              const isProductionEnvironment =
-                                environmentKey === "production";
-                              return (
-                                <Col xs={12} sm={8} key={environmentKey}>
-                                  <Tooltip
-                                    title={
-                                      environmentDescriptionMap[environmentKey]
-                                    }
-                                  >
-                                    <Button
-                                      block
-                                      size="large"
-                                      type={
-                                        isProductionEnvironment
-                                          ? "primary"
-                                          : "default"
-                                      }
-                                      icon={<ArrowRightOutlined />}
-                                      iconPosition="end"
-                                      onClick={() =>
-                                        onSelect(targetKey, environmentKey)
-                                      }
-                                      disabled={isExamDisabled}
-                                      style={{
-                                        height: 50,
-                                        borderRadius: 14,
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        alignItems: "center",
-                                        fontWeight: 800,
-                                        fontSize: 13,
-                                        letterSpacing: "0.5px",
-                                        fontFamily:
-                                          "'Segoe UI', Roboto, sans-serif",
-                                        boxShadow: isProductionEnvironment
-                                          ? `0 4px 12px ${token.colorPrimary}40`
-                                          : "none",
-                                      }}
-                                    >
-                                      {environmentNameMap[environmentKey] ||
-                                        environmentConfiguration.label}
-                                    </Button>
-                                  </Tooltip>
-                                </Col>
-                              );
-                            },
-                          )}
-                        </Row>
-                      </Flex>
-                    </Card>
-                  );
-                },
-              )}
+              <Flex vertical gap={24}>
+                <Divider orientation="left" style={{ margin: 0 }}>
+                  <Flex align="center" gap={12}>
+                    <Flex
+                      style={{
+                        width: 10,
+                        height: 28,
+                        borderRadius: 5,
+                        background: token.colorWarning,
+                      }}
+                    />
+                    <Title level={4} style={{ margin: 0, fontWeight: 800 }}>
+                      {translate("bypass_page.selection_modal.group_secondary")}
+                    </Title>
+                  </Flex>
+                </Divider>
+                {renderBypassCards(secondarySystemKeys)}
+              </Flex>
             </Flex>
           </Flex>
         </Col>
       </Row>
     </Modal>
   );
-}
+};
+
+export default BypassSelectionModal;

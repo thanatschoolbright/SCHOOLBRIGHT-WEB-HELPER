@@ -472,14 +472,16 @@
       "guide_3": "3. ระบบจะทำการยืนยันตัวตนและอนุญาตให้เข้าถึงโดยอัตโนมัติ",
       "maintenance": "อยู่ในระหว่างการปรับปรุง",
       "maintenance_desc": "สภาพแวดล้อมของระบบกำลังอยู่ระหว่างการอัปเกรด จะกลับมาเปิดให้บริการเร็วๆ นี้",
-      "new_system": "ระบบใหม่"
+      "new_system": "ระบบใหม่",
+      "group_core": "ระบบหลัก",
+      "group_secondary": "ระบบรอง"
     },
     "target_labels": {
       "system": "ระบบจัดการหลัก (System)",
-      "academic": "วิชาการและผลการเรียน (Academic)",
-      "accounting": "การเงินและบัญชี (Accounting)",
+      "academic": "วิชาการ (Academic)",
+      "accounting": "บัญชี/การเงิน (Accounting)",
       "library": "ระบบห้องสมุด (Library)",
-      "canteen": "แคนทีนและ POS (Canteen)",
+      "canteen": "ร้านค้า/สหกรณ์ (Canteen)",
       "kindergarten": "เตรียมอนุบาลและเนอสเซอรี่ (Kindergarten)",
       "activity": "การบันทึกกิจกรรม (Activity)",
       "exam": "การจัดการสอบ (Exam)",

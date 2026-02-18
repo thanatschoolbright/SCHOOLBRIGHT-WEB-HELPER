@@ -34,12 +34,10 @@ const getAvatarColor = (name: string) => {
     "#eb2f96",
   ];
   let calculatedHash = 0;
-  for (
-    let characterIndex = 0;
-    characterIndex < name.length;
-    characterIndex++
-  ) {
-    calculatedHash = name.charCodeAt(characterIndex) + ((calculatedHash << 5) - calculatedHash);
+  for (let characterIndex = 0; characterIndex < name.length; characterIndex++) {
+    calculatedHash =
+      name.charCodeAt(characterIndex) +
+      ((calculatedHash << 5) - calculatedHash);
   }
   return colors[Math.abs(calculatedHash) % colors.length];
 };
@@ -271,7 +269,6 @@ export const buildTableColumns = (
       );
     },
   },
-];
   {
     title: "ACTIONS",
     key: "actions",
