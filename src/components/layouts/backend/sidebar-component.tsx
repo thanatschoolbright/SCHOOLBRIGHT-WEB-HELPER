@@ -48,6 +48,10 @@ const DarkModeToggle = () => {
     }
   }, [isDarkModeActive, isInitialized]);
 
+  const handleToggleDarkMode = (checkedValue: boolean) => {
+    setIsDarkModeActive(checkedValue);
+  };
+
   return (
     <Flex
       align="center"
@@ -86,7 +90,7 @@ const DarkModeToggle = () => {
       </Flex>
       <Switch
         checked={isDarkModeActive}
-        onChange={(checkedValue) => setIsDarkModeActive(checkedValue)}
+        onChange={handleToggleDarkMode}
         checkedChildren={<MoonOutlined />}
         unCheckedChildren={<SunOutlined />}
       />
@@ -95,26 +99,24 @@ const DarkModeToggle = () => {
 };
 
 const StatusTag = ({ type }: { type: "new" | "revamp" | "maintenance" }) => {
-  const { t } = useTranslation("menu");
+  const { t: translateMenu } = useTranslation("menu");
 
-  const getStatusProps = () => {
+  const statusProperties = useMemo(() => {
     switch (type) {
       case "new":
-        return { color: "orange", text: t("status.new") };
+        return { color: "orange", text: translateMenu("status.new") };
       case "revamp":
-        return { color: "blue", text: t("status.revamp") };
+        return { color: "blue", text: translateMenu("status.revamp") };
       case "maintenance":
-        return { color: "red", text: t("status.maintenance") };
+        return { color: "red", text: translateMenu("status.maintenance") };
       default:
         return { color: "default", text: "" };
     }
-  };
-
-  const { color, text } = getStatusProps();
+  }, [type, translateMenu]);
 
   return (
     <Tag
-      color={color}
+      color={statusProperties.color}
       bordered={false}
       style={{
         marginLeft: "8px",
@@ -124,7 +126,7 @@ const StatusTag = ({ type }: { type: "new" | "revamp" | "maintenance" }) => {
         padding: "0 6px",
       }}
     >
-      {text}
+      {statusProperties.text}
     </Tag>
   );
 };
@@ -133,8 +135,8 @@ type MenuItem = Required<MenuProps>["items"][number];
 
 export default function SidebarContent({
   collapsed = false,
-  onToggle,
-  onMobileClose,
+  onToggle: onSidebarToggle,
+  onMobileClose: onMobileMenuClose,
 }: {
   collapsed?: boolean;
   onToggle?: () => void;
@@ -172,9 +174,32 @@ export default function SidebarContent({
       return undefined;
     };
     const activeParent = findActiveParent(sidebarMenu);
-    if (activeParent)
+    if (activeParent) {
       setOpenKeys((prev) => Array.from(new Set([...prev, activeParent.label])));
+    }
   }, [sidebarMenu, currentPathname, collapsed]);
+
+  const getChildLabel = (child: any, depth: number) => {
+    const labelStyle: React.CSSProperties = {
+      fontWeight: depth === 2 ? 600 : 400,
+      fontSize: depth === 2 ? "13.5px" : "13px",
+    };
+
+    if (collapsed || (!child.news && !child.revamp && !child.maintenance)) {
+      return <span style={labelStyle}>{child.label}</span>;
+    }
+
+    return (
+      <Flex align="center" justify="space-between" style={{ width: "100%" }}>
+        <span style={labelStyle}>{child.label}</span>
+        <Flex gap={4}>
+          {child.news && <StatusTag type="new" />}
+          {child.revamp && <StatusTag type="revamp" />}
+          {child.maintenance && <StatusTag type="maintenance" />}
+        </Flex>
+      </Flex>
+    );
+  };
 
   const mapMenuItems = (menuItem: any): MenuItem => {
     const { label, icon, href, children, tag } = menuItem;
@@ -212,66 +237,48 @@ export default function SidebarContent({
         </Flex>
       );
 
-    const childLabel = (child: any, depth: number) => {
-      const labelStyle: React.CSSProperties = {
-        fontWeight: depth === 2 ? 600 : 400,
-        fontSize: depth === 2 ? "13.5px" : "13px",
-      };
-
-      if (collapsed || (!child.news && !child.revamp && !child.maintenance)) {
-        return <span style={labelStyle}>{child.label}</span>;
-      }
-
-      return (
-        <Flex align="center" justify="space-between" style={{ width: "100%" }}>
-          <span style={labelStyle}>{child.label}</span>
-          <Flex gap={4}>
-            {child.news && <StatusTag type="new" />}
-            {child.revamp && <StatusTag type="revamp" />}
-            {child.maintenance && <StatusTag type="maintenance" />}
-          </Flex>
-        </Flex>
-      );
-    };
-
     return {
       key: parentKey,
       icon,
       label: displayLabel,
-      children: children?.map((child: any) => {
-        if (child.children) {
+      children: children?.map((childItem: any) => {
+        if (childItem.children) {
           return {
-            key: child.label || child.href,
-            icon: child.icon,
-            label: childLabel(child, 2),
-            children: child.children.map((sub: any) => ({
-              key: sub.href || sub.label,
-              icon: sub.icon,
-              label: childLabel(sub, 3),
+            key: childItem.label || childItem.href,
+            icon: childItem.icon,
+            label: getChildLabel(childItem, 2),
+            children: childItem.children.map((subItem: any) => ({
+              key: subItem.href || subItem.label,
+              icon: subItem.icon,
+              label: getChildLabel(subItem, 3),
             })),
           };
         }
         return {
-          key: child.href || child.label,
-          icon: child.icon,
-          label: childLabel(child, 2),
+          key: childItem.href || childItem.label,
+          icon: childItem.icon,
+          label: getChildLabel(childItem, 2),
         };
       }),
     } as MenuItem;
+  };
+
+  const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
+    const clickTarget = String(key);
+    if (clickTarget.startsWith("/")) {
+      router.push(clickTarget);
+      if (!screens.md) onMobileMenuClose?.();
+    } else if (clickTarget.startsWith("http")) {
+      window.open(clickTarget, "_blank");
+    }
   };
 
   const sidebarMenuItems: MenuItem[] = useMemo(() => {
     return sidebarMenu.map((menuItem) => mapMenuItems(menuItem));
   }, [sidebarMenu, collapsed]);
 
-  const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
-    const clickTarget = String(key);
-    if (clickTarget.startsWith("/")) {
-      router.push(clickTarget);
-      if (!screens.md) onMobileClose?.();
-    } else if (clickTarget.startsWith("http")) {
-      window.open(clickTarget, "_blank");
-    }
+  const handleLogoClick = () => {
+    router.push("/main");
   };
 
   return (
@@ -298,7 +305,7 @@ export default function SidebarContent({
               align="center"
               gap={12}
               style={{ cursor: "pointer" }}
-              onClick={() => router.push("/main")}
+              onClick={handleLogoClick}
             >
               <img
                 src="/web-app-manifest-192x192.png"
@@ -329,7 +336,7 @@ export default function SidebarContent({
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={onToggle}
+            onClick={onSidebarToggle}
             style={{
               fontSize: 18,
               display: screens.lg ? "flex" : "none",
