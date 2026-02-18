@@ -117,7 +117,7 @@ export default function RootLayout({
                   var savedMode = localStorage.getItem('theme');
                   var prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
                   var theme = savedMode || (prefersDarkMode ? 'dark' : 'light');
-                  
+
                   if (theme === 'dark') {
                     document.documentElement.classList.add('dark');
                   } else {
