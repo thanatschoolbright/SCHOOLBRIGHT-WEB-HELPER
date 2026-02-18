@@ -5,27 +5,21 @@ import "@ant-design/v5-patch-for-react-19";
 import { Button, Drawer, Flex, Grid, Layout, Skeleton, theme } from "antd";
 import React, { Suspense, useEffect, useMemo, useState } from "react";
 
-// Components
 import BreadcrumbComponent from "@components/breadcrump/breadcrumb-component";
 import MainHeader from "@components/layouts/backend/navbar";
 import SidebarContent from "@components/layouts/backend/sidebar-component";
-import DarkModeToggle from "@components/toggle/dark-mode-toggle-component";
 
 const SIDEBAR_COLLAPSED_KEY = "sb_sidebar_collapsed";
 
-// Types
-type DashboardLayoutProps = {
-  children: React.ReactNode;
-};
-
-// Memoize Components
 const MemoSidebarContent = React.memo(SidebarContent);
 const MemoMainHeader = React.memo(MainHeader);
 const MemoBreadcrumbs = React.memo(BreadcrumbComponent);
 
 export default function DashboardLayout({
   children,
-}: DashboardLayoutProps): JSX.Element {
+}: {
+  children: React.ReactNode;
+}): JSX.Element {
   const { token } = theme.useToken();
   const { Sider, Content, Header } = Layout;
   const screens = Grid.useBreakpoint();
@@ -33,7 +27,6 @@ export default function DashboardLayout({
   const [collapsed, setCollapsed] = useState<boolean>(false);
   const [mobileOpen, setMobileOpen] = useState<boolean>(false);
 
-  // Load persistence state
   useEffect(() => {
     const savedState = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
     if (savedState !== null) {
@@ -41,24 +34,23 @@ export default function DashboardLayout({
     }
   }, []);
 
-  const handleToggleCollapse = (value: boolean) => {
-    setCollapsed(value);
-    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(value));
+  const handleToggleCollapse = () => {
+    const newState = !collapsed;
+    setCollapsed(newState);
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(newState));
   };
 
-  // Constants
   const isDesktop = !!screens.lg;
   const sidebarWidth = 300;
   const collapsedWidth = 80;
 
-  // 🦴 Skeleton Fallback
   const contentSkeleton = useMemo(
     () => (
       <Flex vertical gap="small" style={{ padding: 12 }}>
         <Skeleton active title={{ width: "40%" }} paragraph={{ rows: 2 }} />
-        <div style={{ marginTop: 16 }}>
+        <Flex style={{ marginTop: 16 }}>
           <Skeleton active title={false} paragraph={{ rows: 6 }} />
-        </div>
+        </Flex>
       </Flex>
     ),
     [],
@@ -96,21 +88,13 @@ export default function DashboardLayout({
           pointer-events: none;
           animation: blob-float 25s infinite alternate ease-in-out;
         }
-        .sidebar-menu-container::-webkit-scrollbar {
-          width: 4px;
-        }
-        .sidebar-menu-container::-webkit-scrollbar-thumb {
-          background: ${token.colorBorderSecondary};
-          border-radius: 10px;
-        }
       `}</style>
 
-      {/* 🌌 Background Decor */}
-      <div
+      <Flex
         className="bg-blob"
         style={{ top: "-10%", right: "-10%", background: token.colorPrimary }}
       />
-      <div
+      <Flex
         className="bg-blob"
         style={{
           bottom: "-10%",
@@ -120,7 +104,6 @@ export default function DashboardLayout({
         }}
       />
 
-      {/* 📱 Mobile Sidebar (Drawer) */}
       {!isDesktop && (
         <Drawer
           placement="left"
@@ -133,21 +116,13 @@ export default function DashboardLayout({
           }}
           classNames={{ wrapper: "z-[9999]" }}
         >
-          <Flex vertical style={{ height: "100%", paddingTop: 24 }}>
-            <div className="flex-1 overflow-y-auto">
-              <MemoSidebarContent
-                collapsed={false}
-                onMobileClose={() => setMobileOpen(false)}
-              />
-            </div>
-            <div style={{ padding: 16 }}>
-              <DarkModeToggle />
-            </div>
-          </Flex>
+          <MemoSidebarContent
+            collapsed={false}
+            onMobileClose={() => setMobileOpen(false)}
+          />
         </Drawer>
       )}
 
-      {/* 🖥️ Desktop Sidebar (Sider) */}
       {isDesktop && (
         <Sider
           collapsible
@@ -163,52 +138,17 @@ export default function DashboardLayout({
             height: "100vh",
             position: "sticky",
             top: 0,
-            overflow: "hidden",
-            transition: "all 0.2s",
+            overflow: "hidden", // Use hidden here, and allow internal Flex to scroll if needed
+            transition: "all 0.3s cubic-bezier(0.2, 0, 0, 1) 0s",
           }}
         >
-          <Flex vertical style={{ height: "100%", width: "100%" }}>
-            <Flex
-              align="center"
-              justify="center"
-              style={{ height: 64, width: "100%" }}
-            >
-              {/* Optional: Add Sidebar Logo placeholder */}
-            </Flex>
-
-            <div
-              className="flex-1 overflow-y-auto sidebar-menu-container"
-              style={{ width: "100%" }}
-            >
-              <MemoSidebarContent collapsed={collapsed} />
-            </div>
-
-            {!collapsed && (
-              <div style={{ padding: 16, width: "100%" }}>
-                <DarkModeToggle />
-              </div>
-            )}
-
-            <Flex
-              align="center"
-              justify="center"
-              style={{
-                height: 48,
-                width: "100%",
-                cursor: "pointer",
-                borderTop: `1px solid ${token.colorBorderSecondary}`,
-                fontSize: 18,
-                color: token.colorTextSecondary,
-              }}
-              onClick={() => handleToggleCollapse(!collapsed)}
-            >
-              {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            </Flex>
-          </Flex>
+          <MemoSidebarContent
+            collapsed={collapsed}
+            onToggle={handleToggleCollapse}
+          />
         </Sider>
       )}
 
-      {/* 🔹 Main Layout Area */}
       <Layout style={{ background: "transparent", minWidth: 0 }}>
         <Header
           style={{
@@ -229,14 +169,13 @@ export default function DashboardLayout({
         >
           <Flex vertical gap="middle" style={{ height: "100%" }}>
             <MemoBreadcrumbs />
-            <div style={{ flex: 1, position: "relative" }}>
+            <Flex vertical style={{ flex: 1, position: "relative" }}>
               <Suspense fallback={contentSkeleton}>{children}</Suspense>
-            </div>
+            </Flex>
           </Flex>
         </Content>
       </Layout>
 
-      {/* 🔘 Mobile Floating Action Button */}
       {!isDesktop && (
         <Button
           type="primary"

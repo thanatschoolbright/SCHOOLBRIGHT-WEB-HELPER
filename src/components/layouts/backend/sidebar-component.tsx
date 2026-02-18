@@ -1,4 +1,6 @@
 import { useSidebarMenu } from "@/constants/sidebar-menu-constant";
+import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
+import DarkModeToggle from "@components/toggle/dark-mode-toggle-component";
 import type { MenuProps } from "antd";
 import {
   Button,
@@ -18,11 +20,6 @@ const { Text } = Typography;
 
 const SB_ORANGE_PRIMARY = "#FF7F00";
 const SB_ORANGE_GRADIENT = "linear-gradient(135deg, #FF9933 0%, #FF6600 100%)";
-
-/**
- * Clean Sidebar Component
- * Optimized for readability and minimal CSS usage.
- */
 
 const StatusTag = ({ type }: { type: "new" | "revamp" }) => {
   const { token } = theme.useToken();
@@ -51,9 +48,11 @@ type MenuItem = Required<MenuProps>["items"][number];
 
 export default function SidebarContent({
   collapsed = false,
+  onToggle,
   onMobileClose,
 }: {
   collapsed?: boolean;
+  onToggle?: () => void;
   onMobileClose?: () => void;
 }) {
   const { t: TRANSLATION } = useTranslation("translate");
@@ -66,7 +65,6 @@ export default function SidebarContent({
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const isDark = token.colorBgBase === "#0B0F19";
 
-  // --- Theme Configuration for Menu ---
   const sidebarTheme = {
     components: {
       Menu: {
@@ -85,7 +83,6 @@ export default function SidebarContent({
     },
   };
 
-  // Sync open keys with current pathname
   useEffect(() => {
     if (collapsed) return;
     const activeParent = menu.find((m) =>
@@ -95,11 +92,9 @@ export default function SidebarContent({
       setOpenKeys((prev) => Array.from(new Set([...prev, activeParent.label])));
   }, [menu, pathname, collapsed]);
 
-  // Clean Menu Items Mapping to Best Practice MenuItem[]
   const items: MenuItem[] = useMemo(() => {
     return menu.map((m) => {
       const parentKey = m.href || m.label;
-
       const label =
         collapsed || !m.tag ? (
           m.label
@@ -162,80 +157,87 @@ export default function SidebarContent({
       <Flex
         vertical
         style={{
-          height: "100%",
+          height: "100vh",
           padding: "16px 0",
-          overflowY: "auto",
+          background: "transparent",
         }}
       >
-        {/* 🔸 Sidebar Logo Section */}
         <Flex
-          justify={collapsed ? "center" : "flex-start"}
+          align="center"
+          justify={collapsed ? "center" : "space-between"}
           style={{
-            padding: collapsed ? "0 8px" : "0 16px",
-            marginBottom: 20,
+            padding: "0 16px",
+            marginBottom: 24,
             transition: "all 0.3s",
           }}
         >
-          <Button
-            type="text"
-            onClick={() => router.push("/main")}
-            style={{
-              height: "auto",
-              padding: "6px 8px",
-              borderRadius: 12,
-              display: "flex",
-              alignItems: "center",
-              width: "100%",
-            }}
-          >
-            <Flex align="center" gap={collapsed ? 0 : 12}>
+          {!collapsed && (
+            <Flex
+              align="center"
+              gap={12}
+              style={{ cursor: "pointer" }}
+              onClick={() => router.push("/main")}
+            >
               <img
                 src="/web-app-manifest-192x192.png"
-                alt="School Bright Logo"
-                style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 8,
-                  flexShrink: 0,
-                }}
+                alt="Logo"
+                style={{ width: 38, height: 38, borderRadius: 8 }}
               />
-
-              {!collapsed && (
-                <Flex vertical align="start">
-                  <Text
-                    strong
-                    style={{
-                      fontSize: 16,
-                      lineHeight: 1.2,
-                      color: token.colorTextHeading,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    School Bright
-                  </Text>
-                  <Text
-                    type="secondary"
-                    style={{ fontSize: 9, lineHeight: 1, whiteSpace: "nowrap" }}
-                  >
-                    {TRANSLATION("navbar.backend_system")}
-                  </Text>
-                </Flex>
-              )}
+              <Flex vertical>
+                <Text
+                  strong
+                  style={{
+                    fontSize: 16,
+                    lineHeight: 1.2,
+                    color: token.colorTextHeading,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  School Bright
+                </Text>
+                <Text
+                  type="secondary"
+                  style={{ fontSize: 9, lineHeight: 1, whiteSpace: "nowrap" }}
+                >
+                  {TRANSLATION("navbar.backend_system")}
+                </Text>
+              </Flex>
             </Flex>
-          </Button>
+          )}
+
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={onToggle}
+            style={{
+              fontSize: 18,
+              color: token.colorTextSecondary,
+              display: screens.lg ? "flex" : "none",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          />
         </Flex>
 
-        <Menu
-          mode="inline"
-          inlineCollapsed={collapsed}
-          selectedKeys={[pathname]}
-          openKeys={!collapsed ? openKeys : undefined}
-          onOpenChange={setOpenKeys}
-          onClick={handleMenuClick}
-          items={items}
-          style={{ border: "none" }}
-          theme={isDark ? "dark" : "light"}
-        />
+        <Flex vertical style={{ flex: 1, overflowY: "auto" }}>
+          <Menu
+            mode="inline"
+            inlineCollapsed={collapsed}
+            selectedKeys={[pathname]}
+            openKeys={!collapsed ? openKeys : undefined}
+            onOpenChange={setOpenKeys}
+            onClick={handleMenuClick}
+            items={items}
+            style={{ border: "none" }}
+            theme={isDark ? "dark" : "light"}
+          />
+        </Flex>
+
+        {!collapsed && (
+          <Flex style={{ padding: 16 }}>
+            <DarkModeToggle />
+          </Flex>
+        )}
       </Flex>
     </ConfigProvider>
   );

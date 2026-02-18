@@ -342,6 +342,7 @@ const IssuesListTable: React.FC<{
     generating: boolean;
     issue: Issue | null;
     newText: string;
+    newSummary?: string;
     open: boolean;
   }>({
     generating: false,
@@ -409,9 +410,17 @@ const IssuesListTable: React.FC<{
       });
 
       const markdown: string = response?.data?.data?.markdown || "";
+      const suggestedSummary: string = response?.data?.data?.summary || "";
+
       clearInterval(timer);
       setAiProcessing({ open: false, currentStep: 0, processingTime: 0 });
-      setAiModal({ open: true, issue, generating: false, newText: markdown });
+      setAiModal({
+        open: true,
+        issue,
+        generating: false,
+        newText: markdown,
+        newSummary: suggestedSummary,
+      });
 
       toast.success("ประมวลผลสรุปงานด้วย AI สำเร็จ");
     } catch (error) {
@@ -425,13 +434,15 @@ const IssuesListTable: React.FC<{
     if (!aiModal.issue) return;
     const toastId = toast.loading("กำลังอัปเดตข้อมูลไปยัง Backlog...");
     try {
-      const currentSummary = aiModal.issue.summary;
+      // * ใช้ Summary ที่ได้จาก AI หากมี (เพราะมี Tag [สรุปด้วย LIGHT AI ✨] ในตัวแล้ว)
+      // * หากไม่มีให้ใช้ตัวปัจจุบันและตรวจสอบ Tag อีกครั้งเพื่อความปลอดภัย
       const finalSummary =
-        currentSummary.includes("AI") ||
-        currentSummary.includes("✨") ||
-        currentSummary.includes("🤖")
-          ? currentSummary
-          : `${currentSummary} [สรุปด้วย LIGHT AI ✨]`;
+        aiModal.newSummary ||
+        (aiModal.issue.summary.includes("AI") ||
+        aiModal.issue.summary.includes("✨") ||
+        aiModal.issue.summary.includes("🤖")
+          ? aiModal.issue.summary
+          : `${aiModal.issue.summary} [สรุปด้วย LIGHT AI ✨]`);
 
       await axios.post("/api/v1/backlog/issues/update", {
         space,
@@ -440,7 +451,13 @@ const IssuesListTable: React.FC<{
         summary: finalSummary,
       });
       toast.success("อัปเดตข้อมูลบน Backlog สำเร็จ", { id: toastId });
-      setAiModal({ open: false, issue: null, generating: false, newText: "" });
+      setAiModal({
+        open: false,
+        issue: null,
+        generating: false,
+        newText: "",
+        newSummary: "",
+      });
       onReload();
     } catch (error) {
       toast.error("อัปเดตข้อมูลบน Backlog ไม่สำเร็จ", { id: toastId });
