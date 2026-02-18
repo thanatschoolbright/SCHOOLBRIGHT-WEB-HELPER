@@ -167,7 +167,7 @@ export default function DashboardLayout({
         <Content
           style={{ padding: screens.sm ? "24px" : "16px", minHeight: 0 }}
         >
-          <Flex vertical gap="middle" style={{ height: "100%" }}>
+          <Flex vertical gap={32} style={{ height: "100%" }}>
             <MemoBreadcrumbs />
             <Flex vertical style={{ flex: 1, position: "relative" }}>
               <Suspense fallback={contentSkeleton}>{children}</Suspense>

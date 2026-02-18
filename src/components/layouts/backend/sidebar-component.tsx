@@ -18,13 +18,27 @@ import { useTranslation } from "react-i18next";
 
 const { Text } = Typography;
 
-const SB_ORANGE_PRIMARY = "#FF7F00";
-const SB_ORANGE_GRADIENT = "linear-gradient(135deg, #FF9933 0%, #FF6600 100%)";
+const StatusTag = ({ type }: { type: "new" | "revamp" | "maintenance" }) => {
+  const { t } = useTranslation("menu");
 
-const StatusTag = ({ type }: { type: "new" | "revamp" }) => {
-  const { token } = theme.useToken();
+  const getStatusProps = () => {
+    switch (type) {
+      case "new":
+        return { color: "orange", text: t("status.new") };
+      case "revamp":
+        return { color: "blue", text: t("status.revamp") };
+      case "maintenance":
+        return { color: "red", text: t("status.maintenance") };
+      default:
+        return { color: "default", text: "" };
+    }
+  };
+
+  const { color, text } = getStatusProps();
+
   return (
     <Tag
+      color={color}
       bordered={false}
       style={{
         marginLeft: "8px",
@@ -32,14 +46,9 @@ const StatusTag = ({ type }: { type: "new" | "revamp" }) => {
         fontWeight: 700,
         borderRadius: 10,
         padding: "0 6px",
-        background:
-          type === "new"
-            ? SB_ORANGE_GRADIENT
-            : "linear-gradient(135deg, #1890ff 0%, #096dd9 100%)",
-        color: token.colorWhite,
       }}
     >
-      {type === "new" ? "ใหม่" : "ปรับปรุง"}
+      {text}
     </Tag>
   );
 };
@@ -63,22 +72,13 @@ export default function SidebarContent({
   const screens = Grid.useBreakpoint();
 
   const [openKeys, setOpenKeys] = useState<string[]>([]);
-  const isDark = token.colorBgBase === "#0B0F19";
 
   const sidebarTheme = {
     components: {
       Menu: {
-        itemBg: "transparent",
-        itemColor: token.colorTextSecondary,
-        itemHoverBg: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
-        itemSelectedBg: isDark
-          ? "rgba(255, 127, 0, 0.2)"
-          : "rgba(255, 127, 0, 0.12)",
-        itemSelectedColor: SB_ORANGE_PRIMARY,
         itemActiveBg: "transparent",
         itemMarginInline: 8,
         itemBorderRadius: 10,
-        subMenuItemBg: "transparent",
       },
     },
   };
@@ -101,68 +101,87 @@ export default function SidebarContent({
   }, [menu, pathname, collapsed]);
 
   const mapMenuItems = (item: any): MenuItem => {
-    const { label, icon, href, children, news, revamp, tag } = item;
+    const { label, icon, href, children, tag } = item;
     const parentKey = href || label;
 
-    const displayLabel =
-      collapsed || !tag ? (
-        label
-      ) : (
-        <Flex align="center" justify="space-between">
-          <span>{label}</span>
-          <Tag
-            color="orange"
-            bordered={false}
-            style={{
-              borderRadius: 8,
-              fontSize: 10,
-              fontWeight: 600,
-              color: SB_ORANGE_PRIMARY,
-              background: isDark
-                ? "rgba(255, 127, 0, 0.2)"
-                : "rgba(255, 127, 0, 0.1)",
-              marginInlineEnd: 0,
-            }}
-          >
-            {tag}
-          </Tag>
-        </Flex>
-      );
+    // Use Level 1: Extra Bold (Department level)
+    const level1Style: React.CSSProperties = {
+      fontWeight: 800,
+      fontSize: "14px",
+      letterSpacing: "0.2px",
+    };
 
-    const childLabel = (c: any) =>
-      collapsed || (!c.news && !c.revamp) ? (
-        c.label
+    const displayLabel =
+      collapsed || (!tag && !item.maintenance) ? (
+        <span style={level1Style}>{label}</span>
       ) : (
-        <Flex align="center" justify="space-between">
-          <span>{c.label}</span>
+        <Flex align="center" justify="space-between" style={{ width: "100%" }}>
+          <span style={level1Style}>{label}</span>
           <Flex gap={4}>
-            {c.news && <StatusTag type="new" />}
-            {c.revamp && <StatusTag type="revamp" />}
+            {item.maintenance && <StatusTag type="maintenance" />}
+            {tag && (
+              <Tag
+                color="orange"
+                bordered={false}
+                style={{
+                  borderRadius: 8,
+                  fontSize: 10,
+                  fontWeight: 600,
+                  marginInlineEnd: 0,
+                }}
+              >
+                {tag}
+              </Tag>
+            )}
           </Flex>
         </Flex>
       );
 
+    const childLabel = (c: any, depth: number) => {
+      // Depth 2: Semi-bold (System level)
+      // Depth 3: Medium (Leaf/Link level)
+      const labelStyle: React.CSSProperties = {
+        fontWeight: depth === 2 ? 600 : 400,
+        fontSize: depth === 2 ? "13.5px" : "13px",
+      };
+
+      if (collapsed || (!c.news && !c.revamp && !c.maintenance)) {
+        return <span style={labelStyle}>{c.label}</span>;
+      }
+
+      return (
+        <Flex align="center" justify="space-between" style={{ width: "100%" }}>
+          <span style={labelStyle}>{c.label}</span>
+          <Flex gap={4}>
+            {c.news && <StatusTag type="new" />}
+            {c.revamp && <StatusTag type="revamp" />}
+            {c.maintenance && <StatusTag type="maintenance" />}
+          </Flex>
+        </Flex>
+      );
+    };
+
     return {
       key: parentKey,
       icon,
-      label: href ? displayLabel : displayLabel, // Keep logic simple
+      label: displayLabel,
       children: children?.map((c: any) => {
         if (c.children) {
           return {
             key: c.label || c.href,
             icon: c.icon,
-            label: childLabel(c),
+            label: childLabel(c, 2),
             children: c.children.map((sub: any) => ({
               key: sub.href || sub.label,
               icon: sub.icon,
-              label: childLabel(sub),
+              label: childLabel(sub, 3),
             })),
           };
         }
         return {
           key: c.href || c.label,
           icon: c.icon,
-          label: childLabel(c),
+          label: childLabel(c, 2), // If no sub-children, it's Level 2 leaf
         };
       }),
     } as MenuItem;
@@ -170,7 +189,7 @@ export default function SidebarContent({
 
   const items: MenuItem[] = useMemo(() => {
     return menu.map((m) => mapMenuItems(m));
-  }, [menu, isDark, collapsed]);
+  }, [menu, collapsed]);
 
   const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
     const target = String(key);
@@ -219,7 +238,6 @@ export default function SidebarContent({
                   style={{
                     fontSize: 16,
                     lineHeight: 1.2,
-                    color: token.colorTextHeading,
                     whiteSpace: "nowrap",
                   }}
                 >
@@ -241,7 +259,6 @@ export default function SidebarContent({
             onClick={onToggle}
             style={{
               fontSize: 18,
-              color: token.colorTextSecondary,
               display: screens.lg ? "flex" : "none",
               alignItems: "center",
               justifyContent: "center",
@@ -259,7 +276,6 @@ export default function SidebarContent({
             onClick={handleMenuClick}
             items={items}
             style={{ border: "none" }}
-            theme={isDark ? "dark" : "light"}
           />
         </Flex>
 

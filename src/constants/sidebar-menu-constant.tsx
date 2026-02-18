@@ -50,6 +50,7 @@ interface SidebarChild {
   href?: string;
   news?: boolean;
   revamp?: boolean;
+  maintenance?: boolean;
   icon?: JSX.Element;
   permission?: string | string[];
   children?: SidebarChild[];
@@ -61,6 +62,7 @@ interface SidebarItem {
   children?: SidebarChild[];
   href?: string;
   tag?: string;
+  maintenance?: boolean;
   permission?: string | string[];
 }
 
@@ -90,7 +92,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
         children: [
           {
             label: t("admin_system.title"),
-            icon: <CrownOutlined />,
+            icon: <SolutionOutlined />,
             children: [
               {
                 label: t("admin_system.children.user_profile"),
@@ -211,7 +213,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
                 label: t("mobile_app.children.mobile_notification"),
                 href: "/mobile/notification",
                 icon: <NotificationFilled />,
-                revamp: true,
+                news: true,
                 permission: PERMISSIONS.MENU_MOBILE_NOTI,
               },
               {
@@ -219,24 +221,28 @@ export const useSidebarMenu = (): SidebarItem[] => {
                 href: "/mobile/leave-letter",
                 icon: <FormOutlined />,
                 permission: PERMISSIONS.MENU_MOBILE_LEAVE,
+                maintenance: true,
               },
               {
                 label: t("mobile_app.children.statistics"),
                 href: "/mobile/statistic",
                 icon: <PieChartOutlined />,
                 permission: PERMISSIONS.MENU_MOBILE_STAT,
+                maintenance: true,
               },
               {
                 label: t("mobile_app.children.qrcode_health_check"),
                 href: "/mobile/qrcode-health-check",
                 icon: <QrcodeOutlined />,
                 permission: PERMISSIONS.MENU_MOBILE_QR,
+                maintenance: true,
               },
               {
                 label: t("mobile_app.children.mobile_check_attendance"),
                 href: "/mobile/check-attendance",
                 icon: <CheckCircleOutlined />,
                 permission: PERMISSIONS.MENU_MOBILE_ATTENDANCE,
+                maintenance: true,
               },
             ],
           },
@@ -247,6 +253,17 @@ export const useSidebarMenu = (): SidebarItem[] => {
         icon: <ExperimentOutlined />,
         permission: PERMISSIONS.ADMIN_ACCESS,
         children: [
+          {
+            label: t("app_hardware.title"),
+            icon: <HddOutlined />,
+            children: [
+              {
+                label: t("app_hardware.children.app_control"),
+                href: "/hardware/canteen",
+                icon: <ApiOutlined />,
+              },
+            ],
+          },
           {
             label: t("testing.title"),
             icon: <ExperimentOutlined />,
@@ -271,17 +288,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
               },
             ],
           },
-          {
-            label: t("app_hardware.title"),
-            icon: <HddOutlined />,
-            children: [
-              {
-                label: t("app_hardware.children.app_control"),
-                href: "/hardware/canteen",
-                icon: <ApiOutlined />,
-              },
-            ],
-          },
+
           {
             label: t("api_docs.title"),
             icon: <ApiOutlined />,
@@ -307,56 +314,51 @@ export const useSidebarMenu = (): SidebarItem[] => {
         permission: PERMISSIONS.TIMESHEET_READ,
         children: [
           {
-            label: t("timesheet_system.title"),
-            icon: <HourglassOutlined />,
-            children: [
-              {
-                label: t("timesheet_system.children.project"),
-                href: "/timesheet/project",
-                icon: <FundProjectionScreenOutlined />,
-                permission: [
-                  PERMISSIONS.PROJECT_READ,
-                  PERMISSIONS.MENU_TIMESHEET_PROJECT,
-                ],
-              },
-              {
-                label: t("timesheet_system.children.entry"),
-                href: "/timesheet/entry",
-                icon: <FormOutlined />,
-                permission: [
-                  PERMISSIONS.TIMESHEET_WRITE,
-                  PERMISSIONS.MENU_TIMESHEET_ENTRY,
-                ],
-              },
-              {
-                label: t("timesheet_system.children.timeline"),
-                href: "/timesheet/timeline",
-                icon: <FieldTimeOutlined />,
-                permission: PERMISSIONS.MENU_TIMESHEET_TIMELINE,
-              },
-              {
-                label: t("timesheet_system.children.all"),
-                href: "/timesheet/all",
-                icon: <SolutionOutlined />,
-                permission: [
-                  PERMISSIONS.REPORT_VIEW,
-                  PERMISSIONS.MENU_TIMESHEET_ALL,
-                ],
-              },
-              {
-                label: t("timesheet_system.children.migrate_person"),
-                href: "/timesheet/all/report/migrate-person",
-                icon: <SwapOutlined />,
-                news: true,
-                permission: PERMISSIONS.TIMESHEET_WRITE,
-              },
-              {
-                label: t("timesheet_system.children.overtime"),
-                href: "/timesheet/overtime",
-                icon: <FireOutlined />,
-                permission: PERMISSIONS.MENU_TIMESHEET_OVERTIME,
-              },
+            label: t("timesheet_system.children.entry"),
+            href: "/timesheet/entry",
+            icon: <FormOutlined />,
+            permission: [
+              PERMISSIONS.TIMESHEET_WRITE,
+              PERMISSIONS.MENU_TIMESHEET_ENTRY,
             ],
+          },
+          {
+            label: t("timesheet_system.children.overtime"),
+            href: "/timesheet/overtime",
+            icon: <FireOutlined />,
+            permission: PERMISSIONS.MENU_TIMESHEET_OVERTIME,
+          },
+
+          {
+            label: t("timesheet_system.children.timeline"),
+            href: "/timesheet/timeline",
+            icon: <FieldTimeOutlined />,
+            permission: PERMISSIONS.MENU_TIMESHEET_TIMELINE,
+          },
+          {
+            label: t("timesheet_system.children.all"),
+            href: "/timesheet/all",
+            icon: <SolutionOutlined />,
+            permission: [
+              PERMISSIONS.REPORT_VIEW,
+              PERMISSIONS.MENU_TIMESHEET_ALL,
+            ],
+          },
+          {
+            label: t("timesheet_system.children.project"),
+            href: "/timesheet/project",
+            icon: <FundProjectionScreenOutlined />,
+            permission: [
+              PERMISSIONS.PROJECT_READ,
+              PERMISSIONS.MENU_TIMESHEET_PROJECT,
+            ],
+          },
+          {
+            label: t("timesheet_system.children.migrate_person"),
+            href: "/timesheet/all/report/migrate-person",
+            icon: <SwapOutlined />,
+            news: true,
+            permission: PERMISSIONS.TIMESHEET_WRITE,
           },
         ],
       },

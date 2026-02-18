@@ -1,107 +1,112 @@
 {
   "departments": {
-    "admin": "ผู้ดูแลระบบ",
+    "admin": "ดูแลระบบ",
     "support": "ซัพพอร์ต",
     "testing": "ทดสอบระบบ",
-    "timesheet": "ลงเวลาทำงาน",
+    "timesheet": "ลงเวลา",
     "others": "อื่นๆ"
   },
   "admin_system": {
-    "title": "ระบบผู้ดูแล",
+    "title": "จัดการผู้ใช้",
     "children": {
-      "user_profile": "โปรไฟล์ผู้ใช้",
-      "user_management": "จัดการผู้ใช้",
-      "role_management": "จัดการบทบาทและสิทธิ์",
-      "position_management": "จัดการตำแหน่ง",
-      "department_management": "จัดการแผนก",
-      "system_log": "บันทึกระบบ"
+      "user_profile": "บัญชีผู้ใช้",
+      "user_management": "สมาชิก",
+      "role_management": "สิทธิ์การใช้งาน",
+      "position_management": "ตำแหน่ง",
+      "department_management": "แผนก",
+      "system_log": "ประวัติระบบ"
     }
   },
   "testing": {
-    "title": "ระบบการทดสอบ",
+    "title": "งานทดสอบ",
     "children": {
-      "automated_testing": "การทดสอบอัตโนมัติ",
+      "automated_testing": "ออโตเมชัน",
       "load_testing": "โหลดเทส"
     }
   },
   "support": {
-    "title": "ระบบสนับสนุน",
+    "title": "จัดการทั่วไป",
     "children": {
-      "bypass_school": "บายพาสโรงเรียน",
+      "bypass_school": "บายพาส",
       "test_nfc_card": "NFC (Vimal)",
-      "cancel_sales": "ยกเลิกสินค้า > 7 วัน",
-      "upload_student_migration": "อัปโหลดการย้ายข้อมูลนักเรียน (User Balance)"
+      "cancel_sales": "ยกเลิกขาย",
+      "upload_student_migration": "ย้ายยอดเงิน"
     }
   },
   "health_check": {
-    "title": "ระบบตรวจสอบสุขภาพ",
+    "title": "เช็กสถานะ",
     "children": {
-      "server_status": "ระบบตรวจสอบสถานะเซิร์ฟเวอร์",
-      "version_control": "เช็กเวอร์ชันทุกระบบ",
-      "all_server_status": "รายงานการทำงานทุกระบบ",
-      "online_status": "รายงานการเชื่อมต่อระบบออนไลน์",
-      "offline_sync_status": "รายงานซิงก์ข้อมูลออฟไลน์ล่าสุด",
-      "transaction_log": "บันทึกการทำธุรกรรมโรงเรียน",
-      "heartbeats": "ตรวจสอบการทำงานของบอท",
-      "api_spec": "เอกสาร API (Spec)"
+      "server_status": "สถานะเซิร์ฟ",
+      "version_control": "เวอร์ชันระบบ",
+      "all_server_status": "รายงานรวม",
+      "online_status": "สถานะออนไลน์",
+      "offline_sync_status": "ซิงก์ออฟไลน์",
+      "transaction_log": "ประวัติธุรกรรม",
+      "heartbeats": "สถานะบอท",
+      "api_spec": "สเปก API"
     }
   },
   "mobile_app": {
-    "title": "ระบบแอปพลิเคชันมือถือ",
+    "title": "แอพมือถือ",
     "children": {
-      "app_notification": "แจ้งเตือนในแอพ",
-      "leave_letter": "จดหมายลาหยุด",
-      "statistics": "สถิติการมาเรียน",
-      "qrcode_health_check": "ตรวจสอบระบบ QR Code",
-      "mobile_notification": "แจ้งเตือนในแอพ",
-      "mobile_leave_letter": "จดหมายลาหยุด",
-      "mobile_check_attendance": "รายงานเช็กชื่อเข้าเรียน/เข้าแถวหน้าเสาธง"
+      "app_notification": "แจ้งเตือน",
+      "leave_letter": "ใบลา",
+      "statistics": "สถิติมาเรียน",
+      "qrcode_health_check": "เช็ก QR",
+      "mobile_notification": "แจ้งเตือน",
+      "mobile_leave_letter": "ใบลา",
+      "mobile_check_attendance": "รายงานเช็กชื่อ"
     }
   },
   "app_hardware": {
-    "title": "ระบบฮาร์ดแวร์แอพ",
+    "title": "ฮาร์ดแวร์",
     "children": {
       "app_canteen": "แอพโรงอาหาร",
-      "app_control": "การควบคุมแอพ"
+      "app_control": "คุมแอพ"
     }
   },
   "timesheet_system": {
-    "title": "ระบบไทม์ชีท",
+    "title": "เวลาทำงาน",
     "children": {
-      "project": "จัดการโครงการ",
-      "entry": "ลงเวลาทำงาน",
-      "sub_project": "โครงการย่อย",
-      "all": "รายงานทั้งหมด",
-      "overtime": "ระบบโอที",
-      "timeline": "แผนโครงการ",
+      "project": "โครงการ",
+      "entry": "ลงเวลา",
+      "sub_project": "งานย่อย",
+      "all": "สรุปรายงาน",
+      "overtime": "เบิก OT",
+      "timeline": "ไทม์ไลน์",
       "migrate_person": "ย้ายข้อมูล"
     }
   },
   "backlogs": {
-    "title": "ระบบแบ็คล็อก",
+    "title": "แบ็คล็อก",
     "children": {
       "report": "รายงาน"
     }
   },
   "logger": {
-    "title": "ระบบบันทึก API",
+    "title": "ประวัติ API",
     "children": {
-      "api_logs": "ดูบันทึก API"
+      "api_logs": "ดู Log"
     }
   },
   "api_docs": {
-    "title": "เอกสาร API",
+    "title": "คู่มือ API",
     "children": {
-      "spec": "API Specification",
-      "raw": "OpenAPI JSON"
+      "spec": "API Spec",
+      "raw": "ไฟล์ JSON"
     }
   },
   "sheets": {
-    "title": "ระบบเอกสารงาน",
+    "title": "เอกสารงาน",
     "children": {
-      "project_planning": "แผนงานโครงการ",
-      "project_training": "แผนการสอนพนักงานใหม่",
-      "project_release_note": "แผนงานปล่อยระบบ release/note"
+      "project_planning": "แผนงาน",
+      "project_training": "สอนงาน",
+      "project_release_note": "Release Note"
     }
+  },
+  "status": {
+    "new": "ใหม่",
+    "revamp": "ปรับปรุง",
+    "maintenance": "ปิดปรับปรุง"
   }
 }
