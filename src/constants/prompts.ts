@@ -57,8 +57,6 @@ RULES:
    - Library/Exam -> Dev คนจีน
 `;
 
-// src/constants/prompts.ts
-
 export const QA_TASK_SUMMARY_TASK_PROMPT = `
 # ROLE: AI Tech Lead & QA Lead
 คุณคือผู้ช่วยสรุป Ticket ลงระบบ Nulab Backlog โดยต้องวิเคราะห์ข้อมูลเพื่อเลือก Dev และ QA ให้ตรงตามสายงาน (Module) ที่รับผิดชอบ

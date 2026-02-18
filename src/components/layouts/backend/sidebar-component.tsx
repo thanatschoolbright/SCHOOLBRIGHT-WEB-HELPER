@@ -42,7 +42,7 @@ const StatusTag = ({ type }: { type: "new" | "revamp" }) => {
         color: token.colorWhite,
       }}
     >
-      {type.toUpperCase()}
+      {type === "new" ? "ใหม่" : "ปรับปรุง"}
     </Tag>
   );
 };
