@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
 import { successResponse } from "@helpers/api/response";
-import Service from "@services/overtime/overtime.service";
-import { z } from "zod";
-import { validateParams } from "@helpers/controller/validate.params";
-import safeParseRequestBody from "@helpers/controller/safe-parse.params";
-import { handleError } from "@helpers/controller/handle-error.params";
 import { buildPagination } from "@helpers/controller/build-pagination.params";
 import { formatDate } from "@helpers/controller/format-date.params";
+import { handleError } from "@helpers/controller/handle-error.params";
+import safeParseRequestBody from "@helpers/controller/safe-parse.params";
+import { validateParams } from "@helpers/controller/validate.params";
+import Service from "@services/overtime/overtime.service";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 // Schema for validating overtime read request parameters
 const ReadOvertimeSchema = z.object({
@@ -15,14 +15,17 @@ const ReadOvertimeSchema = z.object({
     z.number().int().positive().optional(),
   ),
   limit: z.preprocess(
-    (v) => (v === undefined ? undefined : Number(v)),
+    (v) => (v === undefined || v === null ? undefined : Number(v)),
     z.number().int().nonnegative().optional(),
   ),
   offset: z.preprocess(
-    (v) => (v === undefined ? undefined : Number(v)),
+    (v) => (v === undefined || v === null ? undefined : Number(v)),
     z.number().int().nonnegative().optional(),
   ),
-  request_id: z.string().optional(),
+  request_id: z.preprocess(
+    (v) => (v === null ? undefined : typeof v === "number" ? String(v) : v),
+    z.string().optional(),
+  ),
   status: z.string().optional(),
   from: z.string().optional(),
   to: z.string().optional(),
@@ -45,6 +48,8 @@ export async function POST(request: NextRequest) {
 
     return handleFindAll(params);
   } catch (err: unknown) {
+    // Extensive logging for 500 errors to help debug
+    console.error("POST /api/v1/timesheet/overtime/read error details:", err);
     return handleError(err, "POST /api/v1/timesheet/overtime/read error");
   }
 }
@@ -62,8 +67,16 @@ async function handleFindById(id: number) {
 async function handleFindAll(params: ReadOvertimeParams) {
   const limit = params.limit ?? DEFAULT_LIMIT;
   const offset = params.offset ?? DEFAULT_SKIP;
-  const from = params.from ? new Date(params.from) : undefined;
-  const to = params.to ? new Date(params.to) : undefined;
+
+  // Validate dates to prevent Prisma Invalid Date crashes
+  const from =
+    params.from && !isNaN(Date.parse(params.from))
+      ? new Date(params.from)
+      : undefined;
+  const to =
+    params.to && !isNaN(Date.parse(params.to))
+      ? new Date(params.to)
+      : undefined;
 
   const result = await Service.findAll({
     limit,
@@ -82,6 +95,23 @@ async function handleFindAll(params: ReadOvertimeParams) {
   });
 }
 
+// Transforms user object to safe JSON format
+function transformUser(u: any) {
+  if (!u) return null;
+  return {
+    admin_id: u.admin_id,
+    employee_code: u.employee_code,
+    firstname_th: u.firstname_th,
+    lastname_th: u.lastname_th,
+    firstname_en: u.firstname_en,
+    lastname_en: u.lastname_en,
+    nickname: u.nickname,
+    position_th: u.position_ref?.name_th || u.position_th || null,
+    profile_image:
+      u.profile_image_path || u.profile_image || u.image_profile || null,
+  };
+}
+
 // Transforms overtime object from camelCase to snake_case format
 function transformOvertimeToSnakeCase(overtime: any) {
   return {
@@ -90,10 +120,12 @@ function transformOvertimeToSnakeCase(overtime: any) {
     requester_name: overtime.requester_name,
     requester_employee_code: overtime.requester_employee_code,
     requester_position: overtime.requester_position,
+    requester_user: transformUser(overtime.requester_user),
     request_date: formatDate(overtime.requestDate),
     status: overtime.status,
     created_by: overtime.createdBy,
     creator_name: overtime.creator_name,
+    creator_user: transformUser(overtime.creator_user),
     updated_by: overtime.updatedBy ?? null,
     updater_name: overtime.updater_name,
     created_at: formatDate(overtime.createdAt),
@@ -109,19 +141,27 @@ function transformDescriptions(descriptions: any[]): any[] {
     return [];
   }
 
-  return descriptions.map((desc) => ({
-    id: desc.id,
-    overtime_id: desc.overtimeId,
-    date: formatDate(desc.date),
-    start_date: formatDate(desc.startDate),
-    end_date: formatDate(desc.endDate),
-    duration:
-      typeof desc.duration === "number" ? String(desc.duration) : desc.duration,
-    description: desc.description,
-    assignee: desc.assignee,
-    assignee_name: desc.assignee_name,
-    proof: desc.proof ?? {},
-  }));
+  return descriptions.map((desc) => {
+    // Safely cast duration to string to handle Prisma Decimal objects
+    const durationStr =
+      desc.duration !== undefined && desc.duration !== null
+        ? String(desc.duration)
+        : "0";
+
+    return {
+      id: desc.id,
+      overtime_id: desc.overtimeId,
+      date: formatDate(desc.date),
+      start_date: formatDate(desc.startDate),
+      end_date: formatDate(desc.endDate),
+      duration: durationStr,
+      description: desc.description || "",
+      assignee: desc.assignee || "",
+      assignee_name: desc.assignee_name || "",
+      assignee_user: transformUser(desc.assignee_user),
+      proof: desc.proof ?? {},
+    };
+  });
 }
 
 // (Pagination building delegated to shared helper)

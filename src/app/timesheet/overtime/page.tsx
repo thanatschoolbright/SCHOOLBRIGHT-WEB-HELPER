@@ -346,7 +346,9 @@ const OvertimeManagementPage = () => {
                 limit: currentPageSizeValue,
                 offset: (currentPageIndex - 1) * currentPageSizeValue,
                 ...requestFiltersDataValues,
-                ...(parameterUserId ? { request_id: String(parameterUserId) } : {}),
+                ...(parameterUserId
+                  ? { request_id: String(parameterUserId) }
+                  : {}),
               }
             : {
                 limit: currentPageSizeValue,
@@ -1275,28 +1277,52 @@ const OvertimeTableSection = ({
       key: "requester_data_source",
       width: 280,
       render: (recordContentData: any) => {
-        const userInformationObject = getUserById(
-          recordContentData.requester_id,
-        ) as UserProfile | null;
+        // Priority: local storage -> backend user -> direct name
+        const localUser = getUserById(recordContentData.requester_id);
+        const backendUser = recordContentData.requester_user;
+
+        const userObj = localUser || backendUser;
+
+        const name = (() => {
+          if (!userObj)
+            return (
+              recordContentData.requester_name || recordContentData.requester_id
+            );
+
+          const thName =
+            `${userObj.firstname || userObj.firstname_th || ""} ${userObj.lastname || userObj.lastname_th || ""}`.trim();
+          const enName =
+            `${userObj.firstname_en || ""} ${userObj.lastname_en || ""}`.trim();
+          const nickname = userObj.nickname ? `(${userObj.nickname})` : "";
+
+          const primaryName =
+            thName || enName || userObj.username || String(userObj.admin_id);
+          return nickname ? `${primaryName} ${nickname}`.trim() : primaryName;
+        })();
+
+        const avatarSrc =
+          userObj?.profile_image ||
+          userObj?.profile_image_path ||
+          userObj?.image_profile;
+
         return (
           <Flex align="center" gap={12}>
             <Avatar
               size={44}
-              src={
-                userInformationObject?.profile_image ||
-                userInformationObject?.profile_image_path
-              }
+              src={avatarSrc}
               icon={<UserOutlined />}
               style={{ border: `2px solid ${themeToken.colorBorderSecondary}` }}
-            />
+            >
+              {!avatarSrc && name ? name[0] : "?"}
+            </Avatar>
             <Flex vertical>
               <Typography.Text strong style={{ fontSize: 14 }}>
-                {userInformationObject
-                  ? `${userInformationObject.firstname || userInformationObject.firstname_th} ${userInformationObject.lastname || userInformationObject.lastname_th}`
-                  : recordContentData.requester_id}
+                {name}
               </Typography.Text>
               <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                {userInformationObject?.employee_code || "รหัสพนักงาน: -"}
+                {userObj?.employee_code ||
+                  recordContentData.requester_employee_code ||
+                  `ID: ${recordContentData.requester_id || "-"}`}
               </Typography.Text>
             </Flex>
           </Flex>
@@ -1898,12 +1924,21 @@ const DetailModalSection = ({
                   <Typography.Text type="secondary" style={{ fontSize: 12 }}>
                     ประมวลผลโดย:{" "}
                     {(() => {
-                      const processorUser = getUserById(
-                        selectedDetail.created_by,
-                      );
-                      return processorUser
-                        ? `${processorUser.firstname || processorUser.firstname_th} ${processorUser.lastname || processorUser.lastname_th}`
-                        : selectedDetail.created_by;
+                      const u = (getUserById(selectedDetail.created_by) ||
+                        selectedDetail.creator_user) as any;
+                      if (!u) return selectedDetail.created_by || "-";
+
+                      const thName =
+                        `${u.firstname || u.firstname_th || ""} ${u.lastname || u.lastname_th || ""}`.trim();
+                      const enName =
+                        `${u.firstname_en || ""} ${u.lastname_en || ""}`.trim();
+                      const nickname = u.nickname ? `(${u.nickname})` : "";
+
+                      const primaryName =
+                        thName || enName || u.username || String(u.admin_id);
+                      return nickname
+                        ? `${primaryName} ${nickname}`.trim()
+                        : primaryName;
                     })()}
                   </Typography.Text>
                 </Flex>

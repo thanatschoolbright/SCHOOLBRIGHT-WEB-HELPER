@@ -12,7 +12,9 @@ export const getUserData = (): UserProfile[] | null => {
   }
 };
 
-export const getUserById = (identifier: string | number): UserProfile | null => {
+export const getUserById = (
+  identifier: string | number,
+): UserProfile | null => {
   const usersArray = getUserData();
   if (!Array.isArray(usersArray)) return null;
   return (
@@ -24,6 +26,8 @@ export const getUserById = (identifier: string | number): UserProfile | null => 
   );
 };
 
-export const getUserByLocalStorage = async (): Promise<UserProfile[] | null> => {
+export const getUserByLocalStorage = async (): Promise<
+  UserProfile[] | null
+> => {
   return getUserData();
 };

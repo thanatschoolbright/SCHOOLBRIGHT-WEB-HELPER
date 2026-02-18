@@ -1,24 +1,24 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useAppSelector } from "@stores/store";
-import { Button } from "antd";
+import { getUserById } from "@/helpers/local_storage/user.storage";
+import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 import {
   CheckCircleOutlined,
   CloseCircleOutlined,
+  CloseOutlined,
   CloudUploadOutlined,
   DeleteOutlined,
-  LoadingOutlined,
   FolderOpenOutlined,
-  CloseOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons";
-import { motion, AnimatePresence } from "framer-motion";
+import { useAppSelector } from "@stores/store";
+import { Button } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
+import { AnimatePresence, motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
-import { callApiService } from "@/services/axios-instance/sb-helper.axios";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { getUserById } from "@/helpers/local_storage/user.storage";
 
 // --- Interfaces ---
 interface OvertimeData {
@@ -36,6 +36,8 @@ interface OvertimeData {
   reason?: string;
   overtimeType?: string;
   descriptions?: OvertimeDescription[];
+  requester_user?: any;
+  creator_user?: any;
 }
 
 interface OvertimeDescription {
@@ -748,14 +750,14 @@ const EvidenceUpload = ({
 const PRINT_STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
 
-  :root { 
+  :root {
     --border-color: #333;
     --header-bg: #f0f0f0;
   }
 
-  .ot-print { 
-    font-family: 'Sarabun', Arial, sans-serif; 
-    font-size: 13px; 
+  .ot-print {
+    font-family: 'Sarabun', Arial, sans-serif;
+    font-size: 13px;
     line-height: 1.3;
     color: #000;
     background: #fff;
@@ -776,7 +778,7 @@ const PRINT_STYLES = `
   }
   .ot-logo { width: 140px; }
   .ot-logo img { max-height: 40px; object-fit: contain; }
-  
+
   .ot-doc-title {
     flex: 1;
     text-align: center;
@@ -811,7 +813,7 @@ const PRINT_STYLES = `
 
   .ot-table {
     width: 100%;
-    table-layout: fixed; 
+    table-layout: fixed;
     border-collapse: collapse;
     margin-bottom: 12px;
     font-size: 12px;
@@ -859,11 +861,11 @@ const PRINT_STYLES = `
   }
   .ot-sign-box { width: 45%; text-align: center; }
   .ot-sign-title { font-weight: 600; margin-bottom: 8px; font-size: 13px; }
-  .ot-sign-line { 
-    border-bottom: 1px dotted #000; 
-    height: 1px; 
-    margin: 0 auto 4px; 
-    width: 85%; 
+  .ot-sign-line {
+    border-bottom: 1px dotted #000;
+    height: 1px;
+    margin: 0 auto 4px;
+    width: 85%;
   }
   .ot-sign-date { margin-top: 4px; font-size: 11px; }
 
@@ -1011,8 +1013,8 @@ const PRINT_STYLES = `
     @page { size: A4; margin: 0; }
     body { margin: 0; }
     .ot-print, .ot-print * { visibility: visible; }
-    .ot-print { 
-      position: absolute; left: 0; top: 0; 
+    .ot-print {
+      position: absolute; left: 0; top: 0;
       width: 100%; margin: 0; padding: 0;
       transform: scale(0.98); transform-origin: top center;
     }
@@ -1020,10 +1022,10 @@ const PRINT_STYLES = `
     .ot-doc-title { font-size: 14px; }
     .ot-sign-title { font-size: 11px; }
     .ot-table { font-size: 10px; margin-bottom: 8px; }
-    
+
     .ot-info-grid, .ot-summary, .ot-sub-title { background-color: transparent !important; border-color: #000 !important; }
     .ot-header-box, .ot-table th, .ot-table td { border-color: #000 !important; }
-    
+
     .ot-container { padding: 0 10px; }
     .ot-header-box { padding: 6px; margin-bottom: 10px; }
     .ot-info-grid { padding: 6px; margin-bottom: 10px; gap: 4px 16px; }
@@ -1031,12 +1033,12 @@ const PRINT_STYLES = `
     .ot-sub-form { margin-top: 10px; padding-top: 10px; }
     .ot-sub-title { margin-bottom: 8px; padding: 4px; }
     .ot-table th, .ot-table td { padding: 3px 4px; }
-    .signature-wrapper { height: 40px !important; } 
+    .signature-wrapper { height: 40px !important; }
     .ot-signature-section { margin-top: 10px; }
 
     .no-print { display: none !important; }
     span[title="คลิกเพื่อแก้ไขข้อความ"] { background-color: transparent !important; border-bottom: none !important; }
-    
+
     /* Evidence pages print styles */
     .evidence-page { padding: 10px 15px; }
     .evidence-title { margin-bottom: 12px; padding: 8px; font-size: 16px; }
@@ -1229,11 +1231,21 @@ export default function OTPreviewPage() {
     "system";
 
   // ใช้ข้อมูลที่ map มาจาก API (Backend) เป็นลำดับแรก
-  const requesterName =
-    data?.requester_name ??
-    (userData && (userData.firstname || userData.lastname)
-      ? `${userData.firstname ?? ""} ${userData.lastname ?? ""}`.trim()
-      : (data?.requester_id ?? "-"));
+  const requesterName = useMemo(() => {
+    const backendUser = data?.requester_user;
+    const localUser = getUserById(data?.requester_id ?? "");
+    const u = localUser || backendUser;
+
+    if (!u) return data?.requester_name || data?.requester_id || "-";
+
+    const thName =
+      `${u.firstname || u.firstname_th || ""} ${u.lastname || u.lastname_th || ""}`.trim();
+    const enName = `${u.firstname_en || ""} ${u.lastname_en || ""}`.trim();
+    const nickname = u.nickname ? `(${u.nickname})` : "";
+
+    const primaryName = thName || enName || u.username || String(u.admin_id);
+    return nickname ? `${primaryName} ${nickname}`.trim() : primaryName;
+  }, [data]);
 
   const employeeCode =
     data?.requester_employee_code ?? userData?.employee_code ?? "-";
