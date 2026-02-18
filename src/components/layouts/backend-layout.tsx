@@ -136,7 +136,8 @@ export default function DashboardLayout({
             borderRight: `1px solid ${token.colorBorderSecondary}`,
             zIndex: 40,
             height: "100vh",
-            position: "sticky",
+            position: "fixed",
+            left: 0,
             top: 0,
             overflow: "hidden",
             transition: "all 0.3s cubic-bezier(0.2, 0, 0, 1) 0s",
@@ -149,7 +150,18 @@ export default function DashboardLayout({
         </Sider>
       )}
 
-      <Layout style={{ background: "transparent", minWidth: 0 }}>
+      <Layout
+        style={{
+          background: "transparent",
+          minWidth: 0,
+          marginLeft: isDesktopView
+            ? collapsed
+              ? collapsedWidth
+              : sidebarWidth
+            : 0,
+          transition: "margin-left 0.3s cubic-bezier(0.2, 0, 0, 1) 0s",
+        }}
+      >
         <Header
           style={{
             padding: 0,
