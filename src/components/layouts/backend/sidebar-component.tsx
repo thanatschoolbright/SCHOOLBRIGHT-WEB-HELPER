@@ -85,63 +85,91 @@ export default function SidebarContent({
 
   useEffect(() => {
     if (collapsed) return;
-    const activeParent = menu.find((m) =>
-      m.children?.some((c) => c.href === pathname),
-    );
+    const findActiveParent = (items: any[]): any | undefined => {
+      for (const item of items) {
+        if (item.href === pathname) return item;
+        if (item.children) {
+          const child = findActiveParent(item.children);
+          if (child) return item;
+        }
+      }
+      return undefined;
+    };
+    const activeParent = findActiveParent(menu);
     if (activeParent)
       setOpenKeys((prev) => Array.from(new Set([...prev, activeParent.label])));
   }, [menu, pathname, collapsed]);
 
-  const items: MenuItem[] = useMemo(() => {
-    return menu.map((m) => {
-      const parentKey = m.href || m.label;
-      const label =
-        collapsed || !m.tag ? (
-          m.label
-        ) : (
-          <Flex align="center" justify="space-between">
-            <span>{m.label}</span>
-            <Tag
-              color="orange"
-              bordered={false}
-              style={{
-                borderRadius: 8,
-                fontSize: 10,
-                fontWeight: 600,
-                color: SB_ORANGE_PRIMARY,
-                background: isDark
-                  ? "rgba(255, 127, 0, 0.2)"
-                  : "rgba(255, 127, 0, 0.1)",
-                marginInlineEnd: 0,
-              }}
-            >
-              {m.tag}
-            </Tag>
-          </Flex>
-        );
+  const mapMenuItems = (item: any): MenuItem => {
+    const { label, icon, href, children, news, revamp, tag } = item;
+    const parentKey = href || label;
 
-      return {
-        key: parentKey,
-        icon: m.icon,
-        label: label,
-        children: m.children?.map((c) => ({
-          key: c.href,
+    const displayLabel =
+      collapsed || !tag ? (
+        label
+      ) : (
+        <Flex align="center" justify="space-between">
+          <span>{label}</span>
+          <Tag
+            color="orange"
+            bordered={false}
+            style={{
+              borderRadius: 8,
+              fontSize: 10,
+              fontWeight: 600,
+              color: SB_ORANGE_PRIMARY,
+              background: isDark
+                ? "rgba(255, 127, 0, 0.2)"
+                : "rgba(255, 127, 0, 0.1)",
+              marginInlineEnd: 0,
+            }}
+          >
+            {tag}
+          </Tag>
+        </Flex>
+      );
+
+    const childLabel = (c: any) =>
+      collapsed || (!c.news && !c.revamp) ? (
+        c.label
+      ) : (
+        <Flex align="center" justify="space-between">
+          <span>{c.label}</span>
+          <Flex gap={4}>
+            {c.news && <StatusTag type="new" />}
+            {c.revamp && <StatusTag type="revamp" />}
+          </Flex>
+        </Flex>
+      );
+
+    return {
+      key: parentKey,
+      icon,
+      label: href ? displayLabel : displayLabel, // Keep logic simple
+      children: children?.map((c: any) => {
+        if (c.children) {
+          return {
+            key: c.label || c.href,
+            icon: c.icon,
+            label: childLabel(c),
+            children: c.children.map((sub: any) => ({
+              key: sub.href || sub.label,
+              icon: sub.icon,
+              label: childLabel(sub),
+            })),
+          };
+        }
+        return {
+          key: c.href || c.label,
           icon: c.icon,
-          label:
-            collapsed || (!c.news && !c.revamp) ? (
-              c.label
-            ) : (
-              <Flex align="center" justify="space-between">
-                <span>{c.label}</span>
-                <Flex gap={4}>
-                  {c.news && <StatusTag type="new" />}
-                  {c.revamp && <StatusTag type="revamp" />}
-                </Flex>
-              </Flex>
-            ),
-        })),
-      } as MenuItem;
-    });
+          label: childLabel(c),
+        };
+      }),
+    } as MenuItem;
+  };
+
+  const items: MenuItem[] = useMemo(() => {
+    return menu.map((m) => mapMenuItems(m));
   }, [menu, isDark, collapsed]);
 
   const handleMenuClick: MenuProps["onClick"] = ({ key }) => {

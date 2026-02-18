@@ -1,4 +1,11 @@
 {
+  "departments": {
+    "admin": "Admin / Management",
+    "support": "Support / Service",
+    "testing": "QA / Testing / HW",
+    "timesheet": "Attendance / Timesheet",
+    "others": "Others"
+  },
   "admin_system": {
     "title": "Admin System",
     "children": {

@@ -1,4 +1,11 @@
 {
+  "departments": {
+    "admin": "ผู้ดูแลระบบ",
+    "support": "ซัพพอร์ต",
+    "testing": "ทดสอบระบบ",
+    "timesheet": "ลงเวลาทำงาน",
+    "others": "อื่นๆ"
+  },
   "admin_system": {
     "title": "ระบบผู้ดูแล",
     "children": {
