@@ -41,7 +41,7 @@ export default function DashboardLayout({
   };
 
   const isDesktopView = !!screens.lg;
-  const sidebarWidth = 360;
+  const sidebarWidth = 320;
   const collapsedWidth = 80;
 
   const contentSkeleton = useMemo(
