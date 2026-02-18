@@ -23,6 +23,8 @@ import { useTranslation } from "react-i18next";
 
 const { Text } = Typography;
 
+const DARK_MODE_KEY = "theme";
+
 const DarkModeToggle = () => {
   const { token } = theme.useToken();
   const [isDarkModeActive, setIsDarkModeActive] = useState(false);
@@ -30,10 +32,15 @@ const DarkModeToggle = () => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const prefersDarkMode = window.matchMedia(
-        "(prefers-color-scheme: dark)",
-      ).matches;
-      setIsDarkModeActive(prefersDarkMode);
+      const savedDarkMode = localStorage.getItem(DARK_MODE_KEY);
+      if (savedDarkMode !== null) {
+        setIsDarkModeActive(savedDarkMode === "dark");
+      } else {
+        const prefersDarkMode = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        setIsDarkModeActive(prefersDarkMode);
+      }
       setIsInitialized(true);
     }
   }, []);
@@ -50,6 +57,7 @@ const DarkModeToggle = () => {
 
   const handleToggleDarkMode = (checkedValue: boolean) => {
     setIsDarkModeActive(checkedValue);
+    localStorage.setItem(DARK_MODE_KEY, checkedValue ? "dark" : "light");
   };
 
   return (

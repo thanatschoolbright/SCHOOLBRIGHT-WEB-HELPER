@@ -114,7 +114,10 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
-                  var theme = localStorage.getItem('theme') || 'light';
+                  var savedMode = localStorage.getItem('theme');
+                  var prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  var theme = savedMode || (prefersDarkMode ? 'dark' : 'light');
+                  
                   if (theme === 'dark') {
                     document.documentElement.classList.add('dark');
                   } else {
