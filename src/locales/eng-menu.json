@@ -35,7 +35,8 @@
       "online_status": "Online Connection Report",
       "offline_sync_status": "Offline Sync Status",
       "transaction_log": "School Transaction Logs",
-      "heartbeats": "Bot Heartbeat Monitoring"
+      "heartbeats": "Bot Heartbeat Monitoring",
+      "api_spec": "API Specification"
     }
   },
   "mobile_app": {
@@ -79,6 +80,13 @@
     "title": "API Logger",
     "children": {
       "api_logs": "API Logs"
+    }
+  },
+  "api_docs": {
+    "title": "API Docs",
+    "children": {
+      "spec": "API Specification",
+      "raw": "OpenAPI JSON"
     }
   },
   "sheets": {

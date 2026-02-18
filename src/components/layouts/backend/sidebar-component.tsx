@@ -149,6 +149,8 @@ export default function SidebarContent({
     if (target.startsWith("/")) {
       router.push(target);
       if (!screens.md) onMobileClose?.();
+    } else if (target.startsWith("http")) {
+      window.open(target, "_blank");
     }
   };
 

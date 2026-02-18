@@ -35,7 +35,8 @@
       "online_status": "รายงานการเชื่อมต่อระบบออนไลน์",
       "offline_sync_status": "รายงานซิงก์ข้อมูลออฟไลน์ล่าสุด",
       "transaction_log": "บันทึกการทำธุรกรรมโรงเรียน",
-      "heartbeats": "ตรวจสอบการทำงานของบอท"
+      "heartbeats": "ตรวจสอบการทำงานของบอท",
+      "api_spec": "เอกสาร API (Spec)"
     }
   },
   "mobile_app": {
@@ -79,6 +80,13 @@
     "title": "ระบบบันทึก API",
     "children": {
       "api_logs": "ดูบันทึก API"
+    }
+  },
+  "api_docs": {
+    "title": "เอกสาร API",
+    "children": {
+      "spec": "API Specification",
+      "raw": "OpenAPI JSON"
     }
   },
   "sheets": {

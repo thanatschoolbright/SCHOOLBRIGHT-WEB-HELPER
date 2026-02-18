@@ -202,6 +202,24 @@ export const useSidebarMenu = (): SidebarItem[] => {
         ],
       },
       {
+        label: t("api_docs.title"),
+        icon: <ApiOutlined />,
+        permission: PERMISSIONS.ADMIN_ACCESS,
+        children: [
+          {
+            label: t("api_docs.children.spec"),
+            href: "/api-spec",
+            icon: <FileSearchOutlined />,
+            news: true,
+          },
+          {
+            label: t("api_docs.children.raw"),
+            href: "/api/docs",
+            icon: <CodeOutlined />,
+          },
+        ],
+      },
+      {
         label: t("mobile_app.title"),
         icon: <MobileOutlined />,
         children: [
