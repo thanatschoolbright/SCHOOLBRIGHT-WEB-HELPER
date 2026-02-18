@@ -1,77 +1,78 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import {
-  Card,
-  Typography,
-  Space,
-  Input,
-  Button,
-  theme,
-  Empty,
-  Tag,
-  Tooltip,
-} from "antd";
-import {
-  SearchOutlined,
-  AppstoreOutlined,
-  RightOutlined,
-  FireFilled,
-  ThunderboltFilled,
-  CompassOutlined,
-  InfoCircleOutlined,
-} from "@ant-design/icons";
 import DashboardLayout from "@/components/layouts/backend-layout";
 import { useSidebarMenu } from "@/constants/sidebar-menu-constant";
+import {
+  CompassOutlined,
+  InfoCircleOutlined,
+  RightOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  Card,
+  Empty,
+  Flex,
+  Input,
+  Space,
+  Tag,
+  theme,
+  Tooltip,
+  Typography,
+} from "antd";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 
 const { Title, Text } = Typography;
 
 export default function MainDashboardPage() {
-  const router = useRouter();
-  const { token } = theme.useToken();
-  const menuItems = useSidebarMenu();
-  const [searchText, setSearchText] = useState("");
+  const navigationRouter = useRouter();
+  const { token: themeToken } = theme.useToken();
+  const sidebarMenuItems = useSidebarMenu();
+  const [filterSearchTextValue, setFilterSearchTextValue] = useState("");
 
-  const filteredMenu = useMemo(() => {
-    if (!searchText) return menuItems;
-    const lowerSearch = searchText.toLowerCase();
-    return menuItems
+  const filteredSidebarMenuItems = useMemo(() => {
+    if (!filterSearchTextValue) return sidebarMenuItems;
+    const lowerCaseSearchValue = filterSearchTextValue.toLowerCase();
+    return sidebarMenuItems
       .map((group) => {
-        const groupMatch = group.label.toLowerCase().includes(lowerSearch);
-        const filteredChildren = group.children?.filter((child) =>
-          child.label.toLowerCase().includes(lowerSearch)
+        const groupLabelMatches = group.label
+          .toLowerCase()
+          .includes(lowerCaseSearchValue);
+        const filteredChildrenItems = group.children?.filter((child) =>
+          child.label.toLowerCase().includes(lowerCaseSearchValue),
         );
-        if (groupMatch) {
+        if (groupLabelMatches) {
           return group;
-        } else if (filteredChildren && filteredChildren.length > 0) {
-          return { ...group, children: filteredChildren };
+        } else if (filteredChildrenItems && filteredChildrenItems.length > 0) {
+          return { ...group, children: filteredChildrenItems };
         }
         return null;
       })
-      .filter(Boolean) as typeof menuItems;
-  }, [menuItems, searchText]);
+      .filter(Boolean) as typeof sidebarMenuItems;
+  }, [sidebarMenuItems, filterSearchTextValue]);
 
-  const handleNavigate = (href: string) => {
-    if (href.startsWith("http")) {
+  const handleNavigationAction = (href?: string) => {
+    if (href?.startsWith("http")) {
       window.open(href, "_blank");
-    } else {
-      router.push(href);
+    } else if (href) {
+      navigationRouter.push(href);
     }
   };
 
   return (
     <DashboardLayout>
-      <div style={{ maxWidth: 1400, margin: "0 auto", padding: "40px 24px" }}>
-        {/* --- Header Section (Redesigned - Thai) --- */}
-        <div style={{ textAlign: "center", marginBottom: 64 }}>
+      <Flex
+        vertical
+        style={{ maxWidth: 1400, margin: "0 auto", padding: "40px 24px" }}
+      >
+        <Flex vertical align="center" style={{ marginBottom: 64 }}>
           <Tooltip title="คลิกเมนูด้านล่างเพื่อเริ่มใช้งานระบบ">
-            <div
+            <Flex
+              align="center"
+              justify="center"
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: token.colorPrimaryBg,
+                background: themeToken.colorPrimaryBg,
                 padding: "12px 24px",
                 borderRadius: 100,
                 marginBottom: 24,
@@ -81,14 +82,17 @@ export default function MainDashboardPage() {
               <CompassOutlined
                 style={{
                   fontSize: 24,
-                  color: token.colorPrimary,
+                  color: themeToken.colorPrimary,
                   marginRight: 8,
                 }}
               />
-              <Text strong style={{ color: token.colorPrimary, fontSize: 16 }}>
+              <Text
+                strong
+                style={{ color: themeToken.colorPrimary, fontSize: 16 }}
+              >
                 เมนูนำทางด่วน
               </Text>
-            </div>
+            </Flex>
           </Tooltip>
 
           <Title
@@ -107,14 +111,15 @@ export default function MainDashboardPage() {
                 style={{
                   marginLeft: 8,
                   cursor: "help",
-                  color: token.colorTextTertiary,
+                  color: themeToken.colorTextTertiary,
                 }}
               />
             </Tooltip>
           </Text>
 
-          <div
+          <Flex
             style={{
+              width: "100%",
               maxWidth: 600,
               margin: "40px auto 0",
               position: "relative",
@@ -126,14 +131,14 @@ export default function MainDashboardPage() {
               prefix={
                 <SearchOutlined
                   style={{
-                    color: token.colorTextPlaceholder,
+                    color: themeToken.colorTextPlaceholder,
                     fontSize: 20,
                     marginRight: 8,
                   }}
                 />
               }
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
+              value={filterSearchTextValue}
+              onChange={(e) => setFilterSearchTextValue(e.target.value)}
               allowClear
               style={{
                 borderRadius: 100,
@@ -144,14 +149,13 @@ export default function MainDashboardPage() {
                 paddingLeft: 24,
               }}
             />
-          </div>
-        </div>
+          </Flex>
+        </Flex>
 
-        {/* --- Modern Masonry Grid --- */}
-        {filteredMenu.length > 0 ? (
+        {filteredSidebarMenuItems.length > 0 ? (
           <div className="masonry-grid">
-            {filteredMenu.map((group, index) => (
-              <div className="masonry-item" key={index}>
+            {filteredSidebarMenuItems.map((group, index) => (
+              <Flex vertical className="masonry-item" key={index}>
                 <Card
                   hoverable
                   style={{
@@ -159,7 +163,7 @@ export default function MainDashboardPage() {
                     border: "none",
                     boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
                     overflow: "hidden",
-                    background: token.colorBgContainer,
+                    background: themeToken.colorBgContainer,
                     transition: "transform 0.3s ease, box-shadow 0.3s ease",
                   }}
                   styles={{
@@ -167,45 +171,40 @@ export default function MainDashboardPage() {
                   }}
                   className="dashboard-card"
                 >
-                  {/* Card Header with Gradient */}
-                  <div
+                  <Flex
+                    align="center"
+                    gap={16}
                     style={{
                       padding: "24px 24px 20px",
-                      background: `linear-gradient(135deg, ${token.colorFillQuaternary} 0%, ${token.colorBgContainer} 100%)`,
-                      borderBottom: `1px solid ${token.colorBorderSecondary}`,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 16,
+                      background: `linear-gradient(135deg, ${themeToken.colorFillQuaternary} 0%, ${themeToken.colorBgContainer} 100%)`,
+                      borderBottom: `1px solid ${themeToken.colorBorderSecondary}`,
                     }}
                   >
-                    <div
+                    <Flex
+                      align="center"
+                      justify="center"
                       style={{
                         width: 56,
                         height: 56,
                         borderRadius: 16,
-                        background: token.colorBgContainer,
-                        color: token.colorPrimary,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
+                        background: themeToken.colorBgContainer,
+                        color: themeToken.colorPrimary,
                         fontSize: 28,
                         boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
                       }}
                     >
                       {group.icon}
-                    </div>
+                    </Flex>
                     <Title level={4} style={{ margin: 0, fontWeight: 700 }}>
                       {group.label}
                     </Title>
-                  </div>
+                  </Flex>
 
-                  {/* Sub Menu List */}
-                  <div
+                  <Flex
+                    vertical
+                    gap={8}
                     style={{
                       padding: "16px 16px 24px",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 8,
                     }}
                   >
                     {group.children?.map((child, childIndex) => (
@@ -229,7 +228,7 @@ export default function MainDashboardPage() {
                             transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
                             background: "transparent",
                           }}
-                          onClick={() => handleNavigate(child.href)}
+                          onClick={() => handleNavigationAction(child.href)}
                           className="menu-item-modern"
                         >
                           <Space
@@ -237,24 +236,24 @@ export default function MainDashboardPage() {
                             style={{ flex: 1, overflow: "hidden" }}
                           >
                             {child.icon && (
-                              <div
+                              <Flex
+                                align="center"
+                                justify="center"
                                 className="menu-icon-wrapper"
                                 style={{
-                                  color: token.colorTextSecondary,
+                                  color: themeToken.colorTextSecondary,
                                   fontSize: 18,
                                   width: 24,
-                                  display: "flex",
-                                  justifyContent: "center",
                                 }}
                               >
                                 {child.icon}
-                              </div>
+                              </Flex>
                             )}
                             <Text
                               strong
                               style={{
                                 fontSize: 15,
-                                color: token.colorText,
+                                color: themeToken.colorText,
                                 whiteSpace: "nowrap",
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
@@ -297,7 +296,7 @@ export default function MainDashboardPage() {
                               className="arrow-icon"
                               style={{
                                 fontSize: 12,
-                                color: token.colorTextQuaternary,
+                                color: themeToken.colorTextQuaternary,
                                 opacity: 0,
                               }}
                             />
@@ -305,36 +304,34 @@ export default function MainDashboardPage() {
                         </Button>
                       </Tooltip>
                     ))}
-                  </div>
+                  </Flex>
                 </Card>
-              </div>
+              </Flex>
             ))}
           </div>
         ) : (
-          <div style={{ padding: "80px 0", textAlign: "center" }}>
+          <Flex
+            vertical
+            align="center"
+            justify="center"
+            style={{ padding: "80px 0" }}
+          >
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
               description={
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                >
+                <Flex vertical align="center" gap={8}>
                   <Text type="secondary" style={{ fontSize: 18 }}>
                     ไม่พบเมนูที่คุณค้นหา
                   </Text>
                   <Text type="secondary">
                     ลองตรวจสอบคำค้นหา หรือใช้คำอื่นดูนะครับ
                   </Text>
-                </div>
+                </Flex>
               }
             />
-          </div>
+          </Flex>
         )}
-      </div>
+      </Flex>
 
       {/* Global CSS for Masonry & Animations */}
       <style jsx global>{`
@@ -367,11 +364,11 @@ export default function MainDashboardPage() {
 
         /* Menu Item Interaction */
         .menu-item-modern:hover {
-          background: ${token.colorFillQuaternary} !important;
+          background: ${themeToken.colorFillQuaternary} !important;
           transform: translateX(6px);
         }
         .menu-item-modern:hover .menu-icon-wrapper {
-          color: ${token.colorPrimary} !important;
+          color: ${themeToken.colorPrimary} !important;
         }
         .menu-item-modern:hover .arrow-icon {
           opacity: 1 !important;
