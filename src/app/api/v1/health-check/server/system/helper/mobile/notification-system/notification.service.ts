@@ -5,16 +5,16 @@ import { generateCurlCommand } from "../../generate-curl.helper";
 
 // รับ accessToken เข้ามาเป็น Argument (Optional)
 export async function checkNotificationService(
-  accessToken?: string
+  accessToken?: string,
 ): Promise<HealthCheckResult> {
+  const targetToken =
+    accessToken ?? process.env.NEXT_PUBLIC_AUTHENTICATION_TOKEN ?? "";
+
   const NOTIFICATION_CONFIG = {
-    url: `${API_URL.PROD_SB_API_URL}/api/message/Main/unread/1230332`,
+    url: `${API_URL.PROD_SB_API_URL}/api/message/Main/unread/1230336`,
     method: "GET",
     headers: {
-      // 1. ถ้ามี accessToken ส่งมา ให้ใช้ตัวนั้น
-      // 2. ถ้าไม่มี ให้กลับไปใช้จาก ENV (เผื่อกรณี Test แยกไฟล์)
-      "JabjaiKey-849-1230336":
-        accessToken ?? process.env.NEXT_PUBLIC_AUTHENTICATION_TOKEN ?? "",
+      "JabjaiKey-849-1230336": targetToken,
     },
   };
 

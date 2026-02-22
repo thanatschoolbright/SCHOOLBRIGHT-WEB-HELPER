@@ -727,7 +727,6 @@ export default function ServerStatusPage() {
 
         {/* ส่วนที่ 3: ฟิลเตอร์ข้อมูล (Filter Section) */}
         <Card
-          bordered={false}
           style={{
             borderRadius: 16,
             marginBottom: 24,
