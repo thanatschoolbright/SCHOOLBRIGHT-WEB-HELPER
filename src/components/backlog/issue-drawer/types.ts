@@ -73,5 +73,6 @@ export type AiUpdateState = {
   generating: boolean;
   issue: Issue | null;
   newText: string;
+  newSummary?: string;
   open: boolean;
 };

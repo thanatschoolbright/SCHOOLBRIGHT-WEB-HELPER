@@ -182,7 +182,20 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
                 ? dayjs(desc.date)
                 : null;
             const endTime = hasTimeRange ? dayjs(desc.end_date) : null;
-            const assigneeUser = getUserById(desc.assignee);
+
+            // Priority: backend user -> local user
+            const backendAssignee = desc.assignee_user;
+            const localAssignee = getUserById(desc.assignee);
+            const assigneeUser = backendAssignee || localAssignee;
+
+            // Name display helper
+            const getAssigneeName = () => {
+              if (backendAssignee)
+                return `${backendAssignee.firstname_th} ${backendAssignee.lastname_th}`.trim();
+              if (localAssignee)
+                return `${localAssignee.firstname} ${localAssignee.lastname}`.trim();
+              return desc.assignee_name || desc.assignee || "-";
+            };
 
             return {
               color: "blue",
@@ -194,16 +207,13 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
                   {startTime && (
                     <div style={{ fontSize: "12px", color: "#8c8c8c" }}>
                       <CalendarOutlined />{" "}
-                      {startTime.locale("th").format("DD MMM BBBB")}
+                      {startTime.format("DD/MM/YYYY HH:mm")}
                     </div>
                   )}
-                  {hasTimeRange && (
-                    <Tag
-                      color="processing"
-                      style={{ marginTop: "4px", borderRadius: "10px" }}
-                    >
-                      {startTime?.format("HH:mm")} - {endTime?.format("HH:mm")}
-                    </Tag>
+                  {endTime && (
+                    <div style={{ fontSize: "12px", color: "#8c8c8c" }}>
+                      ถึงระว่าง {endTime.format("DD/MM/YYYY HH:mm")}
+                    </div>
                   )}
                 </div>
               ),
@@ -263,11 +273,7 @@ export const OvertimeTable: React.FC<OvertimeTableProps> = ({
                           }
                           icon={<UserOutlined />}
                         />
-                        <Text>
-                          {assigneeUser
-                            ? `${assigneeUser.firstname} ${assigneeUser.lastname}`
-                            : desc.assignee_name || desc.assignee || "-"}
-                        </Text>
+                        <Text>{getAssigneeName()}</Text>
                       </Space>
                     </Descriptions.Item>
                   </Descriptions>

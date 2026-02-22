@@ -1,38 +1,36 @@
-import React, { useMemo } from "react";
-import {
-  Button,
-  Dropdown,
-  Space,
-  Tag,
-  Avatar,
-  Typography,
-  Modal,
-  Select,
-  Row,
-  Col,
-  theme,
-  Card,
-  Descriptions,
-} from "antd";
+import { useAppSelector } from "@/stores/store";
 import {
   CheckOutlined,
+  DeleteOutlined,
+  EditOutlined,
   EyeOutlined,
   FilePdfOutlined,
+  FileTextOutlined,
+  InfoCircleOutlined,
   MailOutlined,
-  DeleteOutlined,
   MoreOutlined,
   UserOutlined,
-  FileTextOutlined,
-  EditOutlined,
-  InfoCircleOutlined,
 } from "@ant-design/icons";
-import dayjs from "dayjs";
-import { useTranslation } from "react-i18next";
 import { getUserById } from "@helpers/local_storage/user.storage";
+import {
+  Avatar,
+  Button,
+  Card,
+  Descriptions,
+  Dropdown,
+  Modal,
+  Select,
+  Space,
+  Tag,
+  theme,
+  Typography,
+} from "antd";
+import dayjs from "dayjs";
+import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { OT_STATUS } from "../types/overtime.types";
 import { getCurrentUserId } from "../utils/overtime.helpers";
-import { toast } from "sonner";
-import { useAppSelector } from "@/stores/store";
 
 const { Text } = Typography;
 
@@ -48,10 +46,19 @@ const ChangeStatusModalContent: React.FC<ChangeStatusModalProps> = ({
   t,
 }) => {
   const { token } = theme.useToken();
+
+  // จัดลำดับความสำคัญของข้อมูลพนักงาน:
+  // 1. จาก Backend (requester_user)
+  // 2. จาก Local Storage (user)
+  // 3. จาก record.requester_name โดยตรง
   const user = getUserById(record.requester_id);
-  const displayName = user
-    ? `${user.firstname} ${user.lastname}`
-    : record.requester_name || record.requester_id;
+  const backendUser = record.requester_user;
+
+  const displayName = backendUser
+    ? `${backendUser.firstname_th} ${backendUser.lastname_th}`.trim()
+    : user
+      ? `${user.firstname} ${user.lastname}`.trim()
+      : record.requester_name || record.requester_id;
 
   return (
     <>
@@ -209,23 +216,17 @@ export const useOvertimeTableColumns = ({
   return useMemo(
     () => [
       {
-        title: "",
-        key: "processed",
-        width: 50,
-        align: "center" as const,
-        render: (_: any, record: any) =>
-          processedItems?.has?.(record.id) && (
-            <CheckOutlined
-              style={{ color: token.colorSuccess, fontSize: 18 }}
-            />
-          ),
+        title: "ID",
+        dataIndex: "id",
+        width: 70,
+        sorter: (a: any, b: any) => (a.id || 0) - (b.id || 0),
       },
       {
         title: t("overtime_page.request_date"),
         dataIndex: "request_date",
-        width: 120,
+        width: 150,
         render: (value: string) =>
-          value ? dayjs(value).format("DD/MM/YYYY") : "-",
+          value ? dayjs(value).format("DD/MM/YYYY HH:mm") : "-",
         sorter: (a: any, b: any) =>
           dayjs(a.request_date).valueOf() - dayjs(b.request_date).valueOf(),
       },
@@ -237,28 +238,69 @@ export const useOvertimeTableColumns = ({
           (a.requester_name || "").localeCompare(b.requester_name || ""),
         render: (value: string, record: any) => {
           const user = getUserById(value);
-          const name = user
-            ? `${user.firstname} ${user.lastname}`
-            : record.requester_name;
+          const backendUser = record.requester_user;
+
+          const name = backendUser
+            ? `${backendUser.firstname_th} ${backendUser.lastname_th}`.trim()
+            : user
+              ? `${user.firstname} ${user.lastname}`.trim()
+              : record.requester_name || value;
+
+          const avatarSrc =
+            backendUser?.profile_image ||
+            backendUser?.image_profile ||
+            user?.profile_image ||
+            user?.image_profile;
 
           return (
             <Space>
-              <Avatar
-                icon={<UserOutlined />}
-                size="small"
-                src={user?.profile_image || user?.image_profile}
-              >
-                {name?.[0]}
+              <Avatar icon={<UserOutlined />} size="small" src={avatarSrc}>
+                {!avatarSrc && (name ? name[0] : "?")}
               </Avatar>
-              <Text>{name || "-"}</Text>
+              <Space direction="vertical" size={0}>
+                <Typography.Text strong style={{ fontSize: 13 }}>
+                  {name}
+                </Typography.Text>
+                <Space size={4} wrap>
+                  <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                    {record.requester_employee_code ||
+                      backendUser?.employee_code ||
+                      user?.employee_code ||
+                      "-"}
+                  </Typography.Text>
+                  <Divider type="vertical" style={{ margin: 0 }} />
+                  <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                    {record.requester_position ||
+                      backendUser?.position_th ||
+                      "-"}
+                  </Typography.Text>
+                </Space>
+              </Space>
             </Space>
+          );
+        },
+      },
+      {
+        title: t("overtime_page.total_hours"),
+        key: "total_hours",
+        width: 100,
+        align: "right" as const,
+        render: (_: any, record: any) => {
+          const total = (record.descriptions || []).reduce(
+            (sum: number, desc: any) => sum + Number(desc.duration || 0),
+            0,
+          );
+          return (
+            <Text strong style={{ color: token.colorError }}>
+              {total.toFixed(2)}
+            </Text>
           );
         },
       },
       {
         title: t("overtime_page.status"),
         dataIndex: "status",
-        width: 140,
+        width: 120,
         sorter: (a: any, b: any) =>
           (a.status || "").localeCompare(b.status || ""),
         filters: OT_STATUS.map((s) => ({ text: s.text, value: s.value })),
@@ -268,35 +310,53 @@ export const useOvertimeTableColumns = ({
         },
       },
       {
+        title: t("overtime_page.created_at"),
+        dataIndex: "created_at",
+        width: 150,
+        sorter: (a: any, b: any) =>
+          dayjs(a.created_at).valueOf() - dayjs(b.created_at).valueOf(),
+        render: (value: string) =>
+          value ? dayjs(value).format("DD/MM/YYYY HH:mm") : "-",
+      },
+      {
+        title: t("overtime_page.updated_at"),
+        dataIndex: "updated_at",
+        width: 150,
+        sorter: (a: any, b: any) =>
+          dayjs(a.updated_at).valueOf() - dayjs(b.updated_at).valueOf(),
+        render: (value: string) =>
+          value ? dayjs(value).format("DD/MM/YYYY HH:mm") : "-",
+      },
+      {
         title: t("overtime_page.created_by"),
         dataIndex: "created_by",
-        width: 180,
+        width: 160,
         render: (value: string, record: any) => {
+          const backendCreator = record.creator_user;
           const user = getUserById(value);
-          const name = user
-            ? `${user.firstname} ${user.lastname}`
-            : record.creator_name;
+          const name = backendCreator
+            ? `${backendCreator.firstname_th} ${backendCreator.lastname_th}`.trim()
+            : user
+              ? `${user.firstname} ${user.lastname}`.trim()
+              : record.creator_name || value;
 
           return (
             <Space>
               <Avatar
                 size="small"
                 icon={<UserOutlined />}
-                src={user?.profile_image || user?.image_profile}
+                src={
+                  backendCreator?.profile_image ||
+                  user?.profile_image ||
+                  user?.image_profile
+                }
               />
-              <Text type="secondary">{name || "-"}</Text>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                {name || "-"}
+              </Text>
             </Space>
           );
         },
-      },
-      {
-        title: t("overtime_page.created_at"),
-        dataIndex: "created_at",
-        width: 160,
-        sorter: (a: any, b: any) =>
-          dayjs(a.created_at).valueOf() - dayjs(b.created_at).valueOf(),
-        render: (value: string) =>
-          value ? dayjs(value).format("DD/MM/YYYY HH:mm") : "-",
       },
       {
         title: t("overtime_page.actions"),

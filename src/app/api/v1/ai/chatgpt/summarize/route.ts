@@ -109,10 +109,48 @@ ${JSON.stringify(details || {}, null, 2)}
         description || "_No original description provided_"
       }\n\`\`\`\n\n✨ **ข้อความถูกปรับโดยอัตโนมัติ โดย Light AI** *เวอร์ชัน 1.0.2*`;
 
+      /**
+       * Reformat Summary if it matches the "Grade (X) ID School : Content" pattern
+       * From: "Grade (C+) 961 โรงเรียนพระวิสุทธิวงส์ : แอปพลิเคชันมีการแจ้งเตือนไม่ตรงตามเวลา"
+       * To: "[C+] แอปพลิเคชันมีการแจ้งเตือนไม่ตรงตามเวลา (โรงเรียนพระวิสุทธิวงส์) (961) [สรุปด้วย LIGHT AI ✨]"
+       */
+      const reformatAndTagSummary = (
+        val: string | null | undefined,
+      ): string => {
+        if (!val) return "";
+
+        let finalVal = val.trim();
+
+        // Pattern explanation: Grade (Grade) ID SchoolName : OriginalContent
+        // Match example: Grade (C+) 961 โรงเรียนพระวิสุทธิวงส์ : แอปพลิเคชัน...
+        const pattern =
+          /^Grade\s*\((.*?)\)\s*(\d+)\s*(โรงเรียน.*?)\s*:\s*(.*)$/i;
+        const match = finalVal.match(pattern);
+
+        if (match) {
+          const [, grade, schoolId, schoolName, content] = match;
+          finalVal = `[${grade}] ${content.trim()} (${schoolName.trim()}) (${schoolId})`;
+        }
+
+        // Ensure AI Tag for Backlog tracking (Consistent with Backlog Service)
+        const hasAiPrefix =
+          finalVal.includes("AI") ||
+          finalVal.includes("✨") ||
+          finalVal.includes("🤖");
+
+        return hasAiPrefix ? finalVal : `${finalVal} [สรุปด้วย LIGHT AI ✨]`;
+      };
+
+      const taggedSummary = reformatAndTagSummary(summary);
+
       logger.info(`[${requestId}] Success with ChatGPT`);
       return NextResponse.json(
         successResponse({
-          data: { markdown, model_used: "gpt-4o-mini" },
+          data: {
+            markdown,
+            summary: taggedSummary,
+            model_used: "gpt-4o-mini",
+          },
           message_th: "สรุปด้วย ChatGPT สำเร็จ",
         }),
       );

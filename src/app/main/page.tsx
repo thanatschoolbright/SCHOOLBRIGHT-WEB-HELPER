@@ -1,383 +1,456 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import {
-  Card,
-  Typography,
-  Space,
-  Input,
-  Button,
-  theme,
-  Empty,
-  Tag,
-  Tooltip,
-} from "antd";
-import {
-  SearchOutlined,
-  AppstoreOutlined,
-  RightOutlined,
-  FireFilled,
-  ThunderboltFilled,
-  CompassOutlined,
-  InfoCircleOutlined,
-} from "@ant-design/icons";
 import DashboardLayout from "@/components/layouts/backend-layout";
 import { useSidebarMenu } from "@/constants/sidebar-menu-constant";
+import {
+  CompassOutlined,
+  InfoCircleOutlined,
+  ArrowRightOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import {
+  App,
+  Button,
+  Card,
+  Col,
+  Empty,
+  Flex,
+  Input,
+  Row,
+  Space,
+  Tag,
+  theme,
+  Tooltip,
+  Typography,
+} from "antd";
+import { useRouter, useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useMemo, useState } from "react";
+import axios from "axios";
 
 const { Title, Text } = Typography;
 
 export default function MainDashboardPage() {
-  const router = useRouter();
-  const { token } = theme.useToken();
-  const menuItems = useSidebarMenu();
-  const [searchText, setSearchText] = useState("");
+  const navigationRouter = useRouter();
+  const navigationParams = useParams();
+  const { data: sessionData, status: sessionStatus } = useSession();
+  const { token: themeToken } = theme.useToken();
+  const { modal: appModal } = App.useApp();
+  const sidebarMenuItems = useSidebarMenu();
 
-  const filteredMenu = useMemo(() => {
-    if (!searchText) return menuItems;
-    const lowerSearch = searchText.toLowerCase();
-    return menuItems
+  const [searchKeyword, setSearchKeyword] = useState("");
+
+  const filteredNavigationGroups = useMemo(() => {
+    if (!searchKeyword) return sidebarMenuItems;
+    const lowerKeyword = searchKeyword.toLowerCase();
+
+    return sidebarMenuItems
       .map((group) => {
-        const groupMatch = group.label.toLowerCase().includes(lowerSearch);
-        const filteredChildren = group.children?.filter((child) =>
-          child.label.toLowerCase().includes(lowerSearch)
-        );
-        if (groupMatch) {
-          return group;
-        } else if (filteredChildren && filteredChildren.length > 0) {
+        const isGroupMatched = group.label.toLowerCase().includes(lowerKeyword);
+
+        const filteredChildren = group.children
+          ?.map((child) => {
+            const isChildMatched = child.label
+              .toLowerCase()
+              .includes(lowerKeyword);
+            const filteredSubChildren = child.children?.filter((subChild) =>
+              subChild.label.toLowerCase().includes(lowerKeyword),
+            );
+
+            if (
+              isChildMatched ||
+              (filteredSubChildren && filteredSubChildren.length > 0)
+            ) {
+              return {
+                ...child,
+                children:
+                  filteredSubChildren && filteredSubChildren.length > 0
+                    ? filteredSubChildren
+                    : child.children,
+              };
+            }
+            return null;
+          })
+          .filter(
+            (child): child is NonNullable<typeof child> => child !== null,
+          );
+
+        if (isGroupMatched) return group;
+        if (filteredChildren && filteredChildren.length > 0) {
           return { ...group, children: filteredChildren };
         }
         return null;
       })
-      .filter(Boolean) as typeof menuItems;
-  }, [menuItems, searchText]);
+      .filter((group): group is NonNullable<typeof group> => group !== null);
+  }, [sidebarMenuItems, searchKeyword]);
 
-  const handleNavigate = (href: string) => {
-    if (href.startsWith("http")) {
-      window.open(href, "_blank");
+  const handleNavigationRedirect = (targetUrl?: string) => {
+    if (!targetUrl) return;
+    if (targetUrl.startsWith("http")) {
+      window.open(targetUrl, "_blank");
     } else {
-      router.push(href);
+      navigationRouter.push(targetUrl);
     }
   };
 
+  const menuColumns = useMemo(() => {
+    const listAlpha = filteredNavigationGroups.filter(
+      (_, index) => index % 3 === 0,
+    );
+    const listBeta = filteredNavigationGroups.filter(
+      (_, index) => index % 3 === 1,
+    );
+    const listGamma = filteredNavigationGroups.filter(
+      (_, index) => index % 3 === 2,
+    );
+    return { listAlpha, listBeta, listGamma };
+  }, [filteredNavigationGroups]);
+
   return (
     <DashboardLayout>
-      <div style={{ maxWidth: 1400, margin: "0 auto", padding: "40px 24px" }}>
-        {/* --- Header Section (Redesigned - Thai) --- */}
-        <div style={{ textAlign: "center", marginBottom: 64 }}>
-          <Tooltip title="คลิกเมนูด้านล่างเพื่อเริ่มใช้งานระบบ">
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: token.colorPrimaryBg,
-                padding: "12px 24px",
-                borderRadius: 100,
-                marginBottom: 24,
-                cursor: "help",
-              }}
-            >
-              <CompassOutlined
-                style={{
-                  fontSize: 24,
-                  color: token.colorPrimary,
-                  marginRight: 8,
-                }}
-              />
-              <Text strong style={{ color: token.colorPrimary, fontSize: 16 }}>
-                เมนูนำทางด่วน
-              </Text>
-            </div>
-          </Tooltip>
-
-          <Title
-            level={1}
-            style={{ marginBottom: 16, fontWeight: 800, fontSize: 42 }}
-          >
-            หน้าหลัก (Dashboard)
-          </Title>
-          <Text
-            type="secondary"
-            style={{ fontSize: 18, maxWidth: 600, display: "inline-block" }}
-          >
-            ศูนย์รวมเมนูและเครื่องมือจัดการระบบทั้งหมด เข้าถึงง่ายในที่เดียว
-            <Tooltip title="พิมพ์ชื่อเมนูในช่องค้นหาด้านล่างเพื่อหาเมนูที่ต้องการอย่างรวดเร็ว">
-              <InfoCircleOutlined
-                style={{
-                  marginLeft: 8,
-                  cursor: "help",
-                  color: token.colorTextTertiary,
-                }}
-              />
-            </Tooltip>
-          </Text>
-
-          <div
+      <Flex
+        vertical
+        align="center"
+        style={{ padding: "80px 24px", minHeight: "100%" }}
+      >
+        <Flex
+          vertical
+          align="center"
+          gap={24}
+          style={{ marginBottom: 80, textAlign: "center", width: "100%" }}
+        >
+          <Flex
+            align="center"
+            gap={12}
             style={{
-              maxWidth: 600,
-              margin: "40px auto 0",
-              position: "relative",
+              background: themeToken.colorPrimaryBg,
+              padding: "10px 24px",
+              borderRadius: 50,
+              border: `1px solid ${themeToken.colorPrimaryBorder}`,
             }}
           >
+            <CompassOutlined
+              style={{ color: themeToken.colorPrimary, fontSize: 20 }}
+            />
+            <Text
+              strong
+              style={{ color: themeToken.colorPrimary, fontSize: 16 }}
+            >
+              Navigation Hub
+            </Text>
+          </Flex>
+
+          <Flex vertical gap={8}>
+            <Title
+              level={1}
+              style={{
+                margin: 0,
+                fontSize: 56,
+                fontWeight: 900,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Web Helper Central
+            </Title>
+            <Flex align="center" justify="center" gap={8}>
+              <Text type="secondary" style={{ fontSize: 20 }}>
+                ศูนย์รวมเครื่องมือและระบบจัดการทั้งหมดที่คุณต้องการ
+              </Text>
+              <Tooltip title="ค้นหาเมนูได้ทั้งชื่อกลุ่มและชื่อระบบย่อย">
+                <InfoCircleOutlined
+                  style={{
+                    color: themeToken.colorTextQuaternary,
+                    cursor: "help",
+                  }}
+                />
+              </Tooltip>
+            </Flex>
+          </Flex>
+
+          <Flex style={{ width: "100%", maxWidth: 720, marginTop: 40 }}>
             <Input
               size="large"
-              placeholder="ค้นหาเมนูที่ต้องการใช้งาน..."
+              placeholder="ค้นหาระบบที่ต้องการใช้งาน..."
               prefix={
                 <SearchOutlined
                   style={{
-                    color: token.colorTextPlaceholder,
-                    fontSize: 20,
+                    color: themeToken.colorTextPlaceholder,
+                    fontSize: 22,
                     marginRight: 8,
                   }}
                 />
               }
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
+              value={searchKeyword}
+              onChange={(event) => setSearchKeyword(event.target.value)}
               allowClear
               style={{
-                borderRadius: 100,
-                boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
-                height: 60,
-                fontSize: 18,
+                height: 72,
+                borderRadius: 36,
+                fontSize: 20,
+                paddingInlineStart: 32,
+                boxShadow: "0 20px 50px rgba(0,0,0,0.08)",
                 border: "none",
-                paddingLeft: 24,
               }}
             />
-          </div>
-        </div>
+          </Flex>
+        </Flex>
 
-        {/* --- Modern Masonry Grid --- */}
-        {filteredMenu.length > 0 ? (
-          <div className="masonry-grid">
-            {filteredMenu.map((group, index) => (
-              <div className="masonry-item" key={index}>
-                <Card
-                  hoverable
-                  style={{
-                    borderRadius: 24,
-                    border: "none",
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
-                    overflow: "hidden",
-                    background: token.colorBgContainer,
-                    transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                  }}
-                  styles={{
-                    body: { padding: 0 },
-                  }}
-                  className="dashboard-card"
-                >
-                  {/* Card Header with Gradient */}
-                  <div
-                    style={{
-                      padding: "24px 24px 20px",
-                      background: `linear-gradient(135deg, ${token.colorFillQuaternary} 0%, ${token.colorBgContainer} 100%)`,
-                      borderBottom: `1px solid ${token.colorBorderSecondary}`,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 16,
-                    }}
-                  >
-                    <div
+        {filteredNavigationGroups.length > 0 ? (
+          <Row gutter={[40, 40]} style={{ width: "100%", maxWidth: 1600 }}>
+            {[
+              menuColumns.listAlpha,
+              menuColumns.listBeta,
+              menuColumns.listGamma,
+            ].map((columnList, colIndex) => (
+              <Col xs={24} md={colIndex === 2 ? 0 : 12} lg={8} key={colIndex}>
+                <Flex vertical gap={40}>
+                  {columnList.map((navigationGroup, groupIndex) => (
+                    <Card
+                      key={groupIndex}
+                      hoverable
                       style={{
-                        width: 56,
-                        height: 56,
-                        borderRadius: 16,
-                        background: token.colorBgContainer,
-                        color: token.colorPrimary,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 28,
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+                        borderRadius: 32,
+                        border: `1px solid ${themeToken.colorBorderSecondary}`,
+                        boxShadow: "0 10px 30px rgba(0,0,0,0.02)",
+                        overflow: "hidden",
+                      }}
+                      styles={{
+                        body: {
+                          padding: 0,
+                          display: "flex",
+                          flexDirection: "column",
+                        },
                       }}
                     >
-                      {group.icon}
-                    </div>
-                    <Title level={4} style={{ margin: 0, fontWeight: 700 }}>
-                      {group.label}
-                    </Title>
-                  </div>
-
-                  {/* Sub Menu List */}
-                  <div
-                    style={{
-                      padding: "16px 16px 24px",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 8,
-                    }}
-                  >
-                    {group.children?.map((child, childIndex) => (
-                      <Tooltip
-                        key={childIndex}
-                        title={`คลิกเพื่อไปที่หน้า ${child.label}`}
-                        placement="right"
-                        mouseEnterDelay={0.5}
+                      <Flex
+                        vertical
+                        gap={12}
+                        style={{
+                          padding: "32px 32px 24px",
+                          background: `linear-gradient(145deg, ${themeToken.colorFillQuaternary} 0%, transparent 100%)`,
+                          borderBottom: `1px solid ${themeToken.colorBorderSecondary}`,
+                        }}
                       >
-                        <Button
-                          type="text"
-                          style={{
-                            height: "auto",
-                            padding: "12px 16px",
-                            borderRadius: 12,
-                            textAlign: "left",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            width: "100%",
-                            transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-                            background: "transparent",
-                          }}
-                          onClick={() => handleNavigate(child.href)}
-                          className="menu-item-modern"
-                        >
-                          <Space
+                        <Flex align="center" gap={20}>
+                          <Flex
                             align="center"
-                            style={{ flex: 1, overflow: "hidden" }}
+                            justify="center"
+                            style={{
+                              width: 64,
+                              height: 64,
+                              borderRadius: 20,
+                              background: themeToken.colorBgContainer,
+                              boxShadow: "0 8px 16px rgba(0,0,0,0.06)",
+                              fontSize: 32,
+                              color: themeToken.colorPrimary,
+                            }}
                           >
-                            {child.icon && (
-                              <div
-                                className="menu-icon-wrapper"
-                                style={{
-                                  color: token.colorTextSecondary,
-                                  fontSize: 18,
-                                  width: 24,
-                                  display: "flex",
-                                  justifyContent: "center",
-                                }}
-                              >
-                                {child.icon}
-                              </div>
-                            )}
-                            <Text
-                              strong
-                              style={{
-                                fontSize: 15,
-                                color: token.colorText,
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                              }}
-                            >
-                              {child.label}
-                            </Text>
-                          </Space>
+                            {navigationGroup.icon}
+                          </Flex>
+                          <Title
+                            level={3}
+                            style={{ margin: 0, fontWeight: 800 }}
+                          >
+                            {navigationGroup.label}
+                          </Title>
+                        </Flex>
+                      </Flex>
 
-                          <Space size={8}>
-                            {child.news && (
-                              <Tag
-                                color="#ff4d4f"
-                                style={{
-                                  margin: 0,
-                                  borderRadius: 100,
-                                  fontSize: 10,
-                                  padding: "0 8px",
-                                  border: "none",
-                                }}
-                              >
-                                ใหม่
-                              </Tag>
-                            )}
-                            {child.revamp && (
-                              <Tag
-                                color="cyan"
-                                style={{
-                                  margin: 0,
-                                  borderRadius: 100,
-                                  fontSize: 10,
-                                  padding: "0 8px",
-                                  border: "none",
-                                }}
-                              >
-                                ปรับปรุง
-                              </Tag>
-                            )}
-                            <RightOutlined
-                              className="arrow-icon"
-                              style={{
-                                fontSize: 12,
-                                color: token.colorTextQuaternary,
-                                opacity: 0,
-                              }}
-                            />
-                          </Space>
-                        </Button>
-                      </Tooltip>
-                    ))}
-                  </div>
-                </Card>
-              </div>
+                      <Flex vertical gap={24} style={{ padding: 24 }}>
+                        {navigationGroup.children?.map(
+                          (childCategory, categoryIndex) => (
+                            <Flex vertical key={categoryIndex} gap={12}>
+                              {childCategory.children ? (
+                                <Flex vertical gap={12}>
+                                  <Flex
+                                    align="center"
+                                    gap={8}
+                                    style={{ paddingLeft: 8 }}
+                                  >
+                                    <Text
+                                      strong
+                                      style={{
+                                        fontSize: 13,
+                                        color: themeToken.colorPrimary,
+                                        textTransform: "uppercase",
+                                        letterSpacing: "0.05em",
+                                      }}
+                                    >
+                                      {childCategory.label}
+                                    </Text>
+                                  </Flex>
+                                  <Flex vertical gap={4}>
+                                    {childCategory.children.map(
+                                      (leafItem, leafIndex) => (
+                                        <Button
+                                          key={leafIndex}
+                                          type="text"
+                                          onClick={() =>
+                                            handleNavigationRedirect(
+                                              leafItem.href,
+                                            )
+                                          }
+                                          style={{
+                                            height: "auto",
+                                            padding: "16px 20px",
+                                            borderRadius: 16,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "space-between",
+                                            textAlign: "left",
+                                          }}
+                                        >
+                                          <Flex
+                                            align="center"
+                                            gap={16}
+                                            style={{
+                                              flex: 1,
+                                              overflow: "hidden",
+                                            }}
+                                          >
+                                            <Text
+                                              style={{
+                                                fontSize: 20,
+                                                color:
+                                                  themeToken.colorTextSecondary,
+                                                display: "flex",
+                                              }}
+                                            >
+                                              {leafItem.icon}
+                                            </Text>
+                                            <Text
+                                              strong
+                                              style={{
+                                                fontSize: 16,
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                                whiteSpace: "nowrap",
+                                              }}
+                                            >
+                                              {leafItem.label}
+                                            </Text>
+                                          </Flex>
+                                          <Flex align="center" gap={8}>
+                                            {leafItem.news && (
+                                              <Tag
+                                                color="error"
+                                                style={{ borderRadius: 10 }}
+                                              >
+                                                NEW
+                                              </Tag>
+                                            )}
+                                            <ArrowRightOutlined
+                                              style={{
+                                                fontSize: 12,
+                                                color:
+                                                  themeToken.colorTextQuaternary,
+                                              }}
+                                            />
+                                          </Flex>
+                                        </Button>
+                                      ),
+                                    )}
+                                  </Flex>
+                                </Flex>
+                              ) : (
+                                <Button
+                                  type="text"
+                                  onClick={() =>
+                                    handleNavigationRedirect(childCategory.href)
+                                  }
+                                  style={{
+                                    height: "auto",
+                                    padding: "16px 20px",
+                                    borderRadius: 16,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    textAlign: "left",
+                                  }}
+                                >
+                                  <Flex
+                                    align="center"
+                                    gap={16}
+                                    style={{ flex: 1, overflow: "hidden" }}
+                                  >
+                                    <Text
+                                      style={{
+                                        fontSize: 20,
+                                        color: themeToken.colorTextSecondary,
+                                        display: "flex",
+                                      }}
+                                    >
+                                      {childCategory.icon}
+                                    </Text>
+                                    <Text
+                                      strong
+                                      style={{
+                                        fontSize: 16,
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        whiteSpace: "nowrap",
+                                      }}
+                                    >
+                                      {childCategory.label}
+                                    </Text>
+                                  </Flex>
+                                  <Flex align="center" gap={8}>
+                                    {childCategory.news && (
+                                      <Tag
+                                        color="error"
+                                        style={{ borderRadius: 10 }}
+                                      >
+                                        NEW
+                                      </Tag>
+                                    )}
+                                    <ArrowRightOutlined
+                                      style={{
+                                        fontSize: 12,
+                                        color: themeToken.colorTextQuaternary,
+                                      }}
+                                    />
+                                  </Flex>
+                                </Button>
+                              )}
+                            </Flex>
+                          ),
+                        )}
+                      </Flex>
+                    </Card>
+                  ))}
+                </Flex>
+              </Col>
             ))}
-          </div>
+          </Row>
         ) : (
-          <div style={{ padding: "80px 0", textAlign: "center" }}>
+          <Flex
+            vertical
+            align="center"
+            justify="center"
+            style={{ padding: "120px 0" }}
+          >
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
               description={
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                >
-                  <Text type="secondary" style={{ fontSize: 18 }}>
-                    ไม่พบเมนูที่คุณค้นหา
+                <Flex vertical gap={12}>
+                  <Text
+                    style={{
+                      fontSize: 24,
+                      color: themeToken.colorTextSecondary,
+                      fontWeight: 600,
+                    }}
+                  >
+                    ไม่พบข้อมูลที่ค้นหา
                   </Text>
-                  <Text type="secondary">
-                    ลองตรวจสอบคำค้นหา หรือใช้คำอื่นดูนะครับ
+                  <Text type="secondary" style={{ fontSize: 16 }}>
+                    ลองตรวจสอบคำค้นหา หรือพิมพ์คำอื่นแทนนะครับ
                   </Text>
-                </div>
+                </Flex>
               }
             />
-          </div>
+          </Flex>
         )}
-      </div>
-
-      {/* Global CSS for Masonry & Animations */}
-      <style jsx global>{`
-        /* Masonry Layout */
-        .masonry-grid {
-          column-count: 3;
-          column-gap: 24px;
-        }
-        @media (max-width: 1200px) {
-          .masonry-grid {
-            column-count: 2;
-          }
-        }
-        @media (max-width: 768px) {
-          .masonry-grid {
-            column-count: 1;
-          }
-        }
-
-        .masonry-item {
-          break-inside: avoid;
-          margin-bottom: 24px;
-        }
-
-        /* Card Hover Effect */
-        .dashboard-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08) !important;
-        }
-
-        /* Menu Item Interaction */
-        .menu-item-modern:hover {
-          background: ${token.colorFillQuaternary} !important;
-          transform: translateX(6px);
-        }
-        .menu-item-modern:hover .menu-icon-wrapper {
-          color: ${token.colorPrimary} !important;
-        }
-        .menu-item-modern:hover .arrow-icon {
-          opacity: 1 !important;
-          transform: translateX(4px);
-        }
-      `}</style>
+      </Flex>
     </DashboardLayout>
   );
 }

@@ -471,7 +471,10 @@
       "guide_2": "2. Select PRODUCTION for real-time institutional data.",
       "guide_3": "3. The system will automatically authenticate and grant access.",
       "maintenance": "UNDER MAINTENANCE",
-      "maintenance_desc": "System environment is being upgraded. Services will resume shortly."
+      "maintenance_desc": "System environment is being upgraded. Services will resume shortly.",
+      "new_system": "NEW SYSTEM",
+      "group_core": "CORE SYSTEMS",
+      "group_secondary": "SECONDARY SYSTEMS"
     },
     "target_labels": {
       "system": "System Management",

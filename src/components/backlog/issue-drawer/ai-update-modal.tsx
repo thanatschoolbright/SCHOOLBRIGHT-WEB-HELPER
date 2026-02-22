@@ -53,6 +53,13 @@ export default function AiUpdateModal({
   // Logic สำหรับแสดง Validation ข้อมูลที่ Auto Filled
   const autoFilledData = [
     {
+      label: "หัวข้องาน (Summary Update)",
+      icon: <FileTextOutlined />,
+      current: issue?.summary,
+      proposed: aiState.newSummary || issue?.summary,
+      changed: !!aiState.newSummary && aiState.newSummary !== issue?.summary,
+    },
+    {
       label: "รหัส Milestone / Version",
       icon: <TagOutlined />,
       current: issue?.milestone?.[0]?.name || issue?.versions?.[0]?.name,

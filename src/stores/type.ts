@@ -548,6 +548,8 @@ export interface UserProfile {
   username: string;
   admin_id: number;
   employee_code?: string;
+  firstname?: string;
+  lastname?: string;
   firstname_th?: string;
   lastname_th?: string;
   firstname_en?: string;
@@ -568,6 +570,7 @@ export interface UserProfile {
   failed_login_attempts?: number;
   created_at?: string | Date;
   updated_at?: string | Date;
+  profile_image?: string;
   role?: {
     id: number;
     role_name: string;

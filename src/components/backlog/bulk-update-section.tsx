@@ -100,7 +100,8 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
     Array<{
       issueKeyOrId: string | number;
       title?: string;
-      summary?: string;
+      summary?: string; // Markdown description
+      aiSummary?: string; // New summary/title with tag
       status: "pending" | "success" | "error" | "queue";
       message?: string;
       detail?: string;
@@ -184,8 +185,17 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
         details: issue,
         issueKey: issue.issueKey || String(issue.id),
       });
+
       const markdown = response?.data?.data?.markdown || "";
+      const aiSummary = response?.data?.data?.summary;
+
       payload.updates.description = markdown;
+
+      // * อัปเดต Summary หากมีการสรุปเนื้อหาใหม่ (และมี Tag [สรุปด้วย LIGHT AI ✨])
+      if (aiSummary) {
+        payload.updates.summary = aiSummary;
+      }
+
       setProcessingResults((prev) =>
         prev.map((r) =>
           String(r.issueKeyOrId) === String(payload.issueKeyOrId)
@@ -193,6 +203,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                 ...r,
                 status: "success",
                 summary: markdown,
+                aiSummary: aiSummary, // เพิ่ม aiSummary ใน Result State เพื่อนำไปแสดงในตาราง
                 message: undefined,
                 detail: undefined,
                 statusCode: undefined,
@@ -953,6 +964,33 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                     >
                       {config.text}
                     </Tag>
+                  );
+                },
+              },
+              {
+                title: "ตัวอย่างหัวข้อใหม่",
+                dataIndex: "aiSummary",
+                key: "aiSummary",
+                width: 300,
+                render: (title, row) => {
+                  if (row.status === "error") return "-";
+                  if (!title && row.status !== "success")
+                    return (
+                      <Typography.Text
+                        type="secondary"
+                        italic
+                        style={{ fontSize: 13 }}
+                      >
+                        -
+                      </Typography.Text>
+                    );
+                  return (
+                    <Typography.Text
+                      strong
+                      style={{ fontSize: 13, color: token.colorSuccess }}
+                    >
+                      {title}
+                    </Typography.Text>
                   );
                 },
               },

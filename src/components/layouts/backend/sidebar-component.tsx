@@ -1,4 +1,10 @@
 import { useSidebarMenu } from "@/constants/sidebar-menu-constant";
+import {
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  MoonOutlined,
+  SunOutlined,
+} from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import {
   Button,
@@ -6,6 +12,7 @@ import {
   Flex,
   Grid,
   Menu,
+  Switch,
   Tag,
   theme,
   Typography,
@@ -16,18 +23,108 @@ import { useTranslation } from "react-i18next";
 
 const { Text } = Typography;
 
-const SB_ORANGE_PRIMARY = "#FF7F00";
-const SB_ORANGE_GRADIENT = "linear-gradient(135deg, #FF9933 0%, #FF6600 100%)";
+const DARK_MODE_KEY = "theme";
 
-/**
- * Clean Sidebar Component
- * Optimized for readability and minimal CSS usage.
- */
-
-const StatusTag = ({ type }: { type: "new" | "revamp" }) => {
+const DarkModeToggle = () => {
   const { token } = theme.useToken();
+  const [isDarkModeActive, setIsDarkModeActive] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedDarkMode = localStorage.getItem(DARK_MODE_KEY);
+      if (savedDarkMode !== null) {
+        setIsDarkModeActive(savedDarkMode === "dark");
+      } else {
+        const prefersDarkMode = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        setIsDarkModeActive(prefersDarkMode);
+      }
+      setIsInitialized(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isInitialized) return;
+    const documentRoot = document.documentElement;
+    if (isDarkModeActive) {
+      documentRoot.classList.add("dark");
+    } else {
+      documentRoot.classList.remove("dark");
+    }
+  }, [isDarkModeActive, isInitialized]);
+
+  const handleToggleDarkMode = (checkedValue: boolean) => {
+    setIsDarkModeActive(checkedValue);
+    localStorage.setItem(DARK_MODE_KEY, checkedValue ? "dark" : "light");
+  };
+
+  return (
+    <Flex
+      align="center"
+      justify="space-between"
+      style={{
+        paddingTop: 24,
+        marginTop: 24,
+        borderTop: `1px solid ${token.colorBorderSecondary}`,
+        width: "100%",
+      }}
+    >
+      <Flex align="center" gap={12}>
+        <Flex
+          align="center"
+          justify="center"
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: 12,
+            background: isDarkModeActive
+              ? token.colorFillSecondary
+              : token.colorPrimaryBg,
+            color: isDarkModeActive ? token.colorText : token.colorPrimary,
+          }}
+        >
+          {isDarkModeActive ? <MoonOutlined /> : <SunOutlined />}
+        </Flex>
+        <Flex vertical>
+          <Text strong style={{ fontSize: 14 }}>
+            {isDarkModeActive ? "โหมดมืด" : "โหมดสว่าง"}
+          </Text>
+          <Text type="secondary" style={{ fontSize: 11 }}>
+            {isDarkModeActive ? "ปกป้องดวงตาของคุณ" : "มองเห็นได้ชัดเจน"}
+          </Text>
+        </Flex>
+      </Flex>
+      <Switch
+        checked={isDarkModeActive}
+        onChange={handleToggleDarkMode}
+        checkedChildren={<MoonOutlined />}
+        unCheckedChildren={<SunOutlined />}
+      />
+    </Flex>
+  );
+};
+
+const StatusTag = ({ type }: { type: "new" | "revamp" | "maintenance" }) => {
+  const { t: translateMenu } = useTranslation("menu");
+
+  const statusProperties = useMemo(() => {
+    switch (type) {
+      case "new":
+        return { color: "orange", text: translateMenu("status.new") };
+      case "revamp":
+        return { color: "blue", text: translateMenu("status.revamp") };
+      case "maintenance":
+        return { color: "red", text: translateMenu("status.maintenance") };
+      default:
+        return { color: "default", text: "" };
+    }
+  }, [type, translateMenu]);
+
   return (
     <Tag
+      color={statusProperties.color}
       bordered={false}
       style={{
         marginLeft: "8px",
@@ -35,14 +132,9 @@ const StatusTag = ({ type }: { type: "new" | "revamp" }) => {
         fontWeight: 700,
         borderRadius: 10,
         padding: "0 6px",
-        background:
-          type === "new"
-            ? SB_ORANGE_GRADIENT
-            : "linear-gradient(135deg, #1890ff 0%, #096dd9 100%)",
-        color: token.colorWhite,
       }}
     >
-      {type.toUpperCase()}
+      {statusProperties.text}
     </Tag>
   );
 };
@@ -51,110 +143,153 @@ type MenuItem = Required<MenuProps>["items"][number];
 
 export default function SidebarContent({
   collapsed = false,
-  onMobileClose,
+  onToggle: onSidebarToggle,
+  onMobileClose: onMobileMenuClose,
 }: {
   collapsed?: boolean;
+  onToggle?: () => void;
   onMobileClose?: () => void;
 }) {
-  const { t: TRANSLATION } = useTranslation("translate");
-  const menu = useSidebarMenu();
-  const pathname = usePathname();
+  const { t: translate } = useTranslation("translate");
+  const sidebarMenu = useSidebarMenu();
+  const currentPathname = usePathname();
   const router = useRouter();
   const { token } = theme.useToken();
   const screens = Grid.useBreakpoint();
 
   const [openKeys, setOpenKeys] = useState<string[]>([]);
-  const isDark = token.colorBgBase === "#0B0F19";
 
-  // --- Theme Configuration for Menu ---
   const sidebarTheme = {
+    token: {
+      fontFamily: token.fontFamily,
+    },
     components: {
       Menu: {
-        itemBg: "transparent",
-        itemColor: token.colorTextSecondary,
-        itemHoverBg: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
-        itemSelectedBg: isDark
-          ? "rgba(255, 127, 0, 0.2)"
-          : "rgba(255, 127, 0, 0.12)",
-        itemSelectedColor: SB_ORANGE_PRIMARY,
         itemActiveBg: "transparent",
         itemMarginInline: 8,
         itemBorderRadius: 10,
-        subMenuItemBg: "transparent",
       },
     },
   };
 
-  // Sync open keys with current pathname
   useEffect(() => {
     if (collapsed) return;
-    const activeParent = menu.find((m) =>
-      m.children?.some((c) => c.href === pathname),
-    );
-    if (activeParent)
+    const findActiveParent = (items: any[]): any | undefined => {
+      for (const menuItem of items) {
+        if (menuItem.href === currentPathname) return menuItem;
+        if (menuItem.children) {
+          const childItem = findActiveParent(menuItem.children);
+          if (childItem) return menuItem;
+        }
+      }
+      return undefined;
+    };
+    const activeParent = findActiveParent(sidebarMenu);
+    if (activeParent) {
       setOpenKeys((prev) => Array.from(new Set([...prev, activeParent.label])));
-  }, [menu, pathname, collapsed]);
+    }
+  }, [sidebarMenu, currentPathname, collapsed]);
 
-  // Clean Menu Items Mapping to Best Practice MenuItem[]
-  const items: MenuItem[] = useMemo(() => {
-    return menu.map((m) => {
-      const parentKey = m.href || m.label;
+  const getChildLabel = (child: any, depth: number) => {
+    const labelStyle: React.CSSProperties = {
+      fontWeight: depth === 2 ? 600 : 400,
+      fontSize: depth === 2 ? "13.5px" : "13px",
+    };
 
-      const label =
-        collapsed || !m.tag ? (
-          m.label
-        ) : (
-          <Flex align="center" justify="space-between">
-            <span>{m.label}</span>
-            <Tag
-              color="orange"
-              bordered={false}
-              style={{
-                borderRadius: 8,
-                fontSize: 10,
-                fontWeight: 600,
-                color: SB_ORANGE_PRIMARY,
-                background: isDark
-                  ? "rgba(255, 127, 0, 0.2)"
-                  : "rgba(255, 127, 0, 0.1)",
-                marginInlineEnd: 0,
-              }}
-            >
-              {m.tag}
-            </Tag>
+    if (collapsed || (!child.news && !child.revamp && !child.maintenance)) {
+      return <span style={labelStyle}>{child.label}</span>;
+    }
+
+    return (
+      <Flex align="center" justify="space-between" style={{ width: "100%" }}>
+        <span style={labelStyle}>{child.label}</span>
+        <Flex gap={4}>
+          {child.news && <StatusTag type="new" />}
+          {child.revamp && <StatusTag type="revamp" />}
+          {child.maintenance && <StatusTag type="maintenance" />}
+        </Flex>
+      </Flex>
+    );
+  };
+
+  const mapMenuItems = (menuItem: any): MenuItem => {
+    const { label, icon, href, children, tag } = menuItem;
+    const parentKey = href || label;
+
+    const level1Style: React.CSSProperties = {
+      fontWeight: 800,
+      fontSize: "14px",
+      letterSpacing: "0.2px",
+    };
+
+    const displayLabel =
+      collapsed || (!tag && !menuItem.maintenance) ? (
+        <span style={level1Style}>{label}</span>
+      ) : (
+        <Flex align="center" justify="space-between" style={{ width: "100%" }}>
+          <span style={level1Style}>{label}</span>
+          <Flex gap={4}>
+            {menuItem.maintenance && <StatusTag type="maintenance" />}
+            {tag && (
+              <Tag
+                color="orange"
+                bordered={false}
+                style={{
+                  borderRadius: 8,
+                  fontSize: 10,
+                  fontWeight: 600,
+                  marginInlineEnd: 0,
+                }}
+              >
+                {tag}
+              </Tag>
+            )}
           </Flex>
-        );
+        </Flex>
+      );
 
-      return {
-        key: parentKey,
-        icon: m.icon,
-        label: label,
-        children: m.children?.map((c) => ({
-          key: c.href,
-          icon: c.icon,
-          label:
-            collapsed || (!c.news && !c.revamp) ? (
-              c.label
-            ) : (
-              <Flex align="center" justify="space-between">
-                <span>{c.label}</span>
-                <Flex gap={4}>
-                  {c.news && <StatusTag type="new" />}
-                  {c.revamp && <StatusTag type="revamp" />}
-                </Flex>
-              </Flex>
-            ),
-        })),
-      } as MenuItem;
-    });
-  }, [menu, isDark, collapsed]);
+    return {
+      key: parentKey,
+      icon,
+      label: displayLabel,
+      children: children?.map((childItem: any) => {
+        if (childItem.children) {
+          return {
+            key: childItem.label || childItem.href,
+            icon: childItem.icon,
+            label: getChildLabel(childItem, 2),
+            children: childItem.children.map((subItem: any) => ({
+              key: subItem.href || subItem.label,
+              icon: subItem.icon,
+              label: getChildLabel(subItem, 3),
+            })),
+          };
+        }
+        return {
+          key: childItem.href || childItem.label,
+          icon: childItem.icon,
+          label: getChildLabel(childItem, 2),
+        };
+      }),
+    } as MenuItem;
+  };
 
   const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
-    const target = String(key);
-    if (target.startsWith("/")) {
-      router.push(target);
-      if (!screens.md) onMobileClose?.();
+    const clickTarget = String(key);
+    if (clickTarget.startsWith("/")) {
+      router.push(clickTarget);
+      if (!screens.md) onMobileMenuClose?.();
+    } else if (clickTarget.startsWith("http")) {
+      window.open(clickTarget, "_blank");
     }
+  };
+
+  const sidebarMenuItems: MenuItem[] = useMemo(() => {
+    return sidebarMenu.map((menuItem) => mapMenuItems(menuItem));
+  }, [sidebarMenu, collapsed]);
+
+  const handleLogoClick = () => {
+    router.push("/main");
   };
 
   return (
@@ -162,80 +297,84 @@ export default function SidebarContent({
       <Flex
         vertical
         style={{
-          height: "100%",
+          height: "100vh",
           padding: "16px 0",
-          overflowY: "auto",
+          background: "transparent",
         }}
       >
-        {/* 🔸 Sidebar Logo Section */}
         <Flex
-          justify={collapsed ? "center" : "flex-start"}
+          align="center"
+          justify={collapsed ? "center" : "space-between"}
           style={{
-            padding: collapsed ? "0 8px" : "0 16px",
-            marginBottom: 20,
+            padding: "0 16px",
+            marginBottom: 24,
             transition: "all 0.3s",
           }}
         >
-          <Button
-            type="text"
-            onClick={() => router.push("/main")}
-            style={{
-              height: "auto",
-              padding: "6px 8px",
-              borderRadius: 12,
-              display: "flex",
-              alignItems: "center",
-              width: "100%",
-            }}
-          >
-            <Flex align="center" gap={collapsed ? 0 : 12}>
+          {!collapsed && (
+            <Flex
+              align="center"
+              gap={12}
+              style={{ cursor: "pointer" }}
+              onClick={handleLogoClick}
+            >
               <img
                 src="/web-app-manifest-192x192.png"
-                alt="School Bright Logo"
-                style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 8,
-                  flexShrink: 0,
-                }}
+                alt="Logo"
+                style={{ width: 38, height: 38, borderRadius: 8 }}
               />
-
-              {!collapsed && (
-                <Flex vertical align="start">
-                  <Text
-                    strong
-                    style={{
-                      fontSize: 16,
-                      lineHeight: 1.2,
-                      color: token.colorTextHeading,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    School Bright
-                  </Text>
-                  <Text
-                    type="secondary"
-                    style={{ fontSize: 9, lineHeight: 1, whiteSpace: "nowrap" }}
-                  >
-                    {TRANSLATION("navbar.backend_system")}
-                  </Text>
-                </Flex>
-              )}
+              <Flex vertical>
+                <Text
+                  strong
+                  style={{
+                    fontSize: 16,
+                    lineHeight: 1.2,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  School Bright
+                </Text>
+                <Text
+                  type="secondary"
+                  style={{ fontSize: 9, lineHeight: 1, whiteSpace: "nowrap" }}
+                >
+                  {translate("navbar.backend_system")}
+                </Text>
+              </Flex>
             </Flex>
-          </Button>
+          )}
+
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={onSidebarToggle}
+            style={{
+              fontSize: 18,
+              display: screens.lg ? "flex" : "none",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          />
         </Flex>
 
-        <Menu
-          mode="inline"
-          inlineCollapsed={collapsed}
-          selectedKeys={[pathname]}
-          openKeys={!collapsed ? openKeys : undefined}
-          onOpenChange={setOpenKeys}
-          onClick={handleMenuClick}
-          items={items}
-          style={{ border: "none" }}
-          theme={isDark ? "dark" : "light"}
-        />
+        <Flex vertical style={{ flex: 1, overflowY: "auto" }}>
+          <Menu
+            mode="inline"
+            inlineCollapsed={collapsed}
+            selectedKeys={[currentPathname]}
+            openKeys={!collapsed ? openKeys : undefined}
+            onOpenChange={setOpenKeys}
+            onClick={handleMenuClick}
+            items={sidebarMenuItems}
+            style={{ border: "none" }}
+          />
+        </Flex>
+
+        {!collapsed && (
+          <Flex style={{ padding: 16 }}>
+            <DarkModeToggle />
+          </Flex>
+        )}
       </Flex>
     </ConfigProvider>
   );

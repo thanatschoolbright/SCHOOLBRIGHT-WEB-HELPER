@@ -1,11 +1,39 @@
-import { NextRequest, NextResponse } from "next/server";
 import { API_URL } from "@services/api-url";
-import axios from "axios";
 import {
   RefreshTokenResponse,
   RefreshTokenResult,
   RequestRefreshToken,
 } from "@stores/type";
+import axios from "axios";
+import { NextRequest, NextResponse } from "next/server";
+
+/**
+ * @swagger
+ * /api/v1/authentication/refresh-token:
+ *   post:
+ *     summary: Refresh authentication token
+ *     description: Exchange an old token for a new one using user and school identification
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               schoolId:
+ *                 type: string
+ *               userId:
+ *                 type: string
+ *               token:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successfully refreshed token
+ *       500:
+ *         description: Error refreshing token
+ */
 
 //** สร้าง payload สำหรับ refresh token */
 function buildRefreshPayload(schoolId: string, userId: string, token: string) {
@@ -34,7 +62,7 @@ const TEMP = {
   school_id: "849",
   user_id: "1230336",
   token:
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjIyNTAiLCJlbWFpbCI6IjIyNTBfODQ5XzBAc2Nob29sYnJpZ2h0LmNvbSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL3Bvc3RhbGNvZGUiOiI4NDkiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9zaWQiOiIxMjMwMzM2IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvaGFzaCI6IjAiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiIxMS8xLzIwMjUgNTo1NzoxNiBQTSIsIm5iZiI6MTc2MTY3NDIzNiwiZXhwIjoxNzYyMDE5ODM2LCJpYXQiOjE3NjE2NzQyMzZ9.GtCyAD7nHkVtf0tSbzASspmOzDAGWZGAZm3hNu92KBk"
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjIyNTAiLCJlbWFpbCI6IjIyNTBfODQ5XzBAc2Nob29sYnJpZ2h0LmNvbSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL3Bvc3RhbGNvZGUiOiI4NDkiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9zaWQiOiIxMjMwMzM2IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvaGFzaCI6IjAiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiIxMS8xLzIwMjUgNTo1NzoxNiBQTSIsIm5iZiI6MTc2MTY3NDIzNiwiZXhwIjoxNzYyMDE5ODM2LCJpYXQiOjE3NjE2NzQyMzZ9.GtCyAD7nHkVtf0tSbzASspmOzDAGWZGAZm3hNu92KBk",
 };
 
 //** GET handler - ใช้ TEMP สำหรับตัวอย่าง */
@@ -43,7 +71,7 @@ export async function GET(_request: NextRequest) {
     const payload = buildRefreshPayload(
       TEMP.school_id,
       TEMP.user_id,
-      TEMP.token
+      TEMP.token,
     );
     const resp = await postRefreshToken(payload);
     const result: RefreshTokenResponse = resp;
@@ -58,7 +86,7 @@ export async function GET(_request: NextRequest) {
     const status = error?.response?.status || 500;
     return NextResponse.json(
       { message: error.message || "Internal Server Error", status },
-      { status }
+      { status },
     );
   }
 }
@@ -76,7 +104,7 @@ export async function POST(request: NextRequest) {
     const payload = buildRefreshPayload(
       String(schoolId),
       String(userId),
-      String(token)
+      String(token),
     );
     const resp = await postRefreshToken(payload);
     return NextResponse.json({ status: resp.status, data: resp.data });
@@ -84,7 +112,7 @@ export async function POST(request: NextRequest) {
     const status = error?.response?.status || 500;
     return NextResponse.json(
       { message: error.message || "Internal Server Error", status },
-      { status }
+      { status },
     );
   }
 }

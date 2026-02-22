@@ -3,42 +3,53 @@
 import {
   ApartmentOutlined,
   ApiOutlined,
-  BugFilled,
+  AppstoreOutlined,
+  AuditOutlined,
+  BarChartOutlined,
+  BellOutlined,
+  BugOutlined,
+  CalendarOutlined,
   CarryOutOutlined,
-  CheckCircleOutlined,
+  CloseCircleOutlined,
+  CloudServerOutlined,
+  CloudSyncOutlined,
+  ClusterOutlined,
   CodeOutlined,
   ConsoleSqlOutlined,
-  CrownOutlined,
+  ControlOutlined,
   CustomerServiceOutlined,
-  DeploymentUnitOutlined,
+  DashboardOutlined,
+  DatabaseOutlined,
   DesktopOutlined,
   ExperimentOutlined,
   FieldTimeOutlined,
+  FileAddOutlined,
   FileExcelOutlined,
   FileSearchOutlined,
+  FileTextOutlined,
   FireOutlined,
   FormOutlined,
-  FundProjectionScreenOutlined,
+  GlobalOutlined,
   HddOutlined,
-  HeartFilled,
-  HourglassOutlined,
+  HeartOutlined,
+  HistoryOutlined,
   IdcardOutlined,
-  MedicineBoxOutlined,
+  IssuesCloseOutlined,
+  LockOutlined,
   MobileOutlined,
-  MonitorOutlined,
-  NotificationFilled,
-  PieChartOutlined,
+  ProjectOutlined,
   QrcodeOutlined,
   ReadOutlined,
-  SafetyCertificateOutlined,
-  ScanOutlined,
+  RocketOutlined,
   ScheduleOutlined,
-  SignalFilled,
-  SolutionOutlined,
-  StopOutlined,
-  SwapOutlined,
-  TagsOutlined,
-  ThunderboltOutlined,
+  SearchOutlined,
+  SettingOutlined,
+  TagOutlined,
+  TeamOutlined,
+  ToolOutlined,
+  UnlockOutlined,
+  UserOutlined,
+  WifiOutlined,
 } from "@ant-design/icons";
 import { useSession } from "next-auth/react";
 import { useMemo } from "react";
@@ -47,11 +58,13 @@ import { PERMISSIONS } from "./permission.constant";
 
 interface SidebarChild {
   label: string;
-  href: string;
+  href?: string;
   news?: boolean;
   revamp?: boolean;
+  maintenance?: boolean;
   icon?: JSX.Element;
   permission?: string | string[];
+  children?: SidebarChild[];
 }
 
 interface SidebarItem {
@@ -60,6 +73,7 @@ interface SidebarItem {
   children?: SidebarChild[];
   href?: string;
   tag?: string;
+  maintenance?: boolean;
   permission?: string | string[];
 }
 
@@ -83,307 +97,331 @@ export const useSidebarMenu = (): SidebarItem[] => {
 
     const rawMenu: SidebarItem[] = [
       {
-        label: t("admin_system.title"),
-        icon: <CrownOutlined />,
-        permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.ROLE_MANAGE],
-        children: [
-          {
-            label: t("admin_system.children.user_profile"),
-            href: "/admin/user-profile",
-            icon: <IdcardOutlined />,
-            permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.USER_MANAGE],
-          },
-          {
-            label: t("admin_system.children.role_management"),
-            href: "/admin/permission-management",
-            icon: <SafetyCertificateOutlined />,
-            permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.ROLE_MANAGE],
-          },
-          {
-            label: t("admin_system.children.position_management"),
-            href: "/admin/position-management",
-            icon: <DeploymentUnitOutlined />,
-            permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.ROLE_MANAGE], // สมมติว่าใช้กลุ่มสิทธิ์เดียวกัน
-          },
-          {
-            label: t("admin_system.children.department_management"),
-            href: "/admin/department-management",
-            icon: <ApartmentOutlined />,
-            permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.ROLE_MANAGE],
-          },
-        ],
-      },
-      {
-        label: t("testing.title"),
-        icon: <ExperimentOutlined />,
+        label: t("departments.admin"),
+        icon: <SettingOutlined />,
         permission: PERMISSIONS.ADMIN_ACCESS,
         children: [
           {
-            label: t("testing.children.load_testing"),
-            href: "/testing/load-test",
-            icon: <ThunderboltOutlined />, // ปรับให้สื่อถึงความแรง/โหลด
-            permission: PERMISSIONS.MENU_TESTING_LOAD,
+            label: t("admin_system.title"),
+            icon: <DashboardOutlined />,
+            children: [
+              {
+                label: t("admin_system.children.user_profile"),
+                href: "/admin/user-profile",
+                icon: <UserOutlined />,
+                permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.USER_MANAGE],
+              },
+              {
+                label: t("admin_system.children.role_management"),
+                href: "/admin/permission-management",
+                icon: <LockOutlined />,
+                permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.ROLE_MANAGE],
+              },
+              {
+                label: t("admin_system.children.position_management"),
+                href: "/admin/position-management",
+                icon: <AuditOutlined />,
+                permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.ROLE_MANAGE],
+              },
+              {
+                label: t("admin_system.children.department_management"),
+                href: "/admin/department-management",
+                icon: <ClusterOutlined />,
+                permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.ROLE_MANAGE],
+              },
+            ],
           },
         ],
       },
       {
-        label: t("support.title"),
+        label: t("departments.support"),
         icon: <CustomerServiceOutlined />,
         permission: PERMISSIONS.ADMIN_ACCESS,
         children: [
           {
-            label: t("support.children.bypass_school"),
-            href: "/support/bypass",
-            icon: <SafetyCertificateOutlined />, // ปรับให้เกี่ยวกับการอนุญาต/Security
-            revamp: false,
-            permission: PERMISSIONS.MENU_SUPPORT_BYPASS,
+            label: t("support.title"),
+            icon: <ToolOutlined />,
+            children: [
+              {
+                label: t("support.children.bypass_school"),
+                href: "/support/bypass",
+                icon: <UnlockOutlined />,
+                permission: PERMISSIONS.MENU_SUPPORT_BYPASS,
+              },
+              {
+                label: t("support.children.test_nfc_card"),
+                href: "/support/test/nfc",
+                icon: <IdcardOutlined />,
+                permission: PERMISSIONS.MENU_SUPPORT_NFC,
+              },
+              {
+                label: t("support.children.cancel_sales"),
+                href: "/support/test/cancel-sales",
+                icon: <CloseCircleOutlined />,
+                permission: PERMISSIONS.MENU_SUPPORT_CANCEL_SALES,
+              },
+            ],
           },
           {
-            label: t("support.children.test_nfc_card"),
-            href: "/support/test/nfc",
-            icon: <ScanOutlined />,
-            revamp: false,
-            permission: PERMISSIONS.MENU_SUPPORT_NFC,
+            label: t("health_check.title"),
+            icon: <CloudServerOutlined />,
+            children: [
+              {
+                label: t("health_check.children.server_status"),
+                href: "/health-check/v2/server-status",
+                icon: <DesktopOutlined />,
+                permission: PERMISSIONS.MENU_HEALTH_CHECK,
+              },
+              {
+                label: t("health_check.children.all_server_status"),
+                href: "/health-check/all-server-status",
+                icon: <GlobalOutlined />,
+                permission: PERMISSIONS.MENU_HEALTH_ALL,
+              },
+              {
+                label: t("health_check.children.online_status"),
+                href: "/health-check/online-status",
+                icon: <WifiOutlined />,
+                permission: PERMISSIONS.MENU_HEALTH_ONLINE,
+              },
+              {
+                label: t("health_check.children.version_control"),
+                href: "/health-check/version-control",
+                icon: <HistoryOutlined />,
+                permission: PERMISSIONS.MENU_HEALTH_VERSION,
+              },
+              {
+                label: t("health_check.children.transaction_log"),
+                href: "/health-check/transaction-log",
+                icon: <DatabaseOutlined />,
+                permission: PERMISSIONS.MENU_HEALTH_LOG,
+              },
+              {
+                label: t("health_check.children.heartbeats"),
+                href: "/health-check/heartbeats",
+                icon: <HeartOutlined />,
+                permission: PERMISSIONS.MENU_HEALTH_HEARTBEAT,
+              },
+            ],
           },
           {
-            label: t("support.children.cancel_sales"),
-            href: "/support/test/cancel-sales",
-            icon: <StopOutlined />,
-            permission: PERMISSIONS.MENU_SUPPORT_CANCEL_SALES,
+            label: t("backlogs.title"),
+            icon: <IssuesCloseOutlined />,
+            children: [
+              {
+                label: t("backlogs.children.report"),
+                href: "/backlogs/report",
+                icon: <BugOutlined />,
+                permission: PERMISSIONS.MENU_BACKLOGS,
+              },
+            ],
+          },
+          {
+            label: t("mobile_app.title"),
+            icon: <MobileOutlined />,
+            children: [
+              {
+                label: t("mobile_app.children.mobile_notification"),
+                href: "/mobile/notification",
+                icon: <BellOutlined />,
+                news: true,
+                permission: PERMISSIONS.MENU_MOBILE_NOTI,
+              },
+              {
+                label: t("mobile_app.children.mobile_leave_letter"),
+                href: "/mobile/leave-letter",
+                icon: <FileAddOutlined />,
+                permission: PERMISSIONS.MENU_MOBILE_LEAVE,
+                maintenance: true,
+              },
+              {
+                label: t("mobile_app.children.statistics"),
+                href: "/mobile/statistic",
+                icon: <BarChartOutlined />,
+                permission: PERMISSIONS.MENU_MOBILE_STAT,
+                maintenance: true,
+              },
+              {
+                label: t("mobile_app.children.qrcode_health_check"),
+                href: "/mobile/qrcode-health-check",
+                icon: <QrcodeOutlined />,
+                permission: PERMISSIONS.MENU_MOBILE_QR,
+                maintenance: true,
+              },
+              {
+                label: t("mobile_app.children.mobile_check_attendance"),
+                href: "/mobile/check-attendance",
+                icon: <CarryOutOutlined />,
+                permission: PERMISSIONS.MENU_MOBILE_ATTENDANCE,
+                maintenance: true,
+              },
+            ],
           },
         ],
       },
       {
-        label: t("health_check.title"),
-        icon: <MedicineBoxOutlined />,
+        label: t("departments.testing"),
+        icon: <ExperimentOutlined />,
         permission: PERMISSIONS.ADMIN_ACCESS,
         children: [
           {
-            label: t("health_check.children.server_status"),
-            href: "/health-check/v2/server-status",
-            icon: <DesktopOutlined />, // ปรับให้เหมือนการตรวจสอบหน้าจอเซิร์ฟเวอร์
-            news: false,
-            permission: PERMISSIONS.MENU_HEALTH_CHECK,
-          },
-          {
-            label: t("health_check.children.all_server_status"),
-            href: "/health-check/all-server-status",
-            icon: <MonitorOutlined />, // รายงานรวม
-            revamp: false,
-            permission: PERMISSIONS.MENU_HEALTH_ALL,
-          },
-          {
-            label: t("health_check.children.online_status"),
-            href: "/health-check/online-status",
-            icon: <SignalFilled />,
-            revamp: false,
-            permission: PERMISSIONS.MENU_HEALTH_ONLINE,
-          },
-          {
-            label: t("health_check.children.version_control"),
-            href: "/health-check/version-control",
-            icon: <DeploymentUnitOutlined />, // ปรับให้สื่อถึงการกระจายเวอร์ชัน/Branch
-            revamp: false,
-            permission: PERMISSIONS.MENU_HEALTH_VERSION,
-          },
-          {
-            label: t("health_check.children.transaction_log"),
-            href: "/health-check/transaction-log",
-            icon: <FileSearchOutlined />,
-            permission: PERMISSIONS.MENU_HEALTH_LOG,
-          },
-          {
-            label: t("health_check.children.heartbeats"),
-            href: "/health-check/heartbeats",
-            icon: <HeartFilled />,
-            revamp: false,
-            permission: PERMISSIONS.MENU_HEALTH_HEARTBEAT,
-          },
-        ],
-      },
-      {
-        label: t("mobile_app.title"),
-        icon: <MobileOutlined />,
-        children: [
-          {
-            label: t("mobile_app.children.mobile_notification"),
-            href: "/mobile/notification",
-            icon: <NotificationFilled />,
-            revamp: true,
-            permission: PERMISSIONS.MENU_MOBILE_NOTI,
-          },
-          {
-            label: t("mobile_app.children.mobile_leave_letter"),
-            href: "/mobile/leave-letter",
-            icon: <FormOutlined />, // ปรับเป็นไอคอนเอกสาร/ใบลา
-            permission: PERMISSIONS.MENU_MOBILE_LEAVE,
-          },
-          {
-            label: t("mobile_app.children.statistics"),
-            href: "/mobile/statistic",
-            icon: <PieChartOutlined />,
-            permission: PERMISSIONS.MENU_MOBILE_STAT,
-          },
-          {
-            label: t("mobile_app.children.qrcode_health_check"),
-            href: "/mobile/qrcode-health-check",
-            icon: <QrcodeOutlined />,
-            news: false,
-            permission: PERMISSIONS.MENU_MOBILE_QR,
-          },
-          {
-            label: t("mobile_app.children.mobile_check_attendance"),
-            href: "/mobile/check-attendance",
-            icon: <CheckCircleOutlined />, // ปรับเป็นไอคอนเช็กชื่อ
-            permission: PERMISSIONS.MENU_MOBILE_ATTENDANCE,
-          },
-        ],
-      },
-      {
-        label: t("app_hardware.title"),
-        icon: <HddOutlined />,
-        children: [
-          {
-            label: t("app_hardware.children.app_control"),
-            href: "/hardware/canteen",
-            icon: <ApiOutlined />,
-          },
-        ],
-      },
-      {
-        label: t("timesheet_system.title"),
-        icon: <HourglassOutlined />,
-        permission: PERMISSIONS.TIMESHEET_READ,
-        children: [
-          {
-            label: t("timesheet_system.children.project"),
-            href: "/timesheet/project",
-            icon: <FundProjectionScreenOutlined />,
-            news: false,
-            permission: [
-              PERMISSIONS.PROJECT_READ,
-              PERMISSIONS.MENU_TIMESHEET_PROJECT,
+            label: t("app_hardware.title"),
+            icon: <HddOutlined />,
+            children: [
+              {
+                label: t("app_hardware.children.app_control"),
+                href: "/hardware/canteen",
+                icon: <ControlOutlined />,
+              },
             ],
           },
+          {
+            label: t("testing.title"),
+            icon: <ExperimentOutlined />,
+            children: [
+              {
+                label: t("testing.children.load_testing"),
+                href: "/testing/load-test",
+                icon: <RocketOutlined />,
+                permission: PERMISSIONS.MENU_TESTING_LOAD,
+              },
+            ],
+          },
+          {
+            label: t("logger.title"),
+            icon: <CodeOutlined />,
+            children: [
+              {
+                label: t("logger.children.api_logs"),
+                href: "/logger/api-log",
+                icon: <FileTextOutlined />,
+                permission: PERMISSIONS.MENU_LOGGER,
+              },
+            ],
+          },
+
+          {
+            label: t("api_docs.title"),
+            icon: <ApiOutlined />,
+            children: [
+              {
+                label: t("api_docs.children.spec"),
+                href: "/api-spec",
+                icon: <SearchOutlined />,
+                news: true,
+              },
+              {
+                label: t("api_docs.children.raw"),
+                href: "/api/docs",
+                icon: <CodeOutlined />,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        label: t("departments.timesheet"),
+        icon: <FieldTimeOutlined />,
+        permission: PERMISSIONS.TIMESHEET_READ,
+        children: [
           {
             label: t("timesheet_system.children.entry"),
             href: "/timesheet/entry",
             icon: <FormOutlined />,
-            news: false,
             permission: [
               PERMISSIONS.TIMESHEET_WRITE,
               PERMISSIONS.MENU_TIMESHEET_ENTRY,
             ],
           },
           {
+            label: t("timesheet_system.children.overtime"),
+            href: "/timesheet/overtime",
+            icon: <FireOutlined />,
+            permission: PERMISSIONS.MENU_TIMESHEET_OVERTIME,
+          },
+
+          {
             label: t("timesheet_system.children.timeline"),
             href: "/timesheet/timeline",
-            icon: <FieldTimeOutlined />,
-            news: false,
+            icon: <ScheduleOutlined />,
             permission: PERMISSIONS.MENU_TIMESHEET_TIMELINE,
           },
           {
             label: t("timesheet_system.children.all"),
             href: "/timesheet/all",
-            icon: <SolutionOutlined />, // ปรับเป็นรูปรายงานรวมพนักงาน
-            news: false,
+            icon: <TeamOutlined />,
             permission: [
               PERMISSIONS.REPORT_VIEW,
               PERMISSIONS.MENU_TIMESHEET_ALL,
             ],
           },
           {
+            label: t("timesheet_system.children.project"),
+            href: "/timesheet/project",
+            icon: <ProjectOutlined />,
+            permission: [
+              PERMISSIONS.PROJECT_READ,
+              PERMISSIONS.MENU_TIMESHEET_PROJECT,
+            ],
+          },
+          {
             label: t("timesheet_system.children.migrate_person"),
             href: "/timesheet/all/report/migrate-person",
-            icon: <SwapOutlined />,
-            revamp: false,
+            icon: <CloudSyncOutlined />,
             news: true,
             permission: PERMISSIONS.TIMESHEET_WRITE,
           },
-          {
-            label: t("timesheet_system.children.overtime"),
-            href: "/timesheet/overtime",
-            icon: <FireOutlined />,
-            news: false,
-            permission: PERMISSIONS.MENU_TIMESHEET_OVERTIME,
-          },
         ],
       },
       {
-        label: t("backlogs.title"),
-        icon: <CarryOutOutlined />,
-        permission: PERMISSIONS.ADMIN_ACCESS,
+        label: t("departments.others"),
+        icon: <AppstoreOutlined />,
         children: [
           {
-            label: t("backlogs.children.report"),
-            href: "/backlogs/report",
-            icon: <BugFilled />,
-            news: false,
-            permission: PERMISSIONS.MENU_BACKLOGS,
-          },
-        ],
-      },
-      {
-        label: t("logger.title"),
-        icon: <CodeOutlined />,
-        permission: PERMISSIONS.ADMIN_ACCESS,
-        children: [
-          {
-            label: t("logger.children.api_logs"),
-            href: "/logger/api-log",
-            icon: <ConsoleSqlOutlined />,
-            permission: PERMISSIONS.MENU_LOGGER,
-          },
-        ],
-      },
-      {
-        label: t("sheets.title"),
-        icon: <FileExcelOutlined />,
-        children: [
-          {
-            label: t("sheets.children.project_planning"),
-            href: "https://docs.google.com/spreadsheets/d/1FUIxwi_hi3DGfzsJokU5EMeKlwPC8DUL0r4wWJabzVQ/edit?gid=1358985470#gid=1358985470",
-            icon: <ScheduleOutlined />,
-          },
-          {
-            label: t("sheets.children.project_training"),
-            href: "https://docs.google.com/document/d/1a5bTQ6zWf15MUnPp4D2BzDEUmwStnaRliBgXp-H32zM",
-            icon: <ReadOutlined />,
-          },
-          {
-            label: t("sheets.children.project_release_note"),
-            href: "https://docs.google.com/document/d/1ux2KLYcsuS4spL1l68xMV6pChDXCukPXwnTyWCGT28I/edit?usp=sharing",
-            icon: <TagsOutlined />,
+            label: t("sheets.title"),
+            icon: <FileExcelOutlined />,
+            children: [
+              {
+                label: t("sheets.children.project_planning"),
+                href: "https://docs.google.com/spreadsheets/d/1FUIxwi_hi3DGfzsJokU5EMeKlwPC8DUL0r4wWJabzVQ/edit?gid=1358985470#gid=1358985470",
+                icon: <CalendarOutlined />,
+              },
+              {
+                label: t("sheets.children.project_training"),
+                href: "https://docs.google.com/document/d/1a5bTQ6zWf15MUnPp4D2BzDEUmwStnaRliBgXp-H32zM",
+                icon: <ReadOutlined />,
+              },
+              {
+                label: t("sheets.children.project_release_note"),
+                href: "https://docs.google.com/document/d/1ux2KLYcsuS4spL1l68xMV6pChDXCukPXwnTyWCGT28I/edit?usp=sharing",
+                icon: <TagOutlined />,
+              },
+            ],
           },
         ],
       },
     ];
 
-    // ✅ 1. กรองสิทธิ์ลูกๆ ก่อน (Process children filtering first)
-    // ✅ 2. แสดง Parent ถ้า Parent มีสิทธิ์ตรง หรือ มีลูกที่ผ่านการกรองมาแล้ว (Show parent if it has permission OR visible children)
-    return rawMenu
-      .map((item) => {
-        const filteredChildren = item.children?.filter((child) =>
-          hasPermission(child.permission),
-        );
-        return {
-          ...item,
-          children: filteredChildren,
-        };
-      })
-      .filter((item) => {
-        const hasParentPermission = hasPermission(item.permission);
-        const hasVisibleChildren = item.children && item.children.length > 0;
-        const isDirectLink = !!item.href;
+    const filterMenu = (items: any[]): any[] => {
+      return items
+        .map((item) => {
+          if (item.children) {
+            const filteredChildren = filterMenu(item.children);
+            return { ...item, children: filteredChildren };
+          }
+          return item;
+        })
+        .filter((item) => {
+          const hasOwnPermission = hasPermission(item.permission);
+          const hasVisibleChildren = item.children && item.children.length > 0;
+          const isLink = !!item.href;
 
-        // ถ้าเป็นลิงก์ตรง ให้เช็คสิทธิ์ตัวเอง (If direct link, check its own permission)
-        if (isDirectLink) {
-          return hasParentPermission;
-        }
+          if (isLink) return hasOwnPermission;
+          return hasOwnPermission || hasVisibleChildren;
+        });
+    };
 
-        // ถ้าเป็นเมนูแบบมีลูก ให้แสดงถ้าตัวเองมีสิทธิ์ หรือ ลูกมีสิทธิ์ (If group, show if parent has perm OR at least one child is visible)
-        return hasParentPermission || hasVisibleChildren;
-      });
+    return filterMenu(rawMenu);
   }, [t, i18n.isInitialized, i18n.language, userPermissions, isAdminId117]);
 
   return menu;

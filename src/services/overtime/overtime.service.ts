@@ -1,8 +1,8 @@
-import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import { logger } from "@/helpers/logger";
+import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 
 export interface CreateOvertimeInput {
-  requesterId?: string;
+  requesterId?: string | number;
   firstname?: string;
   lastname?: string;
   employee_code?: string;
@@ -26,7 +26,7 @@ export interface CreateOvertimeInput {
 }
 
 export interface UpdateOvertimeInput {
-  requesterId?: string;
+  requesterId?: string | number;
   firstname?: string;
   lastname?: string;
   employee_code?: string;
@@ -52,7 +52,7 @@ export interface UpdateOvertimeInput {
 interface FindAllQuery {
   limit?: number;
   skip?: number;
-  requesterId?: string;
+  requesterId?: string | number;
   status?: string;
   from?: Date;
   to?: Date;
@@ -74,7 +74,7 @@ interface DeleteOptions {
 const DEFAULT_LIMIT = 50;
 const DEFAULT_SKIP = 0;
 const DEFAULT_STATUS = "pending";
-const DEFAULT_CREATED_BY = "0";
+const DEFAULT_CREATED_BY = 0;
 
 /**
  * Helper to map user names and details to overtime records using admin_id
@@ -82,9 +82,10 @@ const DEFAULT_CREATED_BY = "0";
 const mapUsersToOvertime = async (overtimeItems: any[]) => {
   const adminIds = new Set<number>();
   overtimeItems.forEach((item) => {
-    if (item.requesterId && !isNaN(Number(item.requesterId)))
+    // Collect IDs for users not already provided by Prisma include
+    if (!item.requester && item.requesterId && !isNaN(Number(item.requesterId)))
       adminIds.add(Number(item.requesterId));
-    if (item.createdBy && !isNaN(Number(item.createdBy)))
+    if (!item.creator && item.createdBy && !isNaN(Number(item.createdBy)))
       adminIds.add(Number(item.createdBy));
     if (item.updatedBy && !isNaN(Number(item.updatedBy)))
       adminIds.add(Number(item.updatedBy));
@@ -96,48 +97,56 @@ const mapUsersToOvertime = async (overtimeItems: any[]) => {
     }
   });
 
-  const users = await (PrismaTimesheet as any).user.findMany({
-    where: { admin_id: { in: Array.from(adminIds) } },
-    select: {
-      admin_id: true,
-      firstname_th: true,
-      lastname_th: true,
-      employee_code: true,
-      position_ref: { select: { name_th: true } },
-    },
-  });
-
-  const userMap = new Map();
-  users.forEach((u: any) => userMap.set(u.admin_id, u));
+  let userMap = new Map();
+  if (adminIds.size > 0) {
+    const users = await (PrismaTimesheet as any).user.findMany({
+      where: { admin_id: { in: Array.from(adminIds) } },
+      select: {
+        admin_id: true,
+        firstname_th: true,
+        lastname_th: true,
+        employee_code: true,
+        position_ref: { select: { name_th: true } },
+      },
+    });
+    users.forEach((u: any) => userMap.set(u.admin_id, u));
+  }
 
   return overtimeItems.map((item) => {
-    const requester = userMap.get(Number(item.requesterId));
-    const creator = userMap.get(Number(item.createdBy));
+    const requester = item.requester || userMap.get(Number(item.requesterId));
+    const creator = item.creator || userMap.get(Number(item.createdBy));
     const updater = userMap.get(Number(item.updatedBy));
+
+    // Helper to get formatted name from user object
+    const formatName = (u: any) => {
+      if (!u) return null;
+      const thName = `${u.firstname_th || ""} ${u.lastname_th || ""}`.trim();
+      const enName = `${u.firstname_en || ""} ${u.lastname_en || ""}`.trim();
+      const nickname = u.nickname ? `(${u.nickname})` : "";
+
+      const fullName = thName || enName || u.username || String(u.admin_id);
+      return nickname ? `${fullName} ${nickname}`.trim() : fullName;
+    };
 
     const enrichedDescriptions = item.descriptions?.map((desc: any) => {
       const assigneeUser = userMap.get(Number(desc.assignee));
       return {
         ...desc,
-        assignee_name: assigneeUser
-          ? `${assigneeUser.firstname_th} ${assigneeUser.lastname_th}`.trim()
-          : desc.assignee,
+        assignee_name: formatName(assigneeUser) || desc.assignee,
+        assignee_user: assigneeUser || null,
       };
     });
 
     return {
       ...item,
-      requester_name: requester
-        ? `${requester.firstname_th} ${requester.lastname_th}`.trim()
-        : null,
+      requester_user: requester || null,
+      creator_user: creator || null,
+      updater_user: updater || null,
+      requester_name: formatName(requester),
       requester_employee_code: requester?.employee_code || null,
       requester_position: requester?.position_ref?.name_th || null,
-      creator_name: creator
-        ? `${creator.firstname_th} ${creator.lastname_th}`.trim()
-        : null,
-      updater_name: updater
-        ? `${updater.firstname_th} ${updater.lastname_th}`.trim()
-        : null,
+      creator_name: formatName(creator),
+      updater_name: formatName(updater),
       descriptions: enrichedDescriptions,
     };
   });
@@ -163,7 +172,15 @@ export const Service = {
         skip,
         where,
         orderBy: { createdAt: "desc" },
-        include: { descriptions: true },
+        include: {
+          descriptions: true,
+          requester: {
+            include: { position_ref: { select: { name_th: true } } },
+          },
+          creator: {
+            include: { position_ref: { select: { name_th: true } } },
+          },
+        },
       }),
       (PrismaTimesheet as any).overtime.count({ where }),
     ]);
@@ -175,7 +192,15 @@ export const Service = {
   async findById(id: number) {
     const overtime = await (PrismaTimesheet as any).overtime.findFirst({
       where: { id, isDeleted: false },
-      include: { descriptions: true },
+      include: {
+        descriptions: true,
+        requester: {
+          include: { position_ref: { select: { name_th: true } } },
+        },
+        creator: {
+          include: { position_ref: { select: { name_th: true } } },
+        },
+      },
     });
 
     if (overtime) {
@@ -194,12 +219,12 @@ export const Service = {
 
     return (PrismaTimesheet as any).overtime.create({
       data: {
-        requesterId: data.requesterId,
+        requesterId: data.requesterId ? Number(data.requesterId) : null,
         requestDate: data.requestDate ? new Date(data.requestDate) : new Date(),
         status: data.status ?? DEFAULT_STATUS,
         descriptions:
           descriptions.length > 0 ? { create: descriptions } : undefined,
-        createdBy: String(data.createdBy ?? DEFAULT_CREATED_BY),
+        createdBy: data.createdBy ? Number(data.createdBy) : DEFAULT_CREATED_BY,
       },
       include: { descriptions: true },
     });
@@ -215,23 +240,18 @@ export const Service = {
     const descriptions = prepareDescriptions(data.descriptions);
     const updateData = buildUpdateData(data);
 
-    if (descriptions.length > 0) {
-      return (PrismaTimesheet as any).overtime.update({
-        where: { id },
-        data: {
-          ...updateData,
-          descriptions: {
-            deleteMany: {},
-            create: descriptions,
-          },
-        },
-        include: { descriptions: true },
-      });
-    }
-
     return (PrismaTimesheet as any).overtime.update({
       where: { id },
-      data: updateData,
+      data: {
+        ...updateData,
+        descriptions:
+          descriptions.length > 0
+            ? {
+                deleteMany: {},
+                create: descriptions,
+              }
+            : undefined,
+      },
       include: { descriptions: true },
     });
   },
@@ -245,7 +265,7 @@ export const Service = {
       data: {
         isDeleted: true,
         updatedBy:
-          opts.deletedBy !== undefined ? String(opts.deletedBy) : undefined,
+          opts.deletedBy !== undefined ? Number(opts.deletedBy) : undefined,
       },
     });
   },
@@ -280,8 +300,15 @@ export const Service = {
 function buildWhereClause(query: FindAllQuery) {
   const where: any = { isDeleted: false };
 
-  if (query.requesterId) {
-    where.requesterId = query.requesterId;
+  // Ensuring requesterId is a valid number before using it filter if the schema says it's Int.
+  // If the requesterId is passed from frontend as "null" or non-numeric, it's ignored to avoid 500.
+  if (
+    query.requesterId !== undefined &&
+    query.requesterId !== null &&
+    query.requesterId !== "" &&
+    !isNaN(Number(query.requesterId))
+  ) {
+    where.requesterId = Number(query.requesterId);
   }
 
   if (query.status) {
@@ -328,11 +355,12 @@ function prepareDescriptions(descriptions?: DescriptionInput[]) {
 // สร้าง update data โดยลบ undefined fields
 function buildUpdateData(data: UpdateOvertimeInput) {
   const updateData: any = {
-    requesterId: data.requesterId,
+    requesterId:
+      data.requesterId !== undefined ? Number(data.requesterId) : undefined,
     requestDate: data.requestDate ? new Date(data.requestDate) : undefined,
     status: data.status,
     updatedBy:
-      data.updatedBy !== undefined ? String(data.updatedBy) : undefined,
+      data.updatedBy !== undefined ? Number(data.updatedBy) : undefined,
   };
 
   Object.keys(updateData).forEach((key) => {

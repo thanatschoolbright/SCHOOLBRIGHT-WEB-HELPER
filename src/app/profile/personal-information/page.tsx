@@ -1,21 +1,6 @@
 "use client";
 
 import {
-  ArrowLeftOutlined,
-  CalendarOutlined,
-  CheckCircleOutlined,
-  ExclamationCircleOutlined,
-  HistoryOutlined,
-  IdcardOutlined,
-  LinkOutlined,
-  LockOutlined,
-  MailOutlined,
-  PhoneOutlined,
-  SaveOutlined,
-  SolutionOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
-import {
   Alert,
   App,
   Avatar,
@@ -25,6 +10,7 @@ import {
   Col,
   DatePicker,
   Divider,
+  Flex,
   Form,
   Input,
   Row,
@@ -38,8 +24,27 @@ import {
 } from "antd";
 import { useEffect, useState } from "react";
 
+import PermissionLayout from "@/components/layouts/permission-layout";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
 import { HuaweiBucketStorageService } from "@/services/huawei-bucket-storage.service";
-import { CameraOutlined, LoadingOutlined } from "@ant-design/icons";
+import {
+  ArrowLeftOutlined,
+  CalendarOutlined,
+  CameraOutlined,
+  CheckCircleOutlined,
+  ExclamationCircleOutlined,
+  HistoryOutlined,
+  IdcardOutlined,
+  LinkOutlined,
+  LoadingOutlined,
+  LockOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  SaveOutlined,
+  SolutionOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import DashboardLayout from "@components/layouts/backend-layout";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import type { UploadProps } from "antd";
 import { Descriptions } from "antd";
@@ -51,10 +56,6 @@ import { toast } from "sonner";
 
 dayjs.extend(buddhistEra);
 
-import PermissionLayout from "@/components/layouts/permission-layout";
-import { HeaderBar } from "@/components/typhography/header-bar-component";
-import DashboardLayout from "@components/layouts/backend-layout";
-
 const { Title, Text } = Typography;
 
 const UserEditPage = () => {
@@ -64,21 +65,24 @@ const UserEditPage = () => {
   const { modal } = App.useApp();
   const { user_id } = useParams();
 
-  // 🛡️ เช็คสิทธิ์และตัวตน
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
+  const [roles, setRoles] = useState<any[]>([]);
+  const [positions, setPositions] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<any[]>([]);
+  const [uploading, setUploading] = useState(false);
+
   const sessionUser = session?.user as any;
   const isAdmin =
     sessionUser?.role === "ADMIN" ||
     sessionUser?.role_name === "ADMIN" ||
     String(sessionUser?.role_id) === "1";
-
-  // หน้า "ข้อมูลส่วนตัว" จะใช้ Session ID เป็นหลัก หากไม่มี Params ส่งมา
   const userId =
     (Array.isArray(user_id) ? user_id[0] : user_id) || sessionUser?.id;
-
-  // โหมดพนักงานแก้ไขเอง (ถ้าไม่ใช่ Admin ให้ล็อกฟิลด์สำคัญ)
   const isRestricted = !isAdmin;
 
-  // 🔒 ป้องกันพนักงานแอบแก้ข้อมูลคนอื่นผ่าน URL
   useEffect(() => {
     if (
       sessionStatus === "authenticated" &&
@@ -91,14 +95,9 @@ const UserEditPage = () => {
     }
   }, [user_id, sessionUser?.id, isAdmin, sessionStatus, router]);
 
-  const [form] = Form.useForm();
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
-  const [roles, setRoles] = useState<any[]>([]);
-  const [positions, setPositions] = useState<any[]>([]);
-  const [departments, setDepartments] = useState<any[]>([]);
-  const [uploading, setUploading] = useState(false);
+  useEffect(() => {
+    if (userId) fetchInitialData();
+  }, [userId]);
 
   useEffect(() => {
     if (userData && !loading) {
@@ -117,31 +116,6 @@ const UserEditPage = () => {
     }
   }, [userData, loading, form]);
 
-  // --- Helper: Restricted Label ---
-  const RestrictedLabel = ({ label }: { label: string }) => (
-    <Space size={4}>
-      <span>{label}</span>
-      {isRestricted && (
-        <Tooltip title="กรณีต้องการปรับเปลี่ยนข้อมูลให้ติดต่อฝ่ายบุคคล">
-          <Badge
-            count="HR"
-            style={{
-              backgroundColor: token.colorFillAlter,
-              color: token.colorTextQuaternary,
-              fontSize: "10px",
-              height: "16px",
-              lineHeight: "16px",
-              minWidth: "24px",
-              cursor: "help",
-              border: `1px solid ${token.colorBorder}`,
-            }}
-          />
-        </Tooltip>
-      )}
-    </Space>
-  );
-
-  // Debug Helper: Show Modal for Errors
   const showErrorModal = (error: any, context: string) => {
     const errorData = error?.response?.data;
     const errorMessage =
@@ -175,16 +149,9 @@ const UserEditPage = () => {
       ),
       width: 700,
       content: (
-        <div className="space-y-4">
-          <div>
-            <Text
-              strong
-              style={{
-                color: token.colorTextSecondary,
-                display: "block",
-                marginBottom: 4,
-              }}
-            >
+        <Flex vertical gap={16}>
+          <Flex vertical gap={4}>
+            <Text strong style={{ color: token.colorTextSecondary }}>
               สาเหตุ (Reason):
             </Text>
             <Alert
@@ -195,47 +162,37 @@ const UserEditPage = () => {
               type="error"
               showIcon
             />
-          </div>
+          </Flex>
           {errorDetail && (
-            <div>
-              <Text
-                strong
-                style={{
-                  color: token.colorTextSecondary,
-                  display: "block",
-                  marginBottom: 4,
-                }}
-              >
+            <Flex vertical gap={4}>
+              <Text strong style={{ color: token.colorTextSecondary }}>
                 รายละเอียดข้อผิดพลาด (Details):
               </Text>
-              <div
+              <Card
+                size="small"
                 style={{
                   backgroundColor: token.colorErrorBg,
-                  color: token.colorErrorText,
-                  padding: 16,
-                  borderRadius: 12,
-                  fontFamily: "monospace",
-                  fontSize: 12,
-                  overflowX: "auto",
-                  maxHeight: 300,
                   border: `1px solid ${token.colorErrorBorder}`,
                 }}
               >
-                <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>
+                <pre
+                  style={{
+                    margin: 0,
+                    whiteSpace: "pre-wrap",
+                    fontSize: 12,
+                    color: token.colorErrorText,
+                  }}
+                >
                   {errorDetail}
                 </pre>
-              </div>
-            </div>
+              </Card>
+            </Flex>
           )}
-        </div>
+        </Flex>
       ),
       okText: "เข้าใจแล้ว",
     });
   };
-
-  useEffect(() => {
-    if (userId) fetchInitialData();
-  }, [userId]);
 
   const fetchInitialData = async () => {
     if (!userId) return;
@@ -248,7 +205,6 @@ const UserEditPage = () => {
           axios.get("/api/v2/admin/position-management/read?limit=1000"),
           axios.get("/api/v2/admin/department-management/read?limit=1000"),
         ]);
-
       const user = userRes?.data?.data;
       setUserData(user);
       setRoles(rolesRes?.data?.data?.roles || []);
@@ -265,13 +221,11 @@ const UserEditPage = () => {
     const { file, onSuccess, onError } = options;
     const empCode = form.getFieldValue("employee_code");
     const currentImg = form.getFieldValue("profile_image_path");
-
     if (!empCode) {
       toast.error("กรุณาระบุรหัสพนักงานก่อนอัปโหลดรูปภาพ");
       onError?.(new Error("Missing employee code"));
       return;
     }
-
     setUploading(true);
     try {
       const result =
@@ -280,18 +234,14 @@ const UserEditPage = () => {
           empCode,
           currentImg,
         );
-
       const newUrl = result.url || result.data?.url;
       if (newUrl) {
         form.setFieldValue("profile_image_path", newUrl);
         setUserData((prev: any) => ({ ...prev, profile_image_path: newUrl }));
-
-        // ✅ Persistence: Save immediately to database
         await axios.post("/api/v2/admin/user-management/update", {
           id: Number(userId),
           profile_image_path: newUrl,
         });
-
         await update({ ...session?.user, profile_image_path: newUrl });
         toast.success("อัปโหลดและบันทึกรูปภาพสำเร็จ");
         onSuccess?.(result);
@@ -322,7 +272,6 @@ const UserEditPage = () => {
         department_id: values.department_id || undefined,
         profile_image_path: values.profile_image_path || undefined,
       };
-
       await axios.post("/api/v2/admin/user-management/update", payload);
       await update();
       toast.success("อัปเดตข้อมูลสำเร็จ");
@@ -333,6 +282,29 @@ const UserEditPage = () => {
       setSubmitting(false);
     }
   };
+
+  const RestrictedLabel = ({ label }: { label: string }) => (
+    <Space size={4}>
+      <Text>{label}</Text>
+      {isRestricted && (
+        <Tooltip title="กรณีต้องการปรับเปลี่ยนข้อมูลให้ติดต่อฝ่ายบุคคล">
+          <Badge
+            count="HR"
+            style={{
+              backgroundColor: token.colorFillAlter,
+              color: token.colorTextQuaternary,
+              fontSize: "10px",
+              height: "16px",
+              lineHeight: "16px",
+              minWidth: "24px",
+              cursor: "help",
+              border: `1px solid ${token.colorBorder}`,
+            }}
+          />
+        </Tooltip>
+      )}
+    </Space>
+  );
 
   return (
     <PermissionLayout>
@@ -367,7 +339,11 @@ const UserEditPage = () => {
           }
         />
 
-        <div style={{ padding: "24px", maxWidth: 1400, margin: "0 auto" }}>
+        <Flex
+          vertical
+          style={{ padding: 24, maxWidth: 1400, margin: "0 auto" }}
+          gap={24}
+        >
           <Row gutter={[24, 24]}>
             <Col xs={24} lg={8}>
               <Card
@@ -376,59 +352,66 @@ const UserEditPage = () => {
                 style={{ borderRadius: 16 }}
                 loading={loading}
               >
-                <div
-                  style={{
-                    marginBottom: 24,
-                    display: "inline-block",
-                    position: "relative",
-                  }}
-                >
-                  <Upload
-                    name="avatar"
-                    listType="picture-circle"
-                    showUploadList={false}
-                    customRequest={handleUpload}
-                    disabled={uploading}
-                  >
-                    <div className="relative group w-[104px] h-[104px] overflow-hidden rounded-full cursor-pointer">
-                      <Avatar
-                        size={104}
-                        src={userData?.profile_image_path}
-                        icon={
-                          uploading ? <LoadingOutlined /> : <UserOutlined />
-                        }
-                        className="transition-transform group-hover:scale-110"
-                        style={{
-                          border: `2px solid ${token.colorBorderSecondary}`,
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <CameraOutlined
-                          style={{ color: "white", fontSize: 24 }}
-                        />
-                        <Text style={{ color: "white", fontSize: 10 }}>
-                          แก้ไข
-                        </Text>
-                      </div>
-                    </div>
-                  </Upload>
-                  {userData?.profile_image_path && (
-                    <Badge
-                      count={
+                <Flex vertical align="center" style={{ marginBottom: 24 }}>
+                  <Badge
+                    count={
+                      userData?.profile_image_path ? (
                         <CheckCircleOutlined
-                          style={{ color: token.colorSuccess }}
+                          style={{
+                            color: token.colorSuccess,
+                            fontSize: 24,
+                            backgroundColor: "white",
+                            borderRadius: "50%",
+                            padding: 2,
+                          }}
                         />
-                      }
-                      offset={[-10, 90]}
-                      style={{
-                        backgroundColor: "white",
-                        borderRadius: "50%",
-                        padding: 2,
-                      }}
-                    />
-                  )}
-                </div>
-
+                      ) : null
+                    }
+                    offset={[-80, 150]}
+                  >
+                    <Upload
+                      name="avatar"
+                      listType="picture-card"
+                      showUploadList={false}
+                      customRequest={handleUpload}
+                      disabled={uploading}
+                      className="!border-none !bg-transparent !p-0 hover:!bg-transparent !w-auto !h-auto [&>.ant-upload]:!p-0 [&>.ant-upload]:!border-none [&>.ant-upload]:!bg-transparent [&>.ant-upload]:!w-auto [&>.ant-upload]:!h-auto"
+                    >
+                      <Flex
+                        vertical
+                        align="center"
+                        justify="center"
+                        className="relative group w-[160px] h-[160px] overflow-hidden rounded-[40px] cursor-pointer"
+                      >
+                        <Avatar
+                          shape="square"
+                          size={160}
+                          src={userData?.profile_image_path}
+                          icon={
+                            uploading ? <LoadingOutlined /> : <UserOutlined />
+                          }
+                          className="transition-transform group-hover:scale-110 !rounded-[40px]"
+                          style={{
+                            border: `2px solid ${token.colorBorderSecondary}`,
+                          }}
+                        />
+                        <Flex
+                          vertical
+                          align="center"
+                          justify="center"
+                          className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <CameraOutlined
+                            style={{ color: "white", fontSize: 24 }}
+                          />
+                          <Text style={{ color: "white", fontSize: 10 }}>
+                            แก้ไข
+                          </Text>
+                        </Flex>
+                      </Flex>
+                    </Upload>
+                  </Badge>
+                </Flex>
                 <Title level={3} style={{ marginBottom: 4 }}>
                   {userData?.firstname_th || "-"} {userData?.lastname_th || ""}
                 </Title>
@@ -438,16 +421,13 @@ const UserEditPage = () => {
                 >
                   {userData?.email || "ไม่มีอีเมล"}
                 </Text>
-
                 <Space size={4} wrap style={{ justifyContent: "center" }}>
                   <Tag color="blue">{userData?.role?.role_name || "Guest"}</Tag>
                   <Tag color="cyan">
                     {userData?.position_ref?.name_th || "No Position"}
                   </Tag>
                 </Space>
-
                 <Divider />
-
                 <Descriptions
                   column={1}
                   size="small"
@@ -561,7 +541,6 @@ const UserEditPage = () => {
                         <Input placeholder="Last Name" />
                       </Form.Item>
                     </Col>
-
                     <Col xs={24}>
                       <Divider orientation="left">
                         <Text strong>
@@ -606,7 +585,6 @@ const UserEditPage = () => {
                         <Input prefix={<PhoneOutlined />} />
                       </Form.Item>
                     </Col>
-
                     <Col xs={24}>
                       <Divider orientation="left">
                         <Text strong>
@@ -703,13 +681,11 @@ const UserEditPage = () => {
                       </Form.Item>
                     </Col>
                   </Row>
-
                   <Form.Item name="profile_image_path" hidden>
                     <Input />
                   </Form.Item>
-
                   <Divider />
-                  <div style={{ textAlign: "right" }}>
+                  <Flex justify="flex-end">
                     <Space>
                       <Button
                         onClick={() =>
@@ -730,12 +706,12 @@ const UserEditPage = () => {
                         บันทึกการเปลี่ยนแปลง
                       </Button>
                     </Space>
-                  </div>
+                  </Flex>
                 </Form>
               </Card>
             </Col>
           </Row>
-        </div>
+        </Flex>
       </DashboardLayout>
     </PermissionLayout>
   );

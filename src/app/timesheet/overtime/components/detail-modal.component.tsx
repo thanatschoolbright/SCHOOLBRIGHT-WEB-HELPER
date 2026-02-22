@@ -1,39 +1,36 @@
 "use client";
 
-import React, { useMemo } from "react";
 import {
-  Modal,
-  Descriptions,
-  Card,
-  Tag,
-  Typography,
-  Space,
-  Skeleton,
-  theme,
-  Avatar,
-  Timeline,
-  Divider,
-  Badge,
-  Row,
-  Col,
-  Statistic,
-} from "antd";
-import {
-  FileTextOutlined,
-  UserOutlined,
-  ClockCircleOutlined,
   CalendarOutlined,
-  CheckCircleOutlined,
-  TeamOutlined,
-  FieldTimeOutlined,
+  ClockCircleOutlined,
   CloseOutlined,
+  FieldTimeOutlined,
+  FileTextOutlined,
+  TeamOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
-import { useTranslation } from "react-i18next";
+import { getUserById } from "@helpers/local_storage/user.storage";
+import {
+  Avatar,
+  Badge,
+  Card,
+  Col,
+  Modal,
+  Row,
+  Skeleton,
+  Space,
+  Statistic,
+  Tag,
+  theme,
+  Timeline,
+  Typography,
+} from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
+import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import type { OvertimeRecord } from "../types/overtime.types";
 import { OT_STATUS } from "../types/overtime.types";
-import { getUserById } from "@helpers/local_storage/user.storage";
 
 const { Title, Text } = Typography;
 
@@ -53,14 +50,39 @@ export const DetailModal: React.FC<DetailModalProps> = ({
 
   // ดึงข้อมูลผู้ใช้จริง
   const requesterUser = useMemo(() => {
+    // 1. Backend User
+    if (selectedDetail?.requester_user) return selectedDetail.requester_user;
+    // 2. Local Storage User
     if (!selectedDetail?.requester_id) return null;
-    return getUserById(selectedDetail.requester_id);
-  }, [selectedDetail?.requester_id]);
+    const localUser = getUserById(selectedDetail.requester_id);
+    if (!localUser) return null;
+    // Map to unified format if needed, but for now we'll handle both in the UI
+    return localUser;
+  }, [selectedDetail?.requester_id, selectedDetail?.requester_user]);
 
   const creatorUser = useMemo(() => {
+    // 1. Backend User
+    if (selectedDetail?.creator_user) return selectedDetail.creator_user;
+    // 2. Local Storage User
     if (!selectedDetail?.created_by) return null;
-    return getUserById(selectedDetail.created_by);
-  }, [selectedDetail?.created_by]);
+    const localUser = getUserById(selectedDetail.created_by);
+    if (!localUser) return null;
+    return localUser;
+  }, [selectedDetail?.created_by, selectedDetail?.creator_user]);
+
+  // Unified name display helper
+  const renderUserName = (u: any, fallbackName?: string, fallbackId?: any) => {
+    if (!u) return fallbackName || fallbackId || "-";
+    // Check for backend format (firstname_th)
+    if (u.firstname_th) return `${u.firstname_th} ${u.lastname_th}`.trim();
+    // Check for local format (firstname)
+    if (u.firstname) return `${u.firstname} ${u.lastname}`.trim();
+    return fallbackName || fallbackId || "-";
+  };
+
+  const renderUserCode = (u: any, fallbackId?: any) => {
+    return u?.employee_code || u?.admin_id || fallbackId || "-";
+  };
 
   // คำนวณรวมชั่วโมง
   const totalHours = useMemo(() => {
@@ -260,15 +282,20 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                         strong
                         style={{ fontSize: 16, color: token.colorPrimary }}
                       >
-                        {requesterUser
-                          ? `${requesterUser.firstname} ${requesterUser.lastname}`
-                          : selectedDetail.requester_name ||
-                            selectedDetail.requester_id}
+                        {renderUserName(
+                          requesterUser,
+                          selectedDetail.requester_name,
+                          selectedDetail.requester_id,
+                        )}
                       </Text>
                     </div>
                     {(requesterUser || selectedDetail.requester_id) && (
                       <Text type="secondary" style={{ fontSize: 12 }}>
-                        รหัส: {selectedDetail.requester_id}
+                        รหัส:{" "}
+                        {renderUserCode(
+                          requesterUser,
+                          selectedDetail.requester_id,
+                        )}
                       </Text>
                     )}
                   </div>
@@ -302,15 +329,17 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                         strong
                         style={{ fontSize: 16, color: token.colorError }}
                       >
-                        {creatorUser
-                          ? `${creatorUser.firstname} ${creatorUser.lastname}`
-                          : selectedDetail.creator_name ||
-                            selectedDetail.created_by}
+                        {renderUserName(
+                          creatorUser,
+                          selectedDetail.creator_name,
+                          selectedDetail.created_by,
+                        )}
                       </Text>
                     </div>
                     {(creatorUser || selectedDetail.created_by) && (
                       <Text type="secondary" style={{ fontSize: 12 }}>
-                        รหัส: {selectedDetail.created_by}
+                        รหัส:{" "}
+                        {renderUserCode(creatorUser, selectedDetail.created_by)}
                       </Text>
                     )}
                   </div>
@@ -357,9 +386,9 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       style={{ fontSize: 16, color: token.colorSuccess }}
                     >
                       {selectedDetail.request_date
-                        ? dayjs(selectedDetail.request_date)
-                            .locale("th")
-                            .format("DD MMMM YYYY")
+                        ? dayjs(selectedDetail.request_date).format(
+                            "DD/MM/YYYY HH:mm",
+                          )
                         : "-"}
                     </Text>
                   </Space>
@@ -378,16 +407,16 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                     style={{ width: "100%" }}
                   >
                     <Text type="secondary" style={{ fontSize: 12 }}>
-                      สร้างเมื่อ
+                      แก้ไขล่าสุดเมื่อ
                     </Text>
                     <Text
                       strong
                       style={{ fontSize: 16, color: token.colorInfo }}
                     >
-                      {selectedDetail.created_at
-                        ? dayjs(selectedDetail.created_at)
-                            .locale("th")
-                            .format("DD MMM YYYY HH:mm")
+                      {selectedDetail.updated_at
+                        ? dayjs(selectedDetail.updated_at).format(
+                            "DD/MM/YYYY HH:mm",
+                          )
                         : "-"}
                     </Text>
                   </Space>
@@ -422,10 +451,14 @@ export const DetailModal: React.FC<DetailModalProps> = ({
           >
             <Timeline
               mode="left"
-              items={selectedDetail.descriptions?.map((item, idx) => {
-                const assigneeUser = item.assignee
+              items={selectedDetail.descriptions?.map((item: any, idx) => {
+                // Determine assignee from backend or local storage
+                const backendAssignee = item.assignee_user;
+                const localAssignee = item.assignee
                   ? getUserById(item.assignee)
                   : null;
+
+                const assigneeUser = backendAssignee || localAssignee;
                 return {
                   color: token.colorPrimary,
                   label: (
@@ -565,11 +598,11 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                                   style={{ background: token.colorPrimary }}
                                 />
                                 <Text strong style={{ fontSize: 13 }}>
-                                  {assigneeUser
-                                    ? `${assigneeUser.firstname} ${assigneeUser.lastname}`
-                                    : item.assignee_name ||
-                                      item.assignee ||
-                                      "-"}
+                                  {renderUserName(
+                                    assigneeUser,
+                                    item.assignee_name,
+                                    item.assignee,
+                                  )}
                                 </Text>
                               </Space>
                             </div>

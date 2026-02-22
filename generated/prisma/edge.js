@@ -6717,7 +6717,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/light/Desktop/SchoolBright-Portfolio/Github/sb-web-helper/generated/prisma",
+      "value": "/Users/light/Desktop/SCHOOLBRIGHT/GITHUB/SB-WEB-HELPER/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -6735,7 +6735,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/light/Desktop/SchoolBright-Portfolio/Github/sb-web-helper/prisma/schema.prisma",
+    "sourceFilePath": "/Users/light/Desktop/SCHOOLBRIGHT/GITHUB/SB-WEB-HELPER/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {

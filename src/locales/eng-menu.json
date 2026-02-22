@@ -1,8 +1,15 @@
 {
+  "departments": {
+    "admin": "Admin / Management",
+    "support": "Support / Service",
+    "testing": "QA / Testing / HW",
+    "timesheet": "Attendance / Timesheet",
+    "others": "Others"
+  },
   "admin_system": {
-    "title": "Admin System",
+    "title": "User System",
     "children": {
-      "user_profile": "User Profile",
+      "user_profile": "Manage Users",
       "user_management": "User Management",
       "role_management": "Role & Permission Management",
       "position_management": "Position Management",
@@ -35,7 +42,8 @@
       "online_status": "Online Connection Report",
       "offline_sync_status": "Offline Sync Status",
       "transaction_log": "School Transaction Logs",
-      "heartbeats": "Bot Heartbeat Monitoring"
+      "heartbeats": "Bot Heartbeat Monitoring",
+      "api_spec": "API Specification"
     }
   },
   "mobile_app": {
@@ -58,15 +66,15 @@
     }
   },
   "timesheet_system": {
-    "title": "Timesheet System",
+    "title": "Timesheet Hub",
     "children": {
-      "project": "Project Management",
-      "entry": "Work Time Entry",
-      "sub_project": "Sub-Projects",
-      "all": "All Reports",
-      "overtime": "Overtime System",
-      "timeline": "Project Timeline",
-      "migrate_person": "Migrate (Personal)"
+      "project": "Project List",
+      "entry": "Submit Time Log",
+      "sub_project": "Sub-Project Details",
+      "all": "Work Performance Summary",
+      "overtime": "Overtime Portal",
+      "timeline": "Activity Roadmap",
+      "migrate_person": "History Migration"
     }
   },
   "backlogs": {
@@ -81,6 +89,13 @@
       "api_logs": "API Logs"
     }
   },
+  "api_docs": {
+    "title": "API Docs",
+    "children": {
+      "spec": "API Specification",
+      "raw": "OpenAPI JSON"
+    }
+  },
   "sheets": {
     "title": "Sheets",
     "children": {
@@ -88,5 +103,10 @@
       "project_training": "New Employee Training Plan",
       "project_release_note": "System Release/Note Plan"
     }
+  },
+  "status": {
+    "new": "New",
+    "revamp": "Revamp",
+    "maintenance": "Maintenance"
   }
 }

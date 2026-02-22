@@ -7,102 +7,101 @@ import dayjs from "dayjs";
 import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
 import React, { useEffect, useMemo, useState } from "react";
+import { FontProvider, useFont } from "../providers/font-provider";
 
-// ✨ Setup สำหรับปฏิทินไทยและปีพุทธศักราช
 dayjs.extend(buddhistEra);
 dayjs.locale("th");
 
-/**
- * 🎨 BRAND SEED TOKENS
- * ค่าพื้นฐานสำหรับคำนวณเฉดสีและสัดส่วนพื้นฐานของทั้งระบบ
- */
-const BRAND_SEED = {
-  primary: "#FF8C00", // DarkOrange (as requested previously)
-  success: "#10B981", // Emerald-500
-  warning: "#F59E0B", // Amber-500
-  error: "#EF4444", // Red-500
-  info: "#3B82F6", // Blue-500
+const BRAND_DESIGN_SEED_TOKENS = {
+  primary: "#FF8C00",
+  success: "#10B981",
+  warning: "#F59E0B",
+  error: "#EF4444",
+  info: "#3B82F6",
   radius: 12,
-  fontFamily: 'var(--font-google-sans), "Google Sans", sans-serif',
+  // Default font family mapping
+  fonts: {
+    "google-sans": 'var(--font-google-sans), "Google Sans", sans-serif',
+    sukhumvit: 'var(--font-sukhumvit), "Sukhumvit Set", sans-serif',
+  },
 };
 
-/**
- * 🛠️ SYSTEM COLORS (Manual Mapping for specific Slate shades)
- */
-const SYSTEM_COLORS = {
+const SYSTEM_COLOR_PALETTE_CONFIGURATION = {
   light: {
-    bgLayout: "#F9F8F6", // Minimal Warm Stone
+    bgLayout: "#F9F8F6",
     bgContainer: "#FFFFFF",
-    textMain: "#292524", // Stone 900 (Warm Black)
-    textSub: "#78716C", // Stone 500 (Warm Gray)
-    border: "#E7E5E4", // Stone 200 (Subtle Warm)
+    textMain: "#292524",
+    textSub: "#78716C",
+    border: "#E7E5E4",
   },
   dark: {
-    bgLayout: "#121212", // Charcoal Black
-    bgContainer: "#1E1E1E", // Elevated Gray
-    textMain: "#E0E0E0", // Light Gray
-    textSub: "#B0B0B0", // Medium Gray
-    border: "#444444", // Dark Gray
+    bgLayout: "#121212",
+    bgContainer: "#1E1E1E",
+    textMain: "#E0E0E0",
+    textSub: "#B0B0B0",
+    border: "#444444",
   },
 };
 
-/**
- * 🛡️ THEME DETECTOR
- * ตรวจสอบโหมด Dark/Light จากคลาส 'dark' ใน <html>
- */
-const useDarkTheme = (): boolean => {
-  const [isDark, setIsDark] = useState(false);
+const useDarkModeDetector = (): boolean => {
+  const [isDarkModeActive, setIsDarkModeActive] = useState(false);
+
   useEffect(() => {
-    const checkDark = () =>
-      setIsDark(document.documentElement.classList.contains("dark"));
-    const observer = new MutationObserver(checkDark);
-    observer.observe(document.documentElement, {
+    const checkDarkModeStatus = () => {
+      setIsDarkModeActive(document.documentElement.classList.contains("dark"));
+    };
+
+    const mutationObserver = new MutationObserver(checkDarkModeStatus);
+
+    mutationObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
     });
-    checkDark();
-    return () => observer.disconnect();
+
+    checkDarkModeStatus();
+
+    return () => {
+      mutationObserver.disconnect();
+    };
   }, []);
-  return isDark;
+
+  return isDarkModeActive;
 };
 
-/**
- * 💎 CREATE THEME CONFIG (Ant Design v5 Best Practice)
- * แยกส่วน Seed -> Map -> Alias Tokens ให้ชัดเจน
- */
-const getThemeConfig = (isDark: boolean): ThemeConfig => {
-  const colors = isDark ? SYSTEM_COLORS.dark : SYSTEM_COLORS.light;
+const generateAntDesignThemeConfiguration = (
+  isDarkModeActive: boolean,
+  currentFont: string,
+): ThemeConfig => {
+  const activeSystemColors = isDarkModeActive
+    ? SYSTEM_COLOR_PALETTE_CONFIGURATION.dark
+    : SYSTEM_COLOR_PALETTE_CONFIGURATION.light;
+
+  const fontFamily =
+    (BRAND_DESIGN_SEED_TOKENS.fonts as any)[currentFont] ||
+    BRAND_DESIGN_SEED_TOKENS.fonts["google-sans"];
 
   return {
-    // 🚀 ใช้อัลกอริทึมมาตรฐานตามที่ AntD แนะนำ
-    algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
-
-    // ✨ Global Design Tokens (Seed + Alias)
+    algorithm: isDarkModeActive ? theme.darkAlgorithm : theme.defaultAlgorithm,
     token: {
-      colorPrimary: BRAND_SEED.primary,
-      colorSuccess: BRAND_SEED.success,
-      colorWarning: BRAND_SEED.warning,
-      colorError: BRAND_SEED.error,
-      colorInfo: BRAND_SEED.info,
-
-      colorBgBase: isDark ? "#121212" : "#FFFFFF",
-      colorBgLayout: colors.bgLayout,
-      colorBgContainer: colors.bgContainer,
-      colorBgElevated: isDark ? "#242424" : "#FFFFFF",
-      colorTextBase: colors.textMain,
-      colorTextSecondary: colors.textSub,
-      colorBorder: colors.border,
-
-      fontFamily: BRAND_SEED.fontFamily,
+      colorPrimary: BRAND_DESIGN_SEED_TOKENS.primary,
+      colorSuccess: BRAND_DESIGN_SEED_TOKENS.success,
+      colorWarning: BRAND_DESIGN_SEED_TOKENS.warning,
+      colorError: BRAND_DESIGN_SEED_TOKENS.error,
+      colorInfo: BRAND_DESIGN_SEED_TOKENS.info,
+      colorBgBase: isDarkModeActive ? "#121212" : "#FFFFFF",
+      colorBgLayout: activeSystemColors.bgLayout,
+      colorBgContainer: activeSystemColors.bgContainer,
+      colorBgElevated: isDarkModeActive ? "#242424" : "#FFFFFF",
+      colorTextBase: activeSystemColors.textMain,
+      colorTextSecondary: activeSystemColors.textSub,
+      colorBorder: activeSystemColors.border,
+      fontFamily: fontFamily,
       fontSize: 14,
-      borderRadius: BRAND_SEED.radius,
+      borderRadius: BRAND_DESIGN_SEED_TOKENS.radius,
       borderRadiusLG: 20,
-
       controlHeight: 40,
       wireframe: false,
     },
-
-    // 📦 Component-level Customization
     components: {
       Button: {
         controlOutline: "none",
@@ -114,30 +113,30 @@ const getThemeConfig = (isDark: boolean): ThemeConfig => {
         colorBorderSecondary: "transparent",
         paddingLG: 24,
         borderRadiusLG: 20,
-        colorBgContainer: isDark ? "#1E1E1E" : "#FFFFFF",
+        colorBgContainer: isDarkModeActive ? "#1E1E1E" : "#FFFFFF",
       },
       Table: {
-        headerBg: isDark ? "#242424" : "#F5F5F4", // Stone 100 in Light Mode
+        headerBg: isDarkModeActive ? "#242424" : "#F5F5F4",
         headerSplitColor: "transparent",
         headerBorderRadius: 12,
       },
       Input: {
         borderRadius: 12,
-        colorBgContainer: isDark ? "#121212" : "#FFFFFF",
+        colorBgContainer: isDarkModeActive ? "#121212" : "#FFFFFF",
       },
       Select: {
         borderRadius: 12,
-        colorBgContainer: isDark ? "#121212" : "#FFFFFF",
+        colorBgContainer: isDarkModeActive ? "#121212" : "#FFFFFF",
       },
       Modal: {
         borderRadiusLG: 28,
-        headerBg: isDark ? "#1E1E1E" : "#FFFFFF",
-        contentBg: isDark ? "#1E1E1E" : "#FFFFFF",
-        footerBg: isDark ? "#1E1E1E" : "#FFFFFF",
+        headerBg: isDarkModeActive ? "#1E1E1E" : "#FFFFFF",
+        contentBg: isDarkModeActive ? "#1E1E1E" : "#FFFFFF",
+        footerBg: isDarkModeActive ? "#1E1E1E" : "#FFFFFF",
       },
       Layout: {
-        bodyBg: colors.bgLayout,
-        headerBg: isDark
+        bodyBg: activeSystemColors.bgLayout,
+        headerBg: isDarkModeActive
           ? "rgba(18, 18, 18, 0.85)"
           : "rgba(255, 255, 255, 0.85)",
         headerPadding: "0 24px",
@@ -150,36 +149,46 @@ const getThemeConfig = (isDark: boolean): ThemeConfig => {
   };
 };
 
-export default function AntThemeProvider({
+export function AntDesignThemeInner({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const isDark = useDarkTheme();
-  const themeConfig = useMemo(() => getThemeConfig(isDark), [isDark]);
-  const currentColors = isDark ? SYSTEM_COLORS.dark : SYSTEM_COLORS.light;
+  const isDarkModeActive = useDarkModeDetector();
+  const { fontFamily: currentFont } = useFont();
+
+  const antDesignThemeConfiguration = useMemo(
+    () => generateAntDesignThemeConfiguration(isDarkModeActive, currentFont),
+    [isDarkModeActive, currentFont],
+  );
+  const activeColorPalette = isDarkModeActive
+    ? SYSTEM_COLOR_PALETTE_CONFIGURATION.dark
+    : SYSTEM_COLOR_PALETTE_CONFIGURATION.light;
+
+  const cssFontFamily =
+    (BRAND_DESIGN_SEED_TOKENS.fonts as any)[currentFont] ||
+    BRAND_DESIGN_SEED_TOKENS.fonts["google-sans"];
 
   return (
     <ConfigProvider
       locale={thTH}
-      theme={themeConfig}
+      theme={antDesignThemeConfiguration}
       componentSize="middle"
       input={{ autoComplete: "off" }}
     >
-      {/* 🚀 Wrapper <App /> เพื่อให้ Message/Modal/Notification ทำงานร่วมกันได้อย่างราบรื่น */}
       <App>
         <style jsx global>{`
-          /* 🌊 Modern Typography & Experience */
+          :root {
+            --font-family-current: ${cssFontFamily};
+          }
           body {
-            background-color: ${currentColors.bgLayout} !important;
-            color: ${currentColors.textMain};
-            font-family: ${BRAND_SEED.fontFamily};
+            background-color: ${activeColorPalette.bgLayout} !important;
+            color: ${activeColorPalette.textMain};
+            font-family: ${cssFontFamily};
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             transition: background-color 0.3s ease;
           }
-
-          /* 🖱️ Modern Scrollbar */
           ::-webkit-scrollbar {
             width: 6px;
           }
@@ -187,44 +196,48 @@ export default function AntThemeProvider({
             background: transparent;
           }
           ::-webkit-scrollbar-thumb {
-            background: ${isDark ? "#444444" : "#D6D3D1"};
+            background: ${isDarkModeActive ? "#444444" : "#D6D3D1"};
             border-radius: 10px;
           }
           ::-webkit-scrollbar-thumb:hover {
-            background: ${isDark ? "#888888" : "#A8A29E"};
+            background: ${isDarkModeActive ? "#888888" : "#A8A29E"};
           }
-
-          /* ✨ Interactive Card Feedback */
           .ant-card {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            border: 1px solid ${isDark ? "#444444" : "#E7E5E4"} !important;
+            border: 1px solid ${isDarkModeActive ? "#444444" : "#E7E5E4"} !important;
           }
-
-          /* ลบส่วนนี้ออกทั้งหมด */
           .ant-card:hover {
-            box-shadow: ${isDark
+            box-shadow: ${isDarkModeActive
               ? "0 12px 30px -10px rgba(0, 0, 0, 0.6)"
               : "0 12px 30px -10px rgba(28, 25, 23, 0.05)"} !important;
           }
-
-          /* 🔲 Table Wrapper Custom Border */
           .ant-table-wrapper .ant-table {
-            border: 1px solid ${isDark ? "#444444" : "#E7E5E4"} !important;
+            border: 1px solid ${isDarkModeActive ? "#444444" : "#E7E5E4"} !important;
             border-radius: 12px !important;
             overflow: hidden !important;
           }
-
-          /* 🧪 Glassmorphism Header */
           .ant-layout-header {
             backdrop-filter: blur(12px);
             position: sticky;
             top: 0;
             z-index: 1000;
-            border-bottom: 1px solid ${isDark ? "#444444" : "#E7E5E4"} !important;
+            border-bottom: 1px solid ${isDarkModeActive ? "#444444" : "#E7E5E4"} !important;
           }
         `}</style>
         {children}
       </App>
     </ConfigProvider>
+  );
+}
+
+export default function AntDesignThemeProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <FontProvider>
+      <AntDesignThemeInner>{children}</AntDesignThemeInner>
+    </FontProvider>
   );
 }
