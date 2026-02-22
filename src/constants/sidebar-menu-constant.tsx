@@ -3,42 +3,53 @@
 import {
   ApartmentOutlined,
   ApiOutlined,
-  BugFilled,
+  AppstoreOutlined,
+  AuditOutlined,
+  BarChartOutlined,
+  BellOutlined,
+  BugOutlined,
+  CalendarOutlined,
   CarryOutOutlined,
-  CheckCircleOutlined,
+  CloseCircleOutlined,
+  CloudServerOutlined,
+  CloudSyncOutlined,
+  ClusterOutlined,
   CodeOutlined,
   ConsoleSqlOutlined,
-  CrownOutlined,
+  ControlOutlined,
   CustomerServiceOutlined,
-  DeploymentUnitOutlined,
+  DashboardOutlined,
+  DatabaseOutlined,
   DesktopOutlined,
   ExperimentOutlined,
   FieldTimeOutlined,
+  FileAddOutlined,
   FileExcelOutlined,
   FileSearchOutlined,
+  FileTextOutlined,
   FireOutlined,
   FormOutlined,
-  FundProjectionScreenOutlined,
+  GlobalOutlined,
   HddOutlined,
-  HeartFilled,
-  HourglassOutlined,
+  HeartOutlined,
+  HistoryOutlined,
   IdcardOutlined,
-  MedicineBoxOutlined,
+  IssuesCloseOutlined,
+  LockOutlined,
   MobileOutlined,
-  MonitorOutlined,
-  NotificationFilled,
-  PieChartOutlined,
+  ProjectOutlined,
   QrcodeOutlined,
   ReadOutlined,
-  SafetyCertificateOutlined,
-  ScanOutlined,
+  RocketOutlined,
   ScheduleOutlined,
-  SignalFilled,
-  SolutionOutlined,
-  StopOutlined,
-  SwapOutlined,
-  TagsOutlined,
-  ThunderboltOutlined,
+  SearchOutlined,
+  SettingOutlined,
+  TagOutlined,
+  TeamOutlined,
+  ToolOutlined,
+  UnlockOutlined,
+  UserOutlined,
+  WifiOutlined,
 } from "@ant-design/icons";
 import { useSession } from "next-auth/react";
 import { useMemo } from "react";
@@ -87,35 +98,35 @@ export const useSidebarMenu = (): SidebarItem[] => {
     const rawMenu: SidebarItem[] = [
       {
         label: t("departments.admin"),
-        icon: <CrownOutlined />,
+        icon: <SettingOutlined />,
         permission: PERMISSIONS.ADMIN_ACCESS,
         children: [
           {
             label: t("admin_system.title"),
-            icon: <SolutionOutlined />,
+            icon: <DashboardOutlined />,
             children: [
               {
                 label: t("admin_system.children.user_profile"),
                 href: "/admin/user-profile",
-                icon: <IdcardOutlined />,
+                icon: <UserOutlined />,
                 permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.USER_MANAGE],
               },
               {
                 label: t("admin_system.children.role_management"),
                 href: "/admin/permission-management",
-                icon: <SafetyCertificateOutlined />,
+                icon: <LockOutlined />,
                 permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.ROLE_MANAGE],
               },
               {
                 label: t("admin_system.children.position_management"),
                 href: "/admin/position-management",
-                icon: <DeploymentUnitOutlined />,
+                icon: <AuditOutlined />,
                 permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.ROLE_MANAGE],
               },
               {
                 label: t("admin_system.children.department_management"),
                 href: "/admin/department-management",
-                icon: <ApartmentOutlined />,
+                icon: <ClusterOutlined />,
                 permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.ROLE_MANAGE],
               },
             ],
@@ -129,31 +140,31 @@ export const useSidebarMenu = (): SidebarItem[] => {
         children: [
           {
             label: t("support.title"),
-            icon: <CustomerServiceOutlined />,
+            icon: <ToolOutlined />,
             children: [
               {
                 label: t("support.children.bypass_school"),
                 href: "/support/bypass",
-                icon: <SafetyCertificateOutlined />,
+                icon: <UnlockOutlined />,
                 permission: PERMISSIONS.MENU_SUPPORT_BYPASS,
               },
               {
                 label: t("support.children.test_nfc_card"),
                 href: "/support/test/nfc",
-                icon: <ScanOutlined />,
+                icon: <IdcardOutlined />,
                 permission: PERMISSIONS.MENU_SUPPORT_NFC,
               },
               {
                 label: t("support.children.cancel_sales"),
                 href: "/support/test/cancel-sales",
-                icon: <StopOutlined />,
+                icon: <CloseCircleOutlined />,
                 permission: PERMISSIONS.MENU_SUPPORT_CANCEL_SALES,
               },
             ],
           },
           {
             label: t("health_check.title"),
-            icon: <MedicineBoxOutlined />,
+            icon: <CloudServerOutlined />,
             children: [
               {
                 label: t("health_check.children.server_status"),
@@ -164,43 +175,43 @@ export const useSidebarMenu = (): SidebarItem[] => {
               {
                 label: t("health_check.children.all_server_status"),
                 href: "/health-check/all-server-status",
-                icon: <MonitorOutlined />,
+                icon: <GlobalOutlined />,
                 permission: PERMISSIONS.MENU_HEALTH_ALL,
               },
               {
                 label: t("health_check.children.online_status"),
                 href: "/health-check/online-status",
-                icon: <SignalFilled />,
+                icon: <WifiOutlined />,
                 permission: PERMISSIONS.MENU_HEALTH_ONLINE,
               },
               {
                 label: t("health_check.children.version_control"),
                 href: "/health-check/version-control",
-                icon: <DeploymentUnitOutlined />,
+                icon: <HistoryOutlined />,
                 permission: PERMISSIONS.MENU_HEALTH_VERSION,
               },
               {
                 label: t("health_check.children.transaction_log"),
                 href: "/health-check/transaction-log",
-                icon: <FileSearchOutlined />,
+                icon: <DatabaseOutlined />,
                 permission: PERMISSIONS.MENU_HEALTH_LOG,
               },
               {
                 label: t("health_check.children.heartbeats"),
                 href: "/health-check/heartbeats",
-                icon: <HeartFilled />,
+                icon: <HeartOutlined />,
                 permission: PERMISSIONS.MENU_HEALTH_HEARTBEAT,
               },
             ],
           },
           {
             label: t("backlogs.title"),
-            icon: <CarryOutOutlined />,
+            icon: <IssuesCloseOutlined />,
             children: [
               {
                 label: t("backlogs.children.report"),
                 href: "/backlogs/report",
-                icon: <BugFilled />,
+                icon: <BugOutlined />,
                 permission: PERMISSIONS.MENU_BACKLOGS,
               },
             ],
@@ -212,21 +223,21 @@ export const useSidebarMenu = (): SidebarItem[] => {
               {
                 label: t("mobile_app.children.mobile_notification"),
                 href: "/mobile/notification",
-                icon: <NotificationFilled />,
+                icon: <BellOutlined />,
                 news: true,
                 permission: PERMISSIONS.MENU_MOBILE_NOTI,
               },
               {
                 label: t("mobile_app.children.mobile_leave_letter"),
                 href: "/mobile/leave-letter",
-                icon: <FormOutlined />,
+                icon: <FileAddOutlined />,
                 permission: PERMISSIONS.MENU_MOBILE_LEAVE,
                 maintenance: true,
               },
               {
                 label: t("mobile_app.children.statistics"),
                 href: "/mobile/statistic",
-                icon: <PieChartOutlined />,
+                icon: <BarChartOutlined />,
                 permission: PERMISSIONS.MENU_MOBILE_STAT,
                 maintenance: true,
               },
@@ -240,7 +251,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
               {
                 label: t("mobile_app.children.mobile_check_attendance"),
                 href: "/mobile/check-attendance",
-                icon: <CheckCircleOutlined />,
+                icon: <CarryOutOutlined />,
                 permission: PERMISSIONS.MENU_MOBILE_ATTENDANCE,
                 maintenance: true,
               },
@@ -260,7 +271,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
               {
                 label: t("app_hardware.children.app_control"),
                 href: "/hardware/canteen",
-                icon: <ApiOutlined />,
+                icon: <ControlOutlined />,
               },
             ],
           },
@@ -271,7 +282,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
               {
                 label: t("testing.children.load_testing"),
                 href: "/testing/load-test",
-                icon: <ThunderboltOutlined />,
+                icon: <RocketOutlined />,
                 permission: PERMISSIONS.MENU_TESTING_LOAD,
               },
             ],
@@ -283,7 +294,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
               {
                 label: t("logger.children.api_logs"),
                 href: "/logger/api-log",
-                icon: <ConsoleSqlOutlined />,
+                icon: <FileTextOutlined />,
                 permission: PERMISSIONS.MENU_LOGGER,
               },
             ],
@@ -296,7 +307,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
               {
                 label: t("api_docs.children.spec"),
                 href: "/api-spec",
-                icon: <FileSearchOutlined />,
+                icon: <SearchOutlined />,
                 news: true,
               },
               {
@@ -310,7 +321,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
       },
       {
         label: t("departments.timesheet"),
-        icon: <HourglassOutlined />,
+        icon: <FieldTimeOutlined />,
         permission: PERMISSIONS.TIMESHEET_READ,
         children: [
           {
@@ -332,13 +343,13 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("timesheet_system.children.timeline"),
             href: "/timesheet/timeline",
-            icon: <FieldTimeOutlined />,
+            icon: <ScheduleOutlined />,
             permission: PERMISSIONS.MENU_TIMESHEET_TIMELINE,
           },
           {
             label: t("timesheet_system.children.all"),
             href: "/timesheet/all",
-            icon: <SolutionOutlined />,
+            icon: <TeamOutlined />,
             permission: [
               PERMISSIONS.REPORT_VIEW,
               PERMISSIONS.MENU_TIMESHEET_ALL,
@@ -347,7 +358,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("timesheet_system.children.project"),
             href: "/timesheet/project",
-            icon: <FundProjectionScreenOutlined />,
+            icon: <ProjectOutlined />,
             permission: [
               PERMISSIONS.PROJECT_READ,
               PERMISSIONS.MENU_TIMESHEET_PROJECT,
@@ -356,7 +367,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
           {
             label: t("timesheet_system.children.migrate_person"),
             href: "/timesheet/all/report/migrate-person",
-            icon: <SwapOutlined />,
+            icon: <CloudSyncOutlined />,
             news: true,
             permission: PERMISSIONS.TIMESHEET_WRITE,
           },
@@ -364,7 +375,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
       },
       {
         label: t("departments.others"),
-        icon: <FileExcelOutlined />,
+        icon: <AppstoreOutlined />,
         children: [
           {
             label: t("sheets.title"),
@@ -373,7 +384,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
               {
                 label: t("sheets.children.project_planning"),
                 href: "https://docs.google.com/spreadsheets/d/1FUIxwi_hi3DGfzsJokU5EMeKlwPC8DUL0r4wWJabzVQ/edit?gid=1358985470#gid=1358985470",
-                icon: <ScheduleOutlined />,
+                icon: <CalendarOutlined />,
               },
               {
                 label: t("sheets.children.project_training"),
@@ -383,7 +394,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
               {
                 label: t("sheets.children.project_release_note"),
                 href: "https://docs.google.com/document/d/1ux2KLYcsuS4spL1l68xMV6pChDXCukPXwnTyWCGT28I/edit?usp=sharing",
-                icon: <TagsOutlined />,
+                icon: <TagOutlined />,
               },
             ],
           },
