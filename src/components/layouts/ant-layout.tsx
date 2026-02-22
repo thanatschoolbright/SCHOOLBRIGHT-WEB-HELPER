@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
 import React, { useEffect, useMemo, useState } from "react";
+import { FontProvider, useFont } from "../providers/font-provider";
 
 dayjs.extend(buddhistEra);
 dayjs.locale("th");
@@ -18,7 +19,11 @@ const BRAND_DESIGN_SEED_TOKENS = {
   error: "#EF4444",
   info: "#3B82F6",
   radius: 12,
-  fontFamily: 'var(--font-google-sans), "Google Sans", sans-serif',
+  // Default font family mapping
+  fonts: {
+    "google-sans": 'var(--font-google-sans), "Google Sans", sans-serif',
+    sukhumvit: 'var(--font-sukhumvit), "Sukhumvit Set", sans-serif',
+  },
 };
 
 const SYSTEM_COLOR_PALETTE_CONFIGURATION = {
@@ -65,10 +70,15 @@ const useDarkModeDetector = (): boolean => {
 
 const generateAntDesignThemeConfiguration = (
   isDarkModeActive: boolean,
+  currentFont: string,
 ): ThemeConfig => {
   const activeSystemColors = isDarkModeActive
     ? SYSTEM_COLOR_PALETTE_CONFIGURATION.dark
     : SYSTEM_COLOR_PALETTE_CONFIGURATION.light;
+
+  const fontFamily =
+    (BRAND_DESIGN_SEED_TOKENS.fonts as any)[currentFont] ||
+    BRAND_DESIGN_SEED_TOKENS.fonts["google-sans"];
 
   return {
     algorithm: isDarkModeActive ? theme.darkAlgorithm : theme.defaultAlgorithm,
@@ -85,7 +95,7 @@ const generateAntDesignThemeConfiguration = (
       colorTextBase: activeSystemColors.textMain,
       colorTextSecondary: activeSystemColors.textSub,
       colorBorder: activeSystemColors.border,
-      fontFamily: BRAND_DESIGN_SEED_TOKENS.fontFamily,
+      fontFamily: fontFamily,
       fontSize: 14,
       borderRadius: BRAND_DESIGN_SEED_TOKENS.radius,
       borderRadiusLG: 20,
@@ -139,19 +149,25 @@ const generateAntDesignThemeConfiguration = (
   };
 };
 
-export default function AntDesignThemeProvider({
+export function AntDesignThemeInner({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const isDarkModeActive = useDarkModeDetector();
+  const { fontFamily: currentFont } = useFont();
+
   const antDesignThemeConfiguration = useMemo(
-    () => generateAntDesignThemeConfiguration(isDarkModeActive),
-    [isDarkModeActive],
+    () => generateAntDesignThemeConfiguration(isDarkModeActive, currentFont),
+    [isDarkModeActive, currentFont],
   );
   const activeColorPalette = isDarkModeActive
     ? SYSTEM_COLOR_PALETTE_CONFIGURATION.dark
     : SYSTEM_COLOR_PALETTE_CONFIGURATION.light;
+
+  const cssFontFamily =
+    (BRAND_DESIGN_SEED_TOKENS.fonts as any)[currentFont] ||
+    BRAND_DESIGN_SEED_TOKENS.fonts["google-sans"];
 
   return (
     <ConfigProvider
@@ -165,7 +181,7 @@ export default function AntDesignThemeProvider({
           body {
             background-color: ${activeColorPalette.bgLayout} !important;
             color: ${activeColorPalette.textMain};
-            font-family: ${BRAND_DESIGN_SEED_TOKENS.fontFamily};
+            font-family: ${cssFontFamily};
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             transition: background-color 0.3s ease;
@@ -208,5 +224,17 @@ export default function AntDesignThemeProvider({
         {children}
       </App>
     </ConfigProvider>
+  );
+}
+
+export default function AntDesignThemeProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <FontProvider>
+      <AntDesignThemeInner>{children}</AntDesignThemeInner>
+    </FontProvider>
   );
 }

@@ -1,6 +1,7 @@
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import AntThemeProvider from "@components/layouts/ant-layout";
 import CopyrightToggle from "@components/layouts/copyright-toggle";
+import ThemeCustomizer from "@components/layouts/theme-customizer";
 import CombinedProviders from "@components/providers/client-providers";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
@@ -41,7 +42,47 @@ const googleSansFont = localFont({
 });
 
 /**
- * 📑 Next.js Metadata (Best Practice)
+ * �️ ลงทะเบียน Sukhumvit Set Font
+ */
+const sukhumvitFont = localFont({
+  src: [
+    {
+      path: "../../public/fonts/sukhumvit/Sukhumvit-Set_Thin.ttf",
+      weight: "100",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/sukhumvit/Sukhumvit-Set_Light.ttf",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/sukhumvit/Sukhumvit-Set_Text.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/sukhumvit/Sukhumvit-Set_Medium.ttf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/sukhumvit/Sukhumvit-Set_SemiBold.ttf",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/sukhumvit/Sukhumvit-Set_Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-sukhumvit",
+  display: "swap",
+});
+
+/**
+ * �📑 Next.js Metadata (Best Practice)
  */
 export const metadata: Metadata = {
   title: {
@@ -140,7 +181,7 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className={`${googleSansFont.variable} font-sans antialiased text-slate-900 dark:text-slate-50`}
+        className={`${googleSansFont.variable} ${sukhumvitFont.variable} font-sans antialiased text-slate-900 dark:text-slate-50`}
       >
         <AntdRegistry>
           {/* Sonner Toaster - ระบบแจ้งเตือน */}
@@ -156,6 +197,7 @@ export default function RootLayout({
           {/* 🎨 Theme & Multi-Provider Wrapper */}
           <AntThemeProvider>
             <CombinedProviders>{children}</CombinedProviders>
+            <ThemeCustomizer />
           </AntThemeProvider>
 
           {/* แถบข้อมูล Copyright โปร่งแสง */}
