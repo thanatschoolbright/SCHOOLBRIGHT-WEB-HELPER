@@ -160,6 +160,9 @@ export default function SidebarContent({
   const [openKeys, setOpenKeys] = useState<string[]>([]);
 
   const sidebarTheme = {
+    token: {
+      fontFamily: token.fontFamily,
+    },
     components: {
       Menu: {
         itemActiveBg: "transparent",

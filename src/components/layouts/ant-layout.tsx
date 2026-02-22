@@ -178,6 +178,9 @@ export function AntDesignThemeInner({
     >
       <App>
         <style jsx global>{`
+          :root {
+            --font-family-current: ${cssFontFamily};
+          }
           body {
             background-color: ${activeColorPalette.bgLayout} !important;
             color: ${activeColorPalette.textMain};
