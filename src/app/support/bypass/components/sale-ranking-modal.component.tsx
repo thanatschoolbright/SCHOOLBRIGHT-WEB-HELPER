@@ -265,12 +265,12 @@ export default function SaleRankingModal({
     plugins: {
       legend: {
         position: "bottom" as const,
-        labels: { color: token.colorText, font: { family: "Google Sans" } },
+        labels: { color: token.colorText, font: { family: token.fontFamily } },
       },
       tooltip: {
         backgroundColor: "rgba(0,0,0,0.8)",
-        titleFont: { family: "Google Sans", size: 14 },
-        bodyFont: { family: "Google Sans", size: 13 },
+        titleFont: { family: token.fontFamily, size: 14 },
+        bodyFont: { family: token.fontFamily, size: 13 },
         padding: 10,
         cornerRadius: 8,
       },
@@ -279,14 +279,14 @@ export default function SaleRankingModal({
       x: {
         ticks: {
           color: token.colorTextSecondary,
-          font: { family: "Google Sans" },
+          font: { family: token.fontFamily },
         },
         grid: { display: false },
       },
       y: {
         ticks: {
           color: token.colorTextSecondary,
-          font: { family: "Google Sans" },
+          font: { family: token.fontFamily },
         },
         grid: { color: token.colorBorderSecondary, borderDash: [4, 4] },
       },

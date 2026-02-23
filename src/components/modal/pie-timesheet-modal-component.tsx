@@ -12,7 +12,17 @@ import {
   Title,
   Tooltip,
 } from "chart.js";
-import { Modal, Card, Typography, Empty, Space, Row, Col, Badge } from "antd";
+import {
+  Modal,
+  Card,
+  Typography,
+  Empty,
+  Space,
+  Row,
+  Col,
+  Badge,
+  theme,
+} from "antd";
 import { getProjectById } from "@/helpers/local_storage/project.storage";
 import dayjs from "dayjs";
 import { PieChartOutlined, ProjectOutlined } from "@ant-design/icons";
@@ -131,6 +141,7 @@ export function PieTimesheetModal({
   data,
   mode = "week",
 }: PieTimesheetModalProps) {
+  const { token } = theme.useToken();
   const isDarkMode =
     typeof document !== "undefined" &&
     document.documentElement.classList.contains("dark");
@@ -157,7 +168,7 @@ export function PieTimesheetModal({
         },
       ],
     }),
-    [hours, projectNames, isDarkMode]
+    [hours, projectNames, isDarkMode],
   );
 
   const options: any = useMemo(
@@ -187,8 +198,8 @@ export function PieTimesheetModal({
           borderWidth: 1,
           padding: 12,
           cornerRadius: 8,
-          titleFont: { family: "Inter, sans-serif", size: 13, weight: "600" },
-          bodyFont: { family: "Inter, sans-serif", size: 12 },
+          titleFont: { size: 13, weight: "600" },
+          bodyFont: { size: 12 },
           displayColors: true,
           boxPadding: 4,
           callbacks: {
@@ -203,10 +214,10 @@ export function PieTimesheetModal({
           shadowBlur: 10,
           shadowColor: "rgba(0,0,0,0.1)",
         },
-        centerTextDarkMode: { isDarkMode },
+        centerTextDarkMode: { isDarkMode, fontFamily: token.fontFamily },
       },
     }),
-    [totalHours, isDarkMode]
+    [totalHours, isDarkMode],
   );
 
   return (
@@ -246,10 +257,7 @@ export function PieTimesheetModal({
           <Row gutter={24}>
             {/* Chart Section */}
             <Col span={14}>
-              <Card
-                
-                className="shadow-sm rounded-xl h-full flex items-center justify-center"
-              >
+              <Card className="shadow-sm rounded-xl h-full flex items-center justify-center">
                 <div
                   style={{ height: 320, width: "100%", position: "relative" }}
                 >
@@ -261,7 +269,6 @@ export function PieTimesheetModal({
             {/* Legend Section */}
             <Col span={10}>
               <Card
-                
                 className="shadow-sm rounded-xl h-full overflow-y-auto"
                 style={{ maxHeight: 368 }}
               >

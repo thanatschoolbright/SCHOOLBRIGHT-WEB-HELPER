@@ -1,17 +1,24 @@
-// @components/providers/chart-provider.tsx (ตัวอย่างไฟล์ใหม่)
-"use client"; // อย่าลืมใส่ 'use client'
-
-import React from "react";
-import {Chart} from "chart.js";
-
-Chart.defaults.font.family = "'GoogleSans', sans-serif";
-Chart.defaults.font.size = 14;
-Chart.defaults.font.weight = "normal";
+import React, { useEffect } from "react";
+import { Chart } from "chart.js";
+import { useFont } from "./font-provider";
 
 export default function ChartProvider({
-                                          children,
-                                      }: {
-    children: React.ReactNode;
+  children,
+}: {
+  children: React.ReactNode;
 }) {
-    return <>{children}</>;
+  const { fontFamily } = useFont();
+
+  useEffect(() => {
+    const fontStack =
+      fontFamily === "google-sans"
+        ? 'var(--font-google-sans), "Google Sans", sans-serif'
+        : 'var(--font-sukhumvit), "Sukhumvit Set", sans-serif';
+
+    Chart.defaults.font.family = fontStack;
+    Chart.defaults.font.size = 14;
+    Chart.defaults.font.weight = "normal";
+  }, [fontFamily]);
+
+  return <>{children}</>;
 }

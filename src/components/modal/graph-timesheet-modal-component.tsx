@@ -63,7 +63,7 @@ const targetLinePlugin: Plugin<"bar"> = {
       chartArea.right - textWidth - 12,
       targetPixel - 12,
       textWidth + 8,
-      16
+      16,
     );
 
     ctx.fillStyle = isDarkMode ? "#94a3b8" : "#1890ff";
@@ -81,7 +81,7 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  targetLinePlugin
+  targetLinePlugin,
 );
 
 export type TimesheetMode = "today" | "week" | "month" | "year";
@@ -140,15 +140,18 @@ function filterDataByMode(data: any[], mode: TimesheetMode) {
 }
 
 function aggregateHoursByUser(data: any[]) {
-  return data.reduce((acc, item) => {
-    const user = getUserById(item.created_by);
-    const userName = user?.firstname
-      ? String(user.firstname)
-      : String(item.created_by);
-    const hours = Number(item.hours) || 0;
-    acc[userName] = (acc[userName] || 0) + hours;
-    return acc;
-  }, {} as Record<string, number>);
+  return data.reduce(
+    (acc, item) => {
+      const user = getUserById(item.created_by);
+      const userName = user?.firstname
+        ? String(user.firstname)
+        : String(item.created_by);
+      const hours = Number(item.hours) || 0;
+      acc[userName] = (acc[userName] || 0) + hours;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 }
 
 function getSafeColor(dataIndex: number): string {
@@ -178,11 +181,11 @@ export function GraphTimesheetModal({
 
   const userNames = useMemo(
     () => sortedEntries.map((entry) => entry.name),
-    [sortedEntries]
+    [sortedEntries],
   );
   const hours = useMemo(
     () => sortedEntries.map((entry) => entry.hours),
-    [sortedEntries]
+    [sortedEntries],
   );
 
   const modeLabel = modeLabelMap[mode] ?? modeLabelMap.week;
@@ -205,12 +208,12 @@ export function GraphTimesheetModal({
         },
       ],
     }),
-    [hours, userNames]
+    [hours, userNames],
   );
 
   const maxHours = useMemo(
     () => Math.max(0, ...hours.map((value) => Number(value ?? 0))),
-    [hours]
+    [hours],
   );
 
   const options: any = useMemo(
@@ -237,8 +240,8 @@ export function GraphTimesheetModal({
           borderWidth: 1,
           padding: 12,
           cornerRadius: 8,
-          titleFont: { family: "Inter, sans-serif", size: 13, weight: "600" },
-          bodyFont: { family: "Inter, sans-serif", size: 12 },
+          titleFont: { size: 13, weight: "600" },
+          bodyFont: { size: 12 },
           displayColors: true,
           boxPadding: 4,
           callbacks: {
@@ -256,7 +259,7 @@ export function GraphTimesheetModal({
           grid: { display: false },
           ticks: {
             color: isDarkMode ? "#94a3b8" : "#64748b",
-            font: { family: "Inter, sans-serif", size: 11 },
+            font: { size: 11 },
           },
           border: { display: false },
         },
@@ -269,14 +272,14 @@ export function GraphTimesheetModal({
           },
           ticks: {
             color: isDarkMode ? "#94a3b8" : "#64748b",
-            font: { family: "Inter, sans-serif", size: 11 },
+            font: { size: 11 },
             stepSize: 2,
           },
           border: { display: false },
         },
       },
     }),
-    [maxHours, isDarkMode]
+    [maxHours, isDarkMode],
   );
 
   const chartHeight = Math.max(400, userNames.length * 40);
