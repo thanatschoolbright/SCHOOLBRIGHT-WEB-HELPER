@@ -46,7 +46,7 @@ import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 
 import { CallAPI } from "@/stores/actions/call-cancel-sales";
-import { CallAPI as GET_SCHOOL_LIST } from "@/stores/actions/call-school-list";
+import { CallAPI as GET_SCHOOL_LIST } from "@/stores/actions/support/call-get-school-list-detail";
 import AiChatWidget, {
   type CancellationExtraction,
 } from "@components/ai-chat-widget";
@@ -55,6 +55,7 @@ import { AppDispatch, useAppSelector } from "@stores/store";
 import {
   CancelSalesState,
   ResponseSchoolList,
+  ResponseSchoolListWithMoreDetail,
   ResponseUserList,
 } from "@stores/type";
 
@@ -114,7 +115,9 @@ export default function Page() {
   const { Title, Text, Paragraph } = Typography;
 
   const cancelSalesState = useAppSelector((state) => state.callCancelSales);
-  const schoolListState = useAppSelector((state) => state.callSchoolList);
+  const schoolListState = useAppSelector(
+    (state) => state.callGetSchoolListDetail,
+  );
 
   const [userList, setUserList] = useState<DropdownOption[]>([]);
   const [lastCancellationLog, setLastCancellationLog] =
@@ -126,9 +129,7 @@ export default function Page() {
   const [currentStep, setCurrentStep] = useState(0);
   const skipUserFetchRef = useRef(false);
   const cachedUsersRef = useRef<ResponseUserList["draftValues"][]>([]);
-  const schoolListCacheRef = useRef<ResponseSchoolList["draftValues"] | null>(
-    null,
-  );
+  const schoolListCacheRef = useRef<any[] | null>(null);
   const matchedContextRef = useRef<CancellationLog["context"] | null>(null);
 
   const selectedSchoolId = Form.useWatch("SchoolID", form);
@@ -157,21 +158,14 @@ export default function Page() {
     value?.replace(/\s+/g, " ").trim() ?? "";
 
   const { schoolOptions, schoolRecords } = useMemo(() => {
-    const draft = schoolListState?.draftValues;
-    const list: ResponseSchoolList["draftValues"] = Array.isArray(draft?.data)
-      ? (draft?.data as ResponseSchoolList["draftValues"])
-      : Array.isArray(draft)
-        ? (draft as ResponseSchoolList["draftValues"])
-        : [];
+    const list: any[] = schoolListState?.response?.data?.data ?? [];
 
     return {
       schoolRecords: list,
-      schoolOptions: list.map(
-        (item: ResponseSchoolList["draftValues"][number]) => ({
-          label: `${item.SchoolName} (${item.SchoolID})`,
-          value: item.SchoolID,
-        }),
-      ),
+      schoolOptions: list.map((item: any) => ({
+        label: `${item.company_name} (${item.school_id})`,
+        value: String(item.school_id),
+      })),
     };
   }, [schoolListState?.draftValues]);
 
@@ -191,9 +185,8 @@ export default function Page() {
       return schoolListCacheRef.current;
     }
 
-    const response = await axios.get("/api/v1/school");
-    const records: ResponseSchoolList["draftValues"] =
-      response.data?.data ?? [];
+    const response = await axios.get("/api/v1/school/get-detail");
+    const records: any[] = response.data?.data?.data ?? [];
     schoolListCacheRef.current = records;
     return records;
   }, [schoolRecords]);
@@ -319,7 +312,7 @@ export default function Page() {
     if (!updatedValues.SchoolID) {
       const stepToast = toast.loading("ขั้นตอนที่ 1/3: กำลังค้นหาโรงเรียน...");
 
-      let records: ResponseSchoolList["draftValues"];
+      let records: any[];
       try {
         records = await fetchSchoolRecords();
       } catch (error) {
@@ -329,14 +322,15 @@ export default function Page() {
       const schoolMatch = (() => {
         if (info.schoolId) {
           return records.find(
-            (item) => String(item.SchoolID) === String(info.schoolId),
+            (item: any) => String(item.school_id) === String(info.schoolId),
           );
         }
 
         if (info.schoolName) {
           const normalizedTarget = normalizeText(info.schoolName);
           const direct = records.find(
-            (item) => normalizeText(item.SchoolName) === normalizedTarget,
+            (item: any) =>
+              normalizeText(item.company_name) === normalizedTarget,
           );
           if (direct) return direct;
         }
@@ -344,15 +338,16 @@ export default function Page() {
         if (info.schoolNameEN) {
           const normalizedTarget = normalizeText(info.schoolNameEN);
           const direct = records.find(
-            (item) => normalizeText(item.SchoolNameEN) === normalizedTarget,
+            (item: any) =>
+              normalizeText(item.SchoolNameEN) === normalizedTarget,
           );
           if (direct) return direct;
         }
 
         if (info.schoolName) {
           const normalizedTarget = normalizeText(info.schoolName);
-          return records.find((item) =>
-            normalizeText(item.SchoolName).includes(normalizedTarget),
+          return records.find((item: any) =>
+            normalizeText(item.company_name).includes(normalizedTarget),
           );
         }
 
@@ -364,7 +359,7 @@ export default function Page() {
         throw new Error("ไม่พบข้อมูลโรงเรียนจากการสนทนา");
       }
 
-      updatedValues.SchoolID = String(schoolMatch.SchoolID);
+      updatedValues.SchoolID = String(schoolMatch.school_id);
       skipUserFetchRef.current = true;
       form.setFieldsValue({ ...updatedValues });
       matchedContextRef.current = {
@@ -376,7 +371,7 @@ export default function Page() {
 
       toast.success(
         `ขั้นตอนที่ 1/3: พบโรงเรียน ${cleanSchoolLabel(
-          schoolMatch.SchoolName,
+          schoolMatch.company_name,
         )}`,
         { id: stepToast },
       );
