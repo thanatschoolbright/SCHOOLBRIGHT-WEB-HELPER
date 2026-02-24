@@ -785,7 +785,6 @@ const OvertimeManagementPage = () => {
 
   useEffect(() => {
     document.title = translate("overtime_page.title");
-    setIsRulesModalVisible(true);
     fetchUserSelectionList();
     fetchDescriptionSelectionList();
     fetchOvertimeRequestList({ page: 1 });
@@ -1026,7 +1025,7 @@ const FilterBarSection = ({
           style={{ color: themeToken.colorPrimary, fontSize: 18 }}
         />
         <Typography.Text strong style={{ fontSize: 16 }}>
-          ค้นหาและถรองข้อมูลเชิงลึก
+          ค้นหาและกรองข้อมูลเชิงลึก
         </Typography.Text>
       </Space>
 
