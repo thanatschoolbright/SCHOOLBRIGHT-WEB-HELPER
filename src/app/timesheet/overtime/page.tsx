@@ -190,7 +190,8 @@ const OvertimeManagementPage = () => {
   const [isAnalyticsModalVisible, setIsAnalyticsModalVisible] = useState(false);
   const [isRulesModalVisible, setIsRulesModalVisible] = useState(true);
 
-  const getCurrentUserIdLocal = useCallback(async (): Promise<string> => {
+  // ดึงข้อมูลรหัสผู้ดูแลระบบปัจจุบันจากสถานะการเข้าสู่ระบบหรือ Local Storage
+  const requestCurrentLocalUserID = useCallback(async (): Promise<string> => {
     try {
       const authenticationId =
         authenticationState?.response?.data?.user_data?.admin_id;
@@ -206,7 +207,8 @@ const OvertimeManagementPage = () => {
     return "system";
   }, [authenticationState]);
 
-  const handleGlobalError = useCallback(
+  // จัดการและแสดงข้อความแสดงข้อผิดพลาดของระบบผ่าน Modal
+  const processAndDisplaySystemError = useCallback(
     (error: any, errorTitle: string = "เกิดข้อผิดพลาด") => {
       console.error(error);
       antModal.error({
@@ -246,7 +248,8 @@ const OvertimeManagementPage = () => {
     };
   }, [overtimeDataSource, paginationState.total]);
 
-  const fetchUserSelectionList = useCallback(async () => {
+  // ดึงรายการผู้ใช้งานทั้งหมดสำหรับใช้ในตัวเลือก Select
+  const requestUserSelectionListData = useCallback(async () => {
     try {
       const apiResponse = await callApiService.get(
         "/api/v1/timesheet/overtime/users",
@@ -289,7 +292,8 @@ const OvertimeManagementPage = () => {
     }
   }, []);
 
-  const fetchDescriptionSelectionList = useCallback(async () => {
+  // ดึงรายการรายละเอียดงานล่าสุดเพื่อนำมาเป็นคำแนะนำในการกรอกข้อมูล
+  const requestDescriptionSelectionListData = useCallback(async () => {
     try {
       const requestParameters = {
         limit: 30,
@@ -329,7 +333,8 @@ const OvertimeManagementPage = () => {
     }
   }, [authenticationState]);
 
-  const fetchOvertimeRequestList = useCallback(
+  // ดึงข้อมูลรายการคำขอ OT พร้อมรองรับการกรองและแบ่งหน้า
+  const requestOvertimeRequestListData = useCallback(
     async (requestOptionsParameter?: {
       page?: number;
       pageSize?: number;
@@ -345,7 +350,7 @@ const OvertimeManagementPage = () => {
       try {
         setIsLoadingOvertimeData(true);
 
-        const currentAdminIdValue = await getCurrentUserIdLocal();
+        const currentAdminIdValue = await requestCurrentLocalUserID();
         const isBypassUserSettingValue =
           currentAdminIdValue === BYPASS_ADMIN_ID;
 
@@ -451,7 +456,7 @@ const OvertimeManagementPage = () => {
 
         return overtimeRecordsListContent;
       } catch (error) {
-        handleGlobalError(error, "เกิดข้อผิดพลาดในการโหลดข้อมูล");
+        processAndDisplaySystemError(error, "เกิดข้อผิดพลาดในการโหลดข้อมูล");
         return null;
       } finally {
         setIsLoadingOvertimeData(false);
@@ -462,15 +467,18 @@ const OvertimeManagementPage = () => {
       paginationState.pageSize,
       filterSelectedMonthValue,
       filterSearchTextValue,
-      getCurrentUserIdLocal,
-      handleGlobalError,
+      requestCurrentLocalUserID,
+      processAndDisplaySystemError,
     ],
   );
 
-  const createOvertimeSubmissionRecord = async (formSubmissionPayload: any) => {
+  // ส่งคำร้องขอสร้างรายการปฏิบัติงานล่วงเวลาใหม่ไปยังระบบ
+  const requestCreateOvertimeSubmission = async (
+    formSubmissionPayload: any,
+  ) => {
     try {
       setIsLoadingOvertimeData(true);
-      const currentOperatingUserToken = await getCurrentUserIdLocal();
+      const currentOperatingUserToken = await requestCurrentLocalUserID();
 
       const baseDateString = formSubmissionPayload.request_date
         ? dayjs(formSubmissionPayload.request_date).format("YYYY-MM-DD")
@@ -527,20 +535,21 @@ const OvertimeManagementPage = () => {
         apiResponseContentData?.message_th ?? "ไม่สามารถสร้างรายการได้",
       );
     } catch (error) {
-      handleGlobalError(error, "เกิดข้อผิดพลาดในการสร้างรายการ");
+      processAndDisplaySystemError(error, "เกิดข้อผิดพลาดในการสร้างรายการ");
       return null;
     } finally {
       setIsLoadingOvertimeData(false);
     }
   };
 
-  const deleteOvertimeSubmissionRecord = async (
+  // ส่งคำร้องขอเพื่อลบรายการปฏิบัติงานล่วงหน้าที่ระบุออกจากสถานทูตข้อมูล
+  const requestDeleteOvertimeSubmission = async (
     overtimeSubmissionIdentifier?: string | number,
   ) => {
     if (!overtimeSubmissionIdentifier) return;
     try {
       setIsLoadingOvertimeData(true);
-      const currentDeleterToken = await getCurrentUserIdLocal();
+      const currentDeleterToken = await requestCurrentLocalUserID();
       const apiResponseResultObject = await callApiService.post(
         `/api/v1/timesheet/overtime/delete?id=${overtimeSubmissionIdentifier}`,
         { deleted_by: String(currentDeleterToken) },
@@ -549,27 +558,28 @@ const OvertimeManagementPage = () => {
         antMessage.success(
           apiResponseResultObject.data.message_th ?? "ลบรายการสำเร็จ",
         );
-        await fetchOvertimeRequestList({ page: paginationState.current });
+        await requestOvertimeRequestListData({ page: paginationState.current });
         return apiResponseResultObject.data.data;
       }
       throw new Error(
         apiResponseResultObject?.data?.message_th ?? "ไม่สามารถลบรายการได้",
       );
     } catch (error) {
-      handleGlobalError(error, "เกิดข้อผิดพลาดในการลบข้อมูล");
+      processAndDisplaySystemError(error, "เกิดข้อผิดพลาดในการลบข้อมูล");
     } finally {
       setIsLoadingOvertimeData(false);
     }
   };
 
-  const approveOvertimeSubmissionRecord = async (
+  // ปรับเปลี่ยนสถานะของคำขอ OT (เช่น อนุมัติ หรือ ปฏิเสธ) สำหรับรายการที่ระบุ
+  const requestApproveOvertimeSubmission = async (
     overtimeSubmissionIdentifier?: string | number,
     targetStatusString: string = "approved",
   ) => {
     if (!overtimeSubmissionIdentifier) return;
     try {
       setIsLoadingOvertimeData(true);
-      const currentApproverToken = await getCurrentUserIdLocal();
+      const currentApproverToken = await requestCurrentLocalUserID();
       const apiResponseResultObject = await callApiService.post(
         `/api/v1/timesheet/overtime/change-status?id=${overtimeSubmissionIdentifier}`,
         {
@@ -581,20 +591,21 @@ const OvertimeManagementPage = () => {
         antMessage.success(
           apiResponseResultObject.data.message_th ?? "อนุมัติเรียบร้อยแล้ว",
         );
-        await fetchOvertimeRequestList({ page: paginationState.current });
+        await requestOvertimeRequestListData({ page: paginationState.current });
         return apiResponseResultObject.data.data;
       }
       throw new Error(
         apiResponseResultObject?.data?.message_th ?? "ไม่สามารถอนุมัติได้",
       );
     } catch (error) {
-      handleGlobalError(error, "เกิดข้อผิดพลาดในการอนุมัติ");
+      processAndDisplaySystemError(error, "เกิดข้อผิดพลาดในการอนุมัติ");
     } finally {
       setIsLoadingOvertimeData(false);
     }
   };
 
-  const sendOvertimeEmailToHRDepartment = async (
+  // ส่งอีเมลแจ้งเตือนไปยังแผนกบุคคล (HR) เพื่อพิจารณาคำขอ OT ที่ระบุ
+  const requestSendOvertimeMailToHR = async (
     overtimeSubmissionIdentifier?: string | number,
   ) => {
     if (!overtimeSubmissionIdentifier) return;
@@ -625,19 +636,20 @@ const OvertimeManagementPage = () => {
         apiResponseResultObject?.data?.message_th ?? "ไม่สามารถส่งอีเมลได้",
       );
     } catch (error) {
-      handleGlobalError(error, "เกิดข้อผิดพลาดขณะส่งอีเมล");
+      processAndDisplaySystemError(error, "เกิดข้อผิดพลาดขณะส่งอีเมล");
     } finally {
       setIsLoadingOvertimeData(false);
     }
   };
 
-  const batchApproveOvertimeSubmissionRecords = async (
+  // อนุมัติสถานะคำขอ OT จำนวนมากพร้อมกันในครั้งเดียว (Batch Update)
+  const requestBatchApproveOvertimeSubmissions = async (
     targetStatusString: string = "approved",
   ) => {
     if (selectedRowKeys.length === 0)
       return antMessage.error("กรุณาเลือกรายการ");
 
-    const currentUserTokenIdentifier = await getCurrentUserIdLocal();
+    const currentUserTokenIdentifier = await requestCurrentLocalUserID();
     if (currentUserTokenIdentifier !== BYPASS_ADMIN_ID)
       return antMessage.error("คุณไม่มีสิทธิ์ปรับสถานะ");
 
@@ -648,7 +660,7 @@ const OvertimeManagementPage = () => {
 
     for (const recordIdentifier of selectedRowKeys) {
       try {
-        const operatingApproverToken = await getCurrentUserIdLocal();
+        const operatingApproverToken = await requestCurrentLocalUserID();
         const apiResponseResultObject = await callApiService.post(
           `/api/v1/timesheet/overtime/change-status?id=${recordIdentifier}`,
           {
@@ -675,17 +687,18 @@ const OvertimeManagementPage = () => {
       antMessage.success(
         `สำเร็จ ${successfulOperationsCount} รายการ, ล้มเหลว ${failedOperationsCount} รายการ`,
       );
-      await fetchOvertimeRequestList({ page: paginationState.current });
+      await requestOvertimeRequestListData({ page: paginationState.current });
     }
     setSelectedRowKeys([]);
     setProcessedRecordItems(new Set());
   };
 
-  const batchSendOvertimeEmailToHRDepartment = async () => {
+  // ส่งอีเมลแจ้งเตือน HR สำหรับคำขอ OT หลายรายการพร้อมกัน (Batch Email)
+  const requestBatchSendOvertimeMailToHR = async () => {
     if (selectedRowKeys.length === 0)
       return antMessage.error("กรุณาเลือกรายการ");
 
-    const currentUserTokenIdentifier = await getCurrentUserIdLocal();
+    const currentUserTokenIdentifier = await requestCurrentLocalUserID();
     if (currentUserTokenIdentifier !== BYPASS_ADMIN_ID)
       return antMessage.error("คุณไม่มีสิทธิ์ส่งอีเมล");
 
@@ -728,7 +741,8 @@ const OvertimeManagementPage = () => {
     setProcessedRecordItems(new Set());
   };
 
-  const exportOvertimeDataReportFile = async (
+  // ประมวลผลและดาวน์โหลดไฟล์รายงาน OT ในรูปแบบ Excel ตามเงื่อนไขที่ระบุ
+  const requestExportOvertimeReportFile = async (
     selectedTargetDateTime?: dayjs.Dayjs,
   ) => {
     try {
@@ -736,7 +750,7 @@ const OvertimeManagementPage = () => {
       setExportStepCount(1);
       setIsExportOperationSuccess(false);
 
-      const currentAdminTokenIdentifier = await getCurrentUserIdLocal();
+      const currentAdminTokenIdentifier = await requestCurrentLocalUserID();
       const isBypassUserSettingEnabled =
         currentAdminTokenIdentifier === BYPASS_ADMIN_ID;
 
@@ -781,7 +795,7 @@ const OvertimeManagementPage = () => {
       setIsExportOperationSuccess(true);
       return true;
     } catch (error) {
-      handleGlobalError(error, "เกิดข้อผิดพลาดในการส่งออก");
+      processAndDisplaySystemError(error, "เกิดข้อผิดพลาดในการส่งออก");
       setExportStepCount(0);
       return false;
     } finally {
@@ -789,12 +803,13 @@ const OvertimeManagementPage = () => {
     }
   };
 
-  const fetchDetailedOvertimeRequestContent = async (
+  // ดึงรายละเอียดข้อมูลคำขอ OT ฉบับเต็มตามรหัส ID ที่ระบุ
+  const requestDetailedOvertimeContentByID = async (
     overtimeSubmissionIdentifier: string | number,
   ) => {
     try {
       setIsLoadingOvertimeData(true);
-      const apiResponseItemsListResult = await fetchOvertimeRequestList({
+      const apiResponseItemsListResult = await requestOvertimeRequestListData({
         overtimeId: overtimeSubmissionIdentifier,
       });
       if (apiResponseItemsListResult && apiResponseItemsListResult.length > 0) {
@@ -802,33 +817,35 @@ const OvertimeManagementPage = () => {
         setIsDetailModalVisible(true);
       }
     } catch (error) {
-      handleGlobalError(error, "ไม่สามารถดึงข้อมูลรายละเอียดได้");
+      processAndDisplaySystemError(error, "ไม่สามารถดึงข้อมูลรายละเอียดได้");
     } finally {
       setIsLoadingOvertimeData(false);
     }
   };
 
-  const handleOvertimeFormSubmissionAction = async (
+  // จัดการการส่งข้อมูลจากฟอร์มสร้างรายการคำขอ OT ใหม่และรีเซ็ตค่าสถานะ
+  const requestHandleCreateOvertimeFormSubmission = async (
     formSubmissionValues: any,
   ) => {
     try {
       const responseContentData =
-        await createOvertimeSubmissionRecord(formSubmissionValues);
+        await requestCreateOvertimeSubmission(formSubmissionValues);
       if (responseContentData) {
         setIsCreateModalVisible(false);
         overtimeForm.resetFields();
-        await fetchOvertimeRequestList();
+        await requestOvertimeRequestListData();
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  const handleTableGridChangeAction = (
+  // จัดการการเปลี่ยนแปลงสถานะของตารางข้อมูล เช่น การเปลี่ยนหน้า หรือการกรองข้อมูลแบบเรียลไทม์
+  const requestTablePaginationAndFilterDataChange = (
     paginationParametersSource: any,
     filtersDataValues?: any,
   ) => {
-    fetchOvertimeRequestList({
+    requestOvertimeRequestListData({
       page: paginationParametersSource.current,
       pageSize: paginationParametersSource.pageSize,
       filters: filtersDataValues,
@@ -837,19 +854,20 @@ const OvertimeManagementPage = () => {
 
   useEffect(() => {
     document.title = translate("overtime_page.title");
-    fetchUserSelectionList();
-    fetchDescriptionSelectionList();
-    fetchOvertimeRequestList({ page: 1 });
+    requestUserSelectionListData();
+    requestDescriptionSelectionListData();
+    requestOvertimeRequestListData({ page: 1 });
   }, [
     translate,
-    fetchUserSelectionList,
-    fetchDescriptionSelectionList,
-    fetchOvertimeRequestList,
+    requestUserSelectionListData,
+    requestDescriptionSelectionListData,
+    requestOvertimeRequestListData,
   ]);
 
   return (
     <DashboardLayout>
       <Flex vertical gap={40} style={{ paddingBottom: 60 }}>
+        {/* ส่วนหัวของหน้าจอ แสดงชื่อระบบและปุ่มหลักในการใช้งาน */}
         <HeaderBar
           icon={<TeamOutlined />}
           title="ระบบจัดการการทำงานล่วงเวลา (OT)"
@@ -881,6 +899,7 @@ const OvertimeManagementPage = () => {
           }
         />
 
+        {/* ส่วนแสดงข้อมูลสรุปทางสถิติในรูปแบบ Card */}
         <Row gutter={[24, 24]}>
           <Col xs={24} sm={12} lg={6}>
             <SummaryCard
@@ -953,6 +972,7 @@ const OvertimeManagementPage = () => {
           </Col>
         </Row>
 
+        {/* ส่วนของแถบเครื่องมือดักกรองข้อมูลและการค้นหา */}
         <FilterBarSection
           filterSearchTextValue={filterSearchTextValue}
           setFilterSearchTextValue={setFilterSearchTextValue}
@@ -960,11 +980,12 @@ const OvertimeManagementPage = () => {
           setFilterSelectedMonthValue={setFilterSelectedMonthValue}
           isLoadingOvertimeData={isLoadingOvertimeData}
           paginationState={paginationState}
-          onTableChange={handleTableGridChangeAction}
-          fetchOvertimeRequestList={fetchOvertimeRequestList}
+          onTableChange={requestTablePaginationAndFilterDataChange}
+          requestOvertimeRequestListData={requestOvertimeRequestListData}
           themeToken={themeToken}
         />
 
+        {/* ส่วนแสดงปุ่มดำเนินการกับรายการที่ถูกเลือกจำนวนมาก */}
         {selectedRowKeys.length > 0 && (
           <ActionBarSection
             selectedRowKeys={selectedRowKeys}
@@ -972,56 +993,60 @@ const OvertimeManagementPage = () => {
             setProcessedRecordItems={setProcessedRecordItems}
             isBatchProcessing={isBatchProcessing}
             setIsBatchStatusModalVisible={setIsBatchStatusModalVisible}
-            batchSendOvertimeEmailToHRDepartment={
-              batchSendOvertimeEmailToHRDepartment
-            }
+            requestBatchSendOvertimeMailToHR={requestBatchSendOvertimeMailToHR}
             navigationRouter={navigationRouter}
             setIsAnalyticsModalVisible={setIsAnalyticsModalVisible}
             themeToken={themeToken}
           />
         )}
 
+        {/* ส่วนแสดงตารางข้อมูลรายการคำขอ OT ทั้งหมด */}
+        {/* ส่วนแสดงตารางข้อมูลรายการคำขอ OT ทั้งหมด */}
         <OvertimeTableSection
           dataSource={overtimeDataSource}
           isLoadingOvertimeData={isLoadingOvertimeData}
           paginationState={paginationState}
           selectedRowKeys={selectedRowKeys}
           setSelectedRowKeys={setSelectedRowKeys}
-          onTableChange={handleTableGridChangeAction}
-          deleteOvertimeSubmissionRecord={deleteOvertimeSubmissionRecord}
-          approveOvertimeSubmissionRecord={approveOvertimeSubmissionRecord}
-          sendOvertimeEmailToHRDepartment={sendOvertimeEmailToHRDepartment}
-          fetchDetailedOvertimeRequestContent={
-            fetchDetailedOvertimeRequestContent
+          onTableChange={requestTablePaginationAndFilterDataChange}
+          requestDeleteOvertimeSubmission={requestDeleteOvertimeSubmission}
+          requestApproveOvertimeSubmission={requestApproveOvertimeSubmission}
+          requestSendOvertimeMailToHR={requestSendOvertimeMailToHR}
+          requestDetailedOvertimeContentByID={
+            requestDetailedOvertimeContentByID
           }
           navigationRouter={navigationRouter}
           themeToken={themeToken}
         />
 
+        {/* หน้าต่าง Modal สำหรับสร้างรายการคำขอ OT ใหม่ */}
         <CreateModalSection
           visible={isCreateModalVisible}
           setVisible={setIsCreateModalVisible}
           userOptions={userSelectionOptions}
-          descriptionOptions={descriptionSelectionOptions}
-          handleFormSubmit={handleOvertimeFormSubmissionAction}
+          requestCreateOvertimeSubmission={
+            requestHandleCreateOvertimeFormSubmission
+          }
           loading={isLoadingOvertimeData}
           form={overtimeForm}
           themeToken={themeToken}
         />
 
+        {/* หน้าต่าง Modal สำหรับเปลี่ยนสถานะรายการจำนวนมากพร้อมกัน */}
         <BatchStatusModalSection
           visible={isBatchStatusModalVisible}
           setVisible={setIsBatchStatusModalVisible}
           selectedRowKeys={selectedRowKeys}
           batchSelectedStatus={selectedBatchStatus}
           setBatchSelectedStatus={setSelectedBatchStatus}
-          batchApproveOvertimeSubmissionRecords={
-            batchApproveOvertimeSubmissionRecords
+          requestBatchApproveOvertimeSubmission={
+            requestBatchApproveOvertimeSubmissions
           }
           batchProcessing={isBatchProcessing}
           themeToken={themeToken}
         />
 
+        {/* หน้าต่าง Modal แสดงรายละเอียดข้อมูลของรายการที่เลือก */}
         <DetailModalSection
           visible={isDetailModalVisible}
           setVisible={setIsDetailModalVisible}
@@ -1029,6 +1054,7 @@ const OvertimeManagementPage = () => {
           themeToken={themeToken}
         />
 
+        {/* หน้าต่าง Modal สำหรับแสดงกราฟวิเคราะห์ข้อมูลทางสถิติ */}
         <AnalyticsModalSection
           visible={isAnalyticsModalVisible}
           setVisible={setIsAnalyticsModalVisible}
@@ -1036,16 +1062,18 @@ const OvertimeManagementPage = () => {
           themeToken={themeToken}
         />
 
+        {/* หน้าต่าง Modal แสดงกฎระเบียบและข้อบังคับในการปฏิบัติงาน OT */}
         <RulesModalSection
           visible={isRulesModalVisible}
           setVisible={setIsRulesModalVisible}
           themeToken={themeToken}
         />
 
+        {/* หน้าต่าง Modal สำหรับการส่งออกข้อมูลรายงานในรูปแบบไฟล์ */}
         <ExportModalSection
           visible={isExportModalVisible}
           setVisible={setIsExportModalVisible}
-          onExport={exportOvertimeDataReportFile}
+          onExport={requestExportOvertimeReportFile}
           loading={isLoadingOvertimeData}
           exportStepCount={exportStepCount}
           isExportOperationSuccess={isExportOperationSuccess}
@@ -1063,7 +1091,7 @@ const FilterBarSection = ({
   setFilterSelectedMonthValue,
   paginationState,
   onTableChange,
-  fetchOvertimeRequestList,
+  requestOvertimeRequestListData,
   isLoadingOvertimeData,
   themeToken,
 }: any) => (
@@ -1071,6 +1099,7 @@ const FilterBarSection = ({
     variant="borderless"
     style={{ borderRadius: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}
   >
+    {/* ส่วนการ์ดสำหรับกรองข้อมูลรายการ */}
     <Flex vertical gap={24}>
       <Space>
         <FilterOutlined
@@ -1097,7 +1126,8 @@ const FilterBarSection = ({
               value={filterSearchTextValue}
               onChange={(event) => setFilterSearchTextValue(event.target.value)}
               onKeyDown={(event) =>
-                event.key === "Enter" && fetchOvertimeRequestList({ page: 1 })
+                event.key === "Enter" &&
+                requestOvertimeRequestListData({ page: 1 })
               }
               style={{ height: 48, borderRadius: 12 }}
               allowClear
@@ -1151,7 +1181,7 @@ const FilterBarSection = ({
           onClick={() => {
             setFilterSelectedMonthValue(null);
             setFilterSearchTextValue("");
-            fetchOvertimeRequestList({ page: 1 });
+            requestOvertimeRequestListData({ page: 1 });
           }}
           style={{ borderRadius: 12, height: 48, paddingInline: 24 }}
         >
@@ -1161,7 +1191,7 @@ const FilterBarSection = ({
           type="primary"
           icon={<SearchOutlined />}
           loading={isLoadingOvertimeData}
-          onClick={() => fetchOvertimeRequestList({ page: 1 })}
+          onClick={() => requestOvertimeRequestListData({ page: 1 })}
           style={{
             borderRadius: 12,
             height: 48,
@@ -1182,7 +1212,7 @@ const ActionBarSection = ({
   setProcessedRecordItems,
   isBatchProcessing,
   setIsBatchStatusModalVisible,
-  batchSendOvertimeEmailToHRDepartment,
+  requestBatchSendOvertimeMailToHR,
   navigationRouter,
   setIsAnalyticsModalVisible,
   themeToken,
@@ -1195,6 +1225,7 @@ const ActionBarSection = ({
       boxShadow: "0 4px 15px rgba(0,0,0,0.02)",
     }}
   >
+    {/* ส่วนดำเนินการกับหลายรายการพร้อมกัน (Batch Action Bar) */}
     <Row gutter={[16, 24]} align="middle">
       <Col xs={24} lg={16}>
         <Space wrap size="large">
@@ -1255,7 +1286,7 @@ const ActionBarSection = ({
             danger
             icon={<MailOutlined />}
             loading={isBatchProcessing}
-            onClick={batchSendOvertimeEmailToHRDepartment}
+            onClick={requestBatchSendOvertimeMailToHR}
             style={{ borderRadius: 12, height: 44, background: "#fff" }}
           >
             ส่งอีเมลเข้า HR
@@ -1304,13 +1335,14 @@ const OvertimeTableSection = ({
   selectedRowKeys,
   setSelectedRowKeys,
   onTableChange,
-  deleteOvertimeSubmissionRecord,
-  approveOvertimeSubmissionRecord,
-  sendOvertimeEmailToHRDepartment,
-  fetchDetailedOvertimeRequestContent,
+  requestDeleteOvertimeSubmission,
+  requestApproveOvertimeSubmission,
+  requestSendOvertimeMailToHR,
+  requestDetailedOvertimeContentByID,
   navigationRouter,
   themeToken,
 }: any) => {
+  // การตั้งค่าคอลัมน์ของตารางรายการ OT
   const tableColumnsConfiguration = [
     {
       title: "รหัสอ้างอิง",
@@ -1465,7 +1497,7 @@ const OvertimeTableSection = ({
               icon={<SearchOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
-                fetchDetailedOvertimeRequestContent(recordContentData.id);
+                requestDetailedOvertimeContentByID(recordContentData.id);
               }}
               style={{ borderRadius: 8 }}
             />
@@ -1490,7 +1522,7 @@ const OvertimeTableSection = ({
               icon={<CheckCircleOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
-                approveOvertimeSubmissionRecord(recordContentData.id);
+                requestApproveOvertimeSubmission(recordContentData.id);
               }}
               style={{
                 background: themeToken.colorSuccess,
@@ -1505,7 +1537,7 @@ const OvertimeTableSection = ({
               icon={<MailOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
-                sendOvertimeEmailToHRDepartment(recordContentData.id);
+                requestSendOvertimeMailToHR(recordContentData.id);
               }}
               style={{ borderRadius: 8 }}
             />
@@ -1517,7 +1549,7 @@ const OvertimeTableSection = ({
               icon={<DeleteOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
-                deleteOvertimeSubmissionRecord(recordContentData.id);
+                requestDeleteOvertimeSubmission(recordContentData.id);
               }}
               style={{ borderRadius: 8 }}
             />
@@ -1537,6 +1569,7 @@ const OvertimeTableSection = ({
       }}
       styles={{ body: { padding: 0 } }}
     >
+      {/* ตารางแสดงผลรายการคำขอ OT พร้อมฟังก์ชันขยายแถว */}
       <Table
         loading={isLoadingOvertimeData}
         dataSource={dataSource}
@@ -1608,7 +1641,7 @@ const OvertimeTableSection = ({
           expandRowByClick: true,
         }}
         onRow={(record) => ({
-          onClick: () => fetchDetailedOvertimeRequestContent(record.id),
+          onClick: () => requestDetailedOvertimeContentByID(record.id),
         })}
         style={{ cursor: "pointer" }}
       />
@@ -1620,389 +1653,412 @@ const CreateModalSection = ({
   visible,
   setVisible,
   userOptions,
-  handleFormSubmit,
+  requestCreateOvertimeSubmission,
   loading,
   form,
   themeToken,
-}: any) => (
-  <Modal
-    title={
-      <Flex
-        align="center"
-        gap={12}
-        style={{
-          background: `linear-gradient(90deg, ${themeToken.colorPrimary}, ${themeToken.colorInfo})`,
-          padding: "24px",
-          margin: "-20px -24px 0",
-          borderRadius: "20px 20px 0 0",
-        }}
-      >
+}: any) => {
+  const handleSubmission = async (formValues: any) => {
+    await requestCreateOvertimeSubmission(formValues);
+    setVisible(false);
+  };
+
+  return (
+    <Modal
+      title={
         <Flex
           align="center"
-          justify="center"
+          gap={12}
           style={{
-            background: "rgba(255,255,255,0.2)",
-            width: 40,
-            height: 40,
-            borderRadius: 12,
+            background: `linear-gradient(90deg, ${themeToken.colorPrimary}, ${themeToken.colorInfo})`,
+            padding: "24px",
+            margin: "-20px -24px 0",
+            borderRadius: "20px 20px 0 0",
           }}
         >
-          <PlusOutlined style={{ color: "#fff", fontSize: 20 }} />
-        </Flex>
-        <Flex vertical>
-          <Typography.Text
-            strong
-            style={{ color: "#fff", fontSize: 18, lineHeight: 1.2 }}
+          {/* หน้าต่าง Modal สำหรับขั้นตอนการสร้างรายการคำขอ OT ใหม่ */}
+          <Flex
+            align="center"
+            justify="center"
+            style={{
+              background: "rgba(255,255,255,0.2)",
+              width: 40,
+              height: 40,
+              borderRadius: 12,
+            }}
           >
-            เพิ่มรายการคำขอ OT ใหม่
-          </Typography.Text>
-          <Typography.Text
-            style={{ color: "rgba(255,255,255,0.8)", fontSize: 12 }}
-          >
-            กรุณาระบุข้อมูลการทำงานให้ครบถ้วนเพื่อการพิจารณา
-          </Typography.Text>
+            <PlusOutlined style={{ color: "#fff", fontSize: 20 }} />
+          </Flex>
+          <Flex vertical>
+            <Typography.Text
+              strong
+              style={{ color: "#fff", fontSize: 18, lineHeight: 1.2 }}
+            >
+              เพิ่มรายการคำขอ OT ใหม่
+            </Typography.Text>
+            <Typography.Text
+              style={{ color: "rgba(255,255,255,0.8)", fontSize: 12 }}
+            >
+              กรุณาระบุข้อมูลการทำงานให้ครบถ้วนเพื่อการพิจารณา
+            </Typography.Text>
+          </Flex>
         </Flex>
-      </Flex>
-    }
-    open={visible}
-    onCancel={() => setVisible(false)}
-    footer={null}
-    width={760}
-    centered
-    style={{ borderRadius: 20, overflow: "hidden" }}
-  >
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={handleFormSubmit}
-      style={{ paddingTop: 32 }}
-      onValuesChange={(changedValues, allValues) => {
-        if (changedValues.descriptions) {
-          const updatedDescriptions = [...allValues.descriptions];
-          let updated = false;
+      }
+      open={visible}
+      onCancel={() => setVisible(false)}
+      footer={null}
+      width={760}
+      centered
+      style={{ borderRadius: 20, overflow: "hidden" }}
+    >
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmission}
+        style={{ paddingTop: 32 }}
+        onValuesChange={(changedValues, allValues) => {
+          // คำนวณจำนวนชั่วโมงทำงานอัตโนมัติจากผลต่างของเวลาเริ่มต้นและสิ้นสุด
+          if (changedValues.descriptions) {
+            const updatedDescriptions = [...allValues.descriptions];
+            let updated = false;
 
-          changedValues.descriptions.forEach((val: any, index: number) => {
-            if (val && (val.startDate || val.endDate)) {
-              const start = updatedDescriptions[index].startDate;
-              const end = updatedDescriptions[index].endDate;
-              if (start && end) {
-                const diffHours = dayjs(end).diff(dayjs(start), "hour", true);
-                const calcDuration = Math.max(0, diffHours).toFixed(1);
+            changedValues.descriptions.forEach((val: any, index: number) => {
+              if (val && (val.startDate || val.endDate)) {
+                const start = updatedDescriptions[index].startDate;
+                const end = updatedDescriptions[index].endDate;
+                if (start && end) {
+                  const diffHours = dayjs(end).diff(dayjs(start), "hour", true);
+                  const calcDuration = Math.max(0, diffHours).toFixed(1);
 
-                if (updatedDescriptions[index].duration !== calcDuration) {
-                  updatedDescriptions[index].duration = calcDuration;
-                  updated = true;
+                  if (updatedDescriptions[index].duration !== calcDuration) {
+                    updatedDescriptions[index].duration = calcDuration;
+                    updated = true;
+                  }
                 }
               }
-            }
-          });
+            });
 
-          if (updated) {
-            form.setFieldsValue({ descriptions: updatedDescriptions });
+            if (updated) {
+              form.setFieldsValue({ descriptions: updatedDescriptions });
+            }
           }
-        }
-      }}
-    >
-      <Row gutter={24}>
-        <Col xs={24} md={12}>
-          <Form.Item
-            name="request_date"
-            label={<Typography.Text strong>วันที่ปฏิบัติงาน</Typography.Text>}
-            initialValue={dayjs()}
-            rules={[{ required: true, message: "โปรดระบุวันที่" }]}
-          >
-            <DatePicker
-              style={{ width: "100%", height: 48, borderRadius: 12 }}
-              format="DD/MM/YYYY"
-              suffixIcon={<CalendarOutlined />}
-            />
-          </Form.Item>
-        </Col>
-        <Col xs={24} md={12}>
-          <Form.Item
-            name="assignee"
-            label={<Typography.Text strong>ผู้มอบหมายงาน</Typography.Text>}
-            rules={[{ required: true, message: "โปรดเลือกผู้มอบหมายงาน" }]}
-          >
-            <Select
-              options={userOptions}
-              showSearch
-              allowClear
-              placeholder="ระบุชื่อผู้มอบหมายงาน..."
-              optionFilterProp="label"
-              filterOption={(input, option) =>
-                (option?.label ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-              loading={loading}
-              style={{ height: 48 }}
-              dropdownStyle={{ borderRadius: 12 }}
-              notFoundContent={
-                loading ? (
-                  <Typography.Text type="secondary">
-                    กำลังโหลดข้อมูลพนักงาน...
-                  </Typography.Text>
-                ) : (
-                  <Typography.Text type="secondary">
-                    ไม่พบพนักงาน
-                  </Typography.Text>
-                )
-              }
-            />
-          </Form.Item>
-        </Col>
-      </Row>
-
-      <Row gutter={24}>
-        <Col xs={24} md={12}>
-          <Form.Item
-            name="overtime_type"
-            label={
-              <Typography.Text strong>ประเภทการทำงาน (OT)</Typography.Text>
-            }
-            rules={[{ required: true, message: "โปรดเลือกประเภท OT" }]}
-            initialValue="weekday"
-          >
-            <Select
-              options={[
-                { label: "OT วันทำงานปกติ (Weekday OT)", value: "weekday" },
-                { label: "OT วันหยุด (Holiday OT)", value: "holiday" },
-              ]}
-              style={{ height: 48 }}
-              dropdownStyle={{ borderRadius: 12 }}
-            />
-          </Form.Item>
-        </Col>
-      </Row>
-
-      <Divider orientation="left" style={{ marginBlock: 32 }}>
-        <Space>
-          <FileTextOutlined />{" "}
-          <Typography.Text strong>
-            รายละเอียดงานที่ได้รับมอบหมาย
-          </Typography.Text>
-        </Space>
-      </Divider>
-
-      <Form.List
-        name="descriptions"
-        initialValue={[
-          {
-            description: "",
-            duration: "1.0",
-            startDate: dayjs().hour(18).minute(0),
-            endDate: dayjs().hour(19).minute(0),
-          },
-        ]}
+        }}
       >
-        {(fields, { add, remove }) => {
-          const descriptions = form.getFieldValue("descriptions") || [];
-          const totalHours = descriptions.reduce(
-            (sumValue: number, currentItem: any) =>
-              sumValue + Number(currentItem?.duration || 0),
-            0,
-          );
+        <Row gutter={24}>
+          <Col xs={24} md={12}>
+            {/* ระบุวันที่ปฏิบัติงานจริง */}
+            <Form.Item
+              name="request_date"
+              label={<Typography.Text strong>วันที่ปฏิบัติงาน</Typography.Text>}
+              initialValue={dayjs()}
+              rules={[{ required: true, message: "โปรดระบุวันที่" }]}
+            >
+              <DatePicker
+                style={{ width: "100%", height: 48, borderRadius: 12 }}
+                format="DD/MM/YYYY"
+                suffixIcon={<CalendarOutlined />}
+              />
+            </Form.Item>
+          </Col>
+          <Col xs={24} md={12}>
+            {/* เลือกพนักงานที่เป็นผู้มอบหมายงาน */}
+            <Form.Item
+              name="assignee"
+              label={<Typography.Text strong>ผู้มอบหมายงาน</Typography.Text>}
+              rules={[{ required: true, message: "โปรดเลือกผู้มอบหมายงาน" }]}
+            >
+              <Select
+                options={userOptions}
+                showSearch
+                allowClear
+                placeholder="ระบุชื่อผู้มอบหมายงาน..."
+                optionFilterProp="label"
+                filterOption={(input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                loading={loading}
+                style={{ height: 48 }}
+                styles={{ popup: { root: { borderRadius: 12 } } }}
+                notFoundContent={
+                  loading ? (
+                    <Typography.Text type="secondary">
+                      กำลังโหลดข้อมูลพนักงาน...
+                    </Typography.Text>
+                  ) : (
+                    <Typography.Text type="secondary">
+                      ไม่พบพนักงาน
+                    </Typography.Text>
+                  )
+                }
+              />
+            </Form.Item>
+          </Col>
+        </Row>
 
-          return (
-            <Flex vertical gap={20}>
-              {fields.map((field) => (
-                <Card
-                  key={field.key}
-                  size="small"
-                  variant="borderless"
-                  style={{
-                    background: themeToken.colorFillQuaternary,
-                    borderRadius: 12,
-                  }}
-                >
-                  <Flex vertical gap={12}>
-                    <Row gutter={12}>
-                      <Col flex="auto">
-                        <Form.Item
-                          {...field}
-                          name={[field.name, "description"]}
-                          label={
-                            <Typography.Text strong style={{ fontSize: 12 }}>
-                              รายละเอียดภาระงาน
-                            </Typography.Text>
-                          }
-                          rules={[{ required: true, message: "ระบุเนื้องาน" }]}
-                          style={{ marginBottom: 0 }}
-                        >
-                          <Input
-                            placeholder="เช่น ตรวจสอบความถูกต้องของฐานข้อมูลรายชื่อ..."
-                            style={{ height: 44, borderRadius: 10 }}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col flex="none">
-                        <Button
-                          type="text"
-                          danger
-                          icon={<DeleteOutlined />}
-                          onClick={() => remove(field.name)}
-                          style={{ marginTop: 28 }}
-                        />
-                      </Col>
-                    </Row>
-                    <Row gutter={12}>
-                      <Col xs={24} md={8}>
-                        <Form.Item
-                          {...field}
-                          name={[field.name, "startDate"]}
-                          label={
-                            <Typography.Text style={{ fontSize: 12 }}>
-                              เริ่มกี่โมง?
-                            </Typography.Text>
-                          }
-                          rules={[{ required: true, message: "โปรดระบุเวลา" }]}
-                          style={{ marginBottom: 0 }}
-                        >
-                          <TimePicker
-                            format="HH:mm"
-                            style={{
-                              width: "100%",
-                              height: 38,
-                              borderRadius: 8,
-                            }}
-                            placeholder="เริ่ม"
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={8}>
-                        <Form.Item
-                          {...field}
-                          name={[field.name, "endDate"]}
-                          label={
-                            <Typography.Text style={{ fontSize: 12 }}>
-                              เสร็จกี่โมง?
-                            </Typography.Text>
-                          }
-                          rules={[{ required: true, message: "โปรดระบุเวลา" }]}
-                          style={{ marginBottom: 0 }}
-                        >
-                          <TimePicker
-                            format="HH:mm"
-                            style={{
-                              width: "100%",
-                              height: 38,
-                              borderRadius: 8,
-                            }}
-                            placeholder="จบ"
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={8}>
-                        <Form.Item
-                          {...field}
-                          name={[field.name, "duration"]}
-                          label={
-                            <Typography.Text style={{ fontSize: 12 }}>
-                              ชม. รวม (อัตโนมัติ)
-                            </Typography.Text>
-                          }
-                          rules={[{ required: true, message: "ระบุเวลา" }]}
-                          style={{ marginBottom: 0 }}
-                        >
-                          <Input
-                            type="number"
-                            step="0.5"
-                            suffix={
-                              <Typography.Text
-                                type="secondary"
-                                style={{ fontSize: 11 }}
-                              >
-                                ชม.
+        <Row gutter={24}>
+          <Col xs={24} md={12}>
+            {/* เลือกประเภทการทำ OT (วันปกติ หรือ วันหยุด) */}
+            <Form.Item
+              name="overtime_type"
+              label={
+                <Typography.Text strong>ประเภทการทำงาน (OT)</Typography.Text>
+              }
+              rules={[{ required: true, message: "โปรดเลือกประเภท OT" }]}
+              initialValue="weekday"
+            >
+              <Select
+                options={[
+                  { label: "OT วันทำงานปกติ (Weekday OT)", value: "weekday" },
+                  { label: "OT วันหยุด (Holiday OT)", value: "holiday" },
+                ]}
+                style={{ height: 48 }}
+                styles={{ popup: { root: { borderRadius: 12 } } }}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Divider orientation="left" style={{ marginBlock: 32 }}>
+          <Space>
+            <FileTextOutlined />{" "}
+            <Typography.Text strong>
+              รายละเอียดงานที่ได้รับมอบหมาย
+            </Typography.Text>
+          </Space>
+        </Divider>
+
+        {/* ส่วนจัดการรายการภาระงานที่ทำในคำขอนี้ */}
+        <Form.List
+          name="descriptions"
+          initialValue={[
+            {
+              description: "",
+              duration: "1.0",
+              startDate: dayjs().hour(18).minute(0),
+              endDate: dayjs().hour(19).minute(0),
+            },
+          ]}
+        >
+          {(fields, { add, remove }) => {
+            const descriptions = form.getFieldValue("descriptions") || [];
+            const totalHours = descriptions.reduce(
+              (sumValue: number, currentItem: any) =>
+                sumValue + Number(currentItem?.duration || 0),
+              0,
+            );
+
+            return (
+              <Flex vertical gap={20}>
+                {fields.map(({ key, ...fieldProps }) => (
+                  <Card
+                    key={key}
+                    size="small"
+                    variant="borderless"
+                    style={{
+                      background: themeToken.colorFillQuaternary,
+                      borderRadius: 12,
+                    }}
+                  >
+                    <Flex vertical gap={12}>
+                      <Row gutter={12}>
+                        <Col flex="auto">
+                          {/* บรรยายรายละเอียดเนื้องาน */}
+                          <Form.Item
+                            {...fieldProps}
+                            name={[fieldProps.name, "description"]}
+                            label={
+                              <Typography.Text strong style={{ fontSize: 12 }}>
+                                รายละเอียดภาระงาน
                               </Typography.Text>
                             }
-                            placeholder="0.0"
-                            style={{ height: 38, borderRadius: 8 }}
+                            rules={[
+                              { required: true, message: "ระบุเนื้องาน" },
+                            ]}
+                            style={{ marginBottom: 0 }}
+                          >
+                            <Input
+                              placeholder="เช่น ตรวจสอบความถูกต้องของฐานข้อมูลรายชื่อ..."
+                              style={{ height: 44, borderRadius: 10 }}
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col flex="none">
+                          <Button
+                            type="text"
+                            danger
+                            icon={<DeleteOutlined />}
+                            onClick={() => remove(fieldProps.name)}
+                            style={{ marginTop: 28 }}
                           />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </Flex>
-                </Card>
-              ))}
-              <Button
-                type="dashed"
-                onClick={() =>
-                  add({
-                    description: "",
-                    duration: "1.0",
-                    startDate: dayjs().hour(18).minute(0),
-                    endDate: dayjs().hour(19).minute(0),
-                  })
-                }
-                icon={<PlusOutlined />}
-                block
-                style={{
-                  height: 48,
-                  borderRadius: 12,
-                  borderStyle: "dashed",
-                  borderWidth: 2,
-                }}
-              >
-                เพิ่มรายการภาระงานถัดไป
-              </Button>
-
-              <Flex
-                justify="flex-end"
-                align="center"
-                gap={12}
-                style={{
-                  padding: "16px 20px",
-                  background: themeToken.colorInfoBg,
-                  borderRadius: 12,
-                  marginTop: 8,
-                }}
-              >
-                <Typography.Text strong type="secondary">
-                  รวมชั่วโมง OT ทั้งหมดในคำขอนี้:
-                </Typography.Text>
-                <Tag
-                  color="blue"
+                        </Col>
+                      </Row>
+                      <Row gutter={12}>
+                        <Col xs={24} md={8}>
+                          {/* ช่วงวลาที่เริ่มทำภาระงาน */}
+                          <Form.Item
+                            {...fieldProps}
+                            name={[fieldProps.name, "startDate"]}
+                            label={
+                              <Typography.Text style={{ fontSize: 12 }}>
+                                เริ่มกี่โมง?
+                              </Typography.Text>
+                            }
+                            rules={[
+                              { required: true, message: "โปรดระบุเวลา" },
+                            ]}
+                            style={{ marginBottom: 0 }}
+                          >
+                            <TimePicker
+                              format="HH:mm"
+                              style={{
+                                width: "100%",
+                                height: 38,
+                                borderRadius: 8,
+                              }}
+                              placeholder="เริ่ม"
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col xs={24} md={8}>
+                          {/* ช่วงเวลาที่สิ้นสุดภาระงาน */}
+                          <Form.Item
+                            {...fieldProps}
+                            name={[fieldProps.name, "endDate"]}
+                            label={
+                              <Typography.Text style={{ fontSize: 12 }}>
+                                เสร็จกี่โมง?
+                              </Typography.Text>
+                            }
+                            rules={[
+                              { required: true, message: "โปรดระบุเวลา" },
+                            ]}
+                            style={{ marginBottom: 0 }}
+                          >
+                            <TimePicker
+                              format="HH:mm"
+                              style={{
+                                width: "100%",
+                                height: 38,
+                                borderRadius: 8,
+                              }}
+                              placeholder="จบ"
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col xs={24} md={8}>
+                          {/* จำนวนชั่วโมงการทำงานรวม */}
+                          <Form.Item
+                            {...fieldProps}
+                            name={[fieldProps.name, "duration"]}
+                            label={
+                              <Typography.Text style={{ fontSize: 12 }}>
+                                ชม. รวม (อัตโนมัติ)
+                              </Typography.Text>
+                            }
+                            rules={[{ required: true, message: "ระบุเวลา" }]}
+                            style={{ marginBottom: 0 }}
+                          >
+                            <Input
+                              type="number"
+                              step="0.5"
+                              suffix={
+                                <Typography.Text
+                                  type="secondary"
+                                  style={{ fontSize: 11 }}
+                                >
+                                  ชม.
+                                </Typography.Text>
+                              }
+                              placeholder="0.0"
+                              style={{ height: 38, borderRadius: 8 }}
+                            />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                    </Flex>
+                  </Card>
+                ))}
+                <Button
+                  type="dashed"
+                  onClick={() =>
+                    add({
+                      description: "",
+                      duration: "1.0",
+                      startDate: dayjs().hour(18).minute(0),
+                      endDate: dayjs().hour(19).minute(0),
+                    })
+                  }
+                  icon={<PlusOutlined />}
+                  block
                   style={{
-                    fontSize: 16,
-                    paddingInline: 16,
-                    paddingBlock: 4,
-                    borderRadius: 8,
-                    fontWeight: 700,
+                    height: 48,
+                    borderRadius: 12,
+                    borderStyle: "dashed",
+                    borderWidth: 2,
                   }}
                 >
-                  {totalHours.toFixed(1)} ชั่วโมง
-                </Tag>
-              </Flex>
-            </Flex>
-          );
-        }}
-      </Form.List>
+                  เพิ่มรายการภาระงานถัดไป
+                </Button>
 
-      <Flex justify="flex-end" gap={16} style={{ marginTop: 48 }}>
-        <Button
-          onClick={() => setVisible(false)}
-          style={{ borderRadius: 12, height: 48, paddingInline: 32 }}
-        >
-          ยกเลิกคำขอ
-        </Button>
-        <Button
-          type="primary"
-          htmlType="submit"
-          loading={loading}
-          style={{
-            borderRadius: 12,
-            height: 48,
-            paddingInline: 48,
-            fontWeight: 600,
+                <Flex
+                  justify="flex-end"
+                  align="center"
+                  gap={12}
+                  style={{
+                    padding: "16px 20px",
+                    background: themeToken.colorInfoBg,
+                    borderRadius: 12,
+                    marginTop: 8,
+                  }}
+                >
+                  <Typography.Text strong type="secondary">
+                    รวมชั่วโมง OT ทั้งหมดในคำขอนี้:
+                  </Typography.Text>
+                  <Tag
+                    color="blue"
+                    style={{
+                      fontSize: 16,
+                      paddingInline: 16,
+                      paddingBlock: 4,
+                      borderRadius: 8,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {totalHours.toFixed(1)} ชั่วโมง
+                  </Tag>
+                </Flex>
+              </Flex>
+            );
           }}
-        >
-          ส่งคำขออนุมัติ
-        </Button>
-      </Flex>
-    </Form>
-  </Modal>
-);
+        </Form.List>
+
+        <Flex justify="flex-end" gap={16} style={{ marginTop: 48 }}>
+          <Button
+            onClick={() => setVisible(false)}
+            style={{ borderRadius: 12, height: 48, paddingInline: 32 }}
+          >
+            ยกเลิกคำขอ
+          </Button>
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+            style={{
+              borderRadius: 12,
+              height: 48,
+              paddingInline: 48,
+              fontWeight: 600,
+            }}
+          >
+            ส่งคำขออนุมัติ
+          </Button>
+        </Flex>
+      </Form>
+    </Modal>
+  );
+};
 
 const BatchStatusModalSection = ({
   visible,
@@ -2010,7 +2066,7 @@ const BatchStatusModalSection = ({
   selectedRowKeys,
   batchSelectedStatus,
   setBatchSelectedStatus,
-  batchApproveOvertimeSubmissionRecords,
+  requestBatchApproveOvertimeSubmission,
   batchProcessing,
   themeToken,
 }: any) => (
@@ -2024,7 +2080,7 @@ const BatchStatusModalSection = ({
     open={visible}
     onCancel={() => setVisible(false)}
     onOk={async () => {
-      await batchApproveOvertimeSubmissionRecords(batchSelectedStatus);
+      await requestBatchApproveOvertimeSubmission(batchSelectedStatus);
       setVisible(false);
     }}
     confirmLoading={batchProcessing}
@@ -2034,6 +2090,7 @@ const BatchStatusModalSection = ({
     width={500}
     style={{ borderRadius: 20, overflow: "hidden" }}
   >
+    {/* Modal สำหรับการเปลี่ยนสถานะแบบกลุ่มพร้อมกันหลายรายการ */}
     <Flex vertical gap={20} style={{ paddingBlock: 24 }}>
       <Flex
         style={{
@@ -2064,7 +2121,7 @@ const BatchStatusModalSection = ({
             value: item.value,
           }))}
           style={{ width: "100%", height: 48 }}
-          dropdownStyle={{ borderRadius: 12 }}
+          styles={{ popup: { root: { borderRadius: 12 } } }}
         />
       </Flex>
 
@@ -2094,6 +2151,7 @@ const DetailModalSection = ({
   selectedDetail,
   themeToken,
 }: any) => {
+  // คำนวณสรุปจำนวนชั่วโมงทำงานโดยรวมในคำขอที่ถูกเลือก
   const totalDurationSummaryValue = useMemo(() => {
     return (
       selectedDetail?.descriptions?.reduce(
@@ -2125,10 +2183,12 @@ const DetailModalSection = ({
       centered
       style={{ borderRadius: 20, overflow: "hidden" }}
     >
+      {/* หน้าต่าง Modal รายละเอียดภาระงานรายบุคคล */}
       {selectedDetail ? (
         <Flex vertical gap={32} style={{ paddingBlock: 24 }}>
           <Row gutter={24}>
             <Col span={12}>
+              {/* รายละเอียดรหัสอ้างอิงและวันที่ยื่นคำขอ */}
               <Card
                 title="ข้อมูลพื้นฐานการขอ"
                 variant="borderless"
@@ -2155,6 +2215,7 @@ const DetailModalSection = ({
               </Card>
             </Col>
             <Col span={12}>
+              {/* แสดงสถานะปัจจุบันของคำขอพร้อมระบุผู้ทำรายการ */}
               <Card
                 title="สถานะปัจจุบัน"
                 variant="borderless"
@@ -2208,6 +2269,7 @@ const DetailModalSection = ({
             </Col>
           </Row>
 
+          {/* รายการเนื้องานแต่ละรายการพร้อมจำนวนชั่วโมงปลีกย่อย */}
           <Card
             title={
               <Flex justify="space-between" align="center">
@@ -2281,6 +2343,7 @@ const AnalyticsModalSection = ({
   dataSource: OvertimeRecord[];
   themeToken: any;
 }) => {
+  // จัดเรียงข้อมูลเพื่อนำเสนอในรูปแบบกราฟวิเคราะห์ เพื่อดูแนวโน้มการทำ OT รายเดือน
   const chartConfigurationData = useMemo(() => {
     const hourlyDistribution: Record<string, number> = {};
     dataSource.forEach((record: OvertimeRecord) => {
@@ -2312,6 +2375,7 @@ const AnalyticsModalSection = ({
     };
   }, [dataSource, themeToken.colorPrimary]);
 
+  // จัดสรุปสถานะรายการทั้งหมดในรูปแบบร้อยละและจำนวนจริง เพื่อแสดงในกราฟวงกลม
   const pieChartConfiguration = useMemo(() => {
     const statusCounts: Record<string, number> = {
       pending: 0,
@@ -2355,11 +2419,13 @@ const AnalyticsModalSection = ({
       centered
       style={{ borderRadius: 24, overflow: "hidden" }}
     >
+      {/* หน้าต่าง Dashboard สำหรับการแสดงผลเชิงสถิติ (Data Visualization) */}
       <Flex vertical gap={32} style={{ paddingBlock: 32 }}>
         <Row gutter={[24, 24]}>
           <Col xs={24} lg={16}>
+            {/* ส่วนแสดงแนวโน้มชั่วโมงงานสะสมผ่านกราฟแท่ง */}
             <Card
-              title="ภาพรวมแนวโน้มภาระงานรายเดือน (ชั่วโมงสมสม)"
+              title="ภาพรวมแนวโน้มภาระงานรายเดือน (ชั่วโมงสะสม)"
               variant="borderless"
               style={{
                 background: themeToken.colorFillQuaternary,
@@ -2389,6 +2455,7 @@ const AnalyticsModalSection = ({
             </Card>
           </Col>
           <Col xs={24} lg={8}>
+            {/* ส่วนแสดงสัดส่วนสถานะงานผ่าน Doughnut Chart */}
             <Card
               title="สัดส่วนสถานะคำขอในระบบ"
               variant="borderless"
@@ -2458,6 +2525,7 @@ const RulesModalSection = ({ visible, setVisible, themeToken }: any) => (
     width={680}
     style={{ borderRadius: 24, overflow: "hidden" }}
   >
+    {/* Modal คู่มือและระเบียบการเบิกจ่ายค่าล่วงเวลา */}
     <Flex vertical align="center" gap={40} style={{ paddingBlock: 48 }}>
       <Flex style={{ position: "relative" }}>
         <Flex
@@ -2512,6 +2580,7 @@ const RulesModalSection = ({ visible, setVisible, themeToken }: any) => (
       </Flex>
 
       <Flex style={{ width: "100%", paddingInline: 40 }}>
+        {/* แสดงขั้นตอนสำคัญในการขอ OT */}
         <Timeline
           mode="left"
           items={[
@@ -2573,6 +2642,7 @@ const ExportModalSection = ({
     centered
     style={{ borderRadius: 24, overflow: "hidden" }}
   >
+    {/* หน้าต่าง Modal จัดการการดาวน์โหลดและส่งออกไฟล์รายงาน */}
     {isExportOperationSuccess ? (
       <Result
         status="success"
