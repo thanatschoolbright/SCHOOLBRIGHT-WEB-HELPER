@@ -173,20 +173,33 @@ export default function SidebarContent({
   };
 
   useEffect(() => {
-    if (collapsed) return;
-    const findActiveParent = (items: any[]): any | undefined => {
-      for (const menuItem of items) {
-        if (menuItem.href === currentPathname) return menuItem;
-        if (menuItem.children) {
-          const childItem = findActiveParent(menuItem.children);
-          if (childItem) return menuItem;
+    if (collapsed || !currentPathname) return;
+
+    const findPathKeys = (
+      items: any[],
+      targetHref: string,
+    ): string[] | null => {
+      for (const item of items) {
+        const itemKey = item.href || item.label;
+        if (item.href === targetHref) {
+          return [itemKey];
+        }
+        if (item.children) {
+          const path = findPathKeys(item.children, targetHref);
+          if (path) {
+            return [itemKey, ...path];
+          }
         }
       }
-      return undefined;
+      return null;
     };
-    const activeParent = findActiveParent(sidebarMenu);
-    if (activeParent) {
-      setOpenKeys((prev) => Array.from(new Set([...prev, activeParent.label])));
+
+    const pathKeys = findPathKeys(sidebarMenu, currentPathname);
+    if (pathKeys) {
+      const newOpenKeys = pathKeys.slice(0, -1);
+      if (newOpenKeys.length > 0) {
+        setOpenKeys((prev) => Array.from(new Set([...prev, ...newOpenKeys])));
+      }
     }
   }, [sidebarMenu, currentPathname, collapsed]);
 
@@ -214,7 +227,7 @@ export default function SidebarContent({
 
   const mapMenuItems = (menuItem: any): MenuItem => {
     const { label, icon, href, children, tag } = menuItem;
-    const parentKey = href || label;
+    const itemKey = href || label;
 
     const level1Style: React.CSSProperties = {
       fontWeight: 800,
@@ -249,13 +262,15 @@ export default function SidebarContent({
       );
 
     return {
-      key: parentKey,
+      key: itemKey,
       icon,
       label: displayLabel,
       children: children?.map((childItem: any) => {
+        const childKey = childItem.href || childItem.label;
+
         if (childItem.children) {
           return {
-            key: childItem.label || childItem.href,
+            key: childKey,
             icon: childItem.icon,
             label: getChildLabel(childItem, 2),
             children: childItem.children.map((subItem: any) => ({
@@ -266,7 +281,7 @@ export default function SidebarContent({
           };
         }
         return {
-          key: childItem.href || childItem.label,
+          key: childKey,
           icon: childItem.icon,
           label: getChildLabel(childItem, 2),
         };

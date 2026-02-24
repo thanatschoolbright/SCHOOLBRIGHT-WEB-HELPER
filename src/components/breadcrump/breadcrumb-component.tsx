@@ -5,12 +5,13 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 import { useSidebarMenu } from "@/constants/sidebar-menu-constant";
 
 interface BreadcrumbItem {
   title: string;
-  href: string;
+  href?: string;
 }
 
 interface MenuItem {
@@ -31,50 +32,78 @@ interface BreadcrumbComponentProps {
 export default function BreadcrumbComponent({
   loading = false,
   showHome = true,
-}) {
+}: BreadcrumbComponentProps) {
   const pathname = usePathname();
   const menu = useSidebarMenu();
+  const { t } = useTranslation();
 
   //** ค้นหา breadcrumb items จาก path ปัจจุบัน */
   const breadcrumbItems = useMemo(() => {
-    const segments = pathname.split("/").filter(Boolean);
-    const items: BreadcrumbItem[] = [];
-    let accumulatedPath = "";
-
-    //** ฟังก์ชันค้นหา label จาก menu items */
-    const findLabel = (path: string, menuItems: MenuItem[]): string | null => {
-      for (const item of menuItems) {
-        if (item.href && path === item.href) {
-          return item.label;
+    //** ฟังก์ชันค้นหาเส้นทาง breadcrumb จาก menu items */
+    const findPath = (
+      items: MenuItem[],
+      targetPath: string,
+    ): BreadcrumbItem[] | null => {
+      for (const item of items) {
+        if (item.href === targetPath) {
+          return [{ title: item.label, href: item.href }];
         }
         if (item.children) {
-          const label = findLabel(path, item.children);
-          if (label) return label;
+          const path = findPath(item.children, targetPath);
+          if (path) {
+            return [{ title: item.label, href: item.href }, ...path];
+          }
         }
       }
       return null;
     };
 
-    //** เพิ่มหน้าแรกหากต้องการ */
-    if (showHome && pathname !== "/") {
-      items.push({ title: "หน้าแรก", href: "/" });
-    }
+    let items: BreadcrumbItem[] = findPath(menu, pathname) || [];
 
-    //** สร้าง breadcrumb จาก segments */
-    for (const segment of segments) {
-      accumulatedPath += `/${segment}`;
-      const label = findLabel(accumulatedPath, menu);
+    //** ถ้าไม่พบในเมนู (เช่น หน้า detail) ให้ใช้ fallback logic แบบเดิม */
+    if (items.length === 0) {
+      const segments = pathname.split("/").filter(Boolean);
+      let accumulatedPath = "";
 
-      if (label) {
+      const findLabel = (
+        path: string,
+        menuItems: MenuItem[],
+      ): string | null => {
+        for (const item of menuItems) {
+          if (item.href && path === item.href) return item.label;
+          if (item.children) {
+            const label = findLabel(path, item.children);
+            if (label) return label;
+          }
+        }
+        return null;
+      };
+
+      for (const segment of segments) {
+        accumulatedPath += `/${segment}`;
+        const label = findLabel(accumulatedPath, menu);
+
+        // ถ้าไม่เจอ label ในเมนู ให้ใช้ชื่อ segment แทน (Capitalized)
         items.push({
-          title: label,
+          title:
+            label ||
+            segment.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
           href: accumulatedPath,
         });
       }
     }
 
+    //** เพิ่มหน้าแรกถ้าไม่ใช่หน้าแรก */
+    if (
+      showHome &&
+      pathname !== "/" &&
+      !items.some((item) => item.href === "/")
+    ) {
+      items = [{ title: t("navbar.home"), href: "/" }, ...items];
+    }
+
     return items;
-  }, [pathname, menu, showHome]);
+  }, [pathname, menu, showHome, t]);
 
   //** แสดง Skeleton ขณะโหลด */
   if (loading) {
@@ -98,12 +127,13 @@ export default function BreadcrumbComponent({
   const antBreadcrumbItems = breadcrumbItems.map((item, index) => {
     const isLast = index === breadcrumbItems.length - 1;
 
+    // ถ้าไม่มี href หรือเป็นตัวสุดท้าย ไม่ต้องทำ link
+    const shouldLink = !isLast && item.href;
+
     return {
-      title: isLast ? (
-        <span style={{ fontWeight: 600 }}>{item.title}</span>
-      ) : (
+      title: shouldLink ? (
         <Link
-          href={item.href}
+          href={item.href as string}
           style={{
             color: "inherit",
             textDecoration: "none",
@@ -112,6 +142,10 @@ export default function BreadcrumbComponent({
         >
           {item.title}
         </Link>
+      ) : (
+        <span style={isLast ? { fontWeight: 600 } : undefined}>
+          {item.title}
+        </span>
       ),
     };
   });
