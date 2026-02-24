@@ -247,25 +247,44 @@ const OvertimeManagementPage = () => {
 
   const fetchUserSelectionList = useCallback(async () => {
     try {
-      const userList = (await getUserData()) as UserProfile[] | null;
-      if (!userList || !Array.isArray(userList)) {
+      const apiResponse = await callApiService.get(
+        "/api/v1/timesheet/overtime/users",
+      );
+
+      const responseData = apiResponse?.data;
+      if (!responseData || responseData.status !== 200) {
         setUserSelectionOptions([]);
         return;
       }
-      const selectionOptions = userList.map((user: UserProfile) => {
+
+      const userList = Array.isArray(responseData.data)
+        ? responseData.data
+        : [];
+
+      if (!userList || userList.length === 0) {
+        setUserSelectionOptions([]);
+        return;
+      }
+
+      const selectionOptions = userList.map((user: any) => {
         const nicknameValue = user.nickname ? `(${user.nickname})` : "";
         const employeeCodeValue = user.employee_code
           ? `(${user.employee_code})`
           : "";
+        const firstName = user.firstname || user.firstname_th || "";
+        const lastName = user.lastname || user.lastname_th || "";
+
         return {
           label:
-            `${user.firstname || user.firstname_th} ${user.lastname || user.lastname_th} ${nicknameValue} ${employeeCodeValue}`.trim(),
+            `${firstName} ${lastName} ${nicknameValue} ${employeeCodeValue}`.trim(),
           value: String(user.admin_id),
         };
       });
+
       setUserSelectionOptions(selectionOptions);
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching user selection list:", error);
+      setUserSelectionOptions([]);
     }
   }, []);
 
@@ -424,7 +443,9 @@ const OvertimeManagementPage = () => {
           pageSize:
             apiResponseDataContent.pagination?.page_size ??
             currentPageSizeValue,
-          total: filteredOvertimeItemsResultList.length,
+          total:
+            apiResponseDataContent.pagination?.total ??
+            filteredOvertimeItemsResultList.length,
         });
 
         return overtimeRecordsListContent;
@@ -451,6 +472,10 @@ const OvertimeManagementPage = () => {
       const currentOperatingUserToken = await getCurrentUserIdLocal();
       const submissionBodyPayload = {
         ...formSubmissionPayload,
+        descriptions: formSubmissionPayload.descriptions?.map((desc: any) => ({
+          ...desc,
+          assignee: String(formSubmissionPayload.assignee),
+        })),
         created_by: String(currentOperatingUserToken),
         requester_id: String(currentOperatingUserToken),
       };
@@ -1265,6 +1290,7 @@ const OvertimeTableSection = ({
       dataIndex: "id",
       key: "id",
       width: 120,
+      sorter: (a: any, b: any) => Number(a.id) - Number(b.id),
       render: (textValue: string) => (
         <Typography.Text strong style={{ color: themeToken.colorPrimary }}>
           #{textValue}
@@ -1275,6 +1301,21 @@ const OvertimeTableSection = ({
       title: "พนักงานผู้ยื่นคำขอ",
       key: "requester_data_source",
       width: 280,
+      sorter: (a: any, b: any) => {
+        const getName = (record: any) => {
+          const localUser = getUserById(record.requester_id);
+          const backendUser = record.requester_user;
+          const userObj = localUser || backendUser;
+          if (!userObj)
+            return String(
+              record.requester_name || record.requester_id || "",
+            ).toLowerCase();
+          return `${userObj.firstname || userObj.firstname_th || ""} ${userObj.lastname || userObj.lastname_th || ""}`
+            .trim()
+            .toLowerCase();
+        };
+        return getName(a).localeCompare(getName(b));
+      },
       render: (recordContentData: any) => {
         // Priority: local storage -> backend user -> direct name
         const localUser = getUserById(recordContentData.requester_id);
@@ -1332,6 +1373,8 @@ const OvertimeTableSection = ({
       title: "วันที่และเวลาทำงาน",
       dataIndex: "request_date",
       key: "request_date_display",
+      sorter: (a: any, b: any) =>
+        dayjs(a.request_date).unix() - dayjs(b.request_date).unix(),
       render: (dateStringValue: string, recordContentData: any) => {
         const totalDurationValue =
           recordContentData.descriptions?.reduce(
@@ -1344,7 +1387,7 @@ const OvertimeTableSection = ({
             <Space>
               <CalendarOutlined style={{ color: themeToken.colorPrimary }} />
               <Typography.Text>
-                {dayjs(dateStringValue).format("DD MMM BBBB")}
+                {dayjs(dateStringValue).format("DD/MM/YYYY")}
               </Typography.Text>
             </Space>
             <Tag
@@ -1361,6 +1404,8 @@ const OvertimeTableSection = ({
       title: "สถานะปัจจุบัน",
       dataIndex: "status",
       key: "status_badge",
+      sorter: (a: any, b: any) =>
+        (a.status || "").localeCompare(b.status || ""),
       render: (statusValueString: string) => {
         const statusConfigData = OT_STATUS.find(
           (item) => item.value === statusValueString,
@@ -1615,7 +1660,7 @@ const CreateModalSection = ({
           >
             <DatePicker
               style={{ width: "100%", height: 48, borderRadius: 12 }}
-              format="DD MMMM YYYY"
+              format="DD/MM/YYYY"
               suffixIcon={<CalendarOutlined />}
             />
           </Form.Item>
@@ -1624,16 +1669,35 @@ const CreateModalSection = ({
           <Form.Item
             name="assignee"
             label={
-              <Typography.Text strong>พนักงานผู้ปฏิบัติงาน</Typography.Text>
+              <Typography.Text strong>ผู้มอบหมายงาน</Typography.Text>
             }
-            rules={[{ required: true, message: "โปรดเลือกพนักงาน" }]}
+            rules={[{ required: true, message: "โปรดเลือกผู้มอบหมายงาน" }]}
           >
             <Select
               options={userOptions}
               showSearch
-              placeholder="ระบุชื่อหรือรหัสพนักงาน..."
+              allowClear
+              placeholder="ระบุชื่อผู้มอบหมายงาน..."
+              optionFilterProp="label"
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              loading={loading}
               style={{ height: 48 }}
               dropdownStyle={{ borderRadius: 12 }}
+              notFoundContent={
+                loading ? (
+                  <Typography.Text type="secondary">
+                    กำลังโหลดข้อมูลพนักงาน...
+                  </Typography.Text>
+                ) : (
+                  <Typography.Text type="secondary">
+                    ไม่พบพนักงาน
+                  </Typography.Text>
+                )
+              }
             />
           </Form.Item>
         </Col>
@@ -1881,7 +1945,7 @@ const DetailModalSection = ({
                     </Typography.Text>
                   </Descriptions.Item>
                   <Descriptions.Item label="วันที่ปฏิบัติงาน">
-                    {dayjs(selectedDetail.request_date).format("DD MMMM YYYY")}
+                    {dayjs(selectedDetail.request_date).format("DD/MM/YYYY")}
                   </Descriptions.Item>
                   <Descriptions.Item label="วันที่ประมวลผล">
                     {dayjs(selectedDetail.created_at).format(
@@ -1972,6 +2036,8 @@ const DetailModalSection = ({
                   title: "รายละเอียดภาระงานที่ได้รับมอบหมาย",
                   dataIndex: "description",
                   key: "desc",
+                  sorter: (a: any, b: any) =>
+                    (a.description || "").localeCompare(b.description || ""),
                   render: (text) => <Typography.Text>{text}</Typography.Text>,
                 },
                 {
@@ -1980,6 +2046,8 @@ const DetailModalSection = ({
                   key: "dur",
                   align: "center",
                   width: 100,
+                  sorter: (a: any, b: any) =>
+                    Number(a.duration || 0) - Number(b.duration || 0),
                   render: (value) => (
                     <Typography.Text
                       strong
