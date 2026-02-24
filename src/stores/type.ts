@@ -548,6 +548,7 @@ export interface UserProfile {
   username: string;
   admin_id: number;
   employee_code?: string;
+  position: string;
   firstname?: string;
   lastname?: string;
   firstname_th?: string;
