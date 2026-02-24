@@ -25,6 +25,7 @@ import {
   Tag,
   theme,
   Timeline,
+  TimePicker,
   Tooltip,
   Typography,
 } from "antd";
@@ -470,15 +471,41 @@ const OvertimeManagementPage = () => {
     try {
       setIsLoadingOvertimeData(true);
       const currentOperatingUserToken = await getCurrentUserIdLocal();
+
+      const baseDateString = formSubmissionPayload.request_date
+        ? dayjs(formSubmissionPayload.request_date).format("YYYY-MM-DD")
+        : dayjs().format("YYYY-MM-DD");
+
       const submissionBodyPayload = {
         ...formSubmissionPayload,
-        descriptions: formSubmissionPayload.descriptions?.map((desc: any) => ({
-          ...desc,
-          assignee: String(formSubmissionPayload.assignee),
-        })),
-        created_by: String(currentOperatingUserToken),
+        request_date: baseDateString,
+        descriptions: formSubmissionPayload.descriptions?.map((desc: any) => {
+          const start = dayjs(desc.startDate);
+          const end = dayjs(desc.endDate);
+          const base = dayjs(baseDateString);
+
+          const fullStart = base
+            .hour(start.hour())
+            .minute(start.minute())
+            .second(0);
+          const fullEnd = base.hour(end.hour()).minute(end.minute()).second(0);
+
+          return {
+            ...desc,
+            duration: Number(desc.duration || 0),
+            startDate: fullStart.toISOString(),
+            endDate: fullEnd.toISOString(),
+            assignee: String(formSubmissionPayload.assignee),
+          };
+        }),
+        created_by: Number(currentOperatingUserToken),
         requester_id: String(currentOperatingUserToken),
       };
+
+      // Clean up top-level fields that are now in descriptions or incorrectly placed
+      delete (submissionBodyPayload as any).assignee;
+      delete (submissionBodyPayload as any).start_time;
+      delete (submissionBodyPayload as any).end_time;
 
       const apiResponseResultObject = await callApiService.post(
         "/api/v1/timesheet/overtime/create",
@@ -1649,6 +1676,32 @@ const CreateModalSection = ({
       layout="vertical"
       onFinish={handleFormSubmit}
       style={{ paddingTop: 32 }}
+      onValuesChange={(changedValues, allValues) => {
+        if (changedValues.descriptions) {
+          const updatedDescriptions = [...allValues.descriptions];
+          let updated = false;
+
+          changedValues.descriptions.forEach((val: any, index: number) => {
+            if (val && (val.startDate || val.endDate)) {
+              const start = updatedDescriptions[index].startDate;
+              const end = updatedDescriptions[index].endDate;
+              if (start && end) {
+                const diffHours = dayjs(end).diff(dayjs(start), "hour", true);
+                const calcDuration = Math.max(0, diffHours).toFixed(1);
+
+                if (updatedDescriptions[index].duration !== calcDuration) {
+                  updatedDescriptions[index].duration = calcDuration;
+                  updated = true;
+                }
+              }
+            }
+          });
+
+          if (updated) {
+            form.setFieldsValue({ descriptions: updatedDescriptions });
+          }
+        }
+      }}
     >
       <Row gutter={24}>
         <Col xs={24} md={12}>
@@ -1668,9 +1721,7 @@ const CreateModalSection = ({
         <Col xs={24} md={12}>
           <Form.Item
             name="assignee"
-            label={
-              <Typography.Text strong>ผู้มอบหมายงาน</Typography.Text>
-            }
+            label={<Typography.Text strong>ผู้มอบหมายงาน</Typography.Text>}
             rules={[{ required: true, message: "โปรดเลือกผู้มอบหมายงาน" }]}
           >
             <Select
@@ -1703,6 +1754,28 @@ const CreateModalSection = ({
         </Col>
       </Row>
 
+      <Row gutter={24}>
+        <Col xs={24} md={12}>
+          <Form.Item
+            name="overtime_type"
+            label={
+              <Typography.Text strong>ประเภทการทำงาน (OT)</Typography.Text>
+            }
+            rules={[{ required: true, message: "โปรดเลือกประเภท OT" }]}
+            initialValue="weekday"
+          >
+            <Select
+              options={[
+                { label: "OT วันทำงานปกติ (Weekday OT)", value: "weekday" },
+                { label: "OT วันหยุด (Holiday OT)", value: "holiday" },
+              ]}
+              style={{ height: 48 }}
+              dropdownStyle={{ borderRadius: 12 }}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+
       <Divider orientation="left" style={{ marginBlock: 32 }}>
         <Space>
           <FileTextOutlined />{" "}
@@ -1714,70 +1787,196 @@ const CreateModalSection = ({
 
       <Form.List
         name="descriptions"
-        initialValue={[{ description: "", duration: "" }]}
+        initialValue={[
+          {
+            description: "",
+            duration: "1.0",
+            startDate: dayjs().hour(18).minute(0),
+            endDate: dayjs().hour(19).minute(0),
+          },
+        ]}
       >
-        {(fields, { add, remove }) => (
-          <Flex vertical gap={16}>
-            {fields.map((field) => (
-              <Row gutter={12} key={field.key} align="top">
-                <Col span={16}>
-                  <Form.Item
-                    {...field}
-                    name={[field.name, "description"]}
-                    rules={[{ required: true, message: "ระบุเนื้องาน" }]}
-                  >
-                    <Input
-                      placeholder="เช่น ตรวจสอบความถูกต้องของฐานข้อมูลรายชื่อ..."
-                      style={{ height: 48, borderRadius: 12 }}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item
-                    {...field}
-                    name={[field.name, "duration"]}
-                    rules={[{ required: true, message: "ระบุเวลา" }]}
-                  >
-                    <Input
-                      type="number"
-                      step="0.5"
-                      suffix={
-                        <Typography.Text type="secondary">ชม.</Typography.Text>
-                      }
-                      placeholder="0.0"
-                      style={{ height: 48, borderRadius: 12 }}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={2}>
-                  <Flex align="center" justify="center" style={{ height: 48 }}>
-                    <Button
-                      type="text"
-                      danger
-                      icon={<DeleteOutlined />}
-                      onClick={() => remove(field.name)}
-                      style={{ borderRadius: 8 }}
-                    />
+        {(fields, { add, remove }) => {
+          const descriptions = form.getFieldValue("descriptions") || [];
+          const totalHours = descriptions.reduce(
+            (sumValue: number, currentItem: any) =>
+              sumValue + Number(currentItem?.duration || 0),
+            0,
+          );
+
+          return (
+            <Flex vertical gap={20}>
+              {fields.map((field) => (
+                <Card
+                  key={field.key}
+                  size="small"
+                  variant="borderless"
+                  style={{
+                    background: themeToken.colorFillQuaternary,
+                    borderRadius: 12,
+                  }}
+                >
+                  <Flex vertical gap={12}>
+                    <Row gutter={12}>
+                      <Col flex="auto">
+                        <Form.Item
+                          {...field}
+                          name={[field.name, "description"]}
+                          label={
+                            <Typography.Text strong style={{ fontSize: 12 }}>
+                              รายละเอียดภาระงาน
+                            </Typography.Text>
+                          }
+                          rules={[{ required: true, message: "ระบุเนื้องาน" }]}
+                          style={{ marginBottom: 0 }}
+                        >
+                          <Input
+                            placeholder="เช่น ตรวจสอบความถูกต้องของฐานข้อมูลรายชื่อ..."
+                            style={{ height: 44, borderRadius: 10 }}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col flex="none">
+                        <Button
+                          type="text"
+                          danger
+                          icon={<DeleteOutlined />}
+                          onClick={() => remove(field.name)}
+                          style={{ marginTop: 28 }}
+                        />
+                      </Col>
+                    </Row>
+                    <Row gutter={12}>
+                      <Col xs={24} md={8}>
+                        <Form.Item
+                          {...field}
+                          name={[field.name, "startDate"]}
+                          label={
+                            <Typography.Text style={{ fontSize: 12 }}>
+                              เริ่มกี่โมง?
+                            </Typography.Text>
+                          }
+                          rules={[{ required: true, message: "โปรดระบุเวลา" }]}
+                          style={{ marginBottom: 0 }}
+                        >
+                          <TimePicker
+                            format="HH:mm"
+                            style={{
+                              width: "100%",
+                              height: 38,
+                              borderRadius: 8,
+                            }}
+                            placeholder="เริ่ม"
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={8}>
+                        <Form.Item
+                          {...field}
+                          name={[field.name, "endDate"]}
+                          label={
+                            <Typography.Text style={{ fontSize: 12 }}>
+                              เสร็จกี่โมง?
+                            </Typography.Text>
+                          }
+                          rules={[{ required: true, message: "โปรดระบุเวลา" }]}
+                          style={{ marginBottom: 0 }}
+                        >
+                          <TimePicker
+                            format="HH:mm"
+                            style={{
+                              width: "100%",
+                              height: 38,
+                              borderRadius: 8,
+                            }}
+                            placeholder="จบ"
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={8}>
+                        <Form.Item
+                          {...field}
+                          name={[field.name, "duration"]}
+                          label={
+                            <Typography.Text style={{ fontSize: 12 }}>
+                              ชม. รวม (อัตโนมัติ)
+                            </Typography.Text>
+                          }
+                          rules={[{ required: true, message: "ระบุเวลา" }]}
+                          style={{ marginBottom: 0 }}
+                        >
+                          <Input
+                            type="number"
+                            step="0.5"
+                            suffix={
+                              <Typography.Text
+                                type="secondary"
+                                style={{ fontSize: 11 }}
+                              >
+                                ชม.
+                              </Typography.Text>
+                            }
+                            placeholder="0.0"
+                            style={{ height: 38, borderRadius: 8 }}
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
                   </Flex>
-                </Col>
-              </Row>
-            ))}
-            <Button
-              type="dashed"
-              onClick={() => add()}
-              icon={<PlusOutlined />}
-              block
-              style={{
-                height: 48,
-                borderRadius: 12,
-                borderStyle: "dashed",
-                borderWidth: 2,
-              }}
-            >
-              เพิ่มรายการภาระงานถัดไป
-            </Button>
-          </Flex>
-        )}
+                </Card>
+              ))}
+              <Button
+                type="dashed"
+                onClick={() =>
+                  add({
+                    description: "",
+                    duration: "1.0",
+                    startDate: dayjs().hour(18).minute(0),
+                    endDate: dayjs().hour(19).minute(0),
+                  })
+                }
+                icon={<PlusOutlined />}
+                block
+                style={{
+                  height: 48,
+                  borderRadius: 12,
+                  borderStyle: "dashed",
+                  borderWidth: 2,
+                }}
+              >
+                เพิ่มรายการภาระงานถัดไป
+              </Button>
+
+              <Flex
+                justify="flex-end"
+                align="center"
+                gap={12}
+                style={{
+                  padding: "16px 20px",
+                  background: themeToken.colorInfoBg,
+                  borderRadius: 12,
+                  marginTop: 8,
+                }}
+              >
+                <Typography.Text strong type="secondary">
+                  รวมชั่วโมง OT ทั้งหมดในคำขอนี้:
+                </Typography.Text>
+                <Tag
+                  color="blue"
+                  style={{
+                    fontSize: 16,
+                    paddingInline: 16,
+                    paddingBlock: 4,
+                    borderRadius: 8,
+                    fontWeight: 700,
+                  }}
+                >
+                  {totalHours.toFixed(1)} ชั่วโมง
+                </Tag>
+              </Flex>
+            </Flex>
+          );
+        }}
       </Form.List>
 
       <Flex justify="flex-end" gap={16} style={{ marginTop: 48 }}>

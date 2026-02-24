@@ -1244,7 +1244,7 @@ export default function OTPreviewPage() {
     const nickname = u.nickname ? `(${u.nickname})` : "";
 
     const primaryName = thName || enName || u.username || String(u.admin_id);
-    return nickname ? `${primaryName} ${nickname}`.trim() : primaryName;
+    return nickname ? `${primaryName}`.trim() : primaryName;
   }, [data]);
 
   const employeeCode =
