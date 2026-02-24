@@ -170,7 +170,8 @@ export default function BypassPage(): JSX.Element {
                 {record.company_name}
               </Text>
               <Text type="secondary" style={{ fontSize: 11 }}>
-                Code: {record.school_code || "-"}
+                {translate("bypass_page.col_school_code")}:{" "}
+                {record.school_code || "-"}
               </Text>
             </Flex>
           </Flex>

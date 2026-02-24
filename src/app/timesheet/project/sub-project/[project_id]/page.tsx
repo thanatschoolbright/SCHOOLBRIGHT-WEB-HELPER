@@ -695,7 +695,7 @@ export default function SubProjectPage() {
 
   return (
     <DashboardLayout>
-      <div className="mx-auto p-2 md:p-6 space-y-6">
+      <div className="w-full p-2 md:p-6 space-y-6">
         {/* ส่วนที่ 1: หัวข้อหน้าเว็บ (Header Bar) */}
         <HeaderBar
           icon={<ProjectOutlined />}
