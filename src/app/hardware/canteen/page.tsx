@@ -499,7 +499,9 @@ export default function CanteenAppManager() {
     const validSchools = schoolOptions.filter((opt) => opt.value !== "");
     if (validSchools.length === 0) return;
 
-    let countToSelect = Math.round((rolloutPercent / 100) * validSchools.length);
+    let countToSelect = Math.round(
+      (rolloutPercent / 100) * validSchools.length,
+    );
 
     // ปรับให้มีอย่างน้อย 1 ถ้า % มากกว่า 0
     if (countToSelect === 0 && rolloutPercent > 0) {
@@ -508,12 +510,13 @@ export default function CanteenAppManager() {
 
     // สุ่มอาเรย์และเลือกตามจำนวน
     const shuffled = [...validSchools].sort(() => 0.5 - Math.random());
-    const selectedIds = shuffled.slice(0, countToSelect).map((opt) => opt.value);
+    const selectedIds = shuffled
+      .slice(0, countToSelect)
+      .map((opt) => opt.value);
 
     versionFormInstance.setFieldsValue({
       schoolID: selectedIds,
     });
-
   };
 
   // Event Handlers
