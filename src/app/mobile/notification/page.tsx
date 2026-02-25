@@ -34,8 +34,8 @@ import { CallAPI as GET_NOTIFICATION_WEEK_LIST } from "@stores/actions/mobile/ca
 import { CallAPI as GET_NOTIFICATION_MESSAGE } from "@stores/actions/mobile/call-get-read-notification";
 import { CallAPI as GET_USER_BY_SCHOOLID } from "@stores/actions/school/call-get-user";
 import { AppDispatch, useAppSelector } from "@stores/store";
-import type { InputRef, TabsProps } from "antd";
 import {
+  App,
   Button,
   Card,
   Col,
@@ -55,15 +55,18 @@ import {
   Tooltip,
   Typography,
 } from "antd";
+import type { InputRef, TabsProps } from "antd";
 import type { ColumnsType, ColumnType } from "antd/es/table";
 import dayjs from "dayjs";
 import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 
-const SEVEN_DAYS = "week";
-const TODAY = "today";
+const SEVEN_DAYS_KEY = "week";
+const TODAY_KEY = "today";
 
 type NotificationDataset = {
   data: ResponseNotification[];
@@ -84,36 +87,44 @@ type TableColumn = ColumnType<ResponseNotification> & {
   key: keyof ResponseNotification | string;
 };
 
-export default function Page() {
-  const dispatch = useDispatch<AppDispatch>();
+const NotificationPage = () => {
+  const router = useRouter();
+  const { data: session, status: sessionStatus, update } = useSession();
   const { token } = theme.useToken();
+  const { modal } = App.useApp();
+  const { user_id } = useParams();
+  const dispatch = useDispatch<AppDispatch>();
   const { Title, Text } = Typography;
 
-  const [form] = Form.useForm<{ schoolID: string; userID: string }>();
-  const [activeTab, setActiveTab] = useState<string>(TODAY);
-  const [currentStep, setCurrentStep] = useState(0); // New state for steps
-  const [todayDataset, setTodayDataset] = useState<NotificationDataset>({
-    data: [],
-    loading: false,
-  });
-  const [weekDataset, setWeekDataset] = useState<NotificationDataset>({
-    data: [],
-    loading: false,
-  });
-  const [detailModalVisible, setDetailModalVisible] = useState(false);
-  const [statusModal, setStatusModal] = useState<{
+  const [formInstance] = Form.useForm<{ schoolID: string; userID: string }>();
+  const [activeTabKey, setActiveTabKey] = useState<string>(TODAY_KEY);
+  const [currentFilterStep, setCurrentFilterStep] = useState(0);
+  const [todayNotificationDataset, setTodayNotificationDataset] =
+    useState<NotificationDataset>({
+      data: [],
+      loading: false,
+    });
+  const [weekNotificationDataset, setWeekNotificationDataset] =
+    useState<NotificationDataset>({
+      data: [],
+      loading: false,
+    });
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+  const [statusModalState, setStatusModalState] = useState<{
     open: boolean;
     type: "success" | "error" | "confirm" | "delete";
     title?: string;
     message?: string;
   }>({ open: false, type: "success" });
-  const [page, setPage] = useState<number>(1);
-  const [curlToday, setCurlToday] = useState<string>("");
-  const [curlWeek, setCurlWeek] = useState<string>("");
+  const [currentPageNumber, setCurrentPageNumber] = useState<number>(1);
+  const [curlTodayCommand, setCurlTodayCommand] = useState<string>("");
+  const [curlWeekCommand, setCurlWeekCommand] = useState<string>("");
 
-  const schoolState = useAppSelector((state) => state.callSchoolList);
-  const userState = useAppSelector((state) => state.callGetuserBySchoolId);
-  const notificationMessageState = useAppSelector(
+  const schoolListState = useAppSelector((state) => state.callSchoolList);
+  const userListBySchoolState = useAppSelector(
+    (state) => state.callGetuserBySchoolId,
+  );
+  const notificationMessageDetailState = useAppSelector(
     (state) => state.callGetNotificationMessage,
   );
 
@@ -121,121 +132,152 @@ export default function Page() {
     Partial<Record<SearchableColumnKey, InputRef | null>>
   >({});
 
-  const schoolOptions = useMemo(() => {
-    const rawData = schoolState?.response?.data;
-    const list = Array.isArray(rawData) ? rawData : rawData?.data;
+  const schoolListOptions = useMemo(() => {
+    const rawSchoolData = schoolListState?.response?.data;
+    const schoolListArray = Array.isArray(rawSchoolData)
+      ? rawSchoolData
+      : rawSchoolData?.data;
 
     return (
-      (Array.isArray(list) ? list : []).map((item: any) => ({
-        label: `${item.SchoolName} (${item.SchoolID})`,
-        value: String(item.SchoolID),
-      })) ?? []
-    );
-  }, [schoolState]);
-
-  const userOptions = useMemo(() => {
-    const rawData = userState?.response?.data;
-    const list = Array.isArray(rawData) ? rawData : rawData?.data;
-
-    return (
-      (Array.isArray(list) ? list : []).map(
-        (item: ResponseUserList["draftValues"]) => ({
-          label: `${item?.Name ?? ""} ${item?.LastName ?? ""} (ID: ${
-            item?.UserID
-          })`,
-          value: String(item?.UserID),
+      (Array.isArray(schoolListArray) ? schoolListArray : []).map(
+        (schoolItem: any) => ({
+          label: `${schoolItem.SchoolName} (${schoolItem.SchoolID})`,
+          value: String(schoolItem.SchoolID),
         }),
       ) ?? []
     );
-  }, [userState]);
+  }, [schoolListState]);
 
-  const overallLoading = Boolean(
-    schoolState.loading ||
-    userState.loading ||
-    todayDataset.loading ||
-    weekDataset.loading,
+  const userListOptions = useMemo(() => {
+    const rawUserData = userListBySchoolState?.response?.data;
+    const userListArray = Array.isArray(rawUserData)
+      ? rawUserData
+      : rawUserData?.data;
+
+    return (
+      (Array.isArray(userListArray) ? userListArray : []).map(
+        (userItem: ResponseUserList["draftValues"]) => ({
+          label: `${userItem?.Name ?? ""} ${userItem?.LastName ?? ""} (ID: ${
+            userItem?.UserID
+          })`,
+          value: String(userItem?.UserID),
+        }),
+      ) ?? []
+    );
+  }, [userListBySchoolState]);
+
+  const isOverallLoading = Boolean(
+    schoolListState.loading ||
+    userListBySchoolState.loading ||
+    todayNotificationDataset.loading ||
+    weekNotificationDataset.loading,
   );
 
-  const currentDataset =
-    activeTab === TODAY ? todayDataset.data : weekDataset.data;
+  const currentNotificationDataset =
+    activeTabKey === TODAY_KEY
+      ? todayNotificationDataset.data
+      : weekNotificationDataset.data;
 
-  // Calculate Summary Stats
-  const summaryStats = useMemo(() => {
-    const total = currentDataset.length;
-    const read = currentDataset.filter(
-      (item) => Number(item.nStatus) === 1,
+  const notificationSummaryStatistics = useMemo(() => {
+    const totalCount = currentNotificationDataset.length;
+    const readCount = currentNotificationDataset.filter(
+      (notificationRecord) => Number(notificationRecord.nStatus) === 1,
     ).length;
-    const unread = total - read;
-    return { total, read, unread };
-  }, [currentDataset]);
+    const unreadCount = totalCount - readCount;
+    return { totalCount, readCount, unreadCount };
+  }, [currentNotificationDataset]);
 
-  const fetchUsersBySchool = useCallback(
+  const fetchUsersBySchoolId = useCallback(
     async (schoolID?: string) => {
       if (!schoolID) return;
 
-      const loadingToast = toast.loading("กำลังโหลดรายชื่อผู้ใช้...");
+      const loadingToastId = toast.loading("กำลังโหลดรายชื่อผู้ใช้...");
       try {
         await dispatch(GET_USER_BY_SCHOOLID({ schoolId: schoolID })).unwrap();
-        toast.success("โหลดรายชื่อผู้ใช้สำเร็จ", { id: loadingToast });
-        setCurrentStep(1); // Move to next step
-      } catch (error: any) {
-        toast.error("ไม่สามารถโหลดรายชื่อผู้ใช้", { id: loadingToast });
+        toast.success("โหลดรายชื่อผู้ใช้สำเร็จ", { id: loadingToastId });
+        setCurrentFilterStep(1);
+      } catch (errorResponse: any) {
+        toast.error("ไม่สามารถโหลดรายชื่อผู้ใช้", { id: loadingToastId });
       }
     },
     [dispatch],
   );
 
-  const fetchNotifications = useCallback(
-    async (userID: string, pageParam = 1) => {
+  const fetchNotificationList = useCallback(
+    async (userID: string, pageParameter = 1) => {
       if (!userID) return;
 
-      const pageText = String(pageParam);
+      const pageText = String(pageParameter);
 
-      setTodayDataset((prev) => ({ ...prev, loading: true }));
-      setWeekDataset((prev) => ({ ...prev, loading: true }));
+      setTodayNotificationDataset((previousState) => ({
+        ...previousState,
+        loading: true,
+      }));
+      setWeekNotificationDataset((previousState) => ({
+        ...previousState,
+        loading: true,
+      }));
 
-      const loadingToast = toast.loading("กำลังโหลดข้อมูลแจ้งเตือน...");
+      const loadingToastId = toast.loading("กำลังโหลดข้อมูลแจ้งเตือน...");
 
       try {
-        const weekly = await dispatch(
+        const weeklyResponse = await dispatch(
           GET_NOTIFICATION_WEEK_LIST({ user_id: userID, page: pageText }),
         ).unwrap();
-        const today = await dispatch(
+        const todayResponse = await dispatch(
           GET_NOTIFICATION_TODAY_LIST({ user_id: userID, page: pageText }),
         ).unwrap();
 
-        const hasErrorStatus =
-          weekly?.raw?.Status === "Error" || today?.raw?.Status === "Error";
+        const hasApiErrorStatus =
+          weeklyResponse?.raw?.Status === "Error" ||
+          todayResponse?.raw?.Status === "Error";
 
-        if (hasErrorStatus) {
-          const curlToCopy = weekly?.curl ?? today?.curl ?? "";
+        if (hasApiErrorStatus) {
+          const curlCommandToCopy =
+            weeklyResponse?.curl ?? todayResponse?.curl ?? "";
           toast.error("เกิดข้อผิดพลาดในการดึงข้อมูลการแจ้งเตือน", {
-            id: loadingToast,
-            description: curlToCopy
+            id: loadingToastId,
+            description: curlCommandToCopy
               ? "คัดลอก CURL แล้วแจ้งทีมพัฒนา"
               : undefined,
-            action: curlToCopy
+            action: curlCommandToCopy
               ? {
                   label: "คัดลอก CURL",
-                  onClick: () => navigator.clipboard.writeText(curlToCopy),
+                  onClick: () =>
+                    navigator.clipboard.writeText(curlCommandToCopy),
                 }
               : undefined,
           });
         }
 
-        setWeekDataset({ data: weekly?.data ?? [], loading: false });
-        setTodayDataset({ data: today?.data ?? [], loading: false });
-        setCurlWeek(weekly?.curl ?? "");
-        setCurlToday(today?.curl ?? "");
-        if (!hasErrorStatus) {
-          toast.success("โหลดข้อมูลแจ้งเตือนสำเร็จ", { id: loadingToast });
-        }
-      } catch (error: any) {
-        setWeekDataset((prev) => ({ ...prev, loading: false }));
-        setTodayDataset((prev) => ({ ...prev, loading: false }));
-        toast.error(error?.message ?? "ไม่สามารถโหลดข้อมูลแจ้งเตือนได้", {
-          id: loadingToast,
+        setWeekNotificationDataset({
+          data: weeklyResponse?.data ?? [],
+          loading: false,
         });
+        setTodayNotificationDataset({
+          data: todayResponse?.data ?? [],
+          loading: false,
+        });
+        setCurlWeekCommand(weeklyResponse?.curl ?? "");
+        setCurlTodayCommand(todayResponse?.curl ?? "");
+        if (!hasApiErrorStatus) {
+          toast.success("โหลดข้อมูลแจ้งเตือนสำเร็จ", { id: loadingToastId });
+        }
+      } catch (errorResponse: any) {
+        setWeekNotificationDataset((previousState) => ({
+          ...previousState,
+          loading: false,
+        }));
+        setTodayNotificationDataset((previousState) => ({
+          ...previousState,
+          loading: false,
+        }));
+        toast.error(
+          errorResponse?.message ?? "ไม่สามารถโหลดข้อมูลแจ้งเตือนได้",
+          {
+            id: loadingToastId,
+          },
+        );
       }
     },
     [dispatch],
@@ -243,91 +285,90 @@ export default function Page() {
 
   const handleFormSubmit = useCallback(async () => {
     try {
-      const values = await form.validateFields();
-      setPage(1);
-      await fetchNotifications(values.userID, 1);
-    } catch (error) {
-      //
-    }
-  }, [fetchNotifications, form]);
+      const formValues = await formInstance.validateFields();
+      setCurrentPageNumber(1);
+      await fetchNotificationList(formValues.userID, 1);
+    } catch (errorResponse) {}
+  }, [fetchNotificationList, formInstance]);
 
-  /**
-   * ล้างตัวกรองและข้อมูล
-   */
   const handleClearForm = useCallback(() => {
-    form.resetFields();
-    setCurrentStep(0);
-    setTodayDataset({ data: [], loading: false });
-    setWeekDataset({ data: [], loading: false });
-    setCurlToday("");
-    setCurlWeek("");
+    formInstance.resetFields();
+    setCurrentFilterStep(0);
+    setTodayNotificationDataset({ data: [], loading: false });
+    setWeekNotificationDataset({ data: [], loading: false });
+    setCurlTodayCommand("");
+    setCurlWeekCommand("");
     toast.success("ล้างข้อมูลการค้นหาเรียบร้อยแล้ว");
-  }, [form]);
+  }, [formInstance]);
 
   const handlePageChange = useCallback(
-    async (nextPage: number) => {
-      const values = form.getFieldsValue();
-      if (!values?.userID) return;
-      setPage(nextPage);
-      await fetchNotifications(values.userID, nextPage);
+    async (nextPageNumber: number) => {
+      const formValues = formInstance.getFieldsValue();
+      if (!formValues?.userID) return;
+      setCurrentPageNumber(nextPageNumber);
+      await fetchNotificationList(formValues.userID, nextPageNumber);
     },
-    [fetchNotifications, form],
+    [fetchNotificationList, formInstance],
   );
 
-  const openDetailModal = useCallback(
-    async (notificationId: number) => {
-      const values = form.getFieldsValue();
-      if (!values?.userID) {
+  const handleOpenDetailModal = useCallback(
+    async (notificationMessageId: number) => {
+      const formValues = formInstance.getFieldsValue();
+      if (!formValues?.userID) {
         toast.warning("กรุณาเลือกผู้ใช้ก่อน");
         return;
       }
 
-      const loadingToast = toast.loading("กำลังโหลดรายละเอียดข้อความ...");
+      const loadingToastId = toast.loading("กำลังโหลดรายละเอียดข้อความ...");
       try {
         await dispatch(
           GET_NOTIFICATION_MESSAGE({
-            user_id: values.userID,
-            message_id: String(notificationId),
+            user_id: formValues.userID,
+            message_id: String(notificationMessageId),
           }),
         ).unwrap();
-        setDetailModalVisible(true);
-        toast.success("โหลดรายละเอียดสำเร็จ", { id: loadingToast });
-      } catch (error: any) {
-        toast.error(error?.message ?? "ไม่สามารถโหลดรายละเอียดได้", {
-          id: loadingToast,
+        setIsDetailModalVisible(true);
+        toast.success("โหลดรายละเอียดสำเร็จ", { id: loadingToastId });
+      } catch (errorResponse: any) {
+        toast.error(errorResponse?.message ?? "ไม่สามารถโหลดรายละเอียดได้", {
+          id: loadingToastId,
         });
       }
     },
-    [dispatch, form],
+    [dispatch, formInstance],
   );
 
   const getColumnSearchProps = useCallback(
-    (dataIndex: SearchableColumnKey, title: string): TableColumn => ({
-      key: dataIndex,
+    (dataFieldKey: SearchableColumnKey, columnTitle: string): TableColumn => ({
+      key: dataFieldKey,
       filterDropdown: ({
-        setSelectedKeys,
-        selectedKeys,
-        confirm,
-        clearFilters,
+        setSelectedKeys: setSelectedFilterKeys,
+        selectedKeys: selectedFilterKeys,
+        confirm: confirmFilter,
+        clearFilters: clearTableFilters,
       }) => {
-        const value = (selectedKeys[0] as string | undefined) ?? "";
+        const filterCellValue =
+          (selectedFilterKeys[0] as string | undefined) ?? "";
 
         return (
-          <div
+          <Flex
+            vertical
             style={{ padding: 12 }}
-            onKeyDown={(event) => event.stopPropagation()}
+            onKeyDown={(interactionEvent) => interactionEvent.stopPropagation()}
           >
             <Input
-              ref={(node) => {
-                searchInputRefs.current[dataIndex] = node;
+              ref={(inputNode) => {
+                searchInputRefs.current[dataFieldKey] = inputNode;
               }}
-              placeholder={`ค้นหา ${title}`}
-              value={value}
-              onChange={(event) => {
-                const { value: inputValue } = event.target;
-                setSelectedKeys(inputValue ? [inputValue] : []);
+              placeholder={`ค้นหา ${columnTitle}`}
+              value={filterCellValue}
+              onChange={(interactionEvent) => {
+                const { value: inputFilterValue } = interactionEvent.target;
+                setSelectedFilterKeys(
+                  inputFilterValue ? [inputFilterValue] : [],
+                );
               }}
-              onPressEnter={() => confirm()}
+              onPressEnter={() => confirmFilter()}
               style={{ marginBottom: 8, display: "block" }}
               suffix={<SearchOutlined style={{ color: "rgba(0,0,0,.45)" }} />}
             />
@@ -336,35 +377,42 @@ export default function Page() {
                 type="primary"
                 icon={<SearchOutlined />}
                 size="small"
-                onClick={() => confirm()}
+                onClick={() => confirmFilter()}
               >
                 ค้นหา
               </Button>
               <Button
                 size="small"
                 onClick={() => {
-                  clearFilters?.();
-                  confirm({ closeDropdown: true });
+                  clearTableFilters?.();
+                  confirmFilter({ closeDropdown: true });
                 }}
               >
                 รีเซ็ต
               </Button>
             </Space>
-          </div>
+          </Flex>
         );
       },
-      filterIcon: (filtered) => (
-        <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+      filterIcon: (isColumnFiltered) => (
+        <SearchOutlined
+          style={{ color: isColumnFiltered ? "#1677ff" : undefined }}
+        />
       ),
-      onFilter: (value, record) => {
-        const raw = record[dataIndex];
-        if (!raw) return false;
-        return String(raw).toLowerCase().includes(String(value).toLowerCase());
+      onFilter: (filterCellValue, notificationRecord) => {
+        const rawCellValue = notificationRecord[dataFieldKey];
+        if (!rawCellValue) return false;
+        return String(rawCellValue)
+          .toLowerCase()
+          .includes(String(filterCellValue).toLowerCase());
       },
       filterDropdownProps: {
-        onOpenChange: (visible) => {
-          if (visible) {
-            setTimeout(() => searchInputRefs.current[dataIndex]?.select(), 100);
+        onOpenChange: (isFilterVisible) => {
+          if (isFilterVisible) {
+            setTimeout(
+              () => searchInputRefs.current[dataFieldKey]?.select(),
+              100,
+            );
           }
         },
       },
@@ -372,12 +420,13 @@ export default function Page() {
     [],
   );
 
-  const columns = useMemo<ColumnsType<ResponseNotification>>(
+  const tableColumns = useMemo<ColumnsType<ResponseNotification>>(
     () => [
       {
         title: "ลำดับ",
         key: "index",
-        render: (_value, _record, index) => index + 1 + (page - 1) * 10,
+        render: (_textValue, _notificationRecord, indexNumber) =>
+          indexNumber + 1 + (currentPageNumber - 1) * 10,
         width: 70,
         align: "center",
         fixed: "left",
@@ -387,11 +436,12 @@ export default function Page() {
         dataIndex: "nMessageID",
         width: 120,
         align: "center",
-        sorter: (a, b) => Number(a.nMessageID) - Number(b.nMessageID),
+        sorter: (firstRecord, secondRecord) =>
+          Number(firstRecord.nMessageID) - Number(secondRecord.nMessageID),
         ...getColumnSearchProps("nMessageID", "รหัสข้อความ"),
-        render: (value) => (
+        render: (cellValue) => (
           <Typography.Text copyable style={{ fontFamily: "monospace" }}>
-            {value}
+            {cellValue}
           </Typography.Text>
         ),
       },
@@ -400,11 +450,13 @@ export default function Page() {
         dataIndex: "letter_id",
         width: 120,
         align: "center",
-        sorter: (a, b) => Number(a.letter_id || 0) - Number(b.letter_id || 0),
+        sorter: (firstRecord, secondRecord) =>
+          Number(firstRecord.letter_id || 0) -
+          Number(secondRecord.letter_id || 0),
         ...getColumnSearchProps("letter_id", "Letter ID"),
-        render: (value) => (
+        render: (cellValue) => (
           <Text type="secondary" style={{ fontFamily: "monospace" }}>
-            {value || "-"}
+            {cellValue || "-"}
           </Text>
         ),
       },
@@ -413,18 +465,22 @@ export default function Page() {
         dataIndex: "school_id",
         width: 100,
         align: "center",
-        sorter: (a, b) => Number(a.school_id || 0) - Number(b.school_id || 0),
+        sorter: (firstRecord, secondRecord) =>
+          Number(firstRecord.school_id || 0) -
+          Number(secondRecord.school_id || 0),
         ...getColumnSearchProps("school_id", "รหัสโรงเรียน"),
-        render: (value) => <Tag color="orange">{value || "-"}</Tag>,
+        render: (cellValue) => <Tag color="orange">{cellValue || "-"}</Tag>,
       },
       {
         title: "วันที่ส่ง",
         dataIndex: "dSend",
         width: 160,
-        sorter: (a, b) => dayjs(a.dSend).valueOf() - dayjs(b.dSend).valueOf(),
-        render: (value: string) => (
+        sorter: (firstRecord, secondRecord) =>
+          dayjs(firstRecord.dSend).valueOf() -
+          dayjs(secondRecord.dSend).valueOf(),
+        render: (cellValue: string) => (
           <Text style={{ fontSize: 13, whiteSpace: "nowrap" }}>
-            {convertTimeZoneToThai(new Date(value))}
+            {convertTimeZoneToThai(new Date(cellValue))}
           </Text>
         ),
       },
@@ -434,17 +490,19 @@ export default function Page() {
         key: "nType",
         width: 130,
         align: "center",
-        sorter: (a, b) => Number(a.nType) - Number(b.nType),
-        render: (value: number) => (
+        sorter: (firstRecord, secondRecord) =>
+          Number(firstRecord.nType) - Number(secondRecord.nType),
+        render: (cellValue: number) => (
           <Tag color="geekblue" style={{ margin: 0, borderRadius: 4 }}>
-            {getNotificationType(value)}
+            {getNotificationType(cellValue)}
           </Tag>
         ),
-        filters: [1, 2, 3, 5, 8].map((value) => ({
-          text: getNotificationType(value),
-          value,
+        filters: [1, 2, 3, 5, 8].map((typeValue) => ({
+          text: getNotificationType(typeValue),
+          value: typeValue,
         })),
-        onFilter: (value, record) => Number(record.nType) === Number(value),
+        onFilter: (filterValue, notificationRecord) =>
+          Number(notificationRecord.nType) === Number(filterValue),
       },
       {
         title: "สถานะ",
@@ -452,33 +510,40 @@ export default function Page() {
         key: "nStatus",
         width: 110,
         align: "center",
-        sorter: (a, b) => Number(a.nStatus) - Number(b.nStatus),
-        render: (value: number) => (
+        sorter: (firstRecord, secondRecord) =>
+          Number(firstRecord.nStatus) - Number(secondRecord.nStatus),
+        render: (cellValue: number) => (
           <Tag
-            color={value === 1 ? "success" : "default"}
+            color={cellValue === 1 ? "success" : "default"}
             icon={
-              value === 1 ? <CheckCircleOutlined /> : <CloseCircleOutlined />
+              cellValue === 1 ? (
+                <CheckCircleOutlined />
+              ) : (
+                <CloseCircleOutlined />
+              )
             }
             style={{ borderRadius: "12px", padding: "0 10px", margin: 0 }}
           >
-            {getNotificationRead(value)}
+            {getNotificationRead(cellValue)}
           </Tag>
         ),
         filters: [
           { text: "อ่านแล้ว", value: 1 },
           { text: "ยังไม่อ่าน", value: 0 },
         ],
-        onFilter: (value, record) => Number(record.nStatus) === Number(value),
+        onFilter: (filterValue, notificationRecord) =>
+          Number(notificationRecord.nStatus) === Number(filterValue),
       },
       {
         title: "หัวข้อ",
         dataIndex: "sTitle",
         width: 180,
-        sorter: (a, b) => (a.sTitle || "").localeCompare(b.sTitle || ""),
+        sorter: (firstRecord, secondRecord) =>
+          (firstRecord.sTitle || "").localeCompare(secondRecord.sTitle || ""),
         ...getColumnSearchProps("sTitle", "หัวข้อ"),
-        render: (text: string) => (
+        render: (textValue: string) => (
           <Text strong style={{ fontSize: 13, display: "block" }}>
-            {text || "-"}
+            {textValue || "-"}
           </Text>
         ),
       },
@@ -486,9 +551,12 @@ export default function Page() {
         title: "ข้อความ",
         dataIndex: "sMessage",
         width: 350,
-        sorter: (a, b) => (a.sMessage || "").localeCompare(b.sMessage || ""),
+        sorter: (firstRecord, secondRecord) =>
+          (firstRecord.sMessage || "").localeCompare(
+            secondRecord.sMessage || "",
+          ),
         ...getColumnSearchProps("sMessage", "ข้อความ"),
-        render: (text: string) => (
+        render: (textValue: string) => (
           <Typography.Paragraph
             style={{
               width: "100%",
@@ -498,7 +566,7 @@ export default function Page() {
             }}
             ellipsis={{ rows: 2, tooltip: true }}
           >
-            {text || "-"}
+            {textValue || "-"}
           </Typography.Paragraph>
         ),
       },
@@ -507,11 +575,13 @@ export default function Page() {
         dataIndex: "LogStatus",
         width: 100,
         align: "center",
-        sorter: (a, b) => Number(a.LogStatus || 0) - Number(b.LogStatus || 0),
-        render: (value) =>
-          value ? (
+        sorter: (firstRecord, secondRecord) =>
+          Number(firstRecord.LogStatus || 0) -
+          Number(secondRecord.LogStatus || 0),
+        render: (cellValue) =>
+          cellValue ? (
             <Tag bordered={false} color="purple">
-              {value}
+              {cellValue}
             </Tag>
           ) : (
             "-"
@@ -522,8 +592,8 @@ export default function Page() {
         dataIndex: "file",
         width: 100,
         align: "center",
-        render: (hasFile) =>
-          hasFile ? (
+        render: (hasAttachmentFile) =>
+          hasAttachmentFile ? (
             <Tag color="cyan" icon={<FileTextOutlined />}>
               YES
             </Tag>
@@ -537,10 +607,10 @@ export default function Page() {
         key: "logo",
         width: 80,
         align: "center",
-        render: (value: string | null) =>
-          value ? (
+        render: (cellValue: string | null) =>
+          cellValue ? (
             <Image
-              src={value}
+              src={cellValue}
               alt="logo"
               width={32}
               height={32}
@@ -558,49 +628,51 @@ export default function Page() {
         width: 100,
         align: "center",
         fixed: "right",
-        render: (_value, record) => (
+        render: (_textValue, notificationRecord) => (
           <Tooltip title="ดูรายละเอียดเต็ม">
             <Button
               type="primary"
               variant="text"
               shape="circle"
               icon={<EyeOutlined />}
-              onClick={() => openDetailModal(record.nMessageID)}
+              onClick={() =>
+                handleOpenDetailModal(notificationRecord.nMessageID)
+              }
             />
           </Tooltip>
         ),
       },
     ],
     [
-      activeTab,
-      curlToday,
-      curlWeek,
+      activeTabKey,
+      curlTodayCommand,
+      curlWeekCommand,
       getColumnSearchProps,
-      openDetailModal,
-      page,
+      handleOpenDetailModal,
+      currentPageNumber,
     ],
   );
 
-  // Handle school selection logic
-  const handleSchoolChange = (schoolId: string) => {
-    form.setFieldsValue({ userID: undefined }); // Reset user
-    setCurrentStep(0); // Reset UI step if needed, but fetch will push it to 1
-    fetchUsersBySchool(schoolId);
+  const handleSchoolSelectionChange = (schoolId: string) => {
+    formInstance.setFieldsValue({ userID: undefined });
+    setCurrentFilterStep(0);
+    fetchUsersBySchoolId(schoolId);
   };
 
-  const copyCurl = () => {
-    const curlCommand = activeTab === TODAY ? curlToday : curlWeek;
-    if (!curlCommand) {
+  const handleCopyCurlCommand = () => {
+    const curlCommandString =
+      activeTabKey === TODAY_KEY ? curlTodayCommand : curlWeekCommand;
+    if (!curlCommandString) {
       toast.info("ไม่พบคำสั่ง CURL");
       return;
     }
-    navigator.clipboard.writeText(curlCommand);
+    navigator.clipboard.writeText(curlCommandString);
     toast.success("คัดลอกคำสั่ง CURL แล้ว");
   };
 
-  const tabs: TabsProps["items"] = [
+  const notificationTabsItems: TabsProps["items"] = [
     {
-      key: TODAY,
+      key: TODAY_KEY,
       label: (
         <span>
           <MessageOutlined /> ข้อความวันนี้
@@ -608,10 +680,10 @@ export default function Page() {
       ),
       children: (
         <Table<ResponseNotification>
-          dataSource={todayDataset.data}
-          loading={todayDataset.loading}
-          columns={columns}
-          rowKey={(record) => String(record.nMessageID)}
+          dataSource={todayNotificationDataset.data}
+          loading={todayNotificationDataset.loading}
+          columns={tableColumns}
+          rowKey={(notificationRecord) => String(notificationRecord.nMessageID)}
           pagination={false}
           scroll={{ x: 1620 }}
           size="middle"
@@ -619,7 +691,7 @@ export default function Page() {
       ),
     },
     {
-      key: SEVEN_DAYS,
+      key: SEVEN_DAYS_KEY,
       label: (
         <span>
           <FileTextOutlined /> ย้อนหลัง 7 วัน
@@ -627,10 +699,10 @@ export default function Page() {
       ),
       children: (
         <Table<ResponseNotification>
-          dataSource={weekDataset.data}
-          loading={weekDataset.loading}
-          columns={columns}
-          rowKey={(record) => String(record.nMessageID)}
+          dataSource={weekNotificationDataset.data}
+          loading={weekNotificationDataset.loading}
+          columns={tableColumns}
+          rowKey={(notificationRecord) => String(notificationRecord.nMessageID)}
           pagination={false}
           scroll={{ x: 1620 }}
           size="middle"
@@ -639,25 +711,11 @@ export default function Page() {
     },
   ];
 
-  const renderDetailModal = () => {
-    const detail = notificationMessageState?.response?.data;
-    if (!detail) {
+  const renderDetailModalContent = () => {
+    const notificationDetail = notificationMessageDetailState?.response?.data;
+    if (!notificationDetail) {
       return null;
     }
-
-    // Helper function สำหรับแสดง Label พร้อม Icon
-    const LabelWithIcon = ({
-      icon,
-      label,
-    }: {
-      icon: React.ReactNode;
-      label: string;
-    }) => (
-      <Space>
-        {icon}
-        <Typography.Text type="secondary">{label}</Typography.Text>
-      </Space>
-    );
 
     return (
       <Modal
@@ -669,10 +727,10 @@ export default function Page() {
             </Typography.Title>
           </Space>
         }
-        open={detailModalVisible}
-        onCancel={() => setDetailModalVisible(false)}
+        open={isDetailModalVisible}
+        onCancel={() => setIsDetailModalVisible(false)}
         footer={[
-          <Button key="close" onClick={() => setDetailModalVisible(false)}>
+          <Button key="close" onClick={() => setIsDetailModalVisible(false)}>
             ปิดหน้าต่าง
           </Button>,
         ]}
@@ -681,7 +739,6 @@ export default function Page() {
         styles={{ body: { padding: "20px" } }}
       >
         <Space direction="vertical" style={{ width: "100%" }} size="large">
-          {/* 📌 ส่วนข้อความแจ้งเตือน (Header Card) */}
           <Card
             bordered={false}
             style={{
@@ -692,7 +749,7 @@ export default function Page() {
           >
             <Flex vertical gap="small">
               <Typography.Title level={4} style={{ margin: 0 }}>
-                {detail.sTitle || "ไม่มีหัวข้อ"}
+                {notificationDetail.sTitle || "ไม่มีหัวข้อ"}
               </Typography.Title>
               <Typography.Paragraph
                 style={{
@@ -704,34 +761,35 @@ export default function Page() {
                   padding: "8px 0",
                 }}
               >
-                {detail.sMessage ?? "-"}
+                {notificationDetail.sMessage ?? "-"}
               </Typography.Paragraph>
               <Flex align="center" gap="small" wrap="wrap">
                 <Tag color="geekblue" icon={<InfoCircleOutlined />}>
-                  {getNotificationType(detail.nType ?? 0)}
+                  {getNotificationType(notificationDetail.nType ?? 0)}
                 </Tag>
                 <Tag
-                  color={detail.nStatus === 1 ? "success" : "warning"}
+                  color={
+                    notificationDetail.nStatus === 1 ? "success" : "warning"
+                  }
                   icon={
-                    detail.nStatus === 1 ? (
+                    notificationDetail.nStatus === 1 ? (
                       <CheckCircleOutlined />
                     ) : (
                       <EyeOutlined />
                     )
                   }
                 >
-                  {getNotificationRead(detail.nStatus ?? 0)}
+                  {getNotificationRead(notificationDetail.nStatus ?? 0)}
                 </Tag>
-                {detail.LogStatus !== undefined && (
+                {notificationDetail.LogStatus !== undefined && (
                   <Tag bordered={false} color="purple">
-                    Log Status: {detail.LogStatus}
+                    Log Status: {notificationDetail.LogStatus}
                   </Tag>
                 )}
               </Flex>
             </Flex>
           </Card>
 
-          {/* ℹ️ ข้อมูลพื้นฐาน (Basic Info) */}
           <Descriptions
             title={
               <Space>
@@ -750,39 +808,38 @@ export default function Page() {
           >
             <Descriptions.Item label="Message ID">
               <Typography.Text copyable strong>
-                {detail.nMessageID ?? "-"}
+                {notificationDetail.nMessageID ?? "-"}
               </Typography.Text>
             </Descriptions.Item>
             <Descriptions.Item label="School ID">
-              <Tag color="orange">{detail.school_id ?? "-"}</Tag>
+              <Tag color="orange">{notificationDetail.school_id ?? "-"}</Tag>
             </Descriptions.Item>
             <Descriptions.Item label="วันที่ส่ง">
-              {detail.dSend
-                ? convertTimeZoneToThai(new Date(detail.dSend))
+              {notificationDetail.dSend
+                ? convertTimeZoneToThai(new Date(notificationDetail.dSend))
                 : "-"}
             </Descriptions.Item>
             <Descriptions.Item label="Letter ID">
               <Typography.Text type="secondary">
-                {detail.letter_id ?? "-"}
+                {notificationDetail.letter_id ?? "-"}
               </Typography.Text>
             </Descriptions.Item>
             <Descriptions.Item label="Scheduled ID">
               <Typography.Text type="secondary">
-                {detail.scheduled_id ?? "-"}
+                {notificationDetail.scheduled_id ?? "-"}
               </Typography.Text>
             </Descriptions.Item>
             <Descriptions.Item label="Push ID">
               <Typography.Text type="secondary">
-                {detail.push_id ?? "-"}
+                {notificationDetail.push_id ?? "-"}
               </Typography.Text>
             </Descriptions.Item>
           </Descriptions>
 
-          {/* 📂 ข้อมูลเพิ่มเติม (Additional Details) */}
-          {(detail.homework_id ||
-            detail.sell_id ||
-            detail.ReplyType ||
-            detail.file) && (
+          {(notificationDetail.homework_id ||
+            notificationDetail.sell_id ||
+            notificationDetail.ReplyType ||
+            notificationDetail.file) && (
             <Descriptions
               title={
                 <Space>
@@ -800,16 +857,16 @@ export default function Page() {
               }}
             >
               <Descriptions.Item label="Homework ID">
-                {detail.homework_id ?? "-"}
+                {notificationDetail.homework_id ?? "-"}
               </Descriptions.Item>
               <Descriptions.Item label="Sell ID">
-                {detail.sell_id ?? "-"}
+                {notificationDetail.sell_id ?? "-"}
               </Descriptions.Item>
               <Descriptions.Item label="Reply Type">
-                {detail.ReplyType || "-"}
+                {notificationDetail.ReplyType || "-"}
               </Descriptions.Item>
               <Descriptions.Item label="ไฟล์แนบ">
-                {detail.file ? (
+                {notificationDetail.file ? (
                   <Tag color="blue" icon={<FileTextOutlined />}>
                     มีไฟล์แนบ
                   </Tag>
@@ -818,19 +875,21 @@ export default function Page() {
                 )}
               </Descriptions.Item>
               <Descriptions.Item label="สถานะการตอบกลับ">
-                <Tag color={detail.replyStatus ? "blue" : "default"}>
-                  {detail.replyStatus ? "เปิดการตอบกลับ" : "ปิด"}
+                <Tag
+                  color={notificationDetail.replyStatus ? "blue" : "default"}
+                >
+                  {notificationDetail.replyStatus ? "เปิดการตอบกลับ" : "ปิด"}
                 </Tag>
               </Descriptions.Item>
               <Descriptions.Item label="ผู้สร้างข่าว">
-                {detail.NewsCreatedBy ?? "-"}
+                {notificationDetail.NewsCreatedBy ?? "-"}
               </Descriptions.Item>
             </Descriptions>
           )}
 
-          {/* 📝 รายละเอียดการบ้าน (Homework - Only if data exists) */}
-          {detail.homework &&
-            (detail.homework.teachername || detail.homework.detail) && (
+          {notificationDetail.homework &&
+            (notificationDetail.homework.teachername ||
+              notificationDetail.homework.detail) && (
               <Descriptions
                 title={
                   <Space>
@@ -849,28 +908,34 @@ export default function Page() {
                 }}
               >
                 <Descriptions.Item label="ครูผู้สอน">
-                  {detail.homework.teachername ?? "-"}
+                  {notificationDetail.homework.teachername ?? "-"}
                 </Descriptions.Item>
                 <Descriptions.Item label="วิชาที่สอน">
-                  {detail.homework.planename ?? "-"}
+                  {notificationDetail.homework.planename ?? "-"}
                 </Descriptions.Item>
                 <Descriptions.Item label="ช่วงเวลา">
-                  {detail.homework.daystart && detail.homework.dayend
-                    ? `${detail.homework.daystart} - ${detail.homework.dayend}`
+                  {notificationDetail.homework.daystart &&
+                  notificationDetail.homework.dayend
+                    ? `${notificationDetail.homework.daystart} - ${notificationDetail.homework.dayend}`
                     : "-"}
                 </Descriptions.Item>
                 <Descriptions.Item label="รายละเอียด">
-                  <div style={{ whiteSpace: "pre-wrap" }}>
-                    {detail.homework.detail ?? "-"}
-                  </div>
+                  <Typography.Text
+                    style={{ whiteSpace: "pre-wrap", display: "block" }}
+                  >
+                    {notificationDetail.homework.detail ?? "-"}
+                  </Typography.Text>
                 </Descriptions.Item>
               </Descriptions>
             )}
 
-          {/* 🛠️ Developer Logs (CURL) */}
-          {notificationMessageState?.response?.curl && (
-            <div style={{ marginTop: 8 }}>
-              <Flex align="center" justify="space-between" style={{ mb: 8 }}>
+          {notificationMessageDetailState?.response?.curl && (
+            <Flex vertical style={{ marginTop: 8 }}>
+              <Flex
+                align="center"
+                justify="space-between"
+                style={{ marginBottom: 8 }}
+              >
                 <Typography.Text type="secondary" strong>
                   <CodeOutlined /> Developer Info (CURL)
                 </Typography.Text>
@@ -881,7 +946,7 @@ export default function Page() {
                   icon={<CopyOutlined />}
                   onClick={() => {
                     navigator.clipboard.writeText(
-                      notificationMessageState.response.curl || "",
+                      notificationMessageDetailState.response.curl || "",
                     );
                     toast.success("คัดลอก CURL แล้ว");
                   }}
@@ -889,7 +954,8 @@ export default function Page() {
                   คัดลอกคำสั่ง
                 </Button>
               </Flex>
-              <div
+              <Flex
+                vertical
                 style={{
                   background: token.colorFillAlter,
                   padding: "12px",
@@ -903,9 +969,9 @@ export default function Page() {
                   color: token.colorTextSecondary,
                 }}
               >
-                {notificationMessageState.response.curl}
-              </div>
-            </div>
+                {notificationMessageDetailState.response.curl}
+              </Flex>
+            </Flex>
           )}
         </Space>
       </Modal>
@@ -915,14 +981,12 @@ export default function Page() {
   return (
     <DashboardLayout>
       <Flex vertical gap={24} style={{ width: "100%" }}>
-        {/* ส่วนที่ 1: ส่วนหัวของหน้า (Header Bar) */}
         <HeaderBar
           icon={<MessageOutlined />}
           title="ตรวจสอบการแจ้งเตือน (Notification Logs)"
           subTitle="ค้นหาและตรวจสอบประวัติการแจ้งเตือนของผู้ใช้งานรายบุคคล"
         />
 
-        {/* ส่วนที่ 3: ฟิลเตอร์ข้อมูล (Filter) และ ปุ่มที่เกี่ยวข้อง */}
         <Card
           variant="borderless"
           styles={{ body: { padding: 24 } }}
@@ -944,7 +1008,7 @@ export default function Page() {
           </Flex>
 
           <Steps
-            current={currentStep}
+            current={currentFilterStep}
             items={[
               {
                 title: "เลือกโรงเรียน",
@@ -960,7 +1024,7 @@ export default function Page() {
 
           <Form
             layout="vertical"
-            form={form}
+            form={formInstance}
             onFinish={handleFormSubmit}
             initialValues={{ schoolID: undefined, userID: undefined }}
           >
@@ -979,13 +1043,13 @@ export default function Page() {
                   <Select
                     showSearch
                     placeholder="พิมพ์ชื่อโรงเรียนเพื่อค้นหา..."
-                    options={schoolOptions}
-                    loading={schoolState.loading}
-                    onChange={handleSchoolChange}
-                    filterOption={(input, option) =>
-                      String(option?.label ?? "")
+                    options={schoolListOptions}
+                    loading={schoolListState.loading}
+                    onChange={handleSchoolSelectionChange}
+                    filterOption={(inputFilterText, selectOption) =>
+                      String(selectOption?.label ?? "")
                         .toLowerCase()
-                        .includes(input.toLowerCase())
+                        .includes(inputFilterText.toLowerCase())
                     }
                     size="large"
                     suffixIcon={<BankOutlined />}
@@ -1006,18 +1070,18 @@ export default function Page() {
                 >
                   <Select
                     showSearch
-                    disabled={currentStep < 1}
+                    disabled={currentFilterStep < 1}
                     placeholder={
-                      currentStep < 1
+                      currentFilterStep < 1
                         ? "กรุณาเลือกโรงเรียนก่อน"
                         : "พิมพ์ชื่อ หรือ ID เพื่อค้นหา..."
                     }
-                    options={userOptions}
-                    loading={userState.loading}
-                    filterOption={(input, option) =>
-                      String(option?.label ?? "")
+                    options={userListOptions}
+                    loading={userListBySchoolState.loading}
+                    filterOption={(inputFilterText, selectOption) =>
+                      String(selectOption?.label ?? "")
                         .toLowerCase()
-                        .includes(input.toLowerCase())
+                        .includes(inputFilterText.toLowerCase())
                     }
                     size="large"
                     suffixIcon={<UserOutlined />}
@@ -1037,7 +1101,7 @@ export default function Page() {
               <Button
                 type="primary"
                 htmlType="submit"
-                loading={overallLoading}
+                loading={isOverallLoading}
                 size="large"
                 icon={<SearchOutlined />}
                 style={{ padding: "0 32px" }}
@@ -1048,13 +1112,13 @@ export default function Page() {
           </Form>
         </Card>
 
-        {/* ส่วนที่ 2: Summary Metrics (สรุปภาพรวม) */}
-        {(todayDataset.data.length > 0 || weekDataset.data.length > 0) && (
+        {(todayNotificationDataset.data.length > 0 ||
+          weekNotificationDataset.data.length > 0) && (
           <Row gutter={[20, 20]}>
             <Col xs={24} sm={8}>
               <SummaryCard
                 title="ข้อความทั้งหมด"
-                value={summaryStats.total.toLocaleString()}
+                value={notificationSummaryStatistics.totalCount.toLocaleString()}
                 subtitle="จำนวนการแจ้งเตือนที่พบในระบบ"
                 icon={<MessageOutlined />}
                 color={token.colorPrimary}
@@ -1063,7 +1127,7 @@ export default function Page() {
             <Col xs={24} sm={8}>
               <SummaryCard
                 title="อ่านแล้ว"
-                value={summaryStats.read.toLocaleString()}
+                value={notificationSummaryStatistics.readCount.toLocaleString()}
                 subtitle="จำนวนข้อความที่ผู้ใช้เปิดอ่านแล้ว"
                 icon={<CheckCircleOutlined />}
                 color={token.colorSuccess}
@@ -1072,7 +1136,7 @@ export default function Page() {
             <Col xs={24} sm={8}>
               <SummaryCard
                 title="ยังไม่อ่าน"
-                value={summaryStats.unread.toLocaleString()}
+                value={notificationSummaryStatistics.unreadCount.toLocaleString()}
                 subtitle="จำนวนข้อความที่ยังไม่ได้เปิดอ่าน"
                 icon={<CloseCircleOutlined />}
                 color={token.colorError}
@@ -1081,8 +1145,8 @@ export default function Page() {
           </Row>
         )}
 
-        {/* ส่วนที่ 4: ตารางข้อมูลเนื้อหา */}
-        {(todayDataset.data.length > 0 || weekDataset.data.length > 0) && (
+        {(todayNotificationDataset.data.length > 0 ||
+          weekNotificationDataset.data.length > 0) && (
           <Card
             variant="borderless"
             styles={{ body: { padding: 16 } }}
@@ -1104,12 +1168,12 @@ export default function Page() {
                 </Flex>
 
                 <Space>
-                  {(curlToday || curlWeek) && (
+                  {(curlTodayCommand || curlWeekCommand) && (
                     <Tooltip title="คัดลอกคำสั่ง CURL สำหรับ QA/Dev">
                       <Button
                         type="text"
                         icon={<CodeOutlined />}
-                        onClick={copyCurl}
+                        onClick={handleCopyCurlCommand}
                         style={{ color: token.colorWarning, fontWeight: 600 }}
                       >
                         Copy CURL
@@ -1118,26 +1182,28 @@ export default function Page() {
                   )}
                   <Button
                     icon={<LeftOutlined />}
-                    onClick={() => handlePageChange(Math.max(page - 1, 1))}
-                    disabled={page <= 1}
+                    onClick={() =>
+                      handlePageChange(Math.max(currentPageNumber - 1, 1))
+                    }
+                    disabled={currentPageNumber <= 1}
                   />
                   <Tag
                     color="blue"
                     style={{ margin: 0, padding: "2px 12px", borderRadius: 6 }}
                   >
-                    หน้า {page}
+                    หน้า {currentPageNumber}
                   </Tag>
                   <Button
                     icon={<RightOutlined />}
-                    onClick={() => handlePageChange(page + 1)}
+                    onClick={() => handlePageChange(currentPageNumber + 1)}
                   />
                 </Space>
               </Flex>
 
               <Tabs
-                activeKey={activeTab}
-                onChange={setActiveTab}
-                items={tabs}
+                activeKey={activeTabKey}
+                onChange={setActiveTabKey}
+                items={notificationTabsItems}
                 type="card"
               />
             </Flex>
@@ -1145,16 +1211,22 @@ export default function Page() {
         )}
       </Flex>
 
-      {/* Modals & Feedback */}
-      {detailModalVisible && renderDetailModal()}
+      {isDetailModalVisible && renderDetailModalContent()}
 
       <StatusModalComponent
-        open={statusModal.open}
-        type={statusModal.type}
-        title={statusModal.title}
-        message={statusModal.message}
-        onClose={() => setStatusModal((prev) => ({ ...prev, open: false }))}
+        open={statusModalState.open}
+        type={statusModalState.type}
+        title={statusModalState.title}
+        message={statusModalState.message}
+        onClose={() =>
+          setStatusModalState((previousState) => ({
+            ...previousState,
+            open: false,
+          }))
+        }
       />
     </DashboardLayout>
   );
-}
+};
+
+export default NotificationPage;
