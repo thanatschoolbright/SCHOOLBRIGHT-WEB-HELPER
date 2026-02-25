@@ -33,6 +33,7 @@ import {
   Flex,
   Form,
   Input,
+  InputNumber,
   Modal,
   Popover,
   Result,
@@ -372,6 +373,9 @@ export default function CanteenAppManager() {
   const [deleteTargetRecord, setDeleteTargetRecord] =
     useState<VersionRecord | null>(null);
 
+  // Roll-out State
+  const [rolloutPercent, setRolloutPercent] = useState(0);
+
   // Verification Simulator States
   const [checkUpdateModalVisible, setCheckUpdateModalVisible] = useState(false);
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
@@ -485,6 +489,31 @@ export default function CanteenAppManager() {
       console.error("Export error:", error);
       toast.error("ไม่สามารถส่งออกข้อมูลได้", { id: toastId });
     }
+  };
+
+  /**
+   * 🤔 สุ่มเลือกโรงเรียนตามเปอร์เซ็นต์ที่กำหนด (Roll-out Logic)
+   */
+  const handleApplyRollout = () => {
+    // กองตัวเลือกที่ไม่ใช่ "ทุกโรงเรียน" ออก (ค่า "" ออก)
+    const validSchools = schoolOptions.filter((opt) => opt.value !== "");
+    if (validSchools.length === 0) return;
+
+    let countToSelect = Math.round((rolloutPercent / 100) * validSchools.length);
+
+    // ปรับให้มีอย่างน้อย 1 ถ้า % มากกว่า 0
+    if (countToSelect === 0 && rolloutPercent > 0) {
+      countToSelect = 1;
+    }
+
+    // สุ่มอาเรย์และเลือกตามจำนวน
+    const shuffled = [...validSchools].sort(() => 0.5 - Math.random());
+    const selectedIds = shuffled.slice(0, countToSelect).map((opt) => opt.value);
+
+    versionFormInstance.setFieldsValue({
+      schoolID: selectedIds,
+    });
+
   };
 
   // Event Handlers
@@ -1182,9 +1211,57 @@ export default function CanteenAppManager() {
                     (หากไม่เลือกจะถือว่าปล่อยให้ "ทุกโรงเรียน")
                   </AntText>
                 </div>
+
+                {/* 🎲 Roll-out (Random selection) */}
+                <Flex
+                  gap="small"
+                  align="center"
+                  style={{
+                    marginBottom: 16,
+                    padding: "12px",
+                    background: token.colorFillAlter,
+                    borderRadius: 8,
+                    border: `1px dashed ${token.colorBorder}`,
+                  }}
+                >
+                  <AntText strong style={{ fontSize: 13, minWidth: 100 }}>
+                    สุ่มเลือก (Roll-out):
+                  </AntText>
+                  <InputNumber
+                    min={0}
+                    max={100}
+                    step={5}
+                    value={rolloutPercent}
+                    suffix="%"
+                    onChange={(value) => setRolloutPercent(value || 0)}
+                    style={{ width: 90 }}
+                  />
+                  <Button
+                    icon={<RocketOutlined />}
+                    onClick={handleApplyRollout}
+                    disabled={rolloutPercent <= 0}
+                  >
+                    สุ่มเลือกโรงเรียน
+                  </Button>
+                  {rolloutPercent > 0 && (
+                    <AntText type="secondary" style={{ fontSize: 12 }}>
+                      จะสุ่มเลือกประมาณ{" "}
+                      {Math.max(
+                        1,
+                        Math.round(
+                          (rolloutPercent / 100) *
+                            schoolOptions.filter((o) => o.value !== "").length,
+                        ),
+                      )}{" "}
+                      โรงเรียน
+                    </AntText>
+                  )}
+                </Flex>
+
                 <Form.Item name="schoolID" noStyle>
                   <Select
                     mode="multiple"
+                    allowClear
                     placeholder="ค้นหาหรือเลือกโรงเรียน..."
                     style={{ width: "100%" }}
                     options={schoolOptions}
@@ -1194,6 +1271,18 @@ export default function CanteenAppManager() {
                         .toLowerCase()
                         .includes(input.toLowerCase())
                     }
+                    onChange={(values: string[]) => {
+                      if (values.includes("")) {
+                        // เมื่อเลือก 'ทุกโรงเรียน' ให้ทำการเลือก school_id ทั้งหมดในรายการ
+                        const allSchoolIds = schoolOptions
+                          .filter((opt) => opt.value !== "")
+                          .map((opt) => opt.value);
+
+                        versionFormInstance.setFieldsValue({
+                          schoolID: allSchoolIds,
+                        });
+                      }
+                    }}
                   />
                 </Form.Item>
               </Card>
@@ -1411,7 +1500,7 @@ export default function CanteenAppManager() {
                   showSearch
                   placeholder="เลือกหรือพิมพ์เวอร์ชัน..."
                   options={availableVersionOptions}
-                  dropdownRender={(menu) => (
+                  popupRender={(menu) => (
                     <Space direction="vertical" style={{ width: "100%" }}>
                       {menu}
                       <Flex
