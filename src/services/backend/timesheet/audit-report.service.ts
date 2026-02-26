@@ -57,8 +57,8 @@ interface FeatureData {
 
 const getAssetTypeLabel = (assetType: string): string => {
   return assetType === "CAPTUREABLE"
-    ? "สามารถแคปทรัพย์สินได้"
-    : "ไม่สามารถแคปทรัพย์สินได้";
+    ? "รายการบันทึกสินทรัพย์ (Capitalization)"
+    : "ค่าใช้จ่าย (Expense)";
 };
 
 const calculatePercentage = (hours: number, totalHours: number): string => {
@@ -214,6 +214,13 @@ const createOverviewSheet = (
   const distinctProjectCount = projectIds.size;
   const featureCount = features.length;
 
+  const capitalizationCount = features.filter(
+    (f) => f.assetCaptureType === "CAPTUREABLE",
+  ).length;
+  const expenseCount = features.filter(
+    (f) => f.assetCaptureType === "UNCAPTUREABLE",
+  ).length;
+
   sheet.columns = [
     { key: "code", width: 35 },
     { key: "projectName", width: 40 },
@@ -279,6 +286,28 @@ const createOverviewSheet = (
   sheet.getCell("A5").border = EXCEL_STYLES.BORDER;
   sheet.getCell("B5").border = EXCEL_STYLES.BORDER;
 
+  // Title Section Row 6: Capitalization Count
+  sheet.getRow(6).height = 24;
+  sheet.getCell("A6").value = "จำนวนรายการสินทรัพย์ (Capitalization)";
+  sheet.getCell("B6").value = `${capitalizationCount} รายการ`;
+  sheet.mergeCells("B6:F6");
+  sheet.getCell("A6").font = { ...EXCEL_STYLES.NORMAL_FONT, bold: true };
+  sheet.getCell("B6").font = EXCEL_STYLES.NORMAL_FONT;
+  sheet.getCell("A6").fill = EXCEL_STYLES.TOTAL_FILL;
+  sheet.getCell("A6").border = EXCEL_STYLES.BORDER;
+  sheet.getCell("B6").border = EXCEL_STYLES.BORDER;
+
+  // Title Section Row 7: Expense Count
+  sheet.getRow(7).height = 24;
+  sheet.getCell("A7").value = "จำนวนรายการค่าใช้จ่าย (Expense)";
+  sheet.getCell("B7").value = `${expenseCount} รายการ`;
+  sheet.mergeCells("B7:F7");
+  sheet.getCell("A7").font = { ...EXCEL_STYLES.NORMAL_FONT, bold: true };
+  sheet.getCell("B7").font = EXCEL_STYLES.NORMAL_FONT;
+  sheet.getCell("A7").fill = EXCEL_STYLES.TOTAL_FILL;
+  sheet.getCell("A7").border = EXCEL_STYLES.BORDER;
+  sheet.getCell("B7").border = EXCEL_STYLES.BORDER;
+
   const headerRow = sheet.addRow([
     "รหัสโครงการ / รหัสโครงการย่อย",
     "ชื่อโครงการ (รหัสโครงการ)",
@@ -298,7 +327,7 @@ const createOverviewSheet = (
     };
     cell.border = EXCEL_STYLES.BORDER;
   });
-  sheet.getRow(5).height = 26;
+  sheet.getRow(8).height = 26;
 
   features.forEach((feature) => {
     const rawCode = formatFullProjectCode(feature.projectId, feature.featureId);
@@ -370,7 +399,7 @@ const createOverviewSheet = (
     }
   });
 
-  sheet.views = [{ state: "frozen", ySplit: 6 }];
+  sheet.views = [{ state: "frozen", ySplit: 8 }];
 };
 
 const createEvidenceSheet = (
