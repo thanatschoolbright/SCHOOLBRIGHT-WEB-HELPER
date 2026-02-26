@@ -107,7 +107,7 @@ export const Service = {
           const featureId = entry.feature?.id || 0;
           const featureName = entry.feature?.name || "No Feature/Sub-task";
           const captureType =
-            entry.feature?.assetCaptureType || "UNCAPTUREABLE";
+            entry.feature?.assetCaptureType || "UN_CAPTUREABLE";
 
           if (captureType === "CAPTUREABLE") {
             capturableHours += hoursValue;

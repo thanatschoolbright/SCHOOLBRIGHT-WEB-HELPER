@@ -154,7 +154,7 @@ const groupEntriesByFeature = (entries: any[]): Map<number, FeatureData> => {
         featureName: featureIsDeleted
           ? `${featureName} (DELETED)`
           : featureName,
-        assetCaptureType: entry.feature?.assetCaptureType || "UNCAPTUREABLE",
+        assetCaptureType: entry.feature?.assetCaptureType || "UN_CAPTUREABLE",
         hours: 0,
         entries: [],
       });
@@ -218,7 +218,7 @@ const createOverviewSheet = (
     (f) => f.assetCaptureType === "CAPTUREABLE",
   ).length;
   const expenseCount = features.filter(
-    (f) => f.assetCaptureType === "UNCAPTUREABLE",
+    (f) => f.assetCaptureType === "UN_CAPTUREABLE",
   ).length;
 
   sheet.columns = [
