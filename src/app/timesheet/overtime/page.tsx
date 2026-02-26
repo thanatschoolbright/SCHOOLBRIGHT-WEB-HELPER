@@ -2658,7 +2658,7 @@ const DetailModalSection = ({
                   </Tag>
                   <Typography.Text type="secondary" style={{ fontSize: 11 }}>
                     วันที่ปฏิบัติงาน:{" "}
-                    {dayjs(selectedDetail.request_date).format("DD MMMM YYYY")}
+                    {dayjs(selectedDetail.request_date).format("DD/MM/YYYY")}
                   </Typography.Text>
                 </Flex>
               </Col>
