@@ -75,11 +75,17 @@ import {
   StarOutlined,
   TeamOutlined,
   ThunderboltOutlined,
+  UnorderedListOutlined,
   UserOutlined,
   WarningOutlined,
 } from "@ant-design/icons";
 
+import { toast } from "sonner";
+
 import SummaryCard from "@/components/card/summary-card";
+import StatusModalComponent, {
+  type StatusModalProps,
+} from "@/components/modal/status-modal";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
 
@@ -190,6 +196,14 @@ const OvertimeManagementPage = () => {
   const [isAnalyticsModalVisible, setIsAnalyticsModalVisible] = useState(false);
   const [isRulesModalVisible, setIsRulesModalVisible] = useState(true);
 
+  // ควบคุมสถานะการแสดงผลของ Modal แจ้งเตือนผลลัพธ์ (Success/Error)
+  const [modalState, setModalState] = useState<StatusModalProps>({
+    visible: false,
+    type: "success",
+    title: "",
+    subtitle: "",
+  });
+
   // ดึงข้อมูลรหัสผู้ดูแลระบบปัจจุบันจากสถานะการเข้าสู่ระบบหรือ Local Storage
   const requestCurrentLocalUserID = useCallback(async (): Promise<string> => {
     try {
@@ -209,27 +223,16 @@ const OvertimeManagementPage = () => {
 
   // จัดการและแสดงข้อความแสดงข้อผิดพลาดของระบบผ่าน Modal
   const processAndDisplaySystemError = useCallback(
-    (error: any, errorTitle: string = "เกิดข้อผิดพลาด") => {
+    (error: any, errorTitle: string = "ระบบขัดข้อง") => {
       console.error(error);
-      antModal.error({
-        title: (
-          <Space>
-            <WarningOutlined style={{ color: themeToken.colorError }} />{" "}
-            {errorTitle}
-          </Space>
-        ),
-        content: (
-          <Flex vertical gap={8}>
-            <Typography.Text>ระบบไม่สามารถดำเนินการได้ในขณะนี้</Typography.Text>
-            <Typography.Paragraph type="danger" style={{ fontSize: 12 }}>
-              {error?.message || JSON.stringify(error)}
-            </Typography.Paragraph>
-          </Flex>
-        ),
-        okText: "รับทราบ",
+      setModalState({
+        visible: true,
+        type: "error",
+        title: errorTitle,
+        subtitle: error?.message || "ไม่สามารถดำเนินการได้ในขณะนี้",
       });
     },
-    [antModal, themeToken.colorError],
+    [],
   );
 
   const overtimeStatistics = useMemo(() => {
@@ -526,9 +529,7 @@ const OvertimeManagementPage = () => {
         (apiResponseContentData.status === 200 ||
           apiResponseContentData.status === 201)
       ) {
-        antMessage.success(
-          apiResponseContentData.message_th ?? "สร้างรายการสำเร็จ",
-        );
+        toast.success(apiResponseContentData.message_th ?? "สร้างรายการสำเร็จ");
         return apiResponseContentData.data;
       }
       throw new Error(
@@ -555,7 +556,7 @@ const OvertimeManagementPage = () => {
         { deleted_by: String(currentDeleterToken) },
       );
       if (apiResponseResultObject?.data?.status === 200) {
-        antMessage.success(
+        toast.success(
           apiResponseResultObject.data.message_th ?? "ลบรายการสำเร็จ",
         );
         await requestOvertimeRequestListData({ page: paginationState.current });
@@ -588,7 +589,7 @@ const OvertimeManagementPage = () => {
         },
       );
       if (apiResponseResultObject?.data?.status === 200) {
-        antMessage.success(
+        toast.success(
           apiResponseResultObject.data.message_th ?? "อนุมัติเรียบร้อยแล้ว",
         );
         await requestOvertimeRequestListData({ page: paginationState.current });
@@ -626,7 +627,7 @@ const OvertimeManagementPage = () => {
         apiResponseResultObject?.data?.status === 200 ||
         apiResponseResultObject?.data?.status === 201
       ) {
-        antMessage.success(
+        toast.success(
           apiResponseResultObject.data.message_th ??
             "ส่งอีเมลไปยัง HR เรียบร้อยแล้ว",
         );
@@ -646,12 +647,11 @@ const OvertimeManagementPage = () => {
   const requestBatchApproveOvertimeSubmissions = async (
     targetStatusString: string = "approved",
   ) => {
-    if (selectedRowKeys.length === 0)
-      return antMessage.error("กรุณาเลือกรายการ");
+    if (selectedRowKeys.length === 0) return toast.error("กรุณาเลือกรายการ");
 
     const currentUserTokenIdentifier = await requestCurrentLocalUserID();
     if (currentUserTokenIdentifier !== BYPASS_ADMIN_ID)
-      return antMessage.error("คุณไม่มีสิทธิ์ปรับสถานะ");
+      return toast.error("คุณไม่มีสิทธิ์ปรับสถานะ");
 
     setIsBatchProcessing(true);
     setProcessedRecordItems(new Set());
@@ -684,7 +684,7 @@ const OvertimeManagementPage = () => {
 
     setIsBatchProcessing(false);
     if (successfulOperationsCount > 0) {
-      antMessage.success(
+      toast.success(
         `สำเร็จ ${successfulOperationsCount} รายการ, ล้มเหลว ${failedOperationsCount} รายการ`,
       );
       await requestOvertimeRequestListData({ page: paginationState.current });
@@ -695,12 +695,11 @@ const OvertimeManagementPage = () => {
 
   // ส่งอีเมลแจ้งเตือน HR สำหรับคำขอ OT หลายรายการพร้อมกัน (Batch Email)
   const requestBatchSendOvertimeMailToHR = async () => {
-    if (selectedRowKeys.length === 0)
-      return antMessage.error("กรุณาเลือกรายการ");
+    if (selectedRowKeys.length === 0) return toast.error("กรุณาเลือกรายการ");
 
     const currentUserTokenIdentifier = await requestCurrentLocalUserID();
     if (currentUserTokenIdentifier !== BYPASS_ADMIN_ID)
-      return antMessage.error("คุณไม่มีสิทธิ์ส่งอีเมล");
+      return toast.error("คุณไม่มีสิทธิ์ส่งอีเมล");
 
     setIsBatchProcessing(true);
     setProcessedRecordItems(new Set());
@@ -735,7 +734,7 @@ const OvertimeManagementPage = () => {
 
     setIsBatchProcessing(false);
     if (emailSentSuccessCount > 0) {
-      antMessage.success(`สำเร็จ ${emailSentSuccessCount} รายการ`);
+      toast.success(`ส่งหัวข้อคำขอสำเร็จ ${emailSentSuccessCount} รายการ`);
     }
     setSelectedRowKeys([]);
     setProcessedRecordItems(new Set());
@@ -1001,7 +1000,6 @@ const OvertimeManagementPage = () => {
         )}
 
         {/* ส่วนแสดงตารางข้อมูลรายการคำขอ OT ทั้งหมด */}
-        {/* ส่วนแสดงตารางข้อมูลรายการคำขอ OT ทั้งหมด */}
         <OvertimeTableSection
           dataSource={overtimeDataSource}
           isLoadingOvertimeData={isLoadingOvertimeData}
@@ -1016,6 +1014,8 @@ const OvertimeManagementPage = () => {
             requestDetailedOvertimeContentByID
           }
           navigationRouter={navigationRouter}
+          setIsAnalyticsModalVisible={setIsAnalyticsModalVisible}
+          setIsExportModalVisible={setIsExportModalVisible}
           themeToken={themeToken}
         />
 
@@ -1079,6 +1079,12 @@ const OvertimeManagementPage = () => {
           isExportOperationSuccess={isExportOperationSuccess}
           themeToken={themeToken}
         />
+
+        {/* Modal แจ้งเตือนสถานะการทำงาน (Success/Error) */}
+        <StatusModalComponent
+          {...modalState}
+          onClose={() => setModalState((prev) => ({ ...prev, visible: false }))}
+        />
       </Flex>
     </DashboardLayout>
   );
@@ -1097,27 +1103,29 @@ const FilterBarSection = ({
 }: any) => (
   <Card
     variant="borderless"
-    style={{ borderRadius: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}
+    style={{
+      borderRadius: 20,
+      boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
+      marginBottom: 32,
+    }}
   >
-    {/* ส่วนการ์ดสำหรับกรองข้อมูลรายการ */}
+    {/* ส่วนของการกรองและค้นหาข้อมูล (Advanced Search Section) */}
     <Flex vertical gap={24}>
       <Space>
-        <FilterOutlined
-          style={{ color: themeToken.colorPrimary, fontSize: 18 }}
-        />
+        <FilterOutlined style={{ color: themeToken.colorPrimary }} />
         <Typography.Text strong style={{ fontSize: 16 }}>
           ค้นหาและกรองข้อมูลเชิงลึก
         </Typography.Text>
       </Space>
 
       <Row gutter={[24, 24]}>
-        <Col xs={24} md={8}>
-          <Flex vertical gap={10}>
+        <Col xs={24} md={12}>
+          <Flex vertical gap={8}>
             <Typography.Text strong type="secondary" style={{ fontSize: 13 }}>
               ระบุคำสำคัญในการค้นหา
             </Typography.Text>
             <Input
-              placeholder="รหัสอ้างอิง, ชื่อผู้ขอ, รายละเอียดงาน..."
+              placeholder="ค้นหาด้วยรหัสคำขอ หรือชื่อพนักงาน..."
               prefix={
                 <SearchOutlined
                   style={{ color: themeToken.colorTextDescription }}
@@ -1134,8 +1142,9 @@ const FilterBarSection = ({
             />
           </Flex>
         </Col>
-        <Col xs={24} md={8}>
-          <Flex vertical gap={10}>
+
+        <Col xs={24} md={12}>
+          <Flex vertical gap={8}>
             <Typography.Text strong type="secondary" style={{ fontSize: 13 }}>
               เลือกช่วงเวลาประจำเดือน
             </Typography.Text>
@@ -1151,8 +1160,9 @@ const FilterBarSection = ({
             />
           </Flex>
         </Col>
-        <Col xs={24} md={8}>
-          <Flex vertical gap={10}>
+
+        <Col xs={24} md={12}>
+          <Flex vertical gap={8}>
             <Typography.Text strong type="secondary" style={{ fontSize: 13 }}>
               สถานะการดำเนินการ
             </Typography.Text>
@@ -1175,7 +1185,7 @@ const FilterBarSection = ({
         </Col>
       </Row>
 
-      <Flex justify="flex-end" gap={16} style={{ marginTop: 8 }}>
+      <Flex justify="flex-end" gap={12}>
         <Button
           icon={<ReloadOutlined />}
           onClick={() => {
@@ -1183,7 +1193,7 @@ const FilterBarSection = ({
             setFilterSearchTextValue("");
             requestOvertimeRequestListData({ page: 1 });
           }}
-          style={{ borderRadius: 12, height: 48, paddingInline: 24 }}
+          style={{ borderRadius: 12, height: 45, paddingInline: 24 }}
         >
           ล้างเงื่อนไข
         </Button>
@@ -1194,8 +1204,8 @@ const FilterBarSection = ({
           onClick={() => requestOvertimeRequestListData({ page: 1 })}
           style={{
             borderRadius: 12,
-            height: 48,
-            paddingInline: 40,
+            height: 45,
+            paddingInline: 32,
             fontWeight: 600,
           }}
         >
@@ -1340,6 +1350,8 @@ const OvertimeTableSection = ({
   requestSendOvertimeMailToHR,
   requestDetailedOvertimeContentByID,
   navigationRouter,
+  setIsAnalyticsModalVisible,
+  setIsExportModalVisible,
   themeToken,
 }: any) => {
   // การตั้งค่าคอลัมน์ของตารางรายการ OT
@@ -1489,6 +1501,7 @@ const OvertimeTableSection = ({
       title: "จัดการรายการ",
       key: "action_menu",
       align: "center" as const,
+      width: 220,
       render: (recordContentData: any) => (
         <Space size="middle">
           <Tooltip title="ดูรายละเอียดภาระงาน">
@@ -1567,6 +1580,34 @@ const OvertimeTableSection = ({
         boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
         overflow: "hidden",
       }}
+      title={
+        <Space>
+          <UnorderedListOutlined style={{ color: themeToken.colorPrimary }} />
+          <Typography.Text strong style={{ fontSize: 16 }}>
+            รายการคำขอ OT ทั้งหมดในระบบ
+          </Typography.Text>
+        </Space>
+      }
+      extra={
+        <Space size="middle">
+          <Button
+            icon={<BarChartOutlined />}
+            onClick={() => setIsAnalyticsModalVisible(true)}
+            style={{ borderRadius: 10, height: 40 }}
+          >
+            สถิติเชิงลึก
+          </Button>
+          <Button
+            type="primary"
+            ghost
+            icon={<CloudDownloadOutlined />}
+            onClick={() => setIsExportModalVisible(true)}
+            style={{ borderRadius: 10, height: 40 }}
+          >
+            ดาวน์โหลดรายงาน Excel
+          </Button>
+        </Space>
+      }
       styles={{ body: { padding: 0 } }}
     >
       {/* ตารางแสดงผลรายการคำขอ OT พร้อมฟังก์ชันขยายแถว */}
@@ -1581,7 +1622,7 @@ const OvertimeTableSection = ({
         pagination={{
           ...paginationState,
           showSizeChanger: true,
-          showTotal: (totalRecords) => `ผลลัพธ์การค้นหา ${totalRecords} รายการ`,
+          showTotal: (totalRecords) => `แสดงผลทั้งหมด ${totalRecords} รายการ`,
           style: { padding: "20px 24px" },
         }}
         onChange={onTableChange}
@@ -1761,23 +1802,19 @@ const CreateModalSection = ({
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
-            {/* เลือกพนักงานที่เป็นผู้มอบหมายงาน */}
+            {/* เลือกพนักงานที่เป็นผู้มอบหมายงาน - ล็อกไว้ที่ Admin SB Helper */}
             <Form.Item
               name="assignee"
               label={<Typography.Text strong>ผู้มอบหมายงาน</Typography.Text>}
+              initialValue={BYPASS_ADMIN_ID}
               rules={[{ required: true, message: "โปรดเลือกผู้มอบหมายงาน" }]}
             >
               <Select
                 options={userOptions}
+                disabled
                 showSearch
-                allowClear
                 placeholder="ระบุชื่อผู้มอบหมายงาน..."
                 optionFilterProp="label"
-                filterOption={(input, option) =>
-                  (option?.label ?? "")
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
                 loading={loading}
                 style={{ height: 48 }}
                 styles={{ popup: { root: { borderRadius: 12 } } }}
