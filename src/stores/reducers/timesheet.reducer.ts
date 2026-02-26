@@ -14,8 +14,6 @@ interface TimesheetState {
   //** สถานะการโหลด */
   loading: boolean;
   entriesLoading: boolean;
-  projectsLoading: boolean;
-  subProjectsLoading: boolean;
   exportLoading: boolean;
   exportStep: number;
 
@@ -26,9 +24,6 @@ interface TimesheetState {
 
   //** สถานะ Modal */
   modalStates: {
-    exportModal: boolean;
-    exportModal2: boolean;
-    exportModal3: boolean;
     exportModal4: boolean;
     graphModal: boolean;
     pieModal: boolean;
@@ -52,8 +47,6 @@ const initialState: TimesheetState = {
 
   loading: false,
   entriesLoading: false,
-  projectsLoading: false,
-  subProjectsLoading: false,
   exportLoading: false,
   exportStep: 0,
 
@@ -62,9 +55,6 @@ const initialState: TimesheetState = {
   totalItems: 0,
 
   modalStates: {
-    exportModal: false,
-    exportModal2: false,
-    exportModal3: false,
     exportModal4: false,
     graphModal: false,
     pieModal: false,
@@ -111,14 +101,6 @@ const timesheetSlice = createSlice({
       state.entriesLoading = action.payload;
     },
 
-    setProjectsLoading: (state, action: PayloadAction<boolean>) => {
-      state.projectsLoading = action.payload;
-    },
-
-    setSubProjectsLoading: (state, action: PayloadAction<boolean>) => {
-      state.subProjectsLoading = action.payload;
-    },
-
     setExportLoading: (state, action: PayloadAction<boolean>) => {
       state.exportLoading = action.payload;
     },
@@ -134,7 +116,7 @@ const timesheetSlice = createSlice({
         currentPage?: number;
         pageSize?: number;
         totalItems?: number;
-      }>
+      }>,
     ) => {
       if (action.payload.currentPage !== undefined) {
         state.currentPage = action.payload.currentPage;
@@ -153,7 +135,7 @@ const timesheetSlice = createSlice({
       action: PayloadAction<{
         modal: keyof TimesheetState["modalStates"];
         isOpen: boolean;
-      }>
+      }>,
     ) => {
       state.modalStates[action.payload.modal] = action.payload.isOpen;
     },
@@ -161,9 +143,6 @@ const timesheetSlice = createSlice({
     //** รีเซ็ตสถานะ Modal ทั้งหมด */
     resetModalStates: (state) => {
       state.modalStates = {
-        exportModal: false,
-        exportModal2: false,
-        exportModal3: false,
         exportModal4: false,
         graphModal: false,
         pieModal: false,
@@ -199,8 +178,6 @@ export const {
   setUsers,
   setLoading,
   setEntriesLoading,
-  setProjectsLoading,
-  setSubProjectsLoading,
   setExportLoading,
   setExportStep,
   setPagination,

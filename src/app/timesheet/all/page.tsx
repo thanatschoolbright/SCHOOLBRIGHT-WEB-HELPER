@@ -45,9 +45,6 @@ import { buildDefaultRange, filterRecords } from "./utils/timesheet.helpers";
 
 import SummaryCard from "@/components/card/summary-card";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
-import ExportModal from "@components/modal/timesheet-export-modal";
-import ExportModalByProject from "@components/modal/timesheet-export-modal-by-project";
-import ExportModalTemplate3 from "@components/modal/timesheet-export-modal-template3";
 import ExportModalTemplate4 from "@components/modal/timesheet-export-modal-template4";
 import { toast } from "sonner";
 
@@ -67,9 +64,6 @@ export default function TimesheetAllPage() {
   const [dateRange, setDateRange] = useState(buildDefaultRange());
   const [departmentIds, setDepartmentIds] = useState<number[]>([]);
   const [modalStates, setModalStates] = useState({
-    exportModal: false,
-    exportModal2: false,
-    exportModal3: false,
     exportModal4: false,
     autoFillModal: false,
   });
@@ -83,15 +77,7 @@ export default function TimesheetAllPage() {
     (state) => state.timesheetAll,
   );
 
-  const {
-    projects,
-    subProjects,
-    requestExportTemplate,
-    requestExportTemplate2,
-    requestExportTemplate3,
-    requestExportTemplate4,
-    requestExportAll,
-  } = useExportHandlers();
+  const { requestExportTemplate4, requestExportAll } = useExportHandlers();
 
   /**
    * กรองข้อมูลพนักงานตามคำค้นหา (Keyword)
@@ -215,33 +201,15 @@ export default function TimesheetAllPage() {
 
   const exportMenuItems: MenuProps["items"] = [
     {
-      key: "1",
-      label: "Export Template 1",
-      icon: <FileExcelOutlined style={{ color: token.colorSuccess }} />,
-      onClick: () => requestOpenExportModal("exportModal"),
-    },
-    {
-      key: "2",
-      label: "Export Template 2 (By Project)",
-      icon: <FileExcelOutlined style={{ color: token.colorSuccess }} />,
-      onClick: () => requestOpenExportModal("exportModal2"),
-    },
-    {
-      key: "3",
-      label: "Export Template 3",
-      icon: <FileExcelOutlined style={{ color: token.colorSuccess }} />,
-      onClick: () => requestOpenExportModal("exportModal3"),
-    },
-    {
       key: "4",
-      label: "Export Template 4",
+      label: "Export Audit Report (Template 4)",
       icon: <FileExcelOutlined style={{ color: token.colorSuccess }} />,
       onClick: () => requestOpenExportModal("exportModal4"),
     },
     { type: "divider" },
     {
       key: "all",
-      label: "Export All Records",
+      label: "Export All Records (CSV/Excel)",
       icon: <FileTextOutlined style={{ color: token.colorInfo }} />,
       onClick: requestExportAll,
       disabled: exportLoading,
@@ -513,30 +481,6 @@ export default function TimesheetAllPage() {
         </Flex>
 
         {/* Modals สำหรับการส่งออกข้อมูล */}
-        <ExportModal
-          visible={modalStates.exportModal}
-          loading={exportLoading}
-          onClose={() => responseCloseModal("exportModal")}
-          onExport={requestExportTemplate}
-          projects={projects}
-          subProjects={subProjects}
-          users={users}
-        />
-        <ExportModalByProject
-          visible={modalStates.exportModal2}
-          loading={exportLoading}
-          onClose={() => responseCloseModal("exportModal2")}
-          onExport={requestExportTemplate2}
-          projects={projects}
-          subProjects={subProjects}
-          users={users}
-        />
-        <ExportModalTemplate3
-          visible={modalStates.exportModal3}
-          loading={exportLoading}
-          onClose={() => responseCloseModal("exportModal3")}
-          onExport={requestExportTemplate3}
-        />
         <ExportModalTemplate4
           visible={modalStates.exportModal4}
           loading={exportLoading}
