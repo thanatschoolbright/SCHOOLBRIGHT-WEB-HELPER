@@ -1129,7 +1129,11 @@ const OvertimeManagementPage = () => {
           }
           navigationRouter={navigationRouter}
           setIsAnalyticsModalVisible={setIsAnalyticsModalVisible}
-          setIsExportModalVisible={setIsExportModalVisible}
+          setIsExportModalVisible={() => {
+            setIsExportOperationSuccess(false);
+            setExportStepCount(0);
+            setIsExportModalVisible(true);
+          }}
           themeToken={themeToken}
         />
 
@@ -1190,7 +1194,9 @@ const OvertimeManagementPage = () => {
           onExport={requestExportOvertimeReportFile}
           loading={isLoadingOvertimeData}
           exportStepCount={exportStepCount}
+          setExportStepCount={setExportStepCount}
           isExportOperationSuccess={isExportOperationSuccess}
+          setIsExportOperationSuccess={setIsExportOperationSuccess}
           themeToken={themeToken}
           exportSelectedDateRange={exportSelectedDateRange}
           setExportSelectedDateRange={setExportSelectedDateRange}
@@ -3160,7 +3166,9 @@ const ExportModalSection = ({
   onExport,
   loading,
   exportStepCount,
+  setExportStepCount,
   isExportOperationSuccess,
+  setIsExportOperationSuccess,
   themeToken,
   exportSelectedDateRange,
   setExportSelectedDateRange,
@@ -3196,7 +3204,10 @@ const ExportModalSection = ({
           <Button
             key="retry"
             type="link"
-            onClick={() => onExport(exportSelectedDateRange)}
+            onClick={() => {
+              setIsExportOperationSuccess(false);
+              setExportStepCount(0);
+            }}
           >
             ส่งออกรายงานชุดอื่น
           </Button>,
