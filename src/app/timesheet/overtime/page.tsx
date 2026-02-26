@@ -153,6 +153,7 @@ const OT_STATUS = [
 ];
 
 const OvertimeManagementPage = () => {
+  // --- เครื่องมือพื้นฐาน (Hooks & Helpers) ---
   const navigationRouter = useRouter();
   const { t: translate } = useTranslation();
   const { token: themeToken } = theme.useToken();
@@ -160,50 +161,60 @@ const OvertimeManagementPage = () => {
   const { data: userSession } = useSession();
   const { user_id: parameterUserId } = useParams();
 
+  // จัดการสถานะแบบฟอร์ม (Form Instances)
   const [overtimeForm] = Form.useForm();
   const authenticationState = useAppSelector((state) => state.callAdminLogin);
 
+  // --- สถานะการแสดงผล UI (Visibility State) ---
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
-  const [selectedOvertimeDetail, setSelectedOvertimeDetail] =
-    useState<OvertimeRecord | null>(null);
+  const [isBatchStatusModalVisible, setIsBatchStatusModalVisible] =
+    useState(false);
+  const [isExportModalVisible, setIsExportModalVisible] = useState(false);
+  const [isAnalyticsModalVisible, setIsAnalyticsModalVisible] = useState(false);
+  const [isRulesModalVisible, setIsRulesModalVisible] = useState(true);
+
+  // --- ข้อมูลและผลลัพธ์จาก API (Data State) ---
   const [isLoadingOvertimeData, setIsLoadingOvertimeData] = useState(false);
   const [overtimeDataSource, setOvertimeDataSource] = useState<
     OvertimeRecord[]
   >([]);
+  const [selectedOvertimeDetail, setSelectedOvertimeDetail] =
+    useState<OvertimeRecord | null>(null);
   const [userSelectionOptions, setUserSelectionOptions] = useState<
     SelectOption[]
   >([]);
   const [descriptionSelectionOptions, setDescriptionSelectionOptions] =
     useState<SelectOption[]>([]);
+
+  // --- สถานะการกรองและแบ่งหน้า (Pagination & Filters) ---
   const [paginationState, setPaginationState] = useState<PaginationState>({
     current: 1,
     pageSize: 20,
     total: 0,
   });
+  const [filterSearchTextValue, setFilterSearchTextValue] = useState("");
+  const [filterSelectedMonthValue, setFilterSelectedMonthValue] =
+    useState<dayjs.Dayjs | null>(null);
+
+  // --- สถานะการทำงานแบบกลุ่ม (Batch Processing State) ---
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [isBatchProcessing, setIsBatchProcessing] = useState(false);
   const [processedRecordItems, setProcessedRecordItems] = useState<
     Set<React.Key>
   >(new Set());
-  const [isBatchStatusModalVisible, setIsBatchStatusModalVisible] =
-    useState(false);
   const [selectedBatchStatus, setSelectedBatchStatus] =
     useState<string>("approved");
-  const [isExportModalVisible, setIsExportModalVisible] = useState(false);
+
+  // --- สถานะการส่งออกข้อมูล (Export State) ---
   const [exportStepCount, setExportStepCount] = useState(0);
   const [isExportOperationSuccess, setIsExportOperationSuccess] =
     useState(false);
   const [exportSelectedDateRange, setExportSelectedDateRange] = useState<
     [dayjs.Dayjs, dayjs.Dayjs] | null
   >([dayjs().startOf("month"), dayjs().endOf("month")]);
-  const [filterSearchTextValue, setFilterSearchTextValue] = useState("");
-  const [filterSelectedMonthValue, setFilterSelectedMonthValue] =
-    useState<dayjs.Dayjs | null>(null);
-  const [isAnalyticsModalVisible, setIsAnalyticsModalVisible] = useState(false);
-  const [isRulesModalVisible, setIsRulesModalVisible] = useState(true);
 
-  // ควบคุมสถานะการแสดงผลของ Modal แจ้งเตือนผลลัพธ์ (Success/Error)
+  // --- ส่วนควบคุม Modal แจ้งเตือนกลาง (Feedback Modal) ---
   const [modalState, setModalState] = useState<StatusModalProps>({
     visible: false,
     type: "success",
@@ -482,6 +493,55 @@ const OvertimeManagementPage = () => {
     ],
   );
 
+  // --- ฟังก์ชันช่วยเหลือสำหรับการประมวลผลข้อมูล (Utility Functions) ---
+
+  /**
+   * ตรวจสอบความถูกต้องของไฟล์รูปภาพ (ขนาดห้ามเกิน 2MB)
+   * @param files รายการไฟล์ที่ต้องการตรวจสอบ
+   * @returns boolean (true = ผ่าน, false = ไม่ผ่าน)
+   */
+  const validateImageFiles = useCallback((files: any[]): boolean => {
+    const MAX_SIZE = 2 * 1024 * 1024;
+    for (const file of files) {
+      const rawFile = file.originFileObj || file;
+      if (rawFile && rawFile.size > MAX_SIZE) {
+        toast.error(`ไฟล์ "${rawFile.name}" ใหญ่เกินไป (จำกัด 2MB)`);
+        return false;
+      }
+    }
+    return true;
+  }, []);
+
+  /**
+   * อัปโหลดไฟล์รูปภาพไปยัง Server
+   * @param file ไฟล์ที่ต้องการอัปโหลด
+   * @param descriptionId ID ของรายการงาน
+   * @param key ชื่อ Key สำหรับเก็บรูปภาพ (เช่น image_1, signature_1)
+   */
+  const uploadBinaryImage = async (
+    file: any,
+    descriptionId: string | number,
+    key: string,
+  ) => {
+    const rawFile = file.originFileObj || file;
+    const formData = new FormData();
+    formData.append("file", rawFile);
+    formData.append("description_id", String(descriptionId));
+    formData.append("image_key", key);
+    formData.append("action", "upload");
+
+    try {
+      await callApiService.post(
+        "/api/v1/timesheet/overtime/upload-images",
+        formData,
+      );
+    } catch (error) {
+      console.error(`Upload error [${key}]:`, error);
+    }
+  };
+
+  // --- ฟังก์ชันจัดการธุรกรรมหลัก (Primary Request Handlers) ---
+
   // ส่งคำร้องขอสร้างรายการปฏิบัติงานล่วงเวลาใหม่ไปยังระบบ
   const requestCreateOvertimeSubmission = async (
     formSubmissionPayload: any,
@@ -490,169 +550,94 @@ const OvertimeManagementPage = () => {
       setIsLoadingOvertimeData(true);
       const currentOperatingUserToken = await requestCurrentLocalUserID();
 
-      const baseDateString = formSubmissionPayload.request_date
-        ? dayjs(formSubmissionPayload.request_date).format("YYYY-MM-DD")
-        : dayjs().format("YYYY-MM-DD");
-
-      // เก็บไฟล์ไว้เพื่ออัปโหลดทีหลัง หลังจากสร้าง Record และได้ ID แล้ว
-      const descriptionsWithFilesBuffer =
-        formSubmissionPayload.descriptions || [];
-
-      // ตรวจสอบขนาดไฟล์ก่อนดำเนินการสร้างรายการ (จำกัด 2MB ต่อรูป) เพื่อป้องกันการสร้างรายการที่ไม่สมบูรณ์
-      const MAX_FILE_SIZE_LIMIT = 2 * 1024 * 1024;
-      const allFilesToValidate = [
+      // 1. ตรวจสอบความถูกต้องของไฟล์รูปภาพก่อนดำเนินธุรกรรม
+      const allFiles = [
         ...(formSubmissionPayload.proof_checkin || []),
         ...(formSubmissionPayload.proof_checkout || []),
         ...(formSubmissionPayload.proof_work_1 || []),
         ...(formSubmissionPayload.proof_work_2 || []),
         ...(formSubmissionPayload.signature_file || []),
       ];
+      if (!validateImageFiles(allFiles)) return null;
 
-      for (const fileItem of allFilesToValidate) {
-        const actualFile = fileItem.originFileObj || fileItem;
-        if (actualFile && actualFile.size > MAX_FILE_SIZE_LIMIT) {
-          toast.error(
-            `ไฟล์ "${actualFile.name}" มีขนาดใหญ่เกินไป (จำกัดไม่เกิน 2MB)`,
-          );
-          return null;
-        }
-      }
+      // 2. เตรียมข้อมูล Payload สำหรับการสร้าง Record หลัก
+      const baseDate = formSubmissionPayload.request_date
+        ? dayjs(formSubmissionPayload.request_date).format("YYYY-MM-DD")
+        : dayjs().format("YYYY-MM-DD");
 
       const submissionBodyPayload = {
         ...formSubmissionPayload,
-        request_date: baseDateString,
-        descriptions: descriptionsWithFilesBuffer.map((desc: any) => {
-          const start = dayjs(desc.startDate);
-          const end = dayjs(desc.endDate);
-          const base = dayjs(baseDateString);
+        request_date: baseDate,
+        descriptions: (formSubmissionPayload.descriptions || []).map(
+          (desc: any) => {
+            const start = dayjs(desc.startDate);
+            const end = dayjs(desc.endDate);
+            const base = dayjs(baseDate);
 
-          const fullStart = base
-            .hour(start.hour())
-            .minute(start.minute())
-            .second(0);
-          const fullEnd = base.hour(end.hour()).minute(end.minute()).second(0);
-
-          return {
-            ...desc,
-            duration: Number(desc.duration || 0),
-            startDate: fullStart.toISOString(),
-            endDate: fullEnd.toISOString(),
-            assignee: String(formSubmissionPayload.assignee),
-          };
-        }),
+            return {
+              ...desc,
+              duration: Number(desc.duration || 0),
+              startDate: base
+                .hour(start.hour())
+                .minute(start.minute())
+                .second(0)
+                .toISOString(),
+              endDate: base
+                .hour(end.hour())
+                .minute(end.minute())
+                .second(0)
+                .toISOString(),
+              assignee: String(formSubmissionPayload.assignee),
+            };
+          },
+        ),
         created_by: Number(currentOperatingUserToken),
         requester_id: String(currentOperatingUserToken),
       };
 
-      // Clean up top-level fields that are now in descriptions or correctly placed
-      delete (submissionBodyPayload as any).assignee;
-      delete (submissionBodyPayload as any).start_time;
-      delete (submissionBodyPayload as any).end_time;
-      delete (submissionBodyPayload as any).proof_checkin; // ลบไฟล์หลักฐาน (Check-in) ออกจาก payload JSON
-      delete (submissionBodyPayload as any).proof_checkout; // ลบไฟล์หลักฐาน (Check-out) ออกจาก payload JSON
-      delete (submissionBodyPayload as any).proof_work_1; // ลบไฟล์หลักฐาน (Work 1) ออกจาก payload JSON
-      delete (submissionBodyPayload as any).proof_work_2; // ลบไฟล์หลักฐาน (Work 2) ออกจาก payload JSON
-      delete (submissionBodyPayload as any).signature_file; // ลบลายเซ็นออกจาก payload JSON
+      // ลบข้อมูลส่วนเกินที่ไม่ได้ใช้ใน JSON API
+      [
+        "assignee",
+        "start_time",
+        "end_time",
+        "proof_checkin",
+        "proof_checkout",
+        "proof_work_1",
+        "proof_work_2",
+        "signature_file",
+      ].forEach((key) => delete (submissionBodyPayload as any)[key]);
 
-      const apiResponseResultObject = await callApiService.post(
+      // 3. ยิง API สร้างรายการหลัก
+      const result = await callApiService.post(
         "/api/v1/timesheet/overtime/create",
         submissionBodyPayload,
       );
-      const apiResponseContentData = apiResponseResultObject?.data;
+      const resData = result?.data;
 
-      if (
-        apiResponseContentData &&
-        (apiResponseContentData.status === 200 ||
-          apiResponseContentData.status === 201)
-      ) {
-        // --- ขั้นตอนการอัปโหลดไฟล์ (หลักฐานและลายเซ็น) ---
-        // เราจะนำ ID ของ Description ที่สร้างขึ้นจากฐานข้อมูลมาเป็น Key ในการอัปโหลด
-        const createdOvertimeObject = apiResponseContentData.data;
-        const createdDescriptionsList = createdOvertimeObject?.descriptions;
+      if (resData && (resData.status === 200 || resData.status === 201)) {
+        const firstId = resData.data?.descriptions?.[0]?.id;
 
-        if (
-          createdDescriptionsList &&
-          Array.isArray(createdDescriptionsList) &&
-          createdDescriptionsList.length > 0
-        ) {
-          // ในกรณีคำขอนี้ หลักฐานและลายเซ็นจะแนบกับภาระงานแรกเป็นหลัก (Global Context)
-          const firstDescriptionId = createdDescriptionsList[0].id;
-
-          // 1. อัปโหลดรูปภาพหลักฐาน (Evidence Images) - แยก 4 ส่วนตามที่ผู้ใช้กำหนด (Check-in, Check-out, Work#1, Work#2)
-          const evidenceFieldsSequence = [
-            { key: "image_1", file: formSubmissionPayload.proof_checkin },
-            { key: "image_2", file: formSubmissionPayload.proof_checkout },
-            { key: "image_3", file: formSubmissionPayload.proof_work_1 },
-            { key: "image_4", file: formSubmissionPayload.proof_work_2 },
+        if (firstId) {
+          // 4. ทยอยอัปโหลดไฟล์รูปภาพหลักฐานและลายเซ็น (Global Context)
+          const uploadJobs = [
+            { key: "image_1", files: formSubmissionPayload.proof_checkin },
+            { key: "image_2", files: formSubmissionPayload.proof_checkout },
+            { key: "image_3", files: formSubmissionPayload.proof_work_1 },
+            { key: "image_4", files: formSubmissionPayload.proof_work_2 },
+            { key: "signature_1", files: formSubmissionPayload.signature_file },
           ];
 
-          for (const evidenceItem of evidenceFieldsSequence) {
-            const filesList = evidenceItem.file;
-            if (filesList && Array.isArray(filesList) && filesList.length > 0) {
-              const antFileObject = filesList[0];
-              const rawFileToUpload =
-                antFileObject.originFileObj || antFileObject;
-
-              const formDataObject = new FormData();
-              formDataObject.append("file", rawFileToUpload);
-              formDataObject.append(
-                "description_id",
-                String(firstDescriptionId),
-              );
-              formDataObject.append("image_key", evidenceItem.key);
-              formDataObject.append("action", "upload");
-
-              try {
-                await callApiService.post(
-                  "/api/v1/timesheet/overtime/upload-images",
-                  formDataObject,
-                );
-              } catch (uploadItemError) {
-                console.error(
-                  `Error uploading ${evidenceItem.key}:`,
-                  uploadItemError,
-                );
-              }
-            }
-          }
-
-          // 2. อัปโหลดรูปภาพลายเซ็น (Signature Image) - ต้องมี 1 รูปเสมอ (Required)
-          const signatureFilesToProcess = formSubmissionPayload.signature_file;
-          if (
-            signatureFilesToProcess &&
-            Array.isArray(signatureFilesToProcess) &&
-            signatureFilesToProcess.length > 0
-          ) {
-            const antSignatureFile = signatureFilesToProcess[0];
-            const rawSignatureFile =
-              antSignatureFile.originFileObj || antSignatureFile;
-
-            const sigFormDataObject = new FormData();
-            sigFormDataObject.append("file", rawSignatureFile);
-            sigFormDataObject.append(
-              "description_id",
-              String(firstDescriptionId),
-            );
-            sigFormDataObject.append("image_key", "signature_1");
-            sigFormDataObject.append("action", "upload");
-
-            try {
-              await callApiService.post(
-                "/api/v1/timesheet/overtime/upload-images",
-                sigFormDataObject,
-              );
-            } catch (sigUploadError) {
-              console.error("Error uploading Signature:", sigUploadError);
+          for (const job of uploadJobs) {
+            if (job.files?.[0]) {
+              await uploadBinaryImage(job.files[0], firstId, job.key);
             }
           }
         }
 
-        toast.success(apiResponseContentData.message_th ?? "สร้างรายการสำเร็จ");
-        return apiResponseContentData.data;
+        toast.success(resData.message_th ?? "สร้างรายการสำเร็จ");
+        return resData.data;
       }
-      throw new Error(
-        apiResponseContentData?.message_th ?? "ไม่สามารถสร้างรายการได้",
-      );
+      throw new Error(resData?.message_th ?? "ไม่สามารถสร้างรายการได้");
     } catch (error) {
       processAndDisplaySystemError(error, "เกิดข้อผิดพลาดในการสร้างรายการ");
       return null;
@@ -1819,6 +1804,198 @@ const OvertimeTableSection = ({
   );
 };
 
+// --- ส่วนประกอบ UI ย่อย (Sub-components) สำหรับแสดงผลในแต่ละหน้าส่วน ---
+
+/**
+ * ส่วนแสดงผลรูปภาพอัปโหลด สำหรับหน้าสร้างรายการคำขอ
+ * ช่วยลดการเขียน Code ซ้ำซ้อนและทำให้อ่านง่ายขึ้น
+ */
+const UploadFieldItem = ({
+  name,
+  label,
+  required = false,
+  form,
+}: {
+  name: string;
+  label: string;
+  required?: boolean;
+  form: any;
+}) => (
+  <Form.Item
+    name={name}
+    label={
+      <Typography.Text style={{ fontSize: 13 }}>
+        {label} {required && <span style={{ color: "red" }}>*</span>}
+      </Typography.Text>
+    }
+    valuePropName="fileList"
+    getValueFromEvent={(e: any) => (Array.isArray(e) ? e : e?.fileList)}
+    rules={required ? [{ required: true, message: `โปรดอัปโหลด${label}` }] : []}
+    style={{ marginBottom: 20 }}
+  >
+    <Upload
+      listType="picture-card"
+      maxCount={1}
+      multiple={false}
+      style={{ marginBottom: 8 }}
+      beforeUpload={(file) => {
+        const isLt2M = file.size < 2 * 1024 * 1024;
+        if (!isLt2M) {
+          toast.error(`ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`);
+          return Upload.LIST_IGNORE;
+        }
+        return false;
+      }}
+    >
+      <Form.Item noStyle dependencies={[name]}>
+        {() => (
+          <div
+            style={{
+              display: form.getFieldValue(name)?.length >= 1 ? "none" : "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            <PlusOutlined />
+            <div style={{ fontSize: 10 }}>อัปโหลด</div>
+          </div>
+        )}
+      </Form.Item>
+    </Upload>
+  </Form.Item>
+);
+
+/**
+ * การ์ดแสดงข้อมูลรายงานภาระงานรายข้อ สำหรับหน้าสร้างคำขอ
+ */
+const TaskDescriptionCard = ({
+  fieldProps,
+  remove,
+  themeToken,
+}: {
+  fieldProps: any;
+  remove: (index: number) => void;
+  themeToken: any;
+}) => (
+  <Card
+    size="small"
+    variant="borderless"
+    style={{
+      background: themeToken.colorFillQuaternary,
+      borderRadius: 12,
+    }}
+  >
+    <Flex vertical gap={12}>
+      <Row gutter={12}>
+        <Col flex="auto">
+          {/* บรรยายรายละเอียดเนื้องาน */}
+          <Form.Item
+            {...fieldProps}
+            name={[fieldProps.name, "description"]}
+            label={
+              <Typography.Text strong style={{ fontSize: 12 }}>
+                รายละเอียดภาระงาน
+              </Typography.Text>
+            }
+            rules={[{ required: true, message: "ระบุเนื้องาน" }]}
+            style={{ marginBottom: 16 }}
+          >
+            <Input
+              placeholder="เช่น ตรวจสอบความถูกต้องของฐานข้อมูลรายชื่อ..."
+              style={{ height: 44, borderRadius: 10, marginBottom: 4 }}
+            />
+          </Form.Item>
+        </Col>
+        <Col flex="none">
+          <Button
+            type="text"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => remove(fieldProps.name)}
+            style={{ marginTop: 28 }}
+          />
+        </Col>
+      </Row>
+      <Row gutter={12}>
+        <Col xs={24} md={8}>
+          <Form.Item
+            {...fieldProps}
+            name={[fieldProps.name, "startDate"]}
+            label={
+              <Typography.Text style={{ fontSize: 12 }}>
+                เริ่มกี่โมง?
+              </Typography.Text>
+            }
+            rules={[{ required: true, message: "โปรดระบุเวลา" }]}
+            style={{ marginBottom: 16 }}
+          >
+            <TimePicker
+              format="HH:mm"
+              style={{
+                width: "100%",
+                height: 38,
+                borderRadius: 8,
+                marginBottom: 4,
+              }}
+              placeholder="เริ่ม"
+            />
+          </Form.Item>
+        </Col>
+        <Col xs={24} md={8}>
+          <Form.Item
+            {...fieldProps}
+            name={[fieldProps.name, "endDate"]}
+            label={
+              <Typography.Text style={{ fontSize: 12 }}>
+                เสร็จกี่โมง?
+              </Typography.Text>
+            }
+            rules={[{ required: true, message: "โปรดระบุเวลา" }]}
+            style={{ marginBottom: 16 }}
+          >
+            <TimePicker
+              format="HH:mm"
+              style={{
+                width: "100%",
+                height: 38,
+                borderRadius: 8,
+                marginBottom: 4,
+              }}
+              placeholder="จบ"
+            />
+          </Form.Item>
+        </Col>
+        <Col xs={24} md={8}>
+          <Form.Item
+            {...fieldProps}
+            name={[fieldProps.name, "duration"]}
+            label={
+              <Typography.Text style={{ fontSize: 12 }}>
+                ชม. รวม (อัตโนมัติ)
+              </Typography.Text>
+            }
+            rules={[{ required: true, message: "ระบุเวลา" }]}
+            style={{ marginBottom: 16 }}
+          >
+            <Input
+              type="number"
+              step="0.5"
+              suffix={
+                <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                  ชม.
+                </Typography.Text>
+              }
+              placeholder="0.0"
+              style={{ height: 38, borderRadius: 8, marginBottom: 4 }}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+    </Flex>
+  </Card>
+);
+
 const CreateModalSection = ({
   visible,
   setVisible,
@@ -1828,9 +2005,39 @@ const CreateModalSection = ({
   form,
   themeToken,
 }: any) => {
+  // ฟังก์ชันย่อยสำหรับประมวลผลการคำนวณชั่วโมงทำงานอัตโนมัติ
+  const calculateAutoDuration = (changedValues: any, allValues: any) => {
+    if (!changedValues.descriptions) return;
+
+    const updatedDescriptions = [...(allValues.descriptions || [])];
+    let isChanged = false;
+
+    Object.entries(changedValues.descriptions).forEach(
+      ([indexStr, value]: [string, any]) => {
+        const idx = parseInt(indexStr, 10);
+        if (value && (value.startDate || value.endDate)) {
+          const start = updatedDescriptions[idx].startDate;
+          const end = updatedDescriptions[idx].endDate;
+
+          if (start && end) {
+            const diff = dayjs(end).diff(dayjs(start), "hour", true);
+            const duration = Math.max(0, diff).toFixed(1);
+
+            if (updatedDescriptions[idx].duration !== duration) {
+              updatedDescriptions[idx].duration = duration;
+              isChanged = true;
+            }
+          }
+        }
+      },
+    );
+
+    if (isChanged) form.setFieldsValue({ descriptions: updatedDescriptions });
+  };
+
   const handleSubmission = async (formValues: any) => {
-    await requestCreateOvertimeSubmission(formValues);
-    setVisible(false);
+    const success = await requestCreateOvertimeSubmission(formValues);
+    if (success) setVisible(false);
   };
 
   return (
@@ -1886,40 +2093,7 @@ const CreateModalSection = ({
         layout="vertical"
         onFinish={handleSubmission}
         style={{ paddingTop: 32 }}
-        onValuesChange={(changedValues, allValues) => {
-          // คำนวณจำนวนชั่วโมงทำงานอัตโนมัติจากผลต่างของเวลาเริ่มต้นและสิ้นสุด
-          if (changedValues.descriptions) {
-            const updatedDescriptions = [...allValues.descriptions];
-            let updated = false;
-
-            Object.entries(changedValues.descriptions).forEach(
-              ([indexStr, val]: [string, any]) => {
-                const index = parseInt(indexStr, 10);
-                if (val && (val.startDate || val.endDate)) {
-                  const start = updatedDescriptions[index].startDate;
-                  const end = updatedDescriptions[index].endDate;
-                  if (start && end) {
-                    const diffHours = dayjs(end).diff(
-                      dayjs(start),
-                      "hour",
-                      true,
-                    );
-                    const calcDuration = Math.max(0, diffHours).toFixed(1);
-
-                    if (updatedDescriptions[index].duration !== calcDuration) {
-                      updatedDescriptions[index].duration = calcDuration;
-                      updated = true;
-                    }
-                  }
-                }
-              },
-            );
-
-            if (updated) {
-              form.setFieldsValue({ descriptions: updatedDescriptions });
-            }
-          }
-        }}
+        onValuesChange={calculateAutoDuration}
       >
         <Row gutter={24}>
           <Col xs={24} md={12}>
@@ -1929,9 +2103,15 @@ const CreateModalSection = ({
               label={<Typography.Text strong>วันที่ปฏิบัติงาน</Typography.Text>}
               initialValue={dayjs()}
               rules={[{ required: true, message: "โปรดระบุวันที่" }]}
+              style={{ marginBottom: 24 }}
             >
               <DatePicker
-                style={{ width: "100%", height: 48, borderRadius: 12 }}
+                style={{
+                  width: "100%",
+                  height: 48,
+                  borderRadius: 12,
+                  marginBottom: 4,
+                }}
                 format="DD/MM/YYYY"
                 suffixIcon={<CalendarOutlined />}
               />
@@ -1944,6 +2124,7 @@ const CreateModalSection = ({
               label={<Typography.Text strong>ผู้มอบหมายงาน</Typography.Text>}
               initialValue={BYPASS_ADMIN_ID}
               rules={[{ required: true, message: "โปรดเลือกผู้มอบหมายงาน" }]}
+              style={{ marginBottom: 24 }}
             >
               <Select
                 options={userOptions}
@@ -1952,7 +2133,7 @@ const CreateModalSection = ({
                 placeholder="ระบุชื่อผู้มอบหมายงาน..."
                 optionFilterProp="label"
                 loading={loading}
-                style={{ height: 48 }}
+                style={{ height: 48, marginBottom: 4 }}
                 styles={{ popup: { root: { borderRadius: 12 } } }}
                 notFoundContent={
                   loading ? (
@@ -1980,13 +2161,14 @@ const CreateModalSection = ({
               }
               rules={[{ required: true, message: "โปรดเลือกประเภท OT" }]}
               initialValue="weekday"
+              style={{ marginBottom: 24 }}
             >
               <Select
                 options={[
                   { label: "OT วันทำงานปกติ (Weekday OT)", value: "weekday" },
                   { label: "OT วันหยุด (Holiday OT)", value: "holiday" },
                 ]}
-                style={{ height: 48 }}
+                style={{ height: 48, marginBottom: 4 }}
                 styles={{ popup: { root: { borderRadius: 12 } } }}
               />
             </Form.Item>
@@ -2025,133 +2207,12 @@ const CreateModalSection = ({
             return (
               <Flex vertical gap={20}>
                 {fields.map(({ key, ...fieldProps }) => (
-                  <Card
+                  <TaskDescriptionCard
                     key={key}
-                    size="small"
-                    variant="borderless"
-                    style={{
-                      background: themeToken.colorFillQuaternary,
-                      borderRadius: 12,
-                    }}
-                  >
-                    <Flex vertical gap={12}>
-                      <Row gutter={12}>
-                        <Col flex="auto">
-                          {/* บรรยายรายละเอียดเนื้องาน */}
-                          <Form.Item
-                            {...fieldProps}
-                            name={[fieldProps.name, "description"]}
-                            label={
-                              <Typography.Text strong style={{ fontSize: 12 }}>
-                                รายละเอียดภาระงาน
-                              </Typography.Text>
-                            }
-                            rules={[
-                              { required: true, message: "ระบุเนื้องาน" },
-                            ]}
-                            style={{ marginBottom: 0 }}
-                          >
-                            <Input
-                              placeholder="เช่น ตรวจสอบความถูกต้องของฐานข้อมูลรายชื่อ..."
-                              style={{ height: 44, borderRadius: 10 }}
-                            />
-                          </Form.Item>
-                        </Col>
-                        <Col flex="none">
-                          <Button
-                            type="text"
-                            danger
-                            icon={<DeleteOutlined />}
-                            onClick={() => remove(fieldProps.name)}
-                            style={{ marginTop: 28 }}
-                          />
-                        </Col>
-                      </Row>
-                      <Row gutter={12}>
-                        <Col xs={24} md={8}>
-                          {/* ช่วงวลาที่เริ่มทำภาระงาน */}
-                          <Form.Item
-                            {...fieldProps}
-                            name={[fieldProps.name, "startDate"]}
-                            label={
-                              <Typography.Text style={{ fontSize: 12 }}>
-                                เริ่มกี่โมง?
-                              </Typography.Text>
-                            }
-                            rules={[
-                              { required: true, message: "โปรดระบุเวลา" },
-                            ]}
-                            style={{ marginBottom: 0 }}
-                          >
-                            <TimePicker
-                              format="HH:mm"
-                              style={{
-                                width: "100%",
-                                height: 38,
-                                borderRadius: 8,
-                              }}
-                              placeholder="เริ่ม"
-                            />
-                          </Form.Item>
-                        </Col>
-                        <Col xs={24} md={8}>
-                          {/* ช่วงเวลาที่สิ้นสุดภาระงาน */}
-                          <Form.Item
-                            {...fieldProps}
-                            name={[fieldProps.name, "endDate"]}
-                            label={
-                              <Typography.Text style={{ fontSize: 12 }}>
-                                เสร็จกี่โมง?
-                              </Typography.Text>
-                            }
-                            rules={[
-                              { required: true, message: "โปรดระบุเวลา" },
-                            ]}
-                            style={{ marginBottom: 0 }}
-                          >
-                            <TimePicker
-                              format="HH:mm"
-                              style={{
-                                width: "100%",
-                                height: 38,
-                                borderRadius: 8,
-                              }}
-                              placeholder="จบ"
-                            />
-                          </Form.Item>
-                        </Col>
-                        <Col xs={24} md={8}>
-                          {/* จำนวนชั่วโมงการทำงานรวม */}
-                          <Form.Item
-                            {...fieldProps}
-                            name={[fieldProps.name, "duration"]}
-                            label={
-                              <Typography.Text style={{ fontSize: 12 }}>
-                                ชม. รวม (อัตโนมัติ)
-                              </Typography.Text>
-                            }
-                            rules={[{ required: true, message: "ระบุเวลา" }]}
-                            style={{ marginBottom: 0 }}
-                          >
-                            <Input
-                              type="number"
-                              step="0.5"
-                              suffix={
-                                <Typography.Text
-                                  type="secondary"
-                                  style={{ fontSize: 11 }}
-                                >
-                                  ชม.
-                                </Typography.Text>
-                              }
-                              placeholder="0.0"
-                              style={{ height: 38, borderRadius: 8 }}
-                            />
-                          </Form.Item>
-                        </Col>
-                      </Row>
-                    </Flex>
-                  </Card>
+                    fieldProps={fieldProps}
+                    remove={remove}
+                    themeToken={themeToken}
+                  />
                 ))}
                 <Button
                   type="dashed"
@@ -2222,170 +2283,37 @@ const CreateModalSection = ({
               background: themeToken.colorFillAlter,
             }}
           >
-            <Row gutter={[16, 16]}>
+            <Row gutter={[16, 24]}>
               <Col xs={24} sm={12}>
-                <Form.Item
+                <UploadFieldItem
                   name="proof_checkin"
-                  label={
-                    <Typography.Text style={{ fontSize: 13 }}>
-                      1. หลักฐานการเข้าทำงาน (Line Group){" "}
-                      <span style={{ color: "red" }}>*</span>
-                    </Typography.Text>
-                  }
-                  valuePropName="fileList"
-                  getValueFromEvent={(e: any) =>
-                    Array.isArray(e) ? e : e?.fileList
-                  }
-                  rules={[
-                    { required: true, message: "โปรดอัปโหลดหลักฐานเข้างาน" },
-                  ]}
-                >
-                  <Upload
-                    listType="picture-card"
-                    maxCount={1}
-                    beforeUpload={(file) => {
-                      const isLt2M = file.size < 2 * 1024 * 1024;
-                      if (!isLt2M) {
-                        toast.error(
-                          `ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`,
-                        );
-                        return Upload.LIST_IGNORE;
-                      }
-                      return false;
-                    }}
-                  >
-                    <Form.Item noStyle dependencies={["proof_checkin"]}>
-                      {() =>
-                        form.getFieldValue("proof_checkin")?.length >=
-                        1 ? null : (
-                          <PlusOutlined />
-                        )
-                      }
-                    </Form.Item>
-                  </Upload>
-                </Form.Item>
+                  label="1. หลักฐานการเข้าทำงาน (Line Group)"
+                  required
+                  form={form}
+                />
               </Col>
               <Col xs={24} sm={12}>
-                <Form.Item
+                <UploadFieldItem
                   name="proof_checkout"
-                  label={
-                    <Typography.Text style={{ fontSize: 13 }}>
-                      2. หลักฐานการออกทำงาน (Line Group){" "}
-                      <span style={{ color: "red" }}>*</span>
-                    </Typography.Text>
-                  }
-                  valuePropName="fileList"
-                  getValueFromEvent={(e: any) =>
-                    Array.isArray(e) ? e : e?.fileList
-                  }
-                  rules={[
-                    { required: true, message: "โปรดอัปโหลดหลักฐานออกงาน" },
-                  ]}
-                >
-                  <Upload
-                    listType="picture-card"
-                    maxCount={1}
-                    beforeUpload={(file) => {
-                      const isLt2M = file.size < 2 * 1024 * 1024;
-                      if (!isLt2M) {
-                        toast.error(
-                          `ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`,
-                        );
-                        return Upload.LIST_IGNORE;
-                      }
-                      return false;
-                    }}
-                  >
-                    <Form.Item noStyle dependencies={["proof_checkout"]}>
-                      {() =>
-                        form.getFieldValue("proof_checkout")?.length >=
-                        1 ? null : (
-                          <PlusOutlined />
-                        )
-                      }
-                    </Form.Item>
-                  </Upload>
-                </Form.Item>
+                  label="2. หลักฐานการออกทำงาน (Line Group)"
+                  required
+                  form={form}
+                />
               </Col>
               <Col xs={24} sm={12}>
-                <Form.Item
+                <UploadFieldItem
                   name="proof_work_1"
-                  label={
-                    <Typography.Text style={{ fontSize: 13 }}>
-                      3. หลักฐานการทำงานจริง #1{" "}
-                      <span style={{ color: "red" }}>*</span>
-                    </Typography.Text>
-                  }
-                  valuePropName="fileList"
-                  getValueFromEvent={(e: any) =>
-                    Array.isArray(e) ? e : e?.fileList
-                  }
-                  rules={[
-                    { required: true, message: "โปรดอัปโหลดหลักฐานงาน 1" },
-                  ]}
-                >
-                  <Upload
-                    listType="picture-card"
-                    maxCount={1}
-                    beforeUpload={(file) => {
-                      const isLt2M = file.size < 2 * 1024 * 1024;
-                      if (!isLt2M) {
-                        toast.error(
-                          `ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`,
-                        );
-                        return Upload.LIST_IGNORE;
-                      }
-                      return false;
-                    }}
-                  >
-                    <Form.Item noStyle dependencies={["proof_work_1"]}>
-                      {() =>
-                        form.getFieldValue("proof_work_1")?.length >=
-                        1 ? null : (
-                          <PlusOutlined />
-                        )
-                      }
-                    </Form.Item>
-                  </Upload>
-                </Form.Item>
+                  label="3. หลักฐานการทำงานจริง #1"
+                  required
+                  form={form}
+                />
               </Col>
               <Col xs={24} sm={12}>
-                <Form.Item
+                <UploadFieldItem
                   name="proof_work_2"
-                  label={
-                    <Typography.Text style={{ fontSize: 13 }}>
-                      4. หลักฐานการทำงานจริง #2
-                    </Typography.Text>
-                  }
-                  valuePropName="fileList"
-                  getValueFromEvent={(e: any) =>
-                    Array.isArray(e) ? e : e?.fileList
-                  }
-                >
-                  <Upload
-                    listType="picture-card"
-                    maxCount={1}
-                    beforeUpload={(file) => {
-                      const isLt2M = file.size < 2 * 1024 * 1024;
-                      if (!isLt2M) {
-                        toast.error(
-                          `ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`,
-                        );
-                        return Upload.LIST_IGNORE;
-                      }
-                      return false;
-                    }}
-                  >
-                    <Form.Item noStyle dependencies={["proof_work_2"]}>
-                      {() =>
-                        form.getFieldValue("proof_work_2")?.length >=
-                        1 ? null : (
-                          <PlusOutlined />
-                        )
-                      }
-                    </Form.Item>
-                  </Upload>
-                </Form.Item>
+                  label="4. หลักฐานการทำงานจริง #2"
+                  form={form}
+                />
               </Col>
             </Row>
           </Card>
@@ -2406,42 +2334,12 @@ const CreateModalSection = ({
               background: themeToken.colorFillAlter,
             }}
           >
-            <Form.Item
+            <UploadFieldItem
               name="signature_file"
-              label={
-                <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-                  อัปโหลดรูปภาพลายเซ็นรับรอง (1 รูป){" "}
-                  <span style={{ color: "red" }}>*</span>
-                </Typography.Text>
-              }
-              valuePropName="fileList"
-              getValueFromEvent={(e: any) =>
-                Array.isArray(e) ? e : e?.fileList
-              }
-              rules={[{ required: true, message: "โปรดอัปโหลดลายเซ็น" }]}
-              style={{ marginBottom: 0 }}
-            >
-              <Upload
-                listType="picture-card"
-                maxCount={1}
-                beforeUpload={(file) => {
-                  const isLt2M = file.size < 2 * 1024 * 1024;
-                  if (!isLt2M) {
-                    toast.error(`ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`);
-                    return Upload.LIST_IGNORE;
-                  }
-                  return false;
-                }}
-              >
-                <Form.Item noStyle dependencies={["signature_file"]}>
-                  {() =>
-                    form.getFieldValue("signature_file")?.length >= 1 ? null : (
-                      <PlusOutlined />
-                    )
-                  }
-                </Form.Item>
-              </Upload>
-            </Form.Item>
+              label="อัปโหลดรูปภาพลายเซ็นรับรอง (1 รูป)"
+              required
+              form={form}
+            />
           </Card>
         </div>
 
