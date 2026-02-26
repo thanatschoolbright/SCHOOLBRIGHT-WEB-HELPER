@@ -267,7 +267,7 @@ const createOverviewSheet = (
   // Title Section Row 4: Project Count
   sheet.getRow(4).height = 24;
   sheet.getCell("A4").value = "จำนวนโครงการ";
-  sheet.getCell("B4").value = `${distinctProjectCount} รายการ`;
+  sheet.getCell("B4").value = `${distinctProjectCount} โครงการ`;
   sheet.mergeCells("B4:F4");
   sheet.getCell("A4").font = { ...EXCEL_STYLES.NORMAL_FONT, bold: true };
   sheet.getCell("B4").font = EXCEL_STYLES.NORMAL_FONT;
@@ -278,7 +278,7 @@ const createOverviewSheet = (
   // Title Section Row 5: Sub-project Count
   sheet.getRow(5).height = 24;
   sheet.getCell("A5").value = "จำนวนโครงการย่อย";
-  sheet.getCell("B5").value = `${featureCount} รายการ`;
+  sheet.getCell("B5").value = `${featureCount} โครงการย่อย`;
   sheet.mergeCells("B5:F5");
   sheet.getCell("A5").font = { ...EXCEL_STYLES.NORMAL_FONT, bold: true };
   sheet.getCell("B5").font = EXCEL_STYLES.NORMAL_FONT;
