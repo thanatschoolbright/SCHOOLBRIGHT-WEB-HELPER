@@ -120,8 +120,8 @@ export const OvertimeService = {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("รายการ OT");
 
-    // ตั้งค่าเริ่มต้นความสูงของแถวให้ดูโปร่งและสวยงาม
-    worksheet.properties.defaultRowHeight = 25;
+    // ตั้งค่าความสูงแถวมาตรฐานระดับ Enterprise (Fixed Height for all rows)
+    worksheet.properties.defaultRowHeight = 32;
 
     // --- ส่วนที่ 1: หัวข้อรายงานรูปแบบใหม่ (Header Section) ---
     // ปรับแต่ง Header ให้ดูเป็นเอกสารทางการมากขึ้น (A1:B3)
@@ -129,21 +129,21 @@ export const OvertimeService = {
     headerCells.forEach((ref) => {
       const cell = worksheet.getCell(ref);
       cell.border = {
-        top: { style: "thin" },
-        left: { style: "thin" },
-        bottom: { style: "thin" },
-        right: { style: "thin" },
+        top: { style: "thin", color: { argb: "FFD9D9D9" } },
+        left: { style: "thin", color: { argb: "FFD9D9D9" } },
+        bottom: { style: "thin", color: { argb: "FFD9D9D9" } },
+        right: { style: "thin", color: { argb: "FFD9D9D9" } },
       };
       cell.alignment = { vertical: "middle", horizontal: "left", indent: 1 };
     });
 
     worksheet.getCell("A1").value = "ชื่อเอกสาร";
     worksheet.getCell("B1").value =
-      "เอกสารการทำงานล่วงเวลา (OT) - แผนก IT Application";
+      "เอกสารการทำงานล่วงเวลา (OT) - School Bright Smart HRMS";
     worksheet.getCell("A1").fill = {
       type: "pattern",
       pattern: "solid",
-      fgColor: { argb: "FFF2F2F2" },
+      fgColor: { argb: "FFFFF7ED" }, // ส้มอ่อนมากๆ (School Bright Minimal)
     };
 
     const fromDateDisplay = params.from
@@ -153,26 +153,31 @@ export const OvertimeService = {
       ? dayjs(params.to).format("DD/MM/BBBB")
       : "-";
 
-    worksheet.getCell("A2").value = "เริ่มต้นงวดวันที่";
+    worksheet.getCell("A2").value = "ช่วงเวลาเริ่มต้น";
     worksheet.getCell("B2").value = fromDateDisplay;
-    worksheet.getCell("A3").value = "สิ้นสุดงวดวันที่";
+    worksheet.getCell("A3").value = "ช่วงเวลาสิ้นสุด";
     worksheet.getCell("B3").value = toDateDisplay;
 
     // ตกแต่ง Font ส่วนหัว
     ["A1", "A2", "A3"].forEach((ref) => {
       const cell = worksheet.getCell(ref);
-      cell.font = { bold: true, name: "Cordia New", size: 14 };
+      cell.font = {
+        bold: true,
+        name: "Cordia New",
+        size: 14,
+        color: { argb: "FF8C4D00" },
+      }; // ส้มน้ำตาลเข้ม
     });
 
     ["B1", "B2", "B3"].forEach((ref) => {
       const cell = worksheet.getCell(ref);
-      cell.font = { name: "Cordia New", size: 14, color: { argb: "FF333333" } };
+      cell.font = { name: "Cordia New", size: 14, color: { argb: "FF434343" } };
     });
     worksheet.getCell("B1").font = {
       bold: true,
       name: "Cordia New",
       size: 15,
-      color: { argb: "FFC0504D" },
+      color: { argb: "FFF37021" }, // School Bright Orange
     };
 
     // --- ส่วนที่ 2: กำหนดโครงสร้างตารางข้อมูลดิบ (Raw Data Table) ---
@@ -185,9 +190,10 @@ export const OvertimeService = {
       "ชื่อผู้ขอ",
       "วันที่ขอ",
       "สถานะ",
+      "ผู้อนุมัติรายการ",
       "วันที่ทำงาน",
       "ช่วงเวลา",
-      "จำนวนชั่วโมงที่ทำงานจริง",
+      "จำนวนชั่วโมง",
       "รายละเอียดงาน",
       "หลักฐานเข้าทำงาน",
       "หลักฐานออกทำงาน",
@@ -197,26 +203,27 @@ export const OvertimeService = {
     ];
 
     worksheet.columns = [
-      { key: "no", width: 6 },
-      { key: "id", width: 14 },
-      { key: "employee_code", width: 14 },
-      { key: "requester", width: 25 },
-      { key: "request_date", width: 14 },
-      { key: "status", width: 12 },
-      { key: "ot_date", width: 14 },
-      { key: "time_range", width: 18 },
-      { key: "duration", width: 12 },
-      { key: "description", width: 45 },
-      { key: "proof_in", width: 18 },
-      { key: "proof_out", width: 18 },
-      { key: "proof_job_1", width: 18 },
-      { key: "proof_job_2", width: 18 },
-      { key: "proof_sig", width: 18 },
+      { key: "no", width: 12 }, // ขยาย Column A ให้กว้างขึ้นตามคำขอ
+      { key: "id", width: 16 },
+      { key: "employee_code", width: 16 },
+      { key: "requester", width: 28 },
+      { key: "request_date", width: 15 },
+      { key: "status", width: 14 },
+      { key: "approver", width: 25 },
+      { key: "ot_date", width: 15 },
+      { key: "time_range", width: 20 },
+      { key: "duration", width: 14 },
+      { key: "description", width: 48 },
+      { key: "proof_in", width: 20 },
+      { key: "proof_out", width: 20 },
+      { key: "proof_job_1", width: 20 },
+      { key: "proof_job_2", width: 20 },
+      { key: "proof_sig", width: 20 },
     ];
 
-    // ตกแต่ง Header ของตาราง
+    // ตกแต่ง Header ของตาราง (Fixed Height 32)
     const tableHeaderRow = worksheet.getRow(tableHeaderRowIndex);
-    tableHeaderRow.height = 32; // สูงขึ้นเพื่อความสวยงาม
+    tableHeaderRow.height = 32;
     tableHeaderRow.eachCell((cell) => {
       cell.font = {
         name: "Cordia New",
@@ -227,14 +234,14 @@ export const OvertimeService = {
       cell.fill = {
         type: "pattern",
         pattern: "solid",
-        fgColor: { argb: "FF4F81BD" }, // เปลี่ยนเป็นสีน้ำเงินเข้ม สุภาพกว่า
+        fgColor: { argb: "FFF37021" }, // School Bright Orange (Brand Identity)
       };
       cell.alignment = { vertical: "middle", horizontal: "center" };
       cell.border = {
-        top: { style: "medium", color: { argb: "FF366092" } },
-        left: { style: "thin", color: { argb: "FF366092" } },
-        bottom: { style: "medium", color: { argb: "FF366092" } },
-        right: { style: "thin", color: { argb: "FF366092" } },
+        top: { style: "thin", color: { argb: "FFE25E00" } }, // ส้มเข้มขึ้นนิดหน่วยสำหรับขอบ
+        left: { style: "thin", color: { argb: "FFFFFFFF" } }, // ขอบสีขาวข้างใน (Minimal Look)
+        bottom: { style: "medium", color: { argb: "FFE25E00" } },
+        right: { style: "thin", color: { argb: "FFFFFFFF" } },
       };
     });
 
@@ -299,6 +306,7 @@ export const OvertimeService = {
             requester: fullName,
             request_date: requestDateTh,
             status: statusTh,
+            approver: "นายธนัท พรหมพิริยา\n(Head of Technology)",
             ot_date: dayjs(desc.date || item.requestDate).format("DD/MM/BBBB"),
             time_range:
               desc.startDate && desc.endDate
@@ -354,19 +362,19 @@ export const OvertimeService = {
     worksheet.mergeCells(`A${rowCursor}:E${rowCursor}`);
     const summaryTitleCell = worksheet.getCell(`A${rowCursor}`);
     summaryTitleCell.value =
-      "ข้อมูลสรุปสำหรับฝ่ายบุคคล (HR Payroll Summary Table)";
+      "ข้อมูลสรุปรายพนักงาน (School Bright Payroll Summary Analytics)";
     summaryTitleCell.font = {
       bold: true,
       size: 16,
       name: "Cordia New",
-      color: { argb: "FF366092" },
+      color: { argb: "FFF37021" },
     };
     summaryTitleCell.alignment = { horizontal: "left", vertical: "middle" };
-    worksheet.getRow(rowCursor).height = 35;
+    worksheet.getRow(rowCursor).height = 32;
     rowCursor++;
 
     const summaryHeaderRow = worksheet.getRow(rowCursor);
-    summaryHeaderRow.height = 30;
+    summaryHeaderRow.height = 32;
     summaryHeaderRow.values = [
       "ลำดับ",
       "รหัสพนักงาน",
@@ -385,14 +393,14 @@ export const OvertimeService = {
       cell.fill = {
         type: "pattern",
         pattern: "solid",
-        fgColor: { argb: "FF1F4E78" },
+        fgColor: { argb: "FFF37021" }, // School Bright Orange
       };
       cell.alignment = { horizontal: "center", vertical: "middle" };
       cell.border = {
-        top: { style: "medium" },
-        left: { style: "thin" },
-        bottom: { style: "medium" },
-        right: { style: "thin" },
+        top: { style: "thin", color: { argb: "FFE25E00" } },
+        left: { style: "thin", color: { argb: "FFFFFFFF" } },
+        bottom: { style: "medium", color: { argb: "FFE25E00" } },
+        right: { style: "thin", color: { argb: "FFFFFFFF" } },
       };
     });
     rowCursor++;
@@ -413,32 +421,36 @@ export const OvertimeService = {
         summary.totalDuration,
       ]);
 
-      row.height = 28;
+      row.height = 32; // Fixed height (Minimal Theme)
       row.eachCell((cell, colNumber) => {
-        cell.font = { name: "Cordia New", size: 13 };
+        cell.font = {
+          name: "Cordia New",
+          size: 13,
+          color: { argb: "FF434343" },
+        };
         cell.border = {
-          top: { style: "thin", color: { argb: "FFCCCCCC" } },
-          left: { style: "thin", color: { argb: "FFCCCCCC" } },
-          bottom: { style: "thin", color: { argb: "FFCCCCCC" } },
-          right: { style: "thin", color: { argb: "FFCCCCCC" } },
+          top: { style: "thin", color: { argb: "FFF9E7D8" } }, // Soft Orange Tint Border
+          left: { style: "thin", color: { argb: "FFF9E7D8" } },
+          bottom: { style: "thin", color: { argb: "FFF9E7D8" } },
+          right: { style: "thin", color: { argb: "FFF9E7D8" } },
         };
         cell.alignment = {
           vertical: "middle",
           horizontal: colNumber <= 2 || colNumber === 4 ? "center" : "left",
         };
 
-        // ใส่สีพื้นหลังเล็กน้อยให้กับตัวเลขสรุป
+        // ไฮไลท์จำนวนชั่วโมงรวมด้วยสีแบรนด์
         if (colNumber === 5) {
           cell.font = {
             bold: true,
-            color: { argb: "FFC0504D" },
+            color: { argb: "FFE25E00" },
             name: "Cordia New",
             size: 14,
           };
           cell.fill = {
             type: "pattern",
             pattern: "solid",
-            fgColor: { argb: "FFFDF2E9" },
+            fgColor: { argb: "FFFFF7ED" }, // ส้มจางคลีนๆ
           };
         }
       });
@@ -447,13 +459,13 @@ export const OvertimeService = {
 
     // --- ส่วนที่ 5: แถวสรุปยอดรวมสุทธิ (Grand Total Row) ---
     const grandTotalRow = worksheet.addRow([
-      "ยอดรวมสุทธิ (Grand Total)",
+      "สรุปยอดรวมทั้งสิ้น (School Bright Grand Total)",
       "",
       "",
       grandTotalTasks,
       grandTotalHours,
     ]);
-    grandTotalRow.height = 35;
+    grandTotalRow.height = 32;
 
     // Merge Cells สำหรับ Label "ยอดรวมสุทธิ" (A-C)
     worksheet.mergeCells(`A${rowCursor}:C${rowCursor}`);
@@ -468,7 +480,7 @@ export const OvertimeService = {
       cell.fill = {
         type: "pattern",
         pattern: "solid",
-        fgColor: { argb: "FFC0504D" }, // สีแดงเข้มแสดงถึงยอดรวมเพื่อให้ HR เห็นชัดเจน
+        fgColor: { argb: "FF8C4D00" }, // ส้มน้ำตาลเข้ม (Professional Look)
       };
       cell.alignment = {
         vertical: "middle",
@@ -491,6 +503,11 @@ export const OvertimeService = {
         row.getCell("employee_code").alignment = { horizontal: "center" };
         row.getCell("request_date").alignment = { horizontal: "center" };
         row.getCell("status").alignment = { horizontal: "center" };
+        row.getCell("approver").alignment = {
+          horizontal: "center",
+          vertical: "middle",
+          wrapText: true,
+        };
         row.getCell("ot_date").alignment = { horizontal: "center" };
         row.getCell("time_range").alignment = { horizontal: "center" };
         row.getCell("duration").alignment = { horizontal: "center" };
@@ -507,26 +524,26 @@ export const OvertimeService = {
  * Helper ฟังก์ชันสำหรับตกแต่ง Row ข้อมูล
  */
 function formatDataRow(row: ExcelJS.Row) {
-  row.height = 28; // ปรับความสูงให้สมดุลและอ่านง่าย (Balanced Height)
+  row.height = 32; // Fixed Height ตามคำขอ
   row.eachCell((cell) => {
-    cell.font = { name: "Cordia New", size: 13, color: { argb: "FF333333" } };
+    cell.font = { name: "Cordia New", size: 13, color: { argb: "FF434343" } };
     cell.border = {
-      top: { style: "thin", color: { argb: "FFCCCCCC" } },
-      left: { style: "thin", color: { argb: "FFCCCCCC" } },
-      bottom: { style: "thin", color: { argb: "FFCCCCCC" } },
-      right: { style: "thin", color: { argb: "FFCCCCCC" } },
+      top: { style: "thin", color: { argb: "FFF9E7D8" } }, // Soft Orange Tint Border
+      left: { style: "thin", color: { argb: "FFF9E7D8" } },
+      bottom: { style: "thin", color: { argb: "FFF9E7D8" } },
+      right: { style: "thin", color: { argb: "FFF9E7D8" } },
     };
     cell.alignment = { vertical: "middle", wrapText: true };
   });
 
-  // ใส่สีพื้นหลังสลับแถว (Zebra Effect)
+  // ใส่สีพื้นหลังสลับแถว (Zebra Effect - School Bright Light Orange)
   const rowNumber = Number(row.number);
   if (rowNumber % 2 === 0) {
     row.eachCell((cell) => {
       cell.fill = {
         type: "pattern",
         pattern: "solid",
-        fgColor: { argb: "FFF7F9FC" }, // สีฟ้าอ่อนจางๆ สบายตา
+        fgColor: { argb: "FFFFF7ED" }, // ส้มจางคลีนๆ สไตล์ Minimal
       };
     });
   }
