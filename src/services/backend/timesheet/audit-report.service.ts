@@ -381,14 +381,42 @@ const createEvidenceSheet = (
   sheet.getCell("A3").border = EXCEL_STYLES.BORDER;
   sheet.getCell("B3").border = EXCEL_STYLES.BORDER;
 
-  // Additional Info Row 4
+  // Additional Info Rows 4-6
   const assetTypeLabel = getAssetTypeLabel(feature.assetCaptureType);
-  sheet.getRow(4).height = 22;
-  sheet.mergeCells("A4:E4");
-  const subtitleCell = sheet.getCell("A4");
-  subtitleCell.value = `รหัส: ${formattedCode} | ประเภทสินทรัพย์: ${assetTypeLabel} | รวม: ${feature.hours.toFixed(2)} ชั่วโมง`;
-  subtitleCell.font = { ...EXCEL_STYLES.NORMAL_FONT, italic: true };
-  subtitleCell.alignment = { vertical: "middle", horizontal: "left" };
+
+  // Row 4: Project/Sub-project Code
+  sheet.getRow(4).height = 24;
+  sheet.getCell("A4").value = "รหัสโครงการ/รหัสโครงการย่อย";
+  sheet.getCell("B4").value = formattedCode;
+  sheet.mergeCells("B4:E4");
+  sheet.getCell("A4").font = { ...EXCEL_STYLES.NORMAL_FONT, bold: true };
+  sheet.getCell("B4").font = EXCEL_STYLES.NORMAL_FONT;
+  sheet.getCell("A4").fill = EXCEL_STYLES.TOTAL_FILL;
+  sheet.getCell("A4").border = EXCEL_STYLES.BORDER;
+  sheet.getCell("B4").border = EXCEL_STYLES.BORDER;
+
+  // Row 5: Asset Type
+  sheet.getRow(5).height = 24;
+  sheet.getCell("A5").value = "ประเภทสินทรัพย์";
+  sheet.getCell("B5").value = assetTypeLabel;
+  sheet.mergeCells("B5:E5");
+  sheet.getCell("A5").font = { ...EXCEL_STYLES.NORMAL_FONT, bold: true };
+  sheet.getCell("B5").font = EXCEL_STYLES.NORMAL_FONT;
+  sheet.getCell("A5").fill = EXCEL_STYLES.TOTAL_FILL;
+  sheet.getCell("A5").border = EXCEL_STYLES.BORDER;
+  sheet.getCell("B5").border = EXCEL_STYLES.BORDER;
+
+  // Row 6: Total Hours
+  sheet.getRow(6).height = 24;
+  sheet.getCell("A6").value = "รวมชั่วโมง";
+  sheet.getCell("B6").value = Number(feature.hours.toFixed(2));
+  sheet.mergeCells("B6:E6");
+  sheet.getCell("A6").font = { ...EXCEL_STYLES.NORMAL_FONT, bold: true };
+  sheet.getCell("B6").font = { ...EXCEL_STYLES.NORMAL_FONT, bold: true };
+  sheet.getCell("A6").fill = EXCEL_STYLES.TOTAL_FILL;
+  sheet.getCell("A6").border = EXCEL_STYLES.BORDER;
+  sheet.getCell("B6").border = EXCEL_STYLES.BORDER;
+  sheet.getCell("B6").numFmt = "#,##0.00";
 
   const headerRow = sheet.addRow([
     "วันที่ลงเวลา",
@@ -408,7 +436,7 @@ const createEvidenceSheet = (
     };
     cell.border = EXCEL_STYLES.BORDER;
   });
-  sheet.getRow(5).height = 26;
+  sheet.getRow(7).height = 26;
 
   const sortedEntries = feature.entries.sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
@@ -465,7 +493,7 @@ const createEvidenceSheet = (
     }
   });
 
-  sheet.views = [{ state: "frozen", ySplit: 5 }];
+  sheet.views = [{ state: "frozen", ySplit: 7 }];
 };
 
 export const TimesheetAuditReportService = {
