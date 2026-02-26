@@ -501,7 +501,10 @@ const OvertimeManagementPage = () => {
       // ตรวจสอบขนาดไฟล์ก่อนดำเนินการสร้างรายการ (จำกัด 2MB ต่อรูป) เพื่อป้องกันการสร้างรายการที่ไม่สมบูรณ์
       const MAX_FILE_SIZE_LIMIT = 2 * 1024 * 1024;
       const allFilesToValidate = [
-        ...(formSubmissionPayload.proof_files || []),
+        ...(formSubmissionPayload.proof_checkin || []),
+        ...(formSubmissionPayload.proof_checkout || []),
+        ...(formSubmissionPayload.proof_work_1 || []),
+        ...(formSubmissionPayload.proof_work_2 || []),
         ...(formSubmissionPayload.signature_file || []),
       ];
 
@@ -545,7 +548,10 @@ const OvertimeManagementPage = () => {
       delete (submissionBodyPayload as any).assignee;
       delete (submissionBodyPayload as any).start_time;
       delete (submissionBodyPayload as any).end_time;
-      delete (submissionBodyPayload as any).proof_files; // ลบไฟล์หลักฐานออกจาก payload JSON
+      delete (submissionBodyPayload as any).proof_checkin; // ลบไฟล์หลักฐาน (Check-in) ออกจาก payload JSON
+      delete (submissionBodyPayload as any).proof_checkout; // ลบไฟล์หลักฐาน (Check-out) ออกจาก payload JSON
+      delete (submissionBodyPayload as any).proof_work_1; // ลบไฟล์หลักฐาน (Work 1) ออกจาก payload JSON
+      delete (submissionBodyPayload as any).proof_work_2; // ลบไฟล์หลักฐาน (Work 2) ออกจาก payload JSON
       delete (submissionBodyPayload as any).signature_file; // ลบลายเซ็นออกจาก payload JSON
 
       const apiResponseResultObject = await callApiService.post(
@@ -572,15 +578,18 @@ const OvertimeManagementPage = () => {
           // ในกรณีคำขอนี้ หลักฐานและลายเซ็นจะแนบกับภาระงานแรกเป็นหลัก (Global Context)
           const firstDescriptionId = createdDescriptionsList[0].id;
 
-          // 1. อัปโหลดรูปภาพหลักฐาน (Evidence Images) - สูงสุด 4 รูป
-          const proofFilesToProcess = formSubmissionPayload.proof_files;
-          if (proofFilesToProcess && Array.isArray(proofFilesToProcess)) {
-            for (
-              let fileIndex = 0;
-              fileIndex < Math.min(proofFilesToProcess.length, 4);
-              fileIndex++
-            ) {
-              const antFileObject = proofFilesToProcess[fileIndex];
+          // 1. อัปโหลดรูปภาพหลักฐาน (Evidence Images) - แยก 4 ส่วนตามที่ผู้ใช้กำหนด (Check-in, Check-out, Work#1, Work#2)
+          const evidenceFieldsSequence = [
+            { key: "image_1", file: formSubmissionPayload.proof_checkin },
+            { key: "image_2", file: formSubmissionPayload.proof_checkout },
+            { key: "image_3", file: formSubmissionPayload.proof_work_1 },
+            { key: "image_4", file: formSubmissionPayload.proof_work_2 },
+          ];
+
+          for (const evidenceItem of evidenceFieldsSequence) {
+            const filesList = evidenceItem.file;
+            if (filesList && Array.isArray(filesList) && filesList.length > 0) {
+              const antFileObject = filesList[0];
               const rawFileToUpload =
                 antFileObject.originFileObj || antFileObject;
 
@@ -590,7 +599,7 @@ const OvertimeManagementPage = () => {
                 "description_id",
                 String(firstDescriptionId),
               );
-              formDataObject.append("image_key", `image_${fileIndex + 1}`);
+              formDataObject.append("image_key", evidenceItem.key);
               formDataObject.append("action", "upload");
 
               try {
@@ -598,16 +607,16 @@ const OvertimeManagementPage = () => {
                   "/api/v1/timesheet/overtime/upload-images",
                   formDataObject,
                 );
-              } catch (uploadError) {
+              } catch (uploadItemError) {
                 console.error(
-                  `Error uploading Image ${fileIndex + 1}:`,
-                  uploadError,
+                  `Error uploading ${evidenceItem.key}:`,
+                  uploadItemError,
                 );
               }
             }
           }
 
-          // 2. อัปโหลดรูปภาพลายเซ็น (Signature Image)
+          // 2. อัปโหลดรูปภาพลายเซ็น (Signature Image) - ต้องมี 1 รูปเสมอ (Required)
           const signatureFilesToProcess = formSubmissionPayload.signature_file;
           if (
             signatureFilesToProcess &&
@@ -2213,46 +2222,151 @@ const CreateModalSection = ({
               background: themeToken.colorFillAlter,
             }}
           >
-            <Form.Item
-              name="proof_files"
-              label={
-                <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-                  อัปโหลดไฟล์รูปภาพหลักฐานการทำงาน (JPG/PNG, สูงสุด 4 รูป)
-                </Typography.Text>
-              }
-              valuePropName="fileList"
-              getValueFromEvent={(e: any) =>
-                Array.isArray(e) ? e : e?.fileList
-              }
-              style={{ marginBottom: 0 }}
-            >
-              <Upload
-                listType="picture-card"
-                maxCount={4}
-                multiple
-                beforeUpload={(file) => {
-                  const isLt2M = file.size < 2 * 1024 * 1024;
-                  if (!isLt2M) {
-                    toast.error(
-                      `ไฟล์ "${file.name}" มีขนาดใหญ่เกินไป (จำกัดไม่เกิน 2MB)`,
-                    );
-                    return Upload.LIST_IGNORE;
+            <Row gutter={[16, 16]}>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name="proof_checkin"
+                  label={
+                    <Typography.Text style={{ fontSize: 13 }}>
+                      1. หลักฐานการเข้าทำงาน (Line Group) <span style={{ color: "red" }}>*</span>
+                    </Typography.Text>
                   }
-                  return false;
-                }}
-              >
-                <Form.Item noStyle dependencies={["proof_files"]}>
-                  {() =>
-                    form.getFieldValue("proof_files")?.length >= 4 ? null : (
-                      <Flex vertical align="center" gap={4}>
-                        <PlusOutlined />
-                        <div style={{ fontSize: 10 }}>อัปโหลด</div>
-                      </Flex>
-                    )
+                  valuePropName="fileList"
+                  getValueFromEvent={(e: any) =>
+                    Array.isArray(e) ? e : e?.fileList
                   }
+                  rules={[{ required: true, message: "โปรดอัปโหลดหลักฐานเข้างาน" }]}
+                >
+                  <Upload
+                    listType="picture-card"
+                    maxCount={1}
+                    beforeUpload={(file) => {
+                      const isLt2M = file.size < 2 * 1024 * 1024;
+                      if (!isLt2M) {
+                        toast.error(`ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`);
+                        return Upload.LIST_IGNORE;
+                      }
+                      return false;
+                    }}
+                  >
+                    <Form.Item noStyle dependencies={["proof_checkin"]}>
+                      {() =>
+                        form.getFieldValue("proof_checkin")?.length >= 1 ? null : (
+                          <PlusOutlined />
+                        )
+                      }
+                    </Form.Item>
+                  </Upload>
                 </Form.Item>
-              </Upload>
-            </Form.Item>
+              </Col>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name="proof_checkout"
+                  label={
+                    <Typography.Text style={{ fontSize: 13 }}>
+                      2. หลักฐานการออกทำงาน (Line Group) <span style={{ color: "red" }}>*</span>
+                    </Typography.Text>
+                  }
+                  valuePropName="fileList"
+                  getValueFromEvent={(e: any) =>
+                    Array.isArray(e) ? e : e?.fileList
+                  }
+                  rules={[{ required: true, message: "โปรดอัปโหลดหลักฐานออกงาน" }]}
+                >
+                  <Upload
+                    listType="picture-card"
+                    maxCount={1}
+                    beforeUpload={(file) => {
+                      const isLt2M = file.size < 2 * 1024 * 1024;
+                      if (!isLt2M) {
+                        toast.error(`ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`);
+                        return Upload.LIST_IGNORE;
+                      }
+                      return false;
+                    }}
+                  >
+                    <Form.Item noStyle dependencies={["proof_checkout"]}>
+                      {() =>
+                        form.getFieldValue("proof_checkout")?.length >= 1 ? null : (
+                          <PlusOutlined />
+                        )
+                      }
+                    </Form.Item>
+                  </Upload>
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name="proof_work_1"
+                  label={
+                    <Typography.Text style={{ fontSize: 13 }}>
+                      3. หลักฐานการทำงานจริง #1 <span style={{ color: "red" }}>*</span>
+                    </Typography.Text>
+                  }
+                  valuePropName="fileList"
+                  getValueFromEvent={(e: any) =>
+                    Array.isArray(e) ? e : e?.fileList
+                  }
+                  rules={[{ required: true, message: "โปรดอัปโหลดหลักฐานงาน 1" }]}
+                >
+                  <Upload
+                    listType="picture-card"
+                    maxCount={1}
+                    beforeUpload={(file) => {
+                      const isLt2M = file.size < 2 * 1024 * 1024;
+                      if (!isLt2M) {
+                        toast.error(`ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`);
+                        return Upload.LIST_IGNORE;
+                      }
+                      return false;
+                    }}
+                  >
+                    <Form.Item noStyle dependencies={["proof_work_1"]}>
+                      {() =>
+                        form.getFieldValue("proof_work_1")?.length >= 1 ? null : (
+                          <PlusOutlined />
+                        )
+                      }
+                    </Form.Item>
+                  </Upload>
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name="proof_work_2"
+                  label={
+                    <Typography.Text style={{ fontSize: 13 }}>
+                      4. หลักฐานการทำงานจริง #2
+                    </Typography.Text>
+                  }
+                  valuePropName="fileList"
+                  getValueFromEvent={(e: any) =>
+                    Array.isArray(e) ? e : e?.fileList
+                  }
+                >
+                  <Upload
+                    listType="picture-card"
+                    maxCount={1}
+                    beforeUpload={(file) => {
+                      const isLt2M = file.size < 2 * 1024 * 1024;
+                      if (!isLt2M) {
+                        toast.error(`ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`);
+                        return Upload.LIST_IGNORE;
+                      }
+                      return false;
+                    }}
+                  >
+                    <Form.Item noStyle dependencies={["proof_work_2"]}>
+                      {() =>
+                        form.getFieldValue("proof_work_2")?.length >= 1 ? null : (
+                          <PlusOutlined />
+                        )
+                      }
+                    </Form.Item>
+                  </Upload>
+                </Form.Item>
+              </Col>
+            </Row>
           </Card>
         </div>
 
@@ -2275,13 +2389,14 @@ const CreateModalSection = ({
               name="signature_file"
               label={
                 <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-                  อัปโหลดรูปภาพลายเซ็นรับรองการปฏิบัติงาน (1 รูป)
+                  อัปโหลดรูปภาพลายเซ็นรับรอง (1 รูป) <span style={{ color: "red" }}>*</span>
                 </Typography.Text>
               }
               valuePropName="fileList"
               getValueFromEvent={(e: any) =>
                 Array.isArray(e) ? e : e?.fileList
               }
+              rules={[{ required: true, message: "โปรดอัปโหลดลายเซ็น" }]}
               style={{ marginBottom: 0 }}
             >
               <Upload
@@ -2290,9 +2405,7 @@ const CreateModalSection = ({
                 beforeUpload={(file) => {
                   const isLt2M = file.size < 2 * 1024 * 1024;
                   if (!isLt2M) {
-                    toast.error(
-                      `ไฟล์ "${file.name}" มีขนาดใหญ่เกินไป (จำกัดไม่เกิน 2MB)`,
-                    );
+                    toast.error(`ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`);
                     return Upload.LIST_IGNORE;
                   }
                   return false;
@@ -2301,10 +2414,7 @@ const CreateModalSection = ({
                 <Form.Item noStyle dependencies={["signature_file"]}>
                   {() =>
                     form.getFieldValue("signature_file")?.length >= 1 ? null : (
-                      <Flex vertical align="center" gap={4}>
-                        <PlusOutlined />
-                        <div style={{ fontSize: 10 }}>ลายเซ็น</div>
-                      </Flex>
+                      <PlusOutlined />
                     )
                   }
                 </Form.Item>
