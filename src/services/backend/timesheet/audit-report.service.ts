@@ -183,6 +183,7 @@ const fetchUsers = async (entries: any[]): Promise<Map<number, any>> => {
     },
     select: {
       admin_id: true,
+      employee_code: true,
       firstname_th: true,
       lastname_th: true,
       nickname: true,
@@ -340,7 +341,7 @@ const createEvidenceSheet = (
   sheet.properties.defaultRowHeight = EXCEL_STYLES.ROW_HEIGHT;
 
   sheet.columns = [
-    { header: "วันที่", key: "date", width: 15 },
+    { header: "วันที่ลงเวลา", key: "date", width: 15 },
     { header: "รหัสพนักงาน", key: "employeeId", width: 15 },
     { header: "ชื่อผู้จัดทำ", key: "creator", width: 25 },
     { header: "คำอธิบาย", key: "description", width: 50 },
@@ -390,8 +391,10 @@ const createEvidenceSheet = (
   );
 
   sortedEntries.forEach((entry) => {
+    const user = entry.createdBy ? usersMap.get(entry.createdBy) : null;
     const creatorName = getUserName(entry.createdBy, usersMap);
-    const employeeId = entry.createdBy ? String(entry.createdBy) : "-";
+    const employeeId =
+      user?.employee_code || (entry.createdBy ? String(entry.createdBy) : "-");
 
     const row = sheet.addRow([
       dayjs(entry.date).format("DD/MM/YYYY"),
@@ -400,6 +403,7 @@ const createEvidenceSheet = (
       entry.description || "-",
       Number(entry.hours || 0),
     ]);
+    row.height = EXCEL_STYLES.ROW_HEIGHT;
 
     row.eachCell((cell, colNumber) => {
       if (colNumber === 5) {
@@ -420,6 +424,7 @@ const createEvidenceSheet = (
     "รวมจำนวนชั่วโมงทั้งหมด",
     Number(feature.hours.toFixed(2)),
   ]);
+  totalRow.height = EXCEL_STYLES.ROW_HEIGHT;
 
   totalRow.eachCell((cell, colNumber) => {
     if (colNumber < 4) return;
