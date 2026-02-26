@@ -120,17 +120,30 @@ export const OvertimeService = {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("รายการ OT");
 
+    // ตั้งค่าเริ่มต้นความสูงของแถวให้ดูโปร่งและสวยงาม
+    worksheet.properties.defaultRowHeight = 25;
+
     // --- ส่วนที่ 1: หัวข้อรายงานรูปแบบใหม่ (Header Section) ---
-    // ปรับเปลี่ยนหัวข้อตามคำสั่ง: A1-B3
+    // ปรับแต่ง Header ให้ดูเป็นเอกสารทางการมากขึ้น (A1:B3)
+    const headerCells = ["A1", "B1", "A2", "B2", "A3", "B3"];
+    headerCells.forEach((ref) => {
+      const cell = worksheet.getCell(ref);
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" },
+      };
+      cell.alignment = { vertical: "middle", horizontal: "left", indent: 1 };
+    });
+
     worksheet.getCell("A1").value = "ชื่อเอกสาร";
     worksheet.getCell("B1").value =
-      "เอกสารการขอการทำงานล่วงเวลา แผนก IT Application";
-    worksheet.getCell("A1").font = { bold: true, name: "Cordia New", size: 14 };
-    worksheet.getCell("B1").font = {
-      bold: true,
-      name: "Cordia New",
-      size: 16,
-      color: { argb: "FFED7D31" },
+      "เอกสารการทำงานล่วงเวลา (OT) - แผนก IT Application";
+    worksheet.getCell("A1").fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFF2F2F2" },
     };
 
     const fromDateDisplay = params.from
@@ -140,14 +153,27 @@ export const OvertimeService = {
       ? dayjs(params.to).format("DD/MM/BBBB")
       : "-";
 
-    worksheet.getCell("A2").value = "เริ่มต้นวันที่";
+    worksheet.getCell("A2").value = "เริ่มต้นงวดวันที่";
     worksheet.getCell("B2").value = fromDateDisplay;
-    worksheet.getCell("A3").value = "สิ้นสุดวันที่";
+    worksheet.getCell("A3").value = "สิ้นสุดงวดวันที่";
     worksheet.getCell("B3").value = toDateDisplay;
 
-    [worksheet.getCell("A2"), worksheet.getCell("A3")].forEach((cell) => {
+    // ตกแต่ง Font ส่วนหัว
+    ["A1", "A2", "A3"].forEach((ref) => {
+      const cell = worksheet.getCell(ref);
       cell.font = { bold: true, name: "Cordia New", size: 14 };
     });
+
+    ["B1", "B2", "B3"].forEach((ref) => {
+      const cell = worksheet.getCell(ref);
+      cell.font = { name: "Cordia New", size: 14, color: { argb: "FF333333" } };
+    });
+    worksheet.getCell("B1").font = {
+      bold: true,
+      name: "Cordia New",
+      size: 15,
+      color: { argb: "FFC0504D" },
+    };
 
     // --- ส่วนที่ 2: กำหนดโครงสร้างตารางข้อมูลดิบ (Raw Data Table) ---
     // เริ่มต้นที่ Row 5 เพื่อให้เว้นระยะจาก Header
@@ -166,35 +192,39 @@ export const OvertimeService = {
     ];
 
     worksheet.columns = [
-      { key: "no", width: 8 },
-      { key: "id", width: 15 },
-      { key: "employee_code", width: 15 },
-      { key: "requester", width: 30 },
-      { key: "request_date", width: 15 },
-      { key: "status", width: 15 },
-      { key: "ot_date", width: 20 },
-      { key: "time_range", width: 20 },
-      { key: "duration", width: 15 },
-      { key: "description", width: 50 },
+      { key: "no", width: 6 },
+      { key: "id", width: 14 },
+      { key: "employee_code", width: 14 },
+      { key: "requester", width: 25 },
+      { key: "request_date", width: 14 },
+      { key: "status", width: 12 },
+      { key: "ot_date", width: 14 },
+      { key: "time_range", width: 18 },
+      { key: "duration", width: 12 },
+      { key: "description", width: 45 },
     ];
 
     // ตกแต่ง Header ของตาราง
     const tableHeaderRow = worksheet.getRow(tableHeaderRowIndex);
-    tableHeaderRow.height = 25;
+    tableHeaderRow.height = 32; // สูงขึ้นเพื่อความสวยงาม
     tableHeaderRow.eachCell((cell) => {
-      cell.font = { name: "Cordia New", size: 14, bold: true };
+      cell.font = {
+        name: "Cordia New",
+        size: 14,
+        bold: true,
+        color: { argb: "FFFFFFFF" },
+      };
       cell.fill = {
         type: "pattern",
         pattern: "solid",
-        fgColor: { argb: "FFED7D31" },
+        fgColor: { argb: "FF4F81BD" }, // เปลี่ยนเป็นสีน้ำเงินเข้ม สุภาพกว่า
       };
-      cell.font = { color: { argb: "FFFFFFFF" }, bold: true, size: 14 };
       cell.alignment = { vertical: "middle", horizontal: "center" };
       cell.border = {
-        top: { style: "thin" },
-        left: { style: "thin" },
-        bottom: { style: "thin" },
-        right: { style: "thin" },
+        top: { style: "medium", color: { argb: "FF366092" } },
+        left: { style: "thin", color: { argb: "FF366092" } },
+        bottom: { style: "medium", color: { argb: "FF366092" } },
+        right: { style: "thin", color: { argb: "FF366092" } },
       };
     });
 
@@ -271,44 +301,63 @@ export const OvertimeService = {
       }
     });
 
-    // --- ส่วนที่ 4: ตารางสรุปผลลัพธ์รวมรายบุคคล (Summary Table) ---
-    // เว้นระยะจากตารางหลัก
-    rowCursor += 2;
-    worksheet.mergeCells(`A${rowCursor}:D${rowCursor}`);
+    // --- ส่วนที่ 4: ตารางสรุปผลลัพธ์รวมรายบุคคล (Summary Table สำหรับ HR) ---
+    // ชิดขอบและเว้นระยะเพื่อให้ดูแยกส่วนชัดเจน
+    rowCursor += 3;
+    worksheet.mergeCells(`A${rowCursor}:E${rowCursor}`);
     const summaryTitleCell = worksheet.getCell(`A${rowCursor}`);
     summaryTitleCell.value =
-      "ตารางสรุปผลรวมค่าล่วงเวลารายบุคคล (Payroll Summary)";
-    summaryTitleCell.font = { bold: true, size: 14, name: "Cordia New" };
-    summaryTitleCell.alignment = { horizontal: "left" };
+      "ข้อมูลสรุปสำหรับฝ่ายบุคคล (HR Payroll Summary Table)";
+    summaryTitleCell.font = {
+      bold: true,
+      size: 16,
+      name: "Cordia New",
+      color: { argb: "FF366092" },
+    };
+    summaryTitleCell.alignment = { horizontal: "left", vertical: "middle" };
+    worksheet.getRow(rowCursor).height = 35;
     rowCursor++;
 
     const summaryHeaderRow = worksheet.getRow(rowCursor);
+    summaryHeaderRow.height = 30;
     summaryHeaderRow.values = [
       "ลำดับ",
       "รหัสพนักงาน",
       "ชื่อ-นามสกุล",
-      "จำนวนงานที่ขอ",
-      "รวมชั่วโมงทั้งหมด",
+      "จำนวนครั้งที่เบิก",
+      "รวมชั่วโมง OT ทั้งสิ้น",
     ];
+
     summaryHeaderRow.eachCell((cell) => {
-      cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+      cell.font = {
+        bold: true,
+        size: 13,
+        name: "Cordia New",
+        color: { argb: "FFFFFFFF" },
+      };
       cell.fill = {
         type: "pattern",
         pattern: "solid",
-        fgColor: { argb: "FF4472C4" },
+        fgColor: { argb: "FF1F4E78" },
       };
-      cell.alignment = { horizontal: "center" };
+      cell.alignment = { horizontal: "center", vertical: "middle" };
       cell.border = {
-        top: { style: "thin" },
+        top: { style: "medium" },
         left: { style: "thin" },
-        bottom: { style: "thin" },
+        bottom: { style: "medium" },
         right: { style: "thin" },
       };
     });
     rowCursor++;
 
     let summaryNo = 1;
+    let grandTotalHours = 0;
+    let grandTotalTasks = 0;
+
     summaryMap.forEach((summary) => {
+      grandTotalHours += summary.totalDuration;
+      grandTotalTasks += summary.taskCount;
+
       const row = worksheet.addRow([
         summaryNo++,
         summary.employeeCode,
@@ -316,19 +365,76 @@ export const OvertimeService = {
         summary.taskCount,
         summary.totalDuration,
       ]);
-      row.eachCell((cell) => {
+
+      row.height = 28;
+      row.eachCell((cell, colNumber) => {
+        cell.font = { name: "Cordia New", size: 13 };
         cell.border = {
-          top: { style: "thin" },
-          left: { style: "thin" },
-          bottom: { style: "thin" },
-          right: { style: "thin" },
+          top: { style: "thin", color: { argb: "FFCCCCCC" } },
+          left: { style: "thin", color: { argb: "FFCCCCCC" } },
+          bottom: { style: "thin", color: { argb: "FFCCCCCC" } },
+          right: { style: "thin", color: { argb: "FFCCCCCC" } },
         };
-        cell.alignment = { vertical: "middle" };
+        cell.alignment = {
+          vertical: "middle",
+          horizontal: colNumber <= 2 || colNumber === 4 ? "center" : "left",
+        };
+
+        // ใส่สีพื้นหลังเล็กน้อยให้กับตัวเลขสรุป
+        if (colNumber === 5) {
+          cell.font = {
+            bold: true,
+            color: { argb: "FFC0504D" },
+            name: "Cordia New",
+            size: 14,
+          };
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFFDF2E9" },
+          };
+        }
       });
-      row.getCell(5).font = { bold: true, color: { argb: "FFC55A11" } };
-      row.getCell(5).alignment = { horizontal: "center" };
       rowCursor++;
     });
+
+    // --- ส่วนที่ 5: แถวสรุปยอดรวมสุทธิ (Grand Total Row) ---
+    const grandTotalRow = worksheet.addRow([
+      "ยอดรวมสุทธิ (Grand Total)",
+      "",
+      "",
+      grandTotalTasks,
+      grandTotalHours,
+    ]);
+    grandTotalRow.height = 35;
+
+    // Merge Cells สำหรับ Label "ยอดรวมสุทธิ" (A-C)
+    worksheet.mergeCells(`A${rowCursor}:C${rowCursor}`);
+
+    grandTotalRow.eachCell((cell, colNumber) => {
+      cell.font = {
+        bold: true,
+        name: "Cordia New",
+        size: 14,
+        color: { argb: "FFFFFFFF" },
+      };
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFC0504D" }, // สีแดงเข้มแสดงถึงยอดรวมเพื่อให้ HR เห็นชัดเจน
+      };
+      cell.alignment = {
+        vertical: "middle",
+        horizontal: colNumber === 1 ? "right" : "center",
+      };
+      cell.border = {
+        top: { style: "medium", color: { argb: "FF000000" } },
+        left: { style: "thin", color: { argb: "FF000000" } },
+        bottom: { style: "double", color: { argb: "FF000000" } },
+        right: { style: "thin", color: { argb: "FF000000" } },
+      };
+    });
+    rowCursor++;
 
     // จัดระเบียบการจัดวางข้อความ
     worksheet.eachRow((row, rowNumber) => {
@@ -354,38 +460,68 @@ export const OvertimeService = {
  * Helper ฟังก์ชันสำหรับตกแต่ง Row ข้อมูล
  */
 function formatDataRow(row: ExcelJS.Row) {
-  row.height = 22;
+  row.height = 28; // ปรับความสูงให้สมดุลและอ่านง่าย (Balanced Height)
   row.eachCell((cell) => {
-    cell.font = { name: "Cordia New", size: 13 };
+    cell.font = { name: "Cordia New", size: 13, color: { argb: "FF333333" } };
     cell.border = {
-      top: { style: "thin", color: { argb: "FFAAAAAA" } },
-      left: { style: "thin", color: { argb: "FFAAAAAA" } },
-      bottom: { style: "thin", color: { argb: "FFAAAAAA" } },
-      right: { style: "thin", color: { argb: "FFAAAAAA" } },
+      top: { style: "thin", color: { argb: "FFCCCCCC" } },
+      left: { style: "thin", color: { argb: "FFCCCCCC" } },
+      bottom: { style: "thin", color: { argb: "FFCCCCCC" } },
+      right: { style: "thin", color: { argb: "FFCCCCCC" } },
     };
     cell.alignment = { vertical: "middle", wrapText: true };
   });
 
-  // ใส่สีพื้นหลังสลับแถว
+  // ใส่สีพื้นหลังสลับแถว (Zebra Effect)
   const rowNumber = Number(row.number);
   if (rowNumber % 2 === 0) {
     row.eachCell((cell) => {
       cell.fill = {
         type: "pattern",
         pattern: "solid",
-        fgColor: { argb: "FFF9F9F9" },
+        fgColor: { argb: "FFF7F9FC" }, // สีฟ้าอ่อนจางๆ สบายตา
       };
     });
   }
 
-  // ตกแต่งสีตามสถานะ
+  // ตกแต่งสีสถานะตามความเหมาะสมทางอารมณ์และสายตา
   const statusCell = row.getCell("status");
   const statusVal = statusCell.value;
-  if (statusVal === "อนุมัติ") {
-    statusCell.font = { bold: true, color: { argb: "FF28A745" } };
+  if (statusVal === "อนุมัติ" || statusVal === "จ่ายสำเร็จ") {
+    statusCell.font = {
+      bold: true,
+      color: { argb: "FF2E7D32" },
+      name: "Cordia New",
+      size: 13,
+    };
+    statusCell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFE8F5E9" },
+    };
   } else if (statusVal === "รออนุมัติ") {
-    statusCell.font = { bold: true, color: { argb: "FFFFC107" } };
-  } else if (statusVal === "ปฏิเสธ") {
-    statusCell.font = { bold: true, color: { argb: "FFDC3545" } };
+    statusCell.font = {
+      bold: true,
+      color: { argb: "FFF9A825" },
+      name: "Cordia New",
+      size: 13,
+    };
+    statusCell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFFFF9C4" },
+    };
+  } else if (statusVal === "ปฏิเสธ" || statusVal === "ยกเลิก") {
+    statusCell.font = {
+      bold: true,
+      color: { argb: "FFC62828" },
+      name: "Cordia New",
+      size: 13,
+    };
+    statusCell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFFFEBEE" },
+    };
   }
 }
