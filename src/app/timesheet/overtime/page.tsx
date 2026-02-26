@@ -586,7 +586,10 @@ const OvertimeManagementPage = () => {
 
               const formDataObject = new FormData();
               formDataObject.append("file", rawFileToUpload);
-              formDataObject.append("description_id", String(firstDescriptionId));
+              formDataObject.append(
+                "description_id",
+                String(firstDescriptionId),
+              );
               formDataObject.append("image_key", `image_${fileIndex + 1}`);
               formDataObject.append("action", "upload");
 
@@ -617,7 +620,10 @@ const OvertimeManagementPage = () => {
 
             const sigFormDataObject = new FormData();
             sigFormDataObject.append("file", rawSignatureFile);
-            sigFormDataObject.append("description_id", String(firstDescriptionId));
+            sigFormDataObject.append(
+              "description_id",
+              String(firstDescriptionId),
+            );
             sigFormDataObject.append("image_key", "signature_1");
             sigFormDataObject.append("action", "upload");
 
