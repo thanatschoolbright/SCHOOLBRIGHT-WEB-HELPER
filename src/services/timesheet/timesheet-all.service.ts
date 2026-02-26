@@ -161,32 +161,32 @@ export const POST_EXPORT_AUDIT_REPORT = async (params: {
   try {
     toastId = toast.loading("กำลังสร้างรายงานสำหรับ Audit...");
 
-    const response = await fetch("/api/v1/timesheet/excel/template_4", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    // ใช้ axios (callApiService) เพื่อให้ได้ interceptors, auth headers และ logging ที่ถูกต้อง
+    const response = await axios.post(
+      "/api/v1/timesheet/excel/template_4",
+      {
         start_date: params.start_date,
         end_date: params.end_date,
-      }),
+      },
+      {
+        responseType: "blob", // สำคัญมากสำหรับการดาวน์โหลดไฟล์
+        headers: {
+          Accept:
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        },
+      },
+    );
+
+    // สร้าง Blob จากข้อมูลที่ได้ (axios จะใส่ข้อมูลไว้ใน response.data)
+    const blob = new Blob([response.data], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        errorData?.message_th ||
-          errorData?.message_en ||
-          "ไม่สามารถสร้างรายงานได้",
-      );
-    }
-
-    // Download file
-    const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
 
     // Helper to format date as DD/MM/YYYY (Buddhist Era)
     const formatDateThai = (dateStr: string) => {
-      // Input expected: YYYY-MM-DD
       const [year, month, day] = dateStr.split("-");
       const thYear = parseInt(year, 10) + 543;
       return `${day}/${month}/${thYear}`;
@@ -196,13 +196,19 @@ export const POST_EXPORT_AUDIT_REPORT = async (params: {
     link.download = `รายงานการทำงานของพนักงาน วันที่ ${formatDateThai(
       params.start_date,
     )} ถึง ${formatDateThai(params.end_date)}.xlsx`;
+
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+
+    // Clean up
+    setTimeout(() => {
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    }, 100);
 
     toast.success("สร้างรายงานสำหรับ Audit เรียบร้อย", { id: toastId });
   } catch (error: any) {
+    console.error("[POST_EXPORT_AUDIT_REPORT][Error]", error);
     const message = error?.message || "สร้างรายงานไม่สำเร็จ";
     if (toastId !== undefined) {
       toast.error(message, { id: toastId });

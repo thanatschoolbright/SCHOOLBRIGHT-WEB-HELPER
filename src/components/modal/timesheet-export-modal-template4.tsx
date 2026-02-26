@@ -113,7 +113,7 @@ export default function ExportModalTemplate4({
       open={visible}
       onCancel={onClose}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
       width={600}
       centered
       styles={{

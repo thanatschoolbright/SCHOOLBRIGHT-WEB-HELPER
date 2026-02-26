@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
 import { TimesheetAuditReportService } from "@/services/backend/timesheet/audit-report.service";
+import { NextRequest, NextResponse } from "next/server";
 
 /**
  * POST /api/v1/timesheet/excel/template_4
@@ -40,7 +40,10 @@ export async function POST(request: NextRequest) {
     const fileName = `รายงานการทำงานของพนักงาน วันที่ ${formattedStart} ถึง ${formattedEnd}.xlsx`;
     const encodedFileName = encodeURIComponent(fileName);
 
-    return new NextResponse(excelBuffer as any, {
+    // ใช้ Uint8Array เพื่อความเข้ากันได้ที่ดีที่สุดกับ NextResponse
+    const responseBody = new Uint8Array(excelBuffer);
+
+    return new NextResponse(responseBody, {
       status: 200,
       headers: {
         "Content-Type":
