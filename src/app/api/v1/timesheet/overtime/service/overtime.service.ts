@@ -242,6 +242,7 @@ export const OvertimeService = {
 
     // --- ส่วนที่ 3: ใส่ข้อมูลลงใน Excel และคำนวณสรุปผล ---
     let rowCursor = tableHeaderRowIndex + 1;
+    let displayItemIndex = 1; // ตัวนับลำดับที่แสดงใน Excel
     const summaryMap = new Map<
       string,
       {
@@ -281,7 +282,7 @@ export const OvertimeService = {
           summary.taskCount += 1;
 
           const row = worksheet.addRow({
-            no: index + 1,
+            no: displayItemIndex++,
             id: requestId,
             employee_code: employeeCode,
             requester: fullName,
