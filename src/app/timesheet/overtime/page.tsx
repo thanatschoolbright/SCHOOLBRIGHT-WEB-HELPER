@@ -190,6 +190,9 @@ const OvertimeManagementPage = () => {
   const [exportStepCount, setExportStepCount] = useState(0);
   const [isExportOperationSuccess, setIsExportOperationSuccess] =
     useState(false);
+  const [exportSelectedDateRange, setExportSelectedDateRange] = useState<
+    [dayjs.Dayjs, dayjs.Dayjs] | null
+  >([dayjs().startOf("month"), dayjs().endOf("month")]);
   const [filterSearchTextValue, setFilterSearchTextValue] = useState("");
   const [filterSelectedMonthValue, setFilterSelectedMonthValue] =
     useState<dayjs.Dayjs | null>(null);
@@ -742,7 +745,7 @@ const OvertimeManagementPage = () => {
 
   // ประมวลผลและดาวน์โหลดไฟล์รายงาน OT ในรูปแบบ Excel ตามเงื่อนไขที่ระบุ
   const requestExportOvertimeReportFile = async (
-    selectedTargetDateTime?: dayjs.Dayjs,
+    dateRange?: [dayjs.Dayjs, dayjs.Dayjs],
   ) => {
     try {
       setIsLoadingOvertimeData(true);
@@ -758,14 +761,19 @@ const OvertimeManagementPage = () => {
           ? undefined
           : currentAdminTokenIdentifier,
       };
-      const dateTimeToProcess =
-        selectedTargetDateTime ?? filterSelectedMonthValue ?? dayjs();
-      exportRequestParameters.from = dateTimeToProcess
-        .startOf("month")
-        .format("YYYY-MM-DD");
-      exportRequestParameters.to = dateTimeToProcess
-        .endOf("month")
-        .format("YYYY-MM-DD");
+
+      if (dateRange && dateRange[0] && dateRange[1]) {
+        exportRequestParameters.from = dateRange[0].format("YYYY-MM-DD");
+        exportRequestParameters.to = dateRange[1].format("YYYY-MM-DD");
+      } else {
+        const dateTimeToProcess = filterSelectedMonthValue ?? dayjs();
+        exportRequestParameters.from = dateTimeToProcess
+          .startOf("month")
+          .format("YYYY-MM-DD");
+        exportRequestParameters.to = dateTimeToProcess
+          .endOf("month")
+          .format("YYYY-MM-DD");
+      }
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setExportStepCount(2);
@@ -783,7 +791,11 @@ const OvertimeManagementPage = () => {
       );
       const fileDownloadAnchorElement = document.createElement("a");
       fileDownloadAnchorElement.href = fileDownloadURLString;
-      const finalResultFileName = `รายงานการทำงานล่วงเวลา ประจำเดือน ${dateTimeToProcess.locale("th").format("MMMM")} ปี ${dateTimeToProcess.locale("th").format("BBBB")}.xlsx`;
+
+      const finalizedFromDate = dayjs(exportRequestParameters.from);
+      const finalizedToDate = dayjs(exportRequestParameters.to);
+
+      const finalResultFileName = `รายงานการทำงานล่วงเวลา_${finalizedFromDate.format("DDMMBBBB")}_ถึง_${finalizedToDate.format("DDMMBBBB")}.xlsx`;
       fileDownloadAnchorElement.setAttribute("download", finalResultFileName);
       document.body.appendChild(fileDownloadAnchorElement);
       fileDownloadAnchorElement.click();
@@ -1078,6 +1090,8 @@ const OvertimeManagementPage = () => {
           exportStepCount={exportStepCount}
           isExportOperationSuccess={isExportOperationSuccess}
           themeToken={themeToken}
+          exportSelectedDateRange={exportSelectedDateRange}
+          setExportSelectedDateRange={setExportSelectedDateRange}
         />
 
         {/* Modal แจ้งเตือนสถานะการทำงาน (Success/Error) */}
@@ -2665,6 +2679,8 @@ const ExportModalSection = ({
   exportStepCount,
   isExportOperationSuccess,
   themeToken,
+  exportSelectedDateRange,
+  setExportSelectedDateRange,
 }: any) => (
   <Modal
     title={
@@ -2694,16 +2710,35 @@ const ExportModalSection = ({
           >
             ปิดการทำงาน
           </Button>,
-          <Button key="retry" type="link" onClick={() => onExport()}>
+          <Button
+            key="retry"
+            type="link"
+            onClick={() => onExport(exportSelectedDateRange)}
+          >
             ส่งออกรายงานชุดอื่น
           </Button>,
         ]}
       />
     ) : (
       <Flex vertical gap={40} style={{ paddingBlock: 32 }}>
-        <Typography.Text strong style={{ fontSize: 15, textAlign: "center" }}>
-          กรุณารอการประมวลผลข้อมูลจากคลาวด์เอ็นจิ้น
-        </Typography.Text>
+        <Flex vertical gap={12} align="center">
+          <Typography.Text strong style={{ fontSize: 16 }}>
+            กำหนดช่วงเวลาในการส่งออก (Start - End Date)
+          </Typography.Text>
+          <DatePicker.RangePicker
+            size="large"
+            allowClear={false}
+            value={exportSelectedDateRange}
+            onChange={(dates) =>
+              setExportSelectedDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])
+            }
+            style={{ width: "100%", borderRadius: 12 }}
+            format="DD / MM / BBBB"
+          />
+          <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+            ระบบจะประมวลผลตามช่วงวันที่ระบุ รวมถึงสรุปยอดสะสม (Payroll)
+          </Typography.Text>
+        </Flex>
 
         <Flex
           vertical
@@ -2747,7 +2782,7 @@ const ExportModalSection = ({
                   />
                 }
                 loading={loading}
-                onClick={() => onExport()}
+                onClick={() => onExport(exportSelectedDateRange)}
                 block
                 style={{
                   height: 100,
