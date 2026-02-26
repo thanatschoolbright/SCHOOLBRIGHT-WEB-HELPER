@@ -1470,8 +1470,80 @@ const OvertimeTableSection = ({
   setIsExportModalVisible,
   themeToken,
 }: any) => {
+  /**
+   * ระบบตรวจสอบความสมบูรณ์ของข้อมูลเบื้องต้น (Preliminary Validation)
+   * เพื่อแจ้งเตือนผู้อนุมัติหากข้อมูลที่พนักงานส่งมาไม่ครบถ้วนตามเกณฑ์
+   */
+  const validateOvertimeRecordCompleteness = (record: any) => {
+    const firstDescription = record.descriptions?.[0];
+    const proofData = firstDescription?.proof || {};
+    const missingItems = [];
+
+    // 1. ตรวจสอบลายเซ็นรับรอง
+    if (!proofData.signature_1) {
+      missingItems.push("ลายเซ็นรับรอง");
+    }
+
+    // 2. ตรวจสอบรูปภาพมัดจำงาน 1, 2, 3, 4
+    const requiredImageKeys = ["image_1", "image_2", "image_3", "image_4"];
+    const missingImages = requiredImageKeys.filter((key) => !proofData[key]);
+    if (missingImages.length > 0) {
+      const displayIndices = missingImages.map((k) => k.split("_")[1]);
+      missingItems.push(`รูปภาพหลักฐานชุดที่ ${displayIndices.join(", ")}`);
+    }
+
+    // 3. ตรวจสอบรายละเอียดงาน (ต้องมีข้อมูลครบทุกรายการ)
+    const hasEmptyDescription =
+      !record.descriptions ||
+      record.descriptions.length === 0 ||
+      record.descriptions.some((d: any) => !d.description?.trim());
+    if (hasEmptyDescription) {
+      missingItems.push("รายละเอียดภาระงาน");
+    }
+
+    return missingItems;
+  };
+
   // การตั้งค่าคอลัมน์ของตารางรายการ OT
   const tableColumnsConfiguration = [
+    {
+      title: "",
+      key: "completeness_alert",
+      width: 50,
+      render: (recordContentData: any) => {
+        const errors = validateOvertimeRecordCompleteness(recordContentData);
+        if (errors.length === 0) return null;
+
+        return (
+          <Tooltip
+            title={
+              <Flex vertical gap={4} style={{ padding: "4px 8px" }}>
+                <Typography.Text
+                  strong
+                  style={{ color: "rgba(255,255,255,0.9)", fontSize: 13 }}
+                >
+                  <WarningOutlined style={{ marginRight: 8 }} />
+                  ข้อมูลไม่ครบถ้วน
+                </Typography.Text>
+                <div style={{ fontSize: 11, opacity: 0.8 }}>
+                  {errors.map((err, i) => (
+                    <div key={i}>- {err}</div>
+                  ))}
+                </div>
+              </Flex>
+            }
+          >
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <Badge dot status="warning" offset={[-2, 2]}>
+                <WarningOutlined
+                  style={{ color: themeToken.colorWarning, fontSize: 18 }}
+                />
+              </Badge>
+            </div>
+          </Tooltip>
+        );
+      },
+    },
     {
       title: "รหัสอ้างอิง",
       dataIndex: "id",
@@ -1764,17 +1836,7 @@ const OvertimeTableSection = ({
                 {recordContentData.descriptions?.map(
                   (descriptionItem: any, indexValue: number) => (
                     <Col span={24} key={indexValue}>
-                      <Flex
-                        justify="space-between"
-                        align="center"
-                        style={{
-                          background: "#fff",
-                          padding: "14px 20px",
-                          borderRadius: 12,
-                          border: `1px solid ${themeToken.colorBorderSecondary}`,
-                          boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
-                        }}
-                      >
+                      <Flex justify="space-between" align="center">
                         <Typography.Text style={{ fontSize: 14 }}>
                           {descriptionItem.description}
                         </Typography.Text>
@@ -2314,6 +2376,7 @@ const CreateModalSection = ({
                 <UploadFieldItem
                   name="proof_work_2"
                   label="4. หลักฐานการทำงานจริง #2"
+                  required
                   form={form}
                 />
               </Col>
