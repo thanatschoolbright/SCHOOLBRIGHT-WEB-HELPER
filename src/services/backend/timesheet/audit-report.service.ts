@@ -310,8 +310,8 @@ const createOverviewSheet = (
 
   const headerRow = sheet.addRow([
     "รหัสโครงการ / รหัสโครงการย่อย",
-    "ชื่อโครงการ (รหัสโครงการ)",
-    "ชื่อโครงการย่อย (รหัสโครงการย่อย)",
+    "ชื่อโครงการ",
+    "ชื่อโครงการย่อย",
     "ประเภทของสินทรัพย์",
     "ผลรวมชั่วโมง",
     "เปอร์เซ็นต์",
@@ -332,17 +332,13 @@ const createOverviewSheet = (
   features.forEach((feature) => {
     const rawCode = formatFullProjectCode(feature.projectId, feature.featureId);
     const sanitizedCode = sanitizeSheetName(rawCode);
-    const projectNameWithId = `${feature.projectName} (${formatFullProjectCode(
-      feature.projectId,
-    )})`;
-    const featureNameWithId = `${feature.featureName} (${rawCode})`;
     const assetTypeLabel = getAssetTypeLabel(feature.assetCaptureType);
     const percentage = calculatePercentage(feature.hours, totalHours);
 
     const row = sheet.addRow([
       rawCode,
-      projectNameWithId,
-      featureNameWithId,
+      feature.projectName,
+      feature.featureName,
       assetTypeLabel,
       Number(feature.hours.toFixed(2)),
       percentage,
