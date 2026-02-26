@@ -174,7 +174,7 @@ const OvertimeManagementPage = () => {
     useState(false);
   const [isExportModalVisible, setIsExportModalVisible] = useState(false);
   const [isAnalyticsModalVisible, setIsAnalyticsModalVisible] = useState(false);
-  const [isRulesModalVisible, setIsRulesModalVisible] = useState(true);
+  const [isRulesModalVisible, setIsRulesModalVisible] = useState(false);
 
   // --- ข้อมูลและผลลัพธ์จาก API (Data State) ---
   const [isLoadingOvertimeData, setIsLoadingOvertimeData] = useState(false);
@@ -970,6 +970,13 @@ const OvertimeManagementPage = () => {
     requestUserSelectionListData();
     requestDescriptionSelectionListData();
     requestOvertimeRequestListData({ page: 1 });
+
+    // ตรวจสอบสถานะการปิด Modal กฎระเบียบประจำวัน
+    const dismissedDate = localStorage.getItem("sb_ot_rules_dismissed_date");
+    const today = dayjs().format("YYYY-MM-DD");
+    if (dismissedDate !== today) {
+      setIsRulesModalVisible(true);
+    }
   }, [
     translate,
     requestUserSelectionListData,
@@ -1184,6 +1191,13 @@ const OvertimeManagementPage = () => {
         <RulesModalSection
           visible={isRulesModalVisible}
           setVisible={setIsRulesModalVisible}
+          onAccept={() => {
+            localStorage.setItem(
+              "sb_ot_rules_dismissed_date",
+              dayjs().format("YYYY-MM-DD"),
+            );
+            setIsRulesModalVisible(false);
+          }}
           themeToken={themeToken}
         />
 
@@ -3036,7 +3050,12 @@ const AnalyticsModalSection = ({
   );
 };
 
-const RulesModalSection = ({ visible, setVisible, themeToken }: any) => (
+const RulesModalSection = ({
+  visible,
+  setVisible,
+  onAccept,
+  themeToken,
+}: any) => (
   <Modal
     title={
       <Space>
@@ -3050,7 +3069,7 @@ const RulesModalSection = ({ visible, setVisible, themeToken }: any) => (
         key="confirm"
         type="primary"
         size="large"
-        onClick={() => setVisible(false)}
+        onClick={onAccept}
         style={{
           borderRadius: 12,
           height: 52,
