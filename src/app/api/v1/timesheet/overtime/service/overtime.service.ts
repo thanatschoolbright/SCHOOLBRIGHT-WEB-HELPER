@@ -444,7 +444,11 @@ export const OvertimeService = {
         };
 
         // ไฮไลท์จำนวนชั่วโมงรวมด้วยสีแบรนด์
-        if (cell.value && typeof cell.value === "number" && cell.fullAddress.column === 5) {
+        if (
+          cell.value &&
+          typeof cell.value === "number" &&
+          cell.fullAddress.column === 5
+        ) {
           cell.font = {
             bold: true,
             color: { argb: "FFE25E00" },
@@ -537,12 +541,13 @@ function formatDataRow(row: ExcelJS.Row) {
   // ใส่สีพื้นหลังสลับแถว (Zebra Effect - School Bright Light Orange)
   const rowNumber = Number(row.number);
   if (rowNumber % 2 === 0) {
-    row.eachCell((cell) => {horizontal: "center", 
-      cell.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: "FFFFF7ED" }, // ส้มจางคลีนๆ สไตล์ Minimal
-      };
+    row.eachCell((cell) => {
+      horizontal: ("center",
+        (cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFFFF7ED" }, // ส้มจางคลีนๆ สไตล์ Minimal
+        }));
     });
   }
 
