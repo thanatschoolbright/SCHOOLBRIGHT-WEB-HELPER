@@ -342,6 +342,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         width: 60,
         align: "center",
         fixed: "left",
+        sorter: (a, b) => a.rank - b.rank,
         render: (rank: number) => (
           <Text
             strong
@@ -360,6 +361,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         key: "name",
         width: 300,
         fixed: "left",
+        sorter: (a, b) => buildFullName(a).localeCompare(buildFullName(b)),
         render: (_value, record) => (
           <Flex align="center" gap={12}>
             <div style={{ position: "relative" }}>
@@ -435,6 +437,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         dataIndex: "position",
         key: "position",
         width: 140,
+        sorter: (a, b) => a.position.localeCompare(b.position),
         filters: Array.from(new Set(records.map((rec) => rec.position))).map(
           (pos) => ({ text: pos, value: pos }),
         ),
@@ -459,6 +462,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         dataIndex: "department",
         key: "department",
         width: 150,
+        sorter: (a, b) => a.department.localeCompare(b.department),
         filters: Array.from(new Set(records.map((rec) => rec.department))).map(
           (dept) => ({ text: dept, value: dept }),
         ),
@@ -474,6 +478,8 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         dataIndex: "joined_date",
         key: "joined_date",
         width: 120,
+        sorter: (a, b) =>
+          dayjs(a.joined_date).unix() - dayjs(b.joined_date).unix(),
         render: (date: string) => (
           <Text style={{ fontSize: 13, color: token.colorTextSecondary }}>
             {date ? dayjs(date).format("DD/MM/YYYY") : "-"}
@@ -485,6 +491,8 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         dataIndex: "resigned_date",
         key: "resigned_date",
         width: 150,
+        sorter: (a, b) =>
+          dayjs(a.resigned_date).unix() - dayjs(b.resigned_date).unix(),
         render: (date: string) => (
           <Text
             style={{
@@ -500,6 +508,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         title: "เวลาทำงาน",
         key: "hours",
         width: 160,
+        sorter: (a, b) => a.total_hours - b.total_hours,
         render: (_, record) => (
           <Flex vertical gap={2}>
             <Flex align="baseline" gap={4}>
@@ -535,6 +544,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         dataIndex: "completion_rate",
         key: "completion_rate",
         width: 220,
+        sorter: (a, b) => a.completion_rate - b.completion_rate,
         render: (percent) => {
           const isDone = percent >= 100;
           return (
@@ -585,6 +595,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         dataIndex: "status_label",
         key: "status_label",
         width: 150,
+        sorter: (a, b) => a.status_label.localeCompare(b.status_label),
         render: (status: string, record) => {
           const isWarning = record.hours_gap > 0;
           return (

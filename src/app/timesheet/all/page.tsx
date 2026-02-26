@@ -10,14 +10,15 @@ import {
   FileTextOutlined,
   InfoCircleOutlined,
   ProjectOutlined,
-  SolutionOutlined,
   SwapOutlined,
   TeamOutlined,
   ThunderboltOutlined,
+  UnorderedListOutlined,
 } from "@ant-design/icons";
 import {
   Badge,
   Button,
+  Card,
   Col,
   Dropdown,
   Flex,
@@ -44,6 +45,7 @@ import { useTimesheetData } from "./hooks/use-timesheet.data";
 import { buildDefaultRange, filterRecords } from "./utils/timesheet.helpers";
 
 import SummaryCard from "@/components/card/summary-card";
+import { StatusModalComponent } from "@/components/modal/status-modal-component";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
 import ExportModalTemplate4 from "@components/modal/timesheet-export-modal-template4";
 import { toast } from "sonner";
@@ -256,6 +258,22 @@ export default function TimesheetAllPage() {
     },
   ];
 
+  // --- Modals State ---
+  const [statusModal, setStatusModal] = useState<{
+    open: boolean;
+    type: "success" | "error" | "confirm" | "delete";
+    title?: string;
+    message?: string;
+    onConfirm?: () => void;
+  }>({
+    open: false,
+    type: "success",
+  });
+
+  const closeStatusModal = useCallback(() => {
+    setStatusModal((prev) => ({ ...prev, open: false }));
+  }, []);
+
   return (
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
@@ -317,80 +335,74 @@ export default function TimesheetAllPage() {
             loading={loading}
           />
 
-          {/* ส่วนที่ 4 : ตารางข้อมูล (Table Content) */}
-          <Flex
-            vertical
+          {/* ส่วนที่ 4 : คอนเทนต์ตารางข้อมูล (Table Content) */}
+          <Card
+            styles={{ body: { padding: 16 } }}
             style={{
-              background: token.colorBgContainer,
               borderRadius: token.borderRadiusLG,
               border: `1px solid ${token.colorBorderSecondary}`,
-              overflow: "hidden",
-              marginTop: 12,
+              boxShadow: token.boxShadowTertiary,
             }}
           >
-            {/* Table Header with Actions on the right */}
-            <Flex
-              justify="space-between"
-              align="center"
-              style={{
-                padding: "20px 24px",
-                borderBottom: `1px solid ${token.colorBorderSecondary}`,
-              }}
-            >
-              <Space size={12}>
-                <SolutionOutlined
-                  style={{ fontSize: 20, color: token.colorPrimary }}
-                />
-                <Typography.Title
-                  level={5}
-                  style={{ margin: 0, fontWeight: 600 }}
-                >
-                  ตารางสรุปบันทึกเวลาทำงาน
-                </Typography.Title>
-                {!loading && (
-                  <Badge
-                    count={filteredRecords.length}
-                    style={{ backgroundColor: token.colorInfo }}
+            <Flex vertical gap={16}>
+              {/* ส่วนบนของตาราง (Table Header & Actions) */}
+              <Flex justify="space-between" align="center">
+                <Space size={12}>
+                  <UnorderedListOutlined
+                    style={{ fontSize: "1rem", color: token.colorPrimary }}
                   />
-                )}
-              </Space>
+                  <Typography.Title
+                    level={5}
+                    style={{ margin: 0, fontWeight: 600 }}
+                  >
+                    ตารางสรุปบันทึกเวลาทำงาน
+                  </Typography.Title>
+                  {!loading && (
+                    <Badge
+                      count={filteredRecords.length}
+                      style={{ backgroundColor: token.colorInfo }}
+                    />
+                  )}
+                </Space>
 
-              <Flex gap={12}>
-                <Button
-                  icon={<CopyOutlined />}
-                  onClick={requestCopyReportToDiscord}
-                  shape="round"
-                >
-                  คัดลอก (Discord)
-                </Button>
-                <Button
-                  icon={<ThunderboltOutlined />}
-                  onClick={requestOpenAutoFillModal}
-                  shape="round"
-                >
-                  Auto-fill
-                </Button>
-                <Dropdown menu={{ items: reportMenuItems }}>
-                  <Button icon={<FileTextOutlined />} shape="round">
-                    รายงานตรวจสอบ <DownOutlined style={{ fontSize: 10 }} />
-                  </Button>
-                </Dropdown>
-
-                <Dropdown menu={{ items: exportMenuItems }} trigger={["click"]}>
+                <Flex gap={12}>
                   <Button
-                    type="primary"
-                    icon={<FileExcelOutlined />}
-                    loading={exportLoading}
+                    icon={<CopyOutlined />}
+                    onClick={requestCopyReportToDiscord}
                     shape="round"
                   >
-                    ส่งออก Excel <DownOutlined style={{ fontSize: 10 }} />
+                    คัดลอก (Discord)
                   </Button>
-                </Dropdown>
-              </Flex>
-            </Flex>
+                  <Button
+                    icon={<ThunderboltOutlined />}
+                    onClick={requestOpenAutoFillModal}
+                    shape="round"
+                  >
+                    Auto-fill
+                  </Button>
+                  <Dropdown menu={{ items: reportMenuItems }}>
+                    <Button icon={<FileTextOutlined />} shape="round">
+                      รายงานตรวจสอบ <DownOutlined style={{ fontSize: 10 }} />
+                    </Button>
+                  </Dropdown>
 
-            {/* Table Area */}
-            <Flex vertical style={{ padding: 12 }}>
+                  <Dropdown
+                    menu={{ items: exportMenuItems }}
+                    trigger={["click"]}
+                  >
+                    <Button
+                      type="primary"
+                      icon={<FileExcelOutlined />}
+                      loading={exportLoading}
+                      shape="round"
+                    >
+                      ส่งออก Excel <DownOutlined style={{ fontSize: 10 }} />
+                    </Button>
+                  </Dropdown>
+                </Flex>
+              </Flex>
+
+              {/* ส่วนแสดงตาราง */}
               <TimesheetTable
                 records={filteredRecords}
                 loading={loading}
@@ -400,7 +412,7 @@ export default function TimesheetAllPage() {
                 onAutoFillClose={() => responseCloseModal("autoFillModal")}
               />
 
-              {/* สรุปผลรวมท้ายตาราง */}
+              {/* ส่วนสรุปผลรวมท้ายตาราง */}
               {!loading && filteredRecords.length > 0 && (
                 <Flex
                   justify="flex-end"
@@ -409,7 +421,6 @@ export default function TimesheetAllPage() {
                     padding: "16px 24px",
                     background: token.colorFillAlter,
                     borderRadius: token.borderRadiusLG,
-                    marginTop: 12,
                     border: `1px dashed ${token.colorBorder}`,
                   }}
                 >
@@ -458,29 +469,39 @@ export default function TimesheetAllPage() {
                   </Space>
                 </Flex>
               )}
-            </Flex>
 
-            {/* Footer Notes */}
-            {metadata?.notes && (
-              <Flex
-                gap={8}
-                style={{
-                  padding: "16px 24px",
-                  background: token.colorFillAlter,
-                }}
-              >
-                <InfoCircleOutlined
-                  style={{ color: token.colorInfo, marginTop: 4 }}
-                />
-                <Text type="secondary" italic style={{ fontSize: 13 }}>
-                  {t("timesheet_page.notes_label")}: {metadata.notes}
-                </Text>
-              </Flex>
-            )}
-          </Flex>
+              {/* ส่วนบันทึกเพิ่มเติม (Footer Notes) */}
+              {metadata?.notes && (
+                <Flex
+                  gap={8}
+                  style={{
+                    padding: "12px 16px",
+                    background: token.colorFillAlter,
+                    borderRadius: token.borderRadius,
+                  }}
+                >
+                  <InfoCircleOutlined
+                    style={{ color: token.colorInfo, marginTop: 4 }}
+                  />
+                  <Text type="secondary" italic style={{ fontSize: 13 }}>
+                    {t("timesheet_page.notes_label")}: {metadata.notes}
+                  </Text>
+                </Flex>
+              )}
+            </Flex>
+          </Card>
         </Flex>
 
-        {/* Modals สำหรับการส่งออกข้อมูล */}
+        {/* Modals ต่างๆ */}
+        <StatusModalComponent
+          open={statusModal.open}
+          type={statusModal.type}
+          title={statusModal.title}
+          message={statusModal.message}
+          onClose={closeStatusModal}
+          onConfirm={statusModal.onConfirm}
+        />
+
         <ExportModalTemplate4
           visible={modalStates.exportModal4}
           loading={exportLoading}

@@ -1,28 +1,26 @@
-import React, { useState, useCallback, useEffect } from "react";
-import {
-  Card,
-  Input,
-  DatePicker,
-  Button,
-  Flex,
-  Affix,
-  theme,
-  Row,
-  Col,
-  Typography,
-  Space,
-  Select,
-} from "antd";
-import {
-  SearchOutlined,
-  ClearOutlined,
-  ReloadOutlined,
-  FilterOutlined,
-  ClusterOutlined,
-} from "@ant-design/icons";
-import { Dayjs } from "dayjs";
-import { useTranslation } from "react-i18next";
 import { callApiService } from "@/services/axios-instance/sb-helper.axios";
+import {
+  ClearOutlined,
+  ClusterOutlined,
+  FilterOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Flex,
+  Input,
+  Row,
+  Select,
+  Space,
+  theme,
+  Typography,
+} from "antd";
+import { Dayjs } from "dayjs";
+import React, { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const { RangePicker } = DatePicker;
 const { Text } = Typography;
@@ -118,18 +116,18 @@ export const TimesheetFilters: React.FC<TimesheetFiltersProps> = ({
         marginBottom: 24,
       }}
     >
-      <Flex vertical gap={20}>
+      <Flex vertical gap={16}>
         {/* หัวข้อส่วนตัวกรอง */}
-        <Space size={8}>
-          <FilterOutlined style={{ color: token.colorPrimary, fontSize: 18 }} />
-          <Text strong style={{ fontSize: 16 }}>
-            ตัวกรอง
-          </Text>
+        <Space size={8} style={{ marginBottom: 16 }}>
+          <FilterOutlined
+            style={{ color: token.colorPrimary, fontSize: "1rem" }}
+          />
+          <Text style={{ fontSize: "1rem", fontWeight: 600 }}>ตัวกรอง</Text>
         </Space>
 
-        {/* ส่วนอินพุต แบ่งเป็น 3 คอลัมน์ */}
+        {/* ส่วนอินพุต แบ่งเป็น 2 คอลัมน์ต่อแถว */}
         <Row gutter={[24, 24]}>
-          <Col xs={24} md={8}>
+          <Col xs={24} md={12}>
             <Flex vertical gap={8}>
               <Text type="secondary" style={{ fontSize: 13, fontWeight: 500 }}>
                 ค้นหาพนักงาน
@@ -143,22 +141,15 @@ export const TimesheetFilters: React.FC<TimesheetFiltersProps> = ({
                 }
                 allowClear
                 value={searchValue}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setSearchValue(val);
-                  // Debounce search
-                  const timer = setTimeout(() => {
-                    requestSearchByKeyword(val);
-                  }, 300);
-                  return () => clearTimeout(timer);
-                }}
+                onChange={(e) => setSearchValue(e.target.value)}
+                onPressEnter={() => onKeywordChange(searchValue)}
                 size="large"
                 style={{ borderRadius: 8 }}
               />
             </Flex>
           </Col>
 
-          <Col xs={24} md={8}>
+          <Col xs={24} md={12}>
             <Flex vertical gap={8}>
               <Text type="secondary" style={{ fontSize: 13, fontWeight: 500 }}>
                 แผนก / ฝ่าย
@@ -186,7 +177,7 @@ export const TimesheetFilters: React.FC<TimesheetFiltersProps> = ({
             </Flex>
           </Col>
 
-          <Col xs={24} md={8}>
+          <Col xs={24} md={12}>
             <Flex vertical gap={8}>
               <Text type="secondary" style={{ fontSize: 13, fontWeight: 500 }}>
                 ช่วงวันที่
@@ -197,40 +188,48 @@ export const TimesheetFilters: React.FC<TimesheetFiltersProps> = ({
                 onChange={responseDateRangeChange}
                 format="DD/MM/YYYY"
                 size="large"
+                style={{ width: "100%", borderRadius: 8 }}
                 placeholder={[
                   t("timesheet_page.start_date"),
                   t("timesheet_page.end_date"),
                 ]}
-                style={{ width: "100%", borderRadius: 8 }}
               />
             </Flex>
           </Col>
-        </Row>
 
-        {/* ปุ่มล้างการค้นหาและปุ่มค้นหา ชิดขวา */}
-        <Flex justify="flex-end" gap={12}>
-          <Button
-            icon={<ClearOutlined />}
-            onClick={() => {
-              setSearchValue("");
-              onClearFilters();
-            }}
-            size="large"
-            style={{ borderRadius: 8, minWidth: 140 }}
-          >
-            ล้างการค้นหา
-          </Button>
-          <Button
-            icon={<ReloadOutlined />}
-            type="primary"
-            onClick={onRefresh}
-            loading={loading}
-            size="large"
-            style={{ borderRadius: 8, minWidth: 140 }}
-          >
-            ค้นหาข้อมูล
-          </Button>
-        </Flex>
+          {/* ปุ่มจัดการฟิลเตอร์ วางชิดขวาด้านล่าง */}
+          <Col xs={24} md={12}>
+            <Flex
+              justify="flex-end"
+              align="flex-end"
+              style={{ height: "100%" }}
+            >
+              <Space size={12}>
+                <Button
+                  icon={<ClearOutlined />}
+                  onClick={() => {
+                    setSearchValue("");
+                    onClearFilters();
+                  }}
+                  size="large"
+                  shape="round"
+                >
+                  ล้างการค้นหา
+                </Button>
+                <Button
+                  type="primary"
+                  icon={<SearchOutlined />}
+                  onClick={() => onKeywordChange(searchValue)}
+                  loading={loading}
+                  size="large"
+                  shape="round"
+                >
+                  ค้นหา
+                </Button>
+              </Space>
+            </Flex>
+          </Col>
+        </Row>
       </Flex>
     </Card>
   );
