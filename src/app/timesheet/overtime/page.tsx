@@ -1802,7 +1802,7 @@ const OvertimeTableSection = ({
           </Button>
         </Space>
       }
-      styles={{ body: { padding: 0 } }}
+      styles={{ body: { padding: "8px 24px 24px" } }}
     >
       {/* ตารางแสดงผลรายการคำขอ OT พร้อมฟังก์ชันขยายแถว */}
       <Table
