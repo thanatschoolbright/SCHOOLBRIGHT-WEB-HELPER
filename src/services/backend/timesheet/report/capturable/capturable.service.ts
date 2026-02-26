@@ -34,11 +34,11 @@ export const Service = {
         hours: true,
       },
       where: {
-        // Note: We include deleted records here to match the "Manage Time Records" summary logic
         date: {
           gte: start,
           lte: end,
         },
+        is_deleted: false,
       },
     });
 
@@ -57,6 +57,7 @@ export const Service = {
                   gte: start,
                   lte: end,
                 },
+                is_deleted: false,
               },
             },
           },
@@ -72,7 +73,7 @@ export const Service = {
               gte: start,
               lte: end,
             },
-            // Note: We include deleted records here to match the "Manage Time Records" summary logic
+            is_deleted: false,
           },
           select: {
             hours: true,
@@ -105,7 +106,8 @@ export const Service = {
 
           const featureId = entry.feature?.id || 0;
           const featureName = entry.feature?.name || "No Feature/Sub-task";
-          const captureType = entry.feature?.assetCaptureType || "UNCAPTUREABLE";
+          const captureType =
+            entry.feature?.assetCaptureType || "UNCAPTUREABLE";
 
           if (captureType === "CAPTUREABLE") {
             capturableHours += hoursValue;
@@ -179,11 +181,11 @@ export const Service = {
     // 1. Get total hours aggregated by capture type
     const entries = await PrismaTimesheet.timesheetEntry.findMany({
       where: {
-        // Note: We include deleted records here to match the "Manage Time Records" summary logic
         date: {
           gte: start,
           lte: end,
         },
+        is_deleted: false,
       },
       select: {
         hours: true,
@@ -197,8 +199,8 @@ export const Service = {
         project: {
           select: {
             is_deleted: true, // Also track if project is deleted
-          }
-        }
+          },
+        },
       },
     });
 

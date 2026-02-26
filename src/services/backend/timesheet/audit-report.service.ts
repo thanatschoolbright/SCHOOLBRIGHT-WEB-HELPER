@@ -1,10 +1,8 @@
-import { PrismaTimesheet as prisma } from "@/helpers/prisma-timesheet";
-import ExcelJS from "exceljs";
-import dayjs from "dayjs";
 import { logger } from "@/helpers/logger";
-import { API_URL } from "@/services/api-url";
-import axios from "axios";
+import { PrismaTimesheet as prisma } from "@/helpers/prisma-timesheet";
 import { formatFullProjectCode } from "@/helpers/project/convert-code.helper";
+import dayjs from "dayjs";
+import ExcelJS from "exceljs";
 
 const EXCEL_STYLES = {
   TITLE_FONT: {
@@ -85,13 +83,14 @@ const formatDateRange = (startDate: string, endDate: string): string => {
 };
 
 const getUserName = (
-  userId: number,
-  usersMap: Map<number, UserData>,
+  userId: number | null,
+  usersMap: Map<number, any>,
 ): string => {
+  if (userId === null) return "ไม่ระบุ";
   const user = usersMap.get(userId);
   return user
-    ? `${user.firstname} ${user.lastname} (${user.admin_id})`
-    : `Unknown (${userId || "-"})`;
+    ? `${user.firstname_th} ${user.lastname_th}`.trim() || `User ID: ${userId}`
+    : `User ID: ${userId}`;
 };
 
 const applyCellStyle = (
@@ -106,20 +105,34 @@ const applyCellStyle = (
 };
 
 const fetchTimesheetEntries = async (startDate: string, endDate: string) => {
-  const start = dayjs(startDate).startOf("day");
-  const end = dayjs(endDate).endOf("day");
+  // ⚡️ Align with Capturable Reporting logic (T00:00:00)
+  const start = new Date(`${startDate}T00:00:00`);
+  const end = new Date(`${endDate}T23:59:59.999`);
 
   return await prisma.timesheetEntry.findMany({
     where: {
       date: {
-        gte: new Date(start.toISOString()),
-        lte: new Date(end.toISOString()),
+        gte: start,
+        lte: end,
       },
       is_deleted: false,
     },
     include: {
-      project: true,
-      feature: true,
+      project: {
+        select: {
+          id: true,
+          name: true,
+          is_deleted: true,
+        },
+      },
+      feature: {
+        select: {
+          id: true,
+          name: true,
+          assetCaptureType: true,
+          is_deleted: true,
+        },
+      },
     },
     orderBy: [{ date: "asc" }],
   });
@@ -132,12 +145,21 @@ const groupEntriesByFeature = (entries: any[]): Map<number, FeatureData> => {
     const featureId = entry.featureId;
 
     if (!featureMap.has(featureId)) {
+      const projectName = entry.project?.name || "ไม่ระบุ";
+      const projectIsDeleted = entry.project?.is_deleted || false;
+      const featureName = entry.feature?.name || "ไม่ระบุ";
+      const featureIsDeleted = entry.feature?.is_deleted || false;
+
       featureMap.set(featureId, {
         projectId: entry.projectId,
-        projectName: entry.project?.name || "ไม่ระบุ",
+        projectName: projectIsDeleted
+          ? `${projectName} (DELETED)`
+          : projectName,
         featureId,
-        featureName: entry.feature?.name || "ไม่ระบุ",
-        assetCaptureType: entry.feature?.assetCaptureType || "CAPTUREABLE",
+        featureName: featureIsDeleted
+          ? `${featureName} (DELETED)`
+          : featureName,
+        assetCaptureType: entry.feature?.assetCaptureType || "UNCAPTUREABLE",
         hours: 0,
         entries: [],
       });
@@ -151,25 +173,33 @@ const groupEntriesByFeature = (entries: any[]): Map<number, FeatureData> => {
   return featureMap;
 };
 
-const fetchUsers = async (): Promise<Map<number, UserData>> => {
-  const usersMap = new Map<number, UserData>();
+const fetchUsers = async (entries: any[]): Promise<Map<number, any>> => {
+  const adminIds = Array.from(
+    new Set(
+      entries.map((e) => e.createdBy).filter((id): id is number => id !== null),
+    ),
+  );
 
-  try {
-    const response = await axios.get(
-      `${API_URL.SB_HELPER_URL}/api/v1/admin/user/read/0`,
-      { headers: { "Content-Type": "application/json" } },
-    );
+  if (adminIds.length === 0) return new Map();
 
-    if (response.status === 200 && response.data?.data) {
-      response.data.data.forEach((user: UserData) => {
-        if (user.admin_id) {
-          usersMap.set(user.admin_id, user);
-        }
-      });
+  const users = await prisma.user.findMany({
+    where: {
+      admin_id: { in: adminIds },
+    },
+    select: {
+      admin_id: true,
+      firstname_th: true,
+      lastname_th: true,
+      nickname: true,
+    },
+  });
+
+  const usersMap = new Map<number, any>();
+  users.forEach((user) => {
+    if (user.admin_id) {
+      usersMap.set(user.admin_id, user);
     }
-  } catch (error) {
-    logger.error("Error fetching users:", error);
-  }
+  });
 
   return usersMap;
 };
@@ -427,7 +457,7 @@ export const TimesheetAuditReportService = {
         (a, b) => b.hours - a.hours,
       );
 
-      const usersMap = await fetchUsers();
+      const usersMap = await fetchUsers(entries);
       const dateRange = formatDateRange(start_date, end_date);
 
       const workbook = new ExcelJS.Workbook();
