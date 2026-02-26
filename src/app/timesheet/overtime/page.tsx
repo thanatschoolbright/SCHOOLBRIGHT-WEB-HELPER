@@ -8,10 +8,11 @@ import {
   Card,
   Col,
   DatePicker,
-  Descriptions,
   Divider,
+  Empty,
   Flex,
   Form,
+  Image,
   Input,
   Modal,
   Progress,
@@ -71,6 +72,7 @@ import {
   FileSearchOutlined,
   FileTextOutlined,
   FilterOutlined,
+  HistoryOutlined,
   MailOutlined,
   PlusOutlined,
   ReloadOutlined,
@@ -2470,70 +2472,109 @@ const DetailModalSection = ({
     );
   }, [selectedDetail]);
 
+  // รวบรวมรูปภาพหลักฐานทั้งหมดจากทุกรายการภาระงาน (ปกติจะอยู่ที่รายการแรก)
+  const proofImages = useMemo(() => {
+    if (!selectedDetail?.descriptions) return {};
+    return selectedDetail.descriptions.reduce(
+      (acc: any, item: any) => ({
+        ...acc,
+        ...(item.proof || {}),
+      }),
+      {},
+    );
+  }, [selectedDetail]);
+
+  const hasAnyProof = Object.keys(proofImages).length > 0;
+
   return (
     <Modal
       title={
-        <Space>
-          <FileSearchOutlined /> ข้อมูลบรรยายภาระงานโดยละเอียด
-        </Space>
+        <Flex align="center" gap={12}>
+          <div
+            style={{
+              background: themeToken.colorPrimaryBg,
+              padding: 8,
+              borderRadius: 10,
+              display: "flex",
+            }}
+          >
+            <FileSearchOutlined style={{ color: themeToken.colorPrimary }} />
+          </div>
+          <Typography.Text strong style={{ fontSize: 16 }}>
+            รายละเอียดคำขอ OT #{selectedDetail?.id}
+          </Typography.Text>
+        </Flex>
       }
       open={visible}
       onCancel={() => setVisible(false)}
       footer={[
         <Button
           key="close"
+          type="primary"
           onClick={() => setVisible(false)}
-          style={{ borderRadius: 10, height: 40, paddingInline: 24 }}
+          style={{ borderRadius: 10, height: 40, paddingInline: 32 }}
         >
-          ปิดหน้าต่าง
+          ตกลง
         </Button>,
       ]}
-      width={840}
+      width={900}
       centered
       style={{ borderRadius: 20, overflow: "hidden" }}
     >
-      {/* หน้าต่าง Modal รายละเอียดภาระงานรายบุคคล */}
       {selectedDetail ? (
-        <Flex vertical gap={32} style={{ paddingBlock: 24 }}>
-          <Row gutter={24}>
-            <Col span={12}>
-              {/* รายละเอียดรหัสอ้างอิงและวันที่ยื่นคำขอ */}
-              <Card
-                title="ข้อมูลพื้นฐานการขอ"
-                variant="borderless"
-                style={{
-                  background: themeToken.colorFillQuaternary,
-                  borderRadius: 16,
-                }}
-              >
-                <Descriptions column={1} size="small">
-                  <Descriptions.Item label="รหัสคำขอ">
-                    <Typography.Text strong>
-                      {selectedDetail.id}
+        <Flex vertical gap={24} style={{ paddingBlock: 16 }}>
+          {/* ส่วนที่ 1: ข้อมูลพนักงานและสถานะ */}
+          <Card
+            variant="borderless"
+            style={{
+              background: themeToken.colorFillQuaternary,
+              borderRadius: 16,
+            }}
+            styles={{ body: { padding: 20 } }}
+          >
+            <Row gutter={[24, 16]} align="middle">
+              <Col xs={24} md={14}>
+                <Flex gap={16} align="center">
+                  <Avatar
+                    size={64}
+                    src={
+                      selectedDetail.requester_user?.profile_image ||
+                      getUserById(selectedDetail.requester_id)?.profile_image
+                    }
+                    icon={<UserOutlined />}
+                    style={{
+                      border: `2px solid #fff`,
+                      boxShadow: themeToken.boxShadowTertiary,
+                    }}
+                  />
+                  <Flex vertical>
+                    <Typography.Text strong style={{ fontSize: 18 }}>
+                      {selectedDetail.requester_name ||
+                        `${selectedDetail.requester_user?.firstname_th} ${selectedDetail.requester_user?.lastname_th}`}
+                      {selectedDetail.requester_user?.nickname && (
+                        <span
+                          style={{
+                            marginLeft: 4,
+                            color: themeToken.colorTextSecondary,
+                            fontWeight: 400,
+                          }}
+                        >
+                          ({selectedDetail.requester_user.nickname})
+                        </span>
+                      )}
                     </Typography.Text>
-                  </Descriptions.Item>
-                  <Descriptions.Item label="วันที่ปฏิบัติงาน">
-                    {dayjs(selectedDetail.request_date).format("DD/MM/YYYY")}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="วันที่ประมวลผล">
-                    {dayjs(selectedDetail.created_at).format(
-                      "DD/MM/YYYY HH:mm",
-                    )}
-                  </Descriptions.Item>
-                </Descriptions>
-              </Card>
-            </Col>
-            <Col span={12}>
-              {/* แสดงสถานะปัจจุบันของคำขอพร้อมระบุผู้ทำรายการ */}
-              <Card
-                title="สถานะปัจจุบัน"
-                variant="borderless"
-                style={{
-                  background: themeToken.colorFillQuaternary,
-                  borderRadius: 16,
-                }}
-              >
-                <Flex vertical gap={12} align="center">
+                    <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+                      {selectedDetail.requester_position ||
+                        selectedDetail.requester_user?.position_th}{" "}
+                      •{" "}
+                      {selectedDetail.requester_employee_code ||
+                        selectedDetail.requester_user?.employee_code}
+                    </Typography.Text>
+                  </Flex>
+                </Flex>
+              </Col>
+              <Col xs={24} md={10}>
+                <Flex vertical align="flex-end" gap={8}>
                   <Tag
                     color={
                       OT_STATUS.find(
@@ -2541,99 +2582,223 @@ const DetailModalSection = ({
                       )?.color
                     }
                     style={{
-                      fontSize: 16,
+                      fontSize: 14,
                       padding: "4px 16px",
                       borderRadius: 8,
                       margin: 0,
+                      fontWeight: 600,
                     }}
                   >
-                    {
-                      OT_STATUS.find(
-                        (item) => item.value === selectedDetail.status,
-                      )?.text
-                    }
+                    {OT_STATUS.find(
+                      (item) => item.value === selectedDetail.status,
+                    )?.text || selectedDetail.status}
                   </Tag>
-                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                    ประมวลผลโดย:{" "}
-                    {(() => {
-                      const u = (getUserById(selectedDetail.created_by) ||
-                        selectedDetail.creator_user) as any;
-                      if (!u) return selectedDetail.created_by || "-";
-
-                      const thName =
-                        `${u.firstname || u.firstname_th || ""} ${u.lastname || u.lastname_th || ""}`.trim();
-                      const enName =
-                        `${u.firstname_en || ""} ${u.lastname_en || ""}`.trim();
-                      const nickname = u.nickname ? `(${u.nickname})` : "";
-
-                      const primaryName =
-                        thName || enName || u.username || String(u.admin_id);
-                      return nickname
-                        ? `${primaryName} ${nickname}`.trim()
-                        : primaryName;
-                    })()}
+                  <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                    วันที่ปฏิบัติงาน:{" "}
+                    {dayjs(selectedDetail.request_date).format("DD MMMM YYYY")}
                   </Typography.Text>
                 </Flex>
-              </Card>
-            </Col>
-          </Row>
+              </Col>
+            </Row>
+          </Card>
 
-          {/* รายการเนื้องานแต่ละรายการพร้อมจำนวนชั่วโมงปลีกย่อย */}
-          <Card
-            title={
-              <Flex justify="space-between" align="center">
-                <Space>
-                  <FileTextOutlined /> รายละเอียดเนื้องาน
-                </Space>
-                <Tag color="error" style={{ borderRadius: 6 }}>
-                  รวม {totalDurationSummaryValue} ชั่วโมง
-                </Tag>
-              </Flex>
-            }
-            variant="borderless"
-            style={{
-              borderRadius: 16,
-              border: `1px solid ${themeToken.colorBorderSecondary}`,
-            }}
-          >
+          {/* ส่วนที่ 2: รายละเอียดเนื้องาน */}
+          <Flex vertical gap={12}>
+            <Divider orientation="left" style={{ margin: "8px 0" }}>
+              <Space>
+                <FileTextOutlined style={{ color: themeToken.colorInfo }} />
+                <Typography.Text strong>
+                  รายการภาระงานที่ปฏิบัติ
+                </Typography.Text>
+              </Space>
+            </Divider>
             <Table
               dataSource={selectedDetail.descriptions}
               pagination={false}
-              size="middle"
               rowKey="id"
+              size="middle"
               columns={[
                 {
-                  title: "รายละเอียดภาระงานที่ได้รับมอบหมาย",
+                  title: "รายละเอียดเนื้องาน",
                   dataIndex: "description",
                   key: "desc",
-                  sorter: (a: any, b: any) =>
-                    (a.description || "").localeCompare(b.description || ""),
-                  render: (text) => <Typography.Text>{text}</Typography.Text>,
-                },
-                {
-                  title: "เวลา (ชม.)",
-                  dataIndex: "duration",
-                  key: "dur",
-                  align: "center",
-                  width: 100,
-                  sorter: (a: any, b: any) =>
-                    Number(a.duration || 0) - Number(b.duration || 0),
-                  render: (value) => (
-                    <Typography.Text
-                      strong
-                      style={{ color: themeToken.colorPrimary }}
-                    >
-                      {value}
+                  render: (text) => (
+                    <Typography.Text style={{ fontSize: 14 }}>
+                      {text}
                     </Typography.Text>
                   ),
                 },
+                {
+                  title: "เวลาปฏิบัติงาน",
+                  key: "time",
+                  width: 220,
+                  render: (record) => (
+                    <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+                      {record.start_date
+                        ? dayjs(record.start_date).format("HH:mm")
+                        : "-"}{" "}
+                      -{" "}
+                      {record.end_date
+                        ? dayjs(record.end_date).format("HH:mm")
+                        : "-"}{" "}
+                      น.
+                    </Typography.Text>
+                  ),
+                },
+                {
+                  title: "จำนวน (ชม.)",
+                  dataIndex: "duration",
+                  key: "dur",
+                  align: "center",
+                  width: 120,
+                  render: (value) => (
+                    <Tag
+                      color="blue"
+                      style={{ borderRadius: 6, fontWeight: 700, margin: 0 }}
+                    >
+                      {value} ชม.
+                    </Tag>
+                  ),
+                },
               ]}
-              style={{ background: "transparent" }}
+              summary={() => (
+                <Table.Summary fixed>
+                  <Table.Summary.Row>
+                    <Table.Summary.Cell index={0} colSpan={2}>
+                      <Typography.Text strong>
+                        รวมจำนวนชั่วโมงทั้งหมด
+                      </Typography.Text>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={1} align="center">
+                      <Typography.Text
+                        strong
+                        style={{ color: themeToken.colorError, fontSize: 16 }}
+                      >
+                        {totalDurationSummaryValue}
+                      </Typography.Text>
+                    </Table.Summary.Cell>
+                  </Table.Summary.Row>
+                </Table.Summary>
+              )}
+              style={{
+                border: `1px solid ${themeToken.colorBorderSecondary}`,
+                borderRadius: 12,
+                overflow: "hidden",
+              }}
             />
-          </Card>
+          </Flex>
+
+          {/* ส่วนที่ 3: หลักฐานรูปภาพและลายเซ็น */}
+          <Flex vertical gap={16}>
+            <Divider orientation="left" style={{ margin: "8px 0" }}>
+              <Space>
+                <CameraOutlined style={{ color: themeToken.colorWarning }} />
+                <Typography.Text strong>
+                  หลักฐานมัดจำงานและลายเซ็น
+                </Typography.Text>
+              </Space>
+            </Divider>
+
+            {hasAnyProof ? (
+              <Card
+                variant="borderless"
+                style={{
+                  background: themeToken.colorFillQuaternary,
+                  borderRadius: 16,
+                }}
+              >
+                <Image.PreviewGroup>
+                  <Row gutter={[16, 16]}>
+                    {[
+                      { key: "image_1", label: "เข้าทำงาน" },
+                      { key: "image_2", label: "ออกทำงาน" },
+                      { key: "image_3", label: "งานจริง #1" },
+                      { key: "image_4", label: "งานจริง #2" },
+                    ].map(
+                      (item) =>
+                        proofImages[item.key] && (
+                          <Col xs={12} sm={6} key={item.key}>
+                            <Flex vertical gap={8} align="center">
+                              <Image
+                                src={proofImages[item.key]}
+                                alt={item.label}
+                                style={{
+                                  borderRadius: 12,
+                                  objectFit: "cover",
+                                  height: 120,
+                                  width: "100%",
+                                  cursor: "pointer",
+                                }}
+                                fallback="/photo/no-image.png"
+                              />
+                              <Typography.Text
+                                type="secondary"
+                                style={{ fontSize: 11 }}
+                              >
+                                {item.label}
+                              </Typography.Text>
+                            </Flex>
+                          </Col>
+                        ),
+                    )}
+
+                    {/* ช่องแสดงลายเซ็นแยกต่างหาก */}
+                    {proofImages.signature_1 && (
+                      <Col span={24}>
+                        <Divider dashed style={{ margin: "12px 0" }} />
+                        <Flex justify="center" align="center" vertical gap={12}>
+                          <Typography.Text strong style={{ fontSize: 13 }}>
+                            ลายเซ็นรับรองผู้ปฏิบัติงาน
+                          </Typography.Text>
+                          <div
+                            style={{
+                              padding: 12,
+                              background: "#fff",
+                              borderRadius: 12,
+                              border: `1px solid ${themeToken.colorBorderSecondary}`,
+                            }}
+                          >
+                            <Image
+                              src={proofImages.signature_1}
+                              width={200}
+                              style={{ maxHeight: 100, objectFit: "contain" }}
+                              alt="Signature"
+                            />
+                          </div>
+                        </Flex>
+                      </Col>
+                    )}
+                  </Row>
+                </Image.PreviewGroup>
+              </Card>
+            ) : (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description="ไม่พบไฟล์ยอดหลักฐานรูปภาพในคำขอนี้"
+                style={{ marginBlock: 20 }}
+              />
+            )}
+          </Flex>
+
+          {/* ส่วนท้าย: ข้อมูลการประมวลผล */}
+          <Flex justify="space-between" align="center" style={{ marginTop: 8 }}>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              <HistoryOutlined style={{ marginRight: 4 }} />
+              ยื่นคำขอเมื่อ:{" "}
+              {dayjs(selectedDetail.created_at).format("DD/MM/YYYY HH:mm")}
+            </Typography.Text>
+            {selectedDetail.updated_by && (
+              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                อัปเดตล่าสุดโดย: {selectedDetail.updater_name} (
+                {dayjs(selectedDetail.updated_at).format("DD/MM/YYYY HH:mm")})
+              </Typography.Text>
+            )}
+          </Flex>
         </Flex>
       ) : (
-        <Skeleton active paragraph={{ rows: 12 }} />
+        <div style={{ padding: 40, textAlign: "center" }}>
+          <Skeleton active paragraph={{ rows: 8 }} />
+        </div>
       )}
     </Modal>
   );
