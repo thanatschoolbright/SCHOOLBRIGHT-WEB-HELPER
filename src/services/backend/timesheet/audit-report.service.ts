@@ -341,33 +341,57 @@ const createEvidenceSheet = (
   sheet.properties.defaultRowHeight = EXCEL_STYLES.ROW_HEIGHT;
 
   sheet.columns = [
-    { header: "วันที่ลงเวลา", key: "date", width: 15 },
-    { header: "รหัสพนักงาน", key: "employeeId", width: 15 },
-    { header: "ชื่อผู้จัดทำ", key: "creator", width: 25 },
-    { header: "คำอธิบาย", key: "description", width: 50 },
-    { header: "จำนวนชั่วโมง", key: "hours", width: 15 },
+    { key: "date", width: 18 },
+    { key: "employeeId", width: 18 },
+    { key: "creator", width: 30 },
+    { key: "description", width: 55 },
+    { key: "hours", width: 18 },
   ];
 
-  sheet.mergeCells("A1:E1");
-  const titleCell = sheet.getCell("A1");
-  titleCell.value = `ข้อมูลนี้อ้างอิงจาก ช่วงวันที่ ${dateRange} - ${feature.projectName} / ${feature.featureName}`;
-  titleCell.font = { ...EXCEL_STYLES.TITLE_FONT, size: 14 };
-  titleCell.alignment = { vertical: "middle", horizontal: "center" };
-  titleCell.fill = EXCEL_STYLES.TITLE_FILL;
-  sheet.getRow(1).height = 26;
+  // Title Section Row 1: Project Name
+  sheet.getRow(1).height = 24;
+  sheet.getCell("A1").value = "ชื่อโครงการ";
+  sheet.getCell("B1").value = feature.projectName;
+  sheet.mergeCells("B1:E1");
+  sheet.getCell("A1").font = { ...EXCEL_STYLES.NORMAL_FONT, bold: true };
+  sheet.getCell("B1").font = EXCEL_STYLES.NORMAL_FONT;
+  sheet.getCell("A1").fill = EXCEL_STYLES.TOTAL_FILL;
+  sheet.getCell("A1").border = EXCEL_STYLES.BORDER;
+  sheet.getCell("B1").border = EXCEL_STYLES.BORDER;
 
-  sheet.mergeCells("A2:E2");
-  const subtitleCell = sheet.getCell("A2");
+  // Title Section Row 2: Sub-project Name
+  sheet.getRow(2).height = 24;
+  sheet.getCell("A2").value = "ชื่อโครงการย่อย";
+  sheet.getCell("B2").value = feature.featureName;
+  sheet.mergeCells("B2:E2");
+  sheet.getCell("A2").font = { ...EXCEL_STYLES.NORMAL_FONT, bold: true };
+  sheet.getCell("B2").font = EXCEL_STYLES.NORMAL_FONT;
+  sheet.getCell("A2").fill = EXCEL_STYLES.TOTAL_FILL;
+  sheet.getCell("A2").border = EXCEL_STYLES.BORDER;
+  sheet.getCell("B2").border = EXCEL_STYLES.BORDER;
+
+  // Title Section Row 3: Date Range
+  sheet.getRow(3).height = 24;
+  sheet.getCell("A3").value = "ช่วงวันที่";
+  sheet.getCell("B3").value = dateRange;
+  sheet.mergeCells("B3:E3");
+  sheet.getCell("A3").font = { ...EXCEL_STYLES.NORMAL_FONT, bold: true };
+  sheet.getCell("B3").font = EXCEL_STYLES.NORMAL_FONT;
+  sheet.getCell("A3").fill = EXCEL_STYLES.TOTAL_FILL;
+  sheet.getCell("A3").border = EXCEL_STYLES.BORDER;
+  sheet.getCell("B3").border = EXCEL_STYLES.BORDER;
+
+  // Additional Info Row 4
   const assetTypeLabel = getAssetTypeLabel(feature.assetCaptureType);
-  subtitleCell.value = `รหัส: ${formattedCode} | ประเภทสินทรัพย์: ${assetTypeLabel} | รวม: ${feature.hours.toFixed(
-    2,
-  )} ชั่วโมง`;
-  subtitleCell.font = EXCEL_STYLES.NORMAL_FONT;
-  subtitleCell.alignment = { vertical: "middle", horizontal: "center" };
-  sheet.getRow(2).height = 20;
+  sheet.getRow(4).height = 22;
+  sheet.mergeCells("A4:E4");
+  const subtitleCell = sheet.getCell("A4");
+  subtitleCell.value = `รหัส: ${formattedCode} | ประเภทสินทรัพย์: ${assetTypeLabel} | รวม: ${feature.hours.toFixed(2)} ชั่วโมง`;
+  subtitleCell.font = { ...EXCEL_STYLES.NORMAL_FONT, italic: true };
+  subtitleCell.alignment = { vertical: "middle", horizontal: "left" };
 
   const headerRow = sheet.addRow([
-    "วันที่",
+    "วันที่ลงเวลา",
     "รหัสพนักงาน",
     "ชื่อผู้จัดทำ",
     "คำอธิบาย",
@@ -384,7 +408,7 @@ const createEvidenceSheet = (
     };
     cell.border = EXCEL_STYLES.BORDER;
   });
-  sheet.getRow(3).height = 24;
+  sheet.getRow(5).height = 26;
 
   const sortedEntries = feature.entries.sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
@@ -441,7 +465,7 @@ const createEvidenceSheet = (
     }
   });
 
-  sheet.views = [{ state: "frozen", ySplit: 3 }];
+  sheet.views = [{ state: "frozen", ySplit: 5 }];
 };
 
 export const TimesheetAuditReportService = {
