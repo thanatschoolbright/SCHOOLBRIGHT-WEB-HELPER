@@ -2228,14 +2228,17 @@ const CreateModalSection = ({
                   name="proof_checkin"
                   label={
                     <Typography.Text style={{ fontSize: 13 }}>
-                      1. หลักฐานการเข้าทำงาน (Line Group) <span style={{ color: "red" }}>*</span>
+                      1. หลักฐานการเข้าทำงาน (Line Group){" "}
+                      <span style={{ color: "red" }}>*</span>
                     </Typography.Text>
                   }
                   valuePropName="fileList"
                   getValueFromEvent={(e: any) =>
                     Array.isArray(e) ? e : e?.fileList
                   }
-                  rules={[{ required: true, message: "โปรดอัปโหลดหลักฐานเข้างาน" }]}
+                  rules={[
+                    { required: true, message: "โปรดอัปโหลดหลักฐานเข้างาน" },
+                  ]}
                 >
                   <Upload
                     listType="picture-card"
@@ -2243,7 +2246,9 @@ const CreateModalSection = ({
                     beforeUpload={(file) => {
                       const isLt2M = file.size < 2 * 1024 * 1024;
                       if (!isLt2M) {
-                        toast.error(`ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`);
+                        toast.error(
+                          `ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`,
+                        );
                         return Upload.LIST_IGNORE;
                       }
                       return false;
@@ -2251,7 +2256,8 @@ const CreateModalSection = ({
                   >
                     <Form.Item noStyle dependencies={["proof_checkin"]}>
                       {() =>
-                        form.getFieldValue("proof_checkin")?.length >= 1 ? null : (
+                        form.getFieldValue("proof_checkin")?.length >=
+                        1 ? null : (
                           <PlusOutlined />
                         )
                       }
@@ -2264,14 +2270,17 @@ const CreateModalSection = ({
                   name="proof_checkout"
                   label={
                     <Typography.Text style={{ fontSize: 13 }}>
-                      2. หลักฐานการออกทำงาน (Line Group) <span style={{ color: "red" }}>*</span>
+                      2. หลักฐานการออกทำงาน (Line Group){" "}
+                      <span style={{ color: "red" }}>*</span>
                     </Typography.Text>
                   }
                   valuePropName="fileList"
                   getValueFromEvent={(e: any) =>
                     Array.isArray(e) ? e : e?.fileList
                   }
-                  rules={[{ required: true, message: "โปรดอัปโหลดหลักฐานออกงาน" }]}
+                  rules={[
+                    { required: true, message: "โปรดอัปโหลดหลักฐานออกงาน" },
+                  ]}
                 >
                   <Upload
                     listType="picture-card"
@@ -2279,7 +2288,9 @@ const CreateModalSection = ({
                     beforeUpload={(file) => {
                       const isLt2M = file.size < 2 * 1024 * 1024;
                       if (!isLt2M) {
-                        toast.error(`ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`);
+                        toast.error(
+                          `ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`,
+                        );
                         return Upload.LIST_IGNORE;
                       }
                       return false;
@@ -2287,7 +2298,8 @@ const CreateModalSection = ({
                   >
                     <Form.Item noStyle dependencies={["proof_checkout"]}>
                       {() =>
-                        form.getFieldValue("proof_checkout")?.length >= 1 ? null : (
+                        form.getFieldValue("proof_checkout")?.length >=
+                        1 ? null : (
                           <PlusOutlined />
                         )
                       }
@@ -2300,14 +2312,17 @@ const CreateModalSection = ({
                   name="proof_work_1"
                   label={
                     <Typography.Text style={{ fontSize: 13 }}>
-                      3. หลักฐานการทำงานจริง #1 <span style={{ color: "red" }}>*</span>
+                      3. หลักฐานการทำงานจริง #1{" "}
+                      <span style={{ color: "red" }}>*</span>
                     </Typography.Text>
                   }
                   valuePropName="fileList"
                   getValueFromEvent={(e: any) =>
                     Array.isArray(e) ? e : e?.fileList
                   }
-                  rules={[{ required: true, message: "โปรดอัปโหลดหลักฐานงาน 1" }]}
+                  rules={[
+                    { required: true, message: "โปรดอัปโหลดหลักฐานงาน 1" },
+                  ]}
                 >
                   <Upload
                     listType="picture-card"
@@ -2315,7 +2330,9 @@ const CreateModalSection = ({
                     beforeUpload={(file) => {
                       const isLt2M = file.size < 2 * 1024 * 1024;
                       if (!isLt2M) {
-                        toast.error(`ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`);
+                        toast.error(
+                          `ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`,
+                        );
                         return Upload.LIST_IGNORE;
                       }
                       return false;
@@ -2323,7 +2340,8 @@ const CreateModalSection = ({
                   >
                     <Form.Item noStyle dependencies={["proof_work_1"]}>
                       {() =>
-                        form.getFieldValue("proof_work_1")?.length >= 1 ? null : (
+                        form.getFieldValue("proof_work_1")?.length >=
+                        1 ? null : (
                           <PlusOutlined />
                         )
                       }
@@ -2350,7 +2368,9 @@ const CreateModalSection = ({
                     beforeUpload={(file) => {
                       const isLt2M = file.size < 2 * 1024 * 1024;
                       if (!isLt2M) {
-                        toast.error(`ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`);
+                        toast.error(
+                          `ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`,
+                        );
                         return Upload.LIST_IGNORE;
                       }
                       return false;
@@ -2358,7 +2378,8 @@ const CreateModalSection = ({
                   >
                     <Form.Item noStyle dependencies={["proof_work_2"]}>
                       {() =>
-                        form.getFieldValue("proof_work_2")?.length >= 1 ? null : (
+                        form.getFieldValue("proof_work_2")?.length >=
+                        1 ? null : (
                           <PlusOutlined />
                         )
                       }
@@ -2389,7 +2410,8 @@ const CreateModalSection = ({
               name="signature_file"
               label={
                 <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-                  อัปโหลดรูปภาพลายเซ็นรับรอง (1 รูป) <span style={{ color: "red" }}>*</span>
+                  อัปโหลดรูปภาพลายเซ็นรับรอง (1 รูป){" "}
+                  <span style={{ color: "red" }}>*</span>
                 </Typography.Text>
               }
               valuePropName="fileList"
