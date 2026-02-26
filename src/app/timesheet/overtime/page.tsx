@@ -2756,9 +2756,7 @@ const DetailModalSection = ({
             <Divider orientation="left" style={{ margin: "8px 0" }}>
               <Space>
                 <CameraOutlined style={{ color: themeToken.colorWarning }} />
-                <Typography.Text strong>
-                  หลักฐานมัดจำงานและลายเซ็น
-                </Typography.Text>
+                <Typography.Text strong>หลักฐานการทำงาน</Typography.Text>
               </Space>
             </Divider>
 
