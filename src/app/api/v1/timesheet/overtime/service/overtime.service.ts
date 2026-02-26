@@ -163,7 +163,7 @@ export const OvertimeService = {
       const cell = worksheet.getCell(ref);
       cell.font = {
         bold: true,
-        name: "Cordia New",
+        name: "Google Sans",
         size: 14,
         color: { argb: "FF8C4D00" },
       }; // ส้มน้ำตาลเข้ม
@@ -171,11 +171,15 @@ export const OvertimeService = {
 
     ["B1", "B2", "B3"].forEach((ref) => {
       const cell = worksheet.getCell(ref);
-      cell.font = { name: "Cordia New", size: 14, color: { argb: "FF434343" } };
+      cell.font = {
+        name: "Google Sans",
+        size: 14,
+        color: { argb: "FF434343" },
+      };
     });
     worksheet.getCell("B1").font = {
       bold: true,
-      name: "Cordia New",
+      name: "Google Sans",
       size: 15,
       color: { argb: "FFF37021" }, // School Bright Orange
     };
@@ -203,7 +207,7 @@ export const OvertimeService = {
     ];
 
     worksheet.columns = [
-      { key: "no", width: 12 }, // ขยาย Column A ให้กว้างขึ้นตามคำขอ
+      { key: "no", width: 25 }, // ขยาย Column A ให้กว้างขึ้นมากตามคำขอ (25 Characters)
       { key: "id", width: 16 },
       { key: "employee_code", width: 16 },
       { key: "requester", width: 28 },
@@ -226,7 +230,7 @@ export const OvertimeService = {
     tableHeaderRow.height = 32;
     tableHeaderRow.eachCell((cell) => {
       cell.font = {
-        name: "Cordia New",
+        name: "Google Sans",
         size: 14,
         bold: true,
         color: { argb: "FFFFFFFF" },
@@ -366,7 +370,7 @@ export const OvertimeService = {
     summaryTitleCell.font = {
       bold: true,
       size: 16,
-      name: "Cordia New",
+      name: "Google Sans",
       color: { argb: "FFF37021" },
     };
     summaryTitleCell.alignment = { horizontal: "left", vertical: "middle" };
@@ -387,7 +391,7 @@ export const OvertimeService = {
       cell.font = {
         bold: true,
         size: 13,
-        name: "Cordia New",
+        name: "Google Sans",
         color: { argb: "FFFFFFFF" },
       };
       cell.fill = {
@@ -424,7 +428,7 @@ export const OvertimeService = {
       row.height = 32; // Fixed height (Minimal Theme)
       row.eachCell((cell, colNumber) => {
         cell.font = {
-          name: "Cordia New",
+          name: "Google Sans",
           size: 13,
           color: { argb: "FF434343" },
         };
@@ -444,7 +448,7 @@ export const OvertimeService = {
           cell.font = {
             bold: true,
             color: { argb: "FFE25E00" },
-            name: "Cordia New",
+            name: "Google Sans",
             size: 14,
           };
           cell.fill = {
@@ -473,7 +477,7 @@ export const OvertimeService = {
     grandTotalRow.eachCell((cell, colNumber) => {
       cell.font = {
         bold: true,
-        name: "Cordia New",
+        name: "Google Sans",
         size: 14,
         color: { argb: "FFFFFFFF" },
       };
@@ -526,7 +530,7 @@ export const OvertimeService = {
 function formatDataRow(row: ExcelJS.Row) {
   row.height = 32; // Fixed Height ตามคำขอ
   row.eachCell((cell) => {
-    cell.font = { name: "Cordia New", size: 13, color: { argb: "FF434343" } };
+    cell.font = { name: "Google Sans", size: 13, color: { argb: "FF434343" } };
     cell.border = {
       top: { style: "thin", color: { argb: "FFF9E7D8" } }, // Soft Orange Tint Border
       left: { style: "thin", color: { argb: "FFF9E7D8" } },
@@ -564,7 +568,7 @@ function formatDataRow(row: ExcelJS.Row) {
       (cell.value as any).hyperlink
     ) {
       cell.font = {
-        name: "Cordia New",
+        name: "Google Sans",
         size: 13,
         color: { argb: "FF0563C1" },
         underline: true,
@@ -582,7 +586,7 @@ function formatDataRow(row: ExcelJS.Row) {
     statusCell.font = {
       bold: true,
       color: { argb: "FF2E7D32" },
-      name: "Cordia New",
+      name: "Google Sans",
       size: 13,
     };
     statusCell.fill = {
@@ -594,7 +598,7 @@ function formatDataRow(row: ExcelJS.Row) {
     statusCell.font = {
       bold: true,
       color: { argb: "FFF9A825" },
-      name: "Cordia New",
+      name: "Google Sans",
       size: 13,
     };
     statusCell.fill = {
@@ -606,7 +610,7 @@ function formatDataRow(row: ExcelJS.Row) {
     statusCell.font = {
       bold: true,
       color: { argb: "FFC62828" },
-      name: "Cordia New",
+      name: "Google Sans",
       size: 13,
     };
     statusCell.fill = {
