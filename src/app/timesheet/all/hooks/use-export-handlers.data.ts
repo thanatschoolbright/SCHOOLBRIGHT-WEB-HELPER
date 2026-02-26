@@ -33,22 +33,38 @@ export const useExportHandlers = () => {
   }, []);
 
   const handleExportTemplate4 = useCallback(
-    async ({ from, to }: { from: string; to: string }) => {
+    async (payloads: { from: string; to: string }[]) => {
       dispatch(setExportLoading(true));
       dispatch(setExportStep(0));
 
       try {
-        setTimeout(() => dispatch(setExportStep(1)), 500);
+        const total = payloads.length;
+        let count = 0;
 
-        await POST_EXPORT_AUDIT_REPORT({
-          start_date: from,
-          end_date: to,
-        });
+        for (const payload of payloads) {
+          count++;
+          dispatch(setExportStep(1)); // กำลังเตรียมข้อมูล
+
+          await POST_EXPORT_AUDIT_REPORT({
+            start_date: payload.from,
+            end_date: payload.to,
+          });
+
+          // อัปเดตสถานะถ้ามีหลายไฟล์ และหน่วงเวลาเล็กน้อยเพื่อไม่ให้ Browser บล็อกการดาวน์โหลด
+          if (total > 1) {
+            toast.info(`ดาวน์โหลดแล้ว ${count}/${total} ไฟล์`, {
+              duration: 1500,
+            });
+            if (count < total) {
+              await new Promise((resolve) => setTimeout(resolve, 1000));
+            }
+          }
+        }
 
         dispatch(setExportStep(2));
         setTimeout(() => dispatch(setExportStep(3)), 800);
 
-        toast.success("ส่งออก Template 4 สำเร็จ");
+        toast.success(`ส่งออก Template 4 สำเร็จ (${total} ไฟล์)`);
 
         setTimeout(() => {
           dispatch(setExportLoading(false));
