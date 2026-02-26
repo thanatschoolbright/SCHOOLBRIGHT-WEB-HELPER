@@ -5,6 +5,7 @@ import {
   Card,
   Checkbox,
   Col,
+  Flex,
   Modal,
   Row,
   Select,
@@ -13,16 +14,17 @@ import {
   Typography,
 } from "antd";
 import dayjs from "dayjs";
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { toast } from "sonner";
 
-type Props = {
+type ExportModalTemplate4Props = {
   visible: boolean;
   loading?: boolean;
   onClose: () => void;
   onExport: (payloads: { from: string; to: string }[]) => Promise<void> | void;
 };
 
-const MONTHS = [
+const MONTH_OPTIONS = [
   { label: "มกราคม", value: 0 },
   { label: "กุมภาพันธ์", value: 1 },
   { label: "มีนาคม", value: 2 },
@@ -37,44 +39,63 @@ const MONTHS = [
   { label: "ธันวาคม", value: 11 },
 ];
 
+/**
+ * คอมโพเนนต์ Modal สำหรับส่งออกรายงานไทม์ชีท Template 4 แยกตามรายเดือน
+ */
 export default function ExportModalTemplate4({
   visible,
   loading,
   onClose,
   onExport,
-}: Props) {
+}: ExportModalTemplate4Props) {
   const { token } = theme.useToken();
+
+  // --- States ---
   const [selectedMonths, setSelectedMonths] = useState<number[]>([
     dayjs().month(),
   ]);
   const [selectedYear, setSelectedYear] = useState<number>(dayjs().year());
 
-  const handleExport = async () => {
-    if (selectedMonths.length === 0) return;
+  /**
+   * จัดการคำขอส่งออกข้อมูลรายเดือนที่เลือก
+   */
+  const requestExportMonthlyReport = useCallback(async () => {
+    if (selectedMonths.length === 0) {
+      toast.error("โปรดเลือกอย่างน้อย 1 เดือน");
+      return;
+    }
 
-    const payloads = selectedMonths
-      .sort((a, b) => a - b)
-      .map((month) => {
-        const startOfMonth = dayjs()
-          .year(selectedYear)
-          .month(month)
-          .startOf("month");
-        const endOfMonth = dayjs()
-          .year(selectedYear)
-          .month(month)
-          .endOf("month");
-        return {
-          from: startOfMonth.format("YYYY-MM-DD"),
-          to: endOfMonth.format("YYYY-MM-DD"),
-        };
-      });
+    try {
+      const payloads = selectedMonths
+        .sort((a, b) => a - b)
+        .map((month) => {
+          const startOfMonth = dayjs()
+            .year(selectedYear)
+            .month(month)
+            .startOf("month");
+          const endOfMonth = dayjs()
+            .year(selectedYear)
+            .month(month)
+            .endOf("month");
+          return {
+            from: startOfMonth.format("YYYY-MM-DD"),
+            to: endOfMonth.format("YYYY-MM-DD"),
+          };
+        });
 
-    await onExport(payloads);
-    onClose();
-  };
+      toast.info(`กำลังจัดเตรียมข้อมูล ${selectedMonths.length} เดือน...`);
+      await onExport(payloads);
+      toast.success("ส่งออกข้อมูลสำเร็จ");
+      onClose();
+    } catch (error) {
+      console.error("[ExportModalTemplate4][error]", error);
+      toast.error("เกิดข้อผิดพลาดในการส่งออกข้อมูล");
+    }
+  }, [selectedMonths, selectedYear, onExport, onClose]);
 
+  // --- Options ---
   const currentYear = dayjs().year();
-  const years = Array.from({ length: 5 }, (_, i) => ({
+  const yearOptions = Array.from({ length: 5 }, (_, i) => ({
     label: `พ.ศ. ${currentYear - 2 + i + 543}`,
     value: currentYear - 2 + i,
   }));
@@ -82,97 +103,111 @@ export default function ExportModalTemplate4({
   return (
     <Modal
       title={
-        <Space>
-          <FileTextOutlined />
-          <span>Export Template 4 - รายงานรายเดือนสำหรับ Audit</span>
+        <Space size={12}>
+          <FileTextOutlined style={{ color: token.colorPrimary }} />
+          <Typography.Text style={{ fontWeight: 600, fontSize: 16 }}>
+            Export Audit Report (Template 4)
+          </Typography.Text>
         </Space>
       }
       open={visible}
       onCancel={onClose}
       footer={null}
-      destroyOnHidden
+      destroyOnClose
       width={600}
       centered
+      styles={{
+        body: { padding: "12px 0 0 0" },
+      }}
     >
-      <Space direction="vertical" style={{ width: "100%" }} size="large">
-        <div style={{ padding: "8px 0" }}>
-          <Typography.Text type="secondary" style={{ fontSize: "14px" }}>
+      <Flex vertical gap={24}>
+        {/* รายละเอียดคำแนะนำ */}
+        <Flex
+          style={{
+            padding: "12px 16px",
+            background: token.colorInfoBg,
+            borderRadius: token.borderRadius,
+            border: `1px solid ${token.colorInfoBorder}`,
+          }}
+        >
+          <Typography.Text type="secondary" style={{ fontSize: 13 }}>
             ระบบจะสร้างไฟล์ Excel แยกตามรายเดือนที่คุณเลือก (วันที่ 1 -
             สิ้นเดือน) โดยหนึ่งเดือนจะถูกส่งออกเป็น 1 ไฟล์
           </Typography.Text>
-        </div>
+        </Flex>
 
+        {/* ส่วนเลือกปีและเดือน */}
         <Card
-          size="small"
-          bordered={false}
+          styles={{ body: { padding: 16 } }}
           style={{
-            background: token.colorBgLayout,
+            background: token.colorFillAlter,
             borderRadius: token.borderRadiusLG,
+            border: `1px solid ${token.colorBorderSecondary}`,
           }}
         >
-          <Space direction="vertical" style={{ width: "100%" }} size="middle">
-            <Row justify="space-between" align="middle">
-              <Col>
-                <Typography.Text strong>
-                  <CalendarOutlined
-                    style={{ marginRight: 8, color: token.colorPrimary }}
-                  />
-                  โปรดเลือกปีและเดือนที่ต้องการส่งออก
+          <Flex vertical gap={20}>
+            {/* ส่วนหัวการเลือก และ เลือกปี */}
+            <Flex justify="space-between" align="center">
+              <Space size={8}>
+                <CalendarOutlined style={{ color: token.colorPrimary }} />
+                <Typography.Text style={{ fontWeight: 600 }}>
+                  โปรดเลือกปีและเดือน
                 </Typography.Text>
-              </Col>
-              <Col>
-                <Select
-                  value={selectedYear}
-                  onChange={setSelectedYear}
-                  style={{ width: 120 }}
-                  options={years}
-                  size="small"
-                />
-              </Col>
-            </Row>
+              </Space>
+              <Select
+                value={selectedYear}
+                onChange={setSelectedYear}
+                style={{ width: 140 }}
+                options={yearOptions}
+                size="middle"
+              />
+            </Flex>
 
-            <div
+            {/* รายการเดือน */}
+            <Card
+              bordered={false}
+              styles={{ body: { padding: 16 } }}
               style={{
-                background: "#fff",
-                padding: "16px",
+                background: token.colorBgContainer,
                 borderRadius: token.borderRadius,
               }}
             >
               <Checkbox.Group
                 value={selectedMonths}
-                onChange={(vals) => setSelectedMonths(vals as number[])}
+                onChange={(values) => setSelectedMonths(values as number[])}
                 style={{ width: "100%" }}
               >
                 <Row gutter={[0, 16]}>
-                  {MONTHS.map((m) => (
-                    <Col span={6} key={m.value}>
-                      <Checkbox value={m.value}>{m.label}</Checkbox>
+                  {MONTH_OPTIONS.map((month) => (
+                    <Col span={6} key={month.value}>
+                      <Checkbox value={month.value}>{month.label}</Checkbox>
                     </Col>
                   ))}
                 </Row>
               </Checkbox.Group>
-            </div>
-          </Space>
+            </Card>
+          </Flex>
         </Card>
 
-        <Space
-          style={{ width: "100%", justifyContent: "flex-end", paddingTop: 8 }}
-        >
-          <Button onClick={onClose} size="large">
+        {/* ปุ่มดำเนินการ */}
+        <Flex justify="flex-end" gap={12}>
+          <Button onClick={onClose} size="large" shape="round">
             ยกเลิก
           </Button>
           <Button
             type="primary"
             loading={loading}
-            onClick={handleExport}
+            onClick={requestExportMonthlyReport}
             disabled={selectedMonths.length === 0}
             size="large"
+            shape="round"
             icon={<FileTextOutlined />}
+            style={{ fontWeight: 500 }}
           >
-            Export รวม {selectedMonths.length} เดือน
+            ส่งออกรวม {selectedMonths.length} เดือน
           </Button>
-        </Space>
-      </Space>
+        </Flex>
+      </Flex>
     </Modal>
   );
 }
