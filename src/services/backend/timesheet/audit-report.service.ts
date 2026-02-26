@@ -54,12 +54,6 @@ interface FeatureData {
   entries: any[];
 }
 
-interface UserData {
-  admin_id: number;
-  firstname: string;
-  lastname: string;
-}
-
 const getAssetTypeLabel = (assetType: string): string => {
   return assetType === "CAPTUREABLE"
     ? "สามารถแคปทรัพย์สินได้"
@@ -255,16 +249,17 @@ const createOverviewSheet = (
   sheet.getRow(2).height = 24;
 
   features.forEach((feature) => {
-    const code = formatFullProjectCode(feature.projectId, feature.featureId);
+    const rawCode = formatFullProjectCode(feature.projectId, feature.featureId);
+    const sanitizedCode = sanitizeSheetName(rawCode);
     const projectNameWithId = `${feature.projectName} (${formatFullProjectCode(
       feature.projectId,
     )})`;
-    const featureNameWithId = `${feature.featureName} (${code})`;
+    const featureNameWithId = `${feature.featureName} (${rawCode})`;
     const assetTypeLabel = getAssetTypeLabel(feature.assetCaptureType);
     const percentage = calculatePercentage(feature.hours, totalHours);
 
     const row = sheet.addRow([
-      code,
+      rawCode,
       projectNameWithId,
       featureNameWithId,
       assetTypeLabel,
@@ -273,7 +268,20 @@ const createOverviewSheet = (
     ]);
 
     row.eachCell((cell, colNumber) => {
-      if (colNumber === 5) {
+      if (colNumber === 1) {
+        // Add Hyperlink to its specific sheet for better UX
+        cell.value = {
+          text: rawCode,
+          hyperlink: `'${sanitizedCode}'!A1`,
+          tooltip: `คลิกเพื่อดูรายละเอียด ${rawCode}`,
+        };
+        cell.font = {
+          ...EXCEL_STYLES.NORMAL_FONT,
+          color: { argb: "FF0563C1" },
+          underline: true,
+        };
+        applyCellStyle(cell, { horizontal: "center" });
+      } else if (colNumber === 5) {
         applyCellStyle(cell, { horizontal: "right" }, "#,##0.00");
       } else if (colNumber === 6) {
         applyCellStyle(cell, { horizontal: "center" });
@@ -314,36 +322,28 @@ const createOverviewSheet = (
 const createEvidenceSheet = (
   workbook: ExcelJS.Workbook,
   feature: FeatureData,
-  usersMap: Map<number, UserData>,
+  usersMap: Map<number, any>,
   dateRange: string,
 ) => {
   const formattedCode = formatFullProjectCode(
     feature.projectId,
     feature.featureId,
   );
-  const safeCode = formattedCode.replace(/\//g, "-");
-  const idPart = ` (${safeCode})`;
-  const maxNameLength = 31 - idPart.length;
 
-  const safeProjectName = sanitizeSheetName(feature.projectName);
-  const safeFeatureName = sanitizeSheetName(feature.featureName);
-  const fullName = `${safeProjectName}-${safeFeatureName}`;
-  const truncatedName = fullName.slice(0, Math.max(0, maxNameLength));
-  const sheetName = `${truncatedName}${idPart}`;
-
+  // Sheet name is just the project/sub-project code for brevity as requested
+  // Note: Excel worksheet names cannot contain characters like "/"
+  const sheetName = sanitizeSheetName(formattedCode);
   const sheet = workbook.addWorksheet(sheetName);
 
   sheet.columns = [
     { header: "วันที่", key: "date", width: 15 },
-    { header: "โครงการ", key: "project", width: 30 },
-    { header: "โครงการย่อย (Feature)", key: "feature", width: 30 },
+    { header: "รหัสพนักงาน", key: "employeeId", width: 15 },
     { header: "ผู้จัดทำ", key: "creator", width: 25 },
-    { header: "ชั่วโมง", key: "hours", width: 12 },
     { header: "คำอธิบาย", key: "description", width: 50 },
-    { header: "สถานะ", key: "status", width: 15 },
+    { header: "จำนวนชั่วโมง", key: "hours", width: 15 },
   ];
 
-  sheet.mergeCells("A1:G1");
+  sheet.mergeCells("A1:E1");
   const titleCell = sheet.getCell("A1");
   titleCell.value = `ข้อมูลนี้อ้างอิงจาก ช่วงวันที่ ${dateRange} - ${feature.projectName} / ${feature.featureName}`;
   titleCell.font = { ...EXCEL_STYLES.TITLE_FONT, size: 14 };
@@ -351,7 +351,7 @@ const createEvidenceSheet = (
   titleCell.fill = EXCEL_STYLES.TITLE_FILL;
   sheet.getRow(1).height = 26;
 
-  sheet.mergeCells("A2:G2");
+  sheet.mergeCells("A2:E2");
   const subtitleCell = sheet.getCell("A2");
   const assetTypeLabel = getAssetTypeLabel(feature.assetCaptureType);
   subtitleCell.value = `รหัส: ${formattedCode} | ประเภทสินทรัพย์: ${assetTypeLabel} | รวม: ${feature.hours.toFixed(
@@ -363,12 +363,10 @@ const createEvidenceSheet = (
 
   const headerRow = sheet.addRow([
     "วันที่",
-    "โครงการ",
-    "โครงการย่อย (Feature)",
+    "รหัสพนักงาน",
     "ผู้จัดทำ",
-    "ชั่วโมง",
     "คำอธิบาย",
-    "สถานะ",
+    "จำนวนชั่วโมง",
   ]);
 
   headerRow.eachCell((cell) => {
@@ -389,21 +387,20 @@ const createEvidenceSheet = (
 
   sortedEntries.forEach((entry) => {
     const creatorName = getUserName(entry.createdBy, usersMap);
+    const employeeId = entry.createdBy ? String(entry.createdBy) : "-";
 
     const row = sheet.addRow([
       dayjs(entry.date).format("DD/MM/YYYY"),
-      entry.project?.name || "ไม่ระบุ",
-      entry.feature?.name || "ไม่ระบุ",
+      employeeId,
       creatorName,
-      Number(entry.hours || 0),
       entry.description || "-",
-      entry.status || "DRAFT",
+      Number(entry.hours || 0),
     ]);
 
     row.eachCell((cell, colNumber) => {
       if (colNumber === 5) {
         applyCellStyle(cell, { horizontal: "right" }, "#,##0.00");
-      } else if (colNumber === 7) {
+      } else if (colNumber === 4) {
         applyCellStyle(cell, { horizontal: "left", wrapText: true });
       } else {
         applyCellStyle(cell, { horizontal: "left" });
@@ -416,13 +413,13 @@ const createEvidenceSheet = (
     "",
     "",
     "",
-    "รวม",
+    "รวมจำนวนชั่วโมงทั้งหมด",
     Number(feature.hours.toFixed(2)),
-    "",
-    "",
   ]);
 
   totalRow.eachCell((cell, colNumber) => {
+    if (colNumber < 4) return;
+
     cell.font = { ...EXCEL_STYLES.NORMAL_FONT, size: 12, bold: true };
     cell.fill = EXCEL_STYLES.TOTAL_FILL;
     cell.border = EXCEL_STYLES.BORDER;
@@ -431,7 +428,7 @@ const createEvidenceSheet = (
       cell.numFmt = "#,##0.00";
       cell.alignment = { horizontal: "right", vertical: "middle" };
     } else {
-      cell.alignment = { horizontal: "left", vertical: "middle" };
+      cell.alignment = { horizontal: "right", vertical: "middle" };
     }
   });
 
