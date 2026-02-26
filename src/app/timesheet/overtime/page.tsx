@@ -28,7 +28,9 @@ import {
   TimePicker,
   Tooltip,
   Typography,
+  Upload,
 } from "antd";
+import type { UploadFile } from "antd";
 import {
   ArcElement,
   BarElement,
@@ -57,16 +59,21 @@ import {
   BookOutlined,
   BulbOutlined,
   CalendarOutlined,
+  CameraOutlined,
   CheckCircleOutlined,
   CheckOutlined,
   ClockCircleOutlined,
   CloseOutlined,
   CloudDownloadOutlined,
+  CloudUploadOutlined,
   DeleteOutlined,
+  EditOutlined,
   FileExcelOutlined,
   FilePdfOutlined,
+  FileSearchOutlined,
   FileTextOutlined,
   FilterOutlined,
+  FolderOpenOutlined,
   MailOutlined,
   PlusOutlined,
   ReloadOutlined,
@@ -490,10 +497,14 @@ const OvertimeManagementPage = () => {
         ? dayjs(formSubmissionPayload.request_date).format("YYYY-MM-DD")
         : dayjs().format("YYYY-MM-DD");
 
+      // เก็บไฟล์ไว้เพื่ออัปโหลดทีหลัง หลังจากสร้าง Record และได้ ID แล้ว
+      const descriptionsWithFilesBuffer =
+        formSubmissionPayload.descriptions || [];
+
       const submissionBodyPayload = {
         ...formSubmissionPayload,
         request_date: baseDateString,
-        descriptions: formSubmissionPayload.descriptions?.map((desc: any) => {
+        descriptions: descriptionsWithFilesBuffer.map((desc: any) => {
           const start = dayjs(desc.startDate);
           const end = dayjs(desc.endDate);
           const base = dayjs(baseDateString);
@@ -504,8 +515,11 @@ const OvertimeManagementPage = () => {
             .second(0);
           const fullEnd = base.hour(end.hour()).minute(end.minute()).second(0);
 
+          // ล้างฟิลด์ไฟล์ออกก่อนการส่ง JSON Payload
+          const { proof_files, signature_file, ...cleanDescPayload } = desc;
+
           return {
-            ...desc,
+            ...cleanDescPayload,
             duration: Number(desc.duration || 0),
             startDate: fullStart.toISOString(),
             endDate: fullEnd.toISOString(),
@@ -532,6 +546,94 @@ const OvertimeManagementPage = () => {
         (apiResponseContentData.status === 200 ||
           apiResponseContentData.status === 201)
       ) {
+        // --- ขั้นตอนการอัปโหลดไฟล์ (หลักฐานและลายเซ็น) ---
+        // เราจะนำ ID ของ Description ที่สร้างขึ้นจากฐานข้อมูลมาเป็น Key ในการอัปโหลด
+        const createdOvertimeObject = apiResponseContentData.data;
+        const createdDescriptionsList = createdOvertimeObject?.descriptions;
+
+        if (
+          createdDescriptionsList &&
+          Array.isArray(createdDescriptionsList) &&
+          descriptionsWithFilesBuffer.length > 0
+        ) {
+          for (
+            let indexCursor = 0;
+            indexCursor < createdDescriptionsList.length;
+            indexCursor++
+          ) {
+            const currentCreatedDescription =
+              createdDescriptionsList[indexCursor];
+            const originalDescriptionInput =
+              descriptionsWithFilesBuffer[indexCursor];
+
+            // 1. อัปโหลดรูปภาพหลักฐาน (Evidence Images) - สูงสุด 4 รูป
+            const proofFilesToProcess = originalDescriptionInput?.proof_files;
+            if (proofFilesToProcess && Array.isArray(proofFilesToProcess)) {
+              for (
+                let fileIndex = 0;
+                fileIndex < Math.min(proofFilesToProcess.length, 4);
+                fileIndex++
+              ) {
+                const antFileObject = proofFilesToProcess[fileIndex];
+                const rawFileToUpload =
+                  antFileObject.originFileObj || antFileObject;
+
+                const formDataObject = new FormData();
+                formDataObject.append("file", rawFileToUpload);
+                formDataObject.append(
+                  "description_id",
+                  String(currentCreatedDescription.id),
+                );
+                formDataObject.append("image_key", `image_${fileIndex + 1}`);
+                formDataObject.append("action", "upload");
+
+                try {
+                  await callApiService.post(
+                    "/api/v1/timesheet/overtime/upload-images",
+                    formDataObject,
+                  );
+                } catch (uploadError) {
+                  console.error(
+                    `Error uploading Image ${fileIndex + 1}:`,
+                    uploadError,
+                  );
+                }
+              }
+            }
+
+            // 2. อัปโหลดรูปภาพลายเซ็น (Signature Image)
+            const signatureFilesToProcess =
+              originalDescriptionInput?.signature_file;
+            if (
+              signatureFilesToProcess &&
+              Array.isArray(signatureFilesToProcess) &&
+              signatureFilesToProcess.length > 0
+            ) {
+              const antSignatureFile = signatureFilesToProcess[0];
+              const rawSignatureFile =
+                antSignatureFile.originFileObj || antSignatureFile;
+
+              const sigFormDataObject = new FormData();
+              sigFormDataObject.append("file", rawSignatureFile);
+              sigFormDataObject.append(
+                "description_id",
+                String(currentCreatedDescription.id),
+              );
+              sigFormDataObject.append("image_key", "signature_1");
+              sigFormDataObject.append("action", "upload");
+
+              try {
+                await callApiService.post(
+                  "/api/v1/timesheet/overtime/upload-images",
+                  sigFormDataObject,
+                );
+              } catch (sigUploadError) {
+                console.error("Error uploading Signature:", sigUploadError);
+              }
+            }
+          }
+        }
+
         toast.success(apiResponseContentData.message_th ?? "สร้างรายการสำเร็จ");
         return apiResponseContentData.data;
       }
@@ -2028,6 +2130,84 @@ const CreateModalSection = ({
                           </Form.Item>
                         </Col>
                       </Row>
+
+                      {/* ส่วนอัปโหลดรูปภาพหลักฐานและลายเซ็น (Ant Design Implementation) */}
+                      <Divider style={{ marginBlock: 12 }} />
+                      <Row gutter={24}>
+                        <Col xs={24} md={16}>
+                          <Form.Item
+                            {...fieldProps}
+                            name={[fieldProps.name, "proof_files"]}
+                            label={
+                              <Space size={4}>
+                                <CameraOutlined />
+                                <Typography.Text strong style={{ fontSize: 12 }}>
+                                  รูปภาพหลักฐานการทำงาน (สูงสุด 4 รูป)
+                                </Typography.Text>
+                              </Space>
+                            }
+                            valuePropName="fileList"
+                            getValueFromEvent={(e: any) => {
+                              if (Array.isArray(e)) return e;
+                              return e?.fileList;
+                            }}
+                          >
+                            <Upload
+                              listType="picture-card"
+                              maxCount={4}
+                              multiple
+                              beforeUpload={() => false} // ป้องกันการอัปโหลดอัตโนมัติ เพื่อรอส่งพร้อมฟอร์มหรือหลังสร้าง ID
+                            >
+                              {form.getFieldValue([
+                                "descriptions",
+                                fieldProps.name,
+                                "proof_files",
+                              ])?.length >= 4 ? null : (
+                                <Flex vertical align="center" gap={4}>
+                                  <PlusOutlined />
+                                  <div style={{ fontSize: 10 }}>อัปโหลด</div>
+                                </Flex>
+                              )}
+                            </Upload>
+                          </Form.Item>
+                        </Col>
+                        <Col xs={24} md={8}>
+                          <Form.Item
+                            {...fieldProps}
+                            name={[fieldProps.name, "signature_file"]}
+                            label={
+                              <Space size={4}>
+                                <EditOutlined />
+                                <Typography.Text strong style={{ fontSize: 12 }}>
+                                  ลายเซ็นรับรอง
+                                </Typography.Text>
+                              </Space>
+                            }
+                            valuePropName="fileList"
+                            getValueFromEvent={(e: any) => {
+                              if (Array.isArray(e)) return e;
+                              return e?.fileList;
+                            }}
+                          >
+                            <Upload
+                              listType="picture-card"
+                              maxCount={1}
+                              beforeUpload={() => false}
+                            >
+                              {form.getFieldValue([
+                                "descriptions",
+                                fieldProps.name,
+                                "signature_file",
+                              ])?.length >= 1 ? null : (
+                                <Flex vertical align="center" gap={4}>
+                                  <PlusOutlined />
+                                  <div style={{ fontSize: 10 }}>ลายเซ็น</div>
+                                </Flex>
+                              )}
+                            </Upload>
+                          </Form.Item>
+                        </Col>
+                      </Row>
                     </Flex>
                   </Card>
                 ))}
@@ -2380,8 +2560,6 @@ const DetailModalSection = ({
     </Modal>
   );
 };
-
-const FileSearchOutlined = () => <SearchOutlined />;
 
 const AnalyticsModalSection = ({
   visible,
