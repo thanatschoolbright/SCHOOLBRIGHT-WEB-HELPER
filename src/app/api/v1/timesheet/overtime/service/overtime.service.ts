@@ -134,7 +134,7 @@ export const OvertimeService = {
         bottom: { style: "thin", color: { argb: "FFD9D9D9" } },
         right: { style: "thin", color: { argb: "FFD9D9D9" } },
       };
-      cell.alignment = { vertical: "middle", horizontal: "left", indent: 1 };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
     });
 
     worksheet.getCell("A1").value = "ชื่อเอกสาร";
@@ -373,7 +373,7 @@ export const OvertimeService = {
       name: "Google Sans",
       color: { argb: "FFF37021" },
     };
-    summaryTitleCell.alignment = { horizontal: "left", vertical: "middle" };
+    summaryTitleCell.alignment = { horizontal: "center", vertical: "middle" };
     worksheet.getRow(rowCursor).height = 32;
     rowCursor++;
 
@@ -426,7 +426,7 @@ export const OvertimeService = {
       ]);
 
       row.height = 32; // Fixed height (Minimal Theme)
-      row.eachCell((cell, colNumber) => {
+      row.eachCell((cell) => {
         cell.font = {
           name: "Google Sans",
           size: 13,
@@ -440,11 +440,11 @@ export const OvertimeService = {
         };
         cell.alignment = {
           vertical: "middle",
-          horizontal: colNumber <= 2 || colNumber === 4 ? "center" : "left",
+          horizontal: "center",
         };
 
         // ไฮไลท์จำนวนชั่วโมงรวมด้วยสีแบรนด์
-        if (colNumber === 5) {
+        if (cell.value && typeof cell.value === "number" && cell.fullAddress.column === 5) {
           cell.font = {
             bold: true,
             color: { argb: "FFE25E00" },
@@ -474,7 +474,7 @@ export const OvertimeService = {
     // Merge Cells สำหรับ Label "ยอดรวมสุทธิ" (A-C)
     worksheet.mergeCells(`A${rowCursor}:C${rowCursor}`);
 
-    grandTotalRow.eachCell((cell, colNumber) => {
+    grandTotalRow.eachCell((cell) => {
       cell.font = {
         bold: true,
         name: "Google Sans",
@@ -488,7 +488,7 @@ export const OvertimeService = {
       };
       cell.alignment = {
         vertical: "middle",
-        horizontal: colNumber === 1 ? "right" : "center",
+        horizontal: "center",
       };
       cell.border = {
         top: { style: "medium", color: { argb: "FF000000" } },
@@ -499,22 +499,16 @@ export const OvertimeService = {
     });
     rowCursor++;
 
-    // จัดระเบียบการจัดวางข้อความ
+    // จัดระเบียบการจัดวางข้อความให้กึ่งกลางทั้งหมด
     worksheet.eachRow((row, rowNumber) => {
       if (rowNumber > 3) {
-        row.getCell("no").alignment = { horizontal: "center" };
-        row.getCell("id").alignment = { horizontal: "center" };
-        row.getCell("employee_code").alignment = { horizontal: "center" };
-        row.getCell("request_date").alignment = { horizontal: "center" };
-        row.getCell("status").alignment = { horizontal: "center" };
-        row.getCell("approver").alignment = {
-          horizontal: "center",
-          vertical: "middle",
-          wrapText: true,
-        };
-        row.getCell("ot_date").alignment = { horizontal: "center" };
-        row.getCell("time_range").alignment = { horizontal: "center" };
-        row.getCell("duration").alignment = { horizontal: "center" };
+        row.eachCell((cell) => {
+          cell.alignment = {
+            vertical: "middle",
+            horizontal: "center",
+            wrapText: true,
+          };
+        });
       }
     });
 
@@ -543,7 +537,7 @@ function formatDataRow(row: ExcelJS.Row) {
   // ใส่สีพื้นหลังสลับแถว (Zebra Effect - School Bright Light Orange)
   const rowNumber = Number(row.number);
   if (rowNumber % 2 === 0) {
-    row.eachCell((cell) => {
+    row.eachCell((cell) => {horizontal: "center", 
       cell.fill = {
         type: "pattern",
         pattern: "solid",
