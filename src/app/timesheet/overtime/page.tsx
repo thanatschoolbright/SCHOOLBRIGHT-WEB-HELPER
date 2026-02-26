@@ -2769,24 +2769,24 @@ const DetailModalSection = ({
                 }}
               >
                 <Image.PreviewGroup>
-                  <Row gutter={[16, 16]}>
+                  <Row gutter={[16, 24]}>
                     {[
-                      { key: "image_1", label: "เข้าทำงาน" },
-                      { key: "image_2", label: "ออกทำงาน" },
-                      { key: "image_3", label: "งานจริง #1" },
-                      { key: "image_4", label: "งานจริง #2" },
+                      { key: "image_1", label: "1. หลักฐานเข้าทำงาน" },
+                      { key: "image_2", label: "2. หลักฐานออกทำงาน" },
+                      { key: "image_3", label: "3. หลักฐานงานจริง #1" },
+                      { key: "image_4", label: "4. หลักฐานงานจริง #2" },
                     ].map(
                       (item) =>
                         proofImages[item.key] && (
-                          <Col xs={12} sm={6} key={item.key}>
-                            <Flex vertical gap={8} align="center">
+                          <Col xs={12} sm={6} md={4} key={item.key}>
+                            <Flex vertical gap={8} align="flex-start">
                               <Image
                                 src={proofImages[item.key]}
                                 alt={item.label}
                                 style={{
                                   borderRadius: 12,
                                   objectFit: "cover",
-                                  height: 120,
+                                  height: 100,
                                   width: "100%",
                                   cursor: "pointer",
                                 }}
@@ -2794,7 +2794,7 @@ const DetailModalSection = ({
                               />
                               <Typography.Text
                                 type="secondary"
-                                style={{ fontSize: 11 }}
+                                style={{ fontSize: 11, textAlign: "left" }}
                               >
                                 {item.label}
                               </Typography.Text>
@@ -2806,23 +2806,24 @@ const DetailModalSection = ({
                     {/* ช่องแสดงลายเซ็นแยกต่างหาก */}
                     {proofImages.signature_1 && (
                       <Col span={24}>
-                        <Divider dashed style={{ margin: "12px 0" }} />
-                        <Flex justify="center" align="center" vertical gap={12}>
+                        <Divider dashed style={{ margin: "16px 0" }} />
+                        <Flex align="flex-start" vertical gap={12}>
                           <Typography.Text strong style={{ fontSize: 13 }}>
                             ลายเซ็นรับรองผู้ปฏิบัติงาน
                           </Typography.Text>
                           <div
                             style={{
-                              padding: 12,
+                              padding: "16px 24px",
                               background: "#fff",
                               borderRadius: 12,
                               border: `1px solid ${themeToken.colorBorderSecondary}`,
+                              display: "inline-flex",
                             }}
                           >
                             <Image
                               src={proofImages.signature_1}
-                              width={200}
-                              style={{ maxHeight: 100, objectFit: "contain" }}
+                              width={180}
+                              style={{ maxHeight: 80, objectFit: "contain" }}
                               alt="Signature"
                             />
                           </div>
