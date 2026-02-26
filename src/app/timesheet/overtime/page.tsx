@@ -3151,10 +3151,15 @@ const RulesModalSection = ({ visible, setVisible, themeToken }: any) => (
       <Button
         type="link"
         size="large"
-        onClick={() => window.open("/docs/rules", "_blank")}
+        onClick={() =>
+          window.open(
+            "https://docs.google.com/document/d/12eEuCzFtCxE3C_CfhkGZ9J8yo3jiKVD2uANYBMXXnUE/edit?tab=t.0",
+            "_blank",
+          )
+        }
         style={{ fontWeight: 600 }}
       >
-        ดูระเบียบการบริษัทฉบับสมบูรณ์ (Intranet)
+        ดูระเบียบการบริษัทฉบับสมบูรณ์
       </Button>
     </Flex>
   </Modal>
