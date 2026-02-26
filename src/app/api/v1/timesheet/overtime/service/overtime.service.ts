@@ -189,6 +189,11 @@ export const OvertimeService = {
       "ช่วงเวลา",
       "จำนวนชั่วโมงที่ทำงานจริง",
       "รายละเอียดงาน",
+      "หลักฐานเข้าทำงาน",
+      "หลักฐานออกทำงาน",
+      "หลักฐานงานจริง #1",
+      "หลักฐานงานจริง #2",
+      "ลายเซ็น",
     ];
 
     worksheet.columns = [
@@ -202,6 +207,11 @@ export const OvertimeService = {
       { key: "time_range", width: 18 },
       { key: "duration", width: 12 },
       { key: "description", width: 45 },
+      { key: "proof_in", width: 18 },
+      { key: "proof_out", width: 18 },
+      { key: "proof_job_1", width: 18 },
+      { key: "proof_job_2", width: 18 },
+      { key: "proof_sig", width: 18 },
     ];
 
     // ตกแต่ง Header ของตาราง
@@ -281,6 +291,7 @@ export const OvertimeService = {
           summary.totalDuration += duration;
           summary.taskCount += 1;
 
+          const proof = desc.proof || {};
           const row = worksheet.addRow({
             no: displayItemIndex++,
             id: requestId,
@@ -295,6 +306,41 @@ export const OvertimeService = {
                 : "-",
             duration: duration,
             description: desc.description,
+            proof_in: proof.image_1
+              ? {
+                  text: "คลิกเพื่อดูรูปภาพ",
+                  hyperlink: proof.image_1,
+                  tooltip: "หลักฐานเข้าทำงาน",
+                }
+              : "-",
+            proof_out: proof.image_2
+              ? {
+                  text: "คลิกเพื่อดูรูปภาพ",
+                  hyperlink: proof.image_2,
+                  tooltip: "หลักฐานออกทำงาน",
+                }
+              : "-",
+            proof_job_1: proof.image_3
+              ? {
+                  text: "คลิกเพื่อดูรูปภาพ",
+                  hyperlink: proof.image_3,
+                  tooltip: "หลักฐานงานจริง #1",
+                }
+              : "-",
+            proof_job_2: proof.image_4
+              ? {
+                  text: "คลิกเพื่อดูรูปภาพ",
+                  hyperlink: proof.image_4,
+                  tooltip: "หลักฐานงานจริง #2",
+                }
+              : "-",
+            proof_sig: proof.signature_1
+              ? {
+                  text: "คลิกเพื่อดูรูปภาพ",
+                  hyperlink: proof.signature_1,
+                  tooltip: "ลายเซ็น",
+                }
+              : "-",
           });
           formatDataRow(row);
           rowCursor++;
@@ -484,6 +530,33 @@ function formatDataRow(row: ExcelJS.Row) {
       };
     });
   }
+
+  // ตกแต่ง Link รูปภาพให้เป็นสีน้ำเงินและขีดเส้นใต้
+  const proofCols = [
+    "proof_in",
+    "proof_out",
+    "proof_job_1",
+    "proof_job_2",
+    "proof_sig",
+  ];
+  proofCols.forEach((colKey) => {
+    const cell = row.getCell(colKey);
+    if (
+      cell.value &&
+      typeof cell.value === "object" &&
+      (cell.value as any).hyperlink
+    ) {
+      cell.font = {
+        name: "Cordia New",
+        size: 13,
+        color: { argb: "FF0563C1" },
+        underline: true,
+      };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+    } else {
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+    }
+  });
 
   // ตกแต่งสีสถานะตามความเหมาะสมทางอารมณ์และสายตา
   const statusCell = row.getCell("status");
