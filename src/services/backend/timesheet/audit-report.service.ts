@@ -42,6 +42,7 @@ const EXCEL_STYLES = {
     bottom: { style: "thin" as const },
     right: { style: "thin" as const },
   },
+  ROW_HEIGHT: 24, // Fixed height for data rows
 } as const;
 
 interface FeatureData {
@@ -205,6 +206,7 @@ const createOverviewSheet = (
   dateRange: string,
 ) => {
   const sheet = workbook.addWorksheet("ภาพรวม");
+  sheet.properties.defaultRowHeight = EXCEL_STYLES.ROW_HEIGHT;
 
   sheet.columns = [
     { header: "รหัสโครงการ / รหัสโครงการย่อย", key: "code", width: 35 },
@@ -266,6 +268,7 @@ const createOverviewSheet = (
       Number(feature.hours.toFixed(2)),
       percentage,
     ]);
+    row.height = EXCEL_STYLES.ROW_HEIGHT;
 
     row.eachCell((cell, colNumber) => {
       if (colNumber === 1) {
@@ -334,11 +337,12 @@ const createEvidenceSheet = (
   // Note: Excel worksheet names cannot contain characters like "/"
   const sheetName = sanitizeSheetName(formattedCode);
   const sheet = workbook.addWorksheet(sheetName);
+  sheet.properties.defaultRowHeight = EXCEL_STYLES.ROW_HEIGHT;
 
   sheet.columns = [
     { header: "วันที่", key: "date", width: 15 },
     { header: "รหัสพนักงาน", key: "employeeId", width: 15 },
-    { header: "ผู้จัดทำ", key: "creator", width: 25 },
+    { header: "ชื่อผู้จัดทำ", key: "creator", width: 25 },
     { header: "คำอธิบาย", key: "description", width: 50 },
     { header: "จำนวนชั่วโมง", key: "hours", width: 15 },
   ];
@@ -364,7 +368,7 @@ const createEvidenceSheet = (
   const headerRow = sheet.addRow([
     "วันที่",
     "รหัสพนักงาน",
-    "ผู้จัดทำ",
+    "ชื่อผู้จัดทำ",
     "คำอธิบาย",
     "จำนวนชั่วโมง",
   ]);
