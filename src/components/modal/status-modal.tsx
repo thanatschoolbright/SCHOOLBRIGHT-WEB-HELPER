@@ -3,9 +3,9 @@ import React from "react";
 
 const { Paragraph, Text } = Typography;
 
-interface StatusModalProps {
+export interface StatusModalProps {
   open: boolean;
-  onClose: () => void;
+  onClose?: () => void;
   type: "success" | "error";
   title?: string;
   message?: string;
