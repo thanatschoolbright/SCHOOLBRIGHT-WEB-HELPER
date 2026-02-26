@@ -209,26 +209,75 @@ const createOverviewSheet = (
   const sheet = workbook.addWorksheet("ภาพรวม");
   sheet.properties.defaultRowHeight = EXCEL_STYLES.ROW_HEIGHT;
 
+  // Calculate distinct project count and actual feature count
+  const projectIds = new Set(features.map((f) => f.projectId));
+  const distinctProjectCount = projectIds.size;
+  const featureCount = features.length;
+
   sheet.columns = [
-    { header: "รหัสโครงการ / รหัสโครงการย่อย", key: "code", width: 35 },
-    { header: "ชื่อโครงการ (รหัสโครงการ)", key: "projectName", width: 40 },
-    {
-      header: "ชื่อโครงการย่อย (รหัสโครงการย่อย)",
-      key: "featureName",
-      width: 40,
-    },
-    { header: "ประเภทของสินทรัพย์", key: "assetType", width: 25 },
-    { header: "ผลรวมชั่วโมง", key: "totalHours", width: 18 },
-    { header: "เปอร์เซ็นต์", key: "percentage", width: 15 },
+    { key: "code", width: 35 },
+    { key: "projectName", width: 40 },
+    { key: "featureName", width: 40 },
+    { key: "assetType", width: 25 },
+    { key: "totalHours", width: 18 },
+    { key: "percentage", width: 15 },
   ];
 
-  sheet.mergeCells("A1:F1");
-  const titleCell = sheet.getCell("A1");
-  titleCell.value = `ข้อมูลนี้อ้างอิงจาก ช่วงวันที่ ${dateRange} - ภาพรวม`;
-  titleCell.font = EXCEL_STYLES.TITLE_FONT;
-  titleCell.alignment = { vertical: "middle", horizontal: "center" };
-  titleCell.fill = EXCEL_STYLES.TITLE_FILL;
-  sheet.getRow(1).height = 28;
+  // Title Section Row 1: Report Title
+  sheet.getRow(1).height = 24;
+  sheet.getCell("A1").value = "ชื่อรายงาน";
+  sheet.getCell("B1").value = "รายงานภาพรวมการลงเวลา (Overview Report)";
+  sheet.mergeCells("B1:F1");
+  sheet.getCell("A1").font = { ...EXCEL_STYLES.NORMAL_FONT, bold: true };
+  sheet.getCell("B1").font = EXCEL_STYLES.NORMAL_FONT;
+  sheet.getCell("A1").fill = EXCEL_STYLES.TOTAL_FILL;
+  sheet.getCell("A1").border = EXCEL_STYLES.BORDER;
+  sheet.getCell("B1").border = EXCEL_STYLES.BORDER;
+
+  // Title Section Row 2: Date Range
+  sheet.getRow(2).height = 24;
+  sheet.getCell("A2").value = "ช่วงวันที่";
+  sheet.getCell("B2").value = dateRange;
+  sheet.mergeCells("B2:F2");
+  sheet.getCell("A2").font = { ...EXCEL_STYLES.NORMAL_FONT, bold: true };
+  sheet.getCell("B2").font = EXCEL_STYLES.NORMAL_FONT;
+  sheet.getCell("A2").fill = EXCEL_STYLES.TOTAL_FILL;
+  sheet.getCell("A2").border = EXCEL_STYLES.BORDER;
+  sheet.getCell("B2").border = EXCEL_STYLES.BORDER;
+
+  // Title Section Row 3: Overall Total Hours
+  sheet.getRow(3).height = 24;
+  sheet.getCell("A3").value = "รวมจำนวนชั่วโมงทั้งหมด";
+  sheet.getCell("B3").value = Number(totalHours.toFixed(2));
+  sheet.mergeCells("B3:F3");
+  sheet.getCell("A3").font = { ...EXCEL_STYLES.NORMAL_FONT, bold: true };
+  sheet.getCell("B3").font = { ...EXCEL_STYLES.NORMAL_FONT, bold: true };
+  sheet.getCell("A3").fill = EXCEL_STYLES.TOTAL_FILL;
+  sheet.getCell("A3").border = EXCEL_STYLES.BORDER;
+  sheet.getCell("B3").border = EXCEL_STYLES.BORDER;
+  sheet.getCell("B3").numFmt = "#,##0.00";
+
+  // Title Section Row 4: Project Count
+  sheet.getRow(4).height = 24;
+  sheet.getCell("A4").value = "จำนวนโครงการ";
+  sheet.getCell("B4").value = `${distinctProjectCount} รายการ`;
+  sheet.mergeCells("B4:F4");
+  sheet.getCell("A4").font = { ...EXCEL_STYLES.NORMAL_FONT, bold: true };
+  sheet.getCell("B4").font = EXCEL_STYLES.NORMAL_FONT;
+  sheet.getCell("A4").fill = EXCEL_STYLES.TOTAL_FILL;
+  sheet.getCell("A4").border = EXCEL_STYLES.BORDER;
+  sheet.getCell("B4").border = EXCEL_STYLES.BORDER;
+
+  // Title Section Row 5: Sub-project Count
+  sheet.getRow(5).height = 24;
+  sheet.getCell("A5").value = "จำนวนโครงการย่อย";
+  sheet.getCell("B5").value = `${featureCount} รายการ`;
+  sheet.mergeCells("B5:F5");
+  sheet.getCell("A5").font = { ...EXCEL_STYLES.NORMAL_FONT, bold: true };
+  sheet.getCell("B5").font = EXCEL_STYLES.NORMAL_FONT;
+  sheet.getCell("A5").fill = EXCEL_STYLES.TOTAL_FILL;
+  sheet.getCell("A5").border = EXCEL_STYLES.BORDER;
+  sheet.getCell("B5").border = EXCEL_STYLES.BORDER;
 
   const headerRow = sheet.addRow([
     "รหัสโครงการ / รหัสโครงการย่อย",
@@ -249,7 +298,7 @@ const createOverviewSheet = (
     };
     cell.border = EXCEL_STYLES.BORDER;
   });
-  sheet.getRow(2).height = 24;
+  sheet.getRow(5).height = 26;
 
   features.forEach((feature) => {
     const rawCode = formatFullProjectCode(feature.projectId, feature.featureId);
@@ -304,6 +353,7 @@ const createOverviewSheet = (
     Number(totalHours.toFixed(2)),
     "100.00%",
   ]);
+  totalRow.height = EXCEL_STYLES.ROW_HEIGHT;
 
   totalRow.eachCell((cell, colNumber) => {
     cell.font = { ...EXCEL_STYLES.NORMAL_FONT, size: 12, bold: true };
@@ -320,7 +370,7 @@ const createOverviewSheet = (
     }
   });
 
-  sheet.views = [{ state: "frozen", ySplit: 2 }];
+  sheet.views = [{ state: "frozen", ySplit: 6 }];
 };
 
 const createEvidenceSheet = (
