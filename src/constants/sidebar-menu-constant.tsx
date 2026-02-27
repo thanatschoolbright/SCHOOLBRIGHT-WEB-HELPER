@@ -190,12 +190,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
                 icon: <HistoryOutlined />,
                 permission: PERMISSIONS.MENU_HEALTH_VERSION,
               },
-              {
-                label: t("health_check.children.transaction_log"),
-                href: "/health-check/transaction-log",
-                icon: <DatabaseOutlined />,
-                permission: PERMISSIONS.MENU_HEALTH_LOG,
-              },
+
               {
                 label: t("health_check.children.heartbeats"),
                 href: "/health-check/heartbeats",

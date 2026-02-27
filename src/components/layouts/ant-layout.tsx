@@ -12,219 +12,210 @@ import { FontProvider, useFont } from "../providers/font-provider";
 dayjs.extend(buddhistEra);
 dayjs.locale("th");
 
-const BRAND_DESIGN_SEED_TOKENS = {
+type FontFamily = "google-sans" | "sukhumvit";
+
+const BRAND_COLORS = {
   primary: "#FF8C00",
   success: "#10B981",
   warning: "#F59E0B",
   error: "#EF4444",
   info: "#3B82F6",
-  radius: 12,
-  // Default font family mapping
-  fonts: {
-    "google-sans": 'var(--font-google-sans), "Google Sans", sans-serif',
-    sukhumvit: 'var(--font-sukhumvit), "Sukhumvit Set", sans-serif',
-  },
 };
 
-const SYSTEM_COLOR_PALETTE_CONFIGURATION = {
+const FONTS: Record<FontFamily, string> = {
+  "google-sans": 'var(--font-google-sans), "Google Sans", sans-serif',
+  sukhumvit: 'var(--font-sukhumvit), "Sukhumvit Set", sans-serif',
+};
+
+const SYSTEM_PALETTE = {
   light: {
-    bgLayout: "#F9F8F6",
+    bgLayout: "#FAFAFA",
     bgContainer: "#FFFFFF",
-    textMain: "#292524",
-    textSub: "#78716C",
-    border: "#E7E5E4",
+    textMain: "#09090B",
+    textSub: "#71717A",
+    border: "#E4E4E7",
   },
   dark: {
-    bgLayout: "#121212",
-    bgContainer: "#1E1E1E",
-    textMain: "#E0E0E0",
-    textSub: "#B0B0B0",
-    border: "#444444",
+    bgLayout: "#09090B",
+    bgContainer: "#18181B",
+    textMain: "#FAFAFA",
+    textSub: "#A1A1AA",
+    border: "#27272A",
   },
 };
 
 const useDarkModeDetector = (): boolean => {
-  const [isDarkModeActive, setIsDarkModeActive] = useState(false);
+  const [isDark, setIsDark] = useState<boolean>(false);
 
   useEffect(() => {
-    const checkDarkModeStatus = () => {
-      setIsDarkModeActive(document.documentElement.classList.contains("dark"));
+    const updateTheme = () => {
+      setIsDark(document.documentElement.classList.contains("dark"));
     };
 
-    const mutationObserver = new MutationObserver(checkDarkModeStatus);
+    updateTheme();
 
-    mutationObserver.observe(document.documentElement, {
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
     });
 
-    checkDarkModeStatus();
-
-    return () => {
-      mutationObserver.disconnect();
-    };
+    return () => observer.disconnect();
   }, []);
 
-  return isDarkModeActive;
+  return isDark;
 };
 
-const generateAntDesignThemeConfiguration = (
-  isDarkModeActive: boolean,
-  currentFont: string,
-): ThemeConfig => {
-  const activeSystemColors = isDarkModeActive
-    ? SYSTEM_COLOR_PALETTE_CONFIGURATION.dark
-    : SYSTEM_COLOR_PALETTE_CONFIGURATION.light;
-
-  const fontFamily =
-    (BRAND_DESIGN_SEED_TOKENS.fonts as any)[currentFont] ||
-    BRAND_DESIGN_SEED_TOKENS.fonts["google-sans"];
+const getModernAntTheme = (isDark: boolean, font: FontFamily): ThemeConfig => {
+  const palette = isDark ? SYSTEM_PALETTE.dark : SYSTEM_PALETTE.light;
+  const currentFontFamily = FONTS[font] || FONTS["google-sans"];
 
   return {
-    algorithm: isDarkModeActive ? theme.darkAlgorithm : theme.defaultAlgorithm,
+    algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
     token: {
-      colorPrimary: BRAND_DESIGN_SEED_TOKENS.primary,
-      colorSuccess: BRAND_DESIGN_SEED_TOKENS.success,
-      colorWarning: BRAND_DESIGN_SEED_TOKENS.warning,
-      colorError: BRAND_DESIGN_SEED_TOKENS.error,
-      colorInfo: BRAND_DESIGN_SEED_TOKENS.info,
-      colorBgBase: isDarkModeActive ? "#121212" : "#FFFFFF",
-      colorBgLayout: activeSystemColors.bgLayout,
-      colorBgContainer: activeSystemColors.bgContainer,
-      colorBgElevated: isDarkModeActive ? "#242424" : "#FFFFFF",
-      colorTextBase: activeSystemColors.textMain,
-      colorTextSecondary: activeSystemColors.textSub,
-      colorBorder: activeSystemColors.border,
-      fontFamily: fontFamily,
+      colorPrimary: BRAND_COLORS.primary,
+      colorSuccess: BRAND_COLORS.success,
+      colorWarning: BRAND_COLORS.warning,
+      colorError: BRAND_COLORS.error,
+      colorInfo: BRAND_COLORS.info,
+      colorBgBase: palette.bgLayout,
+      colorBgLayout: palette.bgLayout,
+      colorBgContainer: palette.bgContainer,
+      colorBgElevated: isDark ? "#27272A" : "#FFFFFF",
+      colorTextBase: palette.textMain,
+      colorTextSecondary: palette.textSub,
+      colorBorder: palette.border,
+      colorBorderSecondary: palette.border,
+      fontFamily: currentFontFamily,
       fontSize: 14,
-      borderRadius: BRAND_DESIGN_SEED_TOKENS.radius,
-      borderRadiusLG: 20,
+      borderRadius: 12,
+      borderRadiusLG: 16,
       controlHeight: 40,
       wireframe: false,
+      boxShadow: isDark
+        ? "0 4px 20px -2px rgba(0, 0, 0, 0.5)"
+        : "0 4px 20px -2px rgba(0, 0, 0, 0.05)",
     },
     components: {
-      Button: {
-        controlOutline: "none",
-        fontWeight: 500,
-        borderRadius: 12,
-        paddingInline: 20,
-      },
-      Card: {
-        colorBorderSecondary: "transparent",
-        paddingLG: 24,
-        borderRadiusLG: 20,
-        colorBgContainer: isDarkModeActive ? "#1E1E1E" : "#FFFFFF",
-      },
+      Button: { controlOutline: "none", fontWeight: 500, paddingInline: 24 },
+      Card: { paddingLG: 24 },
       Table: {
-        headerBg: isDarkModeActive ? "#242424" : "#F5F5F4",
+        headerBg: isDark ? "#18181B" : "#F4F4F5",
         headerSplitColor: "transparent",
         headerBorderRadius: 12,
+        borderColor: palette.border,
       },
-      Input: {
-        borderRadius: 12,
-        colorBgContainer: isDarkModeActive ? "#121212" : "#FFFFFF",
-      },
-      Select: {
-        borderRadius: 12,
-        colorBgContainer: isDarkModeActive ? "#121212" : "#FFFFFF",
-      },
-      Modal: {
-        borderRadiusLG: 28,
-        headerBg: isDarkModeActive ? "#1E1E1E" : "#FFFFFF",
-        contentBg: isDarkModeActive ? "#1E1E1E" : "#FFFFFF",
-        footerBg: isDarkModeActive ? "#1E1E1E" : "#FFFFFF",
-      },
+      Modal: { paddingLG: 24 },
       Layout: {
-        bodyBg: activeSystemColors.bgLayout,
-        headerBg: isDarkModeActive
-          ? "rgba(18, 18, 18, 0.85)"
-          : "rgba(255, 255, 255, 0.85)",
+        headerBg: isDark ? "rgba(9, 9, 9, 0.7)" : "rgba(255, 255, 255, 0.7)",
         headerPadding: "0 24px",
       },
-      Menu: {
-        itemBorderRadius: 10,
-        activeBarBorderWidth: 0,
-      },
+      Menu: { itemBorderRadius: 8, activeBarBorderWidth: 0 },
     },
   };
 };
 
-export function AntDesignThemeInner({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const isDarkModeActive = useDarkModeDetector();
-  const { fontFamily: currentFont } = useFont();
+function AntDesignThemeInner({ children }: { children: React.ReactNode }) {
+  const isDark = useDarkModeDetector();
+  const { fontFamily } = useFont();
 
-  const antDesignThemeConfiguration = useMemo(
-    () => generateAntDesignThemeConfiguration(isDarkModeActive, currentFont),
-    [isDarkModeActive, currentFont],
+  // 🟢 1. สร้าง mounted state ป้องกัน Hydration Mismatch
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const safeFontFamily = (fontFamily as FontFamily) || "google-sans";
+  const themeConfig = useMemo(
+    () => getModernAntTheme(isDark, safeFontFamily),
+    [isDark, safeFontFamily],
   );
-  const activeColorPalette = isDarkModeActive
-    ? SYSTEM_COLOR_PALETTE_CONFIGURATION.dark
-    : SYSTEM_COLOR_PALETTE_CONFIGURATION.light;
 
-  const cssFontFamily =
-    (BRAND_DESIGN_SEED_TOKENS.fonts as any)[currentFont] ||
-    BRAND_DESIGN_SEED_TOKENS.fonts["google-sans"];
+  const activePalette = isDark ? SYSTEM_PALETTE.dark : SYSTEM_PALETTE.light;
+  const cssFontFamily = FONTS[safeFontFamily];
+
+  // 🟢 2. ระหว่างที่ Server กำลัง Render ให้ return โครงเปล่าๆ (หรือ UI กลางๆ) ป้องกัน Error
+  // (วิธีนี้คือ Best Practice ของ Next.js ในการจัดการ Theme Provider)
+  if (!mounted) {
+    return <div style={{ visibility: "hidden" }}>{children}</div>;
+  }
 
   return (
     <ConfigProvider
       locale={thTH}
-      theme={antDesignThemeConfiguration}
+      theme={themeConfig}
       componentSize="middle"
       input={{ autoComplete: "off" }}
     >
       <App>
-        <style jsx global>{`
-          :root {
-            --font-family-current: ${cssFontFamily};
+        {/* 🟢 3. ปรับการส่งค่าสีเข้าไปเป็น CSS Variables เพื่อ Performance ที่ดีขึ้น */}
+        <div
+          style={
+            {
+              "--bg-layout": activePalette.bgLayout,
+              "--text-main": activePalette.textMain,
+              "--border-color": activePalette.border,
+              "--scroll-thumb": isDark ? "#3F3F46" : "#D4D4D8",
+              "--scroll-thumb-hover": isDark ? "#52525B" : "#A1A1AA",
+              "--card-shadow": isDark
+                ? "0 12px 30px -10px rgba(0, 0, 0, 0.8)"
+                : "0 12px 30px -10px rgba(9, 9, 11, 0.1)",
+            } as React.CSSProperties
           }
-          body {
-            background-color: ${activeColorPalette.bgLayout} !important;
-            color: ${activeColorPalette.textMain};
-            font-family: ${cssFontFamily};
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            transition: background-color 0.3s ease;
-          }
-          ::-webkit-scrollbar {
-            width: 6px;
-          }
-          ::-webkit-scrollbar-track {
-            background: transparent;
-          }
-          ::-webkit-scrollbar-thumb {
-            background: ${isDarkModeActive ? "#444444" : "#D6D3D1"};
-            border-radius: 10px;
-          }
-          ::-webkit-scrollbar-thumb:hover {
-            background: ${isDarkModeActive ? "#888888" : "#A8A29E"};
-          }
-          .ant-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            border: 1px solid ${isDarkModeActive ? "#444444" : "#E7E5E4"} !important;
-          }
-          .ant-card:hover {
-            box-shadow: ${isDarkModeActive
-              ? "0 12px 30px -10px rgba(0, 0, 0, 0.6)"
-              : "0 12px 30px -10px rgba(28, 25, 23, 0.05)"} !important;
-          }
-          .ant-table-wrapper .ant-table {
-            border: 1px solid ${isDarkModeActive ? "#444444" : "#E7E5E4"} !important;
-            border-radius: 12px !important;
-            overflow: hidden !important;
-          }
-          .ant-layout-header {
-            backdrop-filter: blur(12px);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid ${isDarkModeActive ? "#444444" : "#E7E5E4"} !important;
-          }
-        `}</style>
-        {children}
+          className="ant-theme-wrapper"
+        >
+          <style jsx global>{`
+            :root {
+              --font-family-current: ${cssFontFamily};
+            }
+            body {
+              background-color: var(--bg-layout);
+              color: var(--text-main);
+              font-family: var(--font-family-current);
+              -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
+              transition:
+                background-color 0.3s ease,
+                color 0.3s ease;
+            }
+            ::-webkit-scrollbar {
+              width: 8px;
+              height: 8px;
+            }
+            ::-webkit-scrollbar-track {
+              background: transparent;
+            }
+            ::-webkit-scrollbar-thumb {
+              background: var(--scroll-thumb);
+              border-radius: 999px;
+              border: 2px solid var(--bg-layout);
+            }
+            ::-webkit-scrollbar-thumb:hover {
+              background: var(--scroll-thumb-hover);
+            }
+            .ant-card {
+              transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .ant-card:hover {
+              transform: translateY(-2px);
+              box-shadow: var(--card-shadow);
+            }
+            .ant-table-wrapper .ant-table-container {
+              border: 1px solid var(--border-color);
+              border-radius: 12px;
+              overflow: hidden;
+            }
+            .ant-layout-header {
+              backdrop-filter: blur(16px);
+              -webkit-backdrop-filter: blur(16px);
+              position: sticky;
+              top: 0;
+              z-index: 50;
+              border-bottom: 1px solid var(--border-color);
+            }
+          `}</style>
+          {children}
+        </div>
       </App>
     </ConfigProvider>
   );
