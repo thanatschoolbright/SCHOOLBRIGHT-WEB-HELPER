@@ -28,15 +28,16 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
   const { token } = theme.useToken();
   const themeColor = color || token.colorPrimary;
 
+  // 1. Loading State (Fixed the Skeleton Error)
   if (isLoading) {
     return (
       <Card
         styles={{ body: { padding: 24 } }}
         style={{
-          borderRadius: 20, // โค้งมนขึ้นอีกนิดให้ดู Modern
+          borderRadius: 20,
           border: `1px solid ${token.colorBorderSecondary}`,
           height: "100%",
-          minHeight: 140, // ล็อคความสูงขั้นต่ำไว้
+          minHeight: 140,
         }}
         bordered={false}
       >
@@ -45,6 +46,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
           justify="space-between"
           style={{ height: "100%", gap: 24 }}
         >
+          {/* Top part: Icon placeholder + Title placeholder */}
           <Flex align="center" gap={12}>
             <Skeleton.Avatar
               active
@@ -54,16 +56,15 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
             />
             <Skeleton active paragraph={false} title={{ width: 120 }} />
           </Flex>
-          <Skeleton
-            active
-            paragraph={false}
-            title={{ width: "80%", height: 40 }}
-          />
+          {/* Bottom part: Big Number placeholder */}
+          {/* 🟢 แก้ไขตรงนี้: ลบ height ออก แล้วใช้ Avatar หรือ Paragraph หลอกๆ แทนเพื่อให้ได้กล่องใหญ่ๆ */}
+          <Skeleton.Button active style={{ width: 180, height: 40 }} />
         </Flex>
       </Card>
     );
   }
 
+  // 2. Main Render State
   return (
     <>
       <Card
@@ -71,15 +72,15 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
         style={
           {
             "--theme-color": themeColor,
-            "--theme-color-bg": `${themeColor}15`, // สีพื้นหลัง Icon 15%
-            "--theme-color-hover": `${themeColor}08`, // สีพื้นหลัง Card ตอน Hover 8%
+            "--theme-color-bg": `${themeColor}15`,
+            "--theme-color-hover": `${themeColor}08`,
             "--border-color": token.colorBorderSecondary,
             "--bg-color": token.colorBgContainer,
           } as React.CSSProperties
         }
         styles={{
           body: {
-            padding: "24px 24px 20px 24px", // ปรับ Padding ด้านล่างให้แคบลงนิดนึงเพื่อรับกับตัวเลขใหญ่
+            padding: "24px 24px 20px 24px",
             height: "100%",
             minHeight: 140,
             display: "flex",
@@ -121,9 +122,9 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
           <Flex align="baseline" gap={8} style={{ marginTop: 24 }}>
             <Text
               style={{
-                fontSize: 42, // ขยายใหญ่ตะโกน!
-                fontWeight: 800, // หนาพิเศษ
-                letterSpacing: "-1px", // บีบช่องไฟนิดนึงให้ดูแน่นและ Modern
+                fontSize: 42,
+                fontWeight: 800,
+                letterSpacing: "-1px",
                 color: token.colorText,
                 lineHeight: 1,
               }}
@@ -147,9 +148,10 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
         </Flex>
       </Card>
 
+      {/* --- Styles --- */}
       <style jsx>{`
         :global(.metric-first-card) {
-          border-radius: 20px !important; /* มนขึ้น */
+          border-radius: 20px !important;
           border: 1px solid var(--border-color) !important;
           background-color: var(--bg-color);
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
@@ -157,7 +159,6 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
           position: relative;
         }
 
-        /* Hover Effect: เปลี่ยนสีกรอบและถมพื้นหลังจางๆ ด้วยสี Theme */
         :global(.metric-first-card:hover) {
           border-color: var(--theme-color) !important;
           background-color: var(--theme-color-hover) !important;
@@ -165,9 +166,6 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
           transform: translateY(-2px);
         }
 
-        /* เพิ่มเส้น Accent Line บางๆ ด้านบนสุดของการ์ด 
-          ช่วยเน้นสายตาว่าการ์ดนี้มีความสำคัญระดับไหน 
-        */
         :global(.metric-first-card::before) {
           content: "";
           position: absolute;
@@ -181,7 +179,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
         }
 
         :global(.metric-first-card:hover::before) {
-          opacity: 1; /* แสดงเส้นสีตอน Hover */
+          opacity: 1;
         }
 
         .metric-icon {
