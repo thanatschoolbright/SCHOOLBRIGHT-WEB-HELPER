@@ -32,7 +32,7 @@ import {
   SearchOutlined,
   TeamOutlined,
   ToolOutlined,
-  UserOutlined
+  UserOutlined,
 } from "@ant-design/icons";
 import {
   AutoComplete,
@@ -60,7 +60,7 @@ import {
   Tag,
   theme,
   Tooltip,
-  Typography
+  Typography,
 } from "antd";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
@@ -487,33 +487,43 @@ const getCategoryStyle = (id: string, token: any) => {
 
 const SdlcStatsSection = ({
   stats,
-  statuses,
+  statuses = [],
   token,
 }: {
-  stats: any;
-  statuses: any[];
-  token: any;
+  stats: {
+    trackings?: Record<string, number>;
+    health?: { total?: number };
+  };
+  statuses: {
+    id: React.Key;
+    nameTh: string;
+    nameEn?: string;
+    priority: number;
+  }[];
+  token: Record<string, any>;
 }) => {
   if (!stats?.trackings) return null;
 
-  const sortedActive = [...statuses]
-    .filter((s) => s.priority < 99)
-    .sort((a, b) => (a.priority || 0) - (b.priority || 0));
+  const sortedActive = React.useMemo(() => {
+    return [...statuses]
+      .filter((s) => s.priority < 99)
+      .sort((a, b) => (a.priority || 0) - (b.priority || 0));
+  }, [statuses]);
 
   const total = stats.health?.total || 1;
 
   return (
-    <div className="mb-8">
-      <Flex align="center" gap={8} className="mb-4">
-        <RocketOutlined style={{ color: token.colorPrimary }} />
-        <Text strong style={{ fontSize: 16 }}>
+    <Flex vertical gap={24} style={{ width: "100%" }}>
+      <Flex align="center" gap={12}>
+        <RocketOutlined style={{ color: token.colorPrimary, fontSize: 20 }} />
+        <Typography.Title level={5} style={{ margin: 0 }}>
           สถานะการดำเนินการ (Trackings)
-        </Text>
+        </Typography.Title>
       </Flex>
+
       <Row gutter={[16, 16]}>
         {sortedActive.map((s) => {
-          const count = (s.nameEn ? stats.trackings[s.nameEn] : 0) || 0;
-          const percent = (count / total) * 100;
+          const count = (s.nameEn ? stats.trackings?.[s.nameEn] : 0) || 0;
           const style = getSdlcStyle(s.priority, s.nameTh, token);
 
           return (
@@ -521,38 +531,45 @@ const SdlcStatsSection = ({
               <SummaryCard
                 title={s.nameTh}
                 value={count}
-                suffix={`/ ${total}`}
-                percent={percent}
+                unit={`/ ${total}`}
                 icon={style.icon}
                 color={style.color}
-                iconBg={style.bg}
                 tooltip={`จำนวนโครงการที่อยู่ในสถานะ ${s.nameTh}`}
               />
             </Col>
           );
         })}
       </Row>
-    </div>
+    </Flex>
   );
 };
 
-const CategoryStatsSection = ({ stats, token }: { stats: any; token: any }) => {
+const CategoryStatsSection = ({
+  stats,
+  token,
+}: {
+  stats: {
+    by_category?: Record<string, number>;
+    health?: { total?: number };
+  };
+  token: Record<string, any>;
+}) => {
   if (!stats?.by_category) return null;
 
   const total = stats.health?.total || 1;
 
   return (
-    <div className="mb-8">
-      <Flex align="center" gap={8} className="mb-4">
-        <AppstoreOutlined style={{ color: token.colorPrimary }} />
-        <Text strong style={{ fontSize: 16 }}>
+    <Flex vertical gap={24} style={{ width: "100%", marginTop: "1rem" }}>
+      <Flex align="center" gap={12}>
+        <AppstoreOutlined style={{ color: token.colorPrimary, fontSize: 20 }} />
+        <Typography.Title level={5} style={{ margin: 0 }}>
           แยกตามประเภท (By Category)
-        </Text>
+        </Typography.Title>
       </Flex>
+
       <Row gutter={[16, 16]}>
         {categoryType.map((cat) => {
-          const count = stats.by_category[cat.id] || 0;
-          const percent = (count / total) * 100;
+          const count = stats.by_category?.[cat.id] || 0;
           const style = getCategoryStyle(cat.id, token);
 
           return (
@@ -560,18 +577,16 @@ const CategoryStatsSection = ({ stats, token }: { stats: any; token: any }) => {
               <SummaryCard
                 title={cat.name}
                 value={count}
-                suffix={`/ ${total}`}
-                percent={percent}
+                unit={`/ ${total}`}
                 icon={style.icon}
                 color={style.color}
-                iconBg={style.bg}
                 tooltip={`จำนวนโครงการประเภท ${cat.name}`}
               />
             </Col>
           );
         })}
       </Row>
-    </div>
+    </Flex>
   );
 };
 
@@ -602,28 +617,32 @@ const AssetCaptureStatsSection = ({
   stats,
   token,
 }: {
-  stats: any;
-  token: any;
+  stats: {
+    by_asset_capture?: Record<string, number>;
+    health?: { total?: number };
+  };
+  token: Record<string, any>;
 }) => {
   if (!stats?.by_asset_capture) return null;
 
   const total = stats.health?.total || 1;
+  const assetTypes = [
+    { id: "CAPTUREABLE", name: "บันทึกทรัพย์สิน" },
+    { id: "UN_CAPTUREABLE", name: "ไม่บันทึกทรัพย์สิน" },
+  ];
 
   return (
-    <div className="mb-8">
-      <Flex align="center" gap={8} className="mb-4">
-        <DatabaseOutlined style={{ color: token.colorPrimary }} />
-        <Text strong style={{ fontSize: 16 }}>
+    <Flex vertical gap={24} style={{ width: "100%", marginTop: "1rem" }}>
+      <Flex align="center" gap={12}>
+        <DatabaseOutlined style={{ color: token.colorPrimary, fontSize: 20 }} />
+        <Typography.Title level={5} style={{ margin: 0 }}>
           แยกตามการบันทึกทรัพย์สิน (By Asset Capture)
-        </Text>
+        </Typography.Title>
       </Flex>
+
       <Row gutter={[16, 16]}>
-        {[
-          { id: "CAPTUREABLE", name: "บันทึกทรัพย์สิน" },
-          { id: "UN_CAPTUREABLE", name: "ไม่บันทึกทรัพย์สิน" },
-        ].map((type) => {
-          const count = stats.by_asset_capture[type.id] || 0;
-          const percent = (count / total) * 100;
+        {assetTypes.map((type) => {
+          const count = stats.by_asset_capture?.[type.id] || 0;
           const style = getAssetCaptureStyle(type.id, token);
 
           return (
@@ -631,18 +650,16 @@ const AssetCaptureStatsSection = ({
               <SummaryCard
                 title={type.name}
                 value={count}
-                suffix={`/ ${total}`}
-                percent={percent}
+                unit={`/ ${total}`}
                 icon={style.icon}
                 color={style.color}
-                iconBg={style.bg}
                 tooltip={`จำนวนโครงการที่มีสิทธิ์ ${type.name}`}
               />
             </Col>
           );
         })}
       </Row>
-    </div>
+    </Flex>
   );
 };
 
@@ -979,7 +996,7 @@ export default function ProjectManagementPage() {
         <CategoryStatsSection stats={backendStats} token={token} />
         <AssetCaptureStatsSection stats={backendStats} token={token} />
 
-        <div className="space-y-6">
+        <div className="space-y-6 ">
           {/* ส่วนที่ 3: ฟิลเตอร์ข้อมูล (Filter Bar) - แบ่งสัดส่วน 2 column ใน 1 row */}
           <Card
             variant="borderless"
@@ -987,6 +1004,7 @@ export default function ProjectManagementPage() {
             style={{
               borderRadius: 16,
               border: `1px solid ${token.colorBorderSecondary}`,
+              marginTop: "1rem",
             }}
           >
             <Flex align="center" gap={8} className="mb-6">
