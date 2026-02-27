@@ -579,7 +579,11 @@ export default function NFCCardSearchPage() {
           paddingBottom: 48,
         }}
       >
-        <HeaderBar title={UI_TEXT.TITLE} subTitle={UI_TEXT.SUBTITLE} />
+        <HeaderBar
+          icon={<ScanOutlined />}
+          title={UI_TEXT.TITLE}
+          subTitle={UI_TEXT.SUBTITLE}
+        />
 
         <Flex vertical gap="large">
           <SearchCriteriaSection
