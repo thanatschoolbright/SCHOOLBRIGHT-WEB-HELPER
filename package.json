@@ -9,7 +9,7 @@
     "dev-webpack": "next dev --webpack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint -c config/.eslintrc.json .",
+    "lint": "eslint .",
     "tailwind": "tailwindcss -c config/tailwind.config.ts",
     "bun-benchmark": "bash benchmark-build.sh"
   },
@@ -67,6 +67,8 @@
     "zod": "^4.1.5"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@next/eslint-plugin-next": "^16.1.6",
     "@types/chart.js": "^2.9.41",
     "@types/file-saver": "^2.0.7",
     "@types/js-cookie": "^3.0.6",
@@ -79,11 +81,17 @@
     "@types/react-dom": "^18.3.7",
     "eslint": "^10.0.0",
     "eslint-config-next": "^16.1.6",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-unused-imports": "^4.4.1",
+    "globals": "^17.3.0",
     "postcss": "^8.4.47",
     "prisma": "^6.8.2",
     "tailwindcss": "^3.4.13",
     "terser-webpack-plugin": "^5.3.10",
     "typescript": "^5",
+    "typescript-eslint": "^8.56.1",
     "undici-types": "^7.11.0"
   },
   "overrides": {
