@@ -10,6 +10,11 @@ const nextConfig = {
   compress: true,
   productionBrowserSourceMaps: false,
 
+  devIndicators: {
+    buildActivityPosition: "bottom-left",
+    buildActivity: true,
+  },
+
   // --- Compiler & Build ---
   compiler: {
     removeConsole: isProd ? { exclude: ["error", "warn"] } : false,
