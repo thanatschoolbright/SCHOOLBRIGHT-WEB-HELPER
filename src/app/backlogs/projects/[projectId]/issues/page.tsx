@@ -658,16 +658,18 @@ const IssuesListTable: React.FC<{
             <Button
               shape="circle"
               icon={<EyeOutlined />}
-              onClick={() => setDetailModal({ open: true, issue: record })}
+              onClick={() => {
+                setDetailModal({ open: true, issue: record });
+              }}
             />
           </Tooltip>
           <Tooltip title="ใช้งาน AI วิเคราะห์งาน">
             <Button
               shape="circle"
               icon={<RobotOutlined />}
-              onClick={() =>
-                setEngineSelectModal({ open: true, issue: record })
-              }
+              onClick={() => {
+                setEngineSelectModal({ open: true, issue: record });
+              }}
             />
           </Tooltip>
         </Space>
@@ -704,35 +706,37 @@ const IssuesListTable: React.FC<{
         open={detailModal.open}
         issue={detailModal.issue}
         space={space}
-        onClose={() => setDetailModal({ open: false, issue: null })}
+        onClose={() => {
+          setDetailModal({ open: false, issue: null });
+        }}
       />
 
       <AiUpdateModal
         aiState={aiModal}
         onApprove={handleApplyAiUpdate}
-        onClose={() =>
+        onClose={() => {
           setAiModal({
             open: false,
             issue: null,
             generating: false,
             newText: "",
-          })
-        }
+          });
+        }}
         onRegenerate={() =>
           aiModal.issue && handleInvokeAiAnalysis(aiModal.issue, aiEngine)
         }
-        onUpdateText={(val) =>
-          setAiModal((prev) => ({ ...prev, newText: val }))
-        }
+        onUpdateText={(val) => {
+          setAiModal((prev) => ({ ...prev, newText: val }));
+        }}
       />
 
       <AIProcessingModal
         open={aiProcessing.open}
         currentStep={aiProcessing.currentStep}
         processingTime={aiProcessing.processingTime}
-        onCancel={() =>
-          setAiProcessing({ open: false, currentStep: 0, processingTime: 0 })
-        }
+        onCancel={() => {
+          setAiProcessing({ open: false, currentStep: 0, processingTime: 0 });
+        }}
         steps={[
           {
             key: "1",
@@ -783,7 +787,9 @@ const IssuesListTable: React.FC<{
       <Modal
         title="เลือกเครื่องมือประมวลผล AI"
         open={engineSelectModal.open}
-        onCancel={() => setEngineSelectModal({ open: false, issue: null })}
+        onCancel={() => {
+          setEngineSelectModal({ open: false, issue: null });
+        }}
         footer={null}
         centered
       >
@@ -822,20 +828,20 @@ const IssuesListTable: React.FC<{
 // ==========================================
 
 // ? ข้อมูล Metadata ของโปรเจกต์
-type ProjectMetadataResponse = {
+interface ProjectMetadataResponse {
   data?: {
     categories?: { id: number | string; name: string }[];
     milestones?: { id: number | string; name: string }[];
   };
-};
+}
 
 // ? พารามิเตอร์สำหรับ Hook Data
-type IssuesPageParams = {
+interface IssuesPageParams {
   projectId: number;
   space: string;
   projectReady: boolean;
   modalApi?: HookAPI;
-};
+}
 
 // ==========================================
 // * Utilities
@@ -900,7 +906,6 @@ const useIssuesPageData = ({
               className="whitespace-pre-wrap mt-2"
               style={{
                 color: token.colorTextSecondary,
-                backgroundColor: token.colorFillAlter,
                 padding: 10,
                 borderRadius: 8,
                 border: `1px solid ${token.colorBorderSecondary}`,
@@ -1430,15 +1435,17 @@ function ProjectIssuesPageContent(): JSX.Element {
         type="error"
         title="ข้อมูลไม่ครบถ้วน"
         message="ไม่พบรหัสโครงการหรือพื้นที่ทำงาน กรุณารีเฟรชหน้าจอหรือกลับไปหน้าหลัก"
-        onClose={() => router.push("/backlogs/report")}
+        onClose={() => {
+          router.push("/backlogs/report");
+        }}
       />
     );
   }
 
   return (
     <DashboardLayout>
-      <Layout>
-        <Content>
+      <Layout style={{ background: "transparent" }}>
+        <Content style={{ background: "transparent" }}>
           <Flex vertical gap={24}>
             {/* ส่วนที่ 1 : ส่วนหัวของหน้าหน้าจอ */}
             <HeaderBar
@@ -1449,7 +1456,9 @@ function ProjectIssuesPageContent(): JSX.Element {
               extra={
                 <Button
                   icon={<BarChartOutlined />}
-                  onClick={() => setShowSummary(true)}
+                  onClick={() => {
+                    setShowSummary(true);
+                  }}
                   size="large"
                   type="primary"
                   style={{ fontWeight: 600 }}
@@ -1501,6 +1510,7 @@ function ProjectIssuesPageContent(): JSX.Element {
               style={{
                 borderRadius: 16,
                 border: `1px solid ${token.colorBorderSecondary}`,
+                background: "transparent",
               }}
             >
               <Flex align="center" gap={12} style={{ marginBottom: 16 }}>
@@ -1613,7 +1623,12 @@ function ProjectIssuesPageContent(): JSX.Element {
               </Row>
 
               <Flex justify="end" gap={12} style={{ marginTop: 24 }}>
-                <Button icon={<ClearOutlined />} onClick={() => resetAction()}>
+                <Button
+                  icon={<ClearOutlined />}
+                  onClick={() => {
+                    resetAction();
+                  }}
+                >
                   ล้างการค้นหา
                 </Button>
                 <Button
@@ -1633,6 +1648,7 @@ function ProjectIssuesPageContent(): JSX.Element {
                 borderRadius: 16,
                 overflow: "hidden",
                 border: `1px solid ${token.colorBorderSecondary}`,
+                background: "transparent",
               }}
               title={
                 <Flex align="center" gap={12}>
@@ -1680,7 +1696,9 @@ function ProjectIssuesPageContent(): JSX.Element {
       {/* MODALS SECTION */}
       <IssueSummaryModal
         open={showSummary}
-        onClose={() => setShowSummary(false)}
+        onClose={() => {
+          setShowSummary(false);
+        }}
         issues={state.issues || []}
         total={state.total}
       />
@@ -1699,14 +1717,18 @@ function ProjectIssuesPageContent(): JSX.Element {
           toast.success("ดำเนินการอัปเดตข้อมูลจำนวนมากสำเร็จ");
         }}
         minimized={isBulkMinimized}
-        onRequestMinimize={() => setIsBulkMinimized(true)}
+        onRequestMinimize={() => {
+          setIsBulkMinimized(true);
+        }}
         onProgress={setBulkProgress}
       />
 
       {/* Floating AI Widget (Pinned) */}
       {isBulkMinimized && showBulk && (
         <div
-          onClick={() => setIsBulkMinimized(false)}
+          onClick={() => {
+            setIsBulkMinimized(false);
+          }}
           style={{
             position: "fixed",
             bottom: 40,
