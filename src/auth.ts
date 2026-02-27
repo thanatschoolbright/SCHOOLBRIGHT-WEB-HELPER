@@ -23,8 +23,6 @@ export const {
           const username = credentials.username as string;
           const password = credentials.password as string;
 
-          console.log(`[AUTH] Attempting login for: ${username}`);
-
           // 1. Find User by Email OR Employee Code
           const databaseUser = await PrismaTimesheet.user.findFirst({
             where: {
@@ -50,24 +48,14 @@ export const {
           });
 
           if (!databaseUser) {
-            console.warn(
-              `[AUTH_ERROR] User not found in database: ${username}`,
-            );
             throw new Error(`USER_NOT_FOUND: ${username}`);
           }
-
-          console.log(
-            `[AUTH] User found: ${databaseUser.username} (ID: ${databaseUser.id})`,
-          );
 
           // 2. Check if locked out (IPO Standard - with 15 min Auto-Unlock)
           const MAX_FAILED_ATTEMPTS = 5;
           const LOCKOUT_MINUTES = 15;
 
           if (databaseUser.status !== "ACTIVE") {
-            console.warn(
-              `[AUTH_ERROR] Account status is ${databaseUser.status}: ${databaseUser.username}`,
-            );
             throw new Error("ACCOUNT_LOCKED_OR_INACTIVE");
           }
 
@@ -78,48 +66,28 @@ export const {
               (now.getTime() - lastAttempt.getTime()) / (1000 * 60);
 
             if (diffInMinutes < LOCKOUT_MINUTES) {
-              console.warn(
-                `[AUTH_ERROR] Max login attempts (${MAX_FAILED_ATTEMPTS}) exceeded for: ${databaseUser.username}. Try again in ${Math.ceil(
-                  LOCKOUT_MINUTES - diffInMinutes,
-                )} minutes.`,
-              );
               throw new Error("MAX_ATTEMPTS_EXCEEDED");
             } else {
-              console.log(
-                `[AUTH] Lockout duration expired for: ${databaseUser.username}. Allowing attempt...`,
-              );
+              // Lockout duration expired for: ${databaseUser.username}. Allowing attempt...
             }
           }
 
           // 3. Verify Password
-          console.log(
-            `[AUTH] Verifying password for: ${databaseUser.username}`,
-          );
-
           const isPasswordCorrect = await bcrypt.compare(
             password,
             databaseUser.password,
           );
-          console.log(`[AUTH] Bcrypt result: ${isPasswordCorrect}`);
 
           let finalPasswordStatus = isPasswordCorrect;
 
           // Fallback for Plain Text (Development only / Legacy)
           if (!finalPasswordStatus && !databaseUser.password.startsWith("$2")) {
-            console.log(`[AUTH] Attempting plain text fallback...`);
             if (password === databaseUser.password) {
-              console.warn(
-                `[AUTH] Login success using PLAIN TEXT password for user: ${databaseUser.username}. Please update to hashed password!`,
-              );
               finalPasswordStatus = true;
             }
           }
 
           if (!finalPasswordStatus) {
-            console.warn(
-              `[AUTH_ERROR] Invalid password for user: ${databaseUser.username}`,
-            );
-
             // Increment failed attempts
             await PrismaTimesheet.user.update({
               where: { id: databaseUser.id },
@@ -131,8 +99,6 @@ export const {
             });
             throw new Error("INVALID_PASSWORD");
           }
-
-          console.log(`[AUTH] Login successful: ${databaseUser.username}`);
 
           // 4. Success - Reset failed attempts & Update last_login
           await PrismaTimesheet.user.update({
@@ -218,7 +184,6 @@ export const {
     },
     async jwt({ token, user }) {
       if (user) {
-        console.log("[AUTH] Creating JWT for user:", user.id);
         const authenticatedUser = user as any;
         token.id = authenticatedUser.id;
         token.admin_id = authenticatedUser.admin_id;
@@ -255,7 +220,6 @@ export const {
     },
     async session({ session, token }) {
       if (token && session.user) {
-        console.log("[AUTH] Creating Session for token ID:", token.id);
         const sessionUser = session.user as any;
         sessionUser.id = token.id;
         sessionUser.admin_id = token.admin_id;

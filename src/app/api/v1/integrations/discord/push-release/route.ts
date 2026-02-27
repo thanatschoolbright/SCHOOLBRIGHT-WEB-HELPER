@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
 import { discordIdUser } from "@/helpers/api/discord-id-user";
+import axios from "axios";
+import { NextRequest, NextResponse } from "next/server";
 
 // --- 1. Configuration & Types ---
 
@@ -58,28 +58,28 @@ const getEnvironmentStyle = (branch: string): EnvStyle => {
     return {
       label: "Production Server",
       color: 0x2ecc71, // Green
-      emoji: "🚀",
+      emoji: "[PROD]",
       description: "Live version available to all users.",
     };
   } else if (branch === "release/beta") {
     return {
       label: "Beta Server",
       color: 0xf39c12, // Orange
-      emoji: "🧪",
+      emoji: "[BETA]",
       description: "Pre-release version for QA/UAT.",
     };
   } else if (branch === "release/development") {
     return {
       label: "Development Server",
       color: 0x3498db, // Blue
-      emoji: "🛠️",
+      emoji: "[DEV]",
       description: "Latest changes for internal testing.",
     };
   }
   return {
     label: "Unknown Environment",
     color: 0x95a5a6, // Grey
-    emoji: "📦",
+    emoji: "[ITEM]",
     description: "Unknown deployment target.",
   };
 };
@@ -90,7 +90,7 @@ const formatCommitMessages = (commits: any[]): string => {
   const list = commits.slice(0, maxCommits).map((c) => {
     const message = c.message.split("\n")[0];
     const author = c.author?.name || "Unknown";
-    return `> • [\`${c.id.substring(0, 7)}\`](${
+    return `> - [\`${c.id.substring(0, 7)}\`](${
       c.url
     }) - ${message} (**${author}**)`;
   });
@@ -109,7 +109,7 @@ const getFileStats = (commits: any[]) => {
     modified += c.modified?.length || 0;
     removed += c.removed?.length || 0;
   });
-  return `📝 Files: \`+${added}\` \`~${modified}\` \`-${removed}\``;
+  return `[FILES] Files: \`+${added}\` \`~${modified}\` \`-${removed}\``;
 };
 
 // --- 3. Main Handler with Debugging Logic ---
@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
         reason: "Invalid Event Type",
         debug: { received: event, expected: "push" },
       },
-      { status: 200 }
+      { status: 200 },
     ); // 200 to stop GitHub retries
   }
 
@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
         reason: "Invalid JSON Payload",
         debug: { error: String(error) },
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -158,7 +158,7 @@ export async function POST(req: NextRequest) {
             "Only branches starting with 'refs/heads/release/' are processed.",
         },
       },
-      { status: 200 }
+      { status: 200 },
     );
   }
 
@@ -175,7 +175,7 @@ export async function POST(req: NextRequest) {
           action: "Add this repo to REPO_MAP in the code.",
         },
       },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
@@ -192,7 +192,7 @@ export async function POST(req: NextRequest) {
           repo: repoFullName,
         },
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -212,16 +212,16 @@ export async function POST(req: NextRequest) {
           {
             type: 2,
             style: 5,
-            label: "📄 View Changelog (Diff)",
+            label: "[DIFF] View Changelog (Diff)",
             url: compareUrl,
-            emoji: { name: "📜" },
+            emoji: { name: "logs" },
           },
           {
             type: 2,
             style: 5,
-            label: "📂 Open Repository",
+            label: "[REPO] Open Repository",
             url: payload.repository.html_url,
-            emoji: { name: "🔗" },
+            emoji: { name: "link" },
           },
         ],
       },
@@ -238,24 +238,24 @@ export async function POST(req: NextRequest) {
           "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
       },
       fields: [
-        { name: "📋 Change Log", value: commitLog, inline: false },
-        { name: "🌿 Branch", value: `\`${branchName}\``, inline: true },
-        { name: "👮 By", value: `**${pusherName}**`, inline: true },
+        { name: "[LOG] Change Log", value: commitLog, inline: false },
+        { name: "[BRANCH] Branch", value: `\`${branchName}\``, inline: true },
+        { name: "[USER] By", value: `**${pusherName}**`, inline: true },
         {
-          name: "⏱️ Time",
+          name: "[TIME] Time",
           value: `<t:${Math.floor(Date.now() / 1000)}:R>`,
           inline: true,
         },
       ],
       footer: {
-        text: "School Bright • Release Management System",
+        text: "School Bright - Release Management System",
         icon_url: "https://schoolbright.co/assets/img/logo-sb.png",
       },
       timestamp: new Date().toISOString(),
     };
 
     const discordPayload = {
-      content: `${repoConfig.mentionRole} 📢 **New Update Available!**`,
+      content: `${repoConfig.mentionRole} [NOTICE] **New Update Available!**`,
       embeds: [embed],
       components: components,
     };
@@ -277,7 +277,7 @@ export async function POST(req: NextRequest) {
           discordStatus: response.status,
         },
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (err: any) {
     console.error("Webhook Execution Error:", err);
@@ -293,7 +293,7 @@ export async function POST(req: NextRequest) {
           responseFromDiscord: err.response?.data || "No response data",
         },
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

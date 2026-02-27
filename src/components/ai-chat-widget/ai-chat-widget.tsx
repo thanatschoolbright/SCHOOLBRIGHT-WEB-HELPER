@@ -741,7 +741,7 @@ const AiChatWidget = ({
                 style={{ marginBottom: 0 }}
               >
                 ส่งข้อมูลให้ครบถ้วน แล้วรอฉันทวนข้อมูลก่อนพิมพ์คำว่า
-                <Typography.Text strong> “ยืนยัน” </Typography.Text>
+                <Typography.Text strong> "ยืนยัน" </Typography.Text>
                 เพื่อเริ่มกระบวนการยกเลิกค่ะ
               </Typography.Paragraph>
             </Card>

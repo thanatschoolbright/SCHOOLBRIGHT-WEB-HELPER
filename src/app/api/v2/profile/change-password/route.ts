@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
       }),
     );
   } catch (error: any) {
-    console.error("❌ [API Change Password Error]:", error);
+    console.error("[API Change Password Error]:", error);
 
     let messageTh = "เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน";
     let status = 500;

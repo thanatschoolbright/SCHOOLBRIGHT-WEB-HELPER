@@ -1,10 +1,10 @@
 import dayjs, { Dayjs } from "dayjs";
+import React from "react";
 import {
   BreakdownRow,
   GradeConfig,
   SummaryRecord,
 } from "../types/timesheet.types";
-import React from "react";
 
 export const POSITION_COLORS: Record<string, string> = {
   developer: "geekblue",
@@ -39,7 +39,7 @@ export const formatNickname = (nickname?: string | null): string =>
 
 export const formatBreakdown = (rows: BreakdownRow[]): string[] =>
   rows.length
-    ? rows.map((item) => `${item.weekday_th} ${item.date} • ${item.hours} ชม.`)
+    ? rows.map((item) => `${item.weekday_th} ${item.date} - ${item.hours} ชม.`)
     : ["ไม่มีข้อมูลในช่วงวันที่เลือก"];
 
 export const resolveGrade = (completionRate: number): GradeConfig => {

@@ -45,7 +45,7 @@ import { fetchUserRank } from "@/services/user-rank/user-rank.service";
 const { Text, Title } = Typography;
 
 // ==========================================
-// 🎨 การตั้งค่า Rank และธีม
+// การตั้งค่า Rank และธีม
 // ==========================================
 
 // Config สีและ Effect ของแต่ละ Rank
@@ -97,7 +97,7 @@ const generateAvatarUrl = (userProfile: any) => {
   const realImage = userProfile?.profile_image_path || userProfile?.image;
 
   if (realImage && realImage !== "null") {
-    // 🛡️ ตรวจสอบว่าเป็น Path ของ Huawei OBS (ที่อาจไม่มี Domain ติดมา)
+    // * ตรวจสอบว่าเป็น Path ของ Huawei OBS (ที่อาจไม่มี Domain ติดมา)
     if (
       typeof realImage === "string" &&
       !realImage.startsWith("http") &&
@@ -122,7 +122,7 @@ const generateAvatarUrl = (userProfile: any) => {
 };
 
 // ==========================================
-// 🧩 Components
+// Components
 // ==========================================
 
 const RankAvatarDisplay = ({
@@ -368,7 +368,7 @@ const StatisticBoxItem = ({
 };
 
 // ==========================================
-// 🚀 Main Component
+// Main Component
 // ==========================================
 
 export default function UserProfileDropdown(): JSX.Element {
@@ -376,7 +376,7 @@ export default function UserProfileDropdown(): JSX.Element {
   const { token } = theme.useToken();
   const router = useRouter();
 
-  // ✅ เปลี่ยนมาใช้ข้อมูลจาก Redux เพื่อความรวดเร็วและ Real-time (ซิงค์ผ่าน AuthProvider)
+  // * เปลี่ยนมาใช้ข้อมูลจาก Redux เพื่อความรวดเร็วและ Real-time (ซิงค์ผ่าน AuthProvider)
   const AUTH_REDUX = useAppSelector((state) => state.callAdminLogin);
   const userProfileData = AUTH_REDUX.response.data?.user_data || {};
 
@@ -413,7 +413,7 @@ export default function UserProfileDropdown(): JSX.Element {
 
   const handleLogoutAction = async () => {
     toast.info(TRANSLATION("user_dropdown.logging_out"));
-    // ✅ นำทางไปยัง URL ปัจจุบัน (Origin) แทนการใช้ Hardcoded path เพื่อป้องกันการเด้งไป localhost:3000 ใน Production
+    // * นำทางไปยัง URL ปัจจุบัน (Origin) แทนการใช้ Hardcoded path เพื่อป้องกันการเด้งไป localhost:3000 ใน Production
     // NextAuth signOut จะจัดการเรื่อง Session ฝั่ง Client/Server ให้โดยตรง
     await signOut({ callbackUrl: window.location.origin });
   };
@@ -465,12 +465,12 @@ export default function UserProfileDropdown(): JSX.Element {
             {
               label: TRANSLATION("user_dropdown.lang_th_label"),
               value: "th",
-              icon: <span style={{ marginRight: 4 }}>🇹🇭</span>,
+              icon: <span style={{ marginRight: 4 }}>TH</span>,
             },
             {
               label: TRANSLATION("user_dropdown.lang_en_label"),
               value: "en",
-              icon: <span style={{ marginRight: 4 }}>🇬🇧</span>,
+              icon: <span style={{ marginRight: 4 }}>EN</span>,
             },
           ]}
           value={currentLanguageCode}

@@ -1,11 +1,11 @@
+import { errorResponse, successResponse } from "@/helpers/api/response";
+import { validateRequest } from "@/helpers/api/validate.request";
+import { sendOvertimeEmail } from "@/server/mailer";
+import { handleError } from "@helpers/controller/handle-error.params";
+import { API_URL } from "@services/api-url";
+import Service from "@services/overtime/overtime.service";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { validateRequest } from "@/helpers/api/validate.request";
-import { successResponse, errorResponse } from "@/helpers/api/response";
-import Service from "@services/overtime/overtime.service";
-import { handleError } from "@helpers/controller/handle-error.params";
-import { sendOvertimeEmail } from "@/server/mailer";
-import { API_URL } from "@services/api-url";
 
 const SendEmailSchema = z.object({
   id: z.preprocess((v) => {
@@ -320,9 +320,9 @@ const generateEmailTemplate = (
           </p>
 
           <div class="alert-box">
-            <p class="alert-title">✅ สถานะ: อนุมัติแล้ว</p>
+            <p class="alert-title">สถานะ: อนุมัติแล้ว</p>
             <p class="alert-text">
-              คำขอทำงานล่วงเวลานี้ได้รับการยืนยันความถูกต้องเรียบร้อยแล้ว 
+              คำขอทำงานล่วงเวลานี้ได้รับการยืนยันความถูกต้องเรียบร้อยแล้ว
               ฝ่ายบุคคล (HR) สามารถดำเนินการบันทึกเข้าสู่ระบบ Payroll ได้ทันที
             </p>
           </div>
@@ -371,7 +371,7 @@ const generateEmailTemplate = (
               : ""
           }
 
-          <h3 class="section-title">📋 รายละเอียดการทำงานล่วงเวลา</h3>
+          <h3 class="section-title">รายละเอียดการทำงานล่วงเวลา</h3>
 
           <table class="ot-table">
             <thead>
@@ -411,7 +411,7 @@ const generateEmailTemplate = (
                       font-size: 12px;
                       font-weight: 600;
                     ">
-                      ${item.type === "holiday" ? "🌙 วันหยุด" : "☀️ วันทำงาน"}
+                      ${item.type === "holiday" ? "วันหยุด" : "วันทำงาน"}
                     </span>
                   </td>
                   <td>${sanitizeHtml(item.assignee || "-")}</td>
@@ -456,16 +456,16 @@ const generateEmailTemplate = (
 
           <div style="text-align: center; margin: 32px 0;">
             <a href="${previewUrl}" class="cta-button">
-              📄 ดูเอกสารฉบับเต็ม
+              ดูเอกสารฉบับเต็ม
             </a>
           </div>
 
           <div style="background-color: #eff6ff; padding: 20px; border-radius: 8px; border: 1px solid #93c5fd;">
             <p style="color: #1e40af; font-size: 13px; margin: 0; line-height: 1.6;">
-              <strong>💡 คำแนะนำสำหรับ HR:</strong><br>
-              • ตรวจสอบข้อมูลให้ครบถ้วนก่อนบันทึกในระบบ Payroll<br>
-              • อ้างอิงหมายเลขเอกสาร #${overtime.id} สำหรับการติดตาม<br>
-              • หากพบข้อผิดพลาด กรุณาติดต่อผู้จัดการแผนกโดยตรง
+              <strong>คำแนะนำสำหรับ HR:</strong><br>
+              - ตรวจสอบข้อมูลให้ครบถ้วนก่อนบันทึกในระบบ Payroll<br>
+              - อ้างอิงหมายเลขเอกสาร #${overtime.id} สำหรับการติดตาม<br>
+              - หากพบข้อผิดพลาด กรุณาติดต่อผู้จัดการแผนกโดยตรง
             </p>
           </div>
         </div>
@@ -494,16 +494,16 @@ const generatePlainTextEmail = (
   const totalHours = calculateTotalHours(overtime.descriptions);
   const lines: string[] = [];
 
-  lines.push("═══════════════════════════════════════════");
+  lines.push("===============================================");
   lines.push("  SCHOOL BRIGHT - การอนุมัติ OT");
-  lines.push("═══════════════════════════════════════════");
+  lines.push("===============================================");
   lines.push("");
   lines.push(`เอกสารหมายเลข: #${overtime.id}`);
-  lines.push(`สถานะ: ✅ อนุมัติแล้ว`);
+  lines.push(`สถานะ: อนุมัติแล้ว`);
   lines.push("");
-  lines.push("───────────────────────────────────────────");
+  lines.push("-----------------------------------------------");
   lines.push("ข้อมูลพนักงาน");
-  lines.push("───────────────────────────────────────────");
+  lines.push("-----------------------------------------------");
   lines.push(
     `ชื่อ-สกุล: ${overtime.requesterName || overtime.requesterId || "-"}`,
   );
@@ -515,16 +515,16 @@ const generatePlainTextEmail = (
   lines.push("");
 
   if (overtime.reason) {
-    lines.push("───────────────────────────────────────────");
+    lines.push("-----------------------------------------------");
     lines.push("เหตุผลการขอ OT");
-    lines.push("───────────────────────────────────────────");
+    lines.push("-----------------------------------------------");
     lines.push(overtime.reason);
     lines.push("");
   }
 
-  lines.push("───────────────────────────────────────────");
+  lines.push("-----------------------------------------------");
   lines.push("รายละเอียดการทำงานล่วงเวลา");
-  lines.push("───────────────────────────────────────────");
+  lines.push("-----------------------------------------------");
 
   if (
     Array.isArray(overtime.descriptions) &&
@@ -532,12 +532,12 @@ const generatePlainTextEmail = (
   ) {
     overtime.descriptions.forEach((item, index) => {
       lines.push(`${index + 1}. ${formatDate(item.date)}`);
-      lines.push(`   • รายละเอียด: ${item.description || "-"}`);
-      lines.push(`   • จำนวนชั่วโมง: ${item.duration || 0} ชม.`);
+      lines.push(`   - รายละเอียด: ${item.description || "-"}`);
+      lines.push(`   - จำนวนชั่วโมง: ${item.duration || 0} ชม.`);
       lines.push(
-        `   • ประเภท: ${item.type === "holiday" ? "วันหยุด" : "วันทำงาน"}`,
+        `   - ประเภท: ${item.type === "holiday" ? "วันหยุด" : "วันทำงาน"}`,
       );
-      lines.push(`   • ผู้มอบหมาย: ${item.assignee || "-"}`);
+      lines.push(`   - ผู้มอบหมาย: ${item.assignee || "-"}`);
       lines.push("");
     });
   } else {
@@ -545,9 +545,9 @@ const generatePlainTextEmail = (
     lines.push("");
   }
 
-  lines.push("───────────────────────────────────────────");
+  lines.push("-----------------------------------------------");
   lines.push(`รวมชั่วโมงทั้งหมด: ${totalHours} ชั่วโมง`);
-  lines.push("───────────────────────────────────────────");
+  lines.push("-----------------------------------------------");
   lines.push("");
 
   if (overtime.approvedBy) {
@@ -559,12 +559,12 @@ const generatePlainTextEmail = (
   lines.push("ดูเอกสารฉบับเต็ม:");
   lines.push(previewUrl);
   lines.push("");
-  lines.push("═══════════════════════════════════════════");
+  lines.push("===========================================");
   lines.push(
     "The Best SchoolBright Developer Team By Head of Technology Light",
   );
   lines.push("อีเมลนี้ส่งโดยระบบอัตโนมัติ");
-  lines.push("═══════════════════════════════════════════");
+  lines.push("===========================================");
 
   return lines.join("\n");
 };
@@ -608,7 +608,7 @@ export async function POST(request: NextRequest) {
     }
 
     const previewUrl = `${API_URL.SB_HELPER_URL}/timesheet/overtime/preview/${overtime.id}`;
-    const subject = `✅ การอนุมัติ OT #${overtime.id} - ${
+    const subject = `การอนุมัติ OT #${overtime.id} - ${
       overtime.requesterName || overtime.requesterId || "พนักงาน"
     }`;
 

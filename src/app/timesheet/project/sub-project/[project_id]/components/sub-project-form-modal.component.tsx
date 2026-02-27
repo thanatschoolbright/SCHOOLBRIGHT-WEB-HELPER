@@ -111,7 +111,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
   );
 
   /**
-   * 🔍 ค้นหารายชื่อพนักงานจาก Server (Debounced)
+   * ค้นหารายชื่อพนักงานจาก Server (Debounced)
    */
   const handleUserSearch = useMemo(
     () =>
@@ -122,7 +122,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
             `/api/v1/timesheet/project/sub-project/assignee-search?q=${encodeURIComponent(query)}`,
           );
           if (res.data?.status === 200) {
-            // ✅ คัดลอกข้อมูลเฉพาะที่จำเป็นเพื่อป้องกันโครงสร้างข้อมูลพัวพัน (Circular References)
+            // คัดลอกข้อมูลเฉพาะที่จำเป็นเพื่อป้องกันโครงสร้างข้อมูลพัวพัน (Circular References)
             const results = (res.data.data || [])
               .filter((u: any) => u && u.admin_id)
               .map((u: any) => ({
@@ -135,12 +135,12 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
               }));
 
             setUsers((prev) => {
-              // 🔍 ดึง ID ของพนักงานที่เลือกอยู่ในฟอร์มปัจจุบัน
+              // ดึง ID ของพนักงานที่เลือกอยู่ในฟอร์มปัจจุบัน
               const currentValues = form.getFieldsValue();
               const currentAssignees = currentValues.assignees || [];
               const selectedUserIds = new Set(
                 currentAssignees
-                  .map((a: any) => a?.userId) // ✅ ใช้ Optional Chaining
+                  .map((a: any) => a?.userId) // ใช้ Optional Chaining
                   .filter(Boolean),
               );
 
@@ -172,7 +172,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
   );
 
   /**
-   * 🔍 ค้นหา Backlog Issues จากระบบ (Debounced)
+   * ค้นหา Backlog Issues จากระบบ (Debounced)
    */
   const handleBacklogSearch = useMemo(
     () =>
@@ -257,7 +257,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                   });
                   fetchedUsers.forEach((u: any) => {
                     if (u && u.admin_id) {
-                      // ✅ เก็บเฉพาะข้อมูลที่จำเป็น
+                      // เก็บเฉพาะข้อมูลที่จำเป็น
                       newMap.set(u.admin_id, {
                         admin_id: u.admin_id,
                         firstname: u.firstname,
@@ -322,10 +322,10 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
         watchedDateRange[1],
       );
 
-      // 🔍 ตรวจสอบค่าปัจจุบันก่อนอัปเดตเพื่อลดการ Re-render และป้องกัน Circular Reference
+      // ตรวจสอบค่าปัจจุบันก่อนอัปเดตเพื่อลดการ Re-render และป้องกัน Circular Reference
       const currentVal = form.getFieldValue("estimate_time");
       if (currentVal !== text) {
-        // 🔥 ใช้ setTimeout เพื่อขยับการอัปเดตไปที่ Queue ถัดไป ป้องกันการเตือนเรื่องโครงสร้างข้อมูลพัวพันกัน (Circular references)
+        // ใช้ setTimeout เพื่อขยับการอัปเดตไปที่ Queue ถัดไป ป้องกันการเตือนเรื่องโครงสร้างข้อมูลพัวพันกัน (Circular references)
         const timer = setTimeout(() => {
           form.setFieldValue("estimate_time", text);
         }, 0);
@@ -640,12 +640,12 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                                   : "ไม่พบข้อมูล"
                               }
                               onChange={(userId) => {
-                                // 🔍 ค้นหาข้อมูลพนักงานเพื่อดึงตำแหน่ง
+                                // ค้นหาข้อมูลพนักงานเพื่อดึงตำแหน่ง
                                 const selectedUser = users.find(
                                   (u) => u.admin_id === userId,
                                 );
                                 if (selectedUser) {
-                                  // ✅ ใช้ setTimeout (Macro-task) เพื่อให้ Ant Design ประมวลผลสถานะ Select ให้เสร็จก่อน
+                                  // ใช้ setTimeout (Macro-task) เพื่อให้ Ant Design ประมวลผลสถานะ Select ให้เสร็จก่อน
                                   // ป้องกันปัญหา Circular Reference Warning เมื่ออัปเดต Field อื่นใน Form.List พร้อมกัน
                                   setTimeout(() => {
                                     form.setFieldValue(

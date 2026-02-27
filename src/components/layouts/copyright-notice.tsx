@@ -24,7 +24,6 @@ const CopyrightNotice: React.FC = () => {
         }
       } catch (error) {
         // Fallback ถ้าไม่สามารถอ่านได้
-        console.log("Using fallback Next.js version");
       }
     };
 

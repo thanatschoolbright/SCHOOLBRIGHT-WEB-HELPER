@@ -1,9 +1,8 @@
-import { NextResponse } from "next/server";
 import { errorResponse } from "@helpers/api/response";
-import { logger } from "@helpers/logger";
+import { NextResponse } from "next/server";
 
 export function handleError(err: unknown, contextMessage = "API error") {
-  logger.error(contextMessage, err);
+  console.error(contextMessage, err);
 
   const error = err as any;
   const status = error?.status || 500;
@@ -24,10 +23,8 @@ export function handleError(err: unknown, contextMessage = "API error") {
       status,
       error: error?.validationErrors || error,
     }),
-    { status }
+    { status },
   );
 }
 
 export default handleError;
-
-

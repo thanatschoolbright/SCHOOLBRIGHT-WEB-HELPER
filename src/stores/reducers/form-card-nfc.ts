@@ -19,14 +19,12 @@ const formCardNFCReducer = createSlice({
   initialState,
   reducers: {
     setDraftValues: (state, action: PayloadAction<FormCardNfcState>) => {
-      console.log("[setDraftValues] : ", action.payload);
       state.draftValues = {
         ...state.draftValues,
         ...action.payload,
       };
     },
     submitState: (state, action: PayloadAction<FormCardNfcState>) => {
-      console.log("[submitState] : ", action.payload);
       state.draftValues = {
         ...state.draftValues,
         ...action.payload,

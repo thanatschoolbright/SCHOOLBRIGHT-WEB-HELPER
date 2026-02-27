@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { MigrationService } from "../service/migration.service";
 import { migrationAutomateSchema } from "../validation/migration.validation";
 
-/* ✨ จัดการคำขอ POST สำหรับการ Generate รายละเอียดงานด้วย AI (ChatGPT) */
+/* จัดการคำขอ POST สำหรับการ Generate รายละเอียดงานด้วย AI (ChatGPT) */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    /* 🛡️ Validate ข้อมูลโครงสร้าง Request Body */
+    /* Validate ข้อมูลโครงสร้าง Request Body */
     const validation = migrationAutomateSchema.safeParse(body);
 
     if (!validation.success) {
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       data,
     });
   } catch (error: any) {
-    console.error("❌ [MIGRATION_AUTOMATE_ERROR]:", error);
+    console.error("[MIGRATION_AUTOMATE_ERROR]:", error);
     return NextResponse.json(
       {
         status_code: 500,
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-/* ✨ จัดการคำขอ PATCH สำหรับการยืนยันบันทึกรายละเอียดงานที่ถูก Generate */
+/* จัดการคำขอ PATCH สำหรับการยืนยันบันทึกรายละเอียดงานที่ถูก Generate */
 export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();
@@ -75,7 +75,7 @@ export async function PATCH(req: NextRequest) {
       data: result,
     });
   } catch (error: any) {
-    console.error("❌ [MIGRATION_PATCH_ERROR]:", error);
+    console.error("[MIGRATION_PATCH_ERROR]:", error);
     return NextResponse.json(
       {
         status_code: 500,

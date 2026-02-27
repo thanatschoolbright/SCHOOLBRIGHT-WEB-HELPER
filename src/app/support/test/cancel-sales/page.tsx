@@ -52,12 +52,7 @@ import AiChatWidget, {
 } from "@components/ai-chat-widget";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { AppDispatch, useAppSelector } from "@stores/store";
-import {
-  CancelSalesState,
-  ResponseSchoolList,
-  ResponseSchoolListWithMoreDetail,
-  ResponseUserList,
-} from "@stores/type";
+import { CancelSalesState, ResponseUserList } from "@stores/type";
 
 interface CancellationLog {
   endpoint: string;
@@ -570,7 +565,7 @@ export default function Page() {
         Object.entries(info).forEach(([key, rawValue]) => {
           if (rawValue === undefined || rawValue === null) return;
           const value = String(rawValue).trim();
-          if (!value || /ไม่มี|not\s*required/i.test(value) || value === "—")
+          if (!value || /ไม่มี|not\s*required/i.test(value) || value === "-")
             return;
           (next as any)[key] = value;
         });
@@ -875,7 +870,7 @@ export default function Page() {
                         >
                           <Select
                             showSearch
-                            placeholder="🏫 ค้นหาโรงเรียนโดยชื่อหรือรหัส..."
+                            placeholder="ค้นหาโรงเรียนโดยชื่อหรือรหัส..."
                             size="large"
                             options={schoolOptions}
                             optionFilterProp="label"
@@ -897,7 +892,7 @@ export default function Page() {
                         >
                           <Select
                             showSearch
-                            placeholder="👤 ระบุรหัสผู้ซื้อ"
+                            placeholder="ระบุรหัสผู้ซื้อ"
                             size="large"
                             options={userList}
                             disabled={!selectedSchoolId}
@@ -919,7 +914,7 @@ export default function Page() {
                         >
                           <Select
                             showSearch
-                            placeholder="👥 ระบุรหัสผู้ขาย"
+                            placeholder="ระบุรหัสผู้ขาย"
                             size="large"
                             options={userList}
                             disabled={!selectedSchoolId}
@@ -948,7 +943,7 @@ export default function Page() {
                           ]}
                         >
                           <Input
-                            placeholder="💳 ตัวอย่าง: 12345678"
+                            placeholder="ตัวอย่าง: 12345678"
                             size="large"
                             style={{
                               height: 50,
@@ -1208,12 +1203,12 @@ export default function Page() {
                       type="link"
                       style={{ textAlign: "left", padding: 0 }}
                     >
-                      📺 วิดีโอสอนการใช้งาน (2 นาที)
+                      วิดีโอสอนการใช้งาน (2 นาที)
                     </Button>
                   </Link>
                   <Divider style={{ margin: "12px 0" }} />
                   <div style={{ color: token.colorTextTertiary, fontSize: 12 }}>
-                    ⚠️ หมายเหตุ: รายการที่แสดงด้วยสีเหลืองในผลลัพธ์
+                    หมายเหตุ: รายการที่แสดงด้วยสีเหลืองในผลลัพธ์
                     อาจหมายถึงรายการไม่ถูกพบในระบบจริง
                   </div>
                 </Card>

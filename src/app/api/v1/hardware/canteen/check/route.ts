@@ -44,7 +44,10 @@ export async function GET(request: NextRequest) {
       { status: 200 },
     );
   } catch (error: any) {
-    console.error("❌ Error in GET /api/v1/hardware/canteen/check:", error);
+    console.error(
+      "[ERROR] Error in GET /api/v1/hardware/canteen/check:",
+      error,
+    );
 
     const statusCode = error.response?.status || 500;
     const errorMessage =

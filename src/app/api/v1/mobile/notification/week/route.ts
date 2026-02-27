@@ -1,9 +1,9 @@
-import axios from "axios";
-import { NextRequest, NextResponse } from "next/server";
-import { API_URL } from "@/services/api-url";
-import { sanitizeForwardHeaders } from "@/services/api-header";
-import https from "https";
 import { logger } from "@/helpers/logger";
+import { sanitizeForwardHeaders } from "@/services/api-header";
+import { API_URL } from "@/services/api-url";
+import axios from "axios";
+import https from "https";
+import { NextRequest, NextResponse } from "next/server";
 
 const agent = new https.Agent({ rejectUnauthorized: false });
 
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       headers,
       httpsAgent: agent,
     });
-    logger.info("✅ Response Data: ", responseFromAPI.data);
+    logger.info("[SUCCESS] Response Data: ", responseFromAPI.data);
 
     return NextResponse.json(
       { data: responseFromAPI.data, curl: curlCommand },

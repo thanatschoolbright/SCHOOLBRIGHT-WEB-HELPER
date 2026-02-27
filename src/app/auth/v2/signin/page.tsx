@@ -212,7 +212,7 @@ export default function SignInPage() {
         position: "relative",
       }}
     >
-      {/* 🚧 Gate Overlay: ป้องกันการเห็นหน้า Login หากเข้าสู่ระบบแล้วหรือกำลังโหลด */}
+      {/* Gat Overlay: ป้องกันการเห็นหน้า Login หากเข้าสู่ระบบแล้วหรือกำลังโหลด */}
       {shouldShowGate && (
         <div
           style={{
@@ -530,7 +530,7 @@ export default function SignInPage() {
           </div>
         </Col>
       </Row>
-      {/* 🚀 Login Processing Modal (แสดงขั้นตอนการเชื่อมต่อ) */}
+      {/* Login Processing Modal (แสดงขั้นตอนการเชื่อมต่อ) */}
       <Modal
         open={isModalVisible && loginStatus === "process"}
         footer={null}
@@ -610,7 +610,7 @@ export default function SignInPage() {
         />
       </Modal>
 
-      {/* ✅ Login Success Modal (ใช้ Component กลาง) */}
+      {/* Login Success Modal (ใช้ Component กลาง) */}
       <StatusModalComponent
         open={isModalVisible && loginStatus === "finish"}
         type="success"
@@ -619,7 +619,7 @@ export default function SignInPage() {
         onClose={() => setIsModalVisible(false)}
       />
 
-      {/* ❌ Login Error Modal (ใช้ Component กลาง) */}
+      {/* Login Error Modal (ใช้ Component กลาง) */}
       <StatusModalComponent
         open={isModalVisible && loginStatus === "error"}
         type="error"

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { API_URL } from "@/services/api-url";
 import axios, { AxiosError } from "axios";
 import FormData from "form-data";
-import { logger } from "@/helpers/logger"; // สมมติว่า path นี้คือที่เก็บ logger config
 
 /**
  * ฟังก์ชัน POST สำหรับจัดการการเข้าสู่ระบบ
@@ -20,10 +19,6 @@ export async function POST(
 
     // 2. ตรวจสอบข้อมูลนำเข้า (Validation)
     if (!usernameInput || !passwordInput) {
-      logger.warn("Login attempt failed: Missing credentials", {
-        username: usernameInput || "missing",
-      });
-
       return NextResponse.json(
         {
           success: false,
@@ -41,11 +36,6 @@ export async function POST(
     authenticationPayload.append("username", usernameInput);
     authenticationPayload.append("password", passwordInput);
 
-    logger.info(`Dispatching login request to external service`, {
-      url: authenticationServiceUrl,
-      username: usernameInput,
-    });
-
     // 4. เรียก API ภายนอก (External Service Call)
     const externalApiResponse = await axios.post(
       authenticationServiceUrl,
@@ -55,10 +45,6 @@ export async function POST(
         timeout: 10000, // 10 วินาที
       }
     );
-
-    logger.info("External service authentication successful", {
-      username: usernameInput,
-    });
 
     // 5. คำนวณเวลาการทำงาน (Execution Time Calculation)
     const executionEndTime = performance.now();
@@ -86,7 +72,7 @@ export async function POST(
         axiosError.response?.data?.message || "เกิดข้อผิดพลาดจาก API ภายนอก";
       const statusCode = axiosError.response?.status || 502;
 
-      logger.error("External service authentication failed", {
+      console.error("External service authentication failed", {
         message: errorMessage,
         status: statusCode,
         duration: executionDurationInMilliseconds,
@@ -106,7 +92,7 @@ export async function POST(
 
     // กรณีข้อผิดพลาดภายใน Server (General Error)
     const genericError = error as Error;
-    logger.error("Internal Server Error during login process", {
+    console.error("Internal Server Error during login process", {
       message: genericError.message,
       stack: genericError.stack,
       duration: executionDurationInMilliseconds,

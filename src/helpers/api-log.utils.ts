@@ -369,10 +369,10 @@ export class ApiLogUtils {
         const { ApiLogService } =
           await import("@/services/backend/api-log/api-log.service");
         ApiLogService.createApiLog(finalLogData).catch((error) => {
-          // console.error("API Log creation failed:", error);
+          // Log creation failed
         });
       } else {
-        // console.log(`[API Log Utils] Logger API detected, calledBy: "${calledBy}" - Skip database logging`);
+        // Logger API detected - Skip database logging
       }
     } catch (error) {
       console.error("Error in logApiRequest:", error);
@@ -437,6 +437,6 @@ export class ApiLogUtils {
       calledBy: calledBy,
     };
 
-    // console.log(JSON.stringify(logObject, null, 2));
+    // Log Request Object (Optional)
   }
 }

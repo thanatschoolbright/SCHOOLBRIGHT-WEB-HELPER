@@ -37,7 +37,7 @@ export default function AuthenticationProvider({
     if (status === "authenticated" && session) {
       const user = session.user as any;
 
-      // ✅ ตรวจสอบก่อนว่าข้อมูลใน Redux ต่างจากใน Session หรือไม่ (เพื่อลด Redundant Dispatches)
+      // * ตรวจสอบก่อนว่าข้อมูลใน Redux ต่างจากใน Session หรือไม่ (เพื่อลด Redundant Dispatches)
       const currentAdminId = authState.response?.data?.user_data?.admin_id;
       if (currentAdminId === Number(user.admin_id)) {
         setIsInitializing(false);
@@ -91,10 +91,10 @@ export default function AuthenticationProvider({
         },
       };
 
-      // ⚡ Dispatch ลง Redux เสมอเมื่อ Session มีการเปลี่ยนแปลง
+      // * Dispatch ลง Redux เสมอเมื่อ Session มีการเปลี่ยนแปลง
       dispatch(setResponse(reduxAuthData as any));
 
-      // ✅ ซิงค์ข้อมูลสำหรับ Legacy Refresh Token
+      // * ซิงค์ข้อมูลสำหรับ Legacy Refresh Token
       dispatch(
         setRefreshDraft({
           school_id: "0",
@@ -103,7 +103,7 @@ export default function AuthenticationProvider({
         }),
       );
 
-      // ✅ หากอยู่หน้า Login ให้เด้งไปหน้าหลัก
+      // * หากอยู่หน้า Login ให้เด้งไปหน้าหลัก
       if (isAuthPage) {
         router.replace("/main");
       }
@@ -112,7 +112,7 @@ export default function AuthenticationProvider({
 
     // 4. ถ้ายังไม่ได้เข้าสู่ระบบ
     else if (status === "unauthenticated") {
-      // ✅ ถ้าไม่ใช่หน้า Auth และพยายามเข้าหน้าหลักหรือหน้าอื่นๆ ให้เด้งไป Login
+      // * ถ้าไม่ใช่หน้า Auth และพยายามเข้าหน้าหลักหรือหน้าอื่นๆ ให้เด้งไป Login
       if (
         !isAuthPage &&
         (pathname === "/" ||

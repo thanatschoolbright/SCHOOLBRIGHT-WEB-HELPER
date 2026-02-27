@@ -139,13 +139,13 @@ export default function TimesheetAllPage() {
       return;
     }
 
-    const title = `📊 รายงานไทม์ชีท ${
+    const title = `รายงานไทม์ชีท ${
       metadata?.range?.label_th ? `ประจำ${metadata.range.label_th}` : ""
     }`;
     const body = filteredRecords
       .map((rec, index) => {
         const gapText =
-          rec.hours_gap > 0 ? ` ⚠️ ขาด ${rec.hours_gap} ชม.` : " ✅ ครบ";
+          rec.hours_gap > 0 ? ` (!) ขาด ${rec.hours_gap} ชม.` : " (v) ครบ";
         return `${index + 1}. ${rec.full_name} (${rec.nickname || "-"}) | ${
           rec.total_hours
         }/${rec.required_hours} ชม.${gapText}`;

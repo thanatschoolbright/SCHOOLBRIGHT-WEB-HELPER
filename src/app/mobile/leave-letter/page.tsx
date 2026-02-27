@@ -117,11 +117,11 @@ export default function LeaveLetterManagementPage() {
   const dispatch = useDispatch<AppDispatch>();
   const [form] = Form.useForm<{ schoolID: string; userID: string }>();
 
-  // ✅ ดึงข้อมูลจาก Redux Store
+  // * ดึงข้อมูลจาก Redux Store
   const schoolState = useAppSelector((state) => state.callSchoolList);
   const userState = useAppSelector((state) => state.callGetuserBySchoolId);
 
-  // ✅ สถานะภายใน Component
+  // * สถานะภายใน Component
   const [dataset, setDataset] = useState<DatasetState>({
     data: [],
     loading: false,
@@ -145,7 +145,7 @@ export default function LeaveLetterManagementPage() {
     Partial<Record<SearchableColumnKey, InputRef | null>>
   >({});
 
-  // ✅ ข้อมูลสำหรับตัวเลือกโรงเรียน
+  // * ข้อมูลสำหรับตัวเลือกโรงเรียน
   const schoolOptions = useMemo(() => {
     const rawData = schoolState?.response?.data;
     const arrayData = Array.isArray(rawData)
@@ -160,7 +160,7 @@ export default function LeaveLetterManagementPage() {
     }));
   }, [schoolState?.response?.data]);
 
-  // ✅ ข้อมูลสำหรับตัวเลือกผู้ใช้งาน
+  // * ข้อมูลสำหรับตัวเลือกผู้ใช้งาน
   const userOptions = useMemo(() => {
     const rawData = userState?.response?.data;
     const arrayData = Array.isArray(rawData?.data)
@@ -177,12 +177,12 @@ export default function LeaveLetterManagementPage() {
     }));
   }, [userState?.response?.data]);
 
-  // ✅ การคำนวณข้อมูลสรุป (Summary Card) - ใช้จาก API Response โดยตรง
+  // * การคำนวณข้อมูลสรุป (Summary Card) - ใช้จาก API Response โดยตรง
   const summaryCounters = useMemo(() => {
     const rawData = dataset.data || [];
     return rawData.reduce(
       (accumulator, currentItem) => {
-        // ✅ กรองออกหากรายการระบุว่าถูกลบ (is_deleted : true จะต้องไม่นำมาคำนวณ)
+        // * กรองออกหากรายการระบุว่าถูกลบ (is_deleted : true จะต้องไม่นำมาคำนวณ)
         const isDeleted =
           currentItem?.is_deleted === true ||
           currentItem?.is_deleted === 1 ||
@@ -411,7 +411,7 @@ export default function LeaveLetterManagementPage() {
 
   const selectedSchoolId = Form.useWatch("schoolID", form);
 
-  // ✅ อัปเดตรายชื่อผู้ใช้เมื่อเปลี่ยนโรงเรียน
+  // * อัปเดตรายชื่อผู้ใช้เมื่อเปลี่ยนโรงเรียน
   useEffect(() => {
     form.setFieldsValue({ userID: undefined });
     if (selectedSchoolId) {
@@ -494,7 +494,7 @@ export default function LeaveLetterManagementPage() {
     [token.colorPrimary],
   );
 
-  // ✅ กำหนดคอลัมน์ของตาราง
+  // * กำหนดคอลัมน์ของตาราง
   const leaveLetterTableColumns = useMemo<ColumnsType<any>>(
     () => [
       {

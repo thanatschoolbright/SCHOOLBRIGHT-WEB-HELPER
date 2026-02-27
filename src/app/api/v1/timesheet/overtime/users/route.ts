@@ -10,7 +10,7 @@ import {
 
 /**
  * GET /api/v1/timesheet/overtime/users
- * ✨ ดึงข้อมูล User สำหรับ dropdown "พนักงานผู้ปฏิบัติงาน"
+ * ดึงข้อมูล User สำหรับ dropdown "พนักงานผู้ปฏิบัติงาน"
  * Returns only necessary fields to minimize data transfer
  */
 export async function GET(request: NextRequest) {
@@ -18,13 +18,13 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const search = searchParams.get("search") || "";
 
-    /* 🛡️ Validate Query Parameters */
+    /* Validate Query Parameters */
     const validatedParams = GetUsersQuerySchema.parse({ search });
 
-    /* ✨ Call Service Layer เพื่อดึงข้อมูล */
+    /* Call Service Layer เพื่อดึงข้อมูล */
     const users = await usersService.findAllUsers(validatedParams.search);
 
-    /* 📝 Log successful request */
+    /* Log successful request */
     logger.info("[GET /api/v1/timesheet/overtime/users] Success", {
       search: validatedParams.search,
       resultCount: users.length,
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       { status: 200 },
     );
   } catch (err: unknown) {
-    /* 🚨 Log error with details */
+    /* Log error with details */
     const errorData = handleError(err);
     const errorMessage = err instanceof Error ? err.message : "Unknown error";
     const errorStack = err instanceof Error ? err.stack : "";
@@ -62,23 +62,23 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/v1/timesheet/overtime/users
- * ✨ ดึงข้อมูล User พร้อม Pagination (สำหรับ search dropdown)
+ * ดึงข้อมูล User พร้อม Pagination (สำหรับ search dropdown)
  * Supports pagination and advanced search filtering
  */
 export async function POST(request: NextRequest) {
   try {
-    /* 🛡️ Parse และ Validate Request Body */
+    /* Parse และ Validate Request Body */
     const body = await request.json();
     const validatedParams = PostUsersRequestSchema.parse(body);
 
-    /* ✨ Call Service Layer เพื่อดึงข้อมูล */
+    /* Call Service Layer เพื่อดึงข้อมูล */
     const { users, total } = await usersService.findUsersWithPagination(
       validatedParams.search,
       validatedParams.limit,
       validatedParams.page,
     );
 
-    /* 📝 Log successful request */
+    /* Log successful request */
     logger.info("[POST /api/v1/timesheet/overtime/users] Success", {
       search: validatedParams.search,
       page: validatedParams.page,
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
       { status: 200 },
     );
   } catch (err: unknown) {
-    /* 🚨 Log error with details */
+    /* Log error with details */
     const errorData = handleError(err);
     const errorMessage = err instanceof Error ? err.message : "Unknown error";
     const errorStack = err instanceof Error ? err.stack : "";

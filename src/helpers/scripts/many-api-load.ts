@@ -33,9 +33,6 @@ export const options = {
 export default function main(): void {
   // Select test user for this VU
   const user = credentials[__VU % credentials.length];
-  console.log(
-    `VU: ${__VU}, Iteration: ${__ITER}, Testing with user: ${user.user}`,
-  );
 
   // Common headers for all requests
   const headers = {
@@ -80,9 +77,6 @@ export default function main(): void {
   // Validate and log each response
   Object.values(responses).forEach((res, index) => {
     const name = Object.keys(endpoints)[index];
-    console.log(`Request: ${name}`);
-    console.log(`- Status: ${res.status}`);
-    console.log(`- Body: ${res.body}`);
 
     check(res, {
       [`${name} - status 200`]: (r) => r.status === 200,

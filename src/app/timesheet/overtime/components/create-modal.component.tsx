@@ -1,38 +1,37 @@
 "use client";
 
-import React from "react";
 import {
-  Modal,
-  Form,
-  Row,
-  Col,
-  DatePicker,
-  Select,
-  AutoComplete,
-  Card,
-  Button,
-  Space,
-  Typography,
-  theme,
-  Input,
-  Badge,
-  Tooltip,
-} from "antd";
-import {
-  PlusOutlined,
-  MinusCircleOutlined,
   CalendarOutlined,
   ClockCircleOutlined,
-  FileTextOutlined,
-  ThunderboltOutlined,
-  SaveOutlined,
   CloseOutlined,
+  FileTextOutlined,
+  MinusCircleOutlined,
+  PlusOutlined,
+  SaveOutlined,
+  ThunderboltOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+import type { SelectOption } from "@stores/type";
+import {
+  AutoComplete,
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Tooltip,
+  Typography,
+  theme,
+} from "antd";
+import dayjs from "dayjs";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import type { SelectOption } from "@stores/type";
-import dayjs from "dayjs";
 
 const { RangePicker } = DatePicker;
 const { Text } = Typography;
@@ -80,8 +79,6 @@ export const CreateModal: React.FC<CreateModalProps> = ({
   };
 
   const onFinish = async (values: any) => {
-    console.log("Form submitted with values:", values); // Debug log
-
     const { request_date, descriptions, overtimeType, assignee, ...rest } =
       values;
 
@@ -130,7 +127,6 @@ export const CreateModal: React.FC<CreateModalProps> = ({
       descriptions: formattedDescriptions,
     };
 
-    console.log("Submitting payload:", payload); // Debug log
     await handleFormSubmit(payload);
   };
 

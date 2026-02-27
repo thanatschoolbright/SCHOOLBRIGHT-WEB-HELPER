@@ -66,17 +66,13 @@ async function parseRequestBody(req: NextRequest) {
 function getCalledByFromHeader(req: NextRequest): string {
     const xRequestUser = req.headers.get('x-request-user');
 
-    console.log(`[Middleware Debug] Raw x-request-user header: "${xRequestUser}" (type: ${typeof xRequestUser})`);
-
     // ตรวจสอบว่าไม่มี header หรือเป็น "null" string
     if (!xRequestUser || xRequestUser === 'null' || xRequestUser === 'undefined') {
-        console.log(`[Middleware Debug] Invalid header value, returning "middleware-unknown"`);
         return "middleware-unknown";
     }
 
     // ถ้าเป็น plain text (ตัวเลข, ตัวอักษร, underscore, dash) ให้ใช้เลย
     if (/^[\w-]+$/.test(xRequestUser)) {
-        console.log(`[Middleware Debug] Using plain text user: "${xRequestUser}"`);
         return xRequestUser;
     }
 
@@ -84,18 +80,13 @@ function getCalledByFromHeader(req: NextRequest): string {
     try {
         // ตรวจสอบว่าเป็น Base64 หรือไม่
         if (/^[A-Za-z0-9+/]+={0,2}$/.test(xRequestUser)) {
-            const decoded = decodeURIComponent(atob(xRequestUser));
-            console.log(`[Middleware Debug] Decoded Base64 user: "${decoded}"`);
-            return decoded;
+            return decodeURIComponent(atob(xRequestUser));
         }
 
         // ถ้าไม่ใช่ Base64 ลอง URI decode
-        const decoded = decodeURIComponent(xRequestUser);
-        console.log(`[Middleware Debug] URI decoded user: "${decoded}"`);
-        return decoded;
+        return decodeURIComponent(xRequestUser);
     } catch (e) {
         // ถ้า decode ไม่ได้ ใช้ค่าเดิม
-        console.log(`[Middleware Debug] Failed to decode, using raw: "${xRequestUser}"`);
         return xRequestUser;
     }
 }
@@ -116,25 +107,7 @@ function logRequest({
     duration: number;
     status: number;
 }) {
-    const statusColor = getColorByStatus(status);
-    const {boldRed, reset} = COLORS;
-
-    console.log("\n" + "=".repeat(100));
-    console.log(`${boldRed}API Request Log${reset}`);
-    console.log(`${boldRed}URL${reset}: ${req.url}`);
-    console.log(`${boldRed}Method${reset}: ${req.method}`);
-    console.log(`${boldRed}Status${reset}: ${statusColor}${status}${reset}`);
-    console.log(`${boldRed}Response Time${reset}: ${duration}ms`);
-    console.log(`${boldRed}Headers${reset}: ${pretty(Object.fromEntries(req.headers.entries()))}`);
-    console.log(`${boldRed}Body${reset}: ${pretty(requestBody)}`);
-    console.log(`${boldRed}Response${reset}: ${pretty(responseBody)}`);
-    console.log(`${boldRed}Called By${reset}: ${getCalledByFromHeader(req)}`); // แสดง calledBy
-
-    if (req.url.includes("adminsystem.schoolbright.co")) {
-        console.log(`${boldRed}External API${reset}: Detected external API call`);
-    }
-
-    console.log("=".repeat(100));
+    // Console logging removed
 }
 
 /* ============================================================

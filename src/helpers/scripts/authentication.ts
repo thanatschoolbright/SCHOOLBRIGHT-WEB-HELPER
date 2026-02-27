@@ -47,12 +47,7 @@ function printRequestAndResponse(
   headers: Record<string, string>,
   response: Response,
 ): void {
-  console.log("Request:");
-  console.log(`- URL: ${url}`);
-  console.log(`- Headers: ${JSON.stringify(headers)}`);
-  console.log("Response:");
-  console.log(`- Status: ${response.status}`);
-  console.log(`- Body: ${response.body}`);
+  // Console logging removed
 }
 
 // ตรวจสอบผลลัพธ์ของ response
@@ -89,10 +84,6 @@ export default function main(): void {
   const totalUsers = credentials.length;
   const index = ((__VU - 1) * 10 + __ITER) % totalUsers;
   const user = credentials[index];
-
-  console.log(
-    `VU: ${__VU}, Iteration: ${__ITER}, Testing with user: ${user.user}, pass: ${user.pass}`,
-  );
 
   const url = buildLoginUrl(user);
   const headers = getStaticHeaders();

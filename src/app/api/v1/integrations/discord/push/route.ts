@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
+import { NextRequest, NextResponse } from "next/server";
 
 // --- Configuration: Organization Level ---
 
@@ -35,28 +35,28 @@ const getBranchStyle = (branch: string): BranchStyle => {
     return {
       label: "Production Environment",
       color: 0x2ecc71, // Green
-      emoji: "🚀",
+      emoji: "[PROD]",
       description: "Stable version deployed to live users.",
     };
   } else if (branch.includes("beta")) {
     return {
       label: "Beta Environment",
       color: 0xf39c12, // Orange
-      emoji: "🧪",
+      emoji: "[BETA]",
       description: "New features deployed for UAT/Testing.",
     };
   } else if (branch.includes("development")) {
     return {
       label: "Development",
       color: 0x3498db, // Blue
-      emoji: "🛠️",
+      emoji: "[DEV]",
       description: "Daily build / Work in progress.",
     };
   }
   return {
     label: branch,
     color: 0x95a5a6, // Grey
-    emoji: "📦",
+    emoji: "[PKG]",
     description: "Repository update.",
   };
 };
@@ -75,7 +75,7 @@ const getFileSummary = (commits: any[]) => {
 
   const topFiles = files
     .slice(0, 5)
-    .map((f) => `• \`${f}\``)
+    .map((f) => `- \`${f}\``)
     .join("\n");
   const remaining = files.length - 5;
 
@@ -103,7 +103,7 @@ const buildDiscordPayload = (
   repoData: any,
   branch: string,
   payload: any,
-  webhookUrl: string
+  webhookUrl: string,
 ) => {
   const pusher = payload.pusher.name;
   const commits = payload.commits || [];
@@ -127,14 +127,12 @@ const buildDiscordPayload = (
           style: 5,
           label: "View Changes (Diff)",
           url: compareUrl,
-          emoji: { name: "📜" },
         },
         {
           type: 2,
           style: 5,
           label: "Open Repository",
           url: repoData.html_url,
-          emoji: { name: "📂" },
         },
       ],
     },
@@ -155,30 +153,30 @@ const buildDiscordPayload = (
     },
     fields: [
       {
-        name: "🌿 Environment / Branch",
+        name: "Environment / Branch",
         value: `\`${style.label}\` (\`${branch}\`)`,
         inline: false,
       },
       {
-        name: "📝 What's New? (Changelog)",
+        name: "What's New? (Changelog)",
         value: commitLog,
         inline: false,
       },
       {
-        name: "📂 Impacted Files",
+        name: "Impacted Files",
         value: fileSummary,
         inline: false,
       },
       {
-        name: "⏱️ Deployed At",
+        name: "Deployed At",
         value: `<t:${Math.floor(Date.now() / 1000)}:f> (<t:${Math.floor(
-          Date.now() / 1000
+          Date.now() / 1000,
         )}:R>)`,
         inline: false,
       },
     ],
     footer: {
-      text: `${repoData.full_name} • Auto-Deployment System`,
+      text: `${repoData.full_name} - Auto-Deployment System`,
       icon_url:
         "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
     },
@@ -186,7 +184,7 @@ const buildDiscordPayload = (
   };
 
   return {
-    content: `📢 **Update Alert:** New code arrived in **${repoData.name}** (${style.label})!`,
+    content: `[INFO] Update Alert: New code arrived in **${repoData.name}** (${style.label})!`,
     embeds: [embed],
     components: components,
   };
@@ -208,7 +206,7 @@ export async function POST(req: NextRequest) {
           expected_event: "push",
         },
       },
-      { status: 200 }
+      { status: 200 },
     );
   }
 
@@ -223,7 +221,7 @@ export async function POST(req: NextRequest) {
           reason: "Invalid payload structure",
           details: "Missing 'repository' object in JSON payload",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -243,7 +241,7 @@ export async function POST(req: NextRequest) {
             known_orgs: Object.keys(ORG_CONFIG),
           },
         },
-        { status: 200 }
+        { status: 200 },
       );
     }
 
@@ -259,7 +257,7 @@ export async function POST(req: NextRequest) {
             requirement: "Ref must start with 'refs/heads/release/'",
           },
         },
-        { status: 200 }
+        { status: 200 },
       );
     }
 
@@ -270,7 +268,7 @@ export async function POST(req: NextRequest) {
 
     if (!webhookUrl) {
       console.error(
-        `[Webhook Error] URL missing for EnvKey: ${envKey} | Org: ${orgName}`
+        `[Webhook Error] URL missing for EnvKey: ${envKey} | Org: ${orgName}`,
       );
       return NextResponse.json(
         {
@@ -282,7 +280,7 @@ export async function POST(req: NextRequest) {
               "The environment variable for this webhook is missing or empty.",
           },
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -291,7 +289,7 @@ export async function POST(req: NextRequest) {
       repository,
       branchName,
       payload,
-      webhookUrl
+      webhookUrl,
     );
 
     const response = await axios.post(webhookUrl, discordPayload, {
@@ -310,7 +308,7 @@ export async function POST(req: NextRequest) {
           discord_response_status: response.status,
         },
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (err: any) {
     console.error("Webhook processing error:", err);
@@ -324,7 +322,7 @@ export async function POST(req: NextRequest) {
           stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
         },
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

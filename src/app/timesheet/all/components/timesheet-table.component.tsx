@@ -425,7 +425,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 type="secondary"
                 style={{ fontSize: 11, color: token.colorTextDescription }}
               >
-                {formatNickname(record.nickname)} •{" "}
+                {formatNickname(record.nickname)} *{" "}
                 {record.employee_code || "JD-XXXX"}
               </Text>
             </Flex>
@@ -1193,9 +1193,9 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                             type="secondary"
                             style={{ fontSize: 11, display: "block" }}
                           >
-                            {item.status === "wait" && "⏳ รอคิวจัดทำข้อมูล..."}
+                            {item.status === "wait" && "รอคิวจัดทำข้อมูล..."}
                             {item.status === "process" &&
-                              "🔍 ระบบกำลังดูประวัติการกรอกข้อมูลของผู้ใช้งาน..."}
+                              "ระบบกำลังดูประวัติการกรอกข้อมูลของผู้ใช้งาน..."}
                           </Text>
                         </Flex>
                         {item.details && (
@@ -1237,7 +1237,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                         )}
                         {item.status === "finish" && !item.details && (
                           <Text type="success" style={{ fontSize: 11 }}>
-                            ✅ ข้อมูลเข้าสู่ระบบเรียบร้อย
+                            ข้อมูลเข้าสู่ระบบเรียบร้อย
                           </Text>
                         )}
                       </div>

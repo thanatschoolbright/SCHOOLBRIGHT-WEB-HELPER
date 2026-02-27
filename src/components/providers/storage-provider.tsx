@@ -1,12 +1,12 @@
 "use client";
 
 /**
- * 📦 StorageProvider: จัดการข้อมูลในหน่วยความจำ (Memory Cache) แทน LocalStorage
+ * StorageProvider: จัดการข้อมูลในหน่วยความจำ (Memory Cache) แทน LocalStorage
  * ปรับปรุงตามนโยบายความปลอดภัย ห้ามใช้ LocalStorage
  */
 
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
-import { useEffect, createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const StorageContext = createContext<any>(null);
@@ -19,7 +19,7 @@ export function StorageProvider({
   const [cache, setCache] = useState<Record<string, any>>({});
 
   /**
-   * 💾 บันทึกข้อมูลลง Memory และแสดง Toast
+   * บันทึกข้อมูลลง Memory และแสดง Toast
    */
   const saveToMemory = (storageName: string, data: any): void => {
     setCache((prev) => ({ ...prev, [storageName]: data }));
@@ -29,7 +29,7 @@ export function StorageProvider({
   };
 
   /**
-   * 🚀 โหลดข้อมูลผู้ใช้จาก API
+   * โหลดข้อมูลผู้ใช้จาก API
    */
   const fetchUsers = async (): Promise<void> => {
     const toastId = toast.loading("กำลังโหลดข้อมูลผู้ใช้งาน...");
@@ -44,7 +44,7 @@ export function StorageProvider({
   };
 
   /**
-   * 🚀 โหลดข้อมูลโปรเจ็กต์จาก API
+   * โหลดข้อมูลโปรเจ็กต์จาก API
    */
   const fetchProjects = async (): Promise<void> => {
     const toastId = toast.loading("กำลังโหลดข้อมูลโปรเจ็ค...");
@@ -63,7 +63,7 @@ export function StorageProvider({
   };
 
   /**
-   * ⚙️ โหลดข้อมูลเริ่มต้นเมื่อ Component Mount
+   * โหลดข้อมูลเริ่มต้นเมื่อ Component Mount
    */
   useEffect(() => {
     // ยกเลิกการตรวจสอบ LocalStorage และใช้การ Fetch ใหม่เสมอเพื่อความปลอดภัย

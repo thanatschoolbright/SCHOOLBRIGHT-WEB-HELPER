@@ -4,12 +4,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { LeaveLetterService } from "../service/leave-letter.service";
 import { ReadLeaveLetterSchema } from "../validation/leave-letter.validation";
 
-/* ✨ API สำหรับดึงข้อมูลจดหมายลาหยุดของผู้ใช้งาน (Read) */
+/* API สำหรับดึงข้อมูลจดหมายลาหยุดของผู้ใช้งาน (Read) */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const headers = sanitizeForwardHeaders(request);
 
-  // 🛡️ Validate ข้อมูลโครงสร้าง Request Body ก่อนส่งไป Service
+  // ข้อมูลโครงสร้าง Request Body ก่อนส่งไป Service
   const queryParams = {
     user_id: searchParams.get("user_id"),
     page: searchParams.get("page") || "1",
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
   const { user_id, page } = validation.data;
 
   try {
-    /* ✨ เรียกใช้ Service เพื่อดึงข้อมูล */
+    /* เรียกใช้ Service เพื่อดึงข้อมูล */
     const result = await LeaveLetterService.getLeaveLetters(
       user_id,
       page,

@@ -43,12 +43,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ตรวจสอบและเพิ่ม [สรุปด้วย LIGHT AI ✨] ต่อท้าย summary
+    // ตรวจสอบและเพิ่ม [สรุปด้วย LIGHT AI] ต่อท้าย summary
     const ensureAiPrefix = (val: string | null | undefined): string => {
       if (!val) return "";
       const hasAiPrefix =
-        val.includes("AI") || val.includes("✨") || val.includes("🤖");
-      return hasAiPrefix ? val : val + " " + "[สรุปด้วย LIGHT AI ✨]";
+        val.includes("AI") || val.includes("สรุปด้วย LIGHT AI");
+      return hasAiPrefix ? val : val + " " + "[สรุปด้วย LIGHT AI]";
     };
 
     // --- Auto Fill Logic ---

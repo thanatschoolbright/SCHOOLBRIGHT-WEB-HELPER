@@ -5,7 +5,7 @@ import { Service } from "@services/backend/timesheet/sub-project/sub-project.ser
 import { NextRequest, NextResponse } from "next/server";
 import { Schema } from "./route.validator";
 
-/* ✨ บันทึกหรืออัปเดตข้อมูลโครงการย่อย (Feature) พร้อมรายชื่อผู้รับผิดชอบ */
+/* บันทึกหรืออัปเดตข้อมูลโครงการย่อย (Feature) พร้อมรายชื่อผู้รับผิดชอบ */
 export async function POST(request: NextRequest) {
   const { data, error } = await validateRequest(request, Schema);
   if (error) return error;

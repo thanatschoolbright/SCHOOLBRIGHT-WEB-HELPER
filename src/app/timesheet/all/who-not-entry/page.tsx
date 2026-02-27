@@ -2,8 +2,14 @@
 
 //* แสดงรายชื่อทีมที่ยังไม่กรอกหรือกรอก Timesheet ไม่ครบในวันนี้
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
 import PermissionLayout from "@/components/layouts/permission-layout";
+import {
+  ClearOutlined,
+  ClockCircleOutlined,
+  ReloadOutlined,
+  TeamOutlined,
+  WarningOutlined,
+} from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
 import {
@@ -19,13 +25,7 @@ import {
   Typography,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import {
-  ClockCircleOutlined,
-  ClearOutlined,
-  ReloadOutlined,
-  TeamOutlined,
-  WarningOutlined,
-} from "@ant-design/icons";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 type TimesheetGap = {
@@ -72,7 +72,7 @@ const formatNickname = (nickname?: string) =>
   (nickname ? `(${nickname})` : "").trim();
 
 const formatContact = (record: TimesheetGap) =>
-  [record.email, record.tel].filter(Boolean).join(" • ") || "-";
+  [record.email, record.tel].filter(Boolean).join(" * ") || "-";
 
 export default function Page() {
   const [keyword, setKeyword] = useState("");
@@ -83,12 +83,12 @@ export default function Page() {
 
   const loadData = useCallback(async () => {
     const toastId = toast.loading(
-      "กำลังโหลดรายชื่อผู้ที่ยังไม่กรอก Timesheet..."
+      "กำลังโหลดรายชื่อผู้ที่ยังไม่กรอก Timesheet...",
     );
     try {
       setLoading(true);
       const response = await fetch(
-        "/api/v1/timesheet/entry/check/who-not-entry"
+        "/api/v1/timesheet/entry/check/who-not-entry",
       );
       if (!response.ok) {
         throw new Error("ไม่สามารถโหลดข้อมูลได้");
@@ -123,17 +123,17 @@ export default function Page() {
         record.email,
       ]
         .filter(Boolean)
-        .some((value) => String(value).toLowerCase().includes(term))
+        .some((value) => String(value).toLowerCase().includes(term)),
     );
   }, [records, keyword]);
 
   const summary = useMemo(() => {
     const total = records.length;
     const notStarted = records.filter(
-      (item) => item.status === "ไม่ได้กรอกเลย"
+      (item) => item.status === "ไม่ได้กรอกเลย",
     ).length;
     const incomplete = records.filter(
-      (item) => item.status === "กรอกไม่ครบ"
+      (item) => item.status === "กรอกไม่ครบ",
     ).length;
     return { total, notStarted, incomplete };
   }, [records]);
@@ -203,7 +203,7 @@ export default function Page() {
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
         <HeaderBar
-          title="Timesheet • Who Not Entry"
+          title="Timesheet - Who Not Entry"
           subTitle="รายงานผู้ที่ยังไม่ได้บันทึกเวลา"
           icon={<ClockCircleOutlined />}
           color="none"
@@ -234,7 +234,7 @@ export default function Page() {
                 setSending(true);
                 const response = await fetch(
                   "/api/v1/timesheet/entry/condition/find-not-entry-today",
-                  { method: "GET" }
+                  { method: "GET" },
                 );
                 if (!response.ok) {
                   throw new Error("แจ้งเตือน Discord ไม่สำเร็จ");

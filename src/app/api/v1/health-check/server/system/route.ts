@@ -1,30 +1,30 @@
-import { NextRequest, NextResponse } from "next/server";
+import { errorResponse, successResponse } from "@/helpers/api/response";
+import { logger } from "@/helpers/logger";
 import axios from "axios";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
-import { successResponse, errorResponse } from "@/helpers/api/response";
-import { logger } from "@/helpers/logger";
-import { checkLoginService } from "./helper/mobile/login-system/login.service";
-import { checkVerificationService } from "./helper/mobile/user-system/verification.service";
-import { checkServerStatusService } from "./helper/mobile/server-system/server-status.service";
+import { NextRequest, NextResponse } from "next/server";
 import { checkFacialScanService } from "./helper/hardware/facial-scan.service";
-import { checkNotificationService } from "./helper/mobile/notification-system/notification.service";
-import { checkFlagPoleAttendanceService } from "./helper/mobile/attendance-system/attendance-student.service";
-import { checkFlagPoleScanService } from "./helper/mobile/attendance-system/attendance-scan.service";
 import { HealthCheckResult } from "./helper/health-check.type";
-import { checkGetSchoolListService } from "./helper/mobile/school-system/get-school-list.service";
-import { checkProfileService } from "./helper/mobile/user-system/check-profile.service";
-import { checkRefreshTokenService } from "./helper/mobile/login-system/refresh-token.service";
-import { checkEmailVerificationService } from "./helper/mobile/user-system/check-verify-email.service";
-import { checkSystemApiUrlsService } from "./helper/mobile/server-system/api-url-check.service";
-import { checkStudentLeaveTypeService } from "./helper/mobile/leave-system/check-student-leave-type.service";
-import { checkStudentLeaveInfoService } from "./helper/mobile/leave-system/check-student-leave-info.service";
-import { checkProvinceService } from "./helper/mobile/leave-system/check-province.service";
-import { checkDistrictService } from "./helper/mobile/leave-system/check-district.service";
+import { checkFlagPoleScanService } from "./helper/mobile/attendance-system/attendance-scan.service";
+import { checkFlagPoleAttendanceService } from "./helper/mobile/attendance-system/attendance-student.service";
 import { checkAmphurService } from "./helper/mobile/leave-system/check-amphur.service";
-import { checkLeaveUploadService } from "./helper/mobile/leave-system/check-leave-upload.service";
+import { checkDistrictService } from "./helper/mobile/leave-system/check-district.service";
 import { checkFindClassroomService } from "./helper/mobile/leave-system/check-find-classroom.service";
+import { checkLeaveUploadService } from "./helper/mobile/leave-system/check-leave-upload.service";
+import { checkProvinceService } from "./helper/mobile/leave-system/check-province.service";
+import { checkStudentLeaveInfoService } from "./helper/mobile/leave-system/check-student-leave-info.service";
+import { checkStudentLeaveTypeService } from "./helper/mobile/leave-system/check-student-leave-type.service";
 import { checkSubmitLeaveService } from "./helper/mobile/leave-system/check-submit-leave.service";
+import { checkLoginService } from "./helper/mobile/login-system/login.service";
+import { checkRefreshTokenService } from "./helper/mobile/login-system/refresh-token.service";
+import { checkNotificationService } from "./helper/mobile/notification-system/notification.service";
+import { checkGetSchoolListService } from "./helper/mobile/school-system/get-school-list.service";
+import { checkSystemApiUrlsService } from "./helper/mobile/server-system/api-url-check.service";
+import { checkServerStatusService } from "./helper/mobile/server-system/server-status.service";
+import { checkProfileService } from "./helper/mobile/user-system/check-profile.service";
+import { checkEmailVerificationService } from "./helper/mobile/user-system/check-verify-email.service";
+import { checkVerificationService } from "./helper/mobile/user-system/verification.service";
 
 dayjs.locale("th");
 
@@ -41,33 +41,33 @@ const THEMES = {
   HEALTHY: {
     color: 0x2ecc71,
     title: "ระบบทำงานปกติสมบูรณ์",
-    icon: "✅",
+    icon: "",
     image: "https://img2.pic.in.th/pic/Google-Gemini.th.jpg",
   },
   CRITICAL: {
     color: 0xed4245,
     title: "ตรวจพบความผิดปกติของระบบ",
-    icon: "🚨",
+    icon: "",
     image: "https://img5.pic.in.th/file/secure-sv1/Bad_job.md.jpg",
   },
 };
 
 const GROUP_LABELS: Record<string, string> = {
-  "login-system": "🔐 ระบบเข้าสู่ระบบ",
-  "user-system": "👤 ระบบผู้ใช้งาน",
-  "attendance-system": "📅 ระบบการมาเรียน",
-  "leave-system": "✈️ ระบบการลา",
-  "server-system": "🖥️ ระบบเซิร์ฟเวอร์",
-  "school-system": "🏫 ระบบโรงเรียน",
-  "notification-system": "🔔 ระบบแจ้งเตือน",
-  other: "🛠️ ระบบอื่นๆ",
+  "login-system": "ระบบเข้าสู่ระบบ",
+  "user-system": "ระบบผู้ใช้งาน",
+  "attendance-system": "ระบบการมาเรียน",
+  "leave-system": "ระบบการลา",
+  "server-system": "ระบบเซิร์ฟเวอร์",
+  "school-system": "ระบบโรงเรียน",
+  "notification-system": "ระบบแจ้งเตือน",
+  other: "ระบบอื่นๆ",
 };
 
 const getProgressBar = (percentage: number) => {
   const blocks = 10;
   const filled = Math.round((percentage / 100) * blocks);
   const empty = blocks - filled;
-  return `[${"█".repeat(filled)}${"░".repeat(empty)}] ${percentage}%`;
+  return `[${"#".repeat(filled)}${"-".repeat(empty)}] ${percentage}%`;
 };
 
 const analyzeResults = (results: HealthCheckResult[]) => {
@@ -105,19 +105,19 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
 
   const mainEmbed = {
     title: `${theme.icon} ${theme.title}`,
-    description: `> **รายงานสถานะระบบประจำวัน**\n> 📅 วันที่: \`${dayjs().format(
+    description: `> **รายงานสถานะระบบประจำวัน**\n> วันที่: \`${dayjs().format(
       "D MMMM YYYY",
-    )}\`\n> 🕒 เวลา: \`${dayjs().format("HH:mm น.")}\`\n\n${
+    )}\`\n> เวลา: \`${dayjs().format("HH:mm น.")}\`\n\n${
       stats.healthScore === 100
-        ? "🎉 **ยอดเยี่ยม!** ระบบทั้งหมดทำงานได้ตามปกติ"
-        : "⚠️ **แจ้งเตือน!** พบปัญหาในบางระบบ กรุณาตรวจสอบ"
+        ? "**ยอดเยี่ยม!** ระบบทั้งหมดทำงานได้ตามปกติ"
+        : "**แจ้งเตือน!** พบปัญหาในบางระบบ กรุณาตรวจสอบ"
     }`,
     color: theme.color,
     thumbnail: { url: DISCORD_CONFIG.AVATAR_URL },
     image: { url: theme.image },
     fields: [
       {
-        name: "📊 **คะแนนความสมบูรณ์**",
+        name: "**คะแนนความสมบูรณ์**",
         value: `\`\`\`ini\n${getProgressBar(stats.healthScore)}\n\`\`\``,
         inline: false,
       },
@@ -128,8 +128,8 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
         const itemList = data.items
           .map((item) => {
             const statusIcon = ["200", "404"].includes(item.status)
-              ? "✅"
-              : "❌";
+              ? "[PASS]"
+              : "[FAIL]";
             return `${statusIcon} ${item.name_th}`;
           })
           .join("\n");
@@ -160,13 +160,13 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
         );
 
         const fieldDetails = failedItems.map((item) => ({
-          name: `❌ ${item.name_th} (${item.module})`,
+          name: `[FAIL] ${item.name_th} (${item.module})`,
           value: `**สถานะ:** \`${item.status}\`\n**จุดเชื่อมต่อ:** \`${item.service}\`\n**คำสั่งตรวจสอบ:**\n\`\`\`bash\n${item.curl}\n\`\`\``,
           inline: false,
         }));
 
         embeds.push({
-          title: `🚨 รายละเอียดปัญหา: ${groupName}`,
+          title: `[ERROR] รายละเอียดปัญหา: ${groupName}`,
           description: `พบข้อผิดพลาดจำนวน ${data.failed} รายการในกลุ่มนี้`,
           color: 0xed4245,
           fields: fieldDetails,
@@ -175,7 +175,7 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
     });
 
     // Add a summary mention for critical alert
-    const content = `# 🔥 แจ้งเตือนวิกฤต!\nเรียน ${DISCORD_CONFIG.ALERT_USER_ID} พบความผิดปกติของระบบจำนวน ${stats.failed.length} จุด กรุณาตรวจสอบด่วน!`;
+    const content = `# แจ้งเตือนวิกฤต!\nเรียน ${DISCORD_CONFIG.ALERT_USER_ID} พบความผิดปกติของระบบจำนวน ${stats.failed.length} จุด กรุณาตรวจสอบด่วน!`;
     return {
       username: DISCORD_CONFIG.BOT_NAME,
       avatar_url: DISCORD_CONFIG.AVATAR_URL,
@@ -217,7 +217,7 @@ async function executeHealthChecks(): Promise<HealthCheckResult[]> {
     freshToken = loginResult.response.token;
   } else {
     console.warn(
-      "⚠️ Login Service Failed or Token missing. Using fallback/env token if available.",
+      "[WARN] Login Service Failed or Token missing. Using fallback/env token if available.",
     );
   }
 

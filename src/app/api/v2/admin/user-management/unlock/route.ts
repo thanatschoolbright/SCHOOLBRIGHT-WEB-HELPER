@@ -1,6 +1,6 @@
+import { auth } from "@/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { UserManagementService } from "../service/user-management.service";
-import { auth } from "@/auth";
 
 /**
  * @notice API ปลดล็อกผู้ใช้งาน (Reset failed_login_attempts)
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       data: result,
     });
   } catch (error: any) {
-    console.error("❌ [USER_UNLOCK_ERROR]:", error);
+    console.error("[USER_UNLOCK_ERROR]:", error);
     return NextResponse.json(
       {
         status: 500,

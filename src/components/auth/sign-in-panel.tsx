@@ -27,12 +27,9 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
   // ฟังก์ชันดึงข้อมูล rank ของ user (ใช้ service ใหม่)
   const getUserRank = async (userId: string) => {
     try {
-      console.log(`[SignIn] Fetching user rank for ID: ${userId}`);
-
       const rankData = await fetchUserRank(userId);
 
       if (rankData) {
-        console.log(`[SignIn] User rank retrieved:`, rankData);
         return {
           rank: rankData.rank,
           admin_id: rankData.admin_id,
@@ -90,12 +87,6 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
           duration: 3000,
           description: `อันดับของคุณ: ${rankData.rank} (เดือน ${rankData.month}/${rankData.year})`,
         });
-
-        // หมายเหตุ: ยกเลิกการบันทึกใน localStorage ตามนโยบายความปลอดภัย
-        console.log(
-          "User rank retrieved (Not saved to localStorage):",
-          rankData,
-        );
       } else {
         toast.success("เข้าสู่ระบบสำเร็จ", {
           duration: 3000,

@@ -1,4 +1,3 @@
-import { createLogger, logger } from "@/helpers/logger";
 import { CallAPI } from "@/stores/actions/authentication/call-post-refresh-token";
 import { APIMethodProps, API_METHOD } from "@services/api-method";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
@@ -29,7 +28,7 @@ const refreshToken = async () => {
     }
     return null;
   } catch (error) {
-    logger.error("[API-GATEWAY] Error while refreshing token:", error);
+    console.error("[API-GATEWAY] Error while refreshing token:", error);
     return null;
   }
 };

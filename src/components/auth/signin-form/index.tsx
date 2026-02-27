@@ -94,18 +94,10 @@ export default function SignInForm() {
         try {
           toast.loading("กำลังโหลดข้อมูลอันดับ...", { id: tId });
           const adminId = response.data.user_data.admin_id.toString();
-          console.log(`[Login] Fetching rank for admin_id: ${adminId}`);
-          console.log(`[Login] User data:`, response.data.user_data);
 
           const rankData = await fetchUserRank(adminId);
           if (rankData && rankData.rank) {
-            // ไม่ใช้ localStorage เก็บ rank data เพื่อความปลอดภัย
-            console.log(
-              "Rank data loaded (not saved to localStorage):",
-              rankData,
-            );
-          } else {
-            console.warn("No rank data returned from API");
+            // Rank data loaded successfully
           }
         } catch (rankError) {
           console.error("Failed to load rank data:", rankError);

@@ -107,12 +107,12 @@ ${JSON.stringify(details || {}, null, 2)}
       // ** Append original description to protect data as requested by user **
       const markdown = `${fixedMarkdown}\n\n---\n### ข้อความต้นฉบับ (Original Description)\n\`\`\`\n${
         description || "_No original description provided_"
-      }\n\`\`\`\n\n✨ **ข้อความถูกปรับโดยอัตโนมัติ โดย Light AI** *เวอร์ชัน 1.0.2*`;
+      }\n\`\`\`\n\n[INFO] ข้อความถูกปรับโดยอัตโนมัติ โดย Light AI *เวอร์ชัน 1.0.2*`;
 
       /**
        * Reformat Summary if it matches the "Grade (X) ID School : Content" pattern
        * From: "Grade (C+) 961 โรงเรียนพระวิสุทธิวงส์ : แอปพลิเคชันมีการแจ้งเตือนไม่ตรงตามเวลา"
-       * To: "[C+] แอปพลิเคชันมีการแจ้งเตือนไม่ตรงตามเวลา (โรงเรียนพระวิสุทธิวงส์) (961) [สรุปด้วย LIGHT AI ✨]"
+       * To: "[C+] แอปพลิเคชันมีการแจ้งเตือนไม่ตรงตามเวลา (โรงเรียนพระวิสุทธิวงส์) (961) [สรุปด้วย Light AI]"
        */
       const reformatAndTagSummary = (
         val: string | null | undefined,
@@ -133,12 +133,9 @@ ${JSON.stringify(details || {}, null, 2)}
         }
 
         // Ensure AI Tag for Backlog tracking (Consistent with Backlog Service)
-        const hasAiPrefix =
-          finalVal.includes("AI") ||
-          finalVal.includes("✨") ||
-          finalVal.includes("🤖");
+        const hasAiPrefix = finalVal.includes("AI");
 
-        return hasAiPrefix ? finalVal : `${finalVal} [สรุปด้วย LIGHT AI ✨]`;
+        return hasAiPrefix ? finalVal : `${finalVal} [สรุปด้วย Light AI]`;
       };
 
       const taggedSummary = reformatAndTagSummary(summary);

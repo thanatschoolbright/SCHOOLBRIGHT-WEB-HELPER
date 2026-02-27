@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Build params for Backlog API — note: array params must use [] suffix.
+    // Build params for Backlog API - note: array params must use [] suffix.
     const filterParams: Record<string, any> = { apiKey };
 
     // Project filter (Backlog expects projectId[] as array)

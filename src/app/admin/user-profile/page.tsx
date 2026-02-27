@@ -538,9 +538,9 @@ export default function UserManagementPage() {
     setStatusModal({
       open: true,
       type: "confirm",
-      title: "เตรียมส่งออกข้อมูลพนักงาน (Enterprise Excel)",
+      title: "เตรียมส่งออกข้อมูลพนักงานในรูปแบบตาราง",
       message:
-        "ระบบจะรวบรวมข้อมูลพนักงานทั้งหมดที่มีความละเอียดสูง (Data Precision) เพื่อสร้างรายงานสำหรับ IPO Preparation กรุณายืนยันการดำเนินการ",
+        "ระบบจะรวบรวมข้อมูลพนักงานทั้งหมดที่มีความแม่นยำสูงเพื่อใช้ในการจัดเตรียมรายงานความพร้อมบริษัท กรุณายืนยันการดำเนินการ",
       confirmLabel: "เริ่มดาวน์โหลด",
       cancelLabel: "ยกเลิก",
       onConfirm: async () => {
@@ -549,7 +549,7 @@ export default function UserManagementPage() {
           ...prev,
           loading: true,
           message:
-            "กำลังรวบรวมข้อมูลและทำการจัดทำไฟล์รายงาน (High Precision) กรุณารอสักครู่...",
+            "กำลังรวบรวมข้อมูลและจัดเตรียมไฟล์รายงานความละเอียดสูง กรุณารอสักครู่...",
         }));
 
         try {
@@ -584,7 +584,7 @@ export default function UserManagementPage() {
             type: "success",
             title: "ส่งออกรายงานพนักงานสำเร็จ",
             message:
-              "ระบบได้ทำการดาวน์โหลดไฟล์รายงาน (Enterprise Grade) ลงเครื่องคอมพิวเตอร์ของท่านเรียบร้อยแล้ว",
+              "ระบบได้ทำการดาวน์โหลดไฟล์รายงานลงในเครื่องคอมพิวเตอร์ของท่านเรียบร้อยแล้ว",
             onConfirm: () =>
               setStatusModal((prev) => ({ ...prev, open: false })), // Just close it on success
           });
@@ -838,7 +838,7 @@ export default function UserManagementPage() {
         (a.employee_code || "").localeCompare(b.employee_code || ""),
       ...getColumnSearchProps(
         ["employee_code"],
-        "รหัสพนักงาน/ไอดี",
+        "รหัสพนักงานหรือเลขพนักงาน",
         (value, record) =>
           (record.employee_code || "")
             .toLowerCase()
@@ -852,7 +852,7 @@ export default function UserManagementPage() {
           </Tag>
           <Typography.Text type="secondary" style={{ fontSize: 10 }}>
             <LinkOutlined style={{ marginRight: 4 }} />
-            ไอดีระบบ: {r.admin_id || "-"}
+            รหัสอ้างอิง: {r.admin_id || "-"}
           </Typography.Text>
         </Space>
       ),
@@ -863,7 +863,7 @@ export default function UserManagementPage() {
       width: 300,
       ...getColumnSearchProps(
         ["firstname_th"],
-        "ชื่อ/เมล/เบอร์",
+        "ชื่อ อีเมล หรือเบอร์โทรศัพท์",
         (value, record) =>
           (record.firstname_th || "")
             .toLowerCase()
@@ -949,7 +949,7 @@ export default function UserManagementPage() {
         ),
       ...getColumnSearchProps(
         ["position_ref", "name_th"],
-        "ตำแหน่ง/แผนก",
+        "ตำแหน่งหรือแผนก",
         (value, record) =>
           (record.position_ref?.name_th || "")
             .toLowerCase()
@@ -1069,26 +1069,30 @@ export default function UserManagementPage() {
       key: "account_status",
       width: 180,
       sorter: (a, b) => (a.status || "").localeCompare(b.status || ""),
-      ...getColumnSearchProps(["status"], "สถานะ/สิทธิ์", (value, record) => {
-        const isBlocked = (record.failed_login_attempts ?? 0) >= 5;
-        const statusStr = isBlocked
-          ? "โดนระงับ (Locked)"
-          : record.status === "ACTIVE"
-            ? "ออนไลน์ / ปกติ"
-            : "ระงับการใช้งาน";
-        return (
-          statusStr.toLowerCase().includes(value.toLowerCase()) ||
-          (record.role?.role_name || "")
-            .toLowerCase()
-            .includes(value.toLowerCase())
-        );
-      }),
+      ...getColumnSearchProps(
+        ["status"],
+        "สถานะหรือสิทธิ์",
+        (value, record) => {
+          const isBlocked = (record.failed_login_attempts ?? 0) >= 5;
+          const statusStr = isBlocked
+            ? "โดนระงับชั่วคราว"
+            : record.status === "ACTIVE"
+              ? "ออนไลน์และเป็นปกติ"
+              : "ระงับการใช้งาน";
+          return (
+            statusStr.toLowerCase().includes(value.toLowerCase()) ||
+            (record.role?.role_name || "")
+              .toLowerCase()
+              .includes(value.toLowerCase())
+          );
+        },
+      ),
       render: (_, r) => {
         const isBlocked = (r.failed_login_attempts ?? 0) >= 5;
         const statusText = isBlocked
-          ? "โดนระงับ (Locked)"
+          ? "โดนระงับชั่วคราว"
           : r.status === "ACTIVE"
-            ? "ออนไลน์ / ปกติ"
+            ? "ออนไลน์และเป็นปกติ"
             : "ระงับการใช้งาน";
         const statusType = isBlocked
           ? "error"
@@ -1382,9 +1386,9 @@ export default function UserManagementPage() {
                 value={filters.status}
                 onChange={(v) => setFilters((prev) => ({ ...prev, status: v }))}
                 options={[
-                  { label: "ใช้งานอยู่ (Active)", value: "ACTIVE" },
-                  { label: "ระงับการใช้งาน (Inactive)", value: "INACTIVE" },
-                  { label: "โดนระงับ (Locked/Failed Login)", value: "BLOCKED" },
+                  { label: "กำลังใช้งาน", value: "ACTIVE" },
+                  { label: "ระงับการใช้งาน", value: "INACTIVE" },
+                  { label: "บัญชีที่ถูกล็อก", value: "BLOCKED" },
                 ]}
                 style={{ borderRadius: 8 }}
               />
@@ -1611,7 +1615,7 @@ export default function UserManagementPage() {
             type="danger"
             style={{ fontSize: "12px", display: "block" }}
           >
-            *การลบนี้จะเป็นการ Soft Delete ข้อมูลยังคงอยู่ในระบบแต่จะไม่แสดงผล
+            *ข้อมูลพนักงานจะยังคงอยู่ในระบบแต่จะไม่ถูกนำมาแสดงผลเพื่อให้สามารถเรียกดูประวัติย้อนหลังได้
           </Typography.Text>
         </Modal>
 
@@ -1668,10 +1672,10 @@ export default function UserManagementPage() {
                   </Typography.Text>
                   <div className="mt-2 flex gap-2">
                     <Tag color="blue" className="rounded-full">
-                      EMP: {selectedUser.employee_code}
+                      รหัสพนักงาน: {selectedUser.employee_code}
                     </Tag>
                     <Tag color="cyan" className="rounded-full">
-                      ID: {selectedUser.admin_id}
+                      รหัสระบบ: {selectedUser.admin_id}
                     </Tag>
                     <Tag
                       color={
@@ -1680,8 +1684,8 @@ export default function UserManagementPage() {
                       className="rounded-full"
                     >
                       {selectedUser.status === "ACTIVE"
-                        ? "คัดเลือก/ปกติ"
-                        : "ระงับ"}
+                        ? "ออนไลน์และเป็นปกติ"
+                        : "ระงับการใช้งาน"}
                     </Tag>
                   </div>
                 </div>
@@ -1693,7 +1697,7 @@ export default function UserManagementPage() {
                 column={2}
                 className="mb-6"
               >
-                <Descriptions.Item label="ชื่อผู้ใช้งาน (Username)">
+                <Descriptions.Item label="ชื่อผู้ใช้งาน">
                   {selectedUser.username}
                 </Descriptions.Item>
                 <Descriptions.Item label="สิทธิ์การใช้งาน">
@@ -1710,7 +1714,7 @@ export default function UserManagementPage() {
                     ? dayjs(selectedUser.birth_date).format("DD MMMM YYYY")
                     : "-"}
                 </Descriptions.Item>
-                <Descriptions.Item label="Backlog Email">
+                <Descriptions.Item label="อีเมลสำรอง">
                   {(selectedUser as any).backlog_email || "-"}
                 </Descriptions.Item>
               </Descriptions>
@@ -1845,15 +1849,15 @@ export default function UserManagementPage() {
                         }))
                       : [
                           {
-                            label: "Full-time (พนักงานประจำ)",
+                            label: "พนักงานประจำ",
                             value: "FULL_TIME",
                           },
                           {
-                            label: "Part-time (พนักงานชั่วคราว)",
+                            label: "พนักงานชั่วคราว",
                             value: "PART_TIME",
                           },
-                          { label: "Contract (สัญญาจ้าง)", value: "CONTRACT" },
-                          { label: "Intern (ฝึกงาน)", value: "INTERN" },
+                          { label: "สัญญาจ้าง", value: "CONTRACT" },
+                          { label: "นักศึกษาฝึกงาน", value: "INTERN" },
                         ]
               }
               showSearch

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MigrationService } from "../service/migration.service";
 
-/* ✨ จัดการคำขอ GET สำหรับดึงข้อมูลที่เกี่ยวข้องกับการย้าย Timesheet */
+/* จัดการคำขอ GET สำหรับดึงข้อมูลที่เกี่ยวข้องกับการย้าย Timesheet */
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
       data,
     });
   } catch (error: any) {
-    console.error("❌ [MIGRATION_READ_ERROR]:", error);
+    console.error("[MIGRATION_READ_ERROR]:", error);
     return NextResponse.json(
       {
         status_code: 500,

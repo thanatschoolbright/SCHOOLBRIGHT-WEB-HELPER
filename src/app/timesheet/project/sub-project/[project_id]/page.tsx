@@ -161,7 +161,7 @@ export default function SubProjectPage() {
 
       let fetchedSubProjects = subProjectRes.data?.data || [];
 
-      // 🔍 Fetch user details for each assignee
+      // Fetch user details for each assignee
       const allAssigneeIds = Array.from(
         new Set(
           fetchedSubProjects.flatMap(
@@ -170,7 +170,7 @@ export default function SubProjectPage() {
         ),
       ).filter(Boolean);
 
-      // 🔍 Fetch Backlog issue details for ticket numbers
+      // Fetch Backlog issue details for ticket numbers
       const allTicketNumbers = Array.from(
         new Set(
           fetchedSubProjects.map((sp: any) => sp.ticket_number).filter(Boolean),

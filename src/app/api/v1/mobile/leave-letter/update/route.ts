@@ -4,12 +4,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { LeaveLetterService } from "../service/leave-letter.service";
 import { UpdateLeaveStatusSchema } from "../validation/leave-letter.validation";
 
-/* ✨ API สำหรับอัปเดต/แก้ไขสถานะจดหมายลาหยุด (Update/Fix) */
+/* API สำหรับอัปเดต/แก้ไขสถานะจดหมายลาหยุด (Update/Fix) */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const headers = sanitizeForwardHeaders(request);
 
-  // 🛡️ Validate ข้อมูลโครงสร้าง Request Body ก่อนส่งไป Service
+  // ข้อมูลโครงสร้าง Request Body ก่อนส่งไป Service
   const queryParams = {
     letter_id: searchParams.get("letter_id"),
     school_id: searchParams.get("school_id"),
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
   const { letter_id, school_id } = validation.data;
 
   try {
-    /* ✨ เรียกใช้ Service เพื่ออัปเดตสถานะ */
+    /* เรียกใช้ Service เพื่ออัปเดตสถานะ */
     const result = await LeaveLetterService.updateLeaveStatus(
       letter_id,
       school_id,

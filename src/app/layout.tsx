@@ -12,7 +12,7 @@ import { Toaster } from "sonner";
 import "@styles/globals.css";
 
 /**
- * 🖋️ ลงทะเบียน Google Sans Font (Next.js Best Practice)
+ * ลงทะเบียน Google Sans Font (Next.js Best Practice)
  */
 const googleSansFont = localFont({
   src: [
@@ -42,7 +42,7 @@ const googleSansFont = localFont({
 });
 
 /**
- * �️ ลงทะเบียน Sukhumvit Set Font
+ * ลงทะเบียน Sukhumvit Set Font
  */
 const sukhumvitFont = localFont({
   src: [
@@ -82,7 +82,7 @@ const sukhumvitFont = localFont({
 });
 
 /**
- * �📑 Next.js Metadata (Best Practice)
+ * Next.js Metadata (Best Practice)
  */
 export const metadata: Metadata = {
   title: {
@@ -127,7 +127,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * 📱 Viewport Configurations
+ * Viewport Configurations
  */
 export const viewport: Viewport = {
   themeColor: "#F97316",
@@ -139,7 +139,7 @@ export const viewport: Viewport = {
 };
 
 /**
- * 🏗️ RootLayout - โครงสร้างพื้นฐานของระบบ (Next.js App Router)
+ * RootLayout - โครงสร้างพื้นฐานของระบบ (Next.js App Router)
  */
 export default function RootLayout({
   children,
@@ -194,7 +194,7 @@ export default function RootLayout({
             offset={24}
           />
 
-          {/* 🎨 Theme & Multi-Provider Wrapper */}
+          {/* Theme & Multi-Provider Wrapper */}
           <AntThemeProvider>
             <CombinedProviders>{children}</CombinedProviders>
             <ThemeCustomizer />

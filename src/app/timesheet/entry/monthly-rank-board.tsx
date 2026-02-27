@@ -1,26 +1,33 @@
 "use client";
 
+import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import {
+  Button,
   Card,
+  Divider,
+  Empty,
+  Segmented,
   Skeleton,
   Space,
   theme,
-  Typography,
-  Empty,
-  Divider,
-  Button,
-  Segmented,
   Tooltip,
+  Typography,
 } from "antd";
-import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import dayjs, { Dayjs } from "dayjs";
-import buddhistEra from "dayjs/plugin/buddhistEra";
 import "dayjs/locale/th";
+import buddhistEra from "dayjs/plugin/buddhistEra";
 
 dayjs.extend(buddhistEra);
 dayjs.locale("th");
 
-import React, {
+import {
+  CompressOutlined,
+  ExpandAltOutlined,
+  ReloadOutlined,
+  TrophyFilled,
+} from "@ant-design/icons";
+import { AnimatePresence, motion } from "framer-motion";
+import {
   forwardRef,
   useCallback,
   useEffect,
@@ -29,19 +36,10 @@ import React, {
   useState,
 } from "react";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  TrophyFilled,
-  ReloadOutlined,
-  AppstoreOutlined,
-  MenuOutlined,
-  ExpandAltOutlined,
-  CompressOutlined,
-} from "@ant-design/icons";
 
+import { ApiResponse, SummaryMetadata, SummaryRecord } from "@/types/timesheet";
 import { RankBoardHeader } from "@components/timesheet/rank-board-header";
 import { RankCard } from "@components/timesheet/rank-card";
-import { ApiResponse, SummaryMetadata, SummaryRecord } from "@/types/timesheet";
 
 const API_ENDPOINT = "/api/v1/timesheet/entry/check/summary-month";
 const API_FIND_RANK_ENDPOINT = "/api/v1/timesheet/find-ranking";
@@ -74,7 +72,7 @@ const useMonthlyRankData = (adminId?: number) => {
       }
 
       try {
-        // ✅ ใช้ endpoint ใหม่ที่รับ user_id เพื่อลดขนาด response (Optimization)
+        // ใช้ endpoint ใหม่ที่รับ user_id เพื่อลดขนาด response (Optimization)
         const endpoint = adminId ? API_FIND_RANK_ENDPOINT : API_ENDPOINT;
         const payload: any = {
           month: selectedMonth.format("M"),
@@ -150,7 +148,7 @@ export const MonthlyRankBoard = forwardRef<
     setSelectedMonth,
   } = useMonthlyRankData(currentAdminId);
 
-  // ✅ State สำหรับจัดการโหมดการแสดงผล (User Toggle)
+  // State สำหรับจัดการโหมดการแสดงผล (User Toggle)
   const [viewMode, setViewMode] = useState<MonthlyRankVariant>(variant);
 
   useImperativeHandle(ref, () => ({
@@ -180,7 +178,7 @@ export const MonthlyRankBoard = forwardRef<
     ? dayjs(metadata.generated_at).format("D MMM BBBB HH:mm")
     : null;
 
-  // ✅ ใช้ viewMode จาก State แทน Prop ตรงๆ
+  // ใช้ viewMode จาก State แทน Prop ตรงๆ
   const isCompact = viewMode === "compact";
 
   const containerVariants = {
@@ -202,7 +200,7 @@ export const MonthlyRankBoard = forwardRef<
         borderRadius: 24,
         boxShadow: "0 10px 40px -10px rgba(0,0,0,0.08)",
         background: `linear-gradient(145deg, ${token.colorBgContainer} 0%, ${token.colorFillQuaternary} 100%)`,
-        // ✅ ปรับความกว้างตามโหมด
+        // ปรับความกว้างตามโหมด
         maxWidth: isCompact ? 380 : "100%",
         minWidth: isCompact ? 300 : undefined,
         width: "100%",
@@ -274,7 +272,7 @@ export const MonthlyRankBoard = forwardRef<
             </Typography.Text>
           </div>
 
-          {/* ✅ Control Area (View Toggle + Refresh) */}
+          {/* Control Area (View Toggle + Refresh) */}
           <Space>
             <Tooltip title="ปรับมุมมอง">
               <Segmented

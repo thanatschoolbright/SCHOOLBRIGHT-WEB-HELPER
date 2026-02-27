@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (error: any) {
-    console.error("❌ [API_MIGRATION_GET_ERROR]:", error);
+    console.error("[API_MIGRATION_GET_ERROR]:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -150,7 +150,7 @@ export async function POST(req: NextRequest) {
       count: result.count,
     });
   } catch (error: any) {
-    console.error("❌ [API_MIGRATION_POST_ERROR]:", error);
+    console.error("[API_MIGRATION_POST_ERROR]:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

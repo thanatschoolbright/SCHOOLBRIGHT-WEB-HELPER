@@ -5,9 +5,9 @@ import https from "https";
 
 const agent = new https.Agent({ rejectUnauthorized: false });
 
-/* ✨ Service สำหรับจัดการข้อมูลจดหมายลาหยุด (Leave Letter) */
+/* Service สำหรับจัดการข้อมูลจดหมายลาหยุด (Leave Letter) */
 export class LeaveLetterService {
-  /* ✨ ดึงข้อมูลจดหมายลาหยุดจากระบบหลัก */
+  /* ดึงข้อมูลจดหมายลาหยุดจากระบบหลัก */
   static async getLeaveLetters(user_id: string, page: string, headers: any) {
     const apiUrl = `${API_URL.DEV_SB_API_URL}`;
     const endpoint = `/api/v2/internal/leave-letter?userId=${user_id}&page=${page}`;
@@ -34,7 +34,7 @@ export class LeaveLetterService {
     }
   }
 
-  /* ✨ อัปเดต/แก้ไขสถานะจดหมายลาหยุด */
+  /* อัปเดต/แก้ไขสถานะจดหมายลาหยุด */
   static async updateLeaveStatus(
     letter_id: string,
     school_id: string,

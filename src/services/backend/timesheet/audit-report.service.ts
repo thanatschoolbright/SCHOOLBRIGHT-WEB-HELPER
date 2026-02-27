@@ -1,4 +1,3 @@
-import { logger } from "@/helpers/logger";
 import { PrismaTimesheet as prisma } from "@/helpers/prisma-timesheet";
 import { formatFullProjectCode } from "@/helpers/project/convert-code.helper";
 import dayjs from "dayjs";
@@ -611,7 +610,7 @@ export const TimesheetAuditReportService = {
       const buffer = await workbook.xlsx.writeBuffer();
       return Buffer.from(buffer);
     } catch (error: any) {
-      logger.error("Error generating audit report:", error);
+      console.error("Error generating audit report:", error);
       throw new Error(`ไม่สามารถสร้างรายงานได้: ${error.message}`);
     }
   },
