@@ -1,5 +1,4 @@
 import { errorResponse, successResponse } from "@/helpers/api/response";
-import { logger } from "@/helpers/logger";
 import axios from "axios";
 import dayjs from "dayjs";
 import "dayjs/locale/th";

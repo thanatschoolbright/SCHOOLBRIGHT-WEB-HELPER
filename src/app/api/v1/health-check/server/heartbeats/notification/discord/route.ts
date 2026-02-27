@@ -187,7 +187,7 @@ async function sendDiscordNotification(embeds: any[], hasErrors: boolean) {
       { headers: { "Content-Type": "application/json" } },
     );
   } catch (error: any) {
-    logger.error("Discord Webhook Failed", error?.message);
+    console.error("Discord Webhook Failed", error?.message);
   }
 }
 
@@ -211,7 +211,7 @@ export async function GET(request: NextRequest) {
       successResponse({ data: heartbeats, status: 200 }),
     );
   } catch (error: any) {
-    logger.error("Health Check Failed", error.message);
+    console.error("Health Check Failed", error.message);
     return NextResponse.json(
       errorResponse({
         message_en: "Internal Server Error",

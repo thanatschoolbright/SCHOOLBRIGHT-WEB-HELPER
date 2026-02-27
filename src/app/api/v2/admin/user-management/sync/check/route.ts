@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { errorResponse, successResponse } from "@/helpers/api/response";
 import { LegacyUserService } from "@services/backend/user-management/legacy-user.service";
+import { NextRequest, NextResponse } from "next/server";
 import { UserManagementService } from "../../service/user-management.service";
-import { successResponse, errorResponse } from "@/helpers/api/response";
 
 export async function GET(request: NextRequest) {
   try {

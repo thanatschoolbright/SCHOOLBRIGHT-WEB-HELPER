@@ -47,17 +47,11 @@ export async function POST(request: NextRequest) {
   const fullURL = `${endpoint}`;
 
   try {
-    const body: PaymentSlipRequest = await request.json();
-    console.log("Request URL:", fullURL);
-    console.log("Request Body:", body);
-    console.log("Request Headers:", headers);
+    const body: PaymentSlipRequest = payload;
     const response = await axios.post<PaymentSlipResponse[]>(fullURL, body, {
       headers: { "Content-Type": "application/json", ...headers },
       timeout: 10000,
     });
-    console.log("");
-
-    console.log("Payment Slip Response:", response.data);
 
     return NextResponse.json(
       successResponse({
