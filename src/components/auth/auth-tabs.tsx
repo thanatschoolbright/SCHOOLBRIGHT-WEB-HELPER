@@ -1,4 +1,4 @@
-// ✅ 2. components/auth/auth-tabs.tsx
+// 2. components/auth/auth-tabs.tsx
 "use client";
 
 interface Props {

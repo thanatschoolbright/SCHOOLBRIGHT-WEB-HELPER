@@ -23,8 +23,8 @@ interface LanguageSwitcherProps {
  * ตัวเลือกภาษาที่รองรับ
  */
 const LANGUAGE_OPTIONS: LanguageOption[] = [
-    {label: "English", value: "en", flag: "🇺🇸"},
-    {label: "ไทย", value: "th", flag: "🇹🇭"},
+    {label: "English", value: "en", flag: ""},
+    {label: "ไทย", value: "th", flag: ""},
 ];
 
 /**

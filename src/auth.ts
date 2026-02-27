@@ -16,7 +16,7 @@ export const {
       async authorize(credentials) {
         try {
           if (!credentials?.username || !credentials?.password) {
-            console.error("❌ [AUTH_ERROR] Missing credentials");
+            console.error("[AUTH_ERROR] Missing credentials");
             throw new Error("MISSING_CREDENTIALS");
           }
 
@@ -51,13 +51,13 @@ export const {
 
           if (!databaseUser) {
             console.warn(
-              `❌ [AUTH_ERROR] User not found in database: ${username}`,
+              `[AUTH_ERROR] User not found in database: ${username}`,
             );
             throw new Error(`USER_NOT_FOUND: ${username}`);
           }
 
           console.log(
-            `✅ [AUTH] User found: ${databaseUser.username} (ID: ${databaseUser.id})`,
+            `[AUTH] User found: ${databaseUser.username} (ID: ${databaseUser.id})`,
           );
 
           // 2. Check if locked out (IPO Standard - with 15 min Auto-Unlock)
@@ -66,7 +66,7 @@ export const {
 
           if (databaseUser.status !== "ACTIVE") {
             console.warn(
-              `🛑 [AUTH_ERROR] Account status is ${databaseUser.status}: ${databaseUser.username}`,
+              `[AUTH_ERROR] Account status is ${databaseUser.status}: ${databaseUser.username}`,
             );
             throw new Error("ACCOUNT_LOCKED_OR_INACTIVE");
           }
@@ -79,7 +79,7 @@ export const {
 
             if (diffInMinutes < LOCKOUT_MINUTES) {
               console.warn(
-                `🛑 [AUTH_ERROR] Max login attempts (${MAX_FAILED_ATTEMPTS}) exceeded for: ${databaseUser.username}. Try again in ${Math.ceil(
+                `[AUTH_ERROR] Max login attempts (${MAX_FAILED_ATTEMPTS}) exceeded for: ${databaseUser.username}. Try again in ${Math.ceil(
                   LOCKOUT_MINUTES - diffInMinutes,
                 )} minutes.`,
               );
@@ -109,7 +109,7 @@ export const {
             console.log(`[AUTH] Attempting plain text fallback...`);
             if (password === databaseUser.password) {
               console.warn(
-                `⚠️ [AUTH] Login success using PLAIN TEXT password for user: ${databaseUser.username}. Please update to hashed password!`,
+                `[AUTH] Login success using PLAIN TEXT password for user: ${databaseUser.username}. Please update to hashed password!`,
               );
               finalPasswordStatus = true;
             }
@@ -117,7 +117,7 @@ export const {
 
           if (!finalPasswordStatus) {
             console.warn(
-              `❌ [AUTH_ERROR] Invalid password for user: ${databaseUser.username}`,
+              `[AUTH_ERROR] Invalid password for user: ${databaseUser.username}`,
             );
 
             // Increment failed attempts
@@ -132,7 +132,7 @@ export const {
             throw new Error("INVALID_PASSWORD");
           }
 
-          console.log(`🎉 [AUTH] Login successful: ${databaseUser.username}`);
+          console.log(`[AUTH] Login successful: ${databaseUser.username}`);
 
           // 4. Success - Reset failed attempts & Update last_login
           await PrismaTimesheet.user.update({
@@ -184,7 +184,7 @@ export const {
           };
         } catch (error: any) {
           console.error(
-            "🚨 [AUTH_FATAL_ERROR] Authorization exception:",
+            "[AUTH_FATAL_ERROR] Authorization exception:",
             error.message || error,
           );
           // Re-throw to make sure NextAuth handles it or pass a clear message
@@ -204,7 +204,7 @@ export const {
         // Allows callback URLs on the same origin
         if (urlObj.origin === baseUrl) return url;
 
-        // ✅ [Fix] ป้องกันการเด้งไป localhost:3000 บน Production
+        // [Fix] ป้องกันการเด้งไป localhost:3000 บน Production
         // หาก url ที่ส่งมาเป็น absolute URL และไม่ใช่ localhost ในขณะที่ baseUrl (ที่ NextAuth เดา) เป็น localhost
         // ให้ใช้ url นั้นได้เลย (ซึ่งมักจะเป็น Origin จริงของ Production ที่ส่งมาจาก Client)
         if (!url.includes("localhost") && baseUrl.includes("localhost")) {
@@ -218,7 +218,7 @@ export const {
     },
     async jwt({ token, user }) {
       if (user) {
-        console.log("🎟️ [AUTH] Creating JWT for user:", user.id);
+        console.log("[AUTH] Creating JWT for user:", user.id);
         const authenticatedUser = user as any;
         token.id = authenticatedUser.id;
         token.admin_id = authenticatedUser.admin_id;
@@ -255,7 +255,7 @@ export const {
     },
     async session({ session, token }) {
       if (token && session.user) {
-        console.log("🌙 [AUTH] Creating Session for token ID:", token.id);
+        console.log("[AUTH] Creating Session for token ID:", token.id);
         const sessionUser = session.user as any;
         sessionUser.id = token.id;
         sessionUser.admin_id = token.admin_id;

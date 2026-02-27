@@ -87,7 +87,7 @@ const Logger: BeautifulLog = function (...args: any[]): void {
 
     logger(`${logColor}${"=".repeat(40)}${resetColor}`);
   } catch (error) {
-    console.error("❌ Error in beautifulLog:", error);
+    console.error("Error in beautifulLog:", error);
     logger(`${logColor}${String(data)}${resetColor}`);
   }
 } as BeautifulLog;

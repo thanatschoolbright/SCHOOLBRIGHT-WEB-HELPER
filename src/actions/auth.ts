@@ -6,7 +6,7 @@ import { AuthError } from "next-auth";
 
 export async function loginAction(values: any) {
   try {
-    // 💡 ปิดการใช้ redirectTo เพื่อให้เราสามารถจัดการการตอบกลับได้เอง
+    // ปิดการใช้ redirectTo เพื่อให้เราสามารถจัดการการตอบกลับได้เอง
     // และลดโอกาสที่ Next.js จะพลาดการเซ็ต Cookie ในบางสถาปัตยกรรม
     await nextAuthSignIn("credentials", {
       username: values.username,
@@ -15,7 +15,7 @@ export async function loginAction(values: any) {
     });
     return { success: true };
   } catch (error: any) {
-    // ✅ ถ้าเป็น Error เรื่อง Redirect (ซึ่งหมายถึง Login สำเร็จ) ให้โยนออกไปเลยไม่ต้องจับ
+    // ถ้าเป็น Error เรื่อง Redirect (ซึ่งหมายถึง Login สำเร็จ) ให้โยนออกไปเลยไม่ต้องจับ
     if (
       error?.message === "NEXT_REDIRECT" ||
       error?.digest?.includes("NEXT_REDIRECT")
@@ -23,7 +23,7 @@ export async function loginAction(values: any) {
       throw error;
     }
 
-    console.error("❌ [LoginAction] Authentication error:", error);
+    console.error("[LoginAction] Authentication error:", error);
 
     if (error instanceof AuthError) {
       // Auth.js v5 wraps custom errors from authorize in the 'cause' or provides them in the message
@@ -68,7 +68,7 @@ export async function forgotPasswordAction(email: string) {
     const result = await UserManagementService.forgotPasswordByEmail(email);
     return { success: true, data: result };
   } catch (error: any) {
-    console.error("❌ [forgotPasswordAction] Error:", error);
+    console.error("[forgotPasswordAction] Error:", error);
     return {
       success: false,
       error: error.message || "เกิดข้อผิดพลาดในการกู้คืนรหัสผ่าน",

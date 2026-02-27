@@ -1,9 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import {callApiService as axios} from "@services/axios-instance/sb-helper.axios";
-import { APIMethodProps, API_METHOD } from "@services/api-method";
-import { store } from "@stores/store"; // assuming you have access to the redux store
+import { createLogger, logger } from "@/helpers/logger";
 import { CallAPI } from "@/stores/actions/authentication/call-post-refresh-token";
-import { logger, createLogger } from '@/helpers/logger';
+import { APIMethodProps, API_METHOD } from "@services/api-method";
+import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
+import { store } from "@stores/store"; // assuming you have access to the redux store
 
 export interface CallBackendAPIProps {
   method: APIMethodProps;
@@ -22,7 +21,7 @@ const refreshToken = async () => {
   try {
     const payload = await store
       .dispatch(CallAPI({ school_id, user_id, token }))
-      .unwrap(); // ✅ รอผลลัพธ์จริง
+      .unwrap(); // รอผลลัพธ์จริง
 
     if (payload?.data?.token) {
       newToken = payload.data.token;
@@ -30,7 +29,7 @@ const refreshToken = async () => {
     }
     return null;
   } catch (error) {
-    logger.error("❌ [API-GATEWAY] Error while refreshing token:", error);
+    logger.error("[API-GATEWAY] Error while refreshing token:", error);
     return null;
   }
 };
@@ -49,8 +48,11 @@ export const callBackendAPI = async ({
     extendHeader,
     backendUrl,
   };
-  const lg = createLogger({ module: 'api-gateway' });
-  lg.info("🌐 [API-GATEWAY] Sending request:", JSON.stringify(defaultRequest, null, 2));
+  const lg = createLogger({ module: "api-gateway" });
+  lg.info(
+    "[API-GATEWAY] Sending request:",
+    JSON.stringify(defaultRequest, null, 2),
+  );
   const url = `${backendUrl}${
     endpoint.startsWith("/") ? endpoint : `/${endpoint}`
   }`;
@@ -86,7 +88,7 @@ export const callBackendAPI = async ({
 
     return response.data;
   } catch (error: any) {
-    // ✅ ถ้าเจอ 401 ค่อยเรียก refreshToken และ retry ใหม่
+    // ถ้าเจอ 401 ค่อยเรียก refreshToken และ retry ใหม่
     if (error.response?.status === 401) {
       await refreshToken();
 
@@ -97,9 +99,12 @@ export const callBackendAPI = async ({
         "Content-Type": "application/json",
       };
 
-      lg.info("🔁 [API-GATEWAY] Retrying request with new token headers:", JSON.stringify(retryHeaders));
+      lg.info(
+        "[API-GATEWAY] Retrying request with new token headers:",
+        JSON.stringify(retryHeaders),
+      );
 
-      // 🔁 ลองเรียก API ใหม่อีกรอบ
+      // ลองเรียก API ใหม่อีกรอบ
       const retryConfig = { headers: retryHeaders };
       let retryResponse;
       switch (method) {
@@ -116,12 +121,15 @@ export const callBackendAPI = async ({
           retryResponse = await axios.delete(url, retryConfig);
           break;
       }
-      lg.info("✅ [API-GATEWAY] Retry success. Response data:", JSON.stringify(retryResponse?.data));
+      lg.info(
+        "[API-GATEWAY] Retry success. Response data:",
+        JSON.stringify(retryResponse?.data),
+      );
       return retryResponse?.data;
     }
 
     throw new Error(error.message);
   } finally {
-    lg.info("📦 [API-GATEWAY] API call completed.");
+    lg.info("[API-GATEWAY] API call completed.");
   }
 };

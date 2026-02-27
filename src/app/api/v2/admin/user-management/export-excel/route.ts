@@ -10,14 +10,13 @@ import { UserManagementService } from "../service/user-management.service";
  */
 export async function GET(req: NextRequest) {
   try {
-    // ✨ เรียกใช้ Service เพื่อสร้าง Buffer ของ Excel ที่ตกแต่งแล้ว (Modular Style)
+    // เรียกใช้ Service เพื่อสร้าง Buffer ของ Excel ที่ตกแต่งแล้ว (Modular Style)
     const buffer = await UserManagementService.generateExportExcel();
 
-    // เตรียมชื่อไฟล์ (พุทธศักราช)
+    // เตรียมชื่อไฟล์ (Standard Format)
     const now = dayjs();
-    const thaiYear = now.year() + 543;
-    const formattedDate = `${now.format("DD-MM")}-${thaiYear}`;
-    const filename = `รายงานพนักงานบริษัทจับจ่ายคอร์เปอเรชัน_จำกัด_${formattedDate}.xlsx`;
+    const formattedDateForFile = now.format("DD-MM-YYYY");
+    const filename = `รายงานพนักงานบริษัทจับจ่ายคอร์เปอเรชัน_จำกัด_${formattedDateForFile}.xlsx`;
 
     // ส่ง Response กลับในรูปแบบ Binary File
     return new NextResponse(buffer, {
@@ -28,7 +27,7 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (err: any) {
-    console.error("❌ [ExportExcel] Error:", err);
+    console.error("[ExportExcel] Error:", err);
     return NextResponse.json(
       {
         status_code: 500,

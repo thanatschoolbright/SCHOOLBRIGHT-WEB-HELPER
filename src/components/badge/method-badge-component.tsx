@@ -19,13 +19,13 @@ interface MethodConfig {
  * แมป HTTP Methods เป็นสีและ emoji ที่เหมาะสม
  */
 const METHOD_MAP: Record<string, MethodConfig> = {
-    GET: {color: "success", emoji: "📥"},
-    POST: {color: "processing", emoji: "📤"},
-    PUT: {color: "warning", emoji: "✏️"},
-    DELETE: {color: "error", emoji: "🗑️"},
-    PATCH: {color: "orange", emoji: "🔧"},
-    OPTIONS: {color: "default", emoji: "⚙️"},
-    HEAD: {color: "purple", emoji: "📋"},
+    GET: {color: "success", emoji: ""},
+    POST: {color: "processing", emoji: ""},
+    PUT: {color: "warning", emoji: ""},
+    DELETE: {color: "error", emoji: ""},
+    PATCH: {color: "orange", emoji: ""},
+    OPTIONS: {color: "default", emoji: ""},
+    HEAD: {color: "purple", emoji: ""},
 };
 
 /**
@@ -38,7 +38,7 @@ export const MethodBadge: React.FC<MethodBadgeProps> = ({
                                                         }) => {
     //** แสดง Loading state */
     if (loading) {
-        return <Tag color="processing">⏳ Loading...</Tag>;
+        return <Tag color="processing">Loading...</Tag>;
     }
 
     const upperMethod = method.toUpperCase();

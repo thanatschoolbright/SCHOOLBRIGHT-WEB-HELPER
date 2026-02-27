@@ -1,5 +1,5 @@
 "use client";
-//** แผงเชื่อมต่อ Backlog (Minimal) — กรอก Space และกด Connect/Refresh
+//** แผงเชื่อมต่อ Backlog (Minimal) - กรอก Space และกด Connect/Refresh
 import React from "react";
 import { Card, Space, Typography, Input, Button } from "antd";
 

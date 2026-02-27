@@ -27,7 +27,7 @@ export default function MainHeader(): JSX.Element {
         transition: "all 0.3s ease",
       }}
     >
-      {/* 🔹 Right: User Profile Section */}
+      {/* Right: User Profile Section */}
       <Flex align="center">
         <UserDropdown />
       </Flex>

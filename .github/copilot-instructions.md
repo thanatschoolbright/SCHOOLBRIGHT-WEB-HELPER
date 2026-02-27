@@ -14,7 +14,7 @@
 ### 🚀 **Standard & Best Practices**
 
 - ให้ความสำคัญกับการทำตามมาตรฐานจาก [Vercel Next.js Skills](https://github.com/vercel-labs/next-skills)
-- อ้างอิง **Next.js Agent Skills** ที่ติดตั้งอยู่ (เช่น `accelint-nextjs-best-practices` และ `vercel-react-best-practices`) เพื่อเพิ่มประสิทธิภาพ (Optimization) และการทำ Data Fetching ให้ได้ตรงตาม Best Practices ของ Next.js และ React
+- อ้างอิง **Next.js Agent Skills** ที่ติดตั้งอยู่ เพื่อเพิ่มประสิทธิภาพ (Optimization) และการทำ Data Fetching ให้ได้ตรงตาม Best Practices ของ Next.js และ React
 
 ---
 
@@ -40,6 +40,8 @@
 6. **Notification:** ใช้ `toast` จาก `sonner` เท่านั้น แจ้งเตือนสถานะการทำงานให้ชัดเจน
 
 **[มาตรฐานการพัฒนา]**
+[STRICT] ห้ามใช้ EMOJI ใน Code โดยเด็ดขาด (ทั้งใน Comment, String หรือ UI)
+[STRICT] ภาษาใน UI: การตั้งชื่อ Title, Button, หรือข้อความแจ้งเตือน ต้องเป็นภาษาไทย 100% เท่านั้น ห้ามเขียนไทยคำอังกฤษคำ (เช่น ห้ามใช้ "เตรียมส่งออกข้อมูล (Excel)" ให้ใช้ "เตรียมส่งออกข้อมูล" หรือ "เตรียมส่งออกข้อมูลรูปแบบตาราง")
 
 - **สำคัญ:** ห้ามลบฟังก์ชันเดิมที่มีอยู่แล้วเด็ดขาด
 - **API:** ใช้ Axios เท่านั้น

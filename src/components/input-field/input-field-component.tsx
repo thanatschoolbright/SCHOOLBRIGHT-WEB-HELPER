@@ -8,7 +8,7 @@ interface InputFieldComponentProps
   label?: string;
   /** ข้อความ error */
   error?: string;
-  /** hint ด้านล่าง (เช่น ลิงก์ “Forgot?”) */
+  /** hint ด้านล่าง (เช่น ลิงก์ "Forgot?") */
   hint?: ReactNode;
   /** icon ด้านซ้าย กำหนดเองได้ หรือไม่ต้องใส่ก็ได้ */
   icon?: ReactNode;

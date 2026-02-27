@@ -25,7 +25,7 @@ export default function ProjectsTable({
                                       }: Props) {
     const {token} = theme.useToken();
 
-    //** 📋 กำหนดคอลัมน์ของตาราง
+    //** กำหนดคอลัมน์ของตาราง
     const columns: ColumnsType<BacklogProject> = [
         {
             title: "คีย์โปรเจ็กต์",

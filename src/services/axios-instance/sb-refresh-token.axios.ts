@@ -14,7 +14,7 @@ export const API_CLIENT_WITH_REFRESH_TOKEN = async () => {
 
   return axios.create({
     httpsAgent: new https.Agent({
-      rejectUnauthorized: false, // ⚠️ Development only
+      rejectUnauthorized: false, // Development only
     }),
     headers: {
       "Content-Type": "application/json",

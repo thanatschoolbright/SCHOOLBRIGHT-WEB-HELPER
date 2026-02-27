@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 interface ModalComponentProps {
   isOpen: boolean;
   onClose: () => void;
-  onCancel?: () => void; // ✅ เพิ่ม onCancel
+  onCancel?: () => void; // เพิ่ม onCancel
   title?: string;
   children: ReactNode;
   size?: "sm" | "md" | "lg";
@@ -15,7 +15,7 @@ interface ModalComponentProps {
 export default function ModalComponent({
   isOpen,
   onClose,
-  onCancel, // ✅ destructure onCancel
+  onCancel, // destructure onCancel
   title,
   children,
   size = "md",
@@ -24,7 +24,7 @@ export default function ModalComponent({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* 🟤 Background overlay */}
+          {/* Background overlay */}
           <motion.div
             className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40"
             onClick={onClose}
@@ -33,7 +33,7 @@ export default function ModalComponent({
             exit={{ opacity: 0 }}
           />
 
-          {/* ⚪ Modal */}
+          {/* Modal */}
           <motion.div
             className="fixed inset-0 z-50 flex items-center justify-center px-4"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -47,20 +47,20 @@ export default function ModalComponent({
             }}
           >
             <div className=" dark:bg-gray-800 rounded-xl shadow-2xl max-w-4xl w-full overflow-hidden">
-              {/* 🔵 Header */}
+              {/* Header */}
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                 <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
                   {title}
                 </h2>
                 <button
-                  onClick={onCancel ?? onClose} // ✅ ใช้ onCancel ถ้ามี
+                  onClick={onCancel ?? onClose} // ใช้ onCancel ถ้ามี
                   className="text-gray-500 hover:text-gray-800 dark:hover:text-white transition"
                 >
-                  ✕
+                  X
                 </button>
               </div>
 
-              {/* 🟢 Content */}
+              {/* Content */}
               <div className="p-6">{children}</div>
             </div>
           </motion.div>

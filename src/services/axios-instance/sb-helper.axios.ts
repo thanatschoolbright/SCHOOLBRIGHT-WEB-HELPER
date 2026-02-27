@@ -2,7 +2,7 @@ import axios from "axios";
 import { logger } from "@/helpers/logger";
 
 /* ============================================================
-   🎨 Color Setup สำหรับ Console
+   Color Setup สำหรับ Console
    ============================================================ */
 const COLORS = {
   red: "\x1b[31m",
@@ -13,7 +13,7 @@ const COLORS = {
 };
 
 /* ============================================================
-   🧩 Helper Functions
+   Helper Functions
    ============================================================ */
 const truncate = (text: string, max = 500) =>
   text.length > max ? text.slice(0, max) + "...see more" : text;
@@ -94,7 +94,7 @@ function logRequest({
   error?: any;
 }) {
   const logObject = {
-    title: "📡 API Request Log (Axios)",
+    title: "API Request Log (Axios)",
     url: config.url,
     method: config.method?.toUpperCase(),
     status: status,
@@ -188,14 +188,14 @@ async function saveApiLog(
       .then(async (response) => {
         if (!response.ok) {
           const errorData = await response.text();
-          // logger.error("❌ API Log creation failed - HTTP error:", response.status, errorData);
+          // logger.error("API Log creation failed - HTTP error:", response.status, errorData);
         }
       })
       .catch((logError) => {
-        // logger.error("❌ API Log creation failed in axios:", logError);
+        // logger.error("API Log creation failed in axios:", logError);
       });
   } catch (logError) {
-    // logger.error("❌ Error in saveApiLog:", logError);
+    // logger.error("Error in saveApiLog:", logError);
   }
 }
 

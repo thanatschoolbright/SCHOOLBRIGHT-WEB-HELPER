@@ -46,13 +46,13 @@ export const Service = {
           project: {
             select: {
               id: true,
-              name: true, // ✅ จะได้ project_name กลับมาด้วย
+              name: true, // จะได้ project_name กลับมาด้วย
             },
           },
           feature: {
             select: {
               id: true,
-              name: true, // ✅ จะได้ feature_name กลับมาด้วย
+              name: true, // จะได้ feature_name กลับมาด้วย
             },
           },
         },

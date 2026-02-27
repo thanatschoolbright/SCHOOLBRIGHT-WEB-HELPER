@@ -90,7 +90,7 @@ export default function MilestoneCard({
           {milestone.description || "-"}
         </Typography.Paragraph>
         <Typography.Text style={{ color: colorTextSecondary }}>
-          เริ่ม: {formatDate(milestone.startDate)} • กำหนดส่ง:{" "}
+          เริ่ม: {formatDate(milestone.startDate)} - กำหนดส่ง:{" "}
           {formatDate(milestone.releaseDueDate)}
         </Typography.Text>
       </Space>

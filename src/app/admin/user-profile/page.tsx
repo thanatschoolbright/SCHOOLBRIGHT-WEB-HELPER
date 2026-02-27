@@ -155,11 +155,11 @@ const ResetPasswordTrackingModal = ({
   ];
 
   const statusMessages = [
-    `📦 กำลังรวบรวมข้อมูลพนักงาน ${users?.length || 0} ท่าน และเตรียมข้อมูล...`,
-    "🔍 ตรวจสอบเบอร์โทรศัพท์และความถูกต้องของข้อมูลสิทธิ์...",
-    "🔐 กำลังทยอยอัปเดตรหัสผ่านใหม่เป็น 'เบอร์มือถือ' ลงในฐานข้อมูล...",
-    "🚀 กำลังนำส่งอีเมลแจ้งเตือนรหัสผ่านใหม่ไปยังพนักงานทุกคน...",
-    "🏆 ภารกิจเสร็จสิ้น! ทุกบัญชีถูกรีเซ็ตเป็นเบอร์มือถือเรียบร้อยแล้ว",
+    `กำลังรวบรวมข้อมูลพนักงาน ${users?.length || 0} ท่าน และเตรียมข้อมูล...`,
+    "ตรวจสอบเบอร์โทรศัพท์และความถูกต้องของข้อมูลสิทธิ์...",
+    "กำลังทยอยอัปเดตรหัสผ่านใหม่เป็น 'เบอร์มือถือ' ลงในฐานข้อมูล...",
+    "กำลังนำส่งอีเมลแจ้งเตือนรหัสผ่านใหม่ไปยังพนักงานทุกคน...",
+    "ภารกิจเสร็จสิ้น! ทุกบัญชีถูกรีเซ็ตเป็นเบอร์มือถือเรียบร้อยแล้ว",
   ];
 
   useEffect(() => {
@@ -371,10 +371,14 @@ export default function UserManagementPage() {
     type: "success" | "error" | "confirm" | "delete";
     title?: string;
     message?: string;
+    loading?: boolean;
+    confirmLabel?: string;
+    cancelLabel?: string;
     onConfirm?: () => void;
   }>({
     open: false,
     type: "success",
+    loading: false,
   });
 
   // Tracking Modal State
@@ -531,41 +535,77 @@ export default function UserManagementPage() {
   };
 
   const requestExportUserExcelReport = async () => {
-    setExportLoading(true);
-    const id = toast.loading("กำลังเตรียมข้อมูลรายงาน Excel สำหรับ IPO...");
-    try {
-      const res = await axios.get(
-        "/api/v2/admin/user-management/export-excel",
-        {
-          responseType: "blob",
-        },
-      );
+    setStatusModal({
+      open: true,
+      type: "confirm",
+      title: "เตรียมส่งออกข้อมูลพนักงาน (Enterprise Excel)",
+      message:
+        "ระบบจะรวบรวมข้อมูลพนักงานทั้งหมดที่มีความละเอียดสูง (Data Precision) เพื่อสร้างรายงานสำหรับ IPO Preparation กรุณายืนยันการดำเนินการ",
+      confirmLabel: "เริ่มดาวน์โหลด",
+      cancelLabel: "ยกเลิก",
+      onConfirm: async () => {
+        setExportLoading(true);
+        setStatusModal((prev) => ({
+          ...prev,
+          loading: true,
+          message:
+            "กำลังรวบรวมข้อมูลและทำการจัดทำไฟล์รายงาน (High Precision) กรุณารอสักครู่...",
+        }));
 
-      const blob = new Blob([res.data], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
+        try {
+          const res = await axios.get(
+            "/api/v2/admin/user-management/export-excel",
+            {
+              responseType: "blob",
+            },
+          );
 
-      const now = dayjs();
-      const thaiYear = now.year() + 543;
-      const formattedDate = `${now.format("DD-MM")}-${thaiYear}`;
-      const filename = `รายงานพนักงานบริษัทจับจ่ายคอร์เปอเรชัน_จำกัด_${formattedDate}.xlsx`;
+          const blob = new Blob([res.data], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
 
-      link.setAttribute("download", filename);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
+          const now = dayjs();
+          const thaiYear = now.year() + 543;
+          const formattedDate = `${now.format("DD-MM")}-${thaiYear}`;
+          const filename = `รายงานพนักงานบริษัทจับจ่ายคอร์เปอเรชัน_จำกัด_${formattedDate}.xlsx`;
 
-      toast.success("ส่งออกรายงานพนักงานสำเร็จ (Enterprise Grade)", { id });
-    } catch (error) {
-      console.error("Export Error:", error);
-      toast.error("ไม่สามารถส่งออกรายงานได้ กรุณาลองใหม่อีกครั้ง", { id });
-    } finally {
-      setExportLoading(false);
-    }
+          link.setAttribute("download", filename);
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.URL.revokeObjectURL(url);
+
+          // Update modal to success state
+          setStatusModal({
+            open: true,
+            type: "success",
+            title: "ส่งออกรายงานพนักงานสำเร็จ",
+            message:
+              "ระบบได้ทำการดาวน์โหลดไฟล์รายงาน (Enterprise Grade) ลงเครื่องคอมพิวเตอร์ของท่านเรียบร้อยแล้ว",
+            onConfirm: () =>
+              setStatusModal((prev) => ({ ...prev, open: false })), // Just close it on success
+          });
+          toast.success("ส่งออกรายงานพนักงานสำเร็จ");
+        } catch (error) {
+          console.error("Export Error:", error);
+          setStatusModal({
+            open: true,
+            type: "error",
+            title: "ส่งออกข้อมูลล้มเหลว",
+            message:
+              "เกิดข้อผิดพลาดในการดึงข้อมูลจาก Server กรุณาตรวจสอบการเชื่อมต่อ หรือติดต่อฝ่าย IT",
+            onConfirm: () =>
+              setStatusModal((prev) => ({ ...prev, open: false })),
+          });
+          toast.error("ไม่สามารถส่งออกรายงานได้ กรุณาลองใหม่อีกครั้ง");
+        } finally {
+          setExportLoading(false);
+        }
+      },
+    });
   };
 
   // --- Logic: Fetch Data ---
@@ -1118,7 +1158,7 @@ export default function UserManagementPage() {
               }}
             />
           </Tooltip>
-          {/* ✅ ปุ่มปลดล็อก (Show Only if Blocked) */}
+          {/* ปุ่มปลดล็อก (Show Only if Blocked) */}
           {((r as any).failed_login_attempts ?? 0) >= 5 && (
             <Tooltip title="ปลดล็อกบัญชี">
               <Button
@@ -1826,12 +1866,15 @@ export default function UserManagementPage() {
           </div>
         </Modal>
 
-        {/* ✅ Dynamic Status Modal Component */}
+        {/* Dynamic Status Modal Component */}
         <StatusModalComponent
           open={statusModal.open}
           type={statusModal.type}
           title={statusModal.title}
           message={statusModal.message}
+          loading={statusModal.loading}
+          confirmLabel={statusModal.confirmLabel}
+          cancelLabel={statusModal.cancelLabel}
           onClose={() => setStatusModal((prev) => ({ ...prev, open: false }))}
           onConfirm={statusModal.onConfirm}
         />

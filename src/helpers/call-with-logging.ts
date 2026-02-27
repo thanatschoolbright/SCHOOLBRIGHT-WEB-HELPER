@@ -21,7 +21,7 @@ export async function callWithLogging<T = any>(
   const url = config.url || "Unknown URL";
 
   apiLog.info({
-    emoji: "📡",
+    emoji: "",
     message: `${colors.info}[CALL] ${method} ${
       logMeta?.requestPath || url
     }${resetColor}`,

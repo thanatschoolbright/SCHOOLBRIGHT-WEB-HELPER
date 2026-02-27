@@ -77,11 +77,11 @@ const escapeHtml = (value: string) =>
 
 const formatMessageContent = (value: string) =>
     escapeHtml(value)
-        .replace(/^-\s/gm, "• ")
+        .replace(/^-\s/gm, "* ")
         .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
         .replace(/\n/g, "<br />");
 
-//** วิดเจ็ตสนทนา AI แบบปุ่มลอย เปิดเป็น Drawer ด้านขวา
+// วิดเจ็ตสนทนา AI แบบปุ่มลอย เปิดเป็น Drawer ด้านขวา
 const AiChatWidget = ({
                           title = "AI Assistant",
                           placeholder = "พิมพ์คำสั่ง เช่น ยกเลิกรายการขายเกิน 7 วัน...",
@@ -116,7 +116,7 @@ const AiChatWidget = ({
         const lines = rawMessage.split(/\n+/);
         for (const originalLine of lines) {
             if (!originalLine) continue;
-            const line = originalLine.trim().replace(/^[-•\*]+\s*/, "");
+            const line = originalLine.trim().replace(/^[-\*]+\s*/, "");
             if (!line) continue;
             const lower = line.toLowerCase();
 
@@ -126,13 +126,13 @@ const AiChatWidget = ({
                 currentRole = "seller";
             }
 
-            const schoolIdMatch = line.match(/school[_\s-]*id\s*[:：]?\s*(\d+)/i);
+            const schoolIdMatch = line.match(/school[_\s-]*id\s*[:]?\s*(\d+)/i);
             if (schoolIdMatch) {
                 info.schoolId = schoolIdMatch[1];
             }
 
             if (/ชื่อโรงเรียน/.test(lower)) {
-                const value = line.split(/[:：]/)[1]?.trim();
+                const value = line.split(/[:]/)[1]?.trim();
                 if (!value) continue;
                 if (/อังกฤษ|english|schoolnameen/.test(lower)) {
                     info.schoolNameEN = value;
@@ -142,9 +142,9 @@ const AiChatWidget = ({
             }
 
             const transactionMatch =
-                line.match(/sSellID\s*[:：]?\s*([\w-]+)/i) ||
+                line.match(/sSellID\s*[:]?\s*([\w-]+)/i) ||
                 line.match(
-                    /รหัส\s*ทราน(ซ|ส)เ?คชั?น[\s\-]*การซื้อขาย\s*[:：]?\s*([\w-]+)/i
+                    /รหัส\s*ทราน(ซ|ส)เ?คชั?น[\s\-]*การซื้อขาย\s*[:]?\s*([\w-]+)/i
                 );
             if (transactionMatch) {
                 const value = (transactionMatch[1] ?? transactionMatch[2] ?? "")
@@ -158,13 +158,13 @@ const AiChatWidget = ({
                 }
             }
 
-            const userIdMatch = line.match(/user[_\s-]*id[^:：]*[:：]?\s*(.+)?/i);
+            const userIdMatch = line.match(/user[_\s-]*id[^:]*[:]?\s*(.+)?/i);
             if (userIdMatch) {
-                const rawValue = userIdMatch[1]?.replace(/^[–\-]\s*/, "").trim();
+                const rawValue = userIdMatch[1]?.replace(/^[-\-]\s*/, "").trim();
                 const targetField =
                     currentRole === "seller" ? "sellerUserId" : "buyerUserId";
                 const isLikelyId = rawValue && /^[0-9]+$/.test(rawValue);
-                if (rawValue && rawValue !== "—" && isLikelyId) {
+                if (rawValue && rawValue !== "-" && isLikelyId) {
                     info[targetField] = rawValue;
                     pendingField = null;
                 } else {

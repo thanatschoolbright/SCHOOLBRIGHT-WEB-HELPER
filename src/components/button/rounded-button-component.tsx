@@ -36,7 +36,7 @@ export default function RoundedButton({
     <div className="p-1">
       <button
         type={type}
-        disabled={disabled || isLoading} // ✅ ปิดการใช้งานปุ่มเมื่อกำลังโหลด
+        disabled={disabled || isLoading} // ปิดการใช้งานปุ่มเมื่อกำลังโหลด
         onClick={onClick}
         className={`
         flex items-center gap-2 px-6 py-3 rounded-[999px] text-white font-semibold shadow-sm

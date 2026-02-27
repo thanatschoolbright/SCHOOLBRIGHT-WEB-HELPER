@@ -90,25 +90,25 @@ export default function SignInForm() {
         // หมายเหตุ: ยกเลิกการใช้ localStorage สำหรับข้อมูล Auth เพื่อความปลอดภัย
         // แนะนำให้ย้ายไปใช้ NextAuth (/auth/v2/signin) แทน
 
-        // 🏆 ดึงข้อมูล rank หลังจาก login สำเร็จ
+        // ดึงข้อมูล rank หลังจาก login สำเร็จ
         try {
           toast.loading("กำลังโหลดข้อมูลอันดับ...", { id: tId });
           const adminId = response.data.user_data.admin_id.toString();
-          console.log(`🔍 [Login] Fetching rank for admin_id: ${adminId}`);
-          console.log(`👤 [Login] User data:`, response.data.user_data);
+          console.log(`[Login] Fetching rank for admin_id: ${adminId}`);
+          console.log(`[Login] User data:`, response.data.user_data);
 
           const rankData = await fetchUserRank(adminId);
           if (rankData && rankData.rank) {
             // ไม่ใช้ localStorage เก็บ rank data เพื่อความปลอดภัย
             console.log(
-              "✅ Rank data loaded (not saved to localStorage):",
+              "Rank data loaded (not saved to localStorage):",
               rankData,
             );
           } else {
-            console.warn("⚠️ No rank data returned from API");
+            console.warn("No rank data returned from API");
           }
         } catch (rankError) {
-          console.error("❌ Failed to load rank data:", rankError);
+          console.error("Failed to load rank data:", rankError);
           // ไม่ให้ rank error ขัดขวางการ login
         }
 

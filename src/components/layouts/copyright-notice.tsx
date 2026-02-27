@@ -70,7 +70,7 @@ const CopyrightNotice: React.FC = () => {
           <div>
             The Best SchoolBright Developer Team By Head of Technology Light
           </div>
-          <div>COPYRIGHT © 2026 (NEXT.JS {nextVersion})</div>
+          <div>COPYRIGHT (c) 2026 (NEXT.JS {nextVersion})</div>
         </>
       )}
     </div>

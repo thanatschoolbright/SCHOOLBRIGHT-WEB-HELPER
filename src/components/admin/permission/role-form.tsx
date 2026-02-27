@@ -126,14 +126,14 @@ export default function RoleForm({
                 borderRadius: 4,
               }}
             >
-              📍 เส้นทาง:{" "}
+              เส้นทาง:{" "}
               <span
                 style={{ color: "#0f172a", fontWeight: 500 }}
               >{`/admin/${subModule?.replace(/_/g, "-") || ""}`}</span>
             </Text>
           ) : (
             <Text type="secondary" style={{ fontSize: 11 }}>
-              ⚙️ ประเภท: ระบบเบื้องหลัง (System Action)
+              ประเภท: ระบบเบื้องหลัง (System Action)
             </Text>
           )}
         </div>

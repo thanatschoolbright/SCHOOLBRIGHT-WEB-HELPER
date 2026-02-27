@@ -191,7 +191,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
 
       payload.updates.description = markdown;
 
-      // * อัปเดต Summary หากมีการสรุปเนื้อหาใหม่ (และมี Tag [สรุปด้วย LIGHT AI ✨])
+      // * อัปเดต Summary หากมีการสรุปเนื้อหาใหม่ (และมี Tag [สรุปด้วย LIGHT AI])
       if (aiSummary) {
         payload.updates.summary = aiSummary;
       }

@@ -342,7 +342,7 @@ export default function SignInPage() {
               fontSize: "14px",
             }}
           >
-            © {new Date().getFullYear()} SchoolBright. สงวนลิขสิทธิ์ทั้งหมด
+            (c) {new Date().getFullYear()} SchoolBright. สงวนลิขสิทธิ์ทั้งหมด
           </div>
         </Col>
 

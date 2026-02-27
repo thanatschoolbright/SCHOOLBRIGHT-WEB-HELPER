@@ -178,7 +178,7 @@ export const buildEffectivePeriod = (
 /**
  * รวมชั่วโมงทำงานของแต่ละผู้ใช้
  * @param entries - รายการบันทึกเวลา
- * @returns Map ที่มี key เป็น admin_id และ value เป็น tổng số giờ
+ * @returns Map ที่มี key เป็น admin_id และ value เป็นจำนวนชั่วโมงรวม
  */
 export const aggregateEntries = (
   entries: TimesheetEntryRow[],

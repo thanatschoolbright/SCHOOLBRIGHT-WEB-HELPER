@@ -7,7 +7,7 @@ import { NextRequest } from "next/server";
  */
 export class ApiLogUtils {
   /* ============================================================
-       🎨 Color Setup สำหรับ Console
+       Color Setup สำหรับ Console
        ============================================================ */
   private static readonly COLORS = {
     red: "\x1b[31m",
@@ -277,7 +277,7 @@ export class ApiLogUtils {
   }
 
   /* ============================================================
-       🧩 Helper: ดึงค่า User จาก Header
+       Helper: ดึงค่า User จาก Header
        ============================================================ */
   static getCalledByFromHeader(request: NextRequest): string {
     const xRequestUser = request.headers.get("x-request-user");
@@ -369,25 +369,25 @@ export class ApiLogUtils {
         const { ApiLogService } =
           await import("@/services/backend/api-log/api-log.service");
         ApiLogService.createApiLog(finalLogData).catch((error) => {
-          // console.error("❌ API Log creation failed:", error);
+          // console.error("API Log creation failed:", error);
         });
       } else {
-        // console.log(`🔍 [API Log Utils] Logger API detected, calledBy: "${calledBy}" - Skip database logging`);
+        // console.log(`[API Log Utils] Logger API detected, calledBy: "${calledBy}" - Skip database logging`);
       }
     } catch (error) {
-      console.error("❌ Error in logApiRequest:", error);
+      console.error("Error in logApiRequest:", error);
     }
   }
 
   /* ============================================================
-       🧩 Helper: จำกัดความยาวข้อความ (เช่น Body ยาว)
+       Helper: จำกัดความยาวข้อความ (เช่น Body ยาว)
        ============================================================ */
   private static truncate(text: string, max = 500): string {
     return text.length > max ? text.slice(0, max) + "...see more" : text;
   }
 
   /* ============================================================
-       🧩 Helper: แปลงข้อมูลให้แสดงสวยใน Log
+       Helper: แปลงข้อมูลให้แสดงสวยใน Log
        ============================================================ */
   private static pretty(value: any): string {
     try {
@@ -398,7 +398,7 @@ export class ApiLogUtils {
   }
 
   /* ============================================================
-       🧩 Helper: คืนสีตาม Status Code
+       Helper: คืนสีตาม Status Code
        ============================================================ */
   private static getColorByStatus(status: number): string {
     if (status >= 500) return this.COLORS.boldRed;
@@ -408,7 +408,7 @@ export class ApiLogUtils {
   }
 
   /* ============================================================
-       🧩 Helper: สร้าง Log ที่อ่านง่าย
+       Helper: สร้าง Log ที่อ่านง่าย
        ============================================================ */
   private static logRequest({
     request,
@@ -426,7 +426,7 @@ export class ApiLogUtils {
     calledBy: string;
   }) {
     const logObject = {
-      title: "📡 API Request Log",
+      title: "API Request Log",
       url: request.url,
       method: request.method,
       status: status,

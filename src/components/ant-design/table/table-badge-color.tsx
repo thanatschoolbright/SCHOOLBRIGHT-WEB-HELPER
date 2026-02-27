@@ -4,7 +4,7 @@ import { Tag, theme, Tooltip } from "antd";
 import React from "react";
 
 /**
- * 🎨 Component แสดง Badge/Chip ที่มีสีและโทนสอดคล้องกับ Ant Design
+ * Component แสดง Badge/Chip ที่มีสีและโทนสอดคล้องกับ Ant Design
  * รองรับทั้ง Light/Dark mode และใช้สีจาก API ได้โดยตรง
  */
 export type ColoredBadgeProps = {

@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { CallAPI as CallRefreshAPI } from "@/stores/actions/authentication/call-post-refresh-token";
 import { fetchUserRank } from "@/services/user-rank/user-rank.service";
 
-// ✅ ใช้ InputComponent
+// ใช้ InputComponent
 import InputComponent from "@/components/input-field/input-component";
 import { FiMail, FiLock } from "react-icons/fi";
 
@@ -28,12 +28,12 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
   // ฟังก์ชันดึงข้อมูล rank ของ user (ใช้ service ใหม่)
   const getUserRank = async (userId: string) => {
     try {
-      console.log(`🔍 [SignIn] Fetching user rank for ID: ${userId}`);
+      console.log(`[SignIn] Fetching user rank for ID: ${userId}`);
 
       const rankData = await fetchUserRank(userId);
 
       if (rankData) {
-        console.log(`🏆 [SignIn] User rank retrieved:`, rankData);
+        console.log(`[SignIn] User rank retrieved:`, rankData);
         return {
           rank: rankData.rank,
           admin_id: rankData.admin_id,
@@ -45,7 +45,7 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
 
       return null;
     } catch (error) {
-      console.error("❌ [SignIn] Error fetching user rank:", error);
+      console.error("[SignIn] Error fetching user rank:", error);
       return null;
     }
   };
