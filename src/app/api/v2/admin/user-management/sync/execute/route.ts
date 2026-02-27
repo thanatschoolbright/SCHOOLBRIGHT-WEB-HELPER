@@ -4,7 +4,19 @@ import { UserManagementService } from "../../service/user-management.service";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        errorResponse({
+          message_en: "Invalid JSON body",
+          message_th: "ข้อมูล JSON ไม่ถูกต้อง",
+          status: 400,
+        }),
+        { status: 400 },
+      );
+    }
     const { items } = body; // Array of { type, remote, local? }
     const requestUserId = Number(request.headers.get("x-request-user") || 0);
 
@@ -122,7 +134,11 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      successResponse(results, "Sync completed successfully"),
+      successResponse({
+        data: results,
+        message_en: "Sync completed successfully",
+        message_th: "Sync ข้อมูลสำเร็จแล้ว",
+      }),
     );
   } catch (error: any) {
     console.error("Sync execution failed: %j", error);
@@ -137,11 +153,12 @@ export async function POST(request: NextRequest) {
     };
 
     return NextResponse.json(
-      errorResponse(
-        error.message || "เกิดข้อผิดพลาดในการ Sync ข้อมูล",
-        500,
-        errorDetail,
-      ),
+      errorResponse({
+        message_en: error.message || "Sync execution failed",
+        message_th: "เกิดข้อผิดพลาดในการ Sync ข้อมูล",
+        status: 500,
+        error: errorDetail,
+      }),
       { status: 500 },
     );
   }

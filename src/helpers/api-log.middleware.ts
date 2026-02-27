@@ -55,10 +55,14 @@ export class ApiLogMiddleware {
             const responseClone = response.clone();
             const responseText = await responseClone.text();
 
-            if (responseText) {
+            if (responseText && responseText.trim()) {
               try {
-                responseBody = JSON.parse(responseText);
-                responseBody = ApiLogUtils.sanitizeResponseBody(responseBody);
+                responseBody = ApiLogUtils.safeJsonParse(responseText);
+                if (responseBody) {
+                  responseBody = ApiLogUtils.sanitizeResponseBody(responseBody);
+                } else {
+                  responseBody = { content: responseText.substring(0, 1000) };
+                }
               } catch {
                 // ถ้าไม่ใช่ JSON ก็เก็บเป็น text
                 responseBody = { content: responseText.substring(0, 1000) }; // จำกัดขนาด
@@ -136,10 +140,14 @@ export class ApiLogMiddleware {
         const responseClone = response.clone();
         const responseText = await responseClone.text();
 
-        if (responseText) {
+        if (responseText && responseText.trim()) {
           try {
-            responseBody = JSON.parse(responseText);
-            responseBody = ApiLogUtils.sanitizeResponseBody(responseBody);
+            responseBody = ApiLogUtils.safeJsonParse(responseText);
+            if (responseBody) {
+              responseBody = ApiLogUtils.sanitizeResponseBody(responseBody);
+            } else {
+              responseBody = { content: responseText.substring(0, 1000) };
+            }
           } catch {
             responseBody = { content: responseText.substring(0, 1000) };
           }
@@ -245,9 +253,11 @@ export class ApiLogMiddleware {
       };
 
       //** การทำงาน: บันทึก custom log */
-      await ApiLogService.createApiLog(logData);
+      ApiLogService.createApiLog(logData).catch((error) => {
+        console.error("Failed to create custom log:", error);
+      });
     } catch (error) {
-      console.error("Failed to create custom log:", error);
+      console.error("Error in createCustomLog:", error);
     }
   }
 }

@@ -103,7 +103,7 @@ export class ApiLogUtils {
   }
 
   /**
-   * การทำงาน: แปลง request body เป็น JSON object
+   * การทำงาน: แปลง request body เป็น JSON object อย่างปลอดภัย
    * @param request NextRequest object
    * @returns Promise<Record<string, any> | undefined> request body หรือ undefined
    */
@@ -116,8 +116,14 @@ export class ApiLogUtils {
       if (contentType.includes("application/json")) {
         // Clone request เพื่อป้องกัน body ถูกใช้ไปแล้ว
         const clonedRequest = request.clone();
-        const body = await clonedRequest.json();
-        return body;
+        const text = await clonedRequest.text();
+        if (!text || !text.trim()) return undefined;
+
+        try {
+          return JSON.parse(text);
+        } catch {
+          return undefined;
+        }
       }
 
       if (contentType.includes("application/x-www-form-urlencoded")) {
@@ -238,7 +244,9 @@ export class ApiLogUtils {
    */
   static sanitizeResponseBody(responseBody: any): Record<string, any> {
     if (!responseBody || typeof responseBody !== "object") {
-      return {};
+      return responseBody && typeof responseBody === "string"
+        ? { content: responseBody }
+        : {};
     }
 
     const sensitiveFields = [
@@ -250,7 +258,12 @@ export class ApiLogUtils {
       "credential",
     ];
 
-    const sanitized = JSON.parse(JSON.stringify(responseBody));
+    let sanitized: any;
+    try {
+      sanitized = JSON.parse(JSON.stringify(responseBody));
+    } catch {
+      return { content: "Error stringifying response body" };
+    }
 
     const removeSensitiveData = (obj: any): any => {
       if (Array.isArray(obj)) {
@@ -274,6 +287,20 @@ export class ApiLogUtils {
     };
 
     return removeSensitiveData(sanitized);
+  }
+
+  /**
+   * การทำงาน: แปลง String เป็น JSON อย่างปลอดภัย
+   * @param str ข้อความ JSON
+   * @returns any ผลลัพธ์จากการ parse หรือ undefined
+   */
+  static safeJsonParse(str: string | null | undefined): any {
+    if (!str || typeof str !== "string" || !str.trim()) return undefined;
+    try {
+      return JSON.parse(str);
+    } catch {
+      return undefined;
+    }
   }
 
   /* ============================================================

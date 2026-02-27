@@ -7,7 +7,19 @@ export async function POST(request: NextRequest) {
   try {
     // Expect form-data or json?
     // If receiving JSON from frontend, we convert to FormData for Legacy API in service.
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        errorResponse({
+          message_en: "Invalid JSON body",
+          message_th: "ข้อมูล JSON ไม่ถูกต้อง",
+          status: 400,
+        }),
+        { status: 400 },
+      );
+    }
 
     // Call legacy service
     const result = await LegacyUserService.updateLegacyUser(body);
