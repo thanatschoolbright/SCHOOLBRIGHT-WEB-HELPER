@@ -53,9 +53,9 @@ function parseArguments(args: any[]): {
 }
 
 const logFunctions: Record<LogType, (...args: any[]) => void> = {
-  log: console.log,
-  info: console.info,
-  warn: console.warn,
+  log: () => {},
+  info: () => {},
+  warn: () => {},
   error: console.error,
 };
 
@@ -71,7 +71,7 @@ const resetColor = "\x1b[0m";
 
 const Logger: BeautifulLog = function (...args: any[]): void {
   const { title, data, type, space } = parseArguments(args);
-  const logger = logFunctions[type] || console.log;
+  const logger = logFunctions[type] || (() => {});
   const logColor = logColors[type] || "";
 
   try {

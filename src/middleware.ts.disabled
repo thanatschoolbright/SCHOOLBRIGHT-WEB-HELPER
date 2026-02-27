@@ -117,7 +117,6 @@ function logRequest({
 export async function middleware(req: NextRequest) {
     // ปิดการใช้งาน middleware - ให้ request ผ่านไปตรงๆ
     // API Logging จะทำงานใน individual API routes แทน
-    console.log("[Middleware] DISABLED - API Logging handled by ApiLogUtils");
     return NextResponse.next();
 }
 

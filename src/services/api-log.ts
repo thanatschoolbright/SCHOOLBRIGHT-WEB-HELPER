@@ -38,7 +38,9 @@ function baseBeautifulLog(
   type: LogType = "log",
   space: number = 2,
 ): void {
-  const logFn = console[type] ?? console.log;
+  if (type !== "error") return;
+
+  const logFn = console.error;
   const emoji = logSymbols[type];
   const color = logColors[type];
 

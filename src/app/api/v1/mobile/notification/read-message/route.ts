@@ -45,7 +45,6 @@ export async function GET(incomingRequest: NextRequest) {
       (performance.now() - executionStartTime).toFixed(2),
     );
 
-
     return NextResponse.json(
       {
         data: apiResponse.data,
