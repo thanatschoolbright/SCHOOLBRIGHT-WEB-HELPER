@@ -9,52 +9,60 @@ import buddhistEra from "dayjs/plugin/buddhistEra";
 import React, { useEffect, useMemo, useState } from "react";
 import { FontProvider, useFont } from "../providers/font-provider";
 
+// Initialize configuration
 dayjs.extend(buddhistEra);
 dayjs.locale("th");
 
-type FontFamily = "google-sans" | "sukhumvit";
-
+/**
+ * Design Constants for 2026 Aesthetics
+ */
 const BRAND_COLORS = {
-  primary: "#FF8C00",
-  success: "#10B981",
-  warning: "#F59E0B",
-  error: "#EF4444",
-  info: "#3B82F6",
+  primary: "#FF8C00", // School Bright Orange
+  success: "#10B981", // Emerald
+  warning: "#F59E0B", // Amber
+  error: "#EF4444", // Rose
+  info: "#3B82F6", // Blue
 };
 
-const FONTS: Record<FontFamily, string> = {
-  "google-sans": 'var(--font-google-sans), "Google Sans", sans-serif',
-  sukhumvit: 'var(--font-sukhumvit), "Sukhumvit Set", sans-serif',
+const FONTS = {
+  "google-sans":
+    'var(--font-google-sans), "Google Sans", system-ui, sans-serif',
+  sukhumvit: 'var(--font-sukhumvit), "Sukhumvit Set", system-ui, sans-serif',
 };
 
 const SYSTEM_PALETTE = {
   light: {
-    bgLayout: "#FAFAFA",
+    bgLayout: "#F8FAFC",
     bgContainer: "#FFFFFF",
-    textMain: "#09090B",
-    textSub: "#71717A",
-    border: "#E4E4E7",
+    bgElevated: "#FFFFFF",
+    textMain: "#0F172A",
+    textSub: "#64748B",
+    border: "#E2E8F0",
+    borderSecondary: "#F1F5F9",
   },
   dark: {
-    bgLayout: "#09090B",
-    bgContainer: "#18181B",
-    textMain: "#FAFAFA",
-    textSub: "#A1A1AA",
-    border: "#27272A",
+    bgLayout: "#020617",
+    bgContainer: "#0F172A",
+    bgElevated: "#1E293B",
+    textMain: "#F8FAFC",
+    textSub: "#94A3B8",
+    border: "#1E293B",
+    borderSecondary: "#334155",
   },
 };
 
-const useDarkModeDetector = (): boolean => {
+/**
+ * Custom hook to detect system/document dark mode via MutationObserver
+ */
+const useThemeDetector = (): boolean => {
   const [isDark, setIsDark] = useState<boolean>(false);
 
   useEffect(() => {
-    const updateTheme = () => {
+    const checkDark = () =>
       setIsDark(document.documentElement.classList.contains("dark"));
-    };
+    checkDark();
 
-    updateTheme();
-
-    const observer = new MutationObserver(updateTheme);
+    const observer = new MutationObserver(checkDark);
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
@@ -66,9 +74,14 @@ const useDarkModeDetector = (): boolean => {
   return isDark;
 };
 
-const getModernAntTheme = (isDark: boolean, font: FontFamily): ThemeConfig => {
+/**
+ * Generates the Ant Design theme configuration based on design system
+ */
+const getModernTheme = (
+  isDark: boolean,
+  font: keyof typeof FONTS,
+): ThemeConfig => {
   const palette = isDark ? SYSTEM_PALETTE.dark : SYSTEM_PALETTE.light;
-  const currentFontFamily = FONTS[font] || FONTS["google-sans"];
 
   return {
     algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
@@ -78,65 +91,89 @@ const getModernAntTheme = (isDark: boolean, font: FontFamily): ThemeConfig => {
       colorWarning: BRAND_COLORS.warning,
       colorError: BRAND_COLORS.error,
       colorInfo: BRAND_COLORS.info,
-      colorBgBase: palette.bgLayout,
+
       colorBgLayout: palette.bgLayout,
       colorBgContainer: palette.bgContainer,
-      colorBgElevated: isDark ? "#27272A" : "#FFFFFF",
+      colorBgElevated: palette.bgElevated,
+
       colorTextBase: palette.textMain,
       colorTextSecondary: palette.textSub,
+
       colorBorder: palette.border,
-      colorBorderSecondary: palette.border,
-      fontFamily: currentFontFamily,
+      colorBorderSecondary: palette.borderSecondary,
+
+      fontFamily: FONTS[font] || FONTS["google-sans"],
       fontSize: 14,
-      borderRadius: 12,
-      borderRadiusLG: 16,
-      controlHeight: 40,
+      borderRadius: 14,
+      borderRadiusLG: 20,
+      borderRadiusSM: 8,
+
+      controlHeight: 44,
+      fontWeightStrong: 700,
+
       wireframe: false,
-      boxShadow: isDark
-        ? "0 4px 20px -2px rgba(0, 0, 0, 0.5)"
-        : "0 4px 20px -2px rgba(0, 0, 0, 0.05)",
+      motionUnit: 0.1,
     },
     components: {
-      Button: { controlOutline: "none", fontWeight: 500, paddingInline: 24 },
-      Card: { paddingLG: 24 },
+      Button: {
+        controlOutline: "none",
+        fontWeight: 600,
+        paddingInlineLG: 32,
+        borderRadius: 12,
+        defaultShadow: "none",
+        primaryShadow: "0 4px 12px rgba(255, 140, 0, 0.25)",
+      },
+      Card: {
+        paddingLG: 24,
+        colorBgContainer: isDark
+          ? "rgba(15, 23, 42, 0.6)"
+          : "rgba(255, 255, 255, 0.8)",
+        boxShadowTertiary: isDark
+          ? "0 4px 24px -2px rgba(0, 0, 0, 0.4)"
+          : "0 4px 24px -2px rgba(0, 0, 0, 0.04)",
+      },
       Table: {
-        headerBg: isDark ? "#18181B" : "#F4F4F5",
+        headerBg: isDark ? "#1E293B" : "#F8FAFC",
         headerSplitColor: "transparent",
-        headerBorderRadius: 12,
-        borderColor: palette.border,
+        headerBorderRadius: 16,
+        padding: 16,
       },
-      Modal: { paddingLG: 24 },
-      Layout: {
-        headerBg: isDark ? "rgba(9, 9, 9, 0.7)" : "rgba(255, 255, 255, 0.7)",
-        headerPadding: "0 24px",
+      Input: {
+        activeShadow: "0 0 0 2px rgba(255, 140, 0, 0.1)",
+        colorBgContainer: isDark ? "rgba(2, 6, 23, 0.5)" : "#FFFFFF",
       },
-      Menu: { itemBorderRadius: 8, activeBarBorderWidth: 0 },
+      Select: {
+        controlOutline: "none",
+      },
+      Modal: {
+        borderRadiusLG: 24,
+        paddingLG: 32,
+        headerBg: "transparent",
+      },
+      Menu: {
+        itemBorderRadius: 12,
+        activeBarBorderWidth: 0,
+        subMenuItemBg: "transparent",
+      },
     },
   };
 };
 
-function AntDesignThemeInner({ children }: { children: React.ReactNode }) {
-  const isDark = useDarkModeDetector();
-  const { fontFamily } = useFont();
+function ThemeInner({ children }: { children: React.ReactNode }) {
+  const isDark = useThemeDetector();
+  const { fontFamily: fontFromContext } = useFont();
+  const [isMounted, setIsMounted] = useState(false);
 
-  // 🟢 1. สร้าง mounted state ป้องกัน Hydration Mismatch
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => setIsMounted(true), []);
 
-  const safeFontFamily = (fontFamily as FontFamily) || "google-sans";
+  const themeFont = (fontFromContext as keyof typeof FONTS) || "google-sans";
   const themeConfig = useMemo(
-    () => getModernAntTheme(isDark, safeFontFamily),
-    [isDark, safeFontFamily],
+    () => getModernTheme(isDark, themeFont),
+    [isDark, themeFont],
   );
+  const palette = isDark ? SYSTEM_PALETTE.dark : SYSTEM_PALETTE.light;
 
-  const activePalette = isDark ? SYSTEM_PALETTE.dark : SYSTEM_PALETTE.light;
-  const cssFontFamily = FONTS[safeFontFamily];
-
-  // 🟢 2. ระหว่างที่ Server กำลัง Render ให้ return โครงเปล่าๆ (หรือ UI กลางๆ) ป้องกัน Error
-  // (วิธีนี้คือ Best Practice ของ Next.js ในการจัดการ Theme Provider)
-  if (!mounted) {
+  if (!isMounted) {
     return <div style={{ visibility: "hidden" }}>{children}</div>;
   }
 
@@ -148,70 +185,125 @@ function AntDesignThemeInner({ children }: { children: React.ReactNode }) {
       input={{ autoComplete: "off" }}
     >
       <App>
-        {/* 🟢 3. ปรับการส่งค่าสีเข้าไปเป็น CSS Variables เพื่อ Performance ที่ดีขึ้น */}
         <div
+          className="ant-theme-root"
           style={
             {
-              "--bg-layout": activePalette.bgLayout,
-              "--text-main": activePalette.textMain,
-              "--border-color": activePalette.border,
-              "--scroll-thumb": isDark ? "#3F3F46" : "#D4D4D8",
-              "--scroll-thumb-hover": isDark ? "#52525B" : "#A1A1AA",
-              "--card-shadow": isDark
-                ? "0 12px 30px -10px rgba(0, 0, 0, 0.8)"
-                : "0 12px 30px -10px rgba(9, 9, 11, 0.1)",
+              "--primary": BRAND_COLORS.primary,
+              "--bg-layout": palette.bgLayout,
+              "--border": palette.border,
+              "--text-main": palette.textMain,
+              "--glass-bg": isDark
+                ? "rgba(15, 23, 42, 0.7)"
+                : "rgba(255, 255, 255, 0.7)",
+              "--card-glass-bg": isDark
+                ? "rgba(15, 23, 42, 0.6)"
+                : "rgba(255, 255, 255, 0.8)",
             } as React.CSSProperties
           }
-          className="ant-theme-wrapper"
         >
           <style jsx global>{`
             :root {
-              --font-family-current: ${cssFontFamily};
+              --font-family: ${FONTS[themeFont]};
             }
             body {
               background-color: var(--bg-layout);
               color: var(--text-main);
-              font-family: var(--font-family-current);
+              font-family: var(--font-family);
               -webkit-font-smoothing: antialiased;
-              -moz-osx-font-smoothing: grayscale;
               transition:
-                background-color 0.3s ease,
-                color 0.3s ease;
+                background-color 0.4s ease,
+                color 0.4s ease;
+              margin: 0;
             }
+
+            /* Modern Glassmorphism Utilities */
+            .glass-card {
+              background: var(--card-glass-bg) !important;
+              backdrop-filter: blur(12px) saturate(180%);
+              -webkit-backdrop-filter: blur(12px) saturate(180%);
+              border: 1px solid var(--border) !important;
+            }
+
+            .glass-header {
+              background: var(--glass-bg) !important;
+              backdrop-filter: blur(16px) saturate(180%);
+              -webkit-backdrop-filter: blur(16px) saturate(180%);
+              border-bottom: 1px solid var(--border);
+            }
+
+            /* Custom Transitions for Premium Feel */
+            .ant-btn,
+            .ant-card,
+            .ant-input,
+            .ant-select {
+              transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+            }
+
+            .ant-card:hover {
+              transform: translateY(-4px);
+              box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.1) !important;
+            }
+            .dark .ant-card:hover {
+              box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.4) !important;
+            }
+
+            /* Scrollbar Refinement */
             ::-webkit-scrollbar {
-              width: 8px;
-              height: 8px;
+              width: 10px;
+              height: 10px;
             }
             ::-webkit-scrollbar-track {
               background: transparent;
             }
             ::-webkit-scrollbar-thumb {
-              background: var(--scroll-thumb);
-              border-radius: 999px;
-              border: 2px solid var(--bg-layout);
+              background: ${isDark ? "#1E293B" : "#CBD5E1"};
+              border-radius: 10px;
+              border: 3px solid var(--bg-layout);
             }
             ::-webkit-scrollbar-thumb:hover {
-              background: var(--scroll-thumb-hover);
+              background: ${isDark ? "#334155" : "#94A3B8"};
             }
-            .ant-card {
-              transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-            .ant-card:hover {
-              transform: translateY(-2px);
-              box-shadow: var(--card-shadow);
+
+            /* Global Component Polishing */
+            .ant-table-wrapper .ant-table {
+              background: transparent !important;
             }
             .ant-table-wrapper .ant-table-container {
-              border: 1px solid var(--border-color);
-              border-radius: 12px;
+              border: 1px solid var(--border) !important;
+              border-radius: 16px !important;
               overflow: hidden;
             }
-            .ant-layout-header {
-              backdrop-filter: blur(16px);
-              -webkit-backdrop-filter: blur(16px);
-              position: sticky;
-              top: 0;
-              z-index: 50;
-              border-bottom: 1px solid var(--border-color);
+
+            /* Premium Modal Glassmorphism & Perfect Centering */
+            .ant-modal-mask {
+              backdrop-filter: blur(8px) !important;
+              background: ${isDark
+                ? "rgba(0, 0, 0, 0.4)"
+                : "rgba(255, 255, 255, 0.2)"} !important;
+            }
+            .ant-modal-wrap {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              pointer-events: none; /* Ensure wrap doesn't block clicks when not needed */
+            }
+            .ant-modal {
+              top: 0 !important;
+              padding-bottom: 0 !important;
+              margin: 16px !important;
+              max-width: calc(100vw - 32px) !important;
+              pointer-events: auto; /* Re-enable clicks for the modal itself */
+            }
+            .ant-modal-content {
+              background: var(--card-glass-bg) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid var(--border) !important;
+              box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.2) !important;
+            }
+            .dark .ant-modal-content {
+              box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6) !important;
             }
           `}</style>
           {children}
@@ -228,7 +320,7 @@ export default function AntDesignThemeProvider({
 }) {
   return (
     <FontProvider>
-      <AntDesignThemeInner>{children}</AntDesignThemeInner>
+      <ThemeInner>{children}</ThemeInner>
     </FontProvider>
   );
 }
