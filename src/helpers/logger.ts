@@ -17,7 +17,7 @@ const truncate = (msg: any): any => {
 /**
  * ตัวแปรเก็บฟังก์ชันเปล่าสำหรับ No-op เพื่อลดการสร้าง function object ใหม่
  */
-const noop = () => {};
+const noop = (..._args: any[]) => {};
 
 export const logger = {
   info: noop,
@@ -40,11 +40,13 @@ export const logger = {
       info: noop,
       warn: noop,
       error: (msg: any, ...args: any[]) =>
-        console.error(`[ERROR] [${JSON.stringify(meta)}] ${truncate(msg)}`, ...args),
+        console.error(
+          `[ERROR] [${JSON.stringify(meta)}] ${truncate(msg)}`,
+          ...args,
+        ),
       debug: noop,
     };
   },
-};
 };
 
 // Alias for compatibility

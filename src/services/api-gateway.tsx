@@ -1,7 +1,8 @@
-import { CallAPI } from "@/stores/actions/authentication/call-post-refresh-token";
 import { APIMethodProps, API_METHOD } from "@services/api-method";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
-import { store } from "@stores/store"; // assuming you have access to the redux store
+import { createLogger } from "@/helpers/logger";
+// Remove top-level import to avoid circular dependency
+// import { store } from "@stores/store";
 
 export interface CallBackendAPIProps {
   method: APIMethodProps;
@@ -14,6 +15,10 @@ export interface CallBackendAPIProps {
 let newToken: string = "";
 
 const refreshToken = async () => {
+  const { store } = require("@stores/store");
+  const {
+    CallAPI,
+  } = require("@/stores/actions/authentication/call-post-refresh-token");
   const state = store.getState();
   const { school_id, user_id, token } = state.callRefreshToken.draftValues;
 
@@ -56,6 +61,7 @@ export const callBackendAPI = async ({
     endpoint.startsWith("/") ? endpoint : `/${endpoint}`
   }`;
 
+  const { store } = require("@stores/store");
   // Get school_id and user_id from Redux state
   const { school_id, user_id, token } =
     store.getState().callRefreshToken.draftValues;
