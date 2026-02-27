@@ -1,6 +1,8 @@
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import { sendMail } from "@/server/mailer";
 import bcrypt from "bcryptjs";
+import dayjs from "dayjs";
+import ExcelJS from "exceljs";
 
 export interface CreateUserDto {
   username: string;
@@ -749,5 +751,245 @@ export const UserManagementService = {
         updated_by: userId,
       },
     });
+  },
+
+  /**
+   * 🏆 สร้างรายงาน Excel พนักงานแบบ Enterprise
+   * @description ใช้มาตรฐานการออกแบบระดับสูง (Branding Identity) เหมือนกับ Overtime Service
+   */
+  async generateExportExcel() {
+    const users = await this.findAllForExport();
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("พนักงานทั้งหมด");
+
+    // --- Enterprise Setup ---
+    worksheet.properties.defaultRowHeight = 32;
+    const now = dayjs();
+    const thaiYear = now.year() + 543;
+    const formattedDate = `${now.format("DD/MM")}/${thaiYear}`;
+    const formattedTime = now.format("HH:mm");
+
+    // --- ส่วนที่ 1: Header Branding (A1:B3) ---
+    const headerCells = ["A1", "B1", "A2", "B2", "A3", "B3"];
+    headerCells.forEach((ref) => {
+      const cell = worksheet.getCell(ref);
+      cell.border = {
+        top: { style: "thin", color: { argb: "FFD9D9D9" } },
+        left: { style: "thin", color: { argb: "FFD9D9D9" } },
+        bottom: { style: "thin", color: { argb: "FFD9D9D9" } },
+        right: { style: "thin", color: { argb: "FFD9D9D9" } },
+      };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+    });
+
+    worksheet.getCell("A1").value = "ชื่อเอกสาร";
+    worksheet.getCell("B1").value =
+      "รายงานข้อมูลพนักงานบริษัท (Staff Inventory) - School Bright IPO Preparation";
+    worksheet.getCell("A1").fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFFFF7ED" },
+    };
+
+    worksheet.getCell("A2").value = "วันที่ออกรายงาน";
+    worksheet.getCell("B2").value = `${formattedDate} เวลา ${formattedTime} น.`;
+    worksheet.getCell("A3").value = "จำนวนพนักงานรวม";
+    worksheet.getCell("B3").value = `${users.length} รายการ`;
+
+    // ตกแต่ง Font ส่วนหัว
+    ["A1", "A2", "A3"].forEach((ref) => {
+      const cell = worksheet.getCell(ref);
+      cell.font = {
+        bold: true,
+        name: "Google Sans",
+        size: 14,
+        color: { argb: "FF8C4D00" },
+      };
+    });
+
+    ["B1", "B2", "B3"].forEach((ref) => {
+      const cell = worksheet.getCell(ref);
+      cell.font = { name: "Google Sans", size: 14, color: { argb: "FF434343" } };
+    });
+    worksheet.getCell("B1").font = {
+      bold: true,
+      name: "Google Sans",
+      size: 15,
+      color: { argb: "FFF37021" }, // SB Orange
+    };
+
+    // --- ส่วนที่ 2: โครงสร้างตาราง (Table Header) ---
+    const tableHeaderRowIndex = 5;
+    const headers = [
+      "ลำดับ",
+      "รหัสพนักงาน",
+      "Admin ID",
+      "คำนำหน้า",
+      "ชื่อ (ไทย)",
+      "นามสกุล (ไทย)",
+      "ชื่อเล่น",
+      "แผนก/ฝ่ายงาน",
+      "ตำแหน่งงาน",
+      "อีเมลติดต่อ",
+      "เบอร์โทรศัพท์",
+      "ประเภทการจ้างงาน",
+      "สิทธิ์การเข้าถึง",
+      "วันที่เริ่มงาน",
+      "อายุงาน",
+      "สถานะการใช้งาน",
+    ];
+
+    worksheet.getRow(tableHeaderRowIndex).values = headers;
+    worksheet.columns = [
+      { key: "no", width: 10 },
+      { key: "employee_code", width: 18 },
+      { key: "admin_id", width: 12 },
+      { key: "prefix", width: 12 },
+      { key: "firstname", width: 22 },
+      { key: "lastname", width: 22 },
+      { key: "nickname", width: 14 },
+      { key: "department", width: 25 },
+      { key: "position", width: 28 },
+      { key: "email", width: 30 },
+      { key: "phone", width: 18 },
+      { key: "employment_type", width: 20 },
+      { key: "role", width: 20 },
+      { key: "joined_date", width: 16 },
+      { key: "work_period", width: 20 },
+      { key: "status", width: 15 },
+    ];
+
+    const headerRow = worksheet.getRow(tableHeaderRowIndex);
+    headerRow.height = 32;
+    headerRow.eachCell((cell) => {
+      cell.font = {
+        name: "Google Sans",
+        size: 14,
+        bold: true,
+        color: { argb: "FFFFFFFF" },
+      };
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFF37021" },
+      };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+      cell.border = {
+        top: { style: "thin", color: { argb: "FFE25E00" } },
+        left: { style: "thin", color: { argb: "FFFFFFFF" } },
+        bottom: { style: "medium", color: { argb: "FFE25E00" } },
+        right: { style: "thin", color: { argb: "FFFFFFFF" } },
+      };
+    });
+
+    // --- ส่วนที่ 3: จัดการ Data Rows ---
+    const getEmploymentLabel = (type?: string | null) => {
+      const map: any = {
+        FULL_TIME: "พนักงานประจำ",
+        PART_TIME: "พาร์ทไทม์",
+        CONTRACT: "สัญญาจ้าง",
+        INTERN: "ฝึกงาน",
+      };
+      return map[type || ""] || "ไม่ระบุ";
+    };
+
+    const getStatusLabel = (status?: string | null) => {
+      const map: any = {
+        ACTIVE: "กำลังทำงาน",
+        INACTIVE: "ลาออก/ปิดใช้งาน",
+        SUSPENDED: "ระงับชั่วคราว",
+      };
+      return map[status || ""] || (status === "ACTIVE" ? "กำลังทำงาน" : status);
+    };
+
+    users.forEach((u, idx) => {
+      const joined = u.joined_date ? dayjs(u.joined_date) : null;
+      let durationStr = "-";
+      if (joined) {
+        const diffY = now.diff(joined, "year");
+        const diffM = now.diff(joined.add(diffY, "year"), "month");
+        durationStr = `${diffY} ปี ${diffM} เดือน`;
+      }
+
+      const row = worksheet.addRow({
+        no: idx + 1,
+        employee_code: u.employee_code || "-",
+        admin_id: u.admin_id,
+        prefix: "-",
+        firstname: u.firstname_th || "-",
+        lastname: u.lastname_th || "-",
+        nickname: u.nickname || "-",
+        department: u.department?.name_th || "-",
+        position: u.position_ref?.name_th || "-",
+        email: u.email || "-",
+        phone: u.phone || "-",
+        employment_type: getEmploymentLabel(u.employment_type),
+        role: u.role?.name || "-",
+        joined_date: joined ? joined.format("DD/MM/BBBB") : "-",
+        work_period: durationStr,
+        status: getStatusLabel(u.status),
+      });
+
+      // Format Data Row
+      row.height = 32;
+      row.eachCell((cell) => {
+        cell.font = {
+          name: "Google Sans",
+          size: 13,
+          color: { argb: "FF434343" },
+        };
+        cell.border = {
+          top: { style: "thin", color: { argb: "FFF9E7D8" } },
+          left: { style: "thin", color: { argb: "FFF9E7D8" } },
+          bottom: { style: "thin", color: { argb: "FFF9E7D8" } },
+          right: { style: "thin", color: { argb: "FFF9E7D8" } },
+        };
+        cell.alignment = { vertical: "middle", horizontal: "center" };
+      });
+
+      // Zebra effect
+      if ((idx + 1) % 2 === 0) {
+        row.eachCell((cell) => {
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFFFF7ED" },
+          };
+        });
+      }
+
+      // Status Coloring
+      const statusCell = row.getCell("status");
+      const statusVal = u.status;
+      if (statusVal === "ACTIVE") {
+        statusCell.font = {
+          bold: true,
+          color: { argb: "FF107C10" },
+          name: "Google Sans",
+          size: 13,
+        };
+        statusCell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFE8F5E9" },
+        };
+      } else if (statusVal === "INACTIVE") {
+        statusCell.font = {
+          bold: true,
+          color: { argb: "FFC62828" },
+          name: "Google Sans",
+          size: 13,
+        };
+        statusCell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFFFEBEE" },
+        };
+      }
+    });
+
+    // --- Final Step: Return Buffer ---
+    return (await workbook.xlsx.writeBuffer()) as Buffer;
   },
 };
