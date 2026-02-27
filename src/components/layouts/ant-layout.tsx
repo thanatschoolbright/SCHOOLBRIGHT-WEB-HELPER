@@ -58,8 +58,9 @@ const useThemeDetector = (): boolean => {
   const [isDark, setIsDark] = useState<boolean>(false);
 
   useEffect(() => {
-    const checkDark = () =>
+    const checkDark = () => {
       setIsDark(document.documentElement.classList.contains("dark"));
+    };
     checkDark();
 
     const observer = new MutationObserver(checkDark);
@@ -68,7 +69,9 @@ const useThemeDetector = (): boolean => {
       attributeFilter: ["class"],
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   return isDark;
@@ -126,8 +129,8 @@ const getModernTheme = (
       Card: {
         paddingLG: 24,
         colorBgContainer: isDark
-          ? "rgba(15, 23, 42, 0.6)"
-          : "rgba(255, 255, 255, 0.8)",
+          ? "rgba(15, 23, 42, 0.85)"
+          : "rgba(255, 255, 255, 0.95)",
         boxShadowTertiary: isDark
           ? "0 4px 24px -2px rgba(0, 0, 0, 0.4)"
           : "0 4px 24px -2px rgba(0, 0, 0, 0.04)",
@@ -164,7 +167,9 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
   const { fontFamily: fontFromContext } = useFont();
   const [isMounted, setIsMounted] = useState(false);
 
-  useEffect(() => setIsMounted(true), []);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const themeFont = (fontFromContext as keyof typeof FONTS) || "google-sans";
   const themeConfig = useMemo(
@@ -197,8 +202,8 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 ? "rgba(15, 23, 42, 0.7)"
                 : "rgba(255, 255, 255, 0.7)",
               "--card-glass-bg": isDark
-                ? "rgba(15, 23, 42, 0.6)"
-                : "rgba(255, 255, 255, 0.8)",
+                ? "rgba(15, 23, 42, 0.85)"
+                : "rgba(255, 255, 255, 0.95)",
             } as React.CSSProperties
           }
         >
@@ -281,19 +286,6 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
               background: ${isDark
                 ? "rgba(0, 0, 0, 0.4)"
                 : "rgba(255, 255, 255, 0.2)"} !important;
-            }
-            .ant-modal-wrap {
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              pointer-events: none; /* Ensure wrap doesn't block clicks when not needed */
-            }
-            .ant-modal {
-              top: 0 !important;
-              padding-bottom: 0 !important;
-              margin: 16px !important;
-              max-width: calc(100vw - 32px) !important;
-              pointer-events: auto; /* Re-enable clicks for the modal itself */
             }
             .ant-modal-content {
               background: var(--card-glass-bg) !important;
