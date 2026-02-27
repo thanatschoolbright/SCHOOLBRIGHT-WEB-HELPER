@@ -843,8 +843,6 @@ export default function Page() {
         ...advancedConfig,
       };
 
-      console.log("Sending load test request:", payload);
-
       const response = await fetch("/api/v1/load-test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

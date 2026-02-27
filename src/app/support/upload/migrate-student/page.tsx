@@ -62,10 +62,6 @@ export default function Page() {
         );
     }, [SCHOOLstate?.response]);
 
-    useEffect(() => {
-        console.log("schoolList", schoolList);
-    }, [schoolList]);
-
     // #region : State
     const handleSubmitForm = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

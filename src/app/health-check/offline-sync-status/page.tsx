@@ -100,7 +100,6 @@ export default function Page() {
     useEffect(() => {
         const data = REGISTER_DEVICE_STATE?.response?.data?.data;
         setTable(data);
-        console.log("REGISTER DEVICE", data);
     }, [REGISTER_DEVICE_STATE]);
 
     //* ฟังก์ชันสำหรับตรวจสอบสถานะออนไลน์ของอุปกรณ์

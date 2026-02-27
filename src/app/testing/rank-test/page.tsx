@@ -34,10 +34,8 @@ export default function RankTestPage() {
         adminId = parsed.user_data?.admin_id?.toString() || "117";
       }
 
-      console.log(`[RankTest] Testing with admin_id: ${adminId}`);
       const result = await fetchUserRank(adminId);
       setRankData(result);
-      console.log("Rank API Result:", result);
     } catch (error: any) {
       console.error("Rank API Error:", error);
       setRankData({ error: error?.message || "Unknown error" });

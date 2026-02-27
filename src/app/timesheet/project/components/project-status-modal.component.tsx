@@ -123,9 +123,7 @@ export const ProjectStatusModal: React.FC<ProjectStatusModalProps> = ({
         toast.error(json.message_th || "เกิดข้อผิดพลาดในการบันทึก");
       }
     } catch (errInfo: any) {
-      if (errInfo?.errorFields) {
-        console.log("Validation Failed:", errInfo);
-      } else {
+      if (!errInfo?.errorFields) {
         toast.error("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
         console.error("Save Error:", errInfo);
       }

@@ -45,8 +45,6 @@ export async function GET(incomingRequest: NextRequest) {
       (performance.now() - executionStartTime).toFixed(2),
     );
 
-    // Optional: Log ความสำเร็จ
-    // logger.info("Read message API success", { userId, messageId, duration: executionDuration });
 
     return NextResponse.json(
       {
