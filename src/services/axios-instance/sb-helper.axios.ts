@@ -1,5 +1,4 @@
 import axios from "axios";
-import { logger } from "@/helpers/logger";
 
 /* ============================================================
    Color Setup สำหรับ Console

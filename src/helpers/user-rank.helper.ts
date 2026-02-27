@@ -146,9 +146,7 @@ export const refreshUserRankIfNeeded = async (
     console.log("Refreshing user rank data...");
 
     try {
-      console.log(
-        `[UserRankHelper] Refreshing rank data for user: ${userId}`,
-      );
+      console.log(`[UserRankHelper] Refreshing rank data for user: ${userId}`);
 
       const rankResponse = await fetchUserRank(userId);
 

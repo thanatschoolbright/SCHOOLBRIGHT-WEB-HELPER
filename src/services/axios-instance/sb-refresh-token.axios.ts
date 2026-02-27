@@ -1,11 +1,11 @@
-import axios from "axios";
 import { API_URL } from "@services/api-url";
+import axios from "axios";
 import https from "https";
 // Helper: สร้าง Axios instance (async เพื่อดึง token)
 export const API_CLIENT_WITH_REFRESH_TOKEN = async () => {
   const tokenData = await axios.get(
     `${API_URL.SB_HELPER_URL}/api/v1/authentication/refresh-token`,
-    {}
+    {},
   );
 
   if (!tokenData) {

@@ -1,18 +1,17 @@
 "use client";
 
-import React, { useState, FormEvent } from "react";
-import { useDispatch } from "react-redux";
-import { AppDispatch, store, useAppSelector } from "@stores/store";
-import { CallAPI } from "@/stores/actions/authentication/sign-in/action";
-import BaseLoadingComponent from "@components/loading/loading-component-1";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { CallAPI as CallRefreshAPI } from "@/stores/actions/authentication/call-post-refresh-token";
 import { fetchUserRank } from "@/services/user-rank/user-rank.service";
+import { CallAPI as CallRefreshAPI } from "@/stores/actions/authentication/call-post-refresh-token";
+import { CallAPI } from "@/stores/actions/authentication/sign-in/action";
+import { AppDispatch, store, useAppSelector } from "@stores/store";
+import { useRouter } from "next/navigation";
+import { FormEvent, useState } from "react";
+import { useDispatch } from "react-redux";
+import { toast } from "sonner";
 
 // ใช้ InputComponent
 import InputComponent from "@/components/input-field/input-component";
-import { FiMail, FiLock } from "react-icons/fi";
+import { FiLock, FiMail } from "react-icons/fi";
 
 export default function SignInPanel({ visible }: { visible: boolean }) {
   const dispatch = useDispatch<AppDispatch>();
@@ -76,7 +75,7 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
       }
       return null;
     } catch (error) {
-      console.error("❌ [API-GATEWAY] Error while refreshing token:", error);
+      console.error("[API-GATEWAY] Error while refreshing token:", error);
       return null;
     }
   };
@@ -89,12 +88,12 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
       if (rankData) {
         toast.success("เข้าสู่ระบบสำเร็จ", {
           duration: 3000,
-          description: `🏆 อันดับของคุณ: ${rankData.rank} (เดือน ${rankData.month}/${rankData.year})`,
+          description: `อันดับของคุณ: ${rankData.rank} (เดือน ${rankData.month}/${rankData.year})`,
         });
 
         // หมายเหตุ: ยกเลิกการบันทึกใน localStorage ตามนโยบายความปลอดภัย
         console.log(
-          "✅ User rank retrieved (Not saved to localStorage):",
+          "User rank retrieved (Not saved to localStorage):",
           rankData,
         );
       } else {
@@ -151,7 +150,7 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
       </p>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
-        {/* ✅ ใช้ InputComponent */}
+        {/* ใช้ InputComponent */}
         <InputComponent
           label="อีเมล"
           id="username"
@@ -167,7 +166,7 @@ export default function SignInPanel({ visible }: { visible: boolean }) {
           label="รหัสผ่าน"
           id="password"
           type="password"
-          placeholder="••••••••"
+          placeholder="********"
           value={password}
           onChange={(e: any) => setPassword(e.target.value)}
           required

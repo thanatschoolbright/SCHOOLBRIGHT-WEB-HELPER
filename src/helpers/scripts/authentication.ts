@@ -1,6 +1,6 @@
-import http, { Response } from "k6/http";
 import { check, sleep } from "k6";
 import { SharedArray } from "k6/data";
+import http, { Response } from "k6/http";
 
 // ประเภทข้อมูลของผู้ใช้สำหรับ login
 type Credential = {
@@ -45,7 +45,7 @@ function getStaticHeaders(): Record<string, string> {
 function printRequestAndResponse(
   url: string,
   headers: Record<string, string>,
-  response: Response
+  response: Response,
 ): void {
   console.log("Request:");
   console.log(`- URL: ${url}`);
@@ -91,7 +91,7 @@ export default function main(): void {
   const user = credentials[index];
 
   console.log(
-    `VU: ${__VU}, Iteration: ${__ITER}, Testing with user: ${user.user}, pass: ${user.pass}`
+    `VU: ${__VU}, Iteration: ${__ITER}, Testing with user: ${user.user}, pass: ${user.pass}`,
   );
 
   const url = buildLoginUrl(user);

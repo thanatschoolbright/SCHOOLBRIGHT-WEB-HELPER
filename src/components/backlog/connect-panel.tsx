@@ -1,7 +1,6 @@
 "use client";
 //** แผงเชื่อมต่อ Backlog (Minimal) - กรอก Space และกด Connect/Refresh
-import React from "react";
-import { Card, Space, Typography, Input, Button } from "antd";
+import { Button, Card, Input, Space, Typography } from "antd";
 
 type Props = {
   space: string;
@@ -22,9 +21,7 @@ export default function BacklogConnectPanel({
     <Card size="small" styles={{ body: { padding: 16 } }}>
       <Space direction="vertical" style={{ width: "100%" }} size={8}>
         {/* 1) หัวข้อคำอธิบาย */}
-        <Typography.Text strong>
-          เชื่อมต่อ Backlog (OAuth 2.0)
-        </Typography.Text>
+        <Typography.Text strong>เชื่อมต่อ Backlog (OAuth 2.0)</Typography.Text>
         <Typography.Text type="secondary">
           กรอก Space (subdomain) เช่น myteam แล้วคลิก Connect เพื่อเข้าสู่ระบบ
         </Typography.Text>
@@ -49,4 +46,3 @@ export default function BacklogConnectPanel({
     </Card>
   );
 }
-

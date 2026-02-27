@@ -1,14 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
-import { Table, Button, Tag, Input, Space } from "antd";
-import type { ColumnsType, TableProps } from "antd/es/table";
-import {
-  SearchOutlined,
-  EditOutlined,
-  DeleteOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import "@ant-design/v5-patch-for-react-19";
+import { Button, Space, Table, Tag } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import React, { useState } from "react";
 
 interface UserData {
   key: string;
@@ -42,7 +38,7 @@ const initialData: UserData[] = [
   },
 ];
 
-/* 🎯 Template Table พร้อม Filter + Sort + Action */
+/* Template Table พร้อม Filter + Sort + Action */
 const Home: React.FC = () => {
   const [data, setData] = useState<UserData[]>(initialData);
 
@@ -120,7 +116,7 @@ const Home: React.FC = () => {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold">📊 User Management</h1>
+        <h1 className="text-xl font-bold">User Management</h1>
         <Button type="primary">+ Add User</Button>
       </div>
 

@@ -1,9 +1,8 @@
 "use client";
-import { useState, InputHTMLAttributes, ReactNode } from "react";
+import { InputHTMLAttributes, ReactNode, useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
-interface InputFieldComponentProps
-  extends InputHTMLAttributes<HTMLInputElement> {
+interface InputFieldComponentProps extends InputHTMLAttributes<HTMLInputElement> {
   /** ป้ายชื่อฟิลด์ */
   label?: string;
   /** ข้อความ error */

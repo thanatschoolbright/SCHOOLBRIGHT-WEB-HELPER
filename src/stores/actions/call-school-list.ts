@@ -1,6 +1,6 @@
+import { API_METHOD } from "@/services/api-method";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { CallBackendAPIProps } from "@services/api-gateway";
-import { API_METHOD } from "@/services/api-method";
 
 // AsyncThunk สำหรับเรียก API
 export const CallAPI = createAsyncThunk("/api/v1/school", async () => {

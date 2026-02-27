@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const ModalAPIDetail = ({ row }: any) => {
   const [copied, setCopied] = useState(false);
@@ -55,8 +55,8 @@ const ModalAPIDetail = ({ row }: any) => {
             {row.status.startsWith("2")
               ? "(v)"
               : row.status.startsWith("5")
-              ? "(x)"
-              : "(!)"}
+                ? "(x)"
+                : "(!)"}
           </span>
         </div>
       </div>
@@ -132,7 +132,7 @@ const ModalAPIDetail = ({ row }: any) => {
           {(() => {
             try {
               const decoded = new TextDecoder().decode(
-                new Uint8Array(row.response.stream.data)
+                new Uint8Array(row.response.stream.data),
               );
               const json = JSON.parse(decoded);
               return JSON.stringify(json, null, 2);

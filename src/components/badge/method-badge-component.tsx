@@ -1,31 +1,38 @@
 "use client";
 
-import {Tag} from "antd";
+import { Tag } from "antd";
 import React from "react";
 
-type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "OPTIONS" | "HEAD";
+type HttpMethod =
+  | "GET"
+  | "POST"
+  | "PUT"
+  | "DELETE"
+  | "PATCH"
+  | "OPTIONS"
+  | "HEAD";
 
 interface MethodBadgeProps {
-    method: HttpMethod | string;
-    loading?: boolean;
+  method: HttpMethod | string;
+  loading?: boolean;
 }
 
 interface MethodConfig {
-    color: string;
-    emoji: string;
+  color: string;
+  emoji: string;
 }
 
 /**
  * แมป HTTP Methods เป็นสีและ emoji ที่เหมาะสม
  */
 const METHOD_MAP: Record<string, MethodConfig> = {
-    GET: {color: "success", emoji: ""},
-    POST: {color: "processing", emoji: ""},
-    PUT: {color: "warning", emoji: ""},
-    DELETE: {color: "error", emoji: ""},
-    PATCH: {color: "orange", emoji: ""},
-    OPTIONS: {color: "default", emoji: ""},
-    HEAD: {color: "purple", emoji: ""},
+  GET: { color: "success", emoji: "" },
+  POST: { color: "processing", emoji: "" },
+  PUT: { color: "warning", emoji: "" },
+  DELETE: { color: "error", emoji: "" },
+  PATCH: { color: "orange", emoji: "" },
+  OPTIONS: { color: "default", emoji: "" },
+  HEAD: { color: "purple", emoji: "" },
 };
 
 /**
@@ -33,25 +40,25 @@ const METHOD_MAP: Record<string, MethodConfig> = {
  * @param props - Properties ของ Badge
  */
 export const MethodBadge: React.FC<MethodBadgeProps> = ({
-                                                            method,
-                                                            loading = false,
-                                                        }) => {
-    //** แสดง Loading state */
-    if (loading) {
-        return <Tag color="processing">Loading...</Tag>;
-    }
+  method,
+  loading = false,
+}) => {
+  //** แสดง Loading state */
+  if (loading) {
+    return <Tag color="processing">Loading...</Tag>;
+  }
 
-    const upperMethod = method.toUpperCase();
-    const methodConfig = METHOD_MAP[upperMethod];
+  const upperMethod = method.toUpperCase();
+  const methodConfig = METHOD_MAP[upperMethod];
 
-    //** ใช้ค่า default หากไม่มีในแมป */
-    if (!methodConfig) {
-        return <Tag color="default">{upperMethod}</Tag>;
-    }
+  //** ใช้ค่า default หากไม่มีในแมป */
+  if (!methodConfig) {
+    return <Tag color="default">{upperMethod}</Tag>;
+  }
 
-    return (
-        <Tag color={methodConfig.color}>
-            {methodConfig.emoji} {upperMethod}
-        </Tag>
-    );
+  return (
+    <Tag color={methodConfig.color}>
+      {methodConfig.emoji} {upperMethod}
+    </Tag>
+  );
 };

@@ -1,6 +1,6 @@
-import http, { Response } from "k6/http";
-import { check, sleep } from "k6";
+import { check } from "k6";
 import { SharedArray } from "k6/data";
+import http from "k6/http";
 
 // Credential type definition
 type Credential = {
@@ -34,7 +34,7 @@ export default function main(): void {
   // Select test user for this VU
   const user = credentials[__VU % credentials.length];
   console.log(
-    `VU: ${__VU}, Iteration: ${__ITER}, Testing with user: ${user.user}`
+    `VU: ${__VU}, Iteration: ${__ITER}, Testing with user: ${user.user}`,
   );
 
   // Common headers for all requests

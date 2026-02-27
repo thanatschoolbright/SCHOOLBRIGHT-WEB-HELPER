@@ -46,11 +46,7 @@ export function successResponse<T>({
   pagination,
   status = 200,
 }: SuccessOptions<T>): ApiResponse<T> {
-  console.log(
-    "\x1b[32m%s\x1b[0m",
-    "Response Data:",
-    formatResponseData(data)
-  );
+  console.log("\x1b[32m%s\x1b[0m", "Response Data:", formatResponseData(data));
 
   return {
     status,

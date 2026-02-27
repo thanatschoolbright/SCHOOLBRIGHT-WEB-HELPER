@@ -1,6 +1,7 @@
 //** Functionality: Main sign in form component orchestrating step-based authentication
 //** Note: Composes LogoHeader, EmailStepForm, PasswordStepForm for modular design
 
+import { fetchUserRank } from "@/services/user-rank/user-rank.service";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import { Card, Steps, theme } from "antd";
 import { useRouter } from "next/navigation";
@@ -9,7 +10,6 @@ import { toast } from "sonner";
 import EmailStepForm from "../email-step-form";
 import LogoHeader from "../logo-header";
 import PasswordStepForm from "../password-step-form";
-import { fetchUserRank } from "@/services/user-rank/user-rank.service";
 
 const { useToken } = theme;
 
