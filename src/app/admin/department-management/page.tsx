@@ -1,42 +1,41 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
-import {
-  Space,
-  Button,
-  theme,
-  Input,
-  Modal,
-  Form,
-  Tag,
-  Tooltip,
-  Table,
-  Row,
-  Col,
-  Card,
-  Typography,
-  Alert,
-  Progress,
-  Steps,
-} from "antd";
-import {
-  ReloadOutlined,
-  SearchOutlined,
-  CheckCircleOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  ApartmentOutlined,
-  PlusOutlined,
-  ExclamationCircleOutlined,
-  CloudServerOutlined,
-  LoadingOutlined,
-} from "@ant-design/icons";
-import type { ColumnsType } from "antd/es/table";
-import { toast } from "sonner";
-import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
+import {
+  ApartmentOutlined,
+  CheckCircleOutlined,
+  CloudServerOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  ExclamationCircleOutlined,
+  LoadingOutlined,
+  PlusOutlined,
+  ReloadOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import DashboardLayout from "@components/layouts/backend-layout";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
+import {
+  Alert,
+  Button,
+  Card,
+  Col,
+  Form,
+  Input,
+  Modal,
+  Progress,
+  Row,
+  Space,
+  Steps,
+  Table,
+  Tag,
+  theme,
+  Typography,
+} from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 // Department Type
 interface Department {
@@ -513,7 +512,7 @@ export default function DepartmentManagementPage() {
                       title: "จัดการ",
                       key: "action",
                       width: 60,
-                      render: (_, r, idx) => (
+                      render: (_, _r, idx) => (
                         <Button
                           type="text"
                           danger
