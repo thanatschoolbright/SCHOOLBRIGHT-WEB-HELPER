@@ -5,9 +5,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "bun-dev": "bun --env-file .env.local next dev --turbopack",
-    "bun-dev-webpack": "bun --env-file .env.local next dev --webpack",
-    "bun-build": "bun run next build",
     "dev": "next dev --turbopack",
     "dev-webpack": "next dev --webpack",
     "build": "next build",
