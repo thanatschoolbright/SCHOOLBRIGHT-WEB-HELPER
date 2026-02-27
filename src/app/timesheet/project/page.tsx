@@ -929,7 +929,6 @@ export default function ProjectManagementPage() {
               subtitle="รวมโครงการทุกสถานะ"
               icon={<ProjectOutlined />}
               color={token.colorPrimary}
-              percent={100}
               isLoading={loading && !backendStats}
             />
           </Col>
@@ -940,11 +939,6 @@ export default function ProjectManagementPage() {
               subtitle="โครงการที่ยังไม่ปิด"
               icon={<ReloadOutlined />}
               color={token.colorInfo}
-              percent={
-                backendStats?.health?.total > 0
-                  ? (backendStats.health.open / backendStats.health.total) * 100
-                  : 0
-              }
               isLoading={loading && !backendStats}
             />
           </Col>
@@ -955,12 +949,6 @@ export default function ProjectManagementPage() {
               subtitle="โครงการที่ส่งมอบแล้ว"
               icon={<CheckCircleOutlined />}
               color={token.colorSuccess}
-              percent={
-                backendStats?.health?.total > 0
-                  ? (backendStats.health.close / backendStats.health.total) *
-                    100
-                  : 0
-              }
               isLoading={loading && !backendStats}
             />
           </Col>
@@ -975,13 +963,6 @@ export default function ProjectManagementPage() {
               subtitle="เปอร์เซ็นต์โครงการที่เสร็จ"
               icon={<PieChartOutlined />}
               color={token.colorWarning}
-              percent={
-                backendStats?.health?.total > 0
-                  ? (Number(backendStats?.health?.close || 0) /
-                      backendStats.health.total) *
-                    100
-                  : 0
-              }
               isLoading={loading && !backendStats}
             />
           </Col>

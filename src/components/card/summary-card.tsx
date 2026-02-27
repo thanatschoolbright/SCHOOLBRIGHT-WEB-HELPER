@@ -10,6 +10,7 @@ export interface SummaryCardProps {
   title: string;
   value: string | number;
   unit?: string;
+  subtitle?: React.ReactNode; // 🟢 เพิ่ม Prop subtitle (รับเป็น Node เพื่อให้ใส่ Tag/Icon ได้)
   icon?: React.ReactNode;
   color?: string;
   tooltip?: string;
@@ -20,6 +21,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
   title,
   value,
   unit,
+  subtitle, // 🟢 ดึง subtitle มาใช้งาน
   icon,
   color,
   tooltip,
@@ -28,7 +30,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
   const { token } = theme.useToken();
   const themeColor = color || token.colorPrimary;
 
-  // 1. Loading State (Fixed the Skeleton Error)
+  // 1. Loading State
   if (isLoading) {
     return (
       <Card
@@ -56,9 +58,12 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
             />
             <Skeleton active paragraph={false} title={{ width: 120 }} />
           </Flex>
-          {/* Bottom part: Big Number placeholder */}
-          {/* 🟢 แก้ไขตรงนี้: ลบ height ออก แล้วใช้ Avatar หรือ Paragraph หลอกๆ แทนเพื่อให้ได้กล่องใหญ่ๆ */}
-          <Skeleton.Button active style={{ width: 180, height: 40 }} />
+          {/* Bottom part: Big Number placeholder + Subtitle placeholder */}
+          <Flex vertical gap={8}>
+            <Skeleton.Button active style={{ width: 180, height: 40 }} />
+            {/* 🟢 เพิ่ม Skeleton เส้นเล็กๆ สำหรับ subtitle */}
+            <Skeleton.Button active style={{ width: 100, height: 16 }} />
+          </Flex>
         </Flex>
       </Card>
     );
@@ -118,30 +123,47 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
             )}
           </Flex>
 
-          {/* --- Bottom Section: The Big Number --- */}
-          <Flex align="baseline" gap={8} style={{ marginTop: 24 }}>
-            <Text
-              style={{
-                fontSize: 42,
-                fontWeight: 800,
-                letterSpacing: "-1px",
-                color: token.colorText,
-                lineHeight: 1,
-              }}
-            >
-              {value}
-            </Text>
-            {unit && (
+          {/* --- Bottom Section: The Big Number & Subtitle --- */}
+          <Flex vertical style={{ marginTop: 24 }}>
+            <Flex align="baseline" gap={8}>
+              <Text
+                style={{
+                  fontSize: 42,
+                  fontWeight: 800,
+                  letterSpacing: "-1px",
+                  color: token.colorText,
+                  lineHeight: 1,
+                }}
+              >
+                {value}
+              </Text>
+              {unit && (
+                <Text
+                  type="secondary"
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 600,
+                    position: "relative",
+                    top: "-4px",
+                  }}
+                >
+                  {unit}
+                </Text>
+              )}
+            </Flex>
+
+            {/* 🟢 แสดง Subtitle ด้านล่างของตัวเลขหลัก */}
+            {subtitle && (
               <Text
                 type="secondary"
                 style={{
-                  fontSize: 16,
-                  fontWeight: 600,
-                  position: "relative",
-                  top: "-4px",
+                  fontSize: 13,
+                  marginTop: 4,
+                  fontWeight: 400,
+                  lineHeight: 1.4,
                 }}
               >
-                {unit}
+                {subtitle}
               </Text>
             )}
           </Flex>
