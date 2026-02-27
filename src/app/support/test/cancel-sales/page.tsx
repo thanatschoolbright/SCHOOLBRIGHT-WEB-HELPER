@@ -769,7 +769,7 @@ export default function Page() {
                   <Col xs={24} lg={16}>
                     <Flex vertical gap="large">
                       <Card>
-                        <Title level={5}>
+                        <Title level={5} style={{ marginBottom: 24 }}>
                           <FileTextOutlined /> รายละเอียดการขอทำรายการ
                           (Cancellation Details)
                         </Title>
@@ -793,12 +793,14 @@ export default function Page() {
                               setCurrentStep(step);
                             }}
                           >
-                            <Row gutter={[24, 24]}>
+                            {/* เพิ่มระยะห่างระหว่าง Grid ด้วย gutter={[32, 32]} */}
+                            <Row gutter={[32, 32]}>
                               <Col span={24}>
                                 <Form.Item
                                   name="SchoolID"
+                                  style={{ marginBottom: 24 }}
                                   label={
-                                    <Space>
+                                    <Space size="middle">
                                       <HomeOutlined />
                                       <Text strong>
                                         สถานศึกษาที่ต้องการดำเนินการ
@@ -825,8 +827,9 @@ export default function Page() {
                               <Col xs={24} md={12}>
                                 <Form.Item
                                   name="sID"
+                                  style={{ marginBottom: 24 }}
                                   label={
-                                    <Space>
+                                    <Space size="middle">
                                       <UserOutlined />
                                       <Text strong>
                                         ผู้ซื้อสินค้า (User ID)
@@ -851,8 +854,9 @@ export default function Page() {
                               <Col xs={24} md={12}>
                                 <Form.Item
                                   name="sID2"
+                                  style={{ marginBottom: 24 }}
                                   label={
-                                    <Space>
+                                    <Space size="middle">
                                       <TeamOutlined />
                                       <Text strong>
                                         ผู้ขาย/ร้านค้า (User ID)
@@ -877,8 +881,9 @@ export default function Page() {
                               <Col span={24}>
                                 <Form.Item
                                   name="sSellID"
+                                  style={{ marginBottom: 24 }}
                                   label={
-                                    <Space>
+                                    <Space size="middle">
                                       <CreditCardOutlined />
                                       <Text strong>
                                         รหัสหมายเลขรายการ (Transaction /
@@ -901,9 +906,9 @@ export default function Page() {
                               </Col>
                             </Row>
 
-                            <Divider />
+                            <Divider style={{ margin: "32px 0" }} />
 
-                            <Flex gap="middle">
+                            <Flex gap="large">
                               <Button
                                 type="primary"
                                 htmlType="submit"
@@ -927,9 +932,9 @@ export default function Page() {
                       {responsePayload.data && (
                         <Card
                           title={
-                            <Space>
+                            <Space size="middle">
                               <CheckCircleOutlined />
-                              <Title level={5}>
+                              <Title level={5} style={{ margin: 0 }}>
                                 ผลลัพธ์การร้องขอ (Operation Result)
                               </Title>
                             </Space>
@@ -938,9 +943,9 @@ export default function Page() {
                           <Flex vertical gap="large">
                             {getResponseAlert(responsePayload.data)}
 
-                            <Flex vertical gap="small">
-                              <Paragraph code>
-                                <pre>
+                            <Flex vertical gap="middle">
+                              <Paragraph code style={{ padding: 16 }}>
+                                <pre style={{ margin: 0 }}>
                                   {JSON.stringify(
                                     responsePayload.data,
                                     null,
@@ -948,7 +953,7 @@ export default function Page() {
                                   )}
                                 </pre>
                               </Paragraph>
-                              <Flex gap="small">
+                              <Flex gap="middle">
                                 <Button
                                   icon={<CopyOutlined />}
                                   onClick={() =>
@@ -988,7 +993,7 @@ export default function Page() {
                   <Col xs={24} lg={8}>
                     <Flex vertical gap="large">
                       <Card>
-                        <Title level={5}>
+                        <Title level={5} style={{ marginBottom: 24 }}>
                           <RocketOutlined /> ความคืบหน้า (Progress)
                         </Title>
                         <Flex vertical gap="large">
@@ -1014,12 +1019,16 @@ export default function Page() {
                               },
                             ]}
                           />
-                          <Flex vertical align="center">
+                          <Flex
+                            vertical
+                            align="center"
+                            style={{ marginTop: 16 }}
+                          >
                             <Progress
                               percent={Math.round(getFormProgress())}
                               status="active"
                             />
-                            <Text type="secondary">
+                            <Text type="secondary" style={{ marginTop: 8 }}>
                               ความสมบูรณ์ของชุดข้อมูล:{" "}
                               {Math.round(getFormProgress())}%
                             </Text>
@@ -1028,10 +1037,10 @@ export default function Page() {
                       </Card>
 
                       <Card>
-                        <Title level={5}>
+                        <Title level={5} style={{ marginBottom: 24 }}>
                           <InfoCircleOutlined /> ศูนย์ช่วยเหลือ (Help Center)
                         </Title>
-                        <Paragraph>
+                        <Paragraph style={{ marginBottom: 24 }}>
                           หากคุณไม่แน่ใจเกี่ยวกับขั้นตอนการใช้งาน
                           โปรดอ่านคู่มือหรือรับชมวิดีโอแนะนำสั้นๆ
                         </Paragraph>
@@ -1039,11 +1048,11 @@ export default function Page() {
                           href="https://drive.google.com/file/d/11JeMTt22jWK12BjsW07fFYteuZgDGjAe/view?usp=sharing"
                           target="_blank"
                         >
-                          <Button type="link" block>
+                          <Button type="link" block size="large">
                             วิดีโอสอนการใช้งาน (2 นาที)
                           </Button>
                         </Link>
-                        <Divider />
+                        <Divider style={{ margin: "24px 0" }} />
                         <Text type="secondary">
                           หมายเหตุ: รายการที่แสดงด้วยสีเหลืองในผลลัพธ์
                           อาจหมายถึงรายการไม่ถูกพบในระบบจริง
