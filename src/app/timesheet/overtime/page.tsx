@@ -218,10 +218,10 @@ const OvertimeManagementPage = () => {
 
   // --- ส่วนควบคุม Modal แจ้งเตือนกลาง (Feedback Modal) ---
   const [modalState, setModalState] = useState<StatusModalProps>({
-    visible: false,
+    open: false,
     type: "success",
     title: "",
-    subtitle: "",
+    message: "",
   });
 
   // ดึงข้อมูลรหัสผู้ดูแลระบบปัจจุบันจากสถานะการเข้าสู่ระบบหรือ Local Storage
@@ -246,10 +246,10 @@ const OvertimeManagementPage = () => {
     (error: any, errorTitle: string = "ระบบขัดข้อง") => {
       console.error(error);
       setModalState({
-        visible: true,
+        open: true,
         type: "error",
         title: errorTitle,
-        subtitle: error?.message || "ไม่สามารถดำเนินการได้ในขณะนี้",
+        message: error?.message || "ไม่สามารถดำเนินการได้ในขณะนี้",
       });
     },
     [],
@@ -1219,7 +1219,12 @@ const OvertimeManagementPage = () => {
         {/* Modal แจ้งเตือนสถานะการทำงาน (Success/Error) */}
         <StatusModalComponent
           {...modalState}
-          onClose={() => setModalState((prev) => ({ ...prev, visible: false }))}
+          onClose={() =>
+            setModalState((prev: StatusModalProps) => ({
+              ...prev,
+              open: false,
+            }))
+          }
         />
       </Flex>
     </DashboardLayout>
