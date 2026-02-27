@@ -1,11 +1,10 @@
-import { TTempScanStatusOnline } from "./../../../../../../../generated/prisma/index.d";
-import { NextRequest } from "next/server";
-import { successResponse, errorResponse } from "@helpers/api/response";
 import { API_CLIENT_WITH_REFRESH_TOKEN } from "@/services/axios-instance/sb-refresh-token.axios";
-import { API_URL } from "@services/api-url";
-import z from "zod";
-import { validateRequest } from "@helpers/api/validate.request";
 import { ATTENDANCE_STATUS } from "@constants/attendance-status";
+import { errorResponse, successResponse } from "@helpers/api/response";
+import { validateRequest } from "@helpers/api/validate.request";
+import { API_URL } from "@services/api-url";
+import { NextRequest } from "next/server";
+import z from "zod";
 
 // Type Definition
 export type ResponseGetStudent = {
@@ -93,10 +92,10 @@ export async function POST(request: NextRequest) {
     const apiClient = await API_CLIENT_WITH_REFRESH_TOKEN();
     const payload: RequestGetStudent = data;
     const urlSelection = payload.url_type;
-    const apiUrl = urlSelection === "DEV" ? API_URL.DEV_SB_API_URL : API_URL.PROD_SB_API_URL;
+    const apiUrl =
+      urlSelection === "DEV" ? API_URL.DEV_SB_API_URL : API_URL.PROD_SB_API_URL;
     const target = `${apiUrl}/api/School/getstudent/${payload.school_id}/${payload.sub_level_id}`;
     const response = await apiClient.get(target);
-    
 
     const rawData = extractData(response);
     const mappedData = rawData.map(mapToDto);
@@ -105,7 +104,7 @@ export async function POST(request: NextRequest) {
       successResponse({
         data: mappedData,
         status: response.status,
-      })
+      }),
     );
   } catch (error: any) {
     console.error("API Error:", error.message);
@@ -117,7 +116,7 @@ export async function POST(request: NextRequest) {
         status: error?.response?.status || 500,
         error,
       }),
-      { status: error?.response?.status || 500 }
+      { status: error?.response?.status || 500 },
     );
   }
 }

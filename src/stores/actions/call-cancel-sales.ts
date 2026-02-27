@@ -19,5 +19,5 @@ export const CallAPI = createAsyncThunk(
     };
     const response = await callBackendAPI(payload);
     return response;
-  }
+  },
 );

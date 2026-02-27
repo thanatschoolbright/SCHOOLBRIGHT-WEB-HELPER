@@ -1,9 +1,9 @@
-import { NextRequest } from "next/server";
-import { successResponse, errorResponse } from "@helpers/api/response";
 import { API_CLIENT_WITH_REFRESH_TOKEN } from "@/services/axios-instance/sb-refresh-token.axios";
-import { API_URL } from "@services/api-url";
-import z from "zod";
+import { errorResponse, successResponse } from "@helpers/api/response";
 import { validateRequest } from "@helpers/api/validate.request";
+import { API_URL } from "@services/api-url";
+import { NextRequest } from "next/server";
+import z from "zod";
 
 // Type Definition
 export type ResponseGetSubLevel = {
@@ -72,17 +72,17 @@ export async function POST(request: NextRequest) {
     const apiClient = await API_CLIENT_WITH_REFRESH_TOKEN();
     const payload: RequestGetStudent = data;
     payload.teacher_id = "99999"; // MOCKUP DATA ยังไม่จำเป็นต้องใส่ค่าจริง
-  const target = `${API_URL.PROD_SB_API_URL}/api/School/getstudent/${payload.school_id}/${payload.sub_level_id}/${payload.subject_id}/${payload.teacher_id}?date=${payload.date}`;
-  const response = await apiClient.get(target);
+    const target = `${API_URL.PROD_SB_API_URL}/api/School/getstudent/${payload.school_id}/${payload.sub_level_id}/${payload.subject_id}/${payload.teacher_id}?date=${payload.date}`;
+    const response = await apiClient.get(target);
 
-  const rawData = extractData(response);
-  const mappedData = rawData.map(mapToDto);
+    const rawData = extractData(response);
+    const mappedData = rawData.map(mapToDto);
 
     return Response.json(
       successResponse({
         data: mappedData,
         status: response.status,
-      })
+      }),
     );
   } catch (error: any) {
     console.error("Failed to fetch students from SB API:", {
@@ -93,11 +93,12 @@ export async function POST(request: NextRequest) {
     return Response.json(
       errorResponse({
         message_en: error.message || "Internal Server Error",
-        message_th: "เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์ ตอนนี้ Response จาก SB API ส่งมาผิด",
+        message_th:
+          "เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์ ตอนนี้ Response จาก SB API ส่งมาผิด",
         status: error?.response?.status || 500,
         error,
       }),
-      { status: error?.response?.status || 500 }
+      { status: error?.response?.status || 500 },
     );
   }
 }
