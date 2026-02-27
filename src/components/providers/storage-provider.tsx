@@ -1,79 +1,93 @@
 "use client";
 
-/**
- * StorageProvider: จัดการข้อมูลในหน่วยความจำ (Memory Cache) แทน LocalStorage
- * ปรับปรุงตามนโยบายความปลอดภัย ห้ามใช้ LocalStorage
- */
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
+import { callApiService } from "@services/axios-instance/sb-helper.axios";
 
-import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
-import { createContext, useContext, useEffect, useState } from "react";
-import { toast } from "sonner";
+interface User {
+  id: string;
+  username: string;
+  email: string;
+  role: string;
+}
 
-const StorageContext = createContext<any>(null);
+interface Project {
+  id: string;
+  projectName: string;
+  status: string;
+}
 
-export const useMemoryStorage = () => useContext(StorageContext);
+interface StorageCache {
+  users: User[];
+  projects: Project[];
+}
 
-export function StorageProvider({
-  children,
-}: React.PropsWithChildren): JSX.Element {
-  const [cache, setCache] = useState<Record<string, any>>({});
+interface StorageContextType {
+  cache: StorageCache;
+  requestUserListData: () => Promise<void>;
+  requestProjectListData: () => Promise<void>;
+}
 
-  /**
-   * บันทึกข้อมูลลง Memory และแสดง Toast
-   */
-  const saveToMemory = (storageName: string, data: any): void => {
-    setCache((prev) => ({ ...prev, [storageName]: data }));
-    toast.info(`โหลดข้อมูล ${storageName} ลงในหน่วยความจำ (local storage)`, {
-      duration: 3000,
-    });
-  };
+const StorageContext = createContext<StorageContextType | undefined>(undefined);
 
-  /**
-   * โหลดข้อมูลผู้ใช้จาก API
-   */
-  const fetchUsers = async (): Promise<void> => {
-    const toastId = toast.loading("กำลังโหลดข้อมูลผู้ใช้งาน...");
+export function StorageProvider({ children }: React.PropsWithChildren) {
+  const [cache, setCache] = useState<StorageCache>({
+    users: [],
+    projects: [],
+  });
+
+  const requestUserListData = useCallback(async () => {
     try {
-      const response = await axios.get("/api/v1/admin/user/");
-      const fetchedUsers = response?.data?.data?.data || [];
-      saveToMemory("users", fetchedUsers);
-      toast.success("โหลดข้อมูลสำเร็จ", { id: toastId });
+      const { data } = await callApiService.get("/api/v1/admin/user/");
+      const userList = data?.data?.data ?? [];
+      setCache((prev) => ({ ...prev, users: userList }));
     } catch (error) {
-      toast.error("โหลดข้อมูลล้มเหลว", { id: toastId });
+      console.error(error);
     }
-  };
+  }, []);
 
-  /**
-   * โหลดข้อมูลโปรเจ็กต์จาก API
-   */
-  const fetchProjects = async (): Promise<void> => {
-    const toastId = toast.loading("กำลังโหลดข้อมูลโปรเจ็ค...");
+  const requestProjectListData = useCallback(async () => {
     try {
-      const response = await axios.post(
+      const { data } = await callApiService.post(
         "/api/v1/timesheet/project/read/",
         { limit: 50, page: 1 },
         { headers: { "Content-Type": "application/json" } },
       );
-      const data = response.data;
-      saveToMemory("projects", data.data);
-      toast.success("โหลดข้อมูลสำเร็จ", { id: toastId });
+      setCache((prev) => ({ ...prev, projects: data.data ?? [] }));
     } catch (error) {
-      toast.error("โหลดข้อมูลล้มเหลว", { id: toastId });
+      console.error(error);
     }
-  };
-
-  /**
-   * โหลดข้อมูลเริ่มต้นเมื่อ Component Mount
-   */
-  useEffect(() => {
-    // ยกเลิกการตรวจสอบ LocalStorage และใช้การ Fetch ใหม่เสมอเพื่อความปลอดภัย
-    fetchUsers();
-    fetchProjects();
   }, []);
 
+  useEffect(() => {
+    void requestUserListData();
+    void requestProjectListData();
+  }, [requestUserListData, requestProjectListData]);
+
+  const value = useMemo(
+    () => ({
+      cache,
+      requestUserListData,
+      requestProjectListData,
+    }),
+    [cache, requestUserListData, requestProjectListData],
+  );
+
   return (
-    <StorageContext.Provider value={{ cache, fetchUsers, fetchProjects }}>
-      {children}
-    </StorageContext.Provider>
+    <StorageContext.Provider value={value}>{children}</StorageContext.Provider>
   );
 }
+
+export const useMemoryStorage = () => {
+  const context = useContext(StorageContext);
+  if (!context) {
+    throw new Error("useMemoryStorage must be used within a StorageProvider");
+  }
+  return context;
+};
