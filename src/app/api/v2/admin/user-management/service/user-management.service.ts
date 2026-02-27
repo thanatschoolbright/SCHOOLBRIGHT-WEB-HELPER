@@ -829,38 +829,60 @@ export const UserManagementService = {
       "ลำดับ",
       "รหัสพนักงาน",
       "Admin ID",
-      "คำนำหน้า",
+      "Username",
       "ชื่อ (ไทย)",
       "นามสกุล (ไทย)",
+      "ชื่อ (EN)",
+      "นามสกุล (EN)",
       "ชื่อเล่น",
       "แผนก/ฝ่ายงาน",
       "ตำแหน่งงาน",
       "อีเมลติดต่อ",
       "เบอร์โทรศัพท์",
+      "วันเกิด",
+      "อายุ (ปี)",
       "ประเภทการจ้างงาน",
       "สิทธิ์การเข้าถึง",
       "วันที่เริ่มงาน",
+      "วันที่ลาออก",
       "อายุงาน",
+      "เข้าสู่ระบบล่าสุด",
+      "วันที่สร้างข้อมูล",
+      "สร้างโดย (Admin ID)",
+      "วันที่แก้ไขล่าสุด",
+      "แก้ไขโดย (Admin ID)",
+      "ล็อกอินผิดพลาด (ครั้ง)",
       "สถานะการใช้งาน",
     ];
 
     worksheet.getRow(tableHeaderRowIndex).values = headers;
     worksheet.columns = [
-      { key: "no", width: 10 },
+      { key: "no", width: 8 },
       { key: "employee_code", width: 18 },
       { key: "admin_id", width: 12 },
-      { key: "prefix", width: 12 },
-      { key: "firstname", width: 22 },
-      { key: "lastname", width: 22 },
+      { key: "username", width: 18 },
+      { key: "firstname_th", width: 22 },
+      { key: "lastname_th", width: 22 },
+      { key: "firstname_en", width: 22 },
+      { key: "lastname_en", width: 22 },
       { key: "nickname", width: 14 },
       { key: "department", width: 25 },
       { key: "position", width: 28 },
       { key: "email", width: 30 },
       { key: "phone", width: 18 },
+      { key: "birth_date", width: 16 },
+      { key: "age", width: 10 },
       { key: "employment_type", width: 20 },
       { key: "role", width: 20 },
       { key: "joined_date", width: 16 },
+      { key: "resigned_date", width: 16 },
       { key: "work_period", width: 20 },
+      { key: "last_login", width: 20 },
+      { key: "created_at", width: 20 },
+      { key: "created_by", width: 15 },
+      { key: "updated_at", width: 20 },
+      { key: "updated_by", width: 15 },
+      { key: "failed_attempts", width: 15 },
       { key: "status", width: 15 },
     ];
 
@@ -909,10 +931,17 @@ export const UserManagementService = {
 
     users.forEach((u, idx) => {
       const joined = u.joined_date ? dayjs(u.joined_date) : null;
+      const resigned = u.resigned_date ? dayjs(u.resigned_date) : null;
+      const birth = u.birth_date ? dayjs(u.birth_date) : null;
+      const created = u.created_at ? dayjs(u.created_at) : null;
+      const updated = u.updated_at ? dayjs(u.updated_at) : null;
+      const lastLogin = u.last_login ? dayjs(u.last_login) : null;
+
       let durationStr = "-";
       if (joined) {
-        const diffY = now.diff(joined, "year");
-        const diffM = now.diff(joined.add(diffY, "year"), "month");
+        const compareDate = resigned || now;
+        const diffY = compareDate.diff(joined, "year");
+        const diffM = compareDate.diff(joined.add(diffY, "year"), "month");
         durationStr = `${diffY} ปี ${diffM} เดือน`;
       }
 
@@ -920,18 +949,31 @@ export const UserManagementService = {
         no: idx + 1,
         employee_code: u.employee_code || "-",
         admin_id: u.admin_id,
-        prefix: "-",
-        firstname: u.firstname_th || "-",
-        lastname: u.lastname_th || "-",
+        username: u.username || "-",
+        firstname_th: u.firstname_th || "-",
+        lastname_th: u.lastname_th || "-",
+        firstname_en: u.firstname_en || "-",
+        lastname_en: u.lastname_en || "-",
         nickname: u.nickname || "-",
         department: u.department?.name_th || "-",
         position: u.position_ref?.name_th || "-",
         email: u.email || "-",
         phone: u.phone || "-",
+        birth_date: birth ? birth.format("DD/MM/BBBB") : "-",
+        age: birth ? now.diff(birth, "year") : "-",
         employment_type: getEmploymentLabel(u.employment_type),
-        role: u.role?.name || "-",
+        role: u.role?.role_name || u.role?.name || "-",
         joined_date: joined ? joined.format("DD/MM/BBBB") : "-",
+        resigned_date: resigned ? resigned.format("DD/MM/BBBB") : "-",
         work_period: durationStr,
+        last_login: lastLogin
+          ? lastLogin.format("DD/MM/BBBB HH:mm")
+          : "ยังไม่เคยเข้าใช้",
+        created_at: created ? created.format("DD/MM/BBBB HH:mm") : "-",
+        created_by: u.created_by || "-",
+        updated_at: updated ? updated.format("DD/MM/BBBB HH:mm") : "-",
+        updated_by: u.updated_by || "-",
+        failed_attempts: u.failed_login_attempts ?? 0,
         status: getStatusLabel(u.status),
       });
 
