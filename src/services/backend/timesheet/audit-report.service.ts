@@ -1,4 +1,3 @@
-import { logger } from "@/helpers/logger";
 import { PrismaTimesheet as prisma } from "@/helpers/prisma-timesheet";
 import { formatFullProjectCode } from "@/helpers/project/convert-code.helper";
 import dayjs from "dayjs";
@@ -100,7 +99,7 @@ const applyCellStyle = (
 };
 
 const fetchTimesheetEntries = async (startDate: string, endDate: string) => {
-  // ⚡️ Align with Capturable Reporting logic (T00:00:00)
+  // Align with Capturable Reporting logic (T00:00:00)
   const start = new Date(`${startDate}T00:00:00`);
   const end = new Date(`${endDate}T23:59:59.999`);
 
@@ -611,7 +610,7 @@ export const TimesheetAuditReportService = {
       const buffer = await workbook.xlsx.writeBuffer();
       return Buffer.from(buffer);
     } catch (error: any) {
-      logger.error("Error generating audit report:", error);
+      console.error("Error generating audit report:", error);
       throw new Error(`ไม่สามารถสร้างรายงานได้: ${error.message}`);
     }
   },

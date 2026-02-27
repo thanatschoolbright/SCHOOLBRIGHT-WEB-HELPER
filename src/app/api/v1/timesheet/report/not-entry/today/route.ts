@@ -1,8 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
+import { errorResponse, successResponse } from "@/helpers/api/response";
 import { Service } from "@/services/backend/timesheet/report/not-entry/today.service";
-import { successResponse, errorResponse } from "@/helpers/api/response";
-import { logger } from "@/helpers/logger";
+import axios from "axios";
+import { NextRequest, NextResponse } from "next/server";
 
 // ==========================================
 // CONFIGURATIONS & MAPPINGS
@@ -59,13 +58,13 @@ const USER_TAG_MAP: Record<number, string> = {
 const getStatusConfig = (status: string) => {
   if (status === "ไม่ได้กรอกเลย") {
     return {
-      title: "🛑 Missing Entry",
+      title: "Missing Entry",
       color: 0xed4245, // Red
       desc: "No timesheet entry found for today.",
     };
   }
   return {
-    title: "⚠️ Incomplete Hours",
+    title: "Incomplete Hours",
     color: 0xfaa61a, // Orange/Yellow
     desc: "Logged hours are less than 8 hours.",
   };
@@ -82,8 +81,6 @@ export async function POST(request: NextRequest) {
     // ------------------------------------------------------------------
     const body = await request.json();
     const mode = body.mode || "report"; // Default to 'report' if missing
-
-    logger.info(`[Timesheet Report] Processing request with mode: ${mode}`);
 
     // ------------------------------------------------------------------
     // 1. Fetch Timesheet Data (Parallel)
@@ -106,7 +103,7 @@ export async function POST(request: NextRequest) {
     // 3. Filter Target Users
     // ------------------------------------------------------------------
     const targetUsers = allUsers.filter((user: any) =>
-      TARGET_POSITIONS.includes(user.position)
+      TARGET_POSITIONS.includes(user.position),
     );
 
     // ------------------------------------------------------------------
@@ -129,7 +126,7 @@ export async function POST(request: NextRequest) {
 
       // Case B: Incomplete
       const incompleteEntry = incompleteEntries.find(
-        (e) => e.user_id === userId
+        (e) => e.user_id === userId,
       );
       if (incompleteEntry) {
         resultList.push({
@@ -144,15 +141,10 @@ export async function POST(request: NextRequest) {
     // 5. Send Discord Notification (ONLY IF MODE IS 'discord')
     // ------------------------------------------------------------------
     if (mode === "discord" && resultList.length > 0 && WEBHOOK_URL) {
-      logger.info(
-        `[Discord] Mode is 'discord'. Preparing to send ${resultList.length} notifications...`,
-        { count: resultList.length }
-      );
-
       // 5.1 Build Embed Objects (Modern Style)
       const embeds = resultList.map((user) => {
         const roleMention =
-          ROLE_MAP[user.position] || `🛡️ ${user.position}` || "-";
+          ROLE_MAP[user.position] || `${user.position}` || "-";
         const userTag = USER_TAG_MAP[user.admin_id] || "";
         const config = getStatusConfig(user.status);
         const userName = `${user.firstname} ${user.lastname} (${
@@ -174,17 +166,17 @@ export async function POST(request: NextRequest) {
             },
             {
               name: "Logged Hours",
-              value: `⏱️ **${user.total_hours} hrs**`,
+              value: `**${user.total_hours} hrs**`,
               inline: true,
             },
             {
               name: "Direct Contact",
-              value: userTag ? `${userTag}` : `📧 ${user.email}`,
+              value: userTag ? `${userTag}` : `${user.email}`,
               inline: false, // Force new line
             },
           ],
           footer: {
-            text: "🚀 Automated Timesheet Police System",
+            text: "Automated Timesheet Police System",
           },
           timestamp: new Date().toISOString(),
         };
@@ -203,7 +195,7 @@ export async function POST(request: NextRequest) {
         day: "numeric",
       });
 
-      const headerContent = `🚨 **Timesheet Police Report** 🚔 \n📅 **Date:** ${dateStr}\n📢 **Attention:** @here`;
+      const headerContent = `**Timesheet Police Report** \n**Date:** ${dateStr}\n**Attention:** @here`;
 
       // 5.3 Send Batches
       for (const [index, batch] of batches.entries()) {
@@ -212,22 +204,14 @@ export async function POST(request: NextRequest) {
             content: index === 0 ? headerContent : undefined,
             embeds: batch,
           });
-
-          logger.info(
-            `[Discord] Batch ${index + 1}/${batches.length} sent successfully.`
-          );
         } catch (err: any) {
-          logger.error(`[Discord] Failed to send batch ${index + 1}`, {
+          console.error(`[Discord] Failed to send batch ${index + 1}`, {
             error: err.message,
             stack: err.stack,
             response: err.response?.data,
           });
         }
       }
-    } else {
-      logger.info(
-        `[Timesheet Report] Skipping Discord notification. Mode: ${mode}, Result Count: ${resultList.length}`
-      );
     }
 
     // ------------------------------------------------------------------
@@ -238,10 +222,10 @@ export async function POST(request: NextRequest) {
         data: resultList,
         message_th: `ทำงานสำเร็จ (Mode: ${mode}) พบผู้ที่ยังไม่ลงเวลาหรือลงไม่ครบ ${resultList.length} คน`,
         message_en: `Operation successful (Mode: ${mode}). Found ${resultList.length} users with missing or incomplete timesheets`,
-      })
+      }),
     );
   } catch (error: any) {
-    logger.error("Not Entry Report Error", {
+    console.error("Not Entry Report Error", {
       error: error.message,
       stack: error.stack,
     });

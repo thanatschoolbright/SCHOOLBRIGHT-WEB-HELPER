@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
 import { discordIdUser } from "@/helpers/api/discord-id-user";
+import axios from "axios";
+import { NextRequest, NextResponse } from "next/server";
 
 // --- Configuration Types ---
 type RepoConfig = {
@@ -54,43 +54,43 @@ const REPOSITORY_CONFIG: Record<string, RepoConfig> = {
 // --- Style Definitions ---
 const ACTION_STYLES: Record<string, ActionStyle> = {
   opened: {
-    emoji: "🚀",
+    emoji: "[OPEN]",
     title: "New Code Incoming!",
     description: "A new Pull Request has been opened. Ready for review.",
     color: 0x2ecc71, // Green
   },
   reopened: {
-    emoji: "🔄",
+    emoji: "[REOPEN]",
     title: "PR Reopened",
     description: "This Pull Request has been reactivated.",
     color: 0xe67e22, // Orange
   },
   closed_merged: {
-    emoji: "🟣",
+    emoji: "[MERGED]",
     title: "Merged & Deployed",
     description: "Code has been successfully merged into the base branch.",
     color: 0x9b59b6, // Purple
   },
   closed_rejected: {
-    emoji: "⛔",
+    emoji: "[CLOSED]",
     title: "PR Closed",
     description: "This Pull Request was closed without merging.",
     color: 0xe74c3c, // Red
   },
   ready_for_review: {
-    emoji: "✨",
+    emoji: "[READY]",
     title: "Ready for Review",
     description: "Draft status removed. Team, please take a look!",
     color: 0x3498db, // Blue
   },
   draft: {
-    emoji: "🚧",
+    emoji: "[DRAFT]",
     title: "Work in Progress (Draft)",
     description: "Developer is still working. Do not review yet.",
     color: 0xf1c40f, // Yellow
   },
   default: {
-    emoji: "📢",
+    emoji: "[INFO]",
     title: "Pull Request Update",
     description: "There is new activity on this Pull Request.",
     color: 0x95a5a6, // Grey
@@ -105,7 +105,7 @@ const ACTION_STYLES: Record<string, ActionStyle> = {
 const resolveActionStyle = (
   action: string,
   isDraft: boolean,
-  merged: boolean
+  merged: boolean,
 ): ActionStyle => {
   if (action === "closed") {
     return merged ? ACTION_STYLES.closed_merged : ACTION_STYLES.closed_rejected;
@@ -141,9 +141,9 @@ const formatReviewers = (reviewers: any[]): string => {
 const formatStats = (
   additions: number,
   deletions: number,
-  files: number
+  files: number,
 ): string => {
-  return `\`${files} files\` • \`+${additions}\` 🟩 / \`-${deletions}\` 🟥`;
+  return `\`${files} files\` - \`+${additions}\` (+) / \`-${deletions}\` (-)`;
 };
 
 /**
@@ -152,7 +152,7 @@ const formatStats = (
 const buildComponents = (
   repoName: string,
   prUrl: string,
-  branchName: string
+  branchName: string,
 ) => {
   return [
     {
@@ -163,21 +163,18 @@ const buildComponents = (
           style: 5,
           label: "View Pull Request",
           url: prUrl,
-          emoji: { name: "🔗" },
         },
         {
           type: 2,
           style: 5,
           label: "Check Diff",
           url: `${prUrl}/files`,
-          emoji: { name: "👀" },
         },
         {
           type: 2,
           style: 5,
           label: `Branch: ${branchName}`,
           url: `https://github.com/${repoName}/tree/${branchName}`,
-          emoji: { name: "🌿" },
         },
       ],
     },
@@ -191,7 +188,7 @@ const buildDiscordPayload = (
   repoConfig: RepoConfig,
   repoName: string,
   pr: any,
-  action: string
+  action: string,
 ) => {
   const isDraft = pr.draft;
   const isMerged = pr.merged;
@@ -218,33 +215,33 @@ const buildDiscordPayload = (
     },
     fields: [
       {
-        name: "📂 Repository",
+        name: "Repository",
         value: `\`${repoName}\``,
         inline: true,
       },
       {
-        name: "🌿 Branch Flow",
-        value: `\`${pr.head.ref}\` ➡ \`${pr.base.ref}\``,
+        name: "Branch Flow",
+        value: `\`${pr.head.ref}\` -> \`${pr.base.ref}\``,
         inline: true,
       },
       {
-        name: "📊 Statistics",
+        name: "Statistics",
         value: formatStats(pr.additions, pr.deletions, pr.changed_files),
         inline: false,
       },
       {
-        name: "🧐 Reviewers",
+        name: "Reviewers",
         value: formatReviewers(pr.requested_reviewers),
         inline: true,
       },
       {
-        name: "🕒 Updated",
+        name: "Updated",
         value: `<t:${Math.floor(Date.now() / 1000)}:R>`, // Discord Relative Time
         inline: true,
       },
     ],
     footer: {
-      text: "SchoolBright GitHub Bot • Engineering Team",
+      text: "SchoolBright GitHub Bot - Engineering Team",
     },
   };
 
@@ -321,7 +318,7 @@ export async function POST(req: NextRequest) {
       repoConfig,
       repoName,
       pr,
-      action
+      action,
     );
 
     // Send to Discord

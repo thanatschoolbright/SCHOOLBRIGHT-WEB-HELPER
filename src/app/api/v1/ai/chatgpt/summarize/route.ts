@@ -1,6 +1,5 @@
 import { QA_TASK_SUMMARY_TASK_PROMPT } from "@/constants/prompts";
 import { errorResponse, successResponse } from "@/helpers/api/response";
-import { logger } from "@/helpers/logger";
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -38,12 +37,6 @@ export async function POST(request: NextRequest) {
   const { summary, description, details, issueKey } = result.data;
 
   try {
-    logger.info(
-      `[${requestId}] Attempting ChatGPT Summarization for ${
-        issueKey || "Unknown Issue"
-      }`,
-    );
-
     // Extract valid metadata from details if available
     const assigneeName = details?.assignee?.name || "Unassigned";
     const priorityName = details?.priority?.name || "-";
@@ -107,12 +100,12 @@ ${JSON.stringify(details || {}, null, 2)}
       // ** Append original description to protect data as requested by user **
       const markdown = `${fixedMarkdown}\n\n---\n### ข้อความต้นฉบับ (Original Description)\n\`\`\`\n${
         description || "_No original description provided_"
-      }\n\`\`\`\n\n✨ **ข้อความถูกปรับโดยอัตโนมัติ โดย Light AI** *เวอร์ชัน 1.0.2*`;
+      }\n\`\`\`\n\n[INFO] ข้อความถูกปรับโดยอัตโนมัติ โดย Light AI *เวอร์ชัน 1.0.2*`;
 
       /**
        * Reformat Summary if it matches the "Grade (X) ID School : Content" pattern
        * From: "Grade (C+) 961 โรงเรียนพระวิสุทธิวงส์ : แอปพลิเคชันมีการแจ้งเตือนไม่ตรงตามเวลา"
-       * To: "[C+] แอปพลิเคชันมีการแจ้งเตือนไม่ตรงตามเวลา (โรงเรียนพระวิสุทธิวงส์) (961) [สรุปด้วย LIGHT AI ✨]"
+       * To: "[C+] แอปพลิเคชันมีการแจ้งเตือนไม่ตรงตามเวลา (โรงเรียนพระวิสุทธิวงส์) (961) [สรุปด้วย Light AI]"
        */
       const reformatAndTagSummary = (
         val: string | null | undefined,
@@ -133,17 +126,13 @@ ${JSON.stringify(details || {}, null, 2)}
         }
 
         // Ensure AI Tag for Backlog tracking (Consistent with Backlog Service)
-        const hasAiPrefix =
-          finalVal.includes("AI") ||
-          finalVal.includes("✨") ||
-          finalVal.includes("🤖");
+        const hasAiPrefix = finalVal.includes("AI");
 
-        return hasAiPrefix ? finalVal : `${finalVal} [สรุปด้วย LIGHT AI ✨]`;
+        return hasAiPrefix ? finalVal : `${finalVal} [สรุปด้วย Light AI]`;
       };
 
       const taggedSummary = reformatAndTagSummary(summary);
 
-      logger.info(`[${requestId}] Success with ChatGPT`);
       return NextResponse.json(
         successResponse({
           data: {
@@ -158,7 +147,7 @@ ${JSON.stringify(details || {}, null, 2)}
       throw new Error("No content returned from OpenAI");
     }
   } catch (error: any) {
-    logger.error(`[${requestId}] ChatGPT API Error: ${error.message}`);
+    console.error(`[${requestId}] ChatGPT API Error: ${error.message}`);
     const statusCode = error.response?.status || 500;
     const errorMessage = error.response?.data?.error?.message || error.message;
 

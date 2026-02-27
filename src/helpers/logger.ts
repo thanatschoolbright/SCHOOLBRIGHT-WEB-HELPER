@@ -17,45 +17,34 @@ const truncate = (msg: any): any => {
 /**
  * ตัวแปรเก็บฟังก์ชันเปล่าสำหรับ No-op เพื่อลดการสร้าง function object ใหม่
  */
-const noop = () => {};
+const noop = (..._args: any[]) => {};
 
 export const logger = {
-  info: (msg: any, ...args: any[]) => {
-    console.log(`[INFO] ${truncate(msg)}`, ...args);
-  },
+  info: noop,
 
-  warn: (msg: any, ...args: any[]) => {
-    console.warn(`[WARN] ${truncate(msg)}`, ...args);
-  },
+  warn: noop,
 
   error: (msg: any, ...args: any[]) => {
     console.error(`[ERROR] ${truncate(msg)}`, ...args);
   },
 
   // ใช้ cached function แทนการสร้าง anonymous function ทุกครั้ง
-  debug: isDev
-    ? (msg: any, ...args: any[]) =>
-        console.debug(`[DEBUG] ${truncate(msg)}`, ...args)
-    : noop,
+  debug: noop,
 
   /**
    * Child Logger: ทำการ JSON.stringify metadata เพียงครั้งเดียวตอนสร้าง
    * เพื่อไม่ให้เป็นภาระตอนสั่ง log จริง
    */
   child: (meta: Record<string, any>) => {
-    const metaStr = `[${JSON.stringify(meta)}] `; // เพิ่ม space ท้ายไว้เลย
-
     return {
-      info: (msg: any, ...args: any[]) =>
-        console.log(`[INFO] ${metaStr}${truncate(msg)}`, ...args),
-      warn: (msg: any, ...args: any[]) =>
-        console.warn(`[WARN] ${metaStr}${truncate(msg)}`, ...args),
+      info: noop,
+      warn: noop,
       error: (msg: any, ...args: any[]) =>
-        console.error(`[ERROR] ${metaStr}${truncate(msg)}`, ...args),
-      debug: isDev
-        ? (msg: any, ...args: any[]) =>
-            console.debug(`[DEBUG] ${metaStr}${truncate(msg)}`, ...args)
-        : noop,
+        console.error(
+          `[ERROR] [${JSON.stringify(meta)}] ${truncate(msg)}`,
+          ...args,
+        ),
+      debug: noop,
     };
   },
 };

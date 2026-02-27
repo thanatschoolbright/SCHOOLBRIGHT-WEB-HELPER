@@ -25,13 +25,25 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        errorResponse({
+          message_en: "Invalid JSON body",
+          message_th: "ข้อมูล JSON ไม่ถูกต้อง",
+          status: 400,
+        }),
+        { status: 400 },
+      );
+    }
     const validated = ChangePasswordSchema.safeParse(body);
 
     if (!validated.success) {
       return NextResponse.json(
         errorResponse({
-          message_th: validated.error.errors[0].message,
+          message_th: validated.error.issues[0]?.message || "ข้อมูลไม่ถูกต้อง",
           message_en: "Validation Error",
         }),
         { status: 400 },
@@ -49,12 +61,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       successResponse({
+        data: { success: true },
         message_th: "เปลี่ยนรหัสผ่านสำเร็จแล้ว",
         message_en: "Password changed successfully",
       }),
     );
   } catch (error: any) {
-    console.error("❌ [API Change Password Error]:", error);
+    console.error("[API Change Password Error]:", error);
 
     let messageTh = "เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน";
     let status = 500;

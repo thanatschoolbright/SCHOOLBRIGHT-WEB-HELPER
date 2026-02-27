@@ -2,59 +2,58 @@
 
 "use client";
 
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import {
+  AppstoreOutlined,
+  BarcodeOutlined,
+  CheckCircleFilled,
+  ClearOutlined,
+  ClockCircleOutlined,
+  CloseCircleFilled,
+  CodeOutlined,
+  DesktopOutlined,
+  DisconnectOutlined,
+  FilterFilled,
+  GlobalOutlined,
+  InfoCircleOutlined,
+  ReloadOutlined,
+  SearchOutlined,
+  ShopOutlined,
+  SyncOutlined,
+  ThunderboltFilled,
+  WifiOutlined,
+} from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
-import axios from "axios";
-import { toast } from "sonner";
-import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "@stores/store";
 import {
+  Avatar,
+  Badge,
+  Button,
   Card,
+  Col,
+  Collapse,
+  DatePicker,
+  Divider,
+  Flex,
+  Form,
+  Input,
+  Row,
+  Select,
+  Space,
+  Statistic,
   Table,
   Tag,
-  Button,
-  Select,
-  Input,
-  DatePicker,
-  Space,
-  Row,
-  Col,
-  Typography,
-  Form,
-  Badge,
-  Skeleton,
-  Flex,
-  Statistic,
   theme,
-  Avatar,
   Tooltip,
-  Divider,
-  Collapse,
+  Typography,
 } from "antd";
-import {
-  SearchOutlined,
-  DesktopOutlined,
-  WifiOutlined,
-  DisconnectOutlined,
-  ClearOutlined,
-  ReloadOutlined,
-  CheckCircleFilled,
-  CloseCircleFilled,
-  ThunderboltFilled,
-  GlobalOutlined,
-  SyncOutlined,
-  ShopOutlined,
-  BarcodeOutlined,
-  ClockCircleOutlined,
-  FilterFilled,
-  AppstoreOutlined,
-  InfoCircleOutlined,
-  CodeOutlined,
-} from "@ant-design/icons";
+import axios from "axios";
 import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
+import { toast } from "sonner";
 
 dayjs.extend(relativeTime);
 dayjs.extend(buddhistEra);
@@ -116,12 +115,12 @@ export default function OnlineDeviceDashboard() {
         label: `${school.SchoolName} (${school.SchoolID})`,
         value: school.SchoolID,
       })),
-    [schoolList]
+    [schoolList],
   );
 
   const [isFetchingDeviceStatus, setIsFetchingDeviceStatus] = useState(false);
   const [deviceStatusList, setDeviceStatusList] = useState<DeviceStatusData[]>(
-    []
+    [],
   );
 
   const [deviceStatusPagination, setDeviceStatusPagination] = useState({
@@ -132,14 +131,14 @@ export default function OnlineDeviceDashboard() {
 
   const appNameOptions = useMemo(() => {
     const uniqueApps = Array.from(
-      new Set(deviceStatusList.map((d) => d.AppName).filter(Boolean))
+      new Set(deviceStatusList.map((d) => d.AppName).filter(Boolean)),
     );
     return uniqueApps.map((app) => ({ label: app, value: app }));
   }, [deviceStatusList]);
 
   const appVersionOptions = useMemo(() => {
     const uniqueVersions = Array.from(
-      new Set(deviceStatusList.map((d) => d.AppVersion).filter(Boolean))
+      new Set(deviceStatusList.map((d) => d.AppVersion).filter(Boolean)),
     );
     return uniqueVersions.map((v) => ({ label: `v.${v}`, value: v }));
   }, [deviceStatusList]);
@@ -149,20 +148,20 @@ export default function OnlineDeviceDashboard() {
       if (!Array.isArray(schoolList) || schoolList.length === 0)
         return `โรงเรียน #${schoolId}`;
       const foundSchool = schoolList.find(
-        (school: any) => school.SchoolID === schoolId
+        (school: any) => school.SchoolID === schoolId,
       );
       return foundSchool
         ? `${foundSchool.SchoolName} (${foundSchool.SchoolID})`
         : `ไม่พบชื่อโรงเรียน (${schoolId})`;
     },
-    [schoolList]
+    [schoolList],
   );
 
   const fetchDeviceStatusData = useCallback(
     async (pageIndex = 1, pageSizeLimit = 20) => {
       setIsFetchingDeviceStatus(true);
       try {
-        // ✅ ปรับปรุง: ใช้ try-catch ครอบเฉพาะการดึงค่าจาก Form
+        // * ปรับปรุง: ใช้ try-catch ครอบเฉพาะการดึงค่าจาก Form
         let formValues: any = { isOnline: true }; // Default values
 
         try {
@@ -200,7 +199,7 @@ export default function OnlineDeviceDashboard() {
           requestPayload,
           {
             headers: { "Content-Type": "application/json" },
-          }
+          },
         );
 
         if (apiResponse.data?.status === 200) {
@@ -223,10 +222,10 @@ export default function OnlineDeviceDashboard() {
         setIsFetchingDeviceStatus(false);
       }
     },
-    [searchForm]
+    [searchForm],
   );
 
-  // ✅ FIX: ลบ Logic การ setFieldsValue ออกจาก useEffect เพื่อแก้ปัญหา Warning
+  // FIX: ลบ Logic การ setFieldsValue ออกจาก useEffect เพื่อแก้ปัญหา Warning
   useEffect(() => {
     fetchDeviceStatusData();
   }, [fetchDeviceStatusData]);
@@ -241,7 +240,7 @@ export default function OnlineDeviceDashboard() {
 
   const handleResetFilters = () => {
     searchForm.resetFields();
-    // ✅ Reset แล้วต้อง set ค่า default กลับไปเป็น true ด้วย
+    // Reset แล้วต้อง set ค่า default กลับไปเป็น true ด้วย
     searchForm.setFieldsValue({ isOnline: true });
     fetchDeviceStatusData(1, deviceStatusPagination.pageSize);
   };
@@ -256,7 +255,7 @@ export default function OnlineDeviceDashboard() {
   const summaryStatistics = useMemo(() => {
     const totalDevices = deviceStatusPagination.total;
     const onlineCount = deviceStatusList.filter(
-      (device) => device.Online
+      (device) => device.Online,
     ).length;
     const loginCount = deviceStatusList.filter((device) => device.Login).length;
     return { totalDevices, onlineCount, loginCount };
@@ -270,7 +269,7 @@ export default function OnlineDeviceDashboard() {
       width: 300,
       sorter: (
         firstDevice: DeviceStatusData,
-        secondDevice: DeviceStatusData
+        secondDevice: DeviceStatusData,
       ) => {
         const nameA = getSchoolName(firstDevice.SchoolID);
         const nameB = getSchoolName(secondDevice.SchoolID);
@@ -358,12 +357,15 @@ export default function OnlineDeviceDashboard() {
       key: "Online",
       width: 140,
       align: "center" as const,
-      sorter: (firstDevice: DeviceStatusData, secondDevice: DeviceStatusData) =>
+      sorter: (
+        firstDevice: DeviceStatusData,
+        secondDevice: DeviceStatusData,
+      ) =>
         firstDevice.Online === secondDevice.Online
           ? 0
           : firstDevice.Online
-          ? 1
-          : -1,
+            ? 1
+            : -1,
       render: (isOnline: boolean, record: DeviceStatusData) => (
         <div className="flex flex-col items-center gap-1">
           <Tag
@@ -381,7 +383,7 @@ export default function OnlineDeviceDashboard() {
           {record.OnlineTime && (
             <Tooltip
               title={`อัปเดตล่าสุด: ${dayjs(record.OnlineTime).format(
-                "DD/MM/YYYY HH:mm:ss"
+                "DD/MM/YYYY HH:mm:ss",
               )}`}
             >
               <Text type="secondary" style={{ fontSize: 10, cursor: "help" }}>
@@ -398,12 +400,15 @@ export default function OnlineDeviceDashboard() {
       key: "Login",
       width: 140,
       align: "center" as const,
-      sorter: (firstDevice: DeviceStatusData, secondDevice: DeviceStatusData) =>
+      sorter: (
+        firstDevice: DeviceStatusData,
+        secondDevice: DeviceStatusData,
+      ) =>
         firstDevice.Login === secondDevice.Login
           ? 0
           : firstDevice.Login
-          ? 1
-          : -1,
+            ? 1
+            : -1,
       render: (isLoggedIn: boolean, record: DeviceStatusData) => (
         <div className="flex flex-col items-center gap-1">
           <Tag
@@ -423,12 +428,12 @@ export default function OnlineDeviceDashboard() {
           {(isLoggedIn ? record.LoginTime : record.LogoutTime) && (
             <Tooltip
               title={`${isLoggedIn ? "เข้าใช้งาน" : "ออกระบบ"}: ${dayjs(
-                isLoggedIn ? record.LoginTime! : record.LogoutTime!
+                isLoggedIn ? record.LoginTime! : record.LogoutTime!,
               ).format("DD/MM/YYYY HH:mm:ss")}`}
             >
               <Text type="secondary" style={{ fontSize: 10, cursor: "help" }}>
                 {dayjs(
-                  isLoggedIn ? record.LoginTime! : record.LogoutTime!
+                  isLoggedIn ? record.LoginTime! : record.LogoutTime!,
                 ).fromNow()}
               </Text>
             </Tooltip>
@@ -448,7 +453,7 @@ export default function OnlineDeviceDashboard() {
         <Flex align="center" gap={8}>
           <Text>
             {record.Tstamp
-              ? dayjs(record.Tstamp).format("D MMM BBBB • HH:mm น.")
+              ? dayjs(record.Tstamp).format("D MMM BBBB - HH:mm น.")
               : "-"}
           </Text>
         </Flex>
@@ -489,7 +494,7 @@ export default function OnlineDeviceDashboard() {
           form={searchForm}
           layout="vertical"
           onFinish={handleSearchSubmit}
-          // ✅ FIX: กำหนดค่าเริ่มต้นให้กับ Form ที่นี่ เพื่อให้ UI แสดงผลถูกต้องทันทีที่ Render
+          // FIX: กำหนดค่าเริ่มต้นให้กับ Form ที่นี่ เพื่อให้ UI แสดงผลถูกต้องทันทีที่ Render
           initialValues={{ isOnline: true }}
         >
           {/* 2 Columns Grid for Filters */}
@@ -771,7 +776,7 @@ export default function OnlineDeviceDashboard() {
 
         {/* --- Filter Section (Enhanced with Collapse) --- */}
         <div style={{ marginBottom: 24 }}>
-          {/* ✅ Added destroyInactivePanel={false} to keep form mounted */}
+          {/* Added destroyInactivePanel={false} to keep form mounted */}
           <Collapse
             defaultActiveKey={[]}
             ghost

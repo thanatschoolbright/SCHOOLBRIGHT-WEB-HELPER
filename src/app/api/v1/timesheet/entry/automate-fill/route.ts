@@ -1,5 +1,4 @@
 import { errorResponse, successResponse } from "@/helpers/api/response";
-import { logger } from "@/helpers/logger";
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import { Service as EntryTimesheetService } from "@/services/backend/timesheet/entry.service";
 import { NextResponse } from "next/server";
@@ -42,11 +41,6 @@ export async function POST(request: Request) {
     : [date].filter(Boolean);
 
   if (!user_id || !hours || !dates.length) {
-    logger.warn("[automate-fill] missing required fields", {
-      user_id,
-      hours,
-      dates_length: dates.length,
-    });
     return NextResponse.json(
       errorResponse({
         status: 400,
@@ -58,8 +52,6 @@ export async function POST(request: Request) {
   }
 
   try {
-    logger.info("[automate-fill] fetching history and metadata", { user_id });
-
     // Fetch project/feature names if target IDs are provided
     let targetProjectName = "";
     let targetFeatureName = "";
@@ -88,15 +80,6 @@ export async function POST(request: Request) {
     const useGemini = Boolean(process.env.GOOGLE_GEMINI_API_KEY);
     const createdEntries = [];
     const status = "IN_PROGRESS";
-
-    logger.info("[automate-fill] start creating timesheets", {
-      user_id,
-      dates: dates.length,
-      useGemini,
-      status,
-      targetProjectName,
-      targetFeatureName,
-    });
 
     for (const rawDate of dates) {
       // Split hours into chunks
@@ -134,7 +117,7 @@ export async function POST(request: Request) {
         }
 
         if (!projectId || !subProjectId) {
-          logger.error("[automate-fill] missing project/sub-project", {
+          console.error("[automate-fill] missing project/sub-project", {
             projectId,
             subProjectId,
           });
@@ -179,20 +162,8 @@ export async function POST(request: Request) {
           project: projectName,
           feature: featureName,
         });
-
-        logger.info("[automate-fill] created entry chunk", {
-          date: rawDate,
-          hour: chunkHour,
-          projectId,
-          subProjectId,
-        });
       }
     }
-
-    logger.info("[automate-fill] completed", {
-      created: createdEntries.length,
-      user_id,
-    });
 
     return NextResponse.json(
       successResponse({
@@ -204,7 +175,7 @@ export async function POST(request: Request) {
       }),
     );
   } catch (error: unknown) {
-    logger.error("[automate-fill] failed", error);
+    console.error("[automate-fill] failed", error);
     return NextResponse.json(
       errorResponse({
         message_en: error instanceof Error ? error.message : "Unknown error",

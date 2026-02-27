@@ -7,7 +7,7 @@ import { ApiReferenceReact } from "@scalar/api-reference-react";
 import "@scalar/api-reference-react/style.css";
 
 /**
- * 📘 API Documentation Page
+ * API Documentation Page
  * uses @scalar/api-reference-react to render OpenAPI Spec 3.x
  * The spec is dynamically generated via /api/docs
  */
@@ -40,7 +40,7 @@ const ApiSpecPage = () => {
           position: relative;
         }
 
-        /* 🎨 Scalar Style Overrides to fit Dashboard */
+        /* Scalar Style Overrides to fit Dashboard */
         .scalar-api-reference {
           --scalar-radius: 8px;
           --scalar-color-primary: #f97316; /* matching themeColor */

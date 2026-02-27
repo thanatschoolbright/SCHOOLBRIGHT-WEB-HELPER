@@ -351,7 +351,7 @@ export async function POST(request: Request) {
 
     const entries = await Service.findEntriesBetween(start, end, true);
 
-    // ⚡ เปลี่ยนจากการเรียก API ภายนอกมาเป็น Query จาก DB โดยตรง (Direct DB Query for maximum reliability)
+    // เปลี่ยนจากการเรียก API ภายนอกมาเป็น Query จาก DB โดยตรง (Direct DB Query for maximum reliability)
     const users = (await PrismaTimesheet.user.findMany({
       where: {
         is_deleted: false,

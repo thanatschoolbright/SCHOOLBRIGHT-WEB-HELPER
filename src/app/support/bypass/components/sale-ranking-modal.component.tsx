@@ -561,7 +561,7 @@ export default function SaleRankingModal({
               type="secondary"
               style={{ filter: "blur(4px)", userSelect: "none" }}
             >
-              ••••••
+              ******
             </Text>
           ),
       },
@@ -782,7 +782,7 @@ export default function SaleRankingModal({
             },
             {
               title: TRANSLATION("bypass_page.ranking.stat_est_revenue"),
-              value: isIncomeVisible ? statistics.totalIncome : "••••••",
+              value: isIncomeVisible ? statistics.totalIncome : "******",
               icon: <DollarOutlined />,
               color: token.colorWarning,
               bgColor: token.colorWarningBg,

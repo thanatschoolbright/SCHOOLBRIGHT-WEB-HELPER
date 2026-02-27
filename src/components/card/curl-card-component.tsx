@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import ContentCard from "@components/layouts/backend/content";
 import MinimalButton from "@components/button/minimal-button-component";
+import ContentCard from "@components/layouts/backend/content";
+import { useState } from "react";
 import Swal from "sweetalert2";
 
 interface ResponseCardProps {
@@ -59,7 +59,7 @@ export function ResponseCardComponent({
           onClick={() => setExpanded((e) => !e)}
           className="absolute top-4 right-4 text-sm text-blue-600 hover:underline"
         >
-          {expanded ? "See less…" : `See more… (${lines.length} lines)`}
+          {expanded ? "See less..." : `See more... (${lines.length} lines)`}
         </button>
       )}
 

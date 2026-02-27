@@ -1,11 +1,11 @@
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import { UserResponse } from "../validation/users.validation";
 
-/* ✨ Service Class สำหรับ Users API */
+/* Service Class สำหรับ Users API */
 export class UsersService {
   private prisma = PrismaTimesheet;
 
-  /* ✨ ดึงรายชื่อ User ทั้งหมดแบบ Simple (GET) */
+  /* ดึงรายชื่อ User ทั้งหมดแบบ Simple (GET) */
   async findAllUsers(search: string = ""): Promise<UserResponse[]> {
     try {
       const whereCondition = this.buildWhereCondition(search);
@@ -33,7 +33,7 @@ export class UsersService {
     }
   }
 
-  /* ✨ ดึงรายชื่อ User พร้อม Pagination (POST) */
+  /* ดึงรายชื่อ User พร้อม Pagination (POST) */
   async findUsersWithPagination(
     search: string = "",
     limit: number = 50,
@@ -43,7 +43,7 @@ export class UsersService {
       const skip = (page - 1) * limit;
       const whereCondition = this.buildWhereCondition(search);
 
-      /* 🚀 Query DB แบบ Parallel เพื่อประสิทธิภาพที่ดีขึ้น */
+      /* Query DB แบบ Parallel เพื่อประสิทธิภาพที่ดีขึ้น */
       const [users, total] = await Promise.all([
         this.prisma.user.findMany({
           select: {
@@ -73,7 +73,7 @@ export class UsersService {
     }
   }
 
-  /* 🛡️ สร้าง WHERE Condition สำหรับ Search */
+  /* สร้าง WHERE Condition สำหรับ Search */
   private buildWhereCondition(search: string) {
     return {
       status: "ACTIVE",
@@ -107,5 +107,5 @@ export class UsersService {
   }
 }
 
-/* ✨ Export Singleton Instance */
+/* Export Singleton Instance */
 export const usersService = new UsersService();

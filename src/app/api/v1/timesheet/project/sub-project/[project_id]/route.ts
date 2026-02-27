@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { errorResponse, successResponse } from "@/helpers/api/response";
 import { Service } from "@services/backend/timesheet/sub-project/sub-project.service";
-import { successResponse, errorResponse } from "@/helpers/api/response";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ project_id: string }> }
+  context: { params: Promise<{ project_id: string }> },
 ) {
   try {
-    const { project_id } = await context.params; // ✅ ต้อง await
+    const { project_id } = await context.params; // ต้อง await
     const projectId = Number(project_id);
 
     if (isNaN(projectId)) {
@@ -16,7 +16,7 @@ export async function GET(
           message_en: "Invalid project_id",
           message_th: "project_id ไม่ถูกต้อง",
         }),
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -27,7 +27,7 @@ export async function GET(
         data: features,
         message_en: "Fetch sub-project successfully",
         message_th: "ดึงข้อมูลซับโปรเจคสำเร็จ",
-      })
+      }),
     );
   } catch (error: any) {
     return NextResponse.json(
@@ -36,7 +36,7 @@ export async function GET(
         message_th: "เกิดข้อผิดพลาดภายในระบบ",
         error,
       }),
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -1,12 +1,12 @@
 import { errorResponse, successResponse } from "@/helpers/api/response";
 import { validateRequest } from "@/helpers/api/validate.request";
-import { NextRequest, NextResponse } from "next/server";
-import z from "zod";
+import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import {
   MonthlySummarySchema,
   SummaryService,
 } from "@/services/timesheet/summary.service";
-import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
+import { NextRequest, NextResponse } from "next/server";
+import z from "zod";
 
 const rankingValidator = MonthlySummarySchema.extend({
   user_id: z
@@ -23,11 +23,6 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    console.log("[API] find-ranking POST called", {
-      path: request.nextUrl?.pathname,
-      bodyPreview: JSON.stringify(validationData).slice(0, 200),
-    });
-
     const { user_id, month, year, scope } = validationData;
 
     // 1. ค้นหาข้อมูลผู้ใช้งานจากตาราง user ภายในเพื่อดึง admin_id (ใช้เป็นตัวเชื่อมต่อข้อมูล)

@@ -1,6 +1,5 @@
 import { PrismaTimesheet as prisma } from "@/helpers/prisma-timesheet";
 import * as XLSX from "xlsx";
-import { logger } from "@/helpers/logger";
 
 /**
  * Interface สำหรับข้อมูลสรุปโปรเจ็ค
@@ -187,7 +186,7 @@ export class TimesheetProjectSummaryService {
 
       return projectSummaries.sort((a, b) => b.total_hours - a.total_hours); // เรียงตามชั่วโมงรวมมากไปน้อย
     } catch (error: any) {
-      logger.error("Error getting project summary:", error);
+      console.error("Error getting project summary:", error);
       throw new Error(`ไม่สามารถดึงข้อมูลสรุปโปรเจ็คได้: ${error.message}`);
     }
   }
@@ -229,11 +228,9 @@ export class TimesheetProjectSummaryService {
         }
 
         return users;
-      } else {
-        logger.warn("Failed to fetch user details, using mock data");
       }
     } catch (error) {
-      logger.error("Error getting user details:", error);
+      console.error("Error getting user details:", error);
     }
 
     // Fallback: ใช้ข้อมูลจำลอง
@@ -410,7 +407,7 @@ export class TimesheetProjectSummaryService {
       const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
       return buffer;
     } catch (error: any) {
-      logger.error("Error generating Excel:", error);
+      console.error("Error generating Excel:", error);
       throw new Error(`ไม่สามารถสร้างไฟล์ Excel ได้: ${error.message}`);
     }
   }

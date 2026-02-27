@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { MigrationService } from "../service/migration.service";
 import { migrationCreateSchema } from "../validation/migration.validation";
 
-/* ✨ จัดการคำขอ POST สำหรับการย้ายรายการ Timesheet แบบกลุ่ม (Bulk Update) */
+/* จัดการคำขอ POST สำหรับการย้ายรายการ Timesheet แบบกลุ่ม (Bulk Update) */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    /* 🛡️ Validate ข้อมูลโครงสร้าง Request Body ก่อนส่งไป Service */
+    /* Validate ข้อมูลโครงสร้าง Request Body ก่อนส่งไป Service */
     const validation = migrationCreateSchema.safeParse(body);
 
     if (!validation.success) {
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
       data: result,
     });
   } catch (error: any) {
-    console.error("❌ [MIGRATION_CREATE_ERROR]:", error);
+    console.error("[MIGRATION_CREATE_ERROR]:", error);
     return NextResponse.json(
       {
         status_code: 500,

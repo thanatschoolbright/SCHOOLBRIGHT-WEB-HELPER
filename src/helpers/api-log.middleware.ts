@@ -1,14 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
-import { ApiLogService } from "@/services/backend/api-log/api-log.service";
 import { ApiLogUtils } from "@/helpers/api-log.utils";
-import { logger } from '@/helpers/logger';
+import { ApiLogService } from "@/services/backend/api-log/api-log.service";
+import { NextRequest, NextResponse } from "next/server";
 
 /**
  * Middleware Helper สำหรับ Auto Logging API Requests
  * ใช้สำหรับบันทึก API Log โดยอัตโนมัติสำหรับทุก API route
  */
 export class ApiLogMiddleware {
-  
   /**
    * การทำงาน: Wrapper function สำหรับ API route ที่ต้องการ auto logging
    * @param handler API route handler function
@@ -26,7 +24,7 @@ export class ApiLogMiddleware {
       serviceName?: string;
       /** กำหนด called_by */
       calledBy?: string;
-    }
+    },
   ) {
     return async (request: NextRequest, ...args: T): Promise<NextResponse> => {
       const startTime = new Date();
@@ -50,24 +48,28 @@ export class ApiLogMiddleware {
 
         //** การทำงาน: ดึงข้อมูล response */
         let responseBody: any = undefined;
-        
+
         if (!options?.excludeResponseBody) {
           try {
             // Clone response เพื่ออ่าน body โดยไม่ทำลาย original response
             const responseClone = response.clone();
             const responseText = await responseClone.text();
-            
-            if (responseText) {
+
+            if (responseText && responseText.trim()) {
               try {
-                responseBody = JSON.parse(responseText);
-                responseBody = ApiLogUtils.sanitizeResponseBody(responseBody);
+                responseBody = ApiLogUtils.safeJsonParse(responseText);
+                if (responseBody) {
+                  responseBody = ApiLogUtils.sanitizeResponseBody(responseBody);
+                } else {
+                  responseBody = { content: responseText.substring(0, 1000) };
+                }
               } catch {
                 // ถ้าไม่ใช่ JSON ก็เก็บเป็น text
                 responseBody = { content: responseText.substring(0, 1000) }; // จำกัดขนาด
               }
             }
           } catch (error) {
-            logger.warn("Failed to extract response body for logging:", error);
+            // Error extracting response body
           }
         }
 
@@ -75,31 +77,31 @@ export class ApiLogMiddleware {
         const finalLogData = ApiLogUtils.updateLogDataWithResponse(
           logData,
           response.status,
-          responseBody
+          responseBody,
         );
 
         //** การทำงาน: บันทึก log แบบ async (ไม่บล็อค response) */
         ApiLogService.createApiLog(finalLogData).catch((error) => {
-          logger.error("Failed to create API log:", error);
+          console.error("Failed to create API log:", error);
         });
 
         return response;
-
       } catch (error) {
         //** การทำงาน: จัดการ error */
-        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-        
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error occurred";
+
         if (logData) {
           const errorLogData = ApiLogUtils.updateLogDataWithResponse(
             logData,
             500,
             { error: "Internal Server Error" },
-            errorMessage
+            errorMessage,
           );
 
           // บันทึก error log
           ApiLogService.createApiLog(errorLogData).catch((logError) => {
-            logger.error("Failed to create error log:", logError);
+            console.error("Failed to create error log:", logError);
           });
         }
 
@@ -112,7 +114,7 @@ export class ApiLogMiddleware {
   /**
    * การทำงาน: สร้าง simple logging middleware สำหรับ API routes
    * @param request NextRequest object
-   * @param response NextResponse object  
+   * @param response NextResponse object
    * @param options การตั้งค่าเพิ่มเติม
    */
   static async logApiCall(
@@ -122,7 +124,7 @@ export class ApiLogMiddleware {
       serviceName?: string;
       calledBy?: string;
       errorMessage?: string;
-    }
+    },
   ): Promise<void> {
     try {
       //** การทำงาน: สร้าง log data */
@@ -133,21 +135,25 @@ export class ApiLogMiddleware {
 
       //** การทำงาน: ดึงข้อมูล response body */
       let responseBody: any = undefined;
-      
+
       try {
         const responseClone = response.clone();
         const responseText = await responseClone.text();
-        
-        if (responseText) {
+
+        if (responseText && responseText.trim()) {
           try {
-            responseBody = JSON.parse(responseText);
-            responseBody = ApiLogUtils.sanitizeResponseBody(responseBody);
+            responseBody = ApiLogUtils.safeJsonParse(responseText);
+            if (responseBody) {
+              responseBody = ApiLogUtils.sanitizeResponseBody(responseBody);
+            } else {
+              responseBody = { content: responseText.substring(0, 1000) };
+            }
           } catch {
             responseBody = { content: responseText.substring(0, 1000) };
           }
         }
       } catch (error) {
-          logger.warn("Failed to extract response body for logging:", error);
+        // Error extracting response body
       }
 
       //** การทำงาน: อัปเดต log data ด้วยข้อมูล response */
@@ -155,14 +161,13 @@ export class ApiLogMiddleware {
         logData,
         response.status,
         responseBody,
-        options?.errorMessage
+        options?.errorMessage,
       );
 
       //** การทำงาน: บันทึก log */
       await ApiLogService.createApiLog(finalLogData);
-
     } catch (error) {
-        logger.error("Failed to log API call:", error);
+      console.error("Failed to log API call:", error);
     }
   }
 
@@ -179,7 +184,7 @@ export class ApiLogMiddleware {
       statusCode?: number;
       serviceName?: string;
       calledBy?: string;
-    }
+    },
   ): Promise<void> {
     try {
       //** การทำงาน: สร้าง log data */
@@ -193,14 +198,13 @@ export class ApiLogMiddleware {
         logData,
         options?.statusCode || 500,
         { error: "Internal Server Error" },
-        error.message
+        error.message,
       );
 
       //** การทำงาน: บันทึก error log */
       await ApiLogService.createApiLog(errorLogData);
-
     } catch (logError) {
-        logger.error("Failed to log error:", logError);
+      console.error("Failed to log error:", logError);
     }
   }
 
@@ -230,9 +234,15 @@ export class ApiLogMiddleware {
         statusCode: customData.statusCode,
         url: customData.url,
         endpoint: ApiLogUtils.extractEndpoint(customData.url),
-        serviceName: customData.serviceName || ApiLogUtils.extractServiceName(ApiLogUtils.extractEndpoint(customData.url)),
+        serviceName:
+          customData.serviceName ||
+          ApiLogUtils.extractServiceName(
+            ApiLogUtils.extractEndpoint(customData.url),
+          ),
         requestBody: customData.requestBody,
-        responseBody: customData.responseBody ? ApiLogUtils.sanitizeResponseBody(customData.responseBody) : undefined,
+        responseBody: customData.responseBody
+          ? ApiLogUtils.sanitizeResponseBody(customData.responseBody)
+          : undefined,
         ipAddress: customData.ipAddress || "unknown",
         userAgent: customData.userAgent || "unknown",
         calledBy: customData.calledBy,
@@ -243,10 +253,11 @@ export class ApiLogMiddleware {
       };
 
       //** การทำงาน: บันทึก custom log */
-      await ApiLogService.createApiLog(logData);
-
+      ApiLogService.createApiLog(logData).catch((error) => {
+        console.error("Failed to create custom log:", error);
+      });
     } catch (error) {
-        logger.error("Failed to create custom log:", error);
+      console.error("Error in createCustomLog:", error);
     }
   }
 }

@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
 /**
- * 🏫 SchoolReduxProvider - เวอร์ชั่นรักษาความปลอดภัย (No LocalStorage)
+ * SchoolReduxProvider - เวอร์ชั่นรักษาความปลอดภัย (No LocalStorage)
  * ทำหน้าที่โหลดรายการโรงเรียนเข้าสู่ Redux โดยตรงจาก API
  */
 export default function SchoolReduxProvider({
@@ -32,7 +32,7 @@ export default function SchoolReduxProvider({
         Array.isArray(listReducer.response?.data?.data) &&
         listReducer.response.data.data.length > 0;
       if (!hasList && !listReducer.loading) {
-        console.info("📡 [INIT] Fetching school list...");
+        console.info("[INIT] Fetching school list...");
         dispatch(GET_SCHOOL_LIST());
       }
 
@@ -41,7 +41,7 @@ export default function SchoolReduxProvider({
         Array.isArray(detailReducer.response?.data) &&
         detailReducer.response.data.length > 0;
       if (!hasDetail && !detailReducer.loading) {
-        console.info("📡 [INIT] Fetching school details...");
+        console.info("[INIT] Fetching school details...");
         dispatch(GET_SCHOOL_LIST_DETAIL());
       }
     };

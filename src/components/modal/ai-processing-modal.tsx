@@ -312,7 +312,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
                         marginTop: "4px",
                       }}
                     >
-                      ✓ เสร็จสิ้น
+                      เสร็จสิ้น
                     </div>
                   )}
                 </div>
@@ -353,7 +353,7 @@ const AIProcessingModal: React.FC<AIProcessingModalProps> = ({
                   }}
                 >
                   {isCompleted ? (
-                    "✓"
+                    "(v)"
                   ) : isCurrent ? (
                     <Spin
                       indicator={

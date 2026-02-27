@@ -1,7 +1,7 @@
-import { NextRequest } from "next/server";
 import { spawn } from "child_process";
-import path from "path";
 import fs from "fs/promises";
+import { NextRequest } from "next/server";
+import path from "path";
 
 function buildScriptPath(scriptName: string): string {
   const scriptsDir = path.join(process.cwd(), "public", "scripts");
@@ -43,41 +43,31 @@ export async function POST(request: NextRequest) {
       tags,
     } = await request.json();
 
-    console.log("📩 Received K6 load test request");
-    console.log("🌐 Incoming baseURL from request:", baseURL);
-    console.log(`🔧 Script: ${script}`);
-    console.log(`🌐 baseURL: ${baseURL}`);
-    console.log(`👥 request (vus): ${vus}`);
-    console.log(`⏱️ second (duration): ${second}`);
-    console.log(`📊 stages:`, stages);
-    console.log(`🎯 thresholds:`, thresholds);
-
     if (!script || typeof script !== "string" || script.trim() === "") {
-      console.error("❌ Missing or invalid 'script'");
+      console.error("[ERROR] Missing or invalid 'script'");
       return new Response(
         JSON.stringify({ error: "Missing or invalid 'script'" }),
         {
           status: 400,
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
     const resolvedBaseURL = baseURL?.trim();
     if (!resolvedBaseURL) {
-      console.error("❌ Missing or invalid 'baseURL'");
+      console.error("[ERROR] Missing or invalid 'baseURL'");
       return new Response(
         JSON.stringify({ error: "Missing or invalid 'baseURL'" }),
         {
           status: 400,
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
     try {
       const scriptPath = buildScriptPath(script);
-      console.log(`📂 Script path resolved to: ${scriptPath}`);
 
       await fs.access(scriptPath);
 
@@ -206,26 +196,22 @@ export async function POST(request: NextRequest) {
       // Script path
       k6Args.push(scriptPath);
 
-      console.log("🚀 Executing k6 with args:", k6Args.join(" "));
-
       const child = spawn("k6", k6Args, { shell: true });
 
       child.stdout.on("data", (chunk) => {
-        console.log(`📥 stdout: ${chunk}`);
         writer.write(encoder.encode(chunk));
       });
 
       child.stderr.on("data", (chunk) => {
-        console.error(`❗ stderr: ${chunk}`);
+        console.error(`[STDERR] stderr: ${chunk}`);
         writer.write(encoder.encode(chunk));
       });
 
       child.on("close", (code) => {
         try {
-          console.log(`✅ Script finished with code ${code}`);
           writer.close();
         } catch (err) {
-          console.error("🚨 Error closing writer:", err);
+          console.error("[ERROR] Error closing writer:", err);
         }
       });
 
@@ -237,7 +223,7 @@ export async function POST(request: NextRequest) {
       });
     } catch (error: any) {
       if (error.code === "ENOENT") {
-        console.error("❌ Script not found");
+        console.error("[ERROR] Script not found");
         return new Response(JSON.stringify({ error: "Script not found" }), {
           status: 404,
           headers: { "Content-Type": "application/json" },
@@ -245,7 +231,7 @@ export async function POST(request: NextRequest) {
       }
 
       if (error instanceof Error && error.message === "Invalid script path") {
-        console.error("❌ Invalid script path detected");
+        console.error("[ERROR] Invalid script path detected");
         return new Response(JSON.stringify({ error: "Invalid script path" }), {
           status: 400,
           headers: { "Content-Type": "application/json" },
@@ -255,7 +241,7 @@ export async function POST(request: NextRequest) {
       throw error;
     }
   } catch (error: any) {
-    console.error("🚨 Unexpected error in POST handler:", error);
+    console.error("[CRITICAL] Unexpected error in POST handler:", error);
     return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

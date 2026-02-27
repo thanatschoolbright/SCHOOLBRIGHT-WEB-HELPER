@@ -1,4 +1,3 @@
-import { logger } from "@/helpers/logger";
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 
 export interface CreateOvertimeInput {
@@ -213,8 +212,6 @@ export const Service = {
 
   // สร้าง OT ใหม่
   async create(data: CreateOvertimeInput) {
-    logger.info("CREATE OVERTIME REQUEST");
-
     const descriptions = prepareDescriptions(data.descriptions);
 
     return (PrismaTimesheet as any).overtime.create({
@@ -232,8 +229,6 @@ export const Service = {
 
   // แก้ไข OT
   async update(id: number, data: UpdateOvertimeInput) {
-    logger.info("UPDATE OVERTIME", id);
-
     validateId(id);
     await ensureOvertimeExists(id);
 

@@ -143,13 +143,7 @@ export const refreshUserRankIfNeeded = async (
   const currentRank = getUserRankFromStorage();
 
   if (!currentRank || isRankDataOutdated(currentRank)) {
-    console.log("🔄 Refreshing user rank data...");
-
     try {
-      console.log(
-        `🔄 [UserRankHelper] Refreshing rank data for user: ${userId}`,
-      );
-
       const rankResponse = await fetchUserRank(userId);
 
       if (rankResponse) {
@@ -171,18 +165,10 @@ export const refreshUserRankIfNeeded = async (
         // อัปเดตในหน่วยความจำแทน localStorage เพื่อความปลอดภัย
         saveUserRankToMemory(newRankData);
 
-        console.log(
-          `✅ [UserRankHelper] User rank refreshed successfully (Memory only):`,
-          newRankData,
-        );
         return newRankData;
-      } else {
-        console.warn(
-          `⚠️ [UserRankHelper] No rank data returned for user: ${userId}`,
-        );
       }
     } catch (error) {
-      console.error("❌ [UserRankHelper] Error refreshing user rank:", error);
+      console.error("[UserRankHelper] Error refreshing user rank:", error);
     }
   }
 

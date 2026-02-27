@@ -130,7 +130,7 @@ export const useBypassPageData = () => {
         toast.success(
           `${TRANSLATION(
             "bypass_page.open_link_success",
-          )} ${plainTargetName} · ${environmentLabel}`,
+          )} ${plainTargetName} - ${environmentLabel}`,
           {
             description: schoolDisplay,
             duration: 30000,

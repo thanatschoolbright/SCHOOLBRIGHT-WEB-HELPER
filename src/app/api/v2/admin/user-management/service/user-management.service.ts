@@ -1,6 +1,8 @@
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import { sendMail } from "@/server/mailer";
 import bcrypt from "bcryptjs";
+import dayjs from "dayjs";
+import ExcelJS from "exceljs";
 
 export interface CreateUserDto {
   username: string;
@@ -117,7 +119,7 @@ export const UserManagementService = {
 
     if (data.password) {
       updateData.password = await bcrypt.hash(data.password, 10);
-      // ✅ เมื่อมีการรีเซ็ตรหัสผ่าน ให้ปลดล็อกจำนวนครั้งที่พยายามล็อกอินผิดพลาดให้อัตโนมัติ (IPO Security Step)
+      // เมื่อมีการรีเซ็ตรหัสผ่าน ให้ปลดล็อกจำนวนครั้งที่พยายามล็อกอินผิดพลาดให้อัตโนมัติ (IPO Security Step)
       updateData.failed_login_attempts = 0;
     }
 
@@ -127,7 +129,7 @@ export const UserManagementService = {
     });
   },
 
-  // ✅ ปลดล็อกการระงับใช้งาน (Reset Failed Login Attempts)
+  // ปลดล็อกการระงับใช้งาน (Reset Failed Login Attempts)
   async unlock(id: number, updatedBy?: number) {
     return await PrismaTimesheet.user.update({
       where: { id },
@@ -346,7 +348,7 @@ export const UserManagementService = {
 
     // 5. ส่งอีเมล
     try {
-      const subject = "⚠️ แจ้งการรีเซ็ตรหัสผ่าน - ระบบ SchoolBright Web Helper";
+      const subject = "แจ้งการรีเซ็ตรหัสผ่าน - ระบบ SchoolBright Web Helper";
       const websiteLink = "https://sb-helper.schoolbright.co/";
       const logoUrl =
         "https://sb-helper.schoolbright.co/photo/schoolbright-logo-full-image.png";
@@ -388,7 +390,7 @@ export const UserManagementService = {
                       <div style="height: 1px; background-color: #f3f4f6; margin-bottom: 32px;"></div>
 
                       <p style="margin: 0; font-size: 15px; color: #111827;">ด้วยความเคารพ,</p>
-                      <p style="margin: 4px 0 0; font-size: 15px; font-weight: 700; color: #F97316;">© ${new Date().getFullYear()} The Best SchoolBright Developer Team By Head of Technology Light</p>
+                      <p style="margin: 4px 0 0; font-size: 15px; font-weight: 700; color: #F97316;">(c) ${new Date().getFullYear()} The Best SchoolBright Developer Team By Head of Technology Light</p>
                     </td>
                   </tr>
                 </table>
@@ -458,8 +460,7 @@ export const UserManagementService = {
 
       if (user.email) {
         try {
-          const subject =
-            "🔐 แจ้งรหัสผ่านบัญชีผู้ใช้งาน SchoolBright Web Helper";
+          const subject = "แจ้งรหัสผ่านบัญชีผู้ใช้งาน SchoolBright Web Helper";
           const websiteLink = "https://sb-helper.schoolbright.co/";
           const logoUrl =
             "https://sb-helper.schoolbright.co/photo/schoolbright-logo-full-image.png";
@@ -498,7 +499,7 @@ export const UserManagementService = {
                           <div style="height: 1px; background-color: #f3f4f6; margin-bottom: 32px;"></div>
 
                           <p style="margin: 0; font-size: 15px; color: #111827;">ด้วยความเคารพ,</p>
-                          <p style="margin: 4px 0 0; font-size: 15px; font-weight: 700; color: #F97316;">© ${new Date().getFullYear()} The Best SchoolBright Developer Team By Head of Technology Light</p>
+                          <p style="margin: 4px 0 0; font-size: 15px; font-weight: 700; color: #F97316;">(c) ${new Date().getFullYear()} The Best SchoolBright Developer Team By Head of Technology Light</p>
                         </td>
                       </tr>
                     </table>
@@ -648,7 +649,7 @@ export const UserManagementService = {
 
     // 5. ส่งอีเมล
     try {
-      const subject = "🔑 กู้คืนรหัสผ่าน - ระบบ SchoolBright Web Helper";
+      const subject = "กู้คืนรหัสผ่าน - ระบบ SchoolBright Web Helper";
       const websiteLink = "https://sb-helper.schoolbright.co/";
       const logoUrl =
         "https://sb-helper.schoolbright.co/photo/schoolbright-logo-full-image.png";
@@ -689,7 +690,7 @@ export const UserManagementService = {
                       </p>
 
                       <p style="margin: 0; font-size: 15px; color: #111827;">ด้วยความเคารพ,</p>
-                      <p style="margin: 4px 0 0; font-size: 15px; font-weight: 700; color: #111827;">© ${new Date().getFullYear()} The Best SchoolBright Developer Team By Head of Technology Light</p>
+                      <p style="margin: 4px 0 0; font-size: 15px; font-weight: 700; color: #111827;">(c) ${new Date().getFullYear()} The Best SchoolBright Developer Team By Head of Technology Light</p>
 
                       <div style="height: 1px; background-color: #e5e7eb; margin: 40px 0 24px;"></div>
 
@@ -715,12 +716,12 @@ export const UserManagementService = {
 
       return { success: true, email: user.email };
     } catch (err: any) {
-      console.error("❌ [ForgotPassword] Mail send failed:", err);
+      console.error("[ForgotPassword] Mail send failed:", err);
       throw new Error("ระบบกู้คืนรหัสผ่านล้มเหลวขณะส่งอีเมล: " + err.message);
     }
   },
 
-  // ✅ เปลี่ยนรหัสผ่านโดยตรวจสอบรหัสผ่านเดิม (Self Service)
+  // เปลี่ยนรหัสผ่านโดยตรวจสอบรหัสผ่านเดิม (Self Service)
   async changePassword(
     userId: number,
     oldPassword: string,
@@ -749,5 +750,290 @@ export const UserManagementService = {
         updated_by: userId,
       },
     });
+  },
+
+  /**
+   * สร้างรายงาน Excel พนักงานแบบ Enterprise
+   * @description ใช้มาตรฐานการออกแบบระดับสูง (Branding Identity) เหมือนกับ Overtime Service
+   */
+  async generateExportExcel() {
+    const users = await this.findAllForExport();
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("พนักงานทั้งหมด");
+
+    // --- Enterprise Setup ---
+    worksheet.properties.defaultRowHeight = 32;
+    const now = dayjs();
+    const formattedDate = now.format("DD/MM/YYYY");
+    const formattedTime = now.format("HH:mm");
+
+    // --- ส่วนที่ 1: Header Branding (A1:B3) ---
+    const headerCells = ["A1", "B1", "A2", "B2", "A3", "B3"];
+    headerCells.forEach((ref) => {
+      const cell = worksheet.getCell(ref);
+      cell.border = {
+        top: { style: "thin", color: { argb: "FFD9D9D9" } },
+        left: { style: "thin", color: { argb: "FFD9D9D9" } },
+        bottom: { style: "thin", color: { argb: "FFD9D9D9" } },
+        right: { style: "thin", color: { argb: "FFD9D9D9" } },
+      };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+    });
+
+    worksheet.getCell("A1").value = "ชื่อเอกสาร";
+    worksheet.getCell("B1").value =
+      "รายงานข้อมูลพนักงานบริษัท (Staff Inventory) - School Bright IPO Preparation";
+    worksheet.getCell("A1").fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFFFF7ED" },
+    };
+
+    worksheet.getCell("A2").value = "วันที่ออกรายงาน";
+    worksheet.getCell("B2").value = `${formattedDate} เวลา ${formattedTime} น.`;
+    worksheet.getCell("A3").value = "จำนวนพนักงานรวม";
+    worksheet.getCell("B3").value = `${users.length} รายการ`;
+
+    // ตกแต่ง Font ส่วนหัว
+    ["A1", "A2", "A3"].forEach((ref) => {
+      const cell = worksheet.getCell(ref);
+      cell.font = {
+        bold: true,
+        name: "Google Sans",
+        size: 14,
+        color: { argb: "FF8C4D00" },
+      };
+    });
+
+    ["B1", "B2", "B3"].forEach((ref) => {
+      const cell = worksheet.getCell(ref);
+      cell.font = {
+        name: "Google Sans",
+        size: 14,
+        color: { argb: "FF434343" },
+      };
+    });
+    worksheet.getCell("B1").font = {
+      bold: true,
+      name: "Google Sans",
+      size: 15,
+      color: { argb: "FFF37021" }, // SB Orange
+    };
+
+    // --- ส่วนที่ 2: โครงสร้างตาราง (Table Header) ---
+    const tableHeaderRowIndex = 5;
+    const headers = [
+      "ลำดับ",
+      "รหัสพนักงาน",
+      "Admin ID",
+      "Username",
+      "ชื่อ (ไทย)",
+      "นามสกุล (ไทย)",
+      "ชื่อ (EN)",
+      "นามสกุล (EN)",
+      "ชื่อเล่น",
+      "แผนก/ฝ่ายงาน",
+      "ตำแหน่งงาน",
+      "อีเมลติดต่อ",
+      "เบอร์โทรศัพท์",
+      "วันเกิด",
+      "อายุ (ปี)",
+      "ประเภทการจ้างงาน",
+      "สิทธิ์การเข้าถึง",
+      "วันที่เริ่มงาน",
+      "วันที่ลาออก",
+      "อายุงาน",
+      "เข้าสู่ระบบล่าสุด",
+      "วันที่สร้างข้อมูล",
+      "สร้างโดย (Admin ID)",
+      "วันที่แก้ไขล่าสุด",
+      "แก้ไขโดย (Admin ID)",
+      "ล็อกอินผิดพลาด (ครั้ง)",
+      "สถานะการใช้งาน",
+    ];
+
+    worksheet.getRow(tableHeaderRowIndex).values = headers;
+    worksheet.columns = [
+      { key: "no", width: 8 },
+      { key: "employee_code", width: 18 },
+      { key: "admin_id", width: 12 },
+      { key: "username", width: 18 },
+      { key: "firstname_th", width: 22 },
+      { key: "lastname_th", width: 22 },
+      { key: "firstname_en", width: 22 },
+      { key: "lastname_en", width: 22 },
+      { key: "nickname", width: 14 },
+      { key: "department", width: 25 },
+      { key: "position", width: 28 },
+      { key: "email", width: 30 },
+      { key: "phone", width: 18 },
+      { key: "birth_date", width: 16 },
+      { key: "age", width: 10 },
+      { key: "employment_type", width: 20 },
+      { key: "role", width: 20 },
+      { key: "joined_date", width: 16 },
+      { key: "resigned_date", width: 16 },
+      { key: "work_period", width: 20 },
+      { key: "last_login", width: 20 },
+      { key: "created_at", width: 20 },
+      { key: "created_by", width: 15 },
+      { key: "updated_at", width: 20 },
+      { key: "updated_by", width: 15 },
+      { key: "failed_attempts", width: 15 },
+      { key: "status", width: 15 },
+    ];
+
+    const headerRow = worksheet.getRow(tableHeaderRowIndex);
+    headerRow.height = 32;
+    headerRow.eachCell((cell) => {
+      cell.font = {
+        name: "Google Sans",
+        size: 14,
+        bold: true,
+        color: { argb: "FFFFFFFF" },
+      };
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFF37021" },
+      };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+      cell.border = {
+        top: { style: "thin", color: { argb: "FFE25E00" } },
+        left: { style: "thin", color: { argb: "FFFFFFFF" } },
+        bottom: { style: "medium", color: { argb: "FFE25E00" } },
+        right: { style: "thin", color: { argb: "FFFFFFFF" } },
+      };
+    });
+
+    // --- ส่วนที่ 3: จัดการ Data Rows ---
+    const getEmploymentLabel = (type?: string | null) => {
+      const map: any = {
+        FULL_TIME: "พนักงานประจำ",
+        PART_TIME: "พาร์ทไทม์",
+        CONTRACT: "สัญญาจ้าง",
+        INTERN: "ฝึกงาน",
+      };
+      return map[type || ""] || "ไม่ระบุ";
+    };
+
+    const getStatusLabel = (status?: string | null) => {
+      const map: any = {
+        ACTIVE: "กำลังทำงาน",
+        INACTIVE: "ลาออก/ปิดใช้งาน",
+        SUSPENDED: "ระงับชั่วคราว",
+      };
+      return map[status || ""] || (status === "ACTIVE" ? "กำลังทำงาน" : status);
+    };
+
+    users.forEach((u, idx) => {
+      const joined = u.joined_date ? dayjs(u.joined_date) : null;
+      const resigned = u.resigned_date ? dayjs(u.resigned_date) : null;
+      const birth = u.birth_date ? dayjs(u.birth_date) : null;
+      const created = u.created_at ? dayjs(u.created_at) : null;
+      const updated = u.updated_at ? dayjs(u.updated_at) : null;
+      const lastLogin = u.last_login ? dayjs(u.last_login) : null;
+
+      let durationStr = "-";
+      if (joined) {
+        const compareDate = resigned || now;
+        const diffY = compareDate.diff(joined, "year");
+        const diffM = compareDate.diff(joined.add(diffY, "year"), "month");
+        durationStr = `${diffY} ปี ${diffM} เดือน`;
+      }
+
+      const row = worksheet.addRow({
+        no: idx + 1,
+        employee_code: u.employee_code || "-",
+        admin_id: u.admin_id,
+        username: u.username || "-",
+        firstname_th: u.firstname_th || "-",
+        lastname_th: u.lastname_th || "-",
+        firstname_en: u.firstname_en || "-",
+        lastname_en: u.lastname_en || "-",
+        nickname: u.nickname || "-",
+        department: u.department?.name_th || "-",
+        position: u.position_ref?.name_th || "-",
+        email: u.email || "-",
+        phone: u.phone || "-",
+        birth_date: birth ? birth.format("DD/MM/YYYY") : "-",
+        age: birth ? now.diff(birth, "year") : "-",
+        employment_type: getEmploymentLabel(u.employment_type),
+        role: u.role?.role_name || u.role?.name || "-",
+        joined_date: joined ? joined.format("DD/MM/YYYY") : "-",
+        resigned_date: resigned ? resigned.format("DD/MM/YYYY") : "-",
+        work_period: durationStr,
+        last_login: lastLogin
+          ? lastLogin.format("DD/MM/YYYY HH:mm")
+          : "ยังไม่เคยเข้าใช้",
+        created_at: created ? created.format("DD/MM/YYYY HH:mm") : "-",
+        created_by: u.created_by || "-",
+        updated_at: updated ? updated.format("DD/MM/YYYY HH:mm") : "-",
+        updated_by: u.updated_by || "-",
+        failed_attempts: u.failed_login_attempts ?? 0,
+        status: getStatusLabel(u.status),
+      });
+
+      // Format Data Row
+      row.height = 32;
+      row.eachCell((cell) => {
+        cell.font = {
+          name: "Google Sans",
+          size: 13,
+          color: { argb: "FF434343" },
+        };
+        cell.border = {
+          top: { style: "thin", color: { argb: "FFF9E7D8" } },
+          left: { style: "thin", color: { argb: "FFF9E7D8" } },
+          bottom: { style: "thin", color: { argb: "FFF9E7D8" } },
+          right: { style: "thin", color: { argb: "FFF9E7D8" } },
+        };
+        cell.alignment = { vertical: "middle", horizontal: "center" };
+      });
+
+      // Zebra effect
+      if ((idx + 1) % 2 === 0) {
+        row.eachCell((cell) => {
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFFFF7ED" },
+          };
+        });
+      }
+
+      // Status Coloring
+      const statusCell = row.getCell("status");
+      const statusVal = u.status;
+      if (statusVal === "ACTIVE") {
+        statusCell.font = {
+          bold: true,
+          color: { argb: "FF107C10" },
+          name: "Google Sans",
+          size: 13,
+        };
+        statusCell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFE8F5E9" },
+        };
+      } else if (statusVal === "INACTIVE") {
+        statusCell.font = {
+          bold: true,
+          color: { argb: "FFC62828" },
+          name: "Google Sans",
+          size: 13,
+        };
+        statusCell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFFFEBEE" },
+        };
+      }
+    });
+
+    // --- Final Step: Return Buffer ---
+    return (await workbook.xlsx.writeBuffer()) as Buffer;
   },
 };

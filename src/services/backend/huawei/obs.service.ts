@@ -1,5 +1,5 @@
-import ObsClient from "esdk-obs-nodejs";
 import axios from "axios";
+import ObsClient from "esdk-obs-nodejs";
 
 const access_key =
   process.env.OBS_ACCESS_KEY || process.env.OBS_ACCOUNT_ID || "";
@@ -35,13 +35,6 @@ export const ObsService = {
       targetBucket = process.env.OBS_DOMAIN.split(".")[0];
     }
 
-    console.log("OBS Upload Debug:", {
-      targetBucket,
-      key,
-      hasSdk: !!obsClient,
-      hasKeys: !!(access_key && secret_key),
-    });
-
     // If we have SDK and Keys, use them
     if (obsClient) {
       try {
@@ -73,7 +66,6 @@ export const ObsService = {
     const bucketUrl = process.env.NEXT_PUBLIC_OBS_BUCKET_URL;
     if (bucketUrl && bucketUrl !== "error") {
       try {
-        console.log(`Trying direct upload to: ${bucketUrl}/${key}`);
         await axios.put(`${bucketUrl}/${key}`, sourceFile, {
           headers: { "Content-Type": contentType },
         });

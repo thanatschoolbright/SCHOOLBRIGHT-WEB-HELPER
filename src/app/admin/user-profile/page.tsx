@@ -15,6 +15,7 @@ import {
   ExclamationCircleOutlined,
   EyeOutlined,
   FileExcelOutlined,
+  FilterOutlined,
   FlagOutlined,
   IdcardOutlined,
   InfoCircleOutlined,
@@ -31,6 +32,7 @@ import {
   SolutionOutlined,
   TeamOutlined,
   UnlockOutlined,
+  UnorderedListOutlined,
   UserOutlined,
   WarningOutlined,
 } from "@ant-design/icons";
@@ -68,6 +70,7 @@ import { toast } from "sonner";
 
 import SummaryCard from "@/components/card/summary-card";
 import PermissionLayout from "@/components/layouts/permission-layout";
+import { StatusModalComponent } from "@/components/modal/status-modal-component";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
@@ -152,11 +155,11 @@ const ResetPasswordTrackingModal = ({
   ];
 
   const statusMessages = [
-    `📦 กำลังรวบรวมข้อมูลพนักงาน ${users?.length || 0} ท่าน และเตรียมข้อมูล...`,
-    "🔍 ตรวจสอบเบอร์โทรศัพท์และความถูกต้องของข้อมูลสิทธิ์...",
-    "🔐 กำลังทยอยอัปเดตรหัสผ่านใหม่เป็น 'เบอร์มือถือ' ลงในฐานข้อมูล...",
-    "🚀 กำลังนำส่งอีเมลแจ้งเตือนรหัสผ่านใหม่ไปยังพนักงานทุกคน...",
-    "🏆 ภารกิจเสร็จสิ้น! ทุกบัญชีถูกรีเซ็ตเป็นเบอร์มือถือเรียบร้อยแล้ว",
+    `กำลังรวบรวมข้อมูลพนักงาน ${users?.length || 0} ท่าน และเตรียมข้อมูล...`,
+    "ตรวจสอบเบอร์โทรศัพท์และความถูกต้องของข้อมูลสิทธิ์...",
+    "กำลังทยอยอัปเดตรหัสผ่านใหม่เป็น 'เบอร์มือถือ' ลงในฐานข้อมูล...",
+    "กำลังนำส่งอีเมลแจ้งเตือนรหัสผ่านใหม่ไปยังพนักงานทุกคน...",
+    "ภารกิจเสร็จสิ้น! ทุกบัญชีถูกรีเซ็ตเป็นเบอร์มือถือเรียบร้อยแล้ว",
   ];
 
   useEffect(() => {
@@ -362,6 +365,22 @@ export default function UserManagementPage() {
   const [roleDrawerOpen, setRoleDrawerOpen] = useState(false); // For Role Management
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
+  // Status Modal State
+  const [statusModal, setStatusModal] = useState<{
+    open: boolean;
+    type: "success" | "error" | "confirm" | "delete";
+    title?: string;
+    message?: string;
+    loading?: boolean;
+    confirmLabel?: string;
+    cancelLabel?: string;
+    onConfirm?: () => void;
+  }>({
+    open: false,
+    type: "success",
+    loading: false,
+  });
+
   // Tracking Modal State
   const [trackingModalOpen, setTrackingModalOpen] = useState(false);
   const [usersToReset, setUsersToReset] = useState<UserProfile[] | null>(null);
@@ -382,14 +401,12 @@ export default function UserManagementPage() {
 
   // --- Logic: Reset Password ---
   const requestResetPassword = async (user: UserProfile) => {
-    modal.confirm({
+    setStatusModal({
+      open: true,
+      type: "confirm",
       title: "ยืนยันการรีเซ็ตรหัสผ่าน",
-      icon: <WarningOutlined style={{ color: token.colorWarning }} />,
-      content: `คุณแน่ใจหรือไม่ที่จะรีเซ็ตรหัสผ่านสำหรับ ${user.firstname_th} ${user.lastname_th}? รหัสผ่านใหม่จะถูกสุ่มและส่งไปที่อีเมล ${user.email}`,
-      okText: "ยืนยันรีเซ็ต",
-      cancelText: "ยกเลิก",
-      okButtonProps: { danger: true },
-      onOk: async () => {
+      message: `คุณแน่ใจหรือไม่ที่จะรีเซ็ตรหัสผ่านสำหรับ ${user.firstname_th} ${user.lastname_th}? รหัสผ่านใหม่จะถูกสุ่มและส่งไปที่อีเมล ${user.email}`,
+      onConfirm: async () => {
         try {
           const res = await axios.post(
             "/api/v2/admin/user-management/reset-password",
@@ -404,25 +421,25 @@ export default function UserManagementPage() {
               res.data.message_th || "เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน",
             );
           }
+          setStatusModal((prev) => ({ ...prev, open: false }));
         } catch (error: any) {
           toast.error(
             error.response?.data?.message ||
               "เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน",
           );
+          setStatusModal((prev) => ({ ...prev, open: false }));
         }
       },
     });
   };
 
   const requestBulkResetPassword = async () => {
-    modal.confirm({
+    setStatusModal({
+      open: true,
+      type: "confirm",
       title: "ยืนยันการรีเซ็ตรหัสผ่านแบบกลุ่ม",
-      icon: <WarningOutlined style={{ color: token.colorWarning }} />,
-      content: `คุณแน่ใจหรือไม่ที่จะรีเซ็ตรหัสผ่านสำหรับพนักงานที่เลือกจำนวน ${selectedRowKeys.length} ท่าน? รหัสผ่านใหม่จะถูกสุ่มและส่งไปที่เมลของแต่ละท่านทันที`,
-      okText: "ยืนยันรีเซ็ตตามที่เลือก",
-      cancelText: "ยกเลิก",
-      okButtonProps: { danger: true },
-      onOk: async () => {
+      message: `คุณแน่ใจหรือไม่ที่จะรีเซ็ตรหัสผ่านสำหรับพนักงานที่เลือกจำนวน ${selectedRowKeys.length} ท่าน? รหัสผ่านใหม่จะถูกสุ่มและส่งไปที่เมลของแต่ละท่านทันที`,
+      onConfirm: async () => {
         try {
           const res = await axios.post(
             "/api/v2/admin/user-management/reset-password",
@@ -441,11 +458,13 @@ export default function UserManagementPage() {
                 "เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่านรายกลุ่ม",
             );
           }
+          setStatusModal((prev) => ({ ...prev, open: false }));
         } catch (error: any) {
           toast.error(
             error.response?.data?.message ||
               "เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่านรายกลุ่ม",
           );
+          setStatusModal((prev) => ({ ...prev, open: false }));
         }
       },
     });
@@ -516,41 +535,77 @@ export default function UserManagementPage() {
   };
 
   const requestExportUserExcelReport = async () => {
-    setExportLoading(true);
-    const id = toast.loading("กำลังเตรียมข้อมูลรายงาน Excel สำหรับ IPO...");
-    try {
-      const res = await axios.get(
-        "/api/v2/admin/user-management/export-excel",
-        {
-          responseType: "blob",
-        },
-      );
+    setStatusModal({
+      open: true,
+      type: "confirm",
+      title: "เตรียมส่งออกข้อมูลพนักงานในรูปแบบตาราง",
+      message:
+        "ระบบจะรวบรวมข้อมูลพนักงานทั้งหมดที่มีความแม่นยำสูงเพื่อใช้ในการจัดเตรียมรายงานความพร้อมบริษัท กรุณายืนยันการดำเนินการ",
+      confirmLabel: "เริ่มดาวน์โหลด",
+      cancelLabel: "ยกเลิก",
+      onConfirm: async () => {
+        setExportLoading(true);
+        setStatusModal((prev) => ({
+          ...prev,
+          loading: true,
+          message:
+            "กำลังรวบรวมข้อมูลและจัดเตรียมไฟล์รายงานความละเอียดสูง กรุณารอสักครู่...",
+        }));
 
-      const blob = new Blob([res.data], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
+        try {
+          const res = await axios.get(
+            "/api/v2/admin/user-management/export-excel",
+            {
+              responseType: "blob",
+            },
+          );
 
-      const now = dayjs();
-      const thaiYear = now.year() + 543;
-      const formattedDate = `${now.format("DD-MM")}-${thaiYear}`;
-      const filename = `รายงานพนักงานบริษัทจับจ่ายคอร์เปอเรชัน_จำกัด_${formattedDate}.xlsx`;
+          const blob = new Blob([res.data], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
 
-      link.setAttribute("download", filename);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
+          const now = dayjs();
+          const thaiYear = now.year() + 543;
+          const formattedDate = `${now.format("DD-MM")}-${thaiYear}`;
+          const filename = `รายงานพนักงานบริษัทจับจ่ายคอร์เปอเรชัน_จำกัด_${formattedDate}.xlsx`;
 
-      toast.success("ส่งออกรายงานพนักงานสำเร็จ (Enterprise Grade)", { id });
-    } catch (error) {
-      console.error("Export Error:", error);
-      toast.error("ไม่สามารถส่งออกรายงานได้ กรุณาลองใหม่อีกครั้ง", { id });
-    } finally {
-      setExportLoading(false);
-    }
+          link.setAttribute("download", filename);
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.URL.revokeObjectURL(url);
+
+          // Update modal to success state
+          setStatusModal({
+            open: true,
+            type: "success",
+            title: "ส่งออกรายงานพนักงานสำเร็จ",
+            message:
+              "ระบบได้ทำการดาวน์โหลดไฟล์รายงานลงในเครื่องคอมพิวเตอร์ของท่านเรียบร้อยแล้ว",
+            onConfirm: () =>
+              setStatusModal((prev) => ({ ...prev, open: false })), // Just close it on success
+          });
+          toast.success("ส่งออกรายงานพนักงานสำเร็จ");
+        } catch (error) {
+          console.error("Export Error:", error);
+          setStatusModal({
+            open: true,
+            type: "error",
+            title: "ส่งออกข้อมูลล้มเหลว",
+            message:
+              "เกิดข้อผิดพลาดในการดึงข้อมูลจาก Server กรุณาตรวจสอบการเชื่อมต่อ หรือติดต่อฝ่าย IT",
+            onConfirm: () =>
+              setStatusModal((prev) => ({ ...prev, open: false })),
+          });
+          toast.error("ไม่สามารถส่งออกรายงานได้ กรุณาลองใหม่อีกครั้ง");
+        } finally {
+          setExportLoading(false);
+        }
+      },
+    });
   };
 
   // --- Logic: Fetch Data ---
@@ -591,19 +646,20 @@ export default function UserManagementPage() {
    * ปลดล็อกบัญชีผู้ใช้งานผ่านเมนูจัดการ
    */
   const requestUnlockAccount = async (targetUser: UserProfile) => {
-    Modal.confirm({
+    setStatusModal({
+      open: true,
+      type: "confirm",
       title: "ยืนยันการปลดล็อกบัญชี?",
-      icon: <UnlockOutlined style={{ color: token.colorSuccess }} />,
-      content: `ต้องการล้างจำนวนครั้งที่ระบุรหัสผิดของ ${targetUser.firstname_th} และปลดล็อกการระงับใช้งานใช่หรือไม่?`,
-      okText: "ปลดล็อกทันที",
-      cancelText: "ยกเลิก",
-      onOk: async () => {
+      message: `ต้องการล้างจำนวนครั้งที่ระบุรหัสผิดของ ${targetUser.firstname_th} และปลดล็อกการระงับใช้งานใช่หรือไม่?`,
+      onConfirm: async () => {
         try {
           await requestUserProfileService.requestUnlockUserByID(targetUser.id);
           toast.success("ปลดล็อกบัญชีเรียบร้อยแล้ว");
           requestFetchInitialData();
+          setStatusModal((prev) => ({ ...prev, open: false }));
         } catch (error) {
           toast.error("เกิดข้อผิดพลาดในการปลดล็อก");
+          setStatusModal((prev) => ({ ...prev, open: false }));
         }
       },
     });
@@ -782,7 +838,7 @@ export default function UserManagementPage() {
         (a.employee_code || "").localeCompare(b.employee_code || ""),
       ...getColumnSearchProps(
         ["employee_code"],
-        "รหัสพนักงาน/ไอดี",
+        "รหัสพนักงานหรือเลขพนักงาน",
         (value, record) =>
           (record.employee_code || "")
             .toLowerCase()
@@ -796,7 +852,7 @@ export default function UserManagementPage() {
           </Tag>
           <Typography.Text type="secondary" style={{ fontSize: 10 }}>
             <LinkOutlined style={{ marginRight: 4 }} />
-            ไอดีระบบ: {r.admin_id || "-"}
+            รหัสอ้างอิง: {r.admin_id || "-"}
           </Typography.Text>
         </Space>
       ),
@@ -807,7 +863,7 @@ export default function UserManagementPage() {
       width: 300,
       ...getColumnSearchProps(
         ["firstname_th"],
-        "ชื่อ/เมล/เบอร์",
+        "ชื่อ อีเมล หรือเบอร์โทรศัพท์",
         (value, record) =>
           (record.firstname_th || "")
             .toLowerCase()
@@ -893,7 +949,7 @@ export default function UserManagementPage() {
         ),
       ...getColumnSearchProps(
         ["position_ref", "name_th"],
-        "ตำแหน่ง/แผนก",
+        "ตำแหน่งหรือแผนก",
         (value, record) =>
           (record.position_ref?.name_th || "")
             .toLowerCase()
@@ -1013,26 +1069,30 @@ export default function UserManagementPage() {
       key: "account_status",
       width: 180,
       sorter: (a, b) => (a.status || "").localeCompare(b.status || ""),
-      ...getColumnSearchProps(["status"], "สถานะ/สิทธิ์", (value, record) => {
-        const isBlocked = (record.failed_login_attempts ?? 0) >= 5;
-        const statusStr = isBlocked
-          ? "โดนระงับ (Locked)"
-          : record.status === "ACTIVE"
-            ? "ออนไลน์ / ปกติ"
-            : "ระงับการใช้งาน";
-        return (
-          statusStr.toLowerCase().includes(value.toLowerCase()) ||
-          (record.role?.role_name || "")
-            .toLowerCase()
-            .includes(value.toLowerCase())
-        );
-      }),
+      ...getColumnSearchProps(
+        ["status"],
+        "สถานะหรือสิทธิ์",
+        (value, record) => {
+          const isBlocked = (record.failed_login_attempts ?? 0) >= 5;
+          const statusStr = isBlocked
+            ? "โดนระงับชั่วคราว"
+            : record.status === "ACTIVE"
+              ? "ออนไลน์และเป็นปกติ"
+              : "ระงับการใช้งาน";
+          return (
+            statusStr.toLowerCase().includes(value.toLowerCase()) ||
+            (record.role?.role_name || "")
+              .toLowerCase()
+              .includes(value.toLowerCase())
+          );
+        },
+      ),
       render: (_, r) => {
         const isBlocked = (r.failed_login_attempts ?? 0) >= 5;
         const statusText = isBlocked
-          ? "โดนระงับ (Locked)"
+          ? "โดนระงับชั่วคราว"
           : r.status === "ACTIVE"
-            ? "ออนไลน์ / ปกติ"
+            ? "ออนไลน์และเป็นปกติ"
             : "ระงับการใช้งาน";
         const statusType = isBlocked
           ? "error"
@@ -1102,7 +1162,7 @@ export default function UserManagementPage() {
               }}
             />
           </Tooltip>
-          {/* ✅ ปุ่มปลดล็อก (Show Only if Blocked) */}
+          {/* ปุ่มปลดล็อก (Show Only if Blocked) */}
           {((r as any).failed_login_attempts ?? 0) >= 5 && (
             <Tooltip title="ปลดล็อกบัญชี">
               <Button
@@ -1174,7 +1234,7 @@ export default function UserManagementPage() {
         {/* ส่วนที่ 1: แถบหัวข้อหน้าจอ (Header Bar) */}
         <HeaderBar
           icon={<TeamOutlined />}
-          title="จัดการผู้ใช้งาน (User Management)"
+          title="จัดการผู้ใช้งาน"
           subTitle="ระบบจัดการพนักงานและสิทธิ์การเข้าใช้งาน"
           extra={
             <Space>
@@ -1205,13 +1265,13 @@ export default function UserManagementPage() {
         />
 
         {/* ส่วนที่ 2: การ์ดสรุปข้อมูลภาพรวม (Summary Cards) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <Row gutter={[24, 24]} className="mb-8">
           {summaryMetrics.map((metrics, index) => (
-            <div key={index} className="h-full">
+            <Col key={index} xs={24} md={12} lg={6}>
               <SummaryCard {...metrics} isLoading={loading} />
-            </div>
+            </Col>
           ))}
-        </div>
+        </Row>
 
         {/* ส่วนที่ 3: ส่วนการกรองข้อมูล (Filters) */}
         <Card
@@ -1222,18 +1282,23 @@ export default function UserManagementPage() {
             marginBottom: 24,
           }}
         >
-          <Flex align="center" gap={8} className="mb-6">
-            <ControlOutlined
-              style={{ color: token.colorPrimary, fontSize: 18 }}
+          <Flex align="center" gap={12} style={{ marginBottom: 16 }}>
+            <FilterOutlined
+              style={{ color: token.colorPrimary, fontSize: "1rem" }}
             />
-            <Text style={{ fontSize: 16, fontWeight: 600 }}>ตัวกรอง</Text>
+            <Title
+              level={4}
+              style={{ margin: 0, fontWeight: 600, fontSize: "1rem" }}
+            >
+              ตัวกรอง
+            </Title>
           </Flex>
 
-          <Row gutter={[24, 24]}>
+          <Row gutter={[24, 16]}>
             <Col xs={24} md={12}>
               <Text
-                style={{ fontWeight: 600, color: token.colorTextSecondary }}
-                className="text-xs mb-2 block"
+                strong
+                style={{ fontSize: 13, display: "block", marginBottom: 8 }}
               >
                 ค้นหาคำสำคัญ (ชื่อ, นามสกุล, รหัสพนักงาน)
               </Text>
@@ -1256,8 +1321,8 @@ export default function UserManagementPage() {
 
             <Col xs={24} md={12}>
               <Text
-                style={{ fontWeight: 600, color: token.colorTextSecondary }}
-                className="text-xs mb-2 block"
+                strong
+                style={{ fontSize: 13, display: "block", marginBottom: 8 }}
               >
                 ตำแหน่งงาน
               </Text>
@@ -1282,8 +1347,8 @@ export default function UserManagementPage() {
 
             <Col xs={24} md={12}>
               <Text
-                style={{ fontWeight: 600, color: token.colorTextSecondary }}
-                className="text-xs mb-2 block"
+                strong
+                style={{ fontSize: 13, display: "block", marginBottom: 8 }}
               >
                 แผนก / ฝ่าย
               </Text>
@@ -1308,8 +1373,8 @@ export default function UserManagementPage() {
 
             <Col xs={24} md={12}>
               <Text
-                style={{ fontWeight: 600, color: token.colorTextSecondary }}
-                className="text-xs mb-2 block"
+                strong
+                style={{ fontSize: 13, display: "block", marginBottom: 8 }}
               >
                 สถานะบัญชีรายชื่อ
               </Text>
@@ -1321,9 +1386,9 @@ export default function UserManagementPage() {
                 value={filters.status}
                 onChange={(v) => setFilters((prev) => ({ ...prev, status: v }))}
                 options={[
-                  { label: "ใช้งานอยู่ (Active)", value: "ACTIVE" },
-                  { label: "ระงับการใช้งาน (Inactive)", value: "INACTIVE" },
-                  { label: "โดนระงับ (Locked/Failed Login)", value: "BLOCKED" },
+                  { label: "กำลังใช้งาน", value: "ACTIVE" },
+                  { label: "ระงับการใช้งาน", value: "INACTIVE" },
+                  { label: "บัญชีที่ถูกล็อก", value: "BLOCKED" },
                 ]}
                 style={{ borderRadius: 8 }}
               />
@@ -1374,11 +1439,17 @@ export default function UserManagementPage() {
           {/* Table Header Action */}
           <div className="flex justify-between items-center mb-6">
             <Flex align="center" gap={12}>
-              <Title level={4} style={{ margin: 0, fontWeight: 600 }}>
+              <UnorderedListOutlined
+                style={{ color: token.colorPrimary, fontSize: "1rem" }}
+              />
+              <Title
+                level={4}
+                style={{ margin: 0, fontWeight: 600, fontSize: "1rem" }}
+              >
                 รายชื่อพนักงานทั้งหมด
                 <Text
                   type="secondary"
-                  style={{ fontSize: 14, fontWeight: 400, marginLeft: 8 }}
+                  style={{ fontSize: 13, fontWeight: 400, marginLeft: 8 }}
                 >
                   ({filteredUsers.length} รายการ)
                 </Text>
@@ -1544,7 +1615,7 @@ export default function UserManagementPage() {
             type="danger"
             style={{ fontSize: "12px", display: "block" }}
           >
-            *การลบนี้จะเป็นการ Soft Delete ข้อมูลยังคงอยู่ในระบบแต่จะไม่แสดงผล
+            *ข้อมูลพนักงานจะยังคงอยู่ในระบบแต่จะไม่ถูกนำมาแสดงผลเพื่อให้สามารถเรียกดูประวัติย้อนหลังได้
           </Typography.Text>
         </Modal>
 
@@ -1601,10 +1672,10 @@ export default function UserManagementPage() {
                   </Typography.Text>
                   <div className="mt-2 flex gap-2">
                     <Tag color="blue" className="rounded-full">
-                      EMP: {selectedUser.employee_code}
+                      รหัสพนักงาน: {selectedUser.employee_code}
                     </Tag>
                     <Tag color="cyan" className="rounded-full">
-                      ID: {selectedUser.admin_id}
+                      รหัสระบบ: {selectedUser.admin_id}
                     </Tag>
                     <Tag
                       color={
@@ -1613,8 +1684,8 @@ export default function UserManagementPage() {
                       className="rounded-full"
                     >
                       {selectedUser.status === "ACTIVE"
-                        ? "คัดเลือก/ปกติ"
-                        : "ระงับ"}
+                        ? "ออนไลน์และเป็นปกติ"
+                        : "ระงับการใช้งาน"}
                     </Tag>
                   </div>
                 </div>
@@ -1626,7 +1697,7 @@ export default function UserManagementPage() {
                 column={2}
                 className="mb-6"
               >
-                <Descriptions.Item label="ชื่อผู้ใช้งาน (Username)">
+                <Descriptions.Item label="ชื่อผู้ใช้งาน">
                   {selectedUser.username}
                 </Descriptions.Item>
                 <Descriptions.Item label="สิทธิ์การใช้งาน">
@@ -1643,7 +1714,7 @@ export default function UserManagementPage() {
                     ? dayjs(selectedUser.birth_date).format("DD MMMM YYYY")
                     : "-"}
                 </Descriptions.Item>
-                <Descriptions.Item label="Backlog Email">
+                <Descriptions.Item label="อีเมลสำรอง">
                   {(selectedUser as any).backlog_email || "-"}
                 </Descriptions.Item>
               </Descriptions>
@@ -1778,15 +1849,15 @@ export default function UserManagementPage() {
                         }))
                       : [
                           {
-                            label: "Full-time (พนักงานประจำ)",
+                            label: "พนักงานประจำ",
                             value: "FULL_TIME",
                           },
                           {
-                            label: "Part-time (พนักงานชั่วคราว)",
+                            label: "พนักงานชั่วคราว",
                             value: "PART_TIME",
                           },
-                          { label: "Contract (สัญญาจ้าง)", value: "CONTRACT" },
-                          { label: "Intern (ฝึกงาน)", value: "INTERN" },
+                          { label: "สัญญาจ้าง", value: "CONTRACT" },
+                          { label: "นักศึกษาฝึกงาน", value: "INTERN" },
                         ]
               }
               showSearch
@@ -1798,6 +1869,19 @@ export default function UserManagementPage() {
             />
           </div>
         </Modal>
+
+        {/* Dynamic Status Modal Component */}
+        <StatusModalComponent
+          open={statusModal.open}
+          type={statusModal.type}
+          title={statusModal.title}
+          message={statusModal.message}
+          loading={statusModal.loading}
+          confirmLabel={statusModal.confirmLabel}
+          cancelLabel={statusModal.cancelLabel}
+          onClose={() => setStatusModal((prev) => ({ ...prev, open: false }))}
+          onConfirm={statusModal.onConfirm}
+        />
       </DashboardLayout>
     </PermissionLayout>
   );

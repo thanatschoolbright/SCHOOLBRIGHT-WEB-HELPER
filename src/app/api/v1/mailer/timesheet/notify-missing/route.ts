@@ -1,5 +1,5 @@
+import { errorResponse, successResponse } from "@/helpers/api/response";
 import { NextResponse } from "next/server";
-import { successResponse, errorResponse } from "@/helpers/api/response";
 
 interface NotifyPayload {
   targets: {
@@ -14,8 +14,8 @@ const buildMailContent = (payload: NotifyPayload) => {
   const lines = payload.targets.map((target, idx) => {
     const name = target.full_name || "-";
     const position = target.position ? `(${target.position})` : "";
-    const tel = target.tel ? ` • ${target.tel}` : "";
-    return `${idx + 1}. ${name} ${position} • ${target.email ?? "-"}${tel}`;
+    const tel = target.tel ? ` - ${target.tel}` : "";
+    return `${idx + 1}. ${name} ${position} - ${target.email ?? "-"}${tel}`;
   });
 
   return lines.join("\n");
@@ -31,7 +31,9 @@ export async function POST(request: Request) {
     const summaryText = buildMailContent(payload);
 
     // TODO: Replace this log with a real mail provider integration (SMTP, Resend, etc.)
-    console.info("[Mailer][Timesheet][notify-missing] targets:\n" + summaryText);
+    console.info(
+      "[Mailer][Timesheet][notify-missing] targets:\n" + summaryText,
+    );
 
     return NextResponse.json(
       successResponse({
@@ -39,7 +41,7 @@ export async function POST(request: Request) {
           notified: payload.targets,
           message: "บันทึกคำขอส่งอีเมลเรียบร้อย (โหมดจำลอง)",
         },
-      })
+      }),
     );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
@@ -52,7 +54,7 @@ export async function POST(request: Request) {
         message_th: "ข้อมูลไม่ถูกต้อง",
         error,
       }),
-      { status: 400 }
+      { status: 400 },
     );
   }
 }

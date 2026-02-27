@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 
   // ตรวจสอบ Cache ก่อน
   if (cachedData && now - lastFetchTime < CACHE_TTL) {
-    console.info("🚀 [CACHE] Returning cached school list detail");
+    console.info("[CACHE] Returning cached school list detail");
     return NextResponse.json(cachedData, { status: 200 });
   }
 

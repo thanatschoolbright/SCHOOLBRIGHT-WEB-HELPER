@@ -1,16 +1,16 @@
 "use client";
-import { Card, Row, Col, Typography, Button, Space, Tag, Divider } from "antd";
 import {
-  ExperimentOutlined,
-  ThunderboltOutlined,
-  FireOutlined,
-  RocketOutlined,
   ClockCircleOutlined,
+  ExperimentOutlined,
+  FireOutlined,
   LineChartOutlined,
+  RocketOutlined,
+  ThunderboltOutlined,
 } from "@ant-design/icons";
+import { Card, Col, Divider, Row, Space, Tag, Typography } from "antd";
 import { useTranslation } from "react-i18next";
-import { TEST_PROFILES } from "../utils/test-profiles";
 import { LoadTestProfile } from "../types/load-test.types";
+import { TEST_PROFILES } from "../utils/test-profiles";
 
 type TestProfileSelectorProps = {
   onSelectProfile: (profile: LoadTestProfile) => void;
@@ -102,7 +102,7 @@ export const TestProfileSelectorComponent = ({
                   </Space>
                   {isSelected && (
                     <Tag color="success" style={{ marginTop: 8 }}>
-                      ✓ {t("load_test_page.profiles.selected")}
+                      (v) {t("load_test_page.profiles.selected")}
                     </Tag>
                   )}
                 </Space>

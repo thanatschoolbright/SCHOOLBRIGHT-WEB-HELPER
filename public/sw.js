@@ -1,23 +1,33 @@
-const CACHE_NAME = "sb-web-helper-v1";
+/// <reference lib="webworker" />
 
-self.addEventListener("install", (event) => {
-  console.log("[SW] Service worker installed.");
-  self.skipWaiting(); // Activate worker immediately
+const CACHE_NAME = "sb-web-helper-v2"; // อัปเดต Version เมื่อมีการเปลี่ยน Logic หลัก
+
+declare const self: ServiceWorkerGlobalScope;
+
+// --- Helper Functions ---
+const logError = (message: string, error?: unknown) => {
+  console.error(`[SW Error]: ${message}`, error);
+};
+
+// --- Events ---
+
+self.addEventListener("install", () => {
+  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
-  console.log("[SW] Service worker activated.");
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log("[SW] Clearing old cache:", cacheName);
-            return caches.delete(cacheName);
+            return caches.delete(cacheName).catch((err) => {
+              logError(`Failed to delete cache: ${cacheName}`, err);
+            });
           }
-        }),
+        })
       );
-    }),
+    })
   );
   return self.clients.claim();
 });
@@ -26,55 +36,43 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // ✅ Skip non-GET requests (POST, PUT, DELETE)
-  if (request.method !== "GET") {
+  // ✅ Filtering: ข้ามสิ่งที่ไม่ต้องการ Cache
+  if (
+    request.method !== "GET" ||
+    url.protocol.startsWith("chrome-extension") ||
+    url.protocol.includes("ws") ||
+    url.pathname.startsWith("/api/")
+  ) {
     return;
   }
 
-  // ✅ Skip Chrome Extension requests
-  if (url.protocol === "chrome-extension:") {
-    return;
-  }
-
-  // ✅ Skip WebSocket connections
-  if (url.protocol === "ws:" || url.protocol === "wss:") {
-    return;
-  }
-
-  // ✅ Skip API calls (ให้ไปถึง Server จริงเสมอ)
-  if (url.pathname.startsWith("/api/")) {
-    return fetch(request).catch(() => {
-      console.warn("[SW] API fetch failed:", url.pathname);
-    });
-  }
-
-  // ✅ Network-First Strategy (สำหรับ Static Assets)
+  // ✅ Strategy: Network-First with Cache Fallback
   event.respondWith(
     fetch(request)
       .then((response) => {
-        // Clone response เพื่อ cache
-        if (response && response.status === 200) {
-          const responseClone = response.clone();
+        // จัดเก็บเฉพาะความสำเร็จ (Status 200 OK)
+        if (response && response.status === 200 && response.type === 'basic') {
+          const responseToCache = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseClone);
+            cache.put(request, responseToCache);
           });
         }
         return response;
       })
-      .catch(() => {
-        // ✅ Fallback to cache ถ้า Network fail
-        return caches.match(request).then((cachedResponse) => {
-          if (cachedResponse) {
-            console.log("[SW] Serving from cache:", url.pathname);
-            return cachedResponse;
-          }
-          // ✅ Return offline page หรือ error response
-          console.warn("[SW] No cache available for:", url.pathname);
-          return new Response("Offline - Resource not available", {
-            status: 503,
-            statusText: "Service Unavailable",
-          });
+      .catch(async (error) => {
+        // ✅ เมื่อ Network พัง (Offline) ให้พยายามดึงจาก Cache
+        const cachedResponse = await caches.match(request);
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        // กรณีไม่มีทั้ง Network และ Cache
+        logError(`Network failed and no cache available for: ${url.pathname}`, error);
+        
+        return new Response("Offline - Resource not available", {
+          status: 503,
+          headers: { "Content-Type": "text/plain" },
         });
-      }),
+      })
   );
 });

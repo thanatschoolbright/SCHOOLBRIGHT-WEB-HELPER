@@ -87,7 +87,7 @@ import type {
 } from "@/types/canteen.type";
 import DashboardLayout from "@components/layouts/backend-layout";
 
-// ✅ ใช้งาน Plugin สำหรับปี พ.ศ. (BBBB)
+// ใช้งาน Plugin สำหรับปี พ.ศ. (BBBB)
 dayjs.extend(buddhistEra);
 dayjs.locale("th");
 
@@ -492,7 +492,7 @@ export default function CanteenAppManager() {
   };
 
   /**
-   * 🤔 สุ่มเลือกโรงเรียนตามเปอร์เซ็นต์ที่กำหนด (Roll-out Logic)
+   * สุ่มเลือกโรงเรียนตามเปอร์เซ็นต์ที่กำหนด (Roll-out Logic)
    */
   const handleApplyRollout = () => {
     // กองตัวเลือกที่ไม่ใช่ "ทุกโรงเรียน" ออก (ค่า "" ออก)
@@ -529,7 +529,7 @@ export default function CanteenAppManager() {
       const submissionFormData = new FormData();
 
       /**
-       * ✅ Helper สำหรับการ append ข้อมูลเข้า FormData อย่างปลอดภัย
+       * Helper สำหรับการ append ข้อมูลเข้า FormData อย่างปลอดภัย
        * ป้องกันการส่งค่า null, undefined หรือ string "undefined" ไปยัง Server
        */
       const appendSafe = (key: string, value: any) => {
@@ -587,7 +587,7 @@ export default function CanteenAppManager() {
         );
       }
 
-      // ✅ ตรวจสอบสถานะการทำงานภายใน response (บาง API ส่ง 200 แต่ status: failed)
+      // ตรวจสอบสถานะการทำงานภายใน response (บาง API ส่ง 200 แต่ status: failed)
       const isFailed =
         apiResponse?.status === "failed" ||
         apiResponse?.data?.status === "failed";
@@ -607,7 +607,7 @@ export default function CanteenAppManager() {
     } catch (error: any) {
       setSubmissionStatus("error");
 
-      // ✅ ดึงข้อมูล Error ออกมาแสดงผลเพื่อการ Debug
+      // ดึงข้อมูล Error ออกมาแสดงผลเพื่อการ Debug
       const apiErrorData = error.response?.data;
       if (apiErrorData) {
         setDebugData(apiErrorData);
@@ -829,7 +829,7 @@ export default function CanteenAppManager() {
                 setCurrentFormStep(0);
                 setVersionFormModalVisible(true);
 
-                // ✅ ดึง URL และชื่อไฟล์ที่มีอยู่แล้วมาแสดงผล
+                // ดึง URL และชื่อไฟล์ที่มีอยู่แล้วมาแสดงผล
                 const url = record.url || "";
                 const fileName = url
                   ? url.substring(url.lastIndexOf("/") + 1)
@@ -845,7 +845,7 @@ export default function CanteenAppManager() {
                     ]
                   : [];
 
-                // ✅ ป้องกันค่า undefined/null หลุดเข้าไปใน Form
+                // ป้องกันค่า undefined/null หลุดเข้าไปใน Form
                 const appIdStr = selectedApplication?.app_id
                   ? String(selectedApplication.app_id)
                   : "";
@@ -1019,7 +1019,7 @@ export default function CanteenAppManager() {
                 setCurrentFormStep(0);
                 versionFormInstance.resetFields();
 
-                // ✅ ป้องกันค่า undefined หลุดเข้าไปใน Form
+                // ป้องกันค่า undefined หลุดเข้าไปใน Form
                 const appIdStr = selectedApplication?.app_id
                   ? String(selectedApplication.app_id)
                   : "";
@@ -1108,7 +1108,7 @@ export default function CanteenAppManager() {
                   <Input disabled />
                 </Form.Item>
                 {/*
-                  ⚠️ Hidden field สำหรับเก็บ Version ID เพื่อใช้ในการแก้ไข (Update)
+                  Hidden field สำหรับเก็บ Version ID เพื่อใช้ในการแก้ไข (Update)
                   หากไม่มีฟิลด์นี้ validateFields() จะไม่คืนค่า versionID ออกมา
                 */}
                 <Form.Item name="versionID" hidden>
@@ -1215,7 +1215,7 @@ export default function CanteenAppManager() {
                   </AntText>
                 </div>
 
-                {/* 🎲 Roll-out (Random selection) */}
+                {/* Roll-out (Random selection) */}
                 <Flex
                   gap="small"
                   align="center"
@@ -1445,7 +1445,7 @@ export default function CanteenAppManager() {
         )}
       </Modal>
 
-      {/* 🟢 Verification Simulator Modal */}
+      {/* Verification Simulator Modal */}
       <Modal
         title={
           <Space>

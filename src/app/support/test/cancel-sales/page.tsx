@@ -1,12 +1,12 @@
 "use client";
 import {
   CheckCircleOutlined,
-  CloseCircleOutlined, // Added for tooltips
+  CloseCircleOutlined,
   CodeOutlined,
   CopyOutlined,
   CreditCardOutlined,
   FileTextOutlined,
-  HomeOutlined, // Added for tooltips
+  HomeOutlined,
   InfoCircleOutlined,
   ReloadOutlined,
   RocketOutlined,
@@ -21,18 +21,20 @@ import {
   Badge,
   Button,
   Card,
+  Col,
   Divider,
   Flex,
   Form,
   Input,
+  Layout,
   Progress,
+  Row,
   Select,
   Skeleton,
   Space,
+  Steps,
   Typography,
-  theme,
 } from "antd";
-import { motion } from "framer-motion";
 import Link from "next/link";
 import {
   useCallback,
@@ -52,12 +54,8 @@ import AiChatWidget, {
 } from "@components/ai-chat-widget";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { AppDispatch, useAppSelector } from "@stores/store";
-import {
-  CancelSalesState,
-  ResponseSchoolList,
-  ResponseSchoolListWithMoreDetail,
-  ResponseUserList,
-} from "@stores/type";
+import { CancelSalesState, ResponseUserList } from "@stores/type";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
 
 interface CancellationLog {
   endpoint: string;
@@ -94,6 +92,7 @@ interface ExtractedCancellationInfo extends Partial<
     | "sSellId"
   >
 > {}
+
 interface DropdownOption {
   label: string;
   value: string;
@@ -111,8 +110,8 @@ const initialFormValues: CancelSalesState["draftValues"] = {
 export default function Page() {
   const dispatch = useDispatch<AppDispatch>();
   const [form] = Form.useForm<CancelSalesState["draftValues"]>();
-  const { token } = theme.useToken();
   const { Title, Text, Paragraph } = Typography;
+  const { Content } = Layout;
 
   const cancelSalesState = useAppSelector((state) => state.callCancelSales);
   const schoolListState = useAppSelector(
@@ -138,14 +137,13 @@ export default function Page() {
   const isSubmitting = cancelSalesState.loading;
 
   useEffect(() => {
-    // โหลดเฉพาะถ้ายังไม่มีข้อมูลใน Redux และไม่ได้กำลังโหลดอยู่
     const draft = schoolListState?.response?.data?.data;
     const hasData = Array.isArray(draft) && draft.length > 0;
 
     if (!hasData && !schoolListState.loading) {
       dispatch(GET_SCHOOL_LIST());
     }
-  }, [dispatch]); // ใช้อาร์เรย์ว่างหรือแค่ dispatch เพื่อให้รันแค่ครั้งเดียวเมื่อ mount
+  }, [dispatch]);
 
   const normalizeText = (value?: string | number | null) =>
     String(value ?? "")
@@ -256,7 +254,6 @@ export default function Page() {
         timestamp: Date.now(),
       });
 
-      // Check specific response status for success but with error message
       const responseData = response as any;
       if (
         responseData?.status &&
@@ -272,7 +269,7 @@ export default function Page() {
       }
 
       matchedContextRef.current = null;
-      setCurrentStep(3);
+      setCurrentStep(4);
       return response;
     } catch (error: any) {
       const errorResponse = error?.response;
@@ -570,7 +567,7 @@ export default function Page() {
         Object.entries(info).forEach(([key, rawValue]) => {
           if (rawValue === undefined || rawValue === null) return;
           const value = String(rawValue).trim();
-          if (!value || /ไม่มี|not\s*required/i.test(value) || value === "—")
+          if (!value || /ไม่มี|not\s*required/i.test(value) || value === "-")
             return;
           (next as any)[key] = value;
         });
@@ -704,7 +701,6 @@ export default function Page() {
     return (filled / 4) * 100;
   };
 
-  // Helper to determine alert status and message
   const getResponseAlert = (data: any) => {
     if (!data) return null;
 
@@ -719,7 +715,7 @@ export default function Page() {
           message="ไม่สามารถยกเลิกรายการได้"
           description={
             <>
-              ระบบแจ้งว่า: <b>{statusString}</b> <br />
+              ระบบแจ้งว่า: <Text strong>{statusString}</Text> <br />
               สาเหตุที่เป็นไปได้: <br />
               1. บัตรนี้เป็นบัตรชั่วคราว (Temp Card) ที่ไม่มีข้อมูลในระบบ <br />
               2. รายการนี้เกิดขึ้นเกิน 30 วันแล้ว (ข้อมูลถูกย้ายออกจาก Active
@@ -746,482 +742,330 @@ export default function Page() {
 
   return (
     <DashboardLayout>
-      <style jsx>{`
-        .form-section-title {
-          font-size: 14px;
-          font-weight: 700;
-          color: ${token.colorPrimary};
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          margin-bottom: 20px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-        .step-node {
-          padding: 12px 20px;
-          border-radius: 12px;
-          transition: all 0.3s ease;
-          border: 1px solid transparent;
-        }
-        .step-node.active {
-          background: ${token.colorPrimaryBg};
-          border-color: ${token.colorPrimaryBorder};
-        }
-      `}</style>
+      <Content>
+        <Flex vertical gap="large">
+          <AiChatWidget
+            title="ระบบผู้ช่วย AI อัจฉริยะ (AI Sales Assistant)"
+            placeholder="พิมพ์เพื่อยกเลิกรายการ เช่น 'ยกเลิกรายการขายที่หน้าร้าน...'"
+            cancellationLog={lastCancellationLog as any}
+            onCancellationInfo={handleCancellationInfo}
+            onConfirmCancellation={handleChatConfirmCancellation}
+          />
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        style={{ position: "relative", zIndex: 1, padding: "24px" }}
-      >
-        <AiChatWidget
-          title="ระบบผู้ช่วย AI อัจฉริยะ (AI Sales Assistant)"
-          placeholder="พิมพ์เพื่อยกเลิกรายการ เช่น 'ยกเลิกรายการขายที่หน้าร้าน...'"
-          cancellationLog={lastCancellationLog as any}
-          onCancellationInfo={handleCancellationInfo}
-          onConfirmCancellation={handleChatConfirmCancellation}
-        />
-
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          {/* Header Section */}
-          <header style={{ marginBottom: 40, textAlign: "center" }}>
-            <motion.div
-              initial={{ y: -20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.6 }}
-            >
-              <Badge
-                count="Support Tool"
-                offset={[-60, 0]}
-                color={token.colorPrimary}
-              >
-                <Title
-                  level={1}
-                  style={{ margin: "0 0 8px 0", fontSize: 40, fontWeight: 900 }}
-                >
-                  ระบบจัดการรายการขายพิเศษ
-                </Title>
-              </Badge>
-              <Paragraph
-                style={{ fontSize: 18, color: token.colorTextSecondary }}
-              >
-                เครื่องมือช่วยเหลือสำหรับการยกเลิกรายการขายที่เกินกำหนด 7 วัน
-                พร้อมระบบวิเคราะห์ข้อมูลอัตโนมัติ
-              </Paragraph>
-            </motion.div>
-          </header>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 340px",
-              gap: 32,
-            }}
-          >
-            <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
-              {/* Main Interaction Area */}
-              <motion.div
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                <Card className="glass-card" style={{ borderRadius: 32 }}>
-                  <div className="form-section-title">
-                    <FileTextOutlined /> รายละเอียดการขอทำรายการ (Cancellation
-                    Details)
-                  </div>
-
-                  <Skeleton
-                    active
-                    loading={isResourceLoading}
-                    paragraph={{ rows: 10 }}
-                  >
-                    <Form
-                      form={form}
-                      layout="vertical"
-                      initialValues={initialFormValues}
-                      onFinish={handleSubmitForm}
-                      onValuesChange={() => {
-                        const values = form.getFieldsValue();
-                        let step = 0;
-                        if (values.SchoolID) step = 1;
-                        if (values.sID && values.sID2) step = 2;
-                        if (values.sSellID) step = 3;
-                        setCurrentStep(step);
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "1fr 1fr",
-                          gap: "0 24px",
-                        }}
-                      >
-                        <Form.Item
-                          name="SchoolID"
-                          style={{ gridColumn: "span 2" }}
-                          label={
-                            <Space>
-                              <HomeOutlined
-                                style={{ color: token.colorPrimary }}
-                              />
-                              <Text strong>สถานศึกษาที่ต้องการดำเนินการ</Text>
-                            </Space>
-                          }
-                          rules={[
-                            { required: true, message: "กรุณาระบุโรงเรียน" },
-                          ]}
-                        >
-                          <Select
-                            showSearch
-                            placeholder="🏫 ค้นหาโรงเรียนโดยชื่อหรือรหัส..."
-                            size="large"
-                            options={schoolOptions}
-                            optionFilterProp="label"
-                            style={{ width: "100%" }}
-                          />
-                        </Form.Item>
-
-                        <Form.Item
-                          name="sID"
-                          label={
-                            <Space>
-                              <UserOutlined
-                                style={{ color: token.colorInfo }}
-                              />
-                              <Text strong>ผู้ซื้อสินค้า (User ID)</Text>
-                            </Space>
-                          }
-                          rules={[{ required: true, message: "ระบุผู้ซื้อ" }]}
-                        >
-                          <Select
-                            showSearch
-                            placeholder="👤 ระบุรหัสผู้ซื้อ"
-                            size="large"
-                            options={userList}
-                            disabled={!selectedSchoolId}
-                            loading={isFetchingUsers}
-                          />
-                        </Form.Item>
-
-                        <Form.Item
-                          name="sID2"
-                          label={
-                            <Space>
-                              <TeamOutlined
-                                style={{ color: token.colorWarning }}
-                              />
-                              <Text strong>ผู้ขาย/ร้านค้า (User ID)</Text>
-                            </Space>
-                          }
-                          rules={[{ required: true, message: "ระบุผู้ขาย" }]}
-                        >
-                          <Select
-                            showSearch
-                            placeholder="👥 ระบุรหัสผู้ขาย"
-                            size="large"
-                            options={userList}
-                            disabled={!selectedSchoolId}
-                            loading={isFetchingUsers}
-                          />
-                        </Form.Item>
-
-                        <Form.Item
-                          name="sSellID"
-                          style={{ gridColumn: "span 2" }}
-                          label={
-                            <Space>
-                              <CreditCardOutlined
-                                style={{ color: token.colorError }}
-                              />
-                              <Text strong>
-                                รหัสหมายเลขรายการ (Transaction / sSellID)
-                              </Text>
-                            </Space>
-                          }
-                          rules={[
-                            {
-                              required: true,
-                              message: "กรุณาระบุเลขที่รายการ",
-                            },
-                          ]}
-                        >
-                          <Input
-                            placeholder="💳 ตัวอย่าง: 12345678"
-                            size="large"
-                            style={{
-                              height: 50,
-                              fontSize: 18,
-                              letterSpacing: 2,
-                              fontWeight: 700,
-                            }}
-                          />
-                        </Form.Item>
-                      </div>
-
-                      <Divider style={{ margin: "12px 0 24px" }} />
-
-                      <Flex gap={16}>
-                        <Button
-                          type="primary"
-                          htmlType="submit"
-                          loading={isSubmitting}
-                          size="large"
-                          icon={<ThunderboltOutlined />}
-                          style={{
-                            height: 54,
-                            flex: 1,
-                            borderRadius: 16,
-                            fontSize: 16,
-                            fontWeight: 700,
-                            background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
-                            boxShadow: `0 12px 24px ${token.colorPrimary}30`,
-                            border: "none",
-                          }}
-                        >
-                          เริ่มดำเนินการยกเลิกตอนนี้
-                        </Button>
-                        <Button
-                          icon={<ReloadOutlined />}
-                          size="large"
-                          onClick={handleResetForm}
-                          style={{ height: 54, borderRadius: 16, width: 100 }}
-                        />
-                      </Flex>
-                    </Form>
-                  </Skeleton>
-                </Card>
-              </motion.div>
-
-              {/* Status Report Section */}
-              {responsePayload.data && (
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                >
-                  <Card
-                    className="glass-card"
-                    style={{
-                      borderRadius: 32,
-                      border: `2px solid ${token.colorSuccess}40`,
-                    }}
-                    title={
-                      <Flex align="center" gap={12}>
-                        <CheckCircleOutlined
-                          style={{ fontSize: 24, color: token.colorSuccess }}
-                        />
-                        <Title level={4} style={{ margin: 0 }}>
-                          ผลลัพธ์การร้องขอ (Operation Result)
-                        </Title>
-                      </Flex>
+          <Row justify="center">
+            <Col span={24} xl={20}>
+              <Flex vertical gap="large">
+                <Flex vertical gap="small">
+                  <HeaderBar
+                    icon={<FileTextOutlined />}
+                    title={"ระบบจัดการรายการขายพิเศษ"}
+                    subTitle={
+                      "เครื่องมือช่วยเหลือสำหรับการยกเลิกรายการขายที่เกินกำหนด 7 วัน พร้อมระบบวิเคราะห์ข้อมูลอัตโนมัติ"
                     }
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 24,
-                      }}
-                    >
-                      {getResponseAlert(responsePayload.data)}
+                  />
+                </Flex>
 
-                      <div style={{ position: "relative" }}>
-                        <div
-                          style={{
-                            padding: "24px",
-                            borderRadius: 20,
-                            background: token.colorFillAlter,
-                            fontFamily: "'Fira Code', monospace",
-                            fontSize: 13,
-                            maxHeight: 400,
-                            overflow: "auto",
-                            border: `1px solid ${token.colorBorderSecondary}`,
-                          }}
+                <Row gutter={[32, 32]}>
+                  <Col xs={24} lg={16}>
+                    <Flex vertical gap="large">
+                      <Card>
+                        <Title level={5} style={{ marginBottom: 24 }}>
+                          <FileTextOutlined /> รายละเอียดการขอทำรายการ
+                          (Cancellation Details)
+                        </Title>
+
+                        <Skeleton
+                          active
+                          loading={isResourceLoading}
+                          paragraph={{ rows: 10 }}
                         >
-                          <pre style={{ margin: 0 }}>
-                            {JSON.stringify(responsePayload.data, null, 2)}
-                          </pre>
-                        </div>
-                        <Flex gap={12} style={{ marginTop: 16 }}>
-                          <Button
-                            icon={<CopyOutlined />}
-                            onClick={() =>
-                              handleCopyResponse(
-                                JSON.stringify(responsePayload.data, null, 2),
-                                "คัดลอก JSON แล้ว",
-                              )
-                            }
-                            style={{ borderRadius: 12 }}
-                          >
-                            คัดลอกข้อมูล JSON
-                          </Button>
-                          <Button
-                            icon={<CodeOutlined />}
-                            disabled={!responsePayload.curl}
-                            onClick={() =>
-                              responsePayload.curl &&
-                              handleCopyResponse(
-                                responsePayload.curl.toString(),
-                                "คัดลอก cURL แล้ว",
-                              )
-                            }
-                            style={{ borderRadius: 12 }}
-                          >
-                            คัดลอก cURL
-                          </Button>
-                        </Flex>
-                      </div>
-                    </div>
-                  </Card>
-                </motion.div>
-              )}
-            </div>
-
-            {/* Side Panel: Steps & Info */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-              <motion.div
-                initial={{ x: 20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                <Card className="glass-card" style={{ borderRadius: 24 }}>
-                  <div className="form-section-title">
-                    <RocketOutlined /> ความคืบหน้า (Progress)
-                  </div>
-                  <div
-                    style={{ display: "flex", flexDirection: "column", gap: 8 }}
-                  >
-                    {[
-                      {
-                        step: 1,
-                        title: "ยืนยันสถานศึกษา",
-                        icon: <HomeOutlined />,
-                      },
-                      {
-                        step: 2,
-                        title: "ระบุคู่ค้า (Buyer/Seller)",
-                        icon: <TeamOutlined />,
-                      },
-                      {
-                        step: 3,
-                        title: "เลขที่รายการ (Transaction)",
-                        icon: <CreditCardOutlined />,
-                      },
-                      {
-                        step: 4,
-                        title: "ดำเนินการสำเร็จ",
-                        icon: <CheckCircleOutlined />,
-                      },
-                    ].map((item, idx) => (
-                      <div
-                        key={idx}
-                        className={`step-node ${
-                          currentStep >= idx ? "active" : ""
-                        }`}
-                      >
-                        <Flex align="center" gap={12}>
-                          <div
-                            style={{
-                              width: 32,
-                              height: 32,
-                              borderRadius: "50%",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              background:
-                                currentStep >= idx
-                                  ? token.colorPrimary
-                                  : token.colorFillSecondary,
-                              color:
-                                currentStep >= idx
-                                  ? "white"
-                                  : token.colorTextPlaceholder,
+                          <Form
+                            form={form}
+                            layout="vertical"
+                            initialValues={initialFormValues}
+                            onFinish={handleSubmitForm}
+                            onValuesChange={() => {
+                              const values = form.getFieldsValue();
+                              let step = 0;
+                              if (values.SchoolID) step = 1;
+                              if (values.sID && values.sID2) step = 2;
+                              if (values.sSellID) step = 3;
+                              setCurrentStep(step);
                             }}
                           >
-                            {currentStep > idx ? (
+                            {/* เพิ่มระยะห่างระหว่าง Grid ด้วย gutter={[32, 32]} */}
+                            <Row gutter={[32, 32]}>
+                              <Col span={24}>
+                                <Form.Item
+                                  name="SchoolID"
+                                  style={{ marginBottom: 24 }}
+                                  label={
+                                    <Space size="middle">
+                                      <HomeOutlined />
+                                      <Text strong>
+                                        สถานศึกษาที่ต้องการดำเนินการ
+                                      </Text>
+                                    </Space>
+                                  }
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "กรุณาระบุโรงเรียน",
+                                    },
+                                  ]}
+                                >
+                                  <Select
+                                    showSearch
+                                    placeholder="ค้นหาโรงเรียนโดยชื่อหรือรหัส..."
+                                    size="large"
+                                    options={schoolOptions}
+                                    optionFilterProp="label"
+                                  />
+                                </Form.Item>
+                              </Col>
+
+                              <Col xs={24} md={12}>
+                                <Form.Item
+                                  name="sID"
+                                  style={{ marginBottom: 24 }}
+                                  label={
+                                    <Space size="middle">
+                                      <UserOutlined />
+                                      <Text strong>
+                                        ผู้ซื้อสินค้า (User ID)
+                                      </Text>
+                                    </Space>
+                                  }
+                                  rules={[
+                                    { required: true, message: "ระบุผู้ซื้อ" },
+                                  ]}
+                                >
+                                  <Select
+                                    showSearch
+                                    placeholder="ระบุรหัสผู้ซื้อ"
+                                    size="large"
+                                    options={userList}
+                                    disabled={!selectedSchoolId}
+                                    loading={isFetchingUsers}
+                                  />
+                                </Form.Item>
+                              </Col>
+
+                              <Col xs={24} md={12}>
+                                <Form.Item
+                                  name="sID2"
+                                  style={{ marginBottom: 24 }}
+                                  label={
+                                    <Space size="middle">
+                                      <TeamOutlined />
+                                      <Text strong>
+                                        ผู้ขาย/ร้านค้า (User ID)
+                                      </Text>
+                                    </Space>
+                                  }
+                                  rules={[
+                                    { required: true, message: "ระบุผู้ขาย" },
+                                  ]}
+                                >
+                                  <Select
+                                    showSearch
+                                    placeholder="ระบุรหัสผู้ขาย"
+                                    size="large"
+                                    options={userList}
+                                    disabled={!selectedSchoolId}
+                                    loading={isFetchingUsers}
+                                  />
+                                </Form.Item>
+                              </Col>
+
+                              <Col span={24}>
+                                <Form.Item
+                                  name="sSellID"
+                                  style={{ marginBottom: 24 }}
+                                  label={
+                                    <Space size="middle">
+                                      <CreditCardOutlined />
+                                      <Text strong>
+                                        รหัสหมายเลขรายการ (Transaction /
+                                        sSellID)
+                                      </Text>
+                                    </Space>
+                                  }
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "กรุณาระบุเลขที่รายการ",
+                                    },
+                                  ]}
+                                >
+                                  <Input
+                                    placeholder="ตัวอย่าง: 12345678"
+                                    size="large"
+                                  />
+                                </Form.Item>
+                              </Col>
+                            </Row>
+
+                            <Divider style={{ margin: "32px 0" }} />
+
+                            <Flex gap="large">
+                              <Button
+                                type="primary"
+                                htmlType="submit"
+                                loading={isSubmitting}
+                                size="large"
+                                icon={<ThunderboltOutlined />}
+                                block
+                              >
+                                เริ่มดำเนินการยกเลิกตอนนี้
+                              </Button>
+                              <Button
+                                icon={<ReloadOutlined />}
+                                size="large"
+                                onClick={handleResetForm}
+                              />
+                            </Flex>
+                          </Form>
+                        </Skeleton>
+                      </Card>
+
+                      {responsePayload.data && (
+                        <Card
+                          title={
+                            <Space size="middle">
                               <CheckCircleOutlined />
-                            ) : (
-                              item.icon
-                            )}
-                          </div>
-                          <Text
-                            strong={currentStep >= idx}
-                            style={{
-                              color:
-                                currentStep >= idx
-                                  ? token.colorText
-                                  : token.colorTextPlaceholder,
-                            }}
-                          >
-                            {item.title}
-                          </Text>
-                        </Flex>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{ marginTop: 20 }}>
-                    <Progress
-                      percent={Math.round(getFormProgress())}
-                      strokeColor={token.colorPrimary}
-                      showInfo={false}
-                      size={{ strokeWidth: 6 }}
-                      status="active"
-                    />
-                    <Text
-                      type="secondary"
-                      style={{
-                        fontSize: 12,
-                        display: "block",
-                        marginTop: 8,
-                        textAlign: "center",
-                      }}
-                    >
-                      ความสมบูรณ์ของชุดข้อมูล: {Math.round(getFormProgress())}%
-                    </Text>
-                  </div>
-                </Card>
-              </motion.div>
+                              <Title level={5} style={{ margin: 0 }}>
+                                ผลลัพธ์การร้องขอ (Operation Result)
+                              </Title>
+                            </Space>
+                          }
+                        >
+                          <Flex vertical gap="large">
+                            {getResponseAlert(responsePayload.data)}
 
-              <motion.div
-                initial={{ x: 20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.4 }}
-              >
-                <Card
-                  className="glass-card"
-                  style={{ borderRadius: 24, background: token.colorInfoBg }}
-                >
-                  <div className="form-section-title">
-                    <InfoCircleOutlined /> ศูนย์ช่วยเหลือ (Help Center)
-                  </div>
-                  <Paragraph style={{ fontSize: 14 }}>
-                    หากคุณไม่แน่ใจเกี่ยวกับขั้นตอนการใช้งาน
-                    โปรดอ่านคู่มือหรือรับชมวิดีโอแนะนำสั้นๆ
-                  </Paragraph>
-                  <Link
-                    href="https://drive.google.com/file/d/11JeMTt22jWK12BjsW07fFYteuZgDGjAe/view?usp=sharing"
-                    target="_blank"
-                  >
-                    <Button
-                      block
-                      type="link"
-                      style={{ textAlign: "left", padding: 0 }}
-                    >
-                      📺 วิดีโอสอนการใช้งาน (2 นาที)
-                    </Button>
-                  </Link>
-                  <Divider style={{ margin: "12px 0" }} />
-                  <div style={{ color: token.colorTextTertiary, fontSize: 12 }}>
-                    ⚠️ หมายเหตุ: รายการที่แสดงด้วยสีเหลืองในผลลัพธ์
-                    อาจหมายถึงรายการไม่ถูกพบในระบบจริง
-                  </div>
-                </Card>
-              </motion.div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
+                            <Flex vertical gap="middle">
+                              <Paragraph code style={{ padding: 16 }}>
+                                <pre style={{ margin: 0 }}>
+                                  {JSON.stringify(
+                                    responsePayload.data,
+                                    null,
+                                    2,
+                                  )}
+                                </pre>
+                              </Paragraph>
+                              <Flex gap="middle">
+                                <Button
+                                  icon={<CopyOutlined />}
+                                  onClick={() =>
+                                    handleCopyResponse(
+                                      JSON.stringify(
+                                        responsePayload.data,
+                                        null,
+                                        2,
+                                      ),
+                                      "คัดลอก JSON แล้ว",
+                                    )
+                                  }
+                                >
+                                  คัดลอกข้อมูล JSON
+                                </Button>
+                                <Button
+                                  icon={<CodeOutlined />}
+                                  disabled={!responsePayload.curl}
+                                  onClick={() =>
+                                    responsePayload.curl &&
+                                    handleCopyResponse(
+                                      responsePayload.curl.toString(),
+                                      "คัดลอก cURL แล้ว",
+                                    )
+                                  }
+                                >
+                                  คัดลอก cURL
+                                </Button>
+                              </Flex>
+                            </Flex>
+                          </Flex>
+                        </Card>
+                      )}
+                    </Flex>
+                  </Col>
+
+                  <Col xs={24} lg={8}>
+                    <Flex vertical gap="large">
+                      <Card>
+                        <Title level={5} style={{ marginBottom: 24 }}>
+                          <RocketOutlined /> ความคืบหน้า (Progress)
+                        </Title>
+                        <Flex vertical gap="large">
+                          <Steps
+                            direction="vertical"
+                            current={currentStep}
+                            items={[
+                              {
+                                title: "ยืนยันสถานศึกษา",
+                                icon: <HomeOutlined />,
+                              },
+                              {
+                                title: "ระบุคู่ค้า (Buyer/Seller)",
+                                icon: <TeamOutlined />,
+                              },
+                              {
+                                title: "เลขที่รายการ (Transaction)",
+                                icon: <CreditCardOutlined />,
+                              },
+                              {
+                                title: "ดำเนินการสำเร็จ",
+                                icon: <CheckCircleOutlined />,
+                              },
+                            ]}
+                          />
+                          <Flex
+                            vertical
+                            align="center"
+                            style={{ marginTop: 16 }}
+                          >
+                            <Progress
+                              percent={Math.round(getFormProgress())}
+                              status="active"
+                            />
+                            <Text type="secondary" style={{ marginTop: 8 }}>
+                              ความสมบูรณ์ของชุดข้อมูล:{" "}
+                              {Math.round(getFormProgress())}%
+                            </Text>
+                          </Flex>
+                        </Flex>
+                      </Card>
+
+                      <Card>
+                        <Title level={5} style={{ marginBottom: 24 }}>
+                          <InfoCircleOutlined /> ศูนย์ช่วยเหลือ (Help Center)
+                        </Title>
+                        <Paragraph style={{ marginBottom: 24 }}>
+                          หากคุณไม่แน่ใจเกี่ยวกับขั้นตอนการใช้งาน
+                          โปรดอ่านคู่มือหรือรับชมวิดีโอแนะนำสั้นๆ
+                        </Paragraph>
+                        <Link
+                          href="https://drive.google.com/file/d/11JeMTt22jWK12BjsW07fFYteuZgDGjAe/view?usp=sharing"
+                          target="_blank"
+                        >
+                          <Button type="link" block size="large">
+                            วิดีโอสอนการใช้งาน (2 นาที)
+                          </Button>
+                        </Link>
+                        <Divider style={{ margin: "24px 0" }} />
+                        <Text type="secondary">
+                          หมายเหตุ: รายการที่แสดงด้วยสีเหลืองในผลลัพธ์
+                          อาจหมายถึงรายการไม่ถูกพบในระบบจริง
+                        </Text>
+                      </Card>
+                    </Flex>
+                  </Col>
+                </Row>
+              </Flex>
+            </Col>
+          </Row>
+        </Flex>
+      </Content>
     </DashboardLayout>
   );
 }

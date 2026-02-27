@@ -113,7 +113,7 @@ const markdownToHtmlSimple = (value?: string | null) => {
 // ==========================================
 
 /**
- * � IssueDetailModal: แสดงรายละเอียดงานแบบเจาะลึก
+ * IssueDetailModal: แสดงรายละเอียดงานแบบเจาะลึก
  */
 const IssueDetailModal: React.FC<{
   open: boolean;
@@ -326,7 +326,7 @@ const IssueDetailModal: React.FC<{
 };
 
 /**
- * �🛠️ ส่วนแสดงผลตารางรายการงาน
+ * ส่วนแสดงผลตารางรายการงาน
  * จัดการข้อมูลและการแสดงผลในรูปแบบตาราง พร้อมระบบ AI สรุปงาน
  */
 const IssuesListTable: React.FC<{
@@ -434,15 +434,13 @@ const IssuesListTable: React.FC<{
     if (!aiModal.issue) return;
     const toastId = toast.loading("กำลังอัปเดตข้อมูลไปยัง Backlog...");
     try {
-      // * ใช้ Summary ที่ได้จาก AI หากมี (เพราะมี Tag [สรุปด้วย LIGHT AI ✨] ในตัวแล้ว)
+      // * ใช้ Summary ที่ได้จาก AI หากมี (เพราะมี Tag [สรุปด้วย LIGHT AI] ในตัวแล้ว)
       // * หากไม่มีให้ใช้ตัวปัจจุบันและตรวจสอบ Tag อีกครั้งเพื่อความปลอดภัย
       const finalSummary =
         aiModal.newSummary ||
-        (aiModal.issue.summary.includes("AI") ||
-        aiModal.issue.summary.includes("✨") ||
-        aiModal.issue.summary.includes("🤖")
+        (aiModal.issue.summary.includes("AI")
           ? aiModal.issue.summary
-          : `${aiModal.issue.summary} [สรุปด้วย LIGHT AI ✨]`);
+          : `${aiModal.issue.summary} [สรุปด้วย LIGHT AI]`);
 
       await axios.post("/api/v1/backlog/issues/update", {
         space,
@@ -1178,7 +1176,7 @@ const useIssuesPageData = ({
 // ==========================================
 
 /**
- * 📊 IssueSummaryModal: สรุปภาพรวมของงานในรูปแบบกราฟและสถิติ
+ * IssueSummaryModal: สรุปภาพรวมของงานในรูปแบบกราฟและสถิติ
  */
 const IssueSummaryModal: React.FC<{
   open: boolean;
@@ -1268,7 +1266,7 @@ const IssueSummaryModal: React.FC<{
 };
 
 /**
- * 📦 BulkUpdateModal: จัดการอัปเดตข้อมูลจำนวนมาก
+ * BulkUpdateModal: จัดการอัปเดตข้อมูลจำนวนมาก
  */
 const BulkUpdateModal: React.FC<{
   open: boolean;

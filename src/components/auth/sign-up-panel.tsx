@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, FormEvent } from "react";
+import { FormEvent, useState } from "react";
 
 export default function SignUpPanel({ visible }: { visible: boolean }) {
   const [username, setUsername] = useState("");
@@ -25,7 +25,7 @@ export default function SignUpPanel({ visible }: { visible: boolean }) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username, password, name, lastname }),
-        }
+        },
       );
       const result = await response.json();
       if (!response.ok || result.error) {
@@ -77,7 +77,7 @@ export default function SignUpPanel({ visible }: { visible: boolean }) {
         />
         <input
           type="password"
-          placeholder="••••••••"
+          placeholder="********"
           className="w-full border border-gray-300 px-4 py-2 rounded-lg text-black"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

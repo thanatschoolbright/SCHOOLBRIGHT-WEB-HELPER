@@ -1,33 +1,31 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
 import {
-  Form,
-  Input,
-  Button,
-  Row,
-  Col,
-  Card,
-  Typography,
-  Divider,
-  Checkbox,
-  Table,
-  Space,
-  Tag,
-  Alert,
-  Switch,
-} from "antd";
-import {
-  SaveOutlined,
-  CopyOutlined,
-  SearchOutlined,
-  SafetyCertificateOutlined,
   ArrowLeftOutlined,
   CheckCircleOutlined,
+  CopyOutlined,
+  SaveOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
+import {
+  Alert,
+  Button,
+  Card,
+  Col,
+  Divider,
+  Form,
+  Input,
+  Row,
+  Space,
+  Switch,
+  Table,
+  Tag,
+  Typography,
+} from "antd";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const { Title, Text } = Typography;
 
@@ -126,14 +124,14 @@ export default function RoleForm({
                 borderRadius: 4,
               }}
             >
-              📍 เส้นทาง:{" "}
+              เส้นทาง:{" "}
               <span
                 style={{ color: "#0f172a", fontWeight: 500 }}
               >{`/admin/${subModule?.replace(/_/g, "-") || ""}`}</span>
             </Text>
           ) : (
             <Text type="secondary" style={{ fontSize: 11 }}>
-              ⚙️ ประเภท: ระบบเบื้องหลัง (System Action)
+              ประเภท: ระบบเบื้องหลัง (System Action)
             </Text>
           )}
         </div>

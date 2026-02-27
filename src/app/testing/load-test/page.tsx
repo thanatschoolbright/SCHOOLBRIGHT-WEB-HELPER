@@ -1,79 +1,75 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { useTranslation } from "react-i18next";
 import DashboardLayout from "@/components/layouts/backend-layout";
 import {
-  Card,
-  Row,
-  Col,
+  ArrowDownOutlined,
+  ArrowUpOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  CloseCircleOutlined,
+  CloudOutlined,
+  CloudServerOutlined,
+  CodeOutlined,
+  ControlOutlined,
+  DashboardOutlined,
+  DatabaseOutlined,
+  DownloadOutlined,
+  ExperimentOutlined,
+  FileSearchOutlined,
+  FileTextOutlined,
+  GlobalOutlined,
+  LineChartOutlined,
+  LineOutlined,
+  PlayCircleOutlined,
+  RocketOutlined,
+  SafetyOutlined,
+  SettingOutlined,
+  ThunderboltOutlined,
+} from "@ant-design/icons";
+import {
+  Alert,
+  Tooltip as AntTooltip,
+  Badge,
   Button,
-  Typography,
-  Space,
-  Statistic,
-  Table,
+  Card,
+  Col,
+  Descriptions,
+  Divider,
+  Empty,
   FloatButton,
-  Skeleton,
-  theme,
-  Tag,
   Form,
   Input,
   InputNumber,
-  Alert,
-  Badge,
-  Empty,
-  Tooltip as AntTooltip,
   Modal,
-  Descriptions,
-  Divider,
   Progress,
+  Row,
+  Skeleton,
+  Space,
+  Statistic,
+  Table,
   Tabs,
-  Select,
+  Tag,
+  theme,
+  Typography,
 } from "antd";
-import { motion, AnimatePresence } from "framer-motion";
 import {
-  RocketOutlined,
-  ThunderboltOutlined,
-  ExperimentOutlined,
-  DashboardOutlined,
-  CloudServerOutlined,
-  LineChartOutlined,
-  HistoryOutlined,
-  PlayCircleOutlined,
-  DownloadOutlined,
-  CodeOutlined,
-  FileTextOutlined,
-  ClockCircleOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  DatabaseOutlined,
-  SettingOutlined,
-  ArrowUpOutlined,
-  ArrowDownOutlined,
-  FileSearchOutlined,
-  CloudOutlined,
-  ApiOutlined,
-  LineOutlined,
-  ControlOutlined,
-  SafetyOutlined,
-  GlobalOutlined,
-} from "@ant-design/icons";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
   BarElement,
-  PointElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
   LineElement,
+  PointElement,
   Title,
   Tooltip,
-  Legend,
 } from "chart.js";
+import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { Bar, Line } from "react-chartjs-2";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { AdvancedConfigComponent } from "./components/advanced-config.component";
 import { TestProfileSelectorComponent } from "./components/test-profile-selector.component";
 import { LoadTestConfig, LoadTestProfile } from "./types/load-test.types";
-import { TEST_PROFILES } from "./utils/test-profiles";
 
 // Register Chart.js components
 ChartJS.register(
@@ -84,7 +80,7 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 );
 
 //** SummaryChart: แผนภูมิแท่งสรุปผล (Minimal + ใช้โทนสีจาก Ant Design Token)
@@ -115,7 +111,7 @@ const SummaryChart = ({
             0,
             chartArea.bottom,
             0,
-            chartArea.top
+            chartArea.top,
           );
           gradient.addColorStop(0, token.colorSuccess);
           gradient.addColorStop(1, `${token.colorSuccess}66`);
@@ -134,7 +130,7 @@ const SummaryChart = ({
             0,
             chartArea.bottom,
             0,
-            chartArea.top
+            chartArea.top,
           );
           gradient.addColorStop(0, token.colorError);
           gradient.addColorStop(1, `${token.colorError}66`);
@@ -251,7 +247,7 @@ const renderFormattedMetricValue = (
   setExpandedLines: React.Dispatch<
     React.SetStateAction<Record<number, boolean>>
   >,
-  t: any
+  t: any,
 ) => {
   let formattedValue = value;
   let jsonParsed: any = null;
@@ -442,10 +438,10 @@ const LogViewer = ({
           const color = isError
             ? "#fca5a5"
             : isSuccess
-            ? "#86efac"
-            : isWarn
-            ? "#fde047"
-            : "#e2e8f0";
+              ? "#86efac"
+              : isWarn
+                ? "#fde047"
+                : "#e2e8f0";
 
           const formattedJson = extractJsonAndFormat(line);
           const isExpanded = expandedLines[idx] || false;
@@ -583,7 +579,7 @@ const MetricsTable = ({
                 idx,
                 expandedLines,
                 setExpandedLines,
-                t
+                t,
               ),
           },
         ]}
@@ -597,7 +593,7 @@ const MetricsTable = ({
   );
 };
 
-// 🔍 แสดง URL ที่กำลังทดสอบอยู่
+// แสดง URL ที่กำลังทดสอบอยู่
 // ** SelectedTargetSummary: สรุป URL ที่ใช้งานจริง
 const SelectedTargetSummary = ({
   script,
@@ -677,12 +673,12 @@ const getCheckCounts = (stats: Record<string, any>) => {
 
   // Look for a line that contains "out of" to get both success & total
   const outOfEntry = entries.find(([, v]) =>
-    typeof v === "string" ? v.includes("out of") : false
+    typeof v === "string" ? v.includes("out of") : false,
   );
 
   if (outOfEntry) {
     const match = (outOfEntry[1] as string).match(
-      /([\d.,]+)\s+out of\s+([\d.,]+)/i
+      /([\d.,]+)\s+out of\s+([\d.,]+)/i,
     );
     if (match) {
       const success = parseInt(match[1].replace(/,/g, ""), 10);
@@ -804,13 +800,13 @@ export default function Page() {
   //** State หลักของหน้า (Log, ขยายบรรทัด, แสดง Metrics, เลือก Script/Env, โหลด)
   const [output, setOutput] = useState("");
   const [expandedLines, setExpandedLines] = useState<Record<number, boolean>>(
-    {}
+    {},
   );
   const [showMetrics, setShowMetrics] = useState(false);
   const [scriptName, setScriptName] = useState<string>("example-load-test");
   const [parsedStats, setParsedStats] = useState<Record<string, any>>({});
   const [targetUrl, setTargetUrl] = useState<string>(
-    "https://apimobiledev.schoolbright.co/api/school/load-test"
+    "https://apimobiledev.schoolbright.co/api/school/load-test",
   );
   const [vus, setVus] = useState<number>(50);
   const [durationSeconds, setDurationSeconds] = useState<number>(10);
@@ -826,7 +822,7 @@ export default function Page() {
 
   // Advanced configuration state
   const [advancedConfig, setAdvancedConfig] = useState<Partial<LoadTestConfig>>(
-    {}
+    {},
   );
   const [selectedProfile, setSelectedProfile] = useState<string | undefined>();
   const [activeTab, setActiveTab] = useState<string>("basic");
@@ -846,8 +842,6 @@ export default function Page() {
         second: durationSeconds,
         ...advancedConfig,
       };
-
-      console.log("🚀 Sending load test request:", payload);
 
       const response = await fetch("/api/v1/load-test", {
         method: "POST",
@@ -871,7 +865,7 @@ export default function Page() {
 
       setOutput(
         (prev) =>
-          prev + `\n${t("load_test_page.result_summary.test_completed_log")}`
+          prev + `\n${t("load_test_page.result_summary.test_completed_log")}`,
       );
       setShowMetrics(true);
       setParsedStats(parseTestStats(accumulated));
@@ -882,7 +876,7 @@ export default function Page() {
       setOutput(
         t("load_test_page.result_summary.test_failed_log", {
           error: error.message,
-        })
+        }),
       );
       setRunStatus("error");
       toast.error(t("load_test_page.messages.test_failed"));
@@ -924,7 +918,7 @@ export default function Page() {
     }
 
     toast.success(
-      t("load_test_page.messages.profile_applied", { name: profile.name })
+      t("load_test_page.messages.profile_applied", { name: profile.name }),
     );
   };
 
@@ -953,7 +947,7 @@ export default function Page() {
   const httpReqDuration =
     parsedStats[
       Object.keys(parsedStats).find((k) =>
-        k.trim().startsWith("http_req_duration")
+        k.trim().startsWith("http_req_duration"),
       ) || ""
     ];
   const httpReqDurationAvg =
@@ -965,7 +959,7 @@ export default function Page() {
   const httpReqFailed =
     parsedStats[
       Object.keys(parsedStats).find((k) =>
-        k.trim().startsWith("http_req_failed")
+        k.trim().startsWith("http_req_failed"),
       ) || ""
     ] || t("load_test_page.result_summary.not_available");
   const httpReqFailedPct = parsePercentStat(httpReqFailed);
@@ -983,14 +977,14 @@ export default function Page() {
   const iterationDuration =
     parsedStats[
       Object.keys(parsedStats).find((k) =>
-        k.trim().startsWith("iteration_duration")
+        k.trim().startsWith("iteration_duration"),
       ) || ""
     ] || t("load_test_page.result_summary.not_available");
   const iterationDurationStats = parseDurationStat(iterationDuration);
   const dataReceived =
     parsedStats[
       Object.keys(parsedStats).find((k) =>
-        k.trim().startsWith("data_received")
+        k.trim().startsWith("data_received"),
       ) || ""
     ] || t("load_test_page.result_summary.not_available");
   const dataSent =
@@ -1022,10 +1016,10 @@ export default function Page() {
     showFullReportLog || !logTail
       ? logTail
       : logTail.length > reportLogPreviewLimit
-      ? `${logTail.slice(0, reportLogPreviewLimit)}\n...\n(${t(
-          "load_test_page.result_summary.see_more_log_hint"
-        )})`
-      : logTail;
+        ? `${logTail.slice(0, reportLogPreviewLimit)}\n...\n(${t(
+            "load_test_page.result_summary.see_more_log_hint",
+          )})`
+        : logTail;
 
   const buildReportText = () => {
     const generatedAt = lastRunAt || new Date().toLocaleString();
@@ -1040,7 +1034,7 @@ export default function Page() {
       `${t("load_test_page.result_summary.target_url")}: ${targetUrl}`,
       `${t("load_test_page.result_summary.script")}: ${scriptName}`,
       `${t(
-        "load_test_page.result_summary.parameters"
+        "load_test_page.result_summary.parameters",
       )}: VUs=${vus}, Duration=${durationSeconds}s`,
       "",
       t("load_test_page.result_summary.summary"),
@@ -1060,8 +1054,8 @@ export default function Page() {
         Number.isFinite(httpReqFailedPct)
           ? `${httpReqFailedPct}%`
           : failureRate
-          ? `${failureRate}%`
-          : t("load_test_page.result_summary.not_available")
+            ? `${failureRate}%`
+            : t("load_test_page.result_summary.not_available")
       }`,
       `- Requests/sec => ${requestRate}`,
       "",
@@ -1084,7 +1078,7 @@ export default function Page() {
     const metricRows = metrics
       .map(
         (m) =>
-          `<tr><td style="padding:6px 8px;border:1px solid #e5e5e5;">${m.key}</td><td style="padding:6px 8px;border:1px solid #e5e5e5;">${m.value}</td></tr>`
+          `<tr><td style="padding:6px 8px;border:1px solid #e5e5e5;">${m.key}</td><td style="padding:6px 8px;border:1px solid #e5e5e5;">${m.value}</td></tr>`,
       )
       .join("");
 
@@ -1107,22 +1101,22 @@ export default function Page() {
       <body>
         <h1>${t("load_test_page.result_summary.report_html_title")}</h1>
         <p>${t(
-          "load_test_page.result_summary.generated_at"
+          "load_test_page.result_summary.generated_at",
         )}: ${generatedAt}</p>
 
         <div class="section card">
           <h2>${t("load_test_page.result_summary.overview")}</h2>
           <p><strong>${t(
-            "load_test_page.result_summary.status"
+            "load_test_page.result_summary.status",
           )}:</strong> ${runStatus}</p>
           <p><strong>${t(
-            "load_test_page.result_summary.target_url"
+            "load_test_page.result_summary.target_url",
           )}:</strong> ${targetUrl}</p>
           <p><strong>${t(
-            "load_test_page.result_summary.script"
+            "load_test_page.result_summary.script",
           )}:</strong> ${scriptName}</p>
           <p><strong>${t(
-            "load_test_page.result_summary.parameters"
+            "load_test_page.result_summary.parameters",
           )}:</strong> VUs=${vus}, Duration=${durationSeconds}s</p>
         </div>
 
@@ -1130,41 +1124,42 @@ export default function Page() {
           <h3>${t("load_test_page.result_summary.summary")}</h3>
           <ul>
             <li>${t("load_test_page.result_summary.checks")}: total=${
-      checks.total
-    }, success=${checks.success}, failed=${checks.failed}</li>
+              checks.total
+            }, success=${checks.success}, failed=${checks.failed}</li>
             <li>${t("load_test_page.result_summary.http_requests")}: ${
-      httpReqs || t("load_test_page.result_summary.not_available")
-    }</li>
+              httpReqs || t("load_test_page.result_summary.not_available")
+            }</li>
             <li>${t("load_test_page.result_summary.avg_duration")}: ${
-      httpReqDuration || t("load_test_page.result_summary.not_available")
-    }</li>
+              httpReqDuration ||
+              t("load_test_page.result_summary.not_available")
+            }</li>
             <li>${t("load_test_page.result_summary.success_rate_desc")}: ${
-      successRate
-        ? `${successRate}%`
-        : t("load_test_page.result_summary.not_available")
-    }</li>
+              successRate
+                ? `${successRate}%`
+                : t("load_test_page.result_summary.not_available")
+            }</li>
             <li>${t("load_test_page.result_summary.failure_rate_desc")}: ${
-      failureRate
-        ? `${failureRate}%`
-        : t("load_test_page.result_summary.not_available")
-    }</li>
+              failureRate
+                ? `${failureRate}%`
+                : t("load_test_page.result_summary.not_available")
+            }</li>
             <li>${t(
-              "load_test_page.result_summary.throughput"
+              "load_test_page.result_summary.throughput",
             )}: ${requestRate}</li>
             <li>p95 ${t("load_test_page.result_summary.iteration_duration")}: ${
-      httpReqDurationStats.p95 || httpReqDurationP95
-    }</li>
+              httpReqDurationStats.p95 || httpReqDurationP95
+            }</li>
             <li>${t("load_test_page.result_summary.avg_duration")}: ${
-      httpReqDurationStats.avg || httpReqDurationAvg
-    }</li>
+              httpReqDurationStats.avg || httpReqDurationAvg
+            }</li>
             <li>${t(
-              "load_test_page.result_summary.iterations"
+              "load_test_page.result_summary.iterations",
             )}: ${iterations}</li>
             <li>${t(
-              "load_test_page.result_summary.iteration_duration"
+              "load_test_page.result_summary.iteration_duration",
             )}: ${iterationDuration}</li>
             <li>${t(
-              "load_test_page.result_summary.data_transfer"
+              "load_test_page.result_summary.data_transfer",
             )}: received=${dataReceived}, sent=${dataSent}</li>
           </ul>
         </div>
@@ -1174,9 +1169,9 @@ export default function Page() {
           ${
             metrics.length
               ? `<table><thead><tr><th>${t(
-                  "load_test_page.metrics_report.metric_col"
+                  "load_test_page.metrics_report.metric_col",
                 )}</th><th>${t(
-                  "load_test_page.metrics_report.value_col"
+                  "load_test_page.metrics_report.value_col",
                 )}</th></tr></thead><tbody>${metricRows}</tbody></table>`
               : `<p>${t("load_test_page.result_summary.no_metrics")}</p>`
           }
@@ -1196,7 +1191,7 @@ export default function Page() {
     const metricRows = metrics
       .map(
         (m) =>
-          `<tr><td style="padding:6px 8px;border:1px solid #e5e5e5;">${m.key}</td><td style="padding:6px 8px;border:1px solid #e5e5e5;">${m.value}</td></tr>`
+          `<tr><td style="padding:6px 8px;border:1px solid #e5e5e5;">${m.key}</td><td style="padding:6px 8px;border:1px solid #e5e5e5;">${m.value}</td></tr>`,
       )
       .join("");
 
@@ -1263,15 +1258,15 @@ export default function Page() {
       {
         label: t("load_test_page.result_summary.data_transfer"),
         value: `${t(
-          "load_test_page.result_summary.received_label"
+          "load_test_page.result_summary.received_label",
         )}: ${dataReceived} | ${t(
-          "load_test_page.result_summary.sent_label"
+          "load_test_page.result_summary.sent_label",
         )}: ${dataSent}`,
       },
     ]
       .map(
         (row) =>
-          `<tr><td style="padding:10px;border:1px solid #e5e5e5;font-weight:600;background:#f7f9fb;">${row.label}</td><td style="padding:10px;border:1px solid #e5e5e5;">${row.value}</td></tr>`
+          `<tr><td style="padding:10px;border:1px solid #e5e5e5;font-weight:600;background:#f7f9fb;">${row.label}</td><td style="padding:10px;border:1px solid #e5e5e5;">${row.value}</td></tr>`,
       )
       .join("");
 
@@ -1304,7 +1299,7 @@ export default function Page() {
       <body>
         <h1>${t("load_test_page.result_summary.report_html_title")}</h1>
         <p class="badge">${t(
-          "load_test_page.result_summary.generated_at"
+          "load_test_page.result_summary.generated_at",
         )}: ${generatedAt}</p>
 
         <div class="section card">
@@ -1322,63 +1317,63 @@ export default function Page() {
             <div class="card" style="padding:12px;">
               <strong>${t("load_test_page.result_summary.checks")}</strong><br/>
               ${t("load_test_page.result_summary.total_label")}: ${
-      checks.total
-    } | ${t("load_test_page.result_summary.success_label")}: ${
-      checks.success
-    } | ${t("load_test_page.result_summary.failed_label")}: ${checks.failed}
+                checks.total
+              } | ${t("load_test_page.result_summary.success_label")}: ${
+                checks.success
+              } | ${t("load_test_page.result_summary.failed_label")}: ${checks.failed}
             </div>
             <div class="card" style="padding:12px;">
               <strong>${t("load_test_page.result_summary.rates")}</strong><br/>
               ${t("load_test_page.result_summary.success_label")}: ${
-      successRate
-        ? `${successRate}%`
-        : t("load_test_page.result_summary.not_available")
-    } | ${t("load_test_page.result_summary.failed_label")}: ${
-      Number.isFinite(httpReqFailedPct)
-        ? `${httpReqFailedPct}%`
-        : failureRate
-        ? `${failureRate}%`
-        : t("load_test_page.result_summary.not_available")
-    }
+                successRate
+                  ? `${successRate}%`
+                  : t("load_test_page.result_summary.not_available")
+              } | ${t("load_test_page.result_summary.failed_label")}: ${
+                Number.isFinite(httpReqFailedPct)
+                  ? `${httpReqFailedPct}%`
+                  : failureRate
+                    ? `${failureRate}%`
+                    : t("load_test_page.result_summary.not_available")
+              }
             </div>
             <div class="card" style="padding:12px;">
               <strong>${t(
-                "load_test_page.result_summary.requests"
+                "load_test_page.result_summary.requests",
               )}</strong><br/>
               ${t("load_test_page.result_summary.total_label")}: ${
-      httpReqs || t("load_test_page.result_summary.not_available")
-    } | ${t("load_test_page.result_summary.rate_label")}: ${requestRate} rps
+                httpReqs || t("load_test_page.result_summary.not_available")
+              } | ${t("load_test_page.result_summary.rate_label")}: ${requestRate} rps
             </div>
             <div class="card" style="padding:12px;">
               <strong>${t(
-                "load_test_page.result_summary.response_time"
+                "load_test_page.result_summary.response_time",
               )}</strong><br/>
               avg=${httpReqDurationStats.avg || httpReqDurationAvg}, p95=${
-      httpReqDurationStats.p95 || httpReqDurationP95
-    }, max=${
-      httpReqDurationStats.max ||
-      t("load_test_page.result_summary.not_available")
-    }
+                httpReqDurationStats.p95 || httpReqDurationP95
+              }, max=${
+                httpReqDurationStats.max ||
+                t("load_test_page.result_summary.not_available")
+              }
             </div>
             <div class="card" style="padding:12px;">
               <strong>${t(
-                "load_test_page.result_summary.iterations"
+                "load_test_page.result_summary.iterations",
               )}</strong><br/>
               ${t(
-                "load_test_page.result_summary.count_label"
+                "load_test_page.result_summary.count_label",
               )}: ${iterations} | ${t(
-      "load_test_page.result_summary.duration"
-    )}: ${iterationDuration}
+                "load_test_page.result_summary.duration",
+              )}: ${iterationDuration}
             </div>
             <div class="card" style="padding:12px;">
               <strong>${t(
-                "load_test_page.result_summary.data_transfer"
+                "load_test_page.result_summary.data_transfer",
               )}</strong><br/>
               ${t(
-                "load_test_page.result_summary.received_label"
+                "load_test_page.result_summary.received_label",
               )}: ${dataReceived} | ${t(
-      "load_test_page.result_summary.sent_label"
-    )}: ${dataSent}
+                "load_test_page.result_summary.sent_label",
+              )}: ${dataSent}
             </div>
           </div>
         </div>
@@ -1388,9 +1383,9 @@ export default function Page() {
           ${
             metrics.length
               ? `<table><thead><tr><th>${t(
-                  "load_test_page.metrics_report.metric_col"
+                  "load_test_page.metrics_report.metric_col",
                 )}</th><th>${t(
-                  "load_test_page.metrics_report.value_col"
+                  "load_test_page.metrics_report.value_col",
                 )}</th></tr></thead><tbody>${metricRows}</tbody></table>`
               : `<p>${t("load_test_page.result_summary.no_metrics")}</p>`
           }
@@ -1602,20 +1597,20 @@ export default function Page() {
                         runStatus === "running"
                           ? "processing"
                           : runStatus === "done"
-                          ? "success"
-                          : runStatus === "error"
-                          ? "error"
-                          : "default"
+                            ? "success"
+                            : runStatus === "error"
+                              ? "error"
+                              : "default"
                       }
                       text={
                         <span style={{ fontWeight: 600, marginLeft: 8 }}>
                           {runStatus === "running"
                             ? t("load_test_page.stats.status_running")
                             : runStatus === "done"
-                            ? t("load_test_page.stats.status_completed")
-                            : runStatus === "error"
-                            ? t("load_test_page.stats.status_failed")
-                            : t("load_test_page.stats.status_idle")}
+                              ? t("load_test_page.stats.status_completed")
+                              : runStatus === "error"
+                                ? t("load_test_page.stats.status_failed")
+                                : t("load_test_page.stats.status_idle")}
                         </span>
                       }
                     />
@@ -1929,7 +1924,7 @@ export default function Page() {
                             label={
                               <span style={{ fontWeight: 600 }}>
                                 {t(
-                                  "load_test_page.playground.form.script_name_label"
+                                  "load_test_page.playground.form.script_name_label",
                                 )}
                               </span>
                             }
@@ -1941,7 +1936,7 @@ export default function Page() {
                                 />
                               }
                               placeholder={t(
-                                "load_test_page.playground.form.script_name_placeholder"
+                                "load_test_page.playground.form.script_name_placeholder",
                               )}
                               value={scriptName}
                               onChange={(e) => setScriptName(e.target.value)}
@@ -1954,7 +1949,7 @@ export default function Page() {
                             label={
                               <span style={{ fontWeight: 600 }}>
                                 {t(
-                                  "load_test_page.playground.form.base_url_label"
+                                  "load_test_page.playground.form.base_url_label",
                                 )}
                               </span>
                             }
@@ -1966,7 +1961,7 @@ export default function Page() {
                                 />
                               }
                               placeholder={t(
-                                "load_test_page.playground.form.base_url_placeholder"
+                                "load_test_page.playground.form.base_url_placeholder",
                               )}
                               value={targetUrl}
                               onChange={(e) => setTargetUrl(e.target.value)}
@@ -1980,12 +1975,12 @@ export default function Page() {
                               <Space>
                                 <span style={{ fontWeight: 600 }}>
                                   {t(
-                                    "load_test_page.playground.form.vus_label"
+                                    "load_test_page.playground.form.vus_label",
                                   )}
                                 </span>
                                 <AntTooltip
                                   title={t(
-                                    "load_test_page.playground.form.vus_tooltip"
+                                    "load_test_page.playground.form.vus_tooltip",
                                   )}
                                 >
                                   <Tag
@@ -2014,12 +2009,12 @@ export default function Page() {
                               <Space>
                                 <span style={{ fontWeight: 600 }}>
                                   {t(
-                                    "load_test_page.playground.form.duration_label"
+                                    "load_test_page.playground.form.duration_label",
                                   )}
                                 </span>
                                 <AntTooltip
                                   title={t(
-                                    "load_test_page.playground.form.duration_tooltip"
+                                    "load_test_page.playground.form.duration_tooltip",
                                   )}
                                 >
                                   <Tag
@@ -2057,7 +2052,7 @@ export default function Page() {
                               style={{ borderRadius: 12 }}
                             >
                               {t(
-                                "load_test_page.playground.buttons.preview_report"
+                                "load_test_page.playground.buttons.preview_report",
                               )}
                             </Button>
                             <Button
@@ -2068,7 +2063,7 @@ export default function Page() {
                               style={{ borderRadius: 12 }}
                             >
                               {t(
-                                "load_test_page.playground.buttons.download_log"
+                                "load_test_page.playground.buttons.download_log",
                               )}
                             </Button>
                           </Space>
@@ -2095,7 +2090,7 @@ export default function Page() {
                               {isLoading
                                 ? t("load_test_page.playground.buttons.testing")
                                 : t(
-                                    "load_test_page.playground.buttons.run_test"
+                                    "load_test_page.playground.buttons.run_test",
                                   )}
                             </Button>
                           </motion.div>
@@ -2261,7 +2256,7 @@ export default function Page() {
               ) : (
                 <Empty
                   description={t(
-                    "load_test_page.graph_summary.empty_description"
+                    "load_test_page.graph_summary.empty_description",
                   )}
                   image={Empty.PRESENTED_IMAGE_SIMPLE}
                   style={{ padding: "40px 0" }}
@@ -2391,7 +2386,7 @@ export default function Page() {
                 <Card size="small" bordered bodyStyle={{ padding: 12 }}>
                   <Statistic
                     title={t(
-                      "load_test_page.result_summary.iteration_duration"
+                      "load_test_page.result_summary.iteration_duration",
                     )}
                     value={iterationDuration}
                     prefix={<ClockCircleOutlined />}
@@ -2603,10 +2598,10 @@ export default function Page() {
                   runStatus === "running"
                     ? "processing"
                     : runStatus === "done"
-                    ? "success"
-                    : runStatus === "error"
-                    ? "error"
-                    : "default"
+                      ? "success"
+                      : runStatus === "error"
+                        ? "error"
+                        : "default"
                 }
                 text={
                   <span

@@ -7,7 +7,7 @@ export default function DashboardHeader() {
           Dashboard
         </h1>
         <p className="text-sm text-gray-900 dark:text-gray-300">
-          Mon, Nov 6, 2023 — Sun, Nov 12, 2023
+          Mon, Nov 6, 2023 - Sun, Nov 12, 2023
         </p>
       </div>
 

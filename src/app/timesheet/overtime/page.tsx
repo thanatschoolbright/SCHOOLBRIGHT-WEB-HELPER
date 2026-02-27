@@ -2654,7 +2654,7 @@ const DetailModalSection = ({
                     <Typography.Text type="secondary" style={{ fontSize: 13 }}>
                       {selectedDetail.requester_position ||
                         selectedDetail.requester_user?.position_th}{" "}
-                      •{" "}
+                      -{" "}
                       {selectedDetail.requester_employee_code ||
                         selectedDetail.requester_user?.employee_code}
                     </Typography.Text>

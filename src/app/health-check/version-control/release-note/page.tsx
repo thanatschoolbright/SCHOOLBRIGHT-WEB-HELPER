@@ -1,77 +1,71 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
-import axios from "axios";
-import { useRouter } from "next/navigation";
+import { KANIT_BOLD_B64, KANIT_REGULAR_B64 } from "@/constants/fonts-base64";
 import {
-  Card,
-  Typography,
-  Space,
-  Tag,
-  theme,
-  Button,
-  Row,
-  Col,
-  Table,
-  Input,
-  DatePicker,
-  Select,
-  Tooltip,
-  Flex,
-  Divider,
-  Modal,
-  Dropdown,
-  Menu,
-} from "antd";
-import { toast } from "sonner";
-import {
-  RocketOutlined,
-  ClockCircleOutlined,
-  TagOutlined,
-  ArrowLeftOutlined,
-  FilterOutlined,
-  ClearOutlined,
-  SearchOutlined,
   AppstoreOutlined,
-  UserOutlined,
-  HistoryOutlined,
-  SafetyCertificateOutlined,
   CheckCircleOutlined,
-  EyeOutlined,
-  LinkOutlined,
+  ClearOutlined,
+  ClockCircleOutlined,
   CopyOutlined,
-  PrinterOutlined,
+  EyeOutlined,
   FilePdfOutlined,
   FileWordOutlined,
-  FileTextOutlined,
+  FilterOutlined,
+  HistoryOutlined,
+  PrinterOutlined,
+  RocketOutlined,
+  SafetyCertificateOutlined,
+  SearchOutlined,
+  TagOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
+import {
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Divider,
+  Dropdown,
+  Flex,
+  Input,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Table,
+  Tag,
+  theme,
+  Typography,
+} from "antd";
+import axios from "axios";
 import dayjs, { Dayjs } from "dayjs";
 import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
-import relativeTime from "dayjs/plugin/relativeTime";
 import isBetween from "dayjs/plugin/isBetween";
-import { useSearchParams } from "next/navigation";
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
+import relativeTime from "dayjs/plugin/relativeTime";
 import {
+  AlignmentType,
   Document,
+  Table as DocxTable,
+  HeadingLevel,
   Packer,
   Paragraph,
-  Table as DocxTable,
   TableCell,
   TableRow,
   TextRun,
-  AlignmentType,
-  HeadingLevel,
   WidthType,
 } from "docx";
 import { saveAs } from "file-saver";
-import { KANIT_REGULAR_B64, KANIT_BOLD_B64 } from "@/constants/fonts-base64";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 // Components
+import SummaryCard from "@/components/card/summary-card";
 import DashboardLayout from "@/components/layouts/backend-layout";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
-import SummaryCard from "@/components/card/summary-card";
 
 const { Title, Text } = Typography;
 
@@ -462,7 +456,7 @@ export default function ReleaseNotesPage() {
             key={index}
             style={{ display: "flex", gap: 10, marginBottom: 4, marginLeft: 8 }}
           >
-            <span style={{ color: token.colorPrimary }}>•</span>
+            <span style={{ color: token.colorPrimary }}>-</span>
             <Text>{parseInline(trimmed.substring(2))}</Text>
           </div>,
         );
@@ -823,7 +817,7 @@ export default function ReleaseNotesPage() {
         <Space size={8}>
           <ClockCircleOutlined style={{ color: token.colorTextTertiary }} />
           <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-            {dayjs(date).format("D MMM BBBB • HH:mm")}
+            {dayjs(date).format("D MMM BBBB - HH:mm")}
           </Typography.Text>
         </Space>
       ),
@@ -838,7 +832,7 @@ export default function ReleaseNotesPage() {
         url.searchParams.set("system", record.system);
         url.searchParams.set("tag", record.tag);
         const systemName = responseGetSystemNameTH(record.system);
-        const copyTemplate = `🚀 รายการอัปเดตใหม่!\n\nชื่อระบบ: ${systemName}\n\nเวอร์ชัน: ${record.tag}\n\n\n🌐  ตรวจสอบรายละเอียดการเปลี่ยนแปลงได้ที่นี่:\n\nLink: ${url.toString()}`;
+        const copyTemplate = `รายการอัปเดตใหม่!\n\nชื่อระบบ: ${systemName}\n\nเวอร์ชัน: ${record.tag}\n\n\nตรวจสอบรายละเอียดการเปลี่ยนแปลงได้ที่นี่:\n\nLink: ${url.toString()}`;
 
         return (
           <Dropdown

@@ -1,10 +1,10 @@
-import React from "react";
-import { Typography, Button, Space, Badge } from "antd";
 import {
-  PlusOutlined,
-  BookOutlined,
   AppstoreAddOutlined,
+  BookOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
+import { Badge, Button, Space, Typography } from "antd";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { getGreeting } from "../utils/timesheet-entry.helpers";
 
@@ -27,7 +27,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
     window.open(
       "https://docs.google.com/document/d/1bfkhcYs_X79c5j2uZ5pH-C5QAeIjN91aSVNNZEf2guI/edit?usp=sharing",
       "_blank",
-      "noopener,noreferrer"
+      "noopener,noreferrer",
     );
   };
 
@@ -47,7 +47,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
       <div>
         <Typography.Title level={3} style={{ margin: 0, fontWeight: 700 }}>
           {getGreeting()}, {t("timesheet_entry_page.greeting_prefix")}
-          {adminName} 👋
+          {adminName}
         </Typography.Title>
         <Typography.Text type="secondary">
           {t("timesheet_entry_page.subtitle")}

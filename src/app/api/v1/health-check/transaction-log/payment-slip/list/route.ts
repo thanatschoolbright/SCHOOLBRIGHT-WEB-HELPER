@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import axios from "axios"
-import { successResponse, errorResponse } from "@/helpers/api/response";
+import { errorResponse, successResponse } from "@/helpers/api/response";
 import { API_URL } from "@/services/api-url";
 import { sanitizeForwardHeaders } from "@services/api-header";
+import axios from "axios";
+import { NextRequest, NextResponse } from "next/server";
 
 interface PaymentSlipRequest {
   school_id: number;
@@ -47,24 +47,18 @@ export async function POST(request: NextRequest) {
   const fullURL = `${endpoint}`;
 
   try {
-    const body: PaymentSlipRequest = await request.json();
-    console.log("Request URL:", fullURL);
-    console.log("Request Body:", body);
-    console.log("Request Headers:", headers);
+    const body: PaymentSlipRequest = payload;
     const response = await axios.post<PaymentSlipResponse[]>(fullURL, body, {
       headers: { "Content-Type": "application/json", ...headers },
       timeout: 10000,
     });
-    console.log("");
-
-    console.log("Payment Slip Response:", response.data);
 
     return NextResponse.json(
       successResponse({
         data: response.data,
         status: response.status,
       }),
-      { status: response.status }
+      { status: response.status },
     );
   } catch (error: any) {
     const statusCode = error.response?.status || 500;
@@ -75,7 +69,7 @@ export async function POST(request: NextRequest) {
         status: statusCode,
         error: error.response?.data || null,
       }),
-      { status: statusCode }
+      { status: statusCode },
     );
   }
 }

@@ -162,12 +162,17 @@ export default function SidebarContent({
   const sidebarTheme = {
     token: {
       fontFamily: token.fontFamily,
+      colorBgContainer: "transparent", // Make background transparent
     },
     components: {
       Menu: {
-        itemActiveBg: "transparent",
-        itemMarginInline: 8,
-        itemBorderRadius: 10,
+        itemActiveBg: "rgba(255, 255, 255, 0.1)",
+        itemHoverBg: "rgba(255, 255, 255, 0.05)",
+        itemSelectedBg: `linear-gradient(90deg, ${token.colorPrimary}20 0%, ${token.colorPrimary}05 100%)`,
+        itemSelectedColor: token.colorPrimary,
+        itemMarginInline: 12,
+        itemBorderRadius: 12,
+        subMenuItemBg: "transparent",
       },
     },
   };
@@ -230,7 +235,7 @@ export default function SidebarContent({
     const itemKey = href || label;
 
     const level1Style: React.CSSProperties = {
-      fontWeight: 800,
+      fontWeight: 700,
       fontSize: "14px",
       letterSpacing: "0.2px",
     };
@@ -313,7 +318,7 @@ export default function SidebarContent({
         vertical
         style={{
           height: "100vh",
-          padding: "16px 0",
+          padding: "24px 0",
           background: "transparent",
         }}
       >
@@ -321,8 +326,8 @@ export default function SidebarContent({
           align="center"
           justify={collapsed ? "center" : "space-between"}
           style={{
-            padding: "0 16px",
-            marginBottom: 24,
+            padding: "0 20px",
+            marginBottom: 32,
             transition: "all 0.3s",
           }}
         >
@@ -336,7 +341,7 @@ export default function SidebarContent({
               <img
                 src="/web-app-manifest-192x192.png"
                 alt="Logo"
-                style={{ width: 38, height: 38, borderRadius: 8 }}
+                style={{ width: 42, height: 42, borderRadius: 12 }}
               />
               <Flex vertical>
                 <Text
@@ -345,34 +350,49 @@ export default function SidebarContent({
                     fontSize: 16,
                     lineHeight: 1.2,
                     whiteSpace: "nowrap",
+                    fontWeight: 800,
                   }}
                 >
                   School Bright
                 </Text>
                 <Text
                   type="secondary"
-                  style={{ fontSize: 9, lineHeight: 1, whiteSpace: "nowrap" }}
+                  style={{
+                    fontSize: 9,
+                    lineHeight: 1.5,
+                    whiteSpace: "nowrap",
+                    letterSpacing: 0.5,
+                  }}
                 >
-                  {translate("navbar.backend_system")}
+                  {translate("navbar.backend_system").toUpperCase()}
                 </Text>
               </Flex>
             </Flex>
           )}
 
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={onSidebarToggle}
-            style={{
-              fontSize: 18,
-              display: screens.lg ? "flex" : "none",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          />
+          {screens.lg && (
+            <Button
+              type="text"
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={onSidebarToggle}
+              style={{
+                fontSize: 18,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 40,
+                height: 40,
+                borderRadius: 10,
+              }}
+            />
+          )}
         </Flex>
 
-        <Flex vertical style={{ flex: 1, overflowY: "auto" }}>
+        <Flex
+          vertical
+          style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}
+          className="custom-scrollbar"
+        >
           <Menu
             mode="inline"
             inlineCollapsed={collapsed}
@@ -381,15 +401,17 @@ export default function SidebarContent({
             onOpenChange={setOpenKeys}
             onClick={handleMenuClick}
             items={sidebarMenuItems}
-            style={{ border: "none" }}
+            style={{ border: "none", background: "transparent" }}
           />
         </Flex>
 
-        {!collapsed && (
-          <Flex style={{ padding: 16 }}>
-            <DarkModeToggle />
-          </Flex>
-        )}
+        <Flex
+          vertical
+          gap={token.marginSM}
+          style={{ padding: "16px 20px", marginTop: "auto" }}
+        >
+          <DarkModeToggle />
+        </Flex>
       </Flex>
     </ConfigProvider>
   );

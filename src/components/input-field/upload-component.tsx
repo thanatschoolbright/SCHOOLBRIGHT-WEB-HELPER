@@ -30,11 +30,11 @@ const UploadComponent: React.FC<UploadComponentProps> = ({
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setFileName(e.target.files[0].name); // ⬅️ อัปเดตชื่อไฟล์
+      setFileName(e.target.files[0].name); // อัปเดตชื่อไฟล์
     }
 
     if (onChange) {
-      onChange(e); // ⬅️ call callback ไปยัง parent component ด้วย
+      onChange(e); // call callback ไปยัง parent component ด้วย
     }
   };
 
@@ -69,17 +69,17 @@ const UploadComponent: React.FC<UploadComponentProps> = ({
           name={name}
           type="file"
           accept={accept}
-          onChange={handleChange} // 🔁 เปลี่ยนเป็น handleChange
+          onChange={handleChange} // เปลี่ยนเป็น handleChange
           className="hidden"
           disabled={disabled}
           value={value}
         />
       </label>
 
-      {/* 👇 แสดงชื่อไฟล์ด้านล่าง */}
+      {/* แสดงชื่อไฟล์ด้านล่าง */}
       {fileName && (
         <span className="text-xs text-gray-600 dark:text-gray-400 mt-2 animate-fadeIn">
-          📂 ไฟล์ที่เลือก: {fileName}
+          ไฟล์ที่เลือก: {fileName}
         </span>
       )}
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}

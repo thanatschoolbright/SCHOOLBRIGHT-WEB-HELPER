@@ -1,4 +1,16 @@
 import {
+  ApiLogFilters,
+  ApiLogItem,
+  ApiLogPagination,
+} from "@/types/api-log.type";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  EyeOutlined,
+  InboxOutlined,
+} from "@ant-design/icons";
+import { getUserById } from "@helpers/local_storage/user.storage";
+import {
   Button,
   Popconfirm,
   Space,
@@ -7,21 +19,9 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import {
-  DeleteOutlined,
-  EditOutlined,
-  EyeOutlined,
-  InboxOutlined,
-} from "@ant-design/icons";
-import {
-  ApiLogFilters,
-  ApiLogItem,
-  ApiLogPagination,
-} from "@/types/api-log.type";
 import { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
-import { getUserById } from "@helpers/local_storage/user.storage";
 
 dayjs.extend(buddhistEra);
 
@@ -63,7 +63,7 @@ const ApiLogTable = ({
 
     return (
       <Tag color={color}>
-        {statusCode} {isSuccess ? "✓" : "✗"}
+        {statusCode} {isSuccess ? "(v)" : "(x)"}
       </Tag>
     );
   };
@@ -195,15 +195,15 @@ const ApiLogTable = ({
       key: "requestHeader",
       width: 120,
       render: (_, row: ApiLogItem) => {
-        // 🧠 ดึงข้อมูลผู้ใช้จาก Local Storage ตาม x-request-user header
+        // ดึงข้อมูลผู้ใช้จาก Local Storage ตาม x-request-user header
         const user = getUserById(row?.requestHeader?.["x-request-user"]);
 
-        // 🧩 ถ้าไม่พบข้อมูลผู้ใช้ ให้แสดง "ไม่ทราบ"
+        // ถ้าไม่พบข้อมูลผู้ใช้ ให้แสดง "ไม่ทราบ"
         if (!user) {
           return <Text style={{ fontSize: "12px" }}>ไม่ทราบ</Text>;
         }
 
-        // ✨ แสดงชื่อ–นามสกุล พร้อมรหัสพนักงาน
+        // แสดงชื่อ-นามสกุล พร้อมรหัสพนักงาน
         const fullName =
           `${user.firstname ?? ""} ${user.lastname ?? ""}`.trim();
         const employeeCode = user.employee_code

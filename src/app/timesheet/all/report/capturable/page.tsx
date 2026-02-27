@@ -45,7 +45,7 @@ import type { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import dayjs, { Dayjs } from "dayjs";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import SummaryCard from "@/components/card/summary-card";
@@ -111,7 +111,6 @@ export default function CapturableReportPage() {
   const router = useRouter();
   const { token } = theme.useToken();
   const [modal, contextHolder] = Modal.useModal();
-  const { Title, Text } = Typography;
 
   // * State Management
   const [loading, setLoading] = useState(false);
@@ -148,6 +147,44 @@ export default function CapturableReportPage() {
   const [countdown, setCountdown] = useState(3);
   const [isCounting, setIsCounting] = useState(false);
 
+  /**
+   * * Fetch Tracking Details for a specific project
+   */
+  const requestTrackingDetails = useCallback(
+    async (projectId: number) => {
+      setTrackingLoading(true);
+      try {
+        const response = await axios.post(
+          "/api/v1/timesheet/report/capturable-details/read",
+          {
+            project_id: projectId,
+            start_date: dateRange[0].format("YYYY-MM-DD"),
+            end_date: dateRange[1].format("YYYY-MM-DD"),
+          },
+        );
+
+        if (response.data.status === 200) {
+          setTrackingData(response.data.data);
+        }
+      } catch (error) {
+        toast.error("ไม่สามารถดึงข้อมูลรายละเอียดการติดตามได้");
+      } finally {
+        setTrackingLoading(false);
+      }
+    },
+    [dateRange],
+  );
+
+  // * Memoized Callbacks
+  const openDetails = useCallback(
+    (record: CapturableData) => {
+      setSelectedProject(record);
+      setDetailModalOpen(true);
+      requestTrackingDetails(record.project_id);
+    },
+    [requestTrackingDetails],
+  );
+
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (isCounting && countdown > 0) {
@@ -162,37 +199,6 @@ export default function CapturableReportPage() {
     }
     return () => clearTimeout(timer);
   }, [isCounting, countdown]);
-
-  /**
-   * * Fetch Tracking Details for a specific project
-   */
-  const requestTrackingDetails = async (projectId: number) => {
-    setTrackingLoading(true);
-    try {
-      const response = await axios.post(
-        "/api/v1/timesheet/report/capturable-details/read",
-        {
-          project_id: projectId,
-          start_date: dateRange[0].format("YYYY-MM-DD"),
-          end_date: dateRange[1].format("YYYY-MM-DD"),
-        },
-      );
-
-      if (response.data.status === 200) {
-        setTrackingData(response.data.data);
-      }
-    } catch (error) {
-      toast.error("ไม่สามารถดึงข้อมูลรายละเอียดการติดตามได้");
-    } finally {
-      setTrackingLoading(false);
-    }
-  };
-
-  const openDetails = (record: CapturableData) => {
-    setSelectedProject(record);
-    setDetailModalOpen(true);
-    requestTrackingDetails(record.project_id);
-  };
 
   /**
    * * Fetch Report Data from API using Axios
@@ -312,192 +318,195 @@ export default function CapturableReportPage() {
   }, [data, searchText]);
 
   // * Table Columns Definition with Sorting
-  const allColumns: ColumnsType<CapturableData> = [
-    {
-      title: "#",
-      key: "index",
-      align: "center",
-      width: 60,
-      render: (_, __, index) => (
-        <Text type="secondary" style={{ fontSize: 13, fontWeight: 500 }}>
-          {index + 1}
-        </Text>
-      ),
-    },
-    {
-      title: "รหัส",
-      dataIndex: "project_code",
-      key: "project_code",
-      width: 100,
-      align: "center",
-      sorter: (a, b) => a.project_code.localeCompare(b.project_code),
-      render: (code: string) => (
-        <Tag bordered={false} color="blue" style={{ fontWeight: 600 }}>
-          {code}
-        </Tag>
-      ),
-    },
-    {
-      title: "ชื่อโครงการ",
-      dataIndex: "project_name",
-      key: "project_name",
-      width: 280,
-      sorter: (a, b) => a.project_name.localeCompare(b.project_name),
-      render: (name: string, record: CapturableData) => (
-        <Space direction="vertical" size={0}>
-          <Text strong style={{ fontWeight: 600 }}>
-            {name}
+  const allColumns: ColumnsType<CapturableData> = useMemo(
+    () => [
+      {
+        title: "#",
+        key: "index",
+        align: "center",
+        width: 60,
+        render: (_, __, index) => (
+          <Text type="secondary" style={{ fontSize: 13, fontWeight: 500 }}>
+            {index + 1}
           </Text>
-          {record.is_deleted && (
-            <Tag
-              color="error"
-              bordered={false}
-              style={{ fontSize: 10, lineHeight: "14px", marginTop: 2 }}
-            >
-              ถูกลบ
-            </Tag>
-          )}
-        </Space>
-      ),
-    },
-    {
-      title: (
-        <Space size={4}>
-          งานสร้างใหม่ (%)
-          <Tooltip title="สัดส่วนงบลงทุน (Capitalization ทรัพย์สิน)">
-            <InfoCircleOutlined style={{ fontSize: 12, cursor: "help" }} />
-          </Tooltip>
-        </Space>
-      ),
-      dataIndex: "capturable_percent",
-      key: "capturable_percent",
-      width: 170,
-      sorter: (a, b) => a.capturable_percent - b.capturable_percent,
-      render: (value: number, record: CapturableData) => (
-        <div className="w-full">
-          <Flex justify="space-between" align="center" className="mb-0">
-            <Text type="secondary" style={{ fontSize: 11 }}>
-              Capitalization ทรัพย์สิน
+        ),
+      },
+      {
+        title: "รหัส",
+        dataIndex: "project_code",
+        key: "project_code",
+        width: 100,
+        align: "center",
+        sorter: (a, b) => a.project_code.localeCompare(b.project_code),
+        render: (code: string) => (
+          <Tag bordered={false} color="blue" style={{ fontWeight: 600 }}>
+            {code}
+          </Tag>
+        ),
+      },
+      {
+        title: "ชื่อโครงการ",
+        dataIndex: "project_name",
+        key: "project_name",
+        width: 280,
+        sorter: (a, b) => a.project_name.localeCompare(b.project_name),
+        render: (name: string, record: CapturableData) => (
+          <Space direction="vertical" size={0}>
+            <Text strong style={{ fontWeight: 600 }}>
+              {name}
             </Text>
-            <Text strong style={{ color: token.colorSuccess, fontSize: 12 }}>
-              {value.toFixed(1)}%
-            </Text>
-          </Flex>
-          <div className="mb-1">
-            <Text strong style={{ fontSize: 13 }}>
-              {record.capturable_hours.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-              })}{" "}
-              ชม.
-            </Text>
+            {record.is_deleted && (
+              <Tag
+                color="error"
+                bordered={false}
+                style={{ fontSize: 10, lineHeight: "14px", marginTop: 2 }}
+              >
+                ถูกลบ
+              </Tag>
+            )}
+          </Space>
+        ),
+      },
+      {
+        title: (
+          <Space size={4}>
+            งานสร้างใหม่ (%)
+            <Tooltip title="สัดส่วนงบลงทุน (Capitalization ทรัพย์สิน)">
+              <InfoCircleOutlined style={{ fontSize: 12, cursor: "help" }} />
+            </Tooltip>
+          </Space>
+        ),
+        dataIndex: "capturable_percent",
+        key: "capturable_percent",
+        width: 170,
+        sorter: (a, b) => a.capturable_percent - b.capturable_percent,
+        render: (value: number, record: CapturableData) => (
+          <div className="w-full">
+            <Flex justify="space-between" align="center" className="mb-0">
+              <Text type="secondary" style={{ fontSize: 11 }}>
+                Capitalization ทรัพย์สิน
+              </Text>
+              <Text strong style={{ color: token.colorSuccess, fontSize: 12 }}>
+                {value.toFixed(1)}%
+              </Text>
+            </Flex>
+            <div className="mb-1">
+              <Text strong style={{ fontSize: 13 }}>
+                {record.capturable_hours.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                })}{" "}
+                ชม.
+              </Text>
+            </div>
+            <Progress
+              percent={value}
+              showInfo={false}
+              strokeColor={token.colorSuccess}
+              size="small"
+              style={{ margin: 0 }}
+            />
           </div>
-          <Progress
-            percent={value}
-            showInfo={false}
-            strokeColor={token.colorSuccess}
-            size="small"
-            style={{ margin: 0 }}
-          />
-        </div>
-      ),
-    },
-    {
-      title: (
-        <Space size={4}>
-          งานดูแล (%)
-          <Tooltip title="สัดส่วนค่าใช้จ่าย (Expense รายจ่าย)">
-            <InfoCircleOutlined style={{ fontSize: 12, cursor: "help" }} />
-          </Tooltip>
-        </Space>
-      ),
-      dataIndex: "uncapturable_percent",
-      key: "uncapturable_percent",
-      width: 170,
-      sorter: (a, b) => a.uncapturable_percent - b.uncapturable_percent,
-      render: (value: number, record: CapturableData) => (
-        <div className="w-full">
-          <Flex justify="space-between" align="center" className="mb-0">
-            <Text type="secondary" style={{ fontSize: 11 }}>
-              Expense รายจ่าย
-            </Text>
-            <Text strong style={{ color: token.colorError, fontSize: 12 }}>
-              {value.toFixed(1)}%
-            </Text>
-          </Flex>
-          <div className="mb-1">
-            <Text strong style={{ fontSize: 13 }}>
-              {record.uncapturable_hours.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-              })}{" "}
-              ชม.
-            </Text>
+        ),
+      },
+      {
+        title: (
+          <Space size={4}>
+            ค่าใช้จ่าย (%)
+            <Tooltip title="สัดส่วนค่าใช้จ่าย (Expense รายจ่าย)">
+              <InfoCircleOutlined style={{ fontSize: 12, cursor: "help" }} />
+            </Tooltip>
+          </Space>
+        ),
+        dataIndex: "uncapturable_percent",
+        key: "uncapturable_percent",
+        width: 170,
+        sorter: (a, b) => a.uncapturable_percent - b.uncapturable_percent,
+        render: (value: number, record: CapturableData) => (
+          <div className="w-full">
+            <Flex justify="space-between" align="center" className="mb-0">
+              <Text type="secondary" style={{ fontSize: 11 }}>
+                Expense รายจ่าย
+              </Text>
+              <Text strong style={{ color: token.colorError, fontSize: 12 }}>
+                {value.toFixed(1)}%
+              </Text>
+            </Flex>
+            <div className="mb-1">
+              <Text strong style={{ fontSize: 13 }}>
+                {record.uncapturable_hours.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                })}{" "}
+                ชม.
+              </Text>
+            </div>
+            <Progress
+              percent={value}
+              showInfo={false}
+              strokeColor={token.colorError}
+              size="small"
+              style={{ margin: 0 }}
+            />
           </div>
-          <Progress
-            percent={value}
-            showInfo={false}
-            strokeColor={token.colorError}
+        ),
+      },
+      {
+        title: "ชั่วโมงรวม",
+        dataIndex: "hours",
+        key: "hours",
+        width: 120,
+        align: "right",
+        sorter: (a, b) => a.hours - b.hours,
+        render: (value: number) => (
+          <Text strong style={{ color: token.colorInfoText }}>
+            {value.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </Text>
+        ),
+      },
+      {
+        title: (
+          <Space size={4}>
+            สัดส่วน
+            <Tooltip title="สัดส่วนชั่วโมงของโครงการนี้เทียบกับชั่วโมงรวมทั้งหมดที่วิเคราะห์ในหน้านี้">
+              <InfoCircleOutlined style={{ fontSize: 12, cursor: "help" }} />
+            </Tooltip>
+          </Space>
+        ),
+        dataIndex: "hours_percent",
+        key: "hours_percent",
+        width: 100,
+        align: "center",
+        sorter: (a, b) => a.hours_percent - b.hours_percent,
+        render: (value: number) => (
+          <Tag bordered={false} color="cyan" style={{ fontWeight: 600 }}>
+            {value.toFixed(2)}%
+          </Tag>
+        ),
+      },
+      {
+        title: "จัดการ",
+        key: "actions",
+        width: 120,
+        align: "center",
+        fixed: "right",
+        render: (_, record) => (
+          <Button
             size="small"
-            style={{ margin: 0 }}
-          />
-        </div>
-      ),
-    },
-    {
-      title: "ชั่วโมงรวม",
-      dataIndex: "hours",
-      key: "hours",
-      width: 120,
-      align: "right",
-      sorter: (a, b) => a.hours - b.hours,
-      render: (value: number) => (
-        <Text strong style={{ color: token.colorInfoText }}>
-          {value.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
-        </Text>
-      ),
-    },
-    {
-      title: (
-        <Space size={4}>
-          สัดส่วน
-          <Tooltip title="สัดส่วนชั่วโมงของโครงการนี้เทียบกับชั่วโมงรวมทั้งหมดที่วิเคราะห์ในหน้านี้">
-            <InfoCircleOutlined style={{ fontSize: 12, cursor: "help" }} />
-          </Tooltip>
-        </Space>
-      ),
-      dataIndex: "hours_percent",
-      key: "hours_percent",
-      width: 100,
-      align: "center",
-      sorter: (a, b) => a.hours_percent - b.hours_percent,
-      render: (value: number) => (
-        <Tag bordered={false} color="cyan" style={{ fontWeight: 600 }}>
-          {value.toFixed(2)}%
-        </Tag>
-      ),
-    },
-    {
-      title: "จัดการ",
-      key: "actions",
-      width: 120,
-      align: "center",
-      fixed: "right",
-      render: (_, record) => (
-        <Button
-          size="small"
-          type="primary"
-          ghost
-          icon={<InfoCircleOutlined />}
-          onClick={() => openDetails(record)}
-          style={{ fontWeight: 600 }}
-        >
-          รายละเอียด
-        </Button>
-      ),
-    },
-  ];
+            type="primary"
+            ghost
+            icon={<InfoCircleOutlined />}
+            onClick={() => openDetails(record)}
+            style={{ fontWeight: 600 }}
+          >
+            รายละเอียด
+          </Button>
+        ),
+      },
+    ],
+    [token, openDetails],
+  );
 
   const filteredColumns = useMemo(() => {
     return allColumns.filter((col) =>
@@ -505,22 +514,25 @@ export default function CapturableReportPage() {
     );
   }, [allColumns, visibleColumns]);
 
-  const columnSelectorContent = (
-    <div className="p-3 w-64">
-      <Title
-        level={5}
-        className="mb-3 border-b pb-2"
-        style={{ fontWeight: 600 }}
-      >
-        เลือกคอลัมน์แสดงผล
-      </Title>
-      <Checkbox.Group
-        className="flex flex-col gap-3"
-        options={columnOptions}
-        value={visibleColumns}
-        onChange={(checkedValues) => setVisibleColumns(checkedValues)}
-      />
-    </div>
+  const columnSelectorContent = useMemo(
+    () => (
+      <div className="p-3 w-64">
+        <Title
+          level={5}
+          className="mb-3 border-b pb-2"
+          style={{ fontWeight: 600 }}
+        >
+          เลือกคอลัมน์แสดงผล
+        </Title>
+        <Checkbox.Group
+          className="flex flex-col gap-3"
+          options={columnOptions}
+          value={visibleColumns}
+          onChange={(checkedValues) => setVisibleColumns(checkedValues)}
+        />
+      </div>
+    ),
+    [visibleColumns, Title],
   );
 
   return (
@@ -630,7 +642,7 @@ export default function CapturableReportPage() {
                     dates[1] &&
                     setDateRange([dates[0], dates[1]])
                   }
-                  format="DD MMM YYYY"
+                  format="DD/MM/YYYY"
                   allowClear={false}
                 />
               </Col>
@@ -868,8 +880,8 @@ export default function CapturableReportPage() {
                           style={{ color: token.colorTextSecondary }}
                         />
                         <Text strong>
-                          {dateRange[0].format("DD MMM YYYY")} -{" "}
-                          {dateRange[1].format("DD MMM YYYY")}
+                          {dateRange[0].format("DD/MM/YYYY")} -{" "}
+                          {dateRange[1].format("DD/MM/YYYY")}
                         </Text>
                       </Space>
                     ),

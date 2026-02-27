@@ -1,10 +1,10 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { motion, AnimatePresence } from "framer-motion";
 
 export default function BaseLoadingComponent({
-  title = "⏳ กำลังดาวน์โหลดข้อมูล...",
+  title = "กำลังดาวน์โหลดข้อมูล...",
   message = "กรุณารอสักครู่ ข้อมูลอาจใช้เวลาสักครู่ในการโหลด",
   visible = true,
 }: Readonly<{

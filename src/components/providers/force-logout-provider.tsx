@@ -1,11 +1,11 @@
 "use client";
 
-import React, { createContext, useCallback, useContext, useState } from "react";
-import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import React, { createContext, useCallback, useContext, useState } from "react";
 
 /**
- * 🛡️ ForceLogoutProvider: จัดการการบังคับออกจากระบบ
+ * ForceLogoutProvider: จัดการการบังคับออกจากระบบ
  * ยกเลิกการใช้ localStorage เพื่อความปลอดภัยสูงสุดตามนโยบายใหม่
  */
 
@@ -34,12 +34,12 @@ export default function ForceLogoutProvider({
   const [isForced, setIsForced] = useState<boolean>(false);
 
   /**
-   * 🚀 ฟังก์ชันหลักสำหรับออกจากระบบแบบปลอดภัย
+   * ฟังก์ชันหลักสำหรับออกจากระบบแบบปลอดภัย
    */
   const performLogout = useCallback(async () => {
     try {
       // ใช้ NextAuth signOut เพื่อทำลาย session ทั้งใน client และ server
-      // ✅ ใช้ window.location.origin เพื่อป้องกันการเด้งไป localhost:3000
+      // ใช้ window.location.origin เพื่อป้องกันการเด้งไป localhost:3000
       await signOut({
         redirect: true,
         callbackUrl: `${window.location.origin}/auth/v2/signin`,
@@ -51,7 +51,7 @@ export default function ForceLogoutProvider({
   }, [router]);
 
   /**
-   * 📢 สั่งการบังคับออกจากระบบ
+   * สั่งการบังคับออกจากระบบ
    */
   const triggerForceLogout = useCallback(() => {
     setIsForced(true);

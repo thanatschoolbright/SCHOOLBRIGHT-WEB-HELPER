@@ -2,7 +2,7 @@ import prisma from "@/helpers/prisma-timesheet";
 import { generateDescriptionWithChatGPT } from "../../entry/automate-fill/chatgpt";
 
 export class MigrationService {
-  /* ✨ ดึงรายชื่อโปรเจกต์ทั้งหมดที่ยังไม่ถูกลบ */
+  /* ดึงรายชื่อโปรเจก์ทั้งหมดที่ยังไม่ถูกลบ */
   static async getProjects() {
     return await prisma.project.findMany({
       where: { is_deleted: false },
@@ -14,7 +14,7 @@ export class MigrationService {
     });
   }
 
-  /* ✨ ดึงรายชื่อ Feature (Sub-project) ตาม project_id */
+  /* ดึงรายชื่อ Feature (Sub-project) ตาม project_id */
   static async getFeatures(project_id: number) {
     return await prisma.feature.findMany({
       where: { projectId: project_id, is_deleted: false },
@@ -27,7 +27,7 @@ export class MigrationService {
     });
   }
 
-  /* ✨ ดึงรายชื่อพนักงานทั้งหมดที่มีในระบบ และยังไม่ถูกลบ */
+  /* ดึงรายชื่อพนักงานทั้งหมดที่มีในระบบ และยังไม่ถูกลบ */
   static async getUsers() {
     return await prisma.user.findMany({
       where: { is_deleted: false },
@@ -42,7 +42,7 @@ export class MigrationService {
     });
   }
 
-  /* ✨ ดึงรายการ Timesheet ของพนักงาน พร้อมระบุว่ามีปัญหาหรือไม่ */
+  /* ดึงรายการ Timesheet ของพนักงาน พร้อมระบุว่ามีปัญหาหรือไม่ */
   static async getEntries(admin_id?: number, has_issues: boolean = false) {
     const whereClause: any = {
       is_deleted: false,
@@ -80,7 +80,7 @@ export class MigrationService {
     return results;
   }
 
-  /* ✨ ย้ายรายการ Timesheet ไปยังโปรเจกต์และ Feature ใหม่ (Bulk Update) */
+  /* ย้ายรายการ Timesheet ไปยังโปรเจกต์และ Feature ใหม่ (Bulk Update) */
   static async migrateEntries(
     entry_ids: number[],
     target_project_id: number,
@@ -99,7 +99,7 @@ export class MigrationService {
     return result;
   }
 
-  /* ✨ ใช้ ChatGPT ช่วยวิเคราะห์และสร้างรายละเอียดงาน (Auto-fill) จากประวัติการทำงาน 10 รายการล่าสุด */
+  /* ใช้ ChatGPT ช่วยวิเคราะห์และสร้างรายละเอียดงาน (Auto-fill) จากประวัติการทำงาน 10 รายการล่าสุด */
   static async generateDescriptions(admin_id: number, entry_ids: number[]) {
     // 1. ดึงประวัติ 10 รายการล่าสุดที่มีรายละเอียดงาน เพื่อใช้เป็นตัวอย่าง (Context)
     const history = await prisma.timesheetEntry.findMany({
@@ -150,7 +150,7 @@ export class MigrationService {
     return results;
   }
 
-  /* ✨ บันทึกรายละเอียดงานที่ ChatGPT ช่วยสรุปให้ (Bulk Update) */
+  /* บันทึกรายละเอียดงานที่ ChatGPT ช่วยสรุปให้ (Bulk Update) */
   static async updateDescriptions(
     updates: { id: number; description: string }[],
   ) {

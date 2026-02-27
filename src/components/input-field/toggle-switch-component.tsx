@@ -1,4 +1,4 @@
-// ✅ ToggleSwitchComponent.tsx
+// ToggleSwitchComponent.tsx
 import React from "react";
 
 interface ToggleSwitchProps {

@@ -1,6 +1,5 @@
 import { QA_TASK_SUMMARY_TASK_PROMPT } from "@/constants/prompts";
 import { errorResponse, successResponse } from "@/helpers/api/response";
-import { logger } from "@/helpers/logger";
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -59,8 +58,6 @@ export async function POST(request: NextRequest) {
   // ** 2. Loop สลับ Model อัตโนมัติ
   for (const modelName of AVAILABLE_MODELS) {
     try {
-      logger.info(`[${requestId}] Attempting AI Model: ${modelName}`);
-
       const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
 
       const response = await axios.post(
@@ -92,9 +89,8 @@ export async function POST(request: NextRequest) {
           // ** Append original description to protect data as requested by user **
           const markdown = `${fixedMarkdown}\n\n---\n### ข้อความต้นฉบับ (Original Description)\n\`\`\`\n${
             description || "_No original description provided_"
-          }\n\`\`\`\n\n✨ **ข้อความถูกปรับโดยอัตโนมัติ โดย Light AI** *เวอร์ชัน 1.0.2*`;
+          }\n\`\`\`\n\n**ข้อความถูกปรับโดยอัตโนมัติ โดย Light AI** *เวอร์ชัน 1.0.2*`;
 
-          logger.info(`[${requestId}] Success with ${modelName}`);
           return NextResponse.json(
             successResponse({
               data: { markdown, model_used: modelName },
@@ -110,9 +106,6 @@ export async function POST(request: NextRequest) {
       // ** 3. เงื่อนไขการสลับ Model:
       // 429 = Quota หมด / 500, 503 = Server มีปัญหาหรือคิวแน่น
       if (statusCode === 429 || statusCode === 500 || statusCode === 503) {
-        logger.warn(
-          `[${requestId}] Model ${modelName} failed (${statusCode}). Trying next model...`,
-        );
         continue;
       }
 
@@ -123,7 +116,7 @@ export async function POST(request: NextRequest) {
   }
 
   // ** 4. ถ้าหลุดออกมาจาก Loop แสดงว่าลองทุกตัวแล้วไม่สำเร็จ
-  logger.error(
+  console.error(
     `[${requestId}] All models exhausted or critical error occurred`,
   );
 

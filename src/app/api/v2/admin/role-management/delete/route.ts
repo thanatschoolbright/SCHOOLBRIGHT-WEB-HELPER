@@ -4,7 +4,19 @@ import { successResponse, errorResponse } from "@/helpers/api/response";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        errorResponse({
+          message_en: "Invalid JSON body",
+          message_th: "ข้อมูล JSON ไม่ถูกต้อง",
+          status: 400,
+        }),
+        { status: 400 },
+      );
+    }
     const { id } = body;
 
     if (!id) throw new Error("ID is required");

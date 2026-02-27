@@ -231,15 +231,13 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
     try {
       toast.message("กำลังส่งคำอธิบายใหม่ไปยัง Backlog", { id: toastId });
 
-      // ตรวจสอบว่า summary มีคำว่า AI หรือ [สรุปด้วย LIGHT AI ✨] อยู่แล้วหรือไม่
+      // ตรวจสอบว่า summary มีคำว่า AI หรือ [สรุปด้วย LIGHT AI] อยู่แล้วหรือไม่
       const currentSummary = aiModal.issue.summary;
       const hasAiPrefix =
-        currentSummary.includes("AI") ||
-        currentSummary.includes("✨") ||
-        currentSummary.includes("🤖");
+        currentSummary.includes("AI") || currentSummary.includes("LIGHT AI");
       const finalSummary = hasAiPrefix
         ? currentSummary
-        : currentSummary + " " + "[สรุปด้วย LIGHT AI ✨] ";
+        : currentSummary + " " + "[สรุปด้วย LIGHT AI] ";
 
       await axios.post("/api/v1/backlog/issues/update", {
         space,
@@ -279,8 +277,8 @@ const IssuesTable: React.FC<IssuesTableProps> = ({
       .replace(/`{1,3}/g, "")
       .replace(/!\[.*?\]\((.*?)\)/g, "[image: $1]")
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1 ($2)")
-      .replace(/^\s*-\s+/gm, "• ")
-      .replace(/^\s*\*\s+/gm, "• ")
+      .replace(/^\s*-\s+/gm, "* ")
+      .replace(/^\s*\*\s+/gm, "* ")
       .replace(/\r\n/g, "\n");
   };
 

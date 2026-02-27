@@ -1,9 +1,8 @@
 import axios from "axios";
 import { z } from "zod";
 
-import { API_URL } from "@/services/api-url";
-import { Service as TimesheetService } from "@/services/backend/timesheet/entry.service";
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
+import { Service as TimesheetService } from "@/services/backend/timesheet/entry.service";
 
 //** ค่าคงที่และประเภทข้อมูล **//
 
@@ -178,7 +177,7 @@ export const buildEffectivePeriod = (
 /**
  * รวมชั่วโมงทำงานของแต่ละผู้ใช้
  * @param entries - รายการบันทึกเวลา
- * @returns Map ที่มี key เป็น admin_id และ value เป็น tổng số giờ
+ * @returns Map ที่มี key เป็น admin_id และ value เป็นจำนวนชั่วโมงรวม
  */
 export const aggregateEntries = (
   entries: TimesheetEntryRow[],

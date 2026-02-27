@@ -7,7 +7,7 @@ import { NextRequest } from "next/server";
  */
 export class ApiLogUtils {
   /* ============================================================
-       🎨 Color Setup สำหรับ Console
+       Color Setup สำหรับ Console
        ============================================================ */
   private static readonly COLORS = {
     red: "\x1b[31m",
@@ -103,7 +103,7 @@ export class ApiLogUtils {
   }
 
   /**
-   * การทำงาน: แปลง request body เป็น JSON object
+   * การทำงาน: แปลง request body เป็น JSON object อย่างปลอดภัย
    * @param request NextRequest object
    * @returns Promise<Record<string, any> | undefined> request body หรือ undefined
    */
@@ -116,8 +116,14 @@ export class ApiLogUtils {
       if (contentType.includes("application/json")) {
         // Clone request เพื่อป้องกัน body ถูกใช้ไปแล้ว
         const clonedRequest = request.clone();
-        const body = await clonedRequest.json();
-        return body;
+        const text = await clonedRequest.text();
+        if (!text || !text.trim()) return undefined;
+
+        try {
+          return JSON.parse(text);
+        } catch {
+          return undefined;
+        }
       }
 
       if (contentType.includes("application/x-www-form-urlencoded")) {
@@ -238,7 +244,9 @@ export class ApiLogUtils {
    */
   static sanitizeResponseBody(responseBody: any): Record<string, any> {
     if (!responseBody || typeof responseBody !== "object") {
-      return {};
+      return responseBody && typeof responseBody === "string"
+        ? { content: responseBody }
+        : {};
     }
 
     const sensitiveFields = [
@@ -250,7 +258,12 @@ export class ApiLogUtils {
       "credential",
     ];
 
-    const sanitized = JSON.parse(JSON.stringify(responseBody));
+    let sanitized: any;
+    try {
+      sanitized = JSON.parse(JSON.stringify(responseBody));
+    } catch {
+      return { content: "Error stringifying response body" };
+    }
 
     const removeSensitiveData = (obj: any): any => {
       if (Array.isArray(obj)) {
@@ -276,8 +289,22 @@ export class ApiLogUtils {
     return removeSensitiveData(sanitized);
   }
 
+  /**
+   * การทำงาน: แปลง String เป็น JSON อย่างปลอดภัย
+   * @param str ข้อความ JSON
+   * @returns any ผลลัพธ์จากการ parse หรือ undefined
+   */
+  static safeJsonParse(str: string | null | undefined): any {
+    if (!str || typeof str !== "string" || !str.trim()) return undefined;
+    try {
+      return JSON.parse(str);
+    } catch {
+      return undefined;
+    }
+  }
+
   /* ============================================================
-       🧩 Helper: ดึงค่า User จาก Header
+       Helper: ดึงค่า User จาก Header
        ============================================================ */
   static getCalledByFromHeader(request: NextRequest): string {
     const xRequestUser = request.headers.get("x-request-user");
@@ -369,25 +396,25 @@ export class ApiLogUtils {
         const { ApiLogService } =
           await import("@/services/backend/api-log/api-log.service");
         ApiLogService.createApiLog(finalLogData).catch((error) => {
-          // console.error("❌ API Log creation failed:", error);
+          // Log creation failed
         });
       } else {
-        // console.log(`🔍 [API Log Utils] Logger API detected, calledBy: "${calledBy}" - Skip database logging`);
+        // Logger API detected - Skip database logging
       }
     } catch (error) {
-      console.error("❌ Error in logApiRequest:", error);
+      console.error("Error in logApiRequest:", error);
     }
   }
 
   /* ============================================================
-       🧩 Helper: จำกัดความยาวข้อความ (เช่น Body ยาว)
+       Helper: จำกัดความยาวข้อความ (เช่น Body ยาว)
        ============================================================ */
   private static truncate(text: string, max = 500): string {
     return text.length > max ? text.slice(0, max) + "...see more" : text;
   }
 
   /* ============================================================
-       🧩 Helper: แปลงข้อมูลให้แสดงสวยใน Log
+       Helper: แปลงข้อมูลให้แสดงสวยใน Log
        ============================================================ */
   private static pretty(value: any): string {
     try {
@@ -398,7 +425,7 @@ export class ApiLogUtils {
   }
 
   /* ============================================================
-       🧩 Helper: คืนสีตาม Status Code
+       Helper: คืนสีตาม Status Code
        ============================================================ */
   private static getColorByStatus(status: number): string {
     if (status >= 500) return this.COLORS.boldRed;
@@ -408,7 +435,7 @@ export class ApiLogUtils {
   }
 
   /* ============================================================
-       🧩 Helper: สร้าง Log ที่อ่านง่าย
+       Helper: สร้าง Log ที่อ่านง่าย
        ============================================================ */
   private static logRequest({
     request,
@@ -426,7 +453,7 @@ export class ApiLogUtils {
     calledBy: string;
   }) {
     const logObject = {
-      title: "📡 API Request Log",
+      title: "API Request Log",
       url: request.url,
       method: request.method,
       status: status,
@@ -437,6 +464,6 @@ export class ApiLogUtils {
       calledBy: calledBy,
     };
 
-    // console.log(JSON.stringify(logObject, null, 2));
+    // Log Request Object (Optional)
   }
 }

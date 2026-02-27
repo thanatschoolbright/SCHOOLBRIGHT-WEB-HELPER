@@ -1,9 +1,8 @@
-import axios, { AxiosError } from "axios";
-import { NextRequest, NextResponse } from "next/server";
-import { API_URL } from "@services/api-url";
 import { sanitizeForwardHeaders } from "@/services/api-header";
+import { API_URL } from "@services/api-url";
+import axios, { AxiosError } from "axios";
 import https from "https";
-import { logger } from "@/helpers/logger"; // แนะนำให้ใส่ Logger หากมี
+import { NextRequest, NextResponse } from "next/server";
 
 // สร้าง Agent ครั้งเดียวเพื่อ Performance (ระวัง: rejectUnauthorized: false ไม่ควรใช้ใน Production จริง ถ้าเป็นไปได้ควรแก้ที่ Certificate)
 const insecureHttpsAgent = new https.Agent({ rejectUnauthorized: false });
@@ -22,7 +21,7 @@ export async function GET(incomingRequest: NextRequest) {
     if (!userId || !messageId) {
       return NextResponse.json(
         { message: "Missing required parameters: user_id or message_id" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -34,8 +33,6 @@ export async function GET(incomingRequest: NextRequest) {
     // 4. สร้าง cURL Command สำหรับ Debugging (ตาม Code เดิม)
     const debugCurlCommand = `curl --location --header 'Content-Type: application/json' '${targetServiceUrl}'`;
 
-    console.log("URL:", targetServiceUrl);
-
     // 5. เรียก API ปลายทาง
     const apiResponse = await axios.get(targetServiceUrl, {
       headers: forwardedHeaders,
@@ -45,11 +42,8 @@ export async function GET(incomingRequest: NextRequest) {
 
     // คำนวณเวลาทำงาน
     const executionDuration = Number(
-      (performance.now() - executionStartTime).toFixed(2)
+      (performance.now() - executionStartTime).toFixed(2),
     );
-
-    // Optional: Log ความสำเร็จ
-    // logger.info("Read message API success", { userId, messageId, duration: executionDuration });
 
     return NextResponse.json(
       {
@@ -58,7 +52,7 @@ export async function GET(incomingRequest: NextRequest) {
       },
       {
         status: apiResponse.status,
-      }
+      },
     );
   } catch (error: unknown) {
     // 6. จัดการข้อผิดพลาด (Error Handling)
@@ -72,7 +66,7 @@ export async function GET(incomingRequest: NextRequest) {
           raw: axiosError.response?.data || null,
           curl: `Failed Request`, // หรือจะใส่ cURL ของ request ที่พังก็ได้
         },
-        { status: status }
+        { status: status },
       );
     }
 
@@ -83,7 +77,7 @@ export async function GET(incomingRequest: NextRequest) {
         message: genericError.message || "Internal Server Error",
         raw: null,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

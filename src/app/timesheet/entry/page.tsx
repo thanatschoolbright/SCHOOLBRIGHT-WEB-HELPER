@@ -566,7 +566,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             </Title>
           </Space>
 
-          <Space split={<Text type="secondary">•</Text>} wrap>
+          <Space split={<Text type="secondary">-</Text>} wrap>
             <Text type="secondary" style={{ fontSize: token.fontSizeLG }}>
               {t(
                 "timesheet_entry_page.manage_your_work_time_here",
@@ -766,7 +766,7 @@ const useMonthlyRankData = (adminId?: number) => {
       if (showToast)
         toast.loading("กำลังอัปเดตข้อมูล...", { id: "monthly-rank-toast" });
       try {
-        // ✅ ใช้ endpoint ใหม่ที่รับ user_id เพื่อลดขนาด response (Optimization)
+        // ใช้ endpoint ใหม่ที่รับ user_id เพื่อลดขนาด response (Optimization)
         const endpoint = adminId ? API_FIND_RANK_ENDPOINT : API_RANK_ENDPOINT;
         const payload: any = {
           month: selectedMonth.format("M"),

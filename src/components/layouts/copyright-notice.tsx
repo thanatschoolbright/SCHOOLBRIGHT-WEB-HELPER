@@ -24,7 +24,6 @@ const CopyrightNotice: React.FC = () => {
         }
       } catch (error) {
         // Fallback ถ้าไม่สามารถอ่านได้
-        console.log("Using fallback Next.js version");
       }
     };
 
@@ -70,7 +69,7 @@ const CopyrightNotice: React.FC = () => {
           <div>
             The Best SchoolBright Developer Team By Head of Technology Light
           </div>
-          <div>COPYRIGHT © 2026 (NEXT.JS {nextVersion})</div>
+          <div>COPYRIGHT (c) 2026 (NEXT.JS {nextVersion})</div>
         </>
       )}
     </div>

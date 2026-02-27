@@ -376,7 +376,7 @@ const EditableSignature = ({
               zIndex: 5,
             }}
           >
-            ×
+            X
           </button>
         </>
       ) : (

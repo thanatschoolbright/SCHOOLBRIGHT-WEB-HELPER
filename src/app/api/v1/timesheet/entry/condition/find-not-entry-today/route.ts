@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
 import { errorResponse, successResponse } from "@/helpers/api/response";
 import { Service } from "@/services/backend/timesheet/entry.service";
 import axios from "axios";
+import { NextResponse } from "next/server";
 
 // ** ค้นหาข้อมูลจากใน USERS และดูว่า POSITION : Developer , Tester ไหนยังไม่ลง Timesheet (Cross Check กับ findNotEntryToday ด้วย)
 const VALIDATED_USERS_ARE_NOT_ENTRY = (users: any[], entries: any[]) => {
@@ -14,7 +14,7 @@ const VALIDATED_USERS_ARE_NOT_ENTRY = (users: any[], entries: any[]) => {
       user.position === "Business Development" ||
       user.position === "Business Analyst" ||
       user.position === "System Analyst" ||
-      user.position === "UX/UI"
+      user.position === "UX/UI",
   );
 
   // Extract user_ids from entries
@@ -34,7 +34,7 @@ const VALIDATED_USERS_ARE_NOT_ENTRY = (users: any[], entries: any[]) => {
     .filter((entry) => entry.total_hours < 8)
     .map((entry) => {
       const user = filteredUsers.find(
-        (u) => String(u.admin_id) === String(entry.user_id)
+        (u) => String(u.admin_id) === String(entry.user_id),
       );
       if (user) {
         return {
@@ -110,7 +110,7 @@ async function sendDiscordNotification(users: any[]) {
   // Build embeds (1 user = 1 card)
   const embeds = users.map((user: any, idx: number) => {
     const roleMention = normalizeRole(user.position);
-    const title = `👤 ${user?.firstname ?? "-"} ${user?.lastname ?? "-"} (${
+    const title = `${user?.firstname ?? "-"} ${user?.lastname ?? "-"} (${
       user?.nickname || "-"
     })`;
     const status = String(user?.status || "-");
@@ -121,8 +121,8 @@ async function sendDiscordNotification(users: any[]) {
       status === "ไม่ได้กรอกเลย"
         ? 0xff0000
         : status === "กรอกไม่ครบ"
-        ? 0xffa500
-        : 0x0099ff;
+          ? 0xffa500
+          : 0x0099ff;
 
     return {
       title,
@@ -134,7 +134,7 @@ async function sendDiscordNotification(users: any[]) {
         `**Tag:** ${userTag}`,
       ].join("\n"),
       color,
-      footer: { text: "📌 Timesheet Notification System" },
+      footer: { text: "Timesheet Notification System" },
       timestamp: new Date().toISOString(),
     };
   });
@@ -145,7 +145,7 @@ async function sendDiscordNotification(users: any[]) {
   }
 
   const contentHeader = `**แจ้งเตือน Timesheet ประจำวัน (${new Date().toLocaleDateString(
-    "th-TH"
+    "th-TH",
   )})**\n@here`;
   console.info("[Discord] content header:", contentHeader);
 
@@ -169,7 +169,7 @@ async function sendDiscordNotification(users: any[]) {
     console.info(
       `[Discord] sending batch ${i + 1}/${batches.length} with ${
         batchEmbeds.length
-      } embeds`
+      } embeds`,
     );
 
     try {
@@ -179,7 +179,7 @@ async function sendDiscordNotification(users: any[]) {
       console.info(
         `[Discord] batch ${i + 1} sent successfully: ${res.status} ${
           res.statusText
-        }`
+        }`,
       );
     } catch (err: any) {
       if (err?.response) {
@@ -189,11 +189,11 @@ async function sendDiscordNotification(users: any[]) {
           }`,
           typeof err.response.data === "string"
             ? err.response.data
-            : JSON.stringify(err.response.data)
+            : JSON.stringify(err.response.data),
         );
       } else {
         console.error(
-          `[Discord] batch ${i + 1} network error: ${err?.message || err}`
+          `[Discord] batch ${i + 1} network error: ${err?.message || err}`,
         );
       }
     }
@@ -221,7 +221,7 @@ export async function GET() {
         message_en: error instanceof Error ? error.message : "Unknown error",
         message_th: "เกิดข้อผิดพลาด",
         error,
-      })
+      }),
     );
   }
 }

@@ -1,5 +1,5 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { apiLog } from "@services/api-log";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
 // ANSI color codes for enhanced log readability
 const colors = {
@@ -15,13 +15,13 @@ export async function callWithLogging<T = any>(
     requestPath?: string;
     method?: string;
     curl?: string;
-  }
+  },
 ): Promise<AxiosResponse<T>> {
   const method = config.method?.toUpperCase() || "GET";
   const url = config.url || "Unknown URL";
 
   apiLog.info({
-    emoji: "📡",
+    emoji: "",
     message: `${colors.info}[CALL] ${method} ${
       logMeta?.requestPath || url
     }${resetColor}`,

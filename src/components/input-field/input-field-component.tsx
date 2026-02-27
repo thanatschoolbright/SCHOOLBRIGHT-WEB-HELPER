@@ -1,14 +1,13 @@
 "use client";
-import { useState, InputHTMLAttributes, ReactNode } from "react";
+import { InputHTMLAttributes, ReactNode, useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
-interface InputFieldComponentProps
-  extends InputHTMLAttributes<HTMLInputElement> {
+interface InputFieldComponentProps extends InputHTMLAttributes<HTMLInputElement> {
   /** ป้ายชื่อฟิลด์ */
   label?: string;
   /** ข้อความ error */
   error?: string;
-  /** hint ด้านล่าง (เช่น ลิงก์ “Forgot?”) */
+  /** hint ด้านล่าง (เช่น ลิงก์ "Forgot?") */
   hint?: ReactNode;
   /** icon ด้านซ้าย กำหนดเองได้ หรือไม่ต้องใส่ก็ได้ */
   icon?: ReactNode;

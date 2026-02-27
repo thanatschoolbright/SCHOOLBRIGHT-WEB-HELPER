@@ -1,47 +1,25 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import {
-  Button,
-  Card,
-  Col,
-  Form,
-  Row,
-  Select,
-  List,
-  Avatar,
-  Badge,
-  Empty,
-  Typography,
-  Tag,
-  Space,
-} from "antd";
+import { TeamOutlined } from "@ant-design/icons";
 import AttendanceCard from "@components/card/attendance-card-component";
+import { Button, Card, Col, Empty, Form, List, Row, Select } from "antd";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import {
-  CheckCircleFilled,
-  CheckCircleOutlined,
-  IdcardOutlined,
-  RocketOutlined,
-  TeamOutlined,
-  UserAddOutlined,
-} from "@ant-design/icons";
 
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import i18next from "i18next";
 
-import DashboardLayout from "@components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
-import { useAppSelector } from "@stores/store";
+import DashboardLayout from "@components/layouts/backend-layout";
 import { useDispatch } from "react-redux";
 
+import { ResponseGetLevel } from "@/app/api/v1/mobile/check-in-attendance/get-level/route";
+import { ResponseGetStudent } from "@/app/api/v1/mobile/check-in-attendance/get-student/route";
+import { ResponseGetSubLevel } from "@/app/api/v1/mobile/check-in-attendance/get-sub-level/route";
+import { ResponseGetSubject } from "@/app/api/v1/mobile/check-in-subject/get-subject/route";
 import { HeaderBar } from "@components/typhography/header-bar-component";
 import { callApiService } from "@services/axios-instance/sb-helper.axios";
-import { ResponseGetLevel } from "@/app/api/v1/mobile/check-in-attendance/get-level/route";
-import { ResponseGetSubLevel } from "@/app/api/v1/mobile/check-in-attendance/get-sub-level/route";
-import { ResponseGetStudent } from "@/app/api/v1/mobile/check-in-attendance/get-student/route";
-import { ResponseGetSubject } from "@/app/api/v1/mobile/check-in-subject/get-subject/route";
 
 dayjs.extend(isBetween);
 
@@ -109,7 +87,7 @@ export default function Page() {
         }));
       }
     } catch (error: any) {
-      console.error("❌ Failed to parse schools from localStorage:", error);
+      console.error("Failed to parse schools from localStorage:", error);
     }
     return [];
   }, []);
@@ -121,19 +99,19 @@ export default function Page() {
         "/api/v1/mobile/check-in-attendance/get-level",
         {
           school_id: String(schoolId),
-        }
+        },
       );
 
       const formattedOptions: ResponseGetLevel[] = response?.data?.data.map(
         (item: ResponseGetLevel) => ({
           label: String(item.name_th),
           value: String(item.id),
-        })
+        }),
       );
 
       setLevelOptions(formattedOptions);
     } catch (error) {
-      console.error("❌ Error fetching levels:", error);
+      console.error("Error fetching levels:", error);
       setLevelOptions([]);
     } finally {
       setIsLoadingLevels(false);
@@ -148,18 +126,18 @@ export default function Page() {
         {
           school_id: String(form.getFieldValue("school_id")),
           level_id: String(levelId),
-        }
+        },
       );
 
       const formattedOptions: ResponseGetSubLevel[] = response?.data?.data.map(
         (item: ResponseGetSubLevel) => ({
           label: String(item.name_th),
           value: String(item.id),
-        })
+        }),
       );
       setSubLevelOptions(formattedOptions);
     } catch (error) {
-      console.error("❌ Error fetching sub-levels:", error);
+      console.error("Error fetching sub-levels:", error);
       setSubLevelOptions([]);
     } finally {
       setIsLoadingSubLevels(false);
@@ -174,18 +152,18 @@ export default function Page() {
         {
           school_id: String(form.getFieldValue("school_id")),
           sub_level_id: String(subLevelId),
-        }
+        },
       );
 
       const formattedOptions: ResponseGetSubject[] = response?.data?.data.map(
         (item: ResponseGetSubject) => ({
           label: `${item.schedule_name} (${item.plane_id}) เวลาเรียน ${item.timestart} - ${item.timeend}`,
           value: String(item.plane_id),
-        })
+        }),
       );
       setSubjectOptions(formattedOptions);
     } catch (error) {
-      console.error("❌ Error fetching subjects:", error);
+      console.error("Error fetching subjects:", error);
       setSubjectOptions([]);
     } finally {
       setIsLoadingSubjects(false);
@@ -197,7 +175,7 @@ export default function Page() {
     try {
       const response = await callApiService.post(
         "/api/v1/mobile/check-in-attendance/get-student",
-        request
+        request,
       );
       if (response?.data?.data.length === 0) {
         toast.info("ไม่พบข้อมูลนักเรียนตามเงื่อนไขที่เลือก", {
@@ -213,19 +191,19 @@ export default function Page() {
       toast.error("เกิดข้อผิดพลาดในการโหลดข้อมูลนักเรียน", {
         id: toastId,
       });
-      console.error("❌ Error fetching students:", error);
+      console.error("Error fetching students:", error);
     }
   };
 
   // ** เช็คชื่อรายวิชา / แก้ไขเช็คชื่อรายวิชา
   const GET_SUBJECT_STUDENT_API = async (
-    request: RequestAttendanceReportParams
+    request: RequestAttendanceReportParams,
   ) => {
     const toastId = toast.loading("กำลังโหลดข้อมูลนักเรียน...");
     try {
       const response = await callApiService.post(
         "/api/v1/mobile/check-in-subject/get-student",
-        request
+        request,
       );
       if (response?.data?.data.length === 0) {
         toast.info("ไม่พบข้อมูลนักเรียนตามเงื่อนไขที่เลือก", {
@@ -241,7 +219,7 @@ export default function Page() {
       toast.error("เกิดข้อผิดพลาดในการโหลดข้อมูลนักเรียน", {
         id: toastId,
       });
-      console.error("❌ Error fetching students:", error);
+      console.error("Error fetching students:", error);
     }
   };
 

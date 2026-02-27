@@ -38,7 +38,7 @@ export default function DropdownButtonComponent({
         onClick={toggleDropdown}
         className="p-2 rounded-md bg-gradient-to-r from-purple-200 to-purple-300 dark:from-purple-700 dark:to-purple-800 text-gray-700 dark:text-white hover:scale-110 active:scale-95 shadow-md transition-transform duration-200 focus:outline-none"
       >
-        ⋮
+        ...
       </button>
       <div
         id={`dropdown-${id}`}

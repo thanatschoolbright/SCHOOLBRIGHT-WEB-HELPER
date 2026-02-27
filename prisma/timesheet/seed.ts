@@ -4,7 +4,7 @@ import { PrismaClient } from "../../generated/prisma-timesheet";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Starting seeding...");
+  console.log("Starting seeding...");
 
   // 1. Clean up existing data (Optional - ระวังถ้าใช้บน Production)
   // await prisma.projectStatus.deleteMany();
@@ -76,7 +76,7 @@ async function main() {
   });
 
   console.log({ project });
-  console.log("✅ Seeding finished.");
+  console.log("Seeding finished.");
 }
 
 main()

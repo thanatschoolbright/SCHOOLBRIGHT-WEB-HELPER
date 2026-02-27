@@ -29,7 +29,7 @@ export default function PermissionLayout({
   const [secretCode, setSecretCode] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ เช็คจาก LocalStorage ว่าเคยกรอกรหัสไปแล้วหรือยัง
+  // เช็คจาก LocalStorage ว่าเคยกรอกรหัสไปแล้วหรือยัง
   useEffect(() => {
     const savedBypass = localStorage.getItem("sb_permission_bypassed");
     if (savedBypass === "true") {
@@ -57,10 +57,10 @@ export default function PermissionLayout({
   const hasPermission = isSuperAdmin || (hasRole && hasPerm);
 
   useEffect(() => {
-    // ✅ เช็คว่าโหลดเสร็จแล้วเท่านั้น
+    // เช็คว่าโหลดเสร็จแล้วเท่านั้น
     if (status === "loading") return;
 
-    // ✅ ถ้าไม่มี user เลย (ยังไม่ได้ login) → redirect
+    // ถ้าไม่มี user เลย (ยังไม่ได้ login) -> redirect
     if (status === "unauthenticated") {
       router.replace("/auth/v2/signin");
     }
@@ -73,7 +73,7 @@ export default function PermissionLayout({
       if (secretCode === "LIGHTGOD") {
         message.success("ACCESS GRANTED: Welcome, Administrator.");
         setIsBypassed(true);
-        // ✅ จำไว้ในเครื่องว่าเคยกรอกแล้ว
+        // จำไว้ในเครื่องว่าเคยกรอกแล้ว
         localStorage.setItem("sb_permission_bypassed", "true");
       } else {
         message.error("ACCESS DENIED: Incorrect Secret Code.");
@@ -83,7 +83,7 @@ export default function PermissionLayout({
     }, 800);
   };
 
-  // ⏳ ยังโหลดอยู่
+  // ยังโหลดอยู่
   if (status === "loading") {
     return (
       <div
@@ -100,17 +100,17 @@ export default function PermissionLayout({
     );
   }
 
-  // ✅ ถ้าไม่มีข้อมูลผู้ใช้
+  // ถ้าไม่มีข้อมูลผู้ใช้
   if (!AUTH_USER) {
     return null; // หรือแสดงปุ่มให้กลับไป Login
   }
 
-  // ✅ ถ้ามีสิทธิ์ หรือ Bypass แล้ว ให้แสดงเนื้อหา
+  // ถ้ามีสิทธิ์ หรือ Bypass แล้ว ให้แสดงเนื้อหา
   if (hasPermission || isBypassed) {
     return <>{children}</>;
   }
 
-  // ❌ ถ้าไม่มีสิทธิ์ ให้แสดง Modal
+  // ถ้าไม่มีสิทธิ์ ให้แสดง Modal
   return (
     <div>
       <div

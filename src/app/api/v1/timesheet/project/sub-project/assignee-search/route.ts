@@ -4,7 +4,7 @@ import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * 🔍 API ค้นหารายชื่อพนักงานเพื่อมอบหมายงาน (Assignee Search)
+ * API ค้นหารายชื่อพนักงานเพื่อมอบหมายงาน (Assignee Search)
  * ใช้สำหรับฟิลด์ "ทีมงานผู้รับผิดชอบ" ในหน้า Sub Project
  */
 export async function GET(request: NextRequest) {

@@ -36,7 +36,7 @@ interface StatusModalComponentProps {
 }
 
 /**
- * 🎨 StatusModalComponent
+ * StatusModalComponent
  * อ้างอิงเอกสาร: https://ant.design/components/modal/
  * และ https://ant.design/components/result/
  */

@@ -16,7 +16,7 @@ import SchoolReduxProvider from "./school-list-provider";
 import { StorageProvider } from "./storage-provider";
 
 /**
- * 🛠️ CombinedProviders - ศูนย์รวม Provider ทั้งหมดเพื่อความ Clean Code
+ * CombinedProviders - ศูนย์รวม Provider ทั้งหมดเพื่อความ Clean Code
  */
 export default function CombinedProviders({
   children,

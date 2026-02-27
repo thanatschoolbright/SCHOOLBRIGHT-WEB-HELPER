@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const ModalAPIDetail = ({ row }: any) => {
   const [copied, setCopied] = useState(false);
@@ -53,10 +53,10 @@ const ModalAPIDetail = ({ row }: any) => {
           >
             {row.status}{" "}
             {row.status.startsWith("2")
-              ? "✅"
+              ? "(v)"
               : row.status.startsWith("5")
-              ? "❌"
-              : "⚠️"}
+                ? "(x)"
+                : "(!)"}
           </span>
         </div>
       </div>
@@ -132,12 +132,12 @@ const ModalAPIDetail = ({ row }: any) => {
           {(() => {
             try {
               const decoded = new TextDecoder().decode(
-                new Uint8Array(row.response.stream.data)
+                new Uint8Array(row.response.stream.data),
               );
               const json = JSON.parse(decoded);
               return JSON.stringify(json, null, 2);
             } catch (e) {
-              return "⚠️ Unable to parse response as JSON.";
+              return "(!) Unable to parse response as JSON.";
             }
           })()}
         </pre>
@@ -164,10 +164,10 @@ const ModalAPIDetail = ({ row }: any) => {
                     <td className="px-3 py-2 font-medium">
                       {assert.error ? (
                         <span className="text-red-600">
-                          ❌ {assert.error.message}
+                          (x) {assert.error.message}
                         </span>
                       ) : (
-                        <span className="text-green-600">✅ Passed</span>
+                        <span className="text-green-600">(v) Passed</span>
                       )}
                     </td>
                   </tr>

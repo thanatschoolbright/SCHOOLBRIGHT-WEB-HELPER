@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
+import { NextRequest, NextResponse } from "next/server";
 // นำเข้าไฟล์ Helper ที่ระบุ (กรุณาตรวจสอบ Path ให้ตรงกับโฟลเดอร์จริงของโปรเจกต์)
 import { discordIdUser } from "@/helpers/api/discord-id-user";
 
@@ -25,46 +25,49 @@ const getDeployStatus = (state: string, env: string): DeployState => {
     case "queued":
     case "pending":
       return {
-        statusLabel: "⏳ กำลังเตรียมการ (Queued)",
+        statusLabel: "[QUEUED] กำลังเตรียมการ (Queued)",
         description:
           "ระบบได้รับคำสั่ง Deploy แล้ว กำลังรอคิวเพื่อเริ่มกระบวนการ",
         color: 0x95a5a6, // Gray
-        icon: "🧱",
-        stepper: "**[🛑 รอเริ่ม]** ┄┄ ⚙️ กำลังทำ ┄┄ ✅ เสร็จสิ้น",
+        icon: "[BRICK]",
+        stepper:
+          "**[[STOP] รอเริ่ม]** -- [WORKING] กำลังทำ -- [SUCCESS] เสร็จสิ้น",
       };
     case "in_progress":
       return {
-        statusLabel: "🚀 กำลังดำเนินการ Deploy",
-        description: `กำลังติดตั้งเวอร์ชันล่าสุดลงเซิร์ฟเวอร์ **${envName}** \n⚠️ *ช่วงเวลานี้ระบบอาจหน่วงหรือหลุดชั่วคราว*`,
+        statusLabel: "[DEPLOY] กำลังดำเนินการ Deploy",
+        description: `กำลังติดตั้งเวอร์ชันล่าสุดลงเซิร์ฟเวอร์ **${envName}** \n[WARN] *ช่วงเวลานี้ระบบอาจหน่วงหรือหลุดชั่วคราว*`,
         color: 0xf39c12, // Orange/Yellow
-        icon: "🚧",
-        stepper: "🛑 รอเริ่ม ┄┄ **[⚙️ กำลังทำ]** ┄┄ ✅ เสร็จสิ้น",
+        icon: "[CONSTRUCTION]",
+        stepper:
+          "[STOP] รอเริ่ม -- **[[WORKING] กำลังทำ]** -- [SUCCESS] เสร็จสิ้น",
       };
     case "success":
       return {
-        statusLabel: "✅ Deploy สำเร็จ (Success)",
-        description: `อัปเดตระบบบน **${envName}** เรียบร้อยแล้ว \n🎯 **QA/CS สามารถเข้าตรวจสอบหรือใช้งานได้ทันที**`,
+        statusLabel: "[SUCCESS] Deploy สำเร็จ (Success)",
+        description: `อัปเดตระบบบน **${envName}** เรียบร้อยแล้ว \n[GOAL] **QA/CS สามารถเข้าตรวจสอบหรือใช้งานได้ทันที**`,
         color: 0x2ecc71, // Green
-        icon: "✨",
-        stepper: "🛑 รอเริ่ม ┄┄ ⚙️ กำลังทำ ┄┄ **[✅ เสร็จสิ้น]**",
+        icon: "[PASS]",
+        stepper:
+          "[STOP] รอเริ่ม -- [WORKING] กำลังทำ -- **[[SUCCESS] เสร็จสิ้น]**",
       };
     case "failure":
     case "error":
       return {
-        statusLabel: "❌ Deploy ล้มเหลว (Failed)",
+        statusLabel: "[FAIL] Deploy ล้มเหลว (Failed)",
         description:
-          "เกิดข้อผิดพลาดระหว่างการ Deploy ระบบยังเป็นเวอร์ชันเดิม \n🛠️ **Dev กรุณาเช็ค Log โดยด่วน**",
+          "เกิดข้อผิดพลาดระหว่างการ Deploy ระบบยังเป็นเวอร์ชันเดิม \n[DEV] **Dev กรุณาเช็ค Log โดยด่วน**",
         color: 0xe74c3c, // Red
-        icon: "🚨",
-        stepper: "🛑 รอเริ่ม ┄┄ ❌ **[ล้มเหลว]** ┄┄ ⚪ เสร็จสิ้น",
+        icon: "[ALERT]",
+        stepper: "[STOP] รอเริ่ม -- [FAIL] **[ล้มเหลว]** -- [WAIT] เสร็จสิ้น",
       };
     default:
       return {
-        statusLabel: "📡 สถานะอื่นๆ",
+        statusLabel: "[SIGNAL] สถานะอื่นๆ",
         description: `Status: ${state}`,
         color: 0x3498db, // Blue
-        icon: "ℹ️",
-        stepper: "⚪ Unknown Status",
+        icon: "[INFO]",
+        stepper: "[WAIT] Unknown Status",
       };
   }
 };
@@ -97,14 +100,14 @@ const buildDiscordPayload = (repoFullName: string, payload: any) => {
           style: 5,
           label: "View Logs",
           url: logUrl,
-          emoji: { name: "📜" },
+          emoji: { name: "log" },
         },
         {
           type: 2,
           style: 5,
           label: "GitHub Commit",
           url: commitUrl,
-          emoji: { name: "🔗" },
+          emoji: { name: "link" },
         },
       ],
     },
@@ -117,28 +120,28 @@ const buildDiscordPayload = (repoFullName: string, payload: any) => {
     color: deployInfo.color,
     fields: [
       {
-        name: "🌍 Environment",
+        name: "[ENV] Environment",
         value: `\`${environment.toUpperCase()}\``,
         inline: true,
       },
       {
-        name: "🔖 เวอร์ชัน (Commit)",
+        name: "[VER] เวอร์ชัน (Commit)",
         value: `\`${commitSha}\``,
         inline: true,
       },
       {
-        name: "🧑‍💻 สั่งการโดย",
+        name: "[USER] สั่งการโดย",
         value: creator,
         inline: true,
       },
       {
-        name: "🕒 เวลา",
+        name: "[TIME] เวลา",
         value: `<t:${Math.floor(Date.now() / 1000)}:R>`,
         inline: true,
       },
     ],
     footer: {
-      text: `DevOps Notification • ${repoFullName}`,
+      text: `DevOps Notification - ${repoFullName}`,
       icon_url: "https://cdn-icons-png.flaticon.com/512/8662/8662237.png",
     },
     timestamp: new Date().toISOString(),
@@ -146,7 +149,7 @@ const buildDiscordPayload = (repoFullName: string, payload: any) => {
 
   return {
     // แก้ไข: เรียกใช้ discordIdUser.TeamSupport แทนตัวแปรเดิม
-    content: `${discordIdUser.TeamSupport} 📢 **มีการเคลื่อนไหวที่ Repository: ${repoFullName}**`,
+    content: `${discordIdUser.TeamSupport} [NOTICE] **มีการเคลื่อนไหวที่ Repository: ${repoFullName}**`,
     embeds: [embed],
     components: components,
   };
@@ -165,7 +168,7 @@ export async function POST(req: NextRequest) {
   if (!payload.deployment_status || !payload.deployment) {
     return NextResponse.json(
       { status: "error", reason: "Invalid payload" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -196,7 +199,7 @@ export async function POST(req: NextRequest) {
         reason: "Internal Server Error",
         details: err.response?.data || err.message,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
