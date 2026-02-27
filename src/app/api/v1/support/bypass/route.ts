@@ -17,7 +17,6 @@ export async function GET(request: NextRequest) {
   const endpoint = `/api/school/get-password?school_id=${school_id}&email=${user_email}`;
   const callAPI = apiUrl + endpoint;
   const curlCommand = convertToCurl(apiUrl, endpoint);
-  console.log("callAPI", callAPI);
   try {
     const responseFromAPI = await axios.get(callAPI, {
       //   headers,

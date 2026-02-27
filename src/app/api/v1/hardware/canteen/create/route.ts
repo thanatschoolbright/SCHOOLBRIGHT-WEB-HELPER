@@ -81,10 +81,6 @@ async function handleMultipartFormData(
   const requestBody = await requestClone.arrayBuffer();
   const forwardHeaders = extractForwardHeaders(request.headers);
 
-  console.log("Forwarding headers:", Object.keys(forwardHeaders));
-  console.log("Request body size:", requestBody.byteLength);
-  console.log("Request Body Value", requestBody);
-
   const axiosResponse = await axios({
     method: "POST",
     url: targetUrl,
@@ -95,7 +91,6 @@ async function handleMultipartFormData(
     timeout: TIMEOUT_CONFIG.FILE_UPLOAD,
   });
 
-  console.log("External API response:", axiosResponse.data);
   return axiosResponse;
 }
 
@@ -253,8 +248,6 @@ function createSuccessResponse(
     responseData._curl = curlCommand;
   }
 
-  console.log("Final response to client:", responseData);
-
   return NextResponse.json(responseData, {
     status: axiosResponse.status,
   });
@@ -264,13 +257,6 @@ function createSuccessResponse(
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const targetApiUrl = API_URL.DEV_HARDWARE_API_URL;
   const fullTargetUrl = `${targetApiUrl}${API_ENDPOINT}`;
-
-  console.log("=== API Route Start ===");
-  console.log("Target URL:", fullTargetUrl);
-  console.log(
-    "Request headers:",
-    Object.fromEntries(request.headers.entries()),
-  );
 
   const contentType = request.headers.get("content-type") || "";
   const curlCommand = convertToCurl(
@@ -284,18 +270,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     //** เลือกวิธีการประมวลผลตามประเภทของข้อมูล */
     if (contentType.includes(MULTIPART_CONTENT_TYPE)) {
-      console.log("Processing multipart/form-data request");
       axiosResponse = await handleMultipartFormData(request, fullTargetUrl);
     } else if (contentType.includes(JSON_CONTENT_TYPE)) {
-      console.log("Processing JSON request");
       axiosResponse = await handleJsonData(request, fullTargetUrl);
     } else {
-      console.log("Processing text/plain request");
       axiosResponse = await handleTextData(request, fullTargetUrl, contentType);
     }
-
-    console.log("External API response status:", axiosResponse.status);
-    console.log("=== API Route Success ===");
 
     return createSuccessResponse(axiosResponse, curlCommand);
   } catch (error: any) {

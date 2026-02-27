@@ -5,11 +5,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("=== API ROUTE DEBUG ===");
-    console.log("Content-Type:", request.headers.get("content-type"));
-    console.log("Request method:", request.method);
-    console.log("Content-Length:", request.headers.get("content-length"));
-
     // Alternative approach: Read request as stream to bypass 10MB limit
     let formData: FormData;
     try {
@@ -17,18 +12,12 @@ export async function POST(request: NextRequest) {
       const contentLength = parseInt(
         request.headers.get("content-length") || "0",
       );
-      console.log("Request content length:", contentLength);
 
       if (contentLength > 10 * 1024 * 1024) {
         // > 10MB
-        console.log(
-          "[WAIT] Large file detected, using alternative parsing method",
-        );
-
         // For large files, we need to handle this differently
         // Since Next.js limits FormData parsing, we'll read as stream
         const arrayBuffer = await request.arrayBuffer();
-        console.log("ArrayBuffer size:", arrayBuffer.byteLength);
 
         // Convert ArrayBuffer back to FormData
         const blob = new Blob([arrayBuffer], {
@@ -46,22 +35,16 @@ export async function POST(request: NextRequest) {
         });
 
         formData = await newRequest.formData();
-        console.log(
-          "[SUCCESS] Large FormData parsed successfully using alternative method",
-        );
       } else {
         // For smaller files, use normal parsing
         formData = await request.formData();
-        console.log("[SUCCESS] FormData parsed successfully");
       }
     } catch (parseError) {
       console.error("[ERROR] FormData parse error:", parseError);
 
       // Last resort: Try to parse as text and handle manually
       try {
-        console.log("[WAIT] Attempting manual parsing...");
         const text = await request.text();
-        console.log("Request text length:", text.length);
 
         return NextResponse.json(
           {
@@ -99,40 +82,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Log received data for debugging
-    console.log("=== API RECEIVED DATA ===");
-    console.log("app_id:", app_id);
-    console.log("version_name:", formData.get("version_name"));
-    console.log("env:", formData.get("env"));
-    console.log("note:", formData.get("note"));
-    console.log("is_lastest_version:", formData.get("is_lastest_version"));
-    console.log("force_update:", formData.get("force_update"));
-    console.log("school_id:", formData.get("school_id"));
-
-    // Check if file exists
     const file = formData.get("file") as File | null;
-    console.log("file exists:", !!file);
-    console.log("file name:", file?.name);
-    console.log("file size:", file?.size);
-    console.log("file type:", file?.type);
-    console.log("========================");
 
     // Prepare FormData for backend API
     const backendFormData = new FormData();
 
     // Copy all fields to backend FormData
     for (const [key, value] of formData.entries()) {
-      console.log(
-        `Copying field: ${key} = ${value instanceof File ? `File(${value.name})` : value}`,
-      );
       backendFormData.append(key, value);
     }
 
     const apiUrl = API_URL.DEV_HARDWARE_API_URL;
     const endpoint = "/api/v2/applications/version";
     const fullURL = `${apiUrl}${endpoint}`;
-
-    console.log("Sending to backend:", fullURL);
 
     // Send to backend API with multipart/form-data
     const response = await axios.post(fullURL, backendFormData, {
@@ -143,8 +105,6 @@ export async function POST(request: NextRequest) {
       maxBodyLength: Infinity,
       timeout: 60000, // 60 seconds timeout for file uploads
     });
-
-    console.log("[SUCCESS] Backend response received");
 
     const curlCommand = convertToCurl(
       apiUrl,

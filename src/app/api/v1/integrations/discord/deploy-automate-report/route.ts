@@ -6,8 +6,6 @@ export async function POST(req: NextRequest) {
   const payload = await req.json();
   let mentionUser = "";
 
-  console.log("Received payload:", JSON.stringify(payload, null, 2));
-
   try {
     // --- Prepare data for Discord report ---
     const automateUrl: string = (payload?.github_page || payload?.url || "")
@@ -85,18 +83,11 @@ export async function POST(req: NextRequest) {
       },
     ];
 
-    console.log(
-      "[INFO] Sending Discord payload:",
-      JSON.stringify(discordPayload, null, 2),
-    );
-
     const response = await axios.post(discordWebhook, discordPayload, {
       headers: {
         "Content-Type": "application/json",
       },
     });
-
-    console.log("[SUCCESS] Discord response:", response.data);
 
     return NextResponse.json({
       message: "Push notification sent to Discord",

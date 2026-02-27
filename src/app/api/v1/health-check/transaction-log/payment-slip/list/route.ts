@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import axios from "axios"
-import { successResponse, errorResponse } from "@/helpers/api/response";
+import { errorResponse, successResponse } from "@/helpers/api/response";
 import { API_URL } from "@/services/api-url";
 import { sanitizeForwardHeaders } from "@services/api-header";
+import axios from "axios";
+import { NextRequest, NextResponse } from "next/server";
 
 interface PaymentSlipRequest {
   school_id: number;
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
         data: response.data,
         status: response.status,
       }),
-      { status: response.status }
+      { status: response.status },
     );
   } catch (error: any) {
     const statusCode = error.response?.status || 500;
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
         status: statusCode,
         error: error.response?.data || null,
       }),
-      { status: statusCode }
+      { status: statusCode },
     );
   }
 }

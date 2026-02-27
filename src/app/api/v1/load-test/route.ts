@@ -43,15 +43,6 @@ export async function POST(request: NextRequest) {
       tags,
     } = await request.json();
 
-    console.log("[INFO] Received K6 load test request");
-    console.log("[INFO] Incoming baseURL from request:", baseURL);
-    console.log(`[CONFIG] Script: ${script}`);
-    console.log(`[CONFIG] baseURL: ${baseURL}`);
-    console.log(`[CONFIG] request (vus): ${vus}`);
-    console.log(`[CONFIG] second (duration): ${second}`);
-    console.log(`[CONFIG] stages:`, stages);
-    console.log(`[CONFIG] thresholds:`, thresholds);
-
     if (!script || typeof script !== "string" || script.trim() === "") {
       console.error("[ERROR] Missing or invalid 'script'");
       return new Response(
@@ -77,7 +68,6 @@ export async function POST(request: NextRequest) {
 
     try {
       const scriptPath = buildScriptPath(script);
-      console.log(`[INFO] Script path resolved to: ${scriptPath}`);
 
       await fs.access(scriptPath);
 
@@ -206,12 +196,9 @@ export async function POST(request: NextRequest) {
       // Script path
       k6Args.push(scriptPath);
 
-      console.log("[EXEC] Executing k6 with args:", k6Args.join(" "));
-
       const child = spawn("k6", k6Args, { shell: true });
 
       child.stdout.on("data", (chunk) => {
-        console.log(`[STDOUT] stdout: ${chunk}`);
         writer.write(encoder.encode(chunk));
       });
 
@@ -222,7 +209,6 @@ export async function POST(request: NextRequest) {
 
       child.on("close", (code) => {
         try {
-          console.log(`[DONE] Script finished with code ${code}`);
           writer.close();
         } catch (err) {
           console.error("[ERROR] Error closing writer:", err);

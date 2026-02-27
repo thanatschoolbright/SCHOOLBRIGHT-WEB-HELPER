@@ -1,5 +1,4 @@
 import { errorResponse, successResponse } from "@/helpers/api/response";
-import { logger } from "@/helpers/logger";
 import { HeartbeatResponse } from "@api/v1/health-check/server/heartbeats/route";
 import { API_URL } from "@services/api-url";
 import axios from "axios";

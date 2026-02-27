@@ -17,7 +17,6 @@ export const CallAPI = createAsyncThunk(
       backendUrl: "",
     };
     const response = await callBackendAPI(payload);
-    console.log("CallGetOnlineDevice response", response);
     return response;
   }
 );

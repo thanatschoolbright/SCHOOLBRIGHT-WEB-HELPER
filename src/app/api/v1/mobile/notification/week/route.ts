@@ -1,4 +1,3 @@
-import { logger } from "@/helpers/logger";
 import { sanitizeForwardHeaders } from "@/services/api-header";
 import { API_URL } from "@/services/api-url";
 import axios from "axios";
@@ -22,7 +21,6 @@ export async function GET(request: NextRequest) {
       headers,
       httpsAgent: agent,
     });
-    logger.info("[SUCCESS] Response Data: ", responseFromAPI.data);
 
     return NextResponse.json(
       { data: responseFromAPI.data, curl: curlCommand },

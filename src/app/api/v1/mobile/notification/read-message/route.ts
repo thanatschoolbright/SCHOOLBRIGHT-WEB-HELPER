@@ -34,8 +34,6 @@ export async function GET(incomingRequest: NextRequest) {
     // 4. สร้าง cURL Command สำหรับ Debugging (ตาม Code เดิม)
     const debugCurlCommand = `curl --location --header 'Content-Type: application/json' '${targetServiceUrl}'`;
 
-    console.log("URL:", targetServiceUrl);
-
     // 5. เรียก API ปลายทาง
     const apiResponse = await axios.get(targetServiceUrl, {
       headers: forwardedHeaders,

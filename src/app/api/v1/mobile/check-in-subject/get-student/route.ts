@@ -5,7 +5,6 @@ import { API_URL } from "@services/api-url";
 import z from "zod";
 import { validateRequest } from "@helpers/api/validate.request";
 
-import { logger } from "@helpers/logger";
 // Type Definition
 export type ResponseGetSubLevel = {
   id: number;
@@ -74,13 +73,10 @@ export async function POST(request: NextRequest) {
     const payload: RequestGetStudent = data;
     payload.teacher_id = "99999"; // MOCKUP DATA ยังไม่จำเป็นต้องใส่ค่าจริง
   const target = `${API_URL.PROD_SB_API_URL}/api/School/getstudent/${payload.school_id}/${payload.sub_level_id}/${payload.subject_id}/${payload.teacher_id}?date=${payload.date}`;
-  logger.debug("GET student target %s", target);
   const response = await apiClient.get(target);
 
   const rawData = extractData(response);
   const mappedData = rawData.map(mapToDto);
-
-  logger.info(`Fetched %d student records (mapped: %d) from SB API`, rawData.length, mappedData.length);
 
     return Response.json(
       successResponse({
@@ -89,7 +85,7 @@ export async function POST(request: NextRequest) {
       })
     );
   } catch (error: any) {
-    logger.error("Failed to fetch students from SB API: %o", {
+    console.error("Failed to fetch students from SB API:", {
       message: error?.message,
       status: error?.response?.status,
     });

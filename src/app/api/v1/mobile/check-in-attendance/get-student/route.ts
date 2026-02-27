@@ -6,7 +6,6 @@ import { API_URL } from "@services/api-url";
 import z from "zod";
 import { validateRequest } from "@helpers/api/validate.request";
 import { ATTENDANCE_STATUS } from "@constants/attendance-status";
-import { logger } from "@helpers/logger";
 
 // Type Definition
 export type ResponseGetStudent = {
@@ -96,7 +95,6 @@ export async function POST(request: NextRequest) {
     const urlSelection = payload.url_type;
     const apiUrl = urlSelection === "DEV" ? API_URL.DEV_SB_API_URL : API_URL.PROD_SB_API_URL;
     const target = `${apiUrl}/api/School/getstudent/${payload.school_id}/${payload.sub_level_id}`;
-      logger.info("GET student target %s", target);
     const response = await apiClient.get(target);
     
 

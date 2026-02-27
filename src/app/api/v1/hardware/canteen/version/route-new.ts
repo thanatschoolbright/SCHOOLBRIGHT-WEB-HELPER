@@ -112,26 +112,17 @@ function parseMultipart(buffer: ArrayBuffer, boundary: string) {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("=== API ROUTE DEBUG ===");
-    console.log("Content-Type:", request.headers.get("content-type"));
-    console.log("Request method:", request.method);
-    console.log("Content-Length:", request.headers.get("content-length"));
-
     const contentLength = parseInt(
       request.headers.get("content-length") || "0",
     );
-    console.log("Request content length:", contentLength);
 
     let formData: FormData;
 
     if (contentLength > 10 * 1024 * 1024) {
       // > 10MB
-      console.log("[WAIT] Large file detected, using manual multipart parsing");
-
       try {
         // Get the full ArrayBuffer (this should work even with large files)
         const arrayBuffer = await request.arrayBuffer();
-        console.log("ArrayBuffer size:", arrayBuffer.byteLength);
 
         // Extract boundary from content-type header
         const contentType = request.headers.get("content-type") || "";
@@ -142,13 +133,9 @@ export async function POST(request: NextRequest) {
         }
 
         const boundary = boundaryMatch[1].replace(/^-+/, "");
-        console.log("Boundary:", boundary);
 
         // Parse multipart data manually
         formData = parseMultipart(arrayBuffer, boundary);
-        console.log(
-          "[SUCCESS] Large FormData parsed successfully using manual parsing",
-        );
       } catch (parseError) {
         console.error("[ERROR] Manual parsing failed:", parseError);
 
@@ -169,9 +156,6 @@ export async function POST(request: NextRequest) {
       // For smaller files, use normal Next.js parsing
       try {
         formData = await request.formData();
-        console.log(
-          "[SUCCESS] FormData parsed successfully using Next.js built-in parser",
-        );
       } catch (parseError) {
         console.error("[ERROR] Next.js FormData parse error:", parseError);
         return NextResponse.json(
@@ -196,40 +180,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Log received data for debugging
-    console.log("=== API RECEIVED DATA ===");
-    console.log("app_id:", app_id);
-    console.log("version_name:", formData.get("version_name"));
-    console.log("env:", formData.get("env"));
-    console.log("note:", formData.get("note"));
-    console.log("is_lastest_version:", formData.get("is_lastest_version"));
-    console.log("force_update:", formData.get("force_update"));
-    console.log("school_id:", formData.get("school_id"));
-
     // Check if file exists
     const file = formData.get("file") as File | null;
-    console.log("file exists:", !!file);
-    console.log("file name:", file?.name);
-    console.log("file size:", file?.size);
-    console.log("file type:", file?.type);
-    console.log("========================");
 
     // Prepare FormData for backend API
     const backendFormData = new FormData();
 
     // Copy all fields to backend FormData
     for (const [key, value] of formData.entries()) {
-      console.log(
-        `Copying field: ${key} = ${value instanceof File ? `File(${value.name})` : value}`,
-      );
       backendFormData.append(key, value);
     }
 
     const apiUrl = API_URL.DEV_HARDWARE_API_URL;
     const endpoint = "/api/v2/applications/version";
     const fullURL = `${apiUrl}${endpoint}`;
-
-    console.log("Sending to backend:", fullURL);
 
     // Send to backend API with multipart/form-data
     const response = await axios.post(fullURL, backendFormData, {
@@ -240,8 +204,6 @@ export async function POST(request: NextRequest) {
       maxBodyLength: Infinity,
       timeout: 60000, // 60 seconds timeout for file uploads
     });
-
-    console.log("[SUCCESS] Backend response received");
 
     const curlCommand = convertToCurl(
       apiUrl,

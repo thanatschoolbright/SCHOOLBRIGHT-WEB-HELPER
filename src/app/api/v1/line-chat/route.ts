@@ -15,17 +15,7 @@ export async function POST(request: NextRequest) {
     // LOG ข้อมูลสำคัญทุก event
     if (json.events && Array.isArray(json.events)) {
         json.events.forEach((event: any, idx: number) => {
-            const userId = event?.source?.userId || "-";
-            const type = event?.type || "-";
-            const messageType = event?.message?.type || "-";
-            const messageText = event?.message?.text || "-";
-            const replyToken = event?.replyToken || "-";
-            console.log(
-                `[LINE EVENT #${idx + 1}] userId=${userId} type=${type} messageType=${messageType} text=${messageText} replyToken=${replyToken}`
-            );
         });
-    } else {
-        console.log("No events in webhook:", json);
     }
 
     // ตัวอย่าง: ตอบกลับ userId ถ้าพิมพ์ /luid
