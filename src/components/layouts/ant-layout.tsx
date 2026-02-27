@@ -129,8 +129,8 @@ const getModernTheme = (
       Card: {
         paddingLG: 24,
         colorBgContainer: isDark
-          ? "rgba(15, 23, 42, 0.85)"
-          : "rgba(255, 255, 255, 0.95)",
+          ? "rgba(15, 23, 42, 0.65)"
+          : "rgba(255, 255, 255, 0.75)",
         boxShadowTertiary: isDark
           ? "0 4px 24px -2px rgba(0, 0, 0, 0.4)"
           : "0 4px 24px -2px rgba(0, 0, 0, 0.04)",
@@ -223,10 +223,11 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
             }
 
             /* Modern Glassmorphism Utilities */
+            .ant-card,
             .glass-card {
               background: var(--card-glass-bg) !important;
-              backdrop-filter: blur(12px) saturate(180%);
-              -webkit-backdrop-filter: blur(12px) saturate(180%);
+              backdrop-filter: blur(16px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
               border: 1px solid var(--border) !important;
             }
 
