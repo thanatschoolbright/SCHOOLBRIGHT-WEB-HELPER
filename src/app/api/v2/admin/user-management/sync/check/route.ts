@@ -2,30 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { LegacyUserService } from "@services/backend/user-management/legacy-user.service";
 import { UserManagementService } from "../../service/user-management.service";
 import { successResponse, errorResponse } from "@/helpers/api/response";
-import { serverLogger as logger } from "@/helpers/logger.server";
 
 export async function GET(request: NextRequest) {
-  const syncLogger = logger.child({ context: "SyncCheck" });
-
   try {
-    syncLogger.info("Starting sync check process...");
-
     // 1. Fetch Local New Users
     const localUsers = await UserManagementService.findAll({
       page: 1,
       limit: 10000,
     }); // Large limit
-    syncLogger.info("Local users found: %d", localUsers.total);
 
     // 2. Fetch Legacy Old Users
     const legacyUsers = await LegacyUserService.fetchLegacyUsers();
-    syncLogger.info("Legacy users found: %d", legacyUsers.length);
-
-    if (legacyUsers.length === 0) {
-      syncLogger.warn(
-        "No legacy users found from legacy API. Sync might be broken or service unreachable.",
-      );
-    }
 
     // 3. Map for comparison
     const localAdminIdMap = new Map(
@@ -47,7 +34,6 @@ export async function GET(request: NextRequest) {
     for (const remote of legacyUsers) {
       const legacyId = Number(remote.id || remote.admin_id);
       if (isNaN(legacyId) || legacyId === 0) {
-        syncLogger.debug("Skipping invalid legacy ID: %j", remote);
         continue;
       }
 
@@ -79,13 +65,6 @@ export async function GET(request: NextRequest) {
         local =
           localUsernameMap.get(remoteData.username) ||
           localEmployeeCodeMap.get(remoteData.employee_code);
-
-        if (local) {
-          syncLogger.debug(
-            "Found local user by username/empCode instead of admin_id: %s",
-            remoteData.username,
-          );
-        }
       }
 
       if (!local) {
@@ -107,11 +86,6 @@ export async function GET(request: NextRequest) {
           (local.phone || "") !== (remoteData.tel || "");
 
         if (isDiff) {
-          syncLogger.debug(
-            "Mismatch found for user %s (legacyId: %d)",
-            remoteData.username,
-            legacyId,
-          );
           diffs.push({
             type: "MISMATCH",
             key: legacyId,
@@ -135,12 +109,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    syncLogger.info(
-      "Sync check finished: %d diffs, %d synced",
-      diffs.length,
-      synced.length,
-    );
-
     return NextResponse.json(
       successResponse({
         data: {
@@ -154,7 +122,7 @@ export async function GET(request: NextRequest) {
       }),
     );
   } catch (err: any) {
-    syncLogger.error("Sync process error: %s", err.stack);
+    console.error("Sync process error: %s", err.stack);
     return NextResponse.json(
       errorResponse({
         message_th: "เกิดข้อผิดพลาดในการตรวจสอบข้อมูล",

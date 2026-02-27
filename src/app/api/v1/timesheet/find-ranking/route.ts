@@ -23,11 +23,6 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    console.log("[API] find-ranking POST called", {
-      path: request.nextUrl?.pathname,
-      bodyPreview: JSON.stringify(validationData).slice(0, 200),
-    });
-
     const { user_id, month, year, scope } = validationData;
 
     // 1. ค้นหาข้อมูลผู้ใช้งานจากตาราง user ภายในเพื่อดึง admin_id (ใช้เป็นตัวเชื่อมต่อข้อมูล)

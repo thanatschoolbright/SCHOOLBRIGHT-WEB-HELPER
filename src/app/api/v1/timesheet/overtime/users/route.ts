@@ -1,6 +1,5 @@
 import { errorResponse, successResponse } from "@/helpers/api/response";
 import { handleError } from "@/helpers/controller/handle-error.params";
-import { logger } from "@/helpers/logger.server";
 import { NextRequest, NextResponse } from "next/server";
 import { usersService } from "./service/users.service";
 import {
@@ -24,13 +23,6 @@ export async function GET(request: NextRequest) {
     /* Call Service Layer เพื่อดึงข้อมูล */
     const users = await usersService.findAllUsers(validatedParams.search);
 
-    /* Log successful request */
-    logger.info("[GET /api/v1/timesheet/overtime/users] Success", {
-      search: validatedParams.search,
-      resultCount: users.length,
-      endpoint: "/api/v1/timesheet/overtime/users",
-    });
-
     return NextResponse.json(
       successResponse({
         data: users,
@@ -45,7 +37,7 @@ export async function GET(request: NextRequest) {
     const errorMessage = err instanceof Error ? err.message : "Unknown error";
     const errorStack = err instanceof Error ? err.stack : "";
 
-    logger.error("[GET /api/v1/timesheet/overtime/users] Error occurred", {
+    console.error("[GET /api/v1/timesheet/overtime/users] Error occurred", {
       endpoint: "/api/v1/timesheet/overtime/users",
       method: "GET",
       error: errorMessage,
@@ -78,16 +70,6 @@ export async function POST(request: NextRequest) {
       validatedParams.page,
     );
 
-    /* Log successful request */
-    logger.info("[POST /api/v1/timesheet/overtime/users] Success", {
-      search: validatedParams.search,
-      page: validatedParams.page,
-      limit: validatedParams.limit,
-      resultCount: users.length,
-      totalRecords: total,
-      endpoint: "/api/v1/timesheet/overtime/users",
-    });
-
     return NextResponse.json(
       successResponse({
         data: users,
@@ -108,13 +90,12 @@ export async function POST(request: NextRequest) {
     const errorMessage = err instanceof Error ? err.message : "Unknown error";
     const errorStack = err instanceof Error ? err.stack : "";
 
-    logger.error("[POST /api/v1/timesheet/overtime/users] Error occurred", {
+    console.error("[POST /api/v1/timesheet/overtime/users] Error occurred", {
       endpoint: "/api/v1/timesheet/overtime/users",
       method: "POST",
       error: errorMessage,
       stack: errorStack,
       status_code: errorData.status || 500,
-      request_body: "Request body logged separately for security",
       timestamp: new Date().toISOString(),
     });
 

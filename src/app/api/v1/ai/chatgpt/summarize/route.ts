@@ -1,6 +1,5 @@
 import { QA_TASK_SUMMARY_TASK_PROMPT } from "@/constants/prompts";
 import { errorResponse, successResponse } from "@/helpers/api/response";
-import { logger } from "@/helpers/logger";
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -38,12 +37,6 @@ export async function POST(request: NextRequest) {
   const { summary, description, details, issueKey } = result.data;
 
   try {
-    logger.info(
-      `[${requestId}] Attempting ChatGPT Summarization for ${
-        issueKey || "Unknown Issue"
-      }`,
-    );
-
     // Extract valid metadata from details if available
     const assigneeName = details?.assignee?.name || "Unassigned";
     const priorityName = details?.priority?.name || "-";
@@ -140,7 +133,6 @@ ${JSON.stringify(details || {}, null, 2)}
 
       const taggedSummary = reformatAndTagSummary(summary);
 
-      logger.info(`[${requestId}] Success with ChatGPT`);
       return NextResponse.json(
         successResponse({
           data: {
@@ -155,7 +147,7 @@ ${JSON.stringify(details || {}, null, 2)}
       throw new Error("No content returned from OpenAI");
     }
   } catch (error: any) {
-    logger.error(`[${requestId}] ChatGPT API Error: ${error.message}`);
+    console.error(`[${requestId}] ChatGPT API Error: ${error.message}`);
     const statusCode = error.response?.status || 500;
     const errorMessage = error.response?.data?.error?.message || error.message;
 

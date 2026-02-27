@@ -193,7 +193,7 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
 
 async function sendDiscordNotification(results: HealthCheckResult[]) {
   if (!DISCORD_CONFIG.WEBHOOK_URL) {
-    logger.error("Discord Webhook URL is missing");
+    console.error("Discord Webhook URL is missing");
     return;
   }
 
@@ -205,7 +205,7 @@ async function sendDiscordNotification(results: HealthCheckResult[]) {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error: any) {
-    logger.error("Failed to send Discord webhook", error?.message ?? error);
+    console.error("Failed to send Discord webhook", error?.message ?? error);
   }
 }
 
@@ -216,9 +216,7 @@ async function executeHealthChecks(): Promise<HealthCheckResult[]> {
   if (loginResult.status === "200" && loginResult.response?.token) {
     freshToken = loginResult.response.token;
   } else {
-    console.warn(
-      "[WARN] Login Service Failed or Token missing. Using fallback/env token if available.",
-    );
+    // Login Service Failed or Token missing. Using fallback/env token if available.
   }
 
   const otherServicesResults = await Promise.all([

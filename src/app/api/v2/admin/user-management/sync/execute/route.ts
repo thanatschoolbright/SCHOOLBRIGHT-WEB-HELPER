@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { UserManagementService } from "../../service/user-management.service";
 import { successResponse, errorResponse } from "@/helpers/api/response";
-import { serverLogger as logger } from "@/helpers/logger.server";
 
 export async function POST(request: NextRequest) {
-  const syncLogger = logger.child({ context: "SyncExecute" });
   try {
     const body = await request.json();
     const { items } = body; // Array of { type, remote, local? }
@@ -13,30 +11,15 @@ export async function POST(request: NextRequest) {
     const results = [];
 
     for (const item of items) {
-      syncLogger.info(
-        "Sync executing item: %s (Type: %s)",
-        item.remote?.username,
-        item.type,
-      );
-      syncLogger.debug("Full sync item data: %j", item);
-
       const adminId = Number(item.remote?.admin_id);
       const username = item.remote?.username;
       const employeeCode = item.remote?.employee_code;
 
       if (!adminId) {
-        syncLogger.warn("Missing admin_id for item: %j", item);
         continue;
       }
 
       if (item.type === "MISSING_IN_LOCAL") {
-        syncLogger.debug(
-          "Attempting to find existing user for adminId: %d, username: %s, empCode: %s",
-          adminId,
-          username,
-          employeeCode,
-        );
-
         // 1. Double check by admin_id (including deleted)
         let existing = await UserManagementService.findByAdminId(adminId);
 
@@ -46,22 +29,9 @@ export async function POST(request: NextRequest) {
             username: username || undefined,
             employee_code: employeeCode || undefined,
           });
-
-          if (existing) {
-            syncLogger.info(
-              "Detected duplicate unique field (ID: %d, current admin_id: %d) matching requested info. Overriding existing user to avoid P2002.",
-              existing.id,
-              existing.admin_id,
-            );
-          }
         }
 
         if (existing) {
-          syncLogger.info(
-            "User exists (Local ID: %d). Performing Update/Restore.",
-            existing.id,
-          );
-
           const updatePayload = {
             admin_id: adminId,
             username: username || existing.username,
@@ -74,12 +44,6 @@ export async function POST(request: NextRequest) {
             is_deleted: false,
             updated_by: requestUserId,
           };
-
-          syncLogger.debug(
-            "Update payload for ID %d: %j",
-            existing.id,
-            updatePayload,
-          );
 
           await UserManagementService.update(existing.id, updatePayload);
 
@@ -103,10 +67,6 @@ export async function POST(request: NextRequest) {
           ) {
             finalEmployeeCode =
               await UserManagementService.getNextUnknownCode();
-            syncLogger.info(
-              "Generated substitute employee code: %s",
-              finalEmployeeCode,
-            );
           }
 
           const createPayload = {
@@ -123,9 +83,6 @@ export async function POST(request: NextRequest) {
             created_by: requestUserId,
           };
 
-          syncLogger.info("Creating new local user for adminId: %d", adminId);
-          syncLogger.debug("Create payload: %j", createPayload);
-
           const newUser = await UserManagementService.create(createPayload);
           results.push({
             status: "created",
@@ -133,23 +90,16 @@ export async function POST(request: NextRequest) {
             admin_id: adminId,
           });
         } catch (createError: any) {
-          syncLogger.error(
+          console.error(
             "Failed to create user (adminId: %d): %s",
             adminId,
             createError.message,
           );
-          syncLogger.debug("Prisma Error Details: %j", createError);
           throw createError;
         }
       } else if (item.type === "MISMATCH") {
         const localId = item.local?.id;
         if (localId) {
-          syncLogger.info(
-            "Updating mismatched user (Local ID: %d, Admin ID: %d)",
-            localId,
-            adminId,
-          );
-
           await UserManagementService.update(localId, {
             admin_id: adminId,
             username: username,
@@ -167,11 +117,6 @@ export async function POST(request: NextRequest) {
             id: localId,
             admin_id: adminId,
           });
-        } else {
-          syncLogger.warn(
-            "Received MISMATCH type but no local ID provided: %j",
-            item,
-          );
         }
       }
     }
@@ -180,7 +125,7 @@ export async function POST(request: NextRequest) {
       successResponse(results, "Sync completed successfully"),
     );
   } catch (error: any) {
-    syncLogger.error("Sync execution failed: %j", error);
+    console.error("Sync execution failed: %j", error);
 
     // Construct a detailed error object for debugging
     const errorDetail = {

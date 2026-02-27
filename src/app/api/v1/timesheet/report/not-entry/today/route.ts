@@ -1,5 +1,4 @@
 import { errorResponse, successResponse } from "@/helpers/api/response";
-import { logger } from "@/helpers/logger";
 import { Service } from "@/services/backend/timesheet/report/not-entry/today.service";
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
@@ -83,8 +82,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const mode = body.mode || "report"; // Default to 'report' if missing
 
-    logger.info(`[Timesheet Report] Processing request with mode: ${mode}`);
-
     // ------------------------------------------------------------------
     // 1. Fetch Timesheet Data (Parallel)
     // ------------------------------------------------------------------
@@ -144,11 +141,6 @@ export async function POST(request: NextRequest) {
     // 5. Send Discord Notification (ONLY IF MODE IS 'discord')
     // ------------------------------------------------------------------
     if (mode === "discord" && resultList.length > 0 && WEBHOOK_URL) {
-      logger.info(
-        `[Discord] Mode is 'discord'. Preparing to send ${resultList.length} notifications...`,
-        { count: resultList.length },
-      );
-
       // 5.1 Build Embed Objects (Modern Style)
       const embeds = resultList.map((user) => {
         const roleMention =
@@ -212,22 +204,14 @@ export async function POST(request: NextRequest) {
             content: index === 0 ? headerContent : undefined,
             embeds: batch,
           });
-
-          logger.info(
-            `[Discord] Batch ${index + 1}/${batches.length} sent successfully.`,
-          );
         } catch (err: any) {
-          logger.error(`[Discord] Failed to send batch ${index + 1}`, {
+          console.error(`[Discord] Failed to send batch ${index + 1}`, {
             error: err.message,
             stack: err.stack,
             response: err.response?.data,
           });
         }
       }
-    } else {
-      logger.info(
-        `[Timesheet Report] Skipping Discord notification. Mode: ${mode}, Result Count: ${resultList.length}`,
-      );
     }
 
     // ------------------------------------------------------------------
@@ -241,7 +225,7 @@ export async function POST(request: NextRequest) {
       }),
     );
   } catch (error: any) {
-    logger.error("Not Entry Report Error", {
+    console.error("Not Entry Report Error", {
       error: error.message,
       stack: error.stack,
     });

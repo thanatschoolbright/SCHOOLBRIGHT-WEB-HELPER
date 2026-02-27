@@ -322,7 +322,6 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { type } = body;
-    console.log("POST body:", body);
 
     if (type === "project") {
       const { data, error } = await validateRequest(req, CreateProjectSchema);

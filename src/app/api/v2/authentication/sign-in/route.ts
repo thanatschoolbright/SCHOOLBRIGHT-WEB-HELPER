@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
 import { API_URL } from "@/services/api-url";
 import axios, { AxiosError } from "axios";
 import FormData from "form-data";
+import { NextRequest, NextResponse } from "next/server";
 
 /**
  * ฟังก์ชัน POST สำหรับจัดการการเข้าสู่ระบบ
  */
 export async function POST(
-  incomingRequest: NextRequest
+  incomingRequest: NextRequest,
 ): Promise<NextResponse> {
   const executionStartTime = performance.now();
 
@@ -24,7 +24,7 @@ export async function POST(
           success: false,
           message: "Username และ Password ต้องไม่เป็นค่าว่าง",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -43,13 +43,13 @@ export async function POST(
       {
         headers: authenticationPayload.getHeaders(),
         timeout: 10000, // 10 วินาที
-      }
+      },
     );
 
     // 5. คำนวณเวลาการทำงาน (Execution Time Calculation)
     const executionEndTime = performance.now();
     const executionDurationInMilliseconds = Number(
-      (executionEndTime - executionStartTime).toFixed(2)
+      (executionEndTime - executionStartTime).toFixed(2),
     );
 
     // 6. ส่งผลลัพธ์กลับไปยัง Client
@@ -62,7 +62,7 @@ export async function POST(
   } catch (error: unknown) {
     const executionEndTime = performance.now();
     const executionDurationInMilliseconds = Number(
-      (executionEndTime - executionStartTime).toFixed(2)
+      (executionEndTime - executionStartTime).toFixed(2),
     );
 
     // กรณีเกิดข้อผิดพลาดจาก Axios (API ภายนอก)
@@ -86,7 +86,7 @@ export async function POST(
           status: statusCode,
           response_time: executionDurationInMilliseconds,
         },
-        { status: statusCode }
+        { status: statusCode },
       );
     }
 
@@ -105,7 +105,7 @@ export async function POST(
         status: 500,
         response_time: executionDurationInMilliseconds,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
