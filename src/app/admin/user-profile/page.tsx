@@ -15,6 +15,7 @@ import {
   ExclamationCircleOutlined,
   EyeOutlined,
   FileExcelOutlined,
+  FilterOutlined,
   FlagOutlined,
   IdcardOutlined,
   InfoCircleOutlined,
@@ -31,6 +32,7 @@ import {
   SolutionOutlined,
   TeamOutlined,
   UnlockOutlined,
+  UnorderedListOutlined,
   UserOutlined,
   WarningOutlined,
 } from "@ant-design/icons";
@@ -68,6 +70,7 @@ import { toast } from "sonner";
 
 import SummaryCard from "@/components/card/summary-card";
 import PermissionLayout from "@/components/layouts/permission-layout";
+import { StatusModalComponent } from "@/components/modal/status-modal-component";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
@@ -362,6 +365,18 @@ export default function UserManagementPage() {
   const [roleDrawerOpen, setRoleDrawerOpen] = useState(false); // For Role Management
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
+  // Status Modal State
+  const [statusModal, setStatusModal] = useState<{
+    open: boolean;
+    type: "success" | "error" | "confirm" | "delete";
+    title?: string;
+    message?: string;
+    onConfirm?: () => void;
+  }>({
+    open: false,
+    type: "success",
+  });
+
   // Tracking Modal State
   const [trackingModalOpen, setTrackingModalOpen] = useState(false);
   const [usersToReset, setUsersToReset] = useState<UserProfile[] | null>(null);
@@ -382,14 +397,12 @@ export default function UserManagementPage() {
 
   // --- Logic: Reset Password ---
   const requestResetPassword = async (user: UserProfile) => {
-    modal.confirm({
+    setStatusModal({
+      open: true,
+      type: "confirm",
       title: "ยืนยันการรีเซ็ตรหัสผ่าน",
-      icon: <WarningOutlined style={{ color: token.colorWarning }} />,
-      content: `คุณแน่ใจหรือไม่ที่จะรีเซ็ตรหัสผ่านสำหรับ ${user.firstname_th} ${user.lastname_th}? รหัสผ่านใหม่จะถูกสุ่มและส่งไปที่อีเมล ${user.email}`,
-      okText: "ยืนยันรีเซ็ต",
-      cancelText: "ยกเลิก",
-      okButtonProps: { danger: true },
-      onOk: async () => {
+      message: `คุณแน่ใจหรือไม่ที่จะรีเซ็ตรหัสผ่านสำหรับ ${user.firstname_th} ${user.lastname_th}? รหัสผ่านใหม่จะถูกสุ่มและส่งไปที่อีเมล ${user.email}`,
+      onConfirm: async () => {
         try {
           const res = await axios.post(
             "/api/v2/admin/user-management/reset-password",
@@ -404,25 +417,25 @@ export default function UserManagementPage() {
               res.data.message_th || "เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน",
             );
           }
+          setStatusModal((prev) => ({ ...prev, open: false }));
         } catch (error: any) {
           toast.error(
             error.response?.data?.message ||
               "เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน",
           );
+          setStatusModal((prev) => ({ ...prev, open: false }));
         }
       },
     });
   };
 
   const requestBulkResetPassword = async () => {
-    modal.confirm({
+    setStatusModal({
+      open: true,
+      type: "confirm",
       title: "ยืนยันการรีเซ็ตรหัสผ่านแบบกลุ่ม",
-      icon: <WarningOutlined style={{ color: token.colorWarning }} />,
-      content: `คุณแน่ใจหรือไม่ที่จะรีเซ็ตรหัสผ่านสำหรับพนักงานที่เลือกจำนวน ${selectedRowKeys.length} ท่าน? รหัสผ่านใหม่จะถูกสุ่มและส่งไปที่เมลของแต่ละท่านทันที`,
-      okText: "ยืนยันรีเซ็ตตามที่เลือก",
-      cancelText: "ยกเลิก",
-      okButtonProps: { danger: true },
-      onOk: async () => {
+      message: `คุณแน่ใจหรือไม่ที่จะรีเซ็ตรหัสผ่านสำหรับพนักงานที่เลือกจำนวน ${selectedRowKeys.length} ท่าน? รหัสผ่านใหม่จะถูกสุ่มและส่งไปที่เมลของแต่ละท่านทันที`,
+      onConfirm: async () => {
         try {
           const res = await axios.post(
             "/api/v2/admin/user-management/reset-password",
@@ -441,11 +454,13 @@ export default function UserManagementPage() {
                 "เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่านรายกลุ่ม",
             );
           }
+          setStatusModal((prev) => ({ ...prev, open: false }));
         } catch (error: any) {
           toast.error(
             error.response?.data?.message ||
               "เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่านรายกลุ่ม",
           );
+          setStatusModal((prev) => ({ ...prev, open: false }));
         }
       },
     });
@@ -591,19 +606,20 @@ export default function UserManagementPage() {
    * ปลดล็อกบัญชีผู้ใช้งานผ่านเมนูจัดการ
    */
   const requestUnlockAccount = async (targetUser: UserProfile) => {
-    Modal.confirm({
+    setStatusModal({
+      open: true,
+      type: "confirm",
       title: "ยืนยันการปลดล็อกบัญชี?",
-      icon: <UnlockOutlined style={{ color: token.colorSuccess }} />,
-      content: `ต้องการล้างจำนวนครั้งที่ระบุรหัสผิดของ ${targetUser.firstname_th} และปลดล็อกการระงับใช้งานใช่หรือไม่?`,
-      okText: "ปลดล็อกทันที",
-      cancelText: "ยกเลิก",
-      onOk: async () => {
+      message: `ต้องการล้างจำนวนครั้งที่ระบุรหัสผิดของ ${targetUser.firstname_th} และปลดล็อกการระงับใช้งานใช่หรือไม่?`,
+      onConfirm: async () => {
         try {
           await requestUserProfileService.requestUnlockUserByID(targetUser.id);
           toast.success("ปลดล็อกบัญชีเรียบร้อยแล้ว");
           requestFetchInitialData();
+          setStatusModal((prev) => ({ ...prev, open: false }));
         } catch (error) {
           toast.error("เกิดข้อผิดพลาดในการปลดล็อก");
+          setStatusModal((prev) => ({ ...prev, open: false }));
         }
       },
     });
@@ -1205,13 +1221,13 @@ export default function UserManagementPage() {
         />
 
         {/* ส่วนที่ 2: การ์ดสรุปข้อมูลภาพรวม (Summary Cards) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <Row gutter={[24, 24]} className="mb-8">
           {summaryMetrics.map((metrics, index) => (
-            <div key={index} className="h-full">
+            <Col key={index} xs={24} md={12} lg={6}>
               <SummaryCard {...metrics} isLoading={loading} />
-            </div>
+            </Col>
           ))}
-        </div>
+        </Row>
 
         {/* ส่วนที่ 3: ส่วนการกรองข้อมูล (Filters) */}
         <Card
@@ -1222,18 +1238,23 @@ export default function UserManagementPage() {
             marginBottom: 24,
           }}
         >
-          <Flex align="center" gap={8} className="mb-6">
-            <ControlOutlined
-              style={{ color: token.colorPrimary, fontSize: 18 }}
+          <Flex align="center" gap={12} style={{ marginBottom: 16 }}>
+            <FilterOutlined
+              style={{ color: token.colorPrimary, fontSize: "1rem" }}
             />
-            <Text style={{ fontSize: 16, fontWeight: 600 }}>ตัวกรอง</Text>
+            <Title
+              level={4}
+              style={{ margin: 0, fontWeight: 600, fontSize: "1rem" }}
+            >
+              ตัวกรอง
+            </Title>
           </Flex>
 
-          <Row gutter={[24, 24]}>
+          <Row gutter={[24, 16]}>
             <Col xs={24} md={12}>
               <Text
-                style={{ fontWeight: 600, color: token.colorTextSecondary }}
-                className="text-xs mb-2 block"
+                strong
+                style={{ fontSize: 13, display: "block", marginBottom: 8 }}
               >
                 ค้นหาคำสำคัญ (ชื่อ, นามสกุล, รหัสพนักงาน)
               </Text>
@@ -1256,8 +1277,8 @@ export default function UserManagementPage() {
 
             <Col xs={24} md={12}>
               <Text
-                style={{ fontWeight: 600, color: token.colorTextSecondary }}
-                className="text-xs mb-2 block"
+                strong
+                style={{ fontSize: 13, display: "block", marginBottom: 8 }}
               >
                 ตำแหน่งงาน
               </Text>
@@ -1282,8 +1303,8 @@ export default function UserManagementPage() {
 
             <Col xs={24} md={12}>
               <Text
-                style={{ fontWeight: 600, color: token.colorTextSecondary }}
-                className="text-xs mb-2 block"
+                strong
+                style={{ fontSize: 13, display: "block", marginBottom: 8 }}
               >
                 แผนก / ฝ่าย
               </Text>
@@ -1308,8 +1329,8 @@ export default function UserManagementPage() {
 
             <Col xs={24} md={12}>
               <Text
-                style={{ fontWeight: 600, color: token.colorTextSecondary }}
-                className="text-xs mb-2 block"
+                strong
+                style={{ fontSize: 13, display: "block", marginBottom: 8 }}
               >
                 สถานะบัญชีรายชื่อ
               </Text>
@@ -1374,11 +1395,17 @@ export default function UserManagementPage() {
           {/* Table Header Action */}
           <div className="flex justify-between items-center mb-6">
             <Flex align="center" gap={12}>
-              <Title level={4} style={{ margin: 0, fontWeight: 600 }}>
+              <UnorderedListOutlined
+                style={{ color: token.colorPrimary, fontSize: "1rem" }}
+              />
+              <Title
+                level={4}
+                style={{ margin: 0, fontWeight: 600, fontSize: "1rem" }}
+              >
                 รายชื่อพนักงานทั้งหมด
                 <Text
                   type="secondary"
-                  style={{ fontSize: 14, fontWeight: 400, marginLeft: 8 }}
+                  style={{ fontSize: 13, fontWeight: 400, marginLeft: 8 }}
                 >
                   ({filteredUsers.length} รายการ)
                 </Text>
@@ -1798,6 +1825,16 @@ export default function UserManagementPage() {
             />
           </div>
         </Modal>
+
+        {/* ✅ Dynamic Status Modal Component */}
+        <StatusModalComponent
+          open={statusModal.open}
+          type={statusModal.type}
+          title={statusModal.title}
+          message={statusModal.message}
+          onClose={() => setStatusModal((prev) => ({ ...prev, open: false }))}
+          onConfirm={statusModal.onConfirm}
+        />
       </DashboardLayout>
     </PermissionLayout>
   );
