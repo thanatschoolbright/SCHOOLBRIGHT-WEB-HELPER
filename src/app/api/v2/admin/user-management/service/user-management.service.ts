@@ -810,7 +810,11 @@ export const UserManagementService = {
 
     ["B1", "B2", "B3"].forEach((ref) => {
       const cell = worksheet.getCell(ref);
-      cell.font = { name: "Google Sans", size: 14, color: { argb: "FF434343" } };
+      cell.font = {
+        name: "Google Sans",
+        size: 14,
+        color: { argb: "FF434343" },
+      };
     });
     worksheet.getCell("B1").font = {
       bold: true,
