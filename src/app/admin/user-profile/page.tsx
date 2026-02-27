@@ -1174,7 +1174,7 @@ export default function UserManagementPage() {
         {/* ส่วนที่ 1: แถบหัวข้อหน้าจอ (Header Bar) */}
         <HeaderBar
           icon={<TeamOutlined />}
-          title="จัดการผู้ใช้งาน (User Management)"
+          title="จัดการผู้ใช้งาน"
           subTitle="ระบบจัดการพนักงานและสิทธิ์การเข้าใช้งาน"
           extra={
             <Space>
