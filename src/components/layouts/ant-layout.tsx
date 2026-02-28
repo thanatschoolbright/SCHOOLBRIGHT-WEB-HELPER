@@ -205,11 +205,11 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 ? "rgba(15, 23, 42, 0.7)"
                 : "rgba(255, 255, 255, 0.7)",
               "--card-glass-bg": isDark
-                ? "rgba(15, 23, 42, 0.85)"
-                : "rgba(255, 255, 255, 0.95)",
+                ? "rgba(15, 23, 42, 0.65)"
+                : "rgba(255, 255, 255, 0.65)",
               "--modal-mask-bg": isDark
-                ? "rgba(0, 0, 0, 0.4)"
-                : "rgba(255, 255, 255, 0.2)",
+                ? "rgba(0, 0, 0, 0.6)"
+                : "rgba(0, 0, 0, 0.45)",
               "--scroll-thumb": isDark ? "#1E293B" : "#CBD5E1",
               "--scroll-thumb-hover": isDark ? "#334155" : "#94A3B8",
             } as React.CSSProperties
@@ -234,15 +234,15 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
             .ant-card,
             .glass-card {
               background: var(--card-glass-bg) !important;
-              backdrop-filter: blur(16px) saturate(180%) !important;
-              -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+              backdrop-filter: blur(1rem) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(1rem) saturate(180%) !important;
               border: 1px solid var(--border) !important;
             }
 
             .glass-header {
               background: var(--glass-bg) !important;
-              backdrop-filter: blur(16px) saturate(180%);
-              -webkit-backdrop-filter: blur(16px) saturate(180%);
+              backdrop-filter: blur(1rem) saturate(180%);
+              -webkit-backdrop-filter: blur(1rem) saturate(180%);
               border-bottom: 1px solid var(--border);
             }
 
@@ -291,18 +291,25 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
 
             /* Premium Modal Glassmorphism & Perfect Centering */
             .ant-modal-mask {
-              backdrop-filter: blur(8px) !important;
+              backdrop-filter: blur(1rem) !important;
               background: var(--modal-mask-bg) !important;
             }
             .ant-modal-content {
               background: var(--card-glass-bg) !important;
-              backdrop-filter: blur(24px) saturate(180%) !important;
-              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              backdrop-filter: blur(2rem) saturate(120%) !important;
+              -webkit-backdrop-filter: blur(2rem) saturate(120%) !important;
               border: 1px solid var(--border) !important;
               box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.2) !important;
             }
             .dark .ant-modal-content {
-              box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6) !important;
+              box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.95) !important;
+            }
+
+            /* Fix Body Scroll Lock for Modal and Drawer */
+            body.ant-scrolling-effect {
+              overflow: hidden !important;
+              touch-action: none;
+              -ms-touch-action: none;
             }
 
             /* Apple Store Connect Style Drawer */
