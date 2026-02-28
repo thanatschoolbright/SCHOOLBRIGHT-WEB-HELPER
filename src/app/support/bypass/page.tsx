@@ -338,9 +338,9 @@ export default function BypassPage(): JSX.Element {
           <Button
             type="primary"
             icon={<LoginOutlined />}
-            onClick={() =>
-              setBypassSelectionModalState({ open: true, school: record })
-            }
+            onClick={() => {
+              setBypassSelectionModalState({ open: true, school: record });
+            }}
             style={{ borderRadius: 8, fontWeight: 600 }}
           >
             {translate("bypass_page.btn_login")}
@@ -422,12 +422,12 @@ export default function BypassPage(): JSX.Element {
                       placeholder={translate("bypass_page.placeholder_search")}
                       prefix={<SearchOutlined style={{ opacity: 0.5 }} />}
                       value={bypassState.filters.search}
-                      onChange={(event) =>
+                      onChange={(event) => {
                         bypassHandlers.handleFilterChange(
                           "search",
                           event.target.value,
-                        )
-                      }
+                        );
+                      }}
                     />
                   </Flex>
                   <Flex vertical gap={8}>
@@ -440,12 +440,12 @@ export default function BypassPage(): JSX.Element {
                       placeholder={translate("bypass_page.placeholder_group")}
                       options={bypassState.filterOptions.schoolGroups}
                       value={bypassState.filters.schoolGroup}
-                      onChange={(selectedValue) =>
+                      onChange={(selectedValue) => {
                         bypassHandlers.handleFilterChange(
                           "schoolGroup",
                           selectedValue,
-                        )
-                      }
+                        );
+                      }}
                       allowClear
                     />
                   </Flex>
@@ -469,12 +469,12 @@ export default function BypassPage(): JSX.Element {
                           showSearch
                           options={bypassState.filterOptions.provinces}
                           value={bypassState.filters.province}
-                          onChange={(selectedValue) =>
+                          onChange={(selectedValue) => {
                             bypassHandlers.handleFilterChange(
                               "province",
                               selectedValue,
-                            )
-                          }
+                            );
+                          }}
                           allowClear
                         />
                       </Flex>
@@ -492,12 +492,12 @@ export default function BypassPage(): JSX.Element {
                           )}
                           options={bypassState.filterOptions.grades}
                           value={bypassState.filters.grade}
-                          onChange={(selectedValue) =>
+                          onChange={(selectedValue) => {
                             bypassHandlers.handleFilterChange(
                               "grade",
                               selectedValue,
-                            )
-                          }
+                            );
+                          }}
                           allowClear
                         />
                       </Flex>
@@ -512,12 +512,12 @@ export default function BypassPage(): JSX.Element {
                       size="large"
                       placeholder={translate("bypass_page.placeholder_status")}
                       value={bypassState.filters.status}
-                      onChange={(selectedValue) =>
+                      onChange={(selectedValue) => {
                         bypassHandlers.handleFilterChange(
                           "status",
                           selectedValue,
-                        )
-                      }
+                        );
+                      }}
                       allowClear
                       options={[
                         {
@@ -581,7 +581,9 @@ export default function BypassPage(): JSX.Element {
 
               <Flex gap={8}>
                 <Button
-                  onClick={() => setShowProvinceRanking(true)}
+                  onClick={() => {
+                    setShowProvinceRanking(true);
+                  }}
                   icon={<TrophyOutlined />}
                   type="text"
                   style={{ color: "#8b5cf6", fontWeight: 600 }}
@@ -589,7 +591,9 @@ export default function BypassPage(): JSX.Element {
                   {translate("bypass_page.btn_province_ranking")}
                 </Button>
                 <Button
-                  onClick={() => setShowSaleRanking(true)}
+                  onClick={() => {
+                    setShowSaleRanking(true);
+                  }}
                   icon={<TeamOutlined />}
                   type="text"
                   style={{ color: "#f59e0b", fontWeight: 600 }}
@@ -620,21 +624,25 @@ export default function BypassPage(): JSX.Element {
 
         <ProvinceRankingModal
           open={showProvinceRanking}
-          onClose={() => setShowProvinceRanking(false)}
+          onClose={() => {
+            setShowProvinceRanking(false);
+          }}
           data={provinceRankingStatistics}
         />
         <SaleRankingModal
           open={showSaleRanking}
-          onClose={() => setShowSaleRanking(false)}
+          onClose={() => {
+            setShowSaleRanking(false);
+          }}
           data={saleTeamStatistics}
         />
 
         <BypassSelectionModal
           open={bypassSelectionModalState.open}
           school={bypassSelectionModalState.school}
-          onClose={() =>
-            setBypassSelectionModalState({ open: false, school: null })
-          }
+          onClose={() => {
+            setBypassSelectionModalState({ open: false, school: null });
+          }}
           onSelect={(targetKey, environmentKey) => {
             if (bypassSelectionModalState.school) {
               void bypassHandlers.handleBypassClick(

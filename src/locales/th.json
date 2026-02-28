@@ -6,6 +6,7 @@
     "backend_system": "ระบบจัดการหลังบ้าน"
   },
   "user_dropdown": {
+    "settings": "ตั้งค่าเพิ่มเติม",
     "personal_info": "ข้อมูลส่วนตัว",
     "change_password": "เปลี่ยนรหัสผ่าน",
     "logout": "ออกจากระบบ",

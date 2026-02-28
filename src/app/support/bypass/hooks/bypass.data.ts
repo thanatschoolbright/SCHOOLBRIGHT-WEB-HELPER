@@ -58,7 +58,7 @@ export const useBypassPageData = () => {
     status: "active",
     schoolGroup: undefined,
   });
-  const [pageSize, setPageSize] = useState<number>(50);
+  const [pageSize, setPageSize] = useState<number>(5);
   const [openDropdownFor, setOpenDropdownFor] = useState<string | null>(null);
 
   const schoolDetails = useMemo<SchoolDetail[]>(() => {

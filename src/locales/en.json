@@ -6,6 +6,7 @@
     "backend_system": "Internal Management"
   },
   "user_dropdown": {
+    "settings": "Settings",
     "personal_info": "Personal Information",
     "change_password": "Change Password",
     "logout": "Logout",

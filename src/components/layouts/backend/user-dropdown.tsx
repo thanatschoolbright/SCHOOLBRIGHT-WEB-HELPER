@@ -21,8 +21,8 @@ import {
   Button,
   Card,
   Divider,
+  Drawer,
   Flex,
-  Popover,
   Segmented,
   Space,
   theme,
@@ -48,8 +48,17 @@ const { Text, Title } = Typography;
 // การตั้งค่า Rank และธีม
 // ==========================================
 
+interface RankConfig {
+  color: string;
+  accent: string;
+  labelKey: string;
+  icon: React.ReactNode;
+  bg: string;
+  darkBg: string;
+}
+
 // Config สีและ Effect ของแต่ละ Rank
-const RANK_THEME_CONFIG: Record<string, any> = {
+const RANK_THEME_CONFIG: Record<string, RankConfig> = {
   S: {
     color: "#F59E0B",
     accent: "#FBBF24",
@@ -92,9 +101,20 @@ const RANK_THEME_CONFIG: Record<string, any> = {
   },
 };
 
-const generateAvatarUrl = (userProfile: any) => {
+interface UserProfile {
+  profile_image_path?: string;
+  image?: string;
+  firstname?: string;
+  lastname?: string;
+  firstname_en?: string;
+  lastname_en?: string;
+  admin_id?: number | string;
+  position_name?: string;
+}
+
+const generateAvatarUrl = (userProfile: UserProfile) => {
   // 1. ตรวจสอบว่ามีรูปภาพในฐานข้อมูลหรือไม่ (Real Image)
-  const realImage = userProfile?.profile_image_path || userProfile?.image;
+  const realImage = userProfile.profile_image_path ?? userProfile.image;
 
   if (realImage && realImage !== "null") {
     // * ตรวจสอบว่าเป็น Path ของ Huawei OBS (ที่อาจไม่มี Domain ติดมา)
@@ -113,9 +133,9 @@ const generateAvatarUrl = (userProfile: any) => {
   }
 
   // 2. กรณีไม่มีรูปภาพ ให้ Generate ผ่าน DiceBear ตามปกติ
-  const seedString = `${userProfile?.firstname_en || userProfile?.firstname || "User"}_${
-    userProfile?.lastname_en || userProfile?.lastname || ""
-  }_${userProfile?.admin_id ?? "0"}`;
+  const seedString = `${userProfile.firstname_en ?? userProfile.firstname ?? "User"}_${
+    userProfile.lastname_en ?? userProfile.lastname ?? ""
+  }_${String(userProfile.admin_id ?? "0")}`;
   return `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(
     seedString,
   )}&backgroundColor=e0e7ff,d1d5db,f3f4f6`;
@@ -130,13 +150,13 @@ const RankAvatarDisplay = ({
   currentRankLetter,
   avatarSize = 40,
 }: {
-  userProfile: any;
+  userProfile: UserProfile;
   currentRankLetter: string;
   avatarSize?: number;
 }) => {
   const { token } = theme.useToken();
   const rankThemeConfig =
-    RANK_THEME_CONFIG[currentRankLetter] || RANK_THEME_CONFIG.F;
+    RANK_THEME_CONFIG[currentRankLetter] ?? RANK_THEME_CONFIG.F;
 
   return (
     <Badge
@@ -173,24 +193,36 @@ const RankAvatarDisplay = ({
   );
 };
 
-const UserRankDetailsCard = ({ userRankDetails }: { userRankDetails: any }) => {
+interface UserRankDetails {
+  rankLetter?: string;
+  completion_rate?: number;
+  total_hours?: number | string;
+  discipline_score?: number | { score: number };
+  rank?: number | string;
+}
+
+const UserRankDetailsCard = ({
+  userRankDetails,
+}: {
+  userRankDetails: UserRankDetails | null;
+}) => {
   const { t: TRANSLATION } = useTranslation("translate");
   const { token } = theme.useToken();
   const isDark = token.colorBgBase !== "#FFFFFF";
-  const currentRankLetter = userRankDetails?.rankLetter?.toUpperCase() || "F";
+  const currentRankLetter = userRankDetails?.rankLetter?.toUpperCase() ?? "F";
   const rankConfig =
-    RANK_THEME_CONFIG[currentRankLetter] || RANK_THEME_CONFIG.F;
+    RANK_THEME_CONFIG[currentRankLetter] ?? RANK_THEME_CONFIG.F;
 
   const completionPercent = Math.min(
-    Math.round(userRankDetails?.completion_rate || 0),
+    Math.round(userRankDetails?.completion_rate ?? 0),
     100,
   );
-  const totalHours = Number(userRankDetails?.total_hours || 0).toFixed(1);
-  const disciplineScore = Number(
-    userRankDetails?.discipline_score?.score ??
-      userRankDetails?.discipline_score ??
-      0,
-  ).toFixed(1);
+  const totalHours = String(userRankDetails?.total_hours ?? 0);
+  const rawDisciplineScore =
+    typeof userRankDetails?.discipline_score === "object"
+      ? userRankDetails.discipline_score.score
+      : userRankDetails?.discipline_score;
+  const disciplineScore = Number(rawDisciplineScore ?? 0).toFixed(1);
 
   return (
     <Card
@@ -282,7 +314,7 @@ const UserRankDetailsCard = ({ userRankDetails }: { userRankDetails: any }) => {
               color: rankConfig.color,
             }}
           >
-            #{userRankDetails?.rank || "-"}
+            #{userRankDetails?.rank ?? "-"}
           </Text>
         </Flex>
       </Flex>
@@ -312,13 +344,21 @@ const UserRankDetailsCard = ({ userRankDetails }: { userRankDetails: any }) => {
   );
 };
 
+interface StatisticBoxItemProps {
+  label: string;
+  value: string | number;
+  icon: React.ReactNode;
+  rankColor: string;
+  highlight?: boolean;
+}
+
 const StatisticBoxItem = ({
   label,
   value,
   icon,
   rankColor,
   highlight,
-}: any) => {
+}: StatisticBoxItemProps) => {
   const { token } = theme.useToken();
   const isDark = token.colorBgBase !== "#FFFFFF";
 
@@ -350,7 +390,7 @@ const StatisticBoxItem = ({
           color: isDark ? "#fff" : token.colorText,
         }}
       >
-        {value}
+        {String(value)}
       </Text>
       <Text
         style={{
@@ -371,72 +411,82 @@ const StatisticBoxItem = ({
 // Main Component
 // ==========================================
 
-export default function UserProfileDropdown(): JSX.Element {
+export default function UserProfileDropdown(): React.JSX.Element {
   const { t: TRANSLATION } = useTranslation("translate");
   const { token } = theme.useToken();
   const router = useRouter();
 
   // * เปลี่ยนมาใช้ข้อมูลจาก Redux เพื่อความรวดเร็วและ Real-time (ซิงค์ผ่าน AuthProvider)
   const AUTH_REDUX = useAppSelector((state) => state.callAdminLogin);
-  const userProfileData = AUTH_REDUX.response.data?.user_data || {};
+  const userProfileData = (AUTH_REDUX.response.data?.user_data ??
+    {}) as UserProfile;
 
   const [currentLanguageCode, setCurrentLanguageCode] = useState<string>(
     i18n.language,
   );
-  const [userRankData, setUserRankData] = useState<any>(null);
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [userRankData, setUserRankData] = useState<UserRankDetails | null>(
+    null,
+  );
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   useEffect(() => {
-    const adminId = userProfileData?.admin_id;
+    const adminId = userProfileData.admin_id;
     if (!adminId) return;
 
     const fetchAndSetUserRank = async () => {
       try {
-        const rankApiResponse = await fetchUserRank(String(adminId));
+        const rankApiResponse = (await fetchUserRank(
+          String(adminId),
+        )) as UserRankDetails | null;
         if (rankApiResponse) {
-          saveUserRankToMemory(rankApiResponse as any);
+          saveUserRankToMemory(rankApiResponse);
         }
-        setUserRankData(rankApiResponse || getUserRankFromStorage());
+        setUserRankData(
+          rankApiResponse ??
+            (getUserRankFromStorage() as UserRankDetails | null),
+        );
       } catch {
-        setUserRankData(getUserRankFromStorage());
+        setUserRankData(getUserRankFromStorage() as UserRankDetails | null);
       }
     };
-    fetchAndSetUserRank();
-  }, [userProfileData?.admin_id]);
+    void fetchAndSetUserRank();
+  }, [userProfileData.admin_id]);
 
-  const handleChangeLanguage = async (languageCode: string) => {
-    if (languageCode === currentLanguageCode) return;
-    await i18n.changeLanguage(languageCode);
-    setCurrentLanguageCode(languageCode);
-    toast.success(TRANSLATION("user_dropdown.lang_success"));
+  const handleChangeLanguage = (languageCode: string | number) => {
+    const code = String(languageCode);
+    if (code === currentLanguageCode) return;
+    void i18n.changeLanguage(code).then(() => {
+      setCurrentLanguageCode(code);
+      toast.success(TRANSLATION("user_dropdown.lang_success"));
+    });
   };
 
-  const handleLogoutAction = async () => {
+  const handleLogoutAction = () => {
     toast.info(TRANSLATION("user_dropdown.logging_out"));
     // * นำทางไปยัง URL ปัจจุบัน (Origin) แทนการใช้ Hardcoded path เพื่อป้องกันการเด้งไป localhost:3000 ใน Production
     // NextAuth signOut จะจัดการเรื่อง Session ฝั่ง Client/Server ให้โดยตรง
-    await signOut({ callbackUrl: window.location.origin });
+    void signOut({ callbackUrl: window.location.origin });
   };
 
-  const currentRankLetter = userRankData?.rankLetter?.toUpperCase() || "F";
+  const currentRankLetter = userRankData?.rankLetter?.toUpperCase() ?? "F";
   const currentRankThemeConfig =
-    RANK_THEME_CONFIG[currentRankLetter] || RANK_THEME_CONFIG.F;
+    RANK_THEME_CONFIG[currentRankLetter] ?? RANK_THEME_CONFIG.F;
 
   const userProfileDropdownContent = (
-    <Flex vertical style={{ width: 340 }}>
+    <Flex vertical>
       <Flex
         gap={16}
         align="center"
-        style={{ padding: "0 4px", marginBottom: 16 }}
+        style={{ padding: "0 4px", marginBottom: 24 }}
       >
         <RankAvatarDisplay
           userProfile={userProfileData}
           currentRankLetter={currentRankLetter}
-          avatarSize={64}
+          avatarSize={80}
         />
         <Flex vertical flex={1} style={{ overflow: "hidden" }}>
           <Title
-            level={5}
+            level={4}
             style={{
               margin: 0,
               lineHeight: 1.2,
@@ -446,10 +496,10 @@ export default function UserProfileDropdown(): JSX.Element {
           >
             {userProfileData.firstname} {userProfileData.lastname}
           </Title>
-          <Flex align="center" gap={4} style={{ marginTop: 4 }}>
+          <Flex align="center" gap={4} style={{ marginTop: 8 }}>
             <Badge status="processing" color="green" />
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              {userProfileData.position_name ||
+            <Text type="secondary" style={{ fontSize: 14 }}>
+              {userProfileData.position_name ??
                 TRANSLATION("user_dropdown.default_position")}
             </Text>
           </Flex>
@@ -458,7 +508,10 @@ export default function UserProfileDropdown(): JSX.Element {
 
       {userRankData && <UserRankDetailsCard userRankDetails={userRankData} />}
 
-      <Flex vertical gap={12} style={{ marginTop: 24 }}>
+      <Flex vertical gap={12} style={{ marginTop: 32 }}>
+        <Text strong style={{ fontSize: 14, color: token.colorTextSecondary }}>
+          {TRANSLATION("user_dropdown.settings")}
+        </Text>
         <Segmented
           block
           options={[
@@ -474,7 +527,9 @@ export default function UserProfileDropdown(): JSX.Element {
             },
           ]}
           value={currentLanguageCode}
-          onChange={(val) => handleChangeLanguage(val as string)}
+          onChange={(val) => {
+            handleChangeLanguage(val);
+          }}
           style={{
             background: token.colorFillQuaternary,
             padding: 4,
@@ -488,16 +543,17 @@ export default function UserProfileDropdown(): JSX.Element {
           type="text"
           icon={<IdcardOutlined />}
           onClick={() => {
-            setIsPopoverOpen(false);
+            setIsDrawerOpen(false);
             router.push("/profile/personal-information");
           }}
           style={{
-            height: 48,
-            borderRadius: 12,
+            height: 54,
+            borderRadius: 16,
             background: token.colorFillQuaternary,
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "flex-start",
+            padding: "0 20px",
           }}
         >
           {TRANSLATION("user_dropdown.personal_info")}
@@ -509,48 +565,59 @@ export default function UserProfileDropdown(): JSX.Element {
           type="text"
           icon={<LockOutlined />}
           onClick={() => {
-            setIsPopoverOpen(false);
+            setIsDrawerOpen(false);
             router.push("/profile/reset-password");
           }}
           style={{
-            height: 48,
-            borderRadius: 12,
+            height: 54,
+            borderRadius: 16,
             background: token.colorFillQuaternary,
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "flex-start",
+            padding: "0 20px",
           }}
         >
-          <Space>
-            {TRANSLATION("user_dropdown.change_password")}
+          <Flex
+            justify="space-between"
+            align="center"
+            style={{ width: "100%" }}
+          >
+            <Space>{TRANSLATION("user_dropdown.change_password")}</Space>
             <Badge
-              count="แก้ไขบัก"
+              count="Security"
               style={{
-                backgroundColor: token.colorError,
-                fontSize: 9,
-                fontWeight: 900,
-                height: 18,
-                lineHeight: "18px",
+                backgroundColor: token.colorSuccess,
+                fontSize: 10,
+                fontWeight: 800,
+                height: 20,
+                lineHeight: "20px",
+                borderRadius: 6,
               }}
             />
-          </Space>
+          </Flex>
         </Button>
 
-        <Divider style={{ margin: "4px 0" }} />
+        <Divider style={{ margin: "12px 0" }} />
 
         <Button
           block
           size="large"
-          type="text"
+          type="primary"
           danger
+          ghost
           icon={<LogoutOutlined />}
-          onClick={handleLogoutAction}
+          onClick={() => {
+            handleLogoutAction();
+          }}
           style={{
-            height: 48,
-            borderRadius: 12,
+            height: 54,
+            borderRadius: 16,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            fontWeight: "bold",
+            borderWidth: 2,
           }}
         >
           {TRANSLATION("user_dropdown.logout")}
@@ -560,36 +627,23 @@ export default function UserProfileDropdown(): JSX.Element {
   );
 
   return (
-    <Popover
-      content={userProfileDropdownContent}
-      trigger="click"
-      placement="bottomRight"
-      arrow={false}
-      onOpenChange={setIsPopoverOpen}
-      align={{ offset: [0, 14] }}
-      styles={{
-        body: {
-          padding: 24,
-          borderRadius: 24,
-          backgroundColor: token.colorBgElevated,
-          border: `1px solid ${token.colorBorderSecondary}`,
-          boxShadow: "0 10px 32px rgba(0,0,0,0.12)",
-        },
-      }}
-    >
+    <>
       <Flex
         align="center"
         gap={12}
+        onClick={() => {
+          setIsDrawerOpen(true);
+        }}
         style={{
           padding: "6px 8px 6px 16px",
           borderRadius: 100,
           cursor: "pointer",
           transition: "all 0.3s",
-          border: `1px solid ${isPopoverOpen ? token.colorBorder : "transparent"}`,
-          backgroundColor: isPopoverOpen
+          border: `1px solid ${isDrawerOpen ? token.colorBorder : "transparent"}`,
+          backgroundColor: isDrawerOpen
             ? token.colorBgContainer
             : "transparent",
-          boxShadow: isPopoverOpen ? token.boxShadow : "none",
+          boxShadow: isDrawerOpen ? token.boxShadow : "none",
         }}
       >
         <Flex vertical align="end" justify="center">
@@ -620,11 +674,32 @@ export default function UserProfileDropdown(): JSX.Element {
           style={{
             fontSize: 10,
             color: token.colorTextQuaternary,
-            transform: isPopoverOpen ? "rotate(180deg)" : "none",
+            transform: isDrawerOpen ? "rotate(180deg)" : "none",
             transition: "transform 0.3s",
           }}
         />
       </Flex>
-    </Popover>
+
+      <Drawer
+        title={TRANSLATION("user_dropdown.personal_info")}
+        placement="right"
+        onClose={() => {
+          setIsDrawerOpen(false);
+        }}
+        open={isDrawerOpen}
+        width={420}
+        styles={{
+          body: {
+            padding: 24,
+            backgroundColor: token.colorBgElevated,
+          },
+          header: {
+            borderBottom: `1px solid ${token.colorBorderSecondary}`,
+          },
+        }}
+      >
+        {userProfileDropdownContent}
+      </Drawer>
+    </>
   );
 }
