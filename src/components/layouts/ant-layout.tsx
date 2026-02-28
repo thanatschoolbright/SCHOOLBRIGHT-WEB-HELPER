@@ -212,6 +212,7 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 : "rgba(0, 0, 0, 0.45)",
               "--scroll-thumb": isDark ? "#1E293B" : "#CBD5E1",
               "--scroll-thumb-hover": isDark ? "#334155" : "#94A3B8",
+              "--modal-bg": isDark ? "#1E293B" : "#FFFFFF",
             } as React.CSSProperties
           }
         >
@@ -295,9 +296,9 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
               background: var(--modal-mask-bg) !important;
             }
             .ant-modal-content {
-              background: var(--card-glass-bg) !important;
-              backdrop-filter: blur(2rem) saturate(120%) !important;
-              -webkit-backdrop-filter: blur(2rem) saturate(120%) !important;
+              background: var(--modal-bg) !important;
+              backdrop-filter: none !important;
+              -webkit-backdrop-filter: none !important;
               border: 1px solid var(--border) !important;
               box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.2) !important;
             }

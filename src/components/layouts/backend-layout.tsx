@@ -123,12 +123,12 @@ export default function BackendLayout({
           }
         }
         .modern-glass {
-          background: rgba(255, 255, 255, 0.7) !important;
+          background: rgba(255, 255, 255, 0.5) !important;
           backdrop-filter: blur(12px) saturate(180%);
           -webkit-backdrop-filter: blur(12px) saturate(180%);
         }
         .dark .modern-glass {
-          background: rgba(28, 28, 30, 0.7) !important;
+          background: rgba(28, 28, 30, 0.25) !important;
         }
         .layout-transition {
           transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
