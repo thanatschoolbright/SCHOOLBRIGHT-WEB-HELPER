@@ -5,13 +5,11 @@ import {
   FloatButton,
   Drawer,
   Radio,
-  Space,
   Typography,
   Card,
   Divider,
   Flex,
   theme,
-  App,
   Button,
 } from "antd";
 import type { RadioChangeEvent } from "antd";
@@ -25,8 +23,7 @@ import { useFont } from "../providers/font-provider";
 const { Text, Title } = Typography;
 
 export default function ThemeCustomizer() {
-  const { token: themeToken } = theme.useToken();
-  const { modal: appModal } = App.useApp();
+  const { token } = theme.useToken();
   const { fontFamily, setFontFamily } = useFont();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -34,148 +31,141 @@ export default function ThemeCustomizer() {
   const handleOpenDrawer = () => {
     setIsDrawerOpen(true);
   };
-
   const handleCloseDrawer = () => {
     setIsDrawerOpen(false);
   };
 
   const handleChangeFont = (event: RadioChangeEvent) => {
-    setFontFamily(event.target.value);
+    setFontFamily(event.target.value as "google-sans" | "sukhumvit");
   };
+
+  const fonts = [
+    {
+      value: "google-sans",
+      label: "Google Sans",
+      cssVar: "var(--font-google-sans)",
+    },
+    {
+      value: "sukhumvit",
+      label: "Sukhumvit Set",
+      cssVar: "var(--font-sukhumvit)",
+    },
+  ];
 
   return (
     <>
       <FloatButton
         icon={<SettingOutlined />}
         type="primary"
-        style={{ right: 24, bottom: 24, width: 56, height: 56 }}
+        style={{
+          right: 0,
+          top: "50%",
+          transform: "translateY(-50%)",
+          width: 48,
+          height: 48,
+          borderStartEndRadius: 0,
+          borderEndEndRadius: 0,
+        }}
         onClick={handleOpenDrawer}
-        tooltip={
-          <Text style={{ color: themeToken.colorWhite }}>ปรับแต่งเว็บไซต์</Text>
-        }
+        tooltip="ปรับแต่งเว็บไซต์"
       />
 
       <Drawer
         title={
-          <Space>
-            <SettingOutlined />
-            <Text strong>ปรับแต่งหน้าเว็บไซต์</Text>
-          </Space>
+          <Flex align="center" gap={8} style={{ color: token.colorText }}>
+            <SettingOutlined
+              style={{ color: token.colorPrimary, fontSize: 20 }}
+            />
+            <Text strong style={{ fontSize: 16 }}>
+              ปรับแต่งหน้าเว็บไซต์
+            </Text>
+          </Flex>
         }
         placement="right"
         onClose={handleCloseDrawer}
         open={isDrawerOpen}
-        width={320}
+        width={420}
         closeIcon={null}
         extra={
-          <Button type="text" onClick={handleCloseDrawer}>
+          <Button
+            type="text"
+            onClick={handleCloseDrawer}
+            style={{ padding: "4px 8px" }}
+          >
             <Text type="secondary">ปิด</Text>
           </Button>
         }
       >
-        <Flex vertical gap={24}>
-          <Flex vertical gap={8}>
-            <Title level={5} style={{ margin: 0 }}>
-              <FontSizeOutlined style={{ marginRight: 8 }} />
-              เปลี่ยน Font
-            </Title>
-            <Text type="secondary">เลือกรูปแบบตัวอักษรที่ต้องการใช้งาน</Text>
+        <Flex vertical gap={32}>
+          <Flex vertical gap={16}>
+            <Flex align="center" gap={8}>
+              <FontSizeOutlined
+                style={{ fontSize: 18, color: token.colorPrimary }}
+              />
+              <Title level={5} style={{ margin: 0 }}>
+                รูปแบบตัวอักษร
+              </Title>
+            </Flex>
+            <Text type="secondary">
+              เลือกรูปแบบตัวอักษรที่ต้องการใช้งานสำหรับแพลตฟอร์มของคุณ
+            </Text>
 
             <Radio.Group
               value={fontFamily}
               onChange={handleChangeFont}
-              style={{ width: "100%", marginTop: 16 }}
+              style={{ width: "100%", marginTop: 24 }}
             >
-              <Flex vertical gap={12}>
-                <Card
-                  hoverable
-                  size="small"
-                  onClick={() => setFontFamily("google-sans")}
-                  styles={{
-                    body: {
-                      borderColor:
-                        fontFamily === "google-sans"
-                          ? themeToken.colorPrimary
-                          : themeToken.colorBorderSecondary,
-                      backgroundColor:
-                        fontFamily === "google-sans"
-                          ? themeToken.colorPrimaryBg
-                          : themeToken.colorBgContainer,
-                      borderWidth: 1,
-                      borderStyle: "solid",
-                      borderRadius: 12,
-                      padding: "12px",
-                    },
-                  }}
-                >
-                  <Radio
-                    value="google-sans"
-                    style={{
-                      width: "100%",
-                      fontFamily: "var(--font-google-sans)",
+              <Flex vertical gap={24}>
+                {fonts.map((font) => (
+                  <Card
+                    key={font.value}
+                    hoverable
+                    onClick={() => {
+                      setFontFamily(font.value as "google-sans" | "sukhumvit");
+                    }}
+                    styles={{
+                      body: {
+                        padding: token.paddingLG,
+                        borderColor:
+                          fontFamily === font.value
+                            ? token.colorPrimary
+                            : token.colorBorderSecondary,
+                        backgroundColor:
+                          fontFamily === font.value
+                            ? token.colorPrimaryBg
+                            : token.colorBgContainer,
+                        borderWidth: 2,
+                        borderStyle: "solid",
+                        borderRadius: token.borderRadiusLG,
+                        transition: "all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                        cursor: "pointer",
+                      },
                     }}
                   >
                     <Flex
                       justify="space-between"
                       align="center"
-                      style={{ width: "100%", minWidth: 200 }}
+                      style={{ width: "100%" }}
                     >
-                      <Text strong={fontFamily === "google-sans"}>
-                        Google Sans
-                      </Text>
-                      {fontFamily === "google-sans" && (
+                      <Radio
+                        value={font.value}
+                        style={{ fontFamily: font.cssVar }}
+                      >
+                        <Text
+                          strong={fontFamily === font.value}
+                          style={{ fontSize: 16 }}
+                        >
+                          {font.label}
+                        </Text>
+                      </Radio>
+                      {fontFamily === font.value && (
                         <CheckCircleFilled
-                          style={{ color: themeToken.colorPrimary }}
+                          style={{ color: token.colorPrimary, fontSize: 18 }}
                         />
                       )}
                     </Flex>
-                  </Radio>
-                </Card>
-
-                <Card
-                  hoverable
-                  size="small"
-                  onClick={() => setFontFamily("sukhumvit")}
-                  styles={{
-                    body: {
-                      borderColor:
-                        fontFamily === "sukhumvit"
-                          ? themeToken.colorPrimary
-                          : themeToken.colorBorderSecondary,
-                      backgroundColor:
-                        fontFamily === "sukhumvit"
-                          ? themeToken.colorPrimaryBg
-                          : themeToken.colorBgContainer,
-                      borderWidth: 1,
-                      borderStyle: "solid",
-                      borderRadius: 12,
-                      padding: "12px",
-                    },
-                  }}
-                >
-                  <Radio
-                    value="sukhumvit"
-                    style={{
-                      width: "100%",
-                      fontFamily: "var(--font-sukhumvit)",
-                    }}
-                  >
-                    <Flex
-                      justify="space-between"
-                      align="center"
-                      style={{ width: "100%", minWidth: 200 }}
-                    >
-                      <Text strong={fontFamily === "sukhumvit"}>
-                        Sukhumvit Set
-                      </Text>
-                      {fontFamily === "sukhumvit" && (
-                        <CheckCircleFilled
-                          style={{ color: themeToken.colorPrimary }}
-                        />
-                      )}
-                    </Flex>
-                  </Radio>
-                </Card>
+                  </Card>
+                ))}
               </Flex>
             </Radio.Group>
           </Flex>
