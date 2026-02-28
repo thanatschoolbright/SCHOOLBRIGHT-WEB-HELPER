@@ -153,6 +153,7 @@ const getModernTheme = (
         borderRadiusLG: 24,
         paddingLG: 32,
         headerBg: "transparent",
+        contentBg: isDark ? "#1E293B" : "#FFFFFF",
       },
       Menu: {
         itemBorderRadius: 12,
@@ -303,6 +304,7 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
               box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.2) !important;
             }
             .dark .ant-modal-content {
+              background: #1e293b !important;
               box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.95) !important;
             }
 
