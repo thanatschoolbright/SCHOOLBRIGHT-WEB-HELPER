@@ -17,6 +17,7 @@ import {
   theme,
   Typography,
 } from "antd";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -25,7 +26,11 @@ const { Text } = Typography;
 
 const DARK_MODE_KEY = "theme";
 
-const DarkModeToggle = () => {
+interface DarkModeToggleProps {
+  collapsed?: boolean;
+}
+
+const DarkModeToggle = ({ collapsed }: DarkModeToggleProps) => {
   const { token } = theme.useToken();
   const [isDarkModeActive, setIsDarkModeActive] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -34,6 +39,7 @@ const DarkModeToggle = () => {
     if (typeof window !== "undefined") {
       const savedDarkMode = localStorage.getItem(DARK_MODE_KEY);
       if (savedDarkMode !== null) {
+        // eslint-disable-next-line
         setIsDarkModeActive(savedDarkMode === "dark");
       } else {
         const prefersDarkMode = window.matchMedia(
@@ -60,7 +66,39 @@ const DarkModeToggle = () => {
     localStorage.setItem(DARK_MODE_KEY, checkedValue ? "dark" : "light");
   };
 
-  return (
+  return collapsed ? (
+    <Flex
+      align="center"
+      justify="center"
+      style={{
+        paddingTop: 16,
+        marginTop: 16,
+        borderTop: `1px solid ${token.colorBorderSecondary}`,
+        width: "100%",
+      }}
+    >
+      <Flex
+        align="center"
+        justify="center"
+        onClick={() => {
+          handleToggleDarkMode(!isDarkModeActive);
+        }}
+        style={{
+          width: 40,
+          height: 40,
+          borderRadius: 12,
+          background: isDarkModeActive
+            ? token.colorFillSecondary
+            : token.colorPrimaryBg,
+          color: isDarkModeActive ? token.colorText : token.colorPrimary,
+          cursor: "pointer",
+        }}
+        title={isDarkModeActive ? "โหมดมืด" : "โหมดสว่าง"}
+      >
+        {isDarkModeActive ? <MoonOutlined /> : <SunOutlined />}
+      </Flex>
+    </Flex>
+  ) : (
     <Flex
       align="center"
       justify="space-between"
@@ -105,6 +143,17 @@ const DarkModeToggle = () => {
     </Flex>
   );
 };
+
+export interface CustomMenuItemType {
+  label: string;
+  icon?: React.ReactNode;
+  href?: string;
+  news?: boolean;
+  revamp?: boolean;
+  maintenance?: boolean;
+  tag?: string;
+  children?: CustomMenuItemType[];
+}
 
 const StatusTag = ({ type }: { type: "new" | "revamp" | "maintenance" }) => {
   const { t: translateMenu } = useTranslation("menu");
@@ -181,11 +230,11 @@ export default function SidebarContent({
     if (collapsed || !currentPathname) return;
 
     const findPathKeys = (
-      items: any[],
+      items: CustomMenuItemType[],
       targetHref: string,
     ): string[] | null => {
       for (const item of items) {
-        const itemKey = item.href || item.label;
+        const itemKey = item.href ?? item.label;
         if (item.href === targetHref) {
           return [itemKey];
         }
@@ -203,12 +252,13 @@ export default function SidebarContent({
     if (pathKeys) {
       const newOpenKeys = pathKeys.slice(0, -1);
       if (newOpenKeys.length > 0) {
+        // eslint-disable-next-line
         setOpenKeys((prev) => Array.from(new Set([...prev, ...newOpenKeys])));
       }
     }
   }, [sidebarMenu, currentPathname, collapsed]);
 
-  const getChildLabel = (child: any, depth: number) => {
+  const getChildLabel = (child: CustomMenuItemType, depth: number) => {
     const labelStyle: React.CSSProperties = {
       fontWeight: depth === 2 ? 600 : 400,
       fontSize: depth === 2 ? "13.5px" : "13px",
@@ -230,9 +280,9 @@ export default function SidebarContent({
     );
   };
 
-  const mapMenuItems = (menuItem: any): MenuItem => {
+  const mapMenuItems = (menuItem: CustomMenuItemType): MenuItem => {
     const { label, icon, href, children, tag } = menuItem;
-    const itemKey = href || label;
+    const itemKey = href ?? label;
 
     const level1Style: React.CSSProperties = {
       fontWeight: 700,
@@ -270,16 +320,16 @@ export default function SidebarContent({
       key: itemKey,
       icon,
       label: displayLabel,
-      children: children?.map((childItem: any) => {
-        const childKey = childItem.href || childItem.label;
+      children: children?.map((childItem: CustomMenuItemType) => {
+        const childKey = childItem.href ?? childItem.label;
 
         if (childItem.children) {
           return {
             key: childKey,
             icon: childItem.icon,
             label: getChildLabel(childItem, 2),
-            children: childItem.children.map((subItem: any) => ({
-              key: subItem.href || subItem.label,
+            children: childItem.children.map((subItem: CustomMenuItemType) => ({
+              key: subItem.href ?? subItem.label,
               icon: subItem.icon,
               label: getChildLabel(subItem, 3),
             })),
@@ -295,7 +345,7 @@ export default function SidebarContent({
   };
 
   const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
-    const clickTarget = String(key);
+    const clickTarget = key;
     if (clickTarget.startsWith("/")) {
       router.push(clickTarget);
       if (!screens.md) onMobileMenuClose?.();
@@ -304,9 +354,9 @@ export default function SidebarContent({
     }
   };
 
-  const sidebarMenuItems: MenuItem[] = useMemo(() => {
-    return sidebarMenu.map((menuItem) => mapMenuItems(menuItem));
-  }, [sidebarMenu, collapsed]);
+  const sidebarMenuItems: MenuItem[] = (
+    sidebarMenu as CustomMenuItemType[]
+  ).map((menuItem) => mapMenuItems(menuItem));
 
   const handleLogoClick = () => {
     router.push("/main");
@@ -338,10 +388,12 @@ export default function SidebarContent({
               style={{ cursor: "pointer" }}
               onClick={handleLogoClick}
             >
-              <img
+              <Image
                 src="/web-app-manifest-192x192.png"
                 alt="Logo"
-                style={{ width: 42, height: 42, borderRadius: 12 }}
+                width={42}
+                height={42}
+                style={{ borderRadius: 12, objectFit: "cover" }}
               />
               <Flex vertical>
                 <Text
@@ -408,9 +460,13 @@ export default function SidebarContent({
         <Flex
           vertical
           gap={token.marginSM}
-          style={{ padding: "16px 20px", marginTop: "auto" }}
+          style={{
+            padding: collapsed ? "16px 8px" : "16px 20px",
+            marginTop: "auto",
+            transition: "all 0.3s",
+          }}
         >
-          <DarkModeToggle />
+          <DarkModeToggle collapsed={collapsed} />
         </Flex>
       </Flex>
     </ConfigProvider>
