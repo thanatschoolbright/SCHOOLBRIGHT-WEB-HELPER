@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unknown-property */
 "use client";
 
 import type { ThemeConfig } from "antd";
@@ -168,10 +169,12 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
   }, []);
 
-  const themeFont = (fontFromContext as keyof typeof FONTS) || "google-sans";
+  const themeFont =
+    (fontFromContext as keyof typeof FONTS | undefined) ?? "google-sans";
   const themeConfig = useMemo(
     () => getModernTheme(isDark, themeFont),
     [isDark, themeFont],
@@ -204,6 +207,11 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
               "--card-glass-bg": isDark
                 ? "rgba(15, 23, 42, 0.85)"
                 : "rgba(255, 255, 255, 0.95)",
+              "--modal-mask-bg": isDark
+                ? "rgba(0, 0, 0, 0.4)"
+                : "rgba(255, 255, 255, 0.2)",
+              "--scroll-thumb": isDark ? "#1E293B" : "#CBD5E1",
+              "--scroll-thumb-hover": isDark ? "#334155" : "#94A3B8",
             } as React.CSSProperties
           }
         >
@@ -263,12 +271,12 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
               background: transparent;
             }
             ::-webkit-scrollbar-thumb {
-              background: ${isDark ? "#1E293B" : "#CBD5E1"};
+              background: var(--scroll-thumb);
               border-radius: 10px;
               border: 3px solid var(--bg-layout);
             }
             ::-webkit-scrollbar-thumb:hover {
-              background: ${isDark ? "#334155" : "#94A3B8"};
+              background: var(--scroll-thumb-hover);
             }
 
             /* Global Component Polishing */
@@ -284,9 +292,7 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
             /* Premium Modal Glassmorphism & Perfect Centering */
             .ant-modal-mask {
               backdrop-filter: blur(8px) !important;
-              background: ${isDark
-                ? "rgba(0, 0, 0, 0.4)"
-                : "rgba(255, 255, 255, 0.2)"} !important;
+              background: var(--modal-mask-bg) !important;
             }
             .ant-modal-content {
               background: var(--card-glass-bg) !important;
@@ -297,6 +303,42 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
             }
             .dark .ant-modal-content {
               box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6) !important;
+            }
+
+            /* Apple Store Connect Style Drawer */
+            .ant-drawer-mask {
+              background: transparent !important;
+              backdrop-filter: none !important;
+            }
+            .ant-drawer-content-wrapper {
+              padding: 24px !important;
+              box-sizing: border-box !important;
+              background: transparent !important;
+              box-shadow: none !important;
+            }
+            .ant-drawer-content {
+              border-radius: 20px !important;
+              overflow: hidden !important;
+              background: #fcfcfd !important;
+              backdrop-filter: none !important;
+              -webkit-backdrop-filter: none !important;
+              border: 1px solid #e2e8f0 !important;
+              box-shadow: none !important;
+            }
+            .dark .ant-drawer-content {
+              background: #1c1c1e !important;
+              border-color: #334155 !important;
+              box-shadow: none !important;
+            }
+            .ant-drawer-header-title {
+              display: flex !important;
+              flex-direction: row-reverse !important;
+              justify-content: space-between !important;
+              width: 100% !important;
+            }
+            .ant-drawer-close {
+              margin-inline-end: 0 !important;
+              margin-inline-start: auto !important;
             }
           `}</style>
           {children}
