@@ -83,8 +83,7 @@ const calculateStats = (servers: ServerStatus[]) => {
   const online = servers.filter((s) => s.status === STATUS.ONLINE).length;
   const offline = servers.length - online;
   const avgResponseTime = servers.length
-    ? servers.reduce((sum, s) => sum + (Number(s.response_time) || 0), 0) /
-      servers.length
+    ? servers.reduce((sum, s) => sum + s.response_time, 0) / servers.length
     : 0;
 
   return { online, offline, avgResponseTime };
@@ -95,7 +94,7 @@ const getLatestTimestamp = (servers: ServerStatus[]): string => {
   const sorted = [...servers].sort(
     (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
   );
-  return sorted[0]?.timestamp || "-";
+  return sorted[0]?.timestamp ?? "-";
 };
 
 const copyToClipboard = async (text: string): Promise<boolean> => {
@@ -127,12 +126,15 @@ const useServerStatus = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    fetchServerStatus();
+    void fetchServerStatus();
   }, [fetchServerStatus]);
 
   useEffect(() => {
-    const response = serverStatusState?.response?.data?.data;
-    setServers(response || []);
+    const response = (serverStatusState as unknown as Record<string, unknown>)
+      .response as Record<string, unknown> | undefined;
+    const data1 = response?.data as Record<string, unknown> | undefined;
+    const serverData = data1?.data as ServerStatus[] | undefined;
+    setServers(serverData ?? []);
   }, [serverStatusState]);
 
   return { servers, isLoading, refresh: fetchServerStatus, setServers };
@@ -235,7 +237,7 @@ const ServerDetailsModal: React.FC<{
                 <ServerStatusTag isOnline={isOnline} />
                 <Space size={4}>
                   <Text type="secondary">Response Time:</Text>
-                  <ResponseTimeTag time={Number(server.response_time) || 0} />
+                  <ResponseTimeTag time={server.response_time} />
                 </Space>
               </Flex>
             </Col>
@@ -279,11 +281,18 @@ const ServerDetailsModal: React.FC<{
               {server.timestamp}
             </Descriptions.Item>
             <Descriptions.Item label="รหัสสถานะ HTTP">
-              {(server as any)?.status_code ? (
+              {(server as Record<string, unknown>).status_code ? (
                 <Tag
-                  color={(server as any).status_code === 200 ? "green" : "red"}
+                  color={
+                    (server as Record<string, unknown>).status_code === 200
+                      ? "green"
+                      : "red"
+                  }
                 >
-                  {(server as any).status_code}
+                  {
+                    (server as Record<string, unknown>)
+                      .status_code as React.ReactNode
+                  }
                 </Tag>
               ) : (
                 "-"
@@ -296,7 +305,7 @@ const ServerDetailsModal: React.FC<{
         <Col span={24}>
           <Row gutter={[8, 8]} justify="end">
             <Col>
-              <Button icon={<CopyOutlined />} onClick={handleCopy}>
+              <Button icon={<CopyOutlined />} onClick={() => void handleCopy()}>
                 คัดลอก JSON
               </Button>
             </Col>
@@ -326,6 +335,7 @@ const EditDescriptionModal: React.FC<{
 
   useEffect(() => {
     if (server && visible) {
+      // eslint-disable-next-line
       setEditValue(server.description || "");
     }
   }, [server, visible]);
@@ -453,10 +463,10 @@ const ServerStatusPage: React.FC = () => {
   /**
    * * handleSearch: ฟังก์ชันดำเนินการกรองข้อมูลเมื่อกดปุ่มค้นหา
    */
-  const handleSearch = (values: any) => {
+  const handleSearch = (values: { name?: string; status?: string }) => {
     setFilters({
-      name: values.name || "",
-      status: values.status || "all",
+      name: values.name ?? "",
+      status: values.status ?? "all",
     });
     toast.success("กรองข้อมูลเซิร์ฟเวอร์เรียบร้อย");
   };
@@ -518,7 +528,7 @@ const ServerStatusPage: React.FC = () => {
       } else {
         toast.error("ไม่สามารถส่งแจ้งเตือนผ่านช่องทาง Discord ได้");
       }
-    } catch (error) {
+    } catch {
       toast.error("เกิดข้อผิดพลาดในการส่งแจ้งเตือน");
     } finally {
       setIsNotifying(false);
@@ -530,7 +540,7 @@ const ServerStatusPage: React.FC = () => {
     {
       title: "ชื่อเซิร์ฟเวอร์ / ระบบ",
       key: "name",
-      render: (_: any, record: ServerStatus) => (
+      render: (_: unknown, record: ServerStatus) => (
         <Space direction="vertical" size={0}>
           <Text strong style={{ fontWeight: 600 }}>
             {record.server_name_th || record.server_name || "-"}
@@ -549,7 +559,7 @@ const ServerStatusPage: React.FC = () => {
       title: "สถานะ",
       key: "status",
       width: 120,
-      render: (_: any, record: ServerStatus) => (
+      render: (_: unknown, record: ServerStatus) => (
         <ServerStatusTag isOnline={record.status === STATUS.ONLINE} />
       ),
       sorter: (a: ServerStatus, b: ServerStatus) =>
@@ -727,12 +737,16 @@ const ServerStatusPage: React.FC = () => {
             </Space>
           }
           extra={
-            <Space>
+            <Flex gap="middle" wrap="wrap">
               <Button
                 type="primary"
-                style={{ backgroundColor: "#5865F2", borderColor: "#5865F2" }}
+                style={{
+                  backgroundColor: "#5865F2",
+                  borderColor: "#5865F2",
+                  boxShadow: "none",
+                }}
                 icon={<DiscordOutlined />}
-                onClick={handleNotifyDiscord}
+                onClick={() => void handleNotifyDiscord()}
                 loading={isNotifying}
               >
                 แจ้งเตือนผ่านช่องทาง Discord
@@ -751,12 +765,12 @@ const ServerStatusPage: React.FC = () => {
               <Button
                 type="primary"
                 icon={<ReloadOutlined />}
-                onClick={handleRefreshData}
+                onClick={() => void handleRefreshData()}
                 loading={isLoading}
               >
                 อัปเดตสถานะ
               </Button>
-            </Space>
+            </Flex>
           }
         >
           <Table
