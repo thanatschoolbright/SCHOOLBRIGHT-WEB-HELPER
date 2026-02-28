@@ -20,6 +20,7 @@ import {
   SearchOutlined,
   ThunderboltFilled,
   UnorderedListOutlined,
+  DiscordOutlined,
 } from "@ant-design/icons";
 import SummaryCard from "@components/card/summary-card";
 import DashboardLayout from "@components/layouts/backend-layout";
@@ -55,7 +56,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 
-const { Title, Text, Paragraph } = Typography;
+const { Text } = Typography;
 
 // ==================== Types ====================
 type ServerStatus = ResponseGetServerStatusV2["draftValues"]["Array"][number];
@@ -107,14 +108,6 @@ const copyToClipboard = async (text: string): Promise<boolean> => {
 };
 
 // ==================== Custom Hooks ====================
-const useResponsive = () => {
-  const screens = Grid.useBreakpoint();
-  return {
-    isMobile: !screens.md,
-    isTablet: screens.md && !screens.lg,
-    isDesktop: screens.lg,
-  };
-};
 
 const useServerStatus = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -368,7 +361,9 @@ const EditDescriptionModal: React.FC<{
         <Input.TextArea
           rows={6}
           value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
+          onChange={(e) => {
+            setEditValue(e.target.value);
+          }}
           placeholder="พิมพ์รายละเอียดที่ต้องการบันทึก..."
           showCount
           maxLength={500}
@@ -402,6 +397,7 @@ const ServerStatusPage: React.FC = () => {
   );
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const [isNotifying, setIsNotifying] = useState(false);
 
   // State สำหรับ Status Modal (ตามมาตรฐานใหม่)
   const [statusModal, setStatusModal] = useState<{
@@ -510,6 +506,25 @@ const ServerStatusPage: React.FC = () => {
     toast.success("ดาวน์โหลดข้อมูลแสดงสถานะเซิร์ฟเวอร์สมบูรณ์");
   };
 
+  /**
+   * * handleNotifyDiscord: แจ้งเตือนผ่านช่องทาง Discord
+   */
+  const handleNotifyDiscord = async () => {
+    setIsNotifying(true);
+    try {
+      const res = await fetch("/api/v2/server/status?mode=discord");
+      if (res.ok) {
+        toast.success("ส่งแจ้งเตือนผ่านช่องทาง Discord เรียบร้อยแล้ว");
+      } else {
+        toast.error("ไม่สามารถส่งแจ้งเตือนผ่านช่องทาง Discord ได้");
+      }
+    } catch (error) {
+      toast.error("เกิดข้อผิดพลาดในการส่งแจ้งเตือน");
+    } finally {
+      setIsNotifying(false);
+    }
+  };
+
   // กำหนด Column สำหรับ Ant Design Table
   const columns = [
     {
@@ -544,9 +559,9 @@ const ServerStatusPage: React.FC = () => {
       title: "ความเร็วตอบสนอง",
       dataIndex: "response_time",
       key: "response_time",
-      render: (time: any) => <ResponseTimeTag time={Number(time) || 0} />,
+      render: (time: unknown) => <ResponseTimeTag time={Number(time) || 0} />,
       sorter: (a: ServerStatus, b: ServerStatus) =>
-        (Number(a.response_time) || 0) - (Number(b.response_time) || 0),
+        (a.response_time || 0) - (b.response_time || 0),
     },
     {
       title: "ตรวจสอบล่าสุด",
@@ -559,13 +574,15 @@ const ServerStatusPage: React.FC = () => {
       title: "จัดการ",
       key: "actions",
       align: "right" as const,
-      render: (_: any, record: ServerStatus) => (
+      render: (_: unknown, record: ServerStatus) => (
         <Space>
           <Tooltip title="แก้ไขหมายเหตุ">
             <Button
               size="small"
               icon={<EditOutlined />}
-              onClick={() => handleEdit(record)}
+              onClick={() => {
+                handleEdit(record);
+              }}
             />
           </Tooltip>
           <Button
@@ -573,7 +590,9 @@ const ServerStatusPage: React.FC = () => {
             type="primary"
             ghost
             icon={<EyeOutlined />}
-            onClick={() => handleViewDetails(record)}
+            onClick={() => {
+              handleViewDetails(record);
+            }}
           >
             ดูข้อมูลลึก
           </Button>
@@ -710,8 +729,19 @@ const ServerStatusPage: React.FC = () => {
           extra={
             <Space>
               <Button
+                type="primary"
+                style={{ backgroundColor: "#5865F2", borderColor: "#5865F2" }}
+                icon={<DiscordOutlined />}
+                onClick={handleNotifyDiscord}
+                loading={isNotifying}
+              >
+                แจ้งเตือนผ่านช่องทาง Discord
+              </Button>
+              <Button
                 type="default"
-                onClick={() => router.push("/health-check/v2/server-status")}
+                onClick={() => {
+                  router.push("/health-check/v2/server-status");
+                }}
                 icon={
                   <ThunderboltFilled style={{ color: token.colorPrimary }} />
                 }
@@ -746,13 +776,17 @@ const ServerStatusPage: React.FC = () => {
       <ServerDetailsModal
         server={selectedServer}
         visible={detailsModalVisible}
-        onClose={() => setDetailsModalVisible(false)}
+        onClose={() => {
+          setDetailsModalVisible(false);
+        }}
       />
 
       <EditDescriptionModal
         server={selectedServer}
         visible={editModalVisible}
-        onClose={() => setEditModalVisible(false)}
+        onClose={() => {
+          setEditModalVisible(false);
+        }}
         onSave={handleSaveDescription}
       />
 
@@ -761,7 +795,9 @@ const ServerStatusPage: React.FC = () => {
         type={statusModal.type}
         title={statusModal.title}
         message={statusModal.message}
-        onClose={() => setStatusModal({ ...statusModal, open: false })}
+        onClose={() => {
+          setStatusModal({ ...statusModal, open: false });
+        }}
       />
     </DashboardLayout>
   );
