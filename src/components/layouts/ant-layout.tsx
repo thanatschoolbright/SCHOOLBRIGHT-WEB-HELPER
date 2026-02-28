@@ -292,6 +292,10 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
             }
 
             /* Premium Modal Glassmorphism & Perfect Centering */
+            .ant-modal {
+              padding-top: 40px !important;
+              padding-bottom: 40px !important;
+            }
             .ant-modal-mask {
               backdrop-filter: blur(1rem) !important;
               background: var(--modal-mask-bg) !important;
