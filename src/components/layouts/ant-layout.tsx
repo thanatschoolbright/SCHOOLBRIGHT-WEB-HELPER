@@ -38,8 +38,8 @@ const SYSTEM_PALETTE = {
     bgElevated: "#FFFFFF",
     textMain: "#0F172A",
     textSub: "#64748B",
-    border: "#E2E8F0",
-    borderSecondary: "#F1F5F9",
+    border: "#F1F5F9",
+    borderSecondary: "#F8FAFC",
   },
   dark: {
     bgLayout: "#020617",
@@ -48,7 +48,7 @@ const SYSTEM_PALETTE = {
     textMain: "#F8FAFC",
     textSub: "#94A3B8",
     border: "#1E293B",
-    borderSecondary: "#334155",
+    borderSecondary: "#1E293B",
   },
 };
 
@@ -238,7 +238,13 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
               background: var(--card-glass-bg) !important;
               backdrop-filter: blur(1rem) saturate(180%) !important;
               -webkit-backdrop-filter: blur(1rem) saturate(180%) !important;
-              border: 1px solid var(--border) !important;
+              border: 1px solid var(--border);
+              box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.03) !important;
+            }
+            .dark .ant-card,
+            .dark .glass-card {
+              border-color: var(--border) !important;
+              box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.2) !important;
             }
 
             .glass-header {
@@ -304,12 +310,19 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
               background: var(--modal-bg) !important;
               backdrop-filter: none !important;
               -webkit-backdrop-filter: none !important;
-              border: 1px solid var(--border) !important;
-              box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.2) !important;
+              border: 1px solid var(--border-secondary) !important;
+              box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.1) !important;
             }
             .dark .ant-modal-content {
               background: #1e293b !important;
-              box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.95) !important;
+              border: 1px solid #334155;
+              box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5) !important;
+            }
+
+            .ant-modal-content {
+              background: #fcfcfd !important;
+              border: 1px solid #f8fafc !important;
+              box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.04) !important;
             }
 
             /* Fix Body Scroll Lock for Modal and Drawer */
