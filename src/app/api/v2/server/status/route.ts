@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
-import axios, { AxiosError, AxiosResponse } from "axios";
-import { API_URL } from "@/services/api-url";
 import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
-import { performance } from "perf_hooks";
+import { API_URL } from "@/services/api-url";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
+import { NextRequest, NextResponse } from "next/server";
+import { performance } from "perf_hooks";
 
 dayjs.locale("th");
 
@@ -408,6 +408,20 @@ async function executeServerStatusChecks(): Promise<{
         axiosClient.get(
           `${API_URL.PROD_MARK_ACTIVITY_WEB_URL}/ActivityManagement`,
         ),
+    },
+    {
+      info: {
+        server: "SERVER_PROD_SYSTEM_WEB",
+        server_name: "SCHOOL BRIGHT SYSTEM WEB",
+        server_name_th: "12. ระบบข้อมูลบุคคล System",
+        server_name_en: "System Web Service",
+        environment: "Production",
+        url: API_URL.PROD_SYSTEM_URL,
+        endpoint: "/",
+        description: `เซิฟเวอร์ Production สำหรับระบบข้อมูลบุคคล ในเว็บ ${API_URL.PROD_SYSTEM_URL}`,
+        timestamp,
+      },
+      fn: () => axiosClient.get(API_URL.PROD_SYSTEM_URL),
     },
   ];
 
