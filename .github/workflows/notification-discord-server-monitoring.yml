@@ -1,438 +1,438 @@
 name: 🏥 Enterprise System Health Check Monitor
 
 on:
-    schedule:
-        - cron: "0 * * * *" # Every hour
-    workflow_dispatch:
-        inputs:
-            verbose:
-                description: "Enable verbose logging"
-                required: false
-                default: "false"
+  schedule:
+    - cron: "*/15 * * * *" # Every 15 minutes
+  workflow_dispatch:
+    inputs:
+      verbose:
+        description: "Enable verbose logging"
+        required: false
+        default: "false"
 
 env:
-    TZ: "Asia/Bangkok"
-    TARGET_URL: "https://sb-helper.schoolbright.co/api/v1/health-check/server/system"
-    MAX_RETRIES: 3
-    RETRY_DELAY: 5
-    REQUEST_TIMEOUT: 30
+  TZ: "Asia/Bangkok"
+  TARGET_URL: "https://sb-helper.schoolbright.co/api/v2/server/status"
+  MAX_RETRIES: 3
+  RETRY_DELAY: 5
+  REQUEST_TIMEOUT: 30
 
 concurrency:
-    group: health-check-monitor
-    cancel-in-progress: false
+  group: health-check-monitor
+  cancel-in-progress: false
 
 jobs:
-    health-check-monitor:
-        name: 🩺 Enterprise Health Monitor
-        runs-on: ubuntu-latest
+  health-check-monitor:
+    name: 🩺 Enterprise Health Monitor
+    runs-on: ubuntu-latest
 
-        outputs:
-            overall_status: ${{ steps.final_status.outputs.status }}
-            duration: ${{ steps.final_status.outputs.duration }}
+    outputs:
+      overall_status: ${{ steps.final_status.outputs.status }}
+      duration: ${{ steps.final_status.outputs.duration }}
 
-        steps:
-            # ============================================================
-            # PHASE 1: INITIALIZATION & PREPARATION
-            # ============================================================
-            - name: ⏱️ Initialize Job
-              id: init
-              run: |
-                  JOB_START=$(date +%s)
-                  START_TIME=$(date '+%Y-%m-%d %H:%M:%S %Z')
-                  RUN_ID="${{ github.run_id }}"
+    steps:
+      # ============================================================
+      # PHASE 1: INITIALIZATION & PREPARATION
+      # ============================================================
+      - name: ⏱️ Initialize Job
+        id: init
+        run: |
+          JOB_START=$(date +%s)
+          START_TIME=$(date '+%Y-%m-%d %H:%M:%S %Z')
+          RUN_ID="${{ github.run_id }}"
 
-                  echo "job_start=$JOB_START" >> $GITHUB_OUTPUT
-                  echo "start_time=$START_TIME" >> $GITHUB_OUTPUT
+          echo "job_start=$JOB_START" >> $GITHUB_OUTPUT
+          echo "start_time=$START_TIME" >> $GITHUB_OUTPUT
 
-                  mkdir -p logs artifacts
+          mkdir -p logs artifacts
 
-                  cat > logs/execution.log << 'EOF'
-                  ╔════════════════════════════════════════════════════════════╗
-                  ║        ENTERPRISE SYSTEM HEALTH CHECK MONITOR              ║
-                  ║                  Health Status Report                      ║
-                  ╚════════════════════════════════════════════════════════════╝
-                  EOF
+          cat > logs/execution.log << 'EOF'
+          ╔════════════════════════════════════════════════════════════╗
+          ║        ENTERPRISE SYSTEM HEALTH CHECK MONITOR              ║
+          ║                  Health Status Report                      ║
+          ╚════════════════════════════════════════════════════════════╝
+          EOF
 
-                  echo "" >> logs/execution.log
-                  echo "📅 Job Execution Details:" >> logs/execution.log
-                  echo "   Start Time: $START_TIME" >> logs/execution.log
-                  echo "   Workflow ID: ${{ github.workflow_id }}" >> logs/execution.log
-                  echo "   Run ID: $RUN_ID" >> logs/execution.log
-                  echo "   Branch: ${{ github.ref_name }}" >> logs/execution.log
-                  echo "" >> logs/execution.log
+          echo "" >> logs/execution.log
+          echo "📅 Job Execution Details:" >> logs/execution.log
+          echo "   Start Time: $START_TIME" >> logs/execution.log
+          echo "   Workflow ID: ${{ github.workflow_id }}" >> logs/execution.log
+          echo "   Run ID: $RUN_ID" >> logs/execution.log
+          echo "   Branch: ${{ github.ref_name }}" >> logs/execution.log
+          echo "" >> logs/execution.log
 
-            - name: ⚙️ Setup Configuration
-              id: setup
-              run: |
-                  PAYLOAD='{"mode":"discord"}'
-                  VERBOSE="${{ github.event.inputs.verbose }}"
+      - name: ⚙️ Setup Configuration
+        id: setup
+        run: |
+          PAYLOAD='{"mode":"discord"}'
+          VERBOSE="${{ github.event.inputs.verbose }}"
 
-                  echo "payload=$PAYLOAD" >> $GITHUB_OUTPUT
-                  echo "verbose=$VERBOSE" >> $GITHUB_OUTPUT
+          echo "payload=$PAYLOAD" >> $GITHUB_OUTPUT
+          echo "verbose=$VERBOSE" >> $GITHUB_OUTPUT
 
-                  echo "✅ Configuration initialized"
-                  echo "🎯 Target: ${{ env.TARGET_URL }}"
-                  echo "🔄 Retries: ${{ env.MAX_RETRIES }}"
-                  echo "⏱️  Timeout: ${{ env.REQUEST_TIMEOUT }}s"
+          echo "✅ Configuration initialized"
+          echo "🎯 Target: ${{ env.TARGET_URL }}"
+          echo "🔄 Retries: ${{ env.MAX_RETRIES }}"
+          echo "⏱️  Timeout: ${{ env.REQUEST_TIMEOUT }}s"
 
-            # ============================================================
-            # PHASE 2: CONNECTIVITY CHECK
-            # ============================================================
-            - name: 🔗 Pre-flight Network Check
-              id: preflight
-              run: |
-                  echo "🔍 Checking network connectivity..."
+      # ============================================================
+      # PHASE 2: CONNECTIVITY CHECK
+      # ============================================================
+      - name: 🔗 Pre-flight Network Check
+        id: preflight
+        run: |
+          echo "🔍 Checking network connectivity..."
 
-                  # Extract host from URL
-                  HOST=$(echo "${{ env.TARGET_URL }}" | sed -E 's|https?://([^/]+).*|\1|')
+          # Extract host from URL
+          HOST=$(echo "${{ env.TARGET_URL }}" | sed -E 's|https?://([^/]+).*|\1|')
 
-                  if ping -c 1 -W 5 "$HOST" &> /dev/null; then
-                    echo "✅ Host is reachable: $HOST"
-                    echo "reachable=true" >> $GITHUB_OUTPUT
-                  else
-                    echo "⚠️ Host unreachable, proceeding with HTTP check..."
-                    echo "reachable=false" >> $GITHUB_OUTPUT
-                  fi
+          if ping -c 1 -W 5 "$HOST" &> /dev/null; then
+            echo "✅ Host is reachable: $HOST"
+            echo "reachable=true" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ Host unreachable, proceeding with HTTP check..."
+            echo "reachable=false" >> $GITHUB_OUTPUT
+          fi
 
-                  # DNS check
-                  if nslookup "$HOST" &> /dev/null; then
-                    echo "✅ DNS resolution: OK"
-                    echo "dns_ok=true" >> $GITHUB_OUTPUT
-                  else
-                    echo "❌ DNS resolution failed"
-                    echo "dns_ok=false" >> $GITHUB_OUTPUT
-                  fi
+          # DNS check
+          if nslookup "$HOST" &> /dev/null; then
+            echo "✅ DNS resolution: OK"
+            echo "dns_ok=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ DNS resolution failed"
+            echo "dns_ok=false" >> $GITHUB_OUTPUT
+          fi
 
-            # ============================================================
-            # PHASE 3: API REQUEST WITH RETRY LOGIC
-            # ============================================================
-            - name: 📡 Send API Request (With Retry)
-              id: api_request
-              run: |
-                  ATTEMPT=0
-                  MAX_RETRIES=${{ env.MAX_RETRIES }}
-                  RETRY_DELAY=${{ env.RETRY_DELAY }}
+      # ============================================================
+      # PHASE 3: API REQUEST WITH RETRY LOGIC
+      # ============================================================
+      - name: 📡 Send API Request (With Retry)
+        id: api_request
+        run: |
+          ATTEMPT=0
+          MAX_RETRIES=${{ env.MAX_RETRIES }}
+          RETRY_DELAY=${{ env.RETRY_DELAY }}
 
-                  while [ $ATTEMPT -lt $MAX_RETRIES ]; do
-                    ATTEMPT=$((ATTEMPT + 1))
-                    echo "🔄 Attempt $ATTEMPT/$MAX_RETRIES..."
-                    
-                    REQUEST_START=$(date +%s%N)
-                    
-                    HTTP_CODE=$(curl -s -S -L \
-                      -w "%{http_code}" \
-                      -o response.json \
-                      --max-time ${{ env.REQUEST_TIMEOUT }} \
-                      --connect-timeout 10 \
-                      --retry 0 \
-                      -X POST \
-                      -H "Content-Type: application/json" \
-                      -H "Accept: application/json" \
-                      -H "User-Agent: GitHub-Actions/HealthCheck" \
-                      -d '{"mode":"discord"}' \
-                      "${{ env.TARGET_URL }}")
-                    
-                    REQUEST_END=$(date +%s%N)
-                    DURATION_MS=$(( (REQUEST_END - REQUEST_START) / 1000000 ))
-                    
-                    echo "   HTTP Code: $HTTP_CODE"
-                    echo "   Duration: ${DURATION_MS}ms"
-                    
-                    if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 201 ]; then
-                      echo "✅ Request successful on attempt $ATTEMPT"
-                      echo "http_code=$HTTP_CODE" >> $GITHUB_OUTPUT
-                      echo "attempts=$ATTEMPT" >> $GITHUB_OUTPUT
-                      echo "duration_ms=$DURATION_MS" >> $GITHUB_OUTPUT
-                      exit 0
-                    fi
-                    
-                    if [ $ATTEMPT -lt $MAX_RETRIES ]; then
-                      echo "⏳ Waiting ${RETRY_DELAY}s before retry..."
-                      sleep $RETRY_DELAY
-                    fi
-                  done
+          while [ $ATTEMPT -lt $MAX_RETRIES ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "🔄 Attempt $ATTEMPT/$MAX_RETRIES..."
+            
+            REQUEST_START=$(date +%s%N)
+            
+            HTTP_CODE=$(curl -s -S -L \
+              -w "%{http_code}" \
+              -o response.json \
+              --max-time ${{ env.REQUEST_TIMEOUT }} \
+              --connect-timeout 10 \
+              --retry 0 \
+              -X POST \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/json" \
+              -H "User-Agent: GitHub-Actions/HealthCheck" \
+              -d '{"mode":"discord"}' \
+              "${{ env.TARGET_URL }}")
+            
+            REQUEST_END=$(date +%s%N)
+            DURATION_MS=$(( (REQUEST_END - REQUEST_START) / 1000000 ))
+            
+            echo "   HTTP Code: $HTTP_CODE"
+            echo "   Duration: ${DURATION_MS}ms"
+            
+            if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 201 ]; then
+              echo "✅ Request successful on attempt $ATTEMPT"
+              echo "http_code=$HTTP_CODE" >> $GITHUB_OUTPUT
+              echo "attempts=$ATTEMPT" >> $GITHUB_OUTPUT
+              echo "duration_ms=$DURATION_MS" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+            
+            if [ $ATTEMPT -lt $MAX_RETRIES ]; then
+              echo "⏳ Waiting ${RETRY_DELAY}s before retry..."
+              sleep $RETRY_DELAY
+            fi
+          done
 
-                  # All retries failed
-                  echo "❌ All $MAX_RETRIES attempts failed (Final Code: $HTTP_CODE)"
-                  echo "http_code=$HTTP_CODE" >> $GITHUB_OUTPUT
-                  echo "attempts=$MAX_RETRIES" >> $GITHUB_OUTPUT
-                  exit 1
+          # All retries failed
+          echo "❌ All $MAX_RETRIES attempts failed (Final Code: $HTTP_CODE)"
+          echo "http_code=$HTTP_CODE" >> $GITHUB_OUTPUT
+          echo "attempts=$MAX_RETRIES" >> $GITHUB_OUTPUT
+          exit 1
 
-            # ============================================================
-            # PHASE 5: HEALTH STATUS EVALUATION
-            # ============================================================
-            - name: 📈 Evaluate Health Status
-              id: health_status
-              if: always()
-              run: |
-                  HTTP_CODE="${{ steps.api_request.outputs.http_code }}"
-                  ATTEMPTS="${{ steps.api_request.outputs.attempts }}"
-                  DURATION="${{ steps.api_request.outputs.duration_ms }}"
+      # ============================================================
+      # PHASE 5: HEALTH STATUS EVALUATION
+      # ============================================================
+      - name: 📈 Evaluate Health Status
+        id: health_status
+        if: always()
+        run: |
+          HTTP_CODE="${{ steps.api_request.outputs.http_code }}"
+          ATTEMPTS="${{ steps.api_request.outputs.attempts }}"
+          DURATION="${{ steps.api_request.outputs.duration_ms }}"
 
-                  # Determine health status
-                  if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 201 ]; then
-                    STATUS="HEALTHY"
-                    ICON="✅"
-                    COLOR="green"
-                    SEVERITY="success"
-                  elif [ "$HTTP_CODE" -ge 500 ]; then
-                    STATUS="CRITICAL"
-                    ICON="🔴"
-                    COLOR="red"
-                    SEVERITY="critical"
-                  elif [ "$HTTP_CODE" -ge 400 ]; then
-                    STATUS="WARNING"
-                    ICON="🟡"
-                    COLOR="yellow"
-                    SEVERITY="warning"
-                  else
-                    STATUS="UNKNOWN"
-                    ICON="⚪"
-                    COLOR="gray"
-                    SEVERITY="unknown"
-                  fi
+          # Determine health status
+          if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 201 ]; then
+            STATUS="HEALTHY"
+            ICON="✅"
+            COLOR="green"
+            SEVERITY="success"
+          elif [ "$HTTP_CODE" -ge 500 ]; then
+            STATUS="CRITICAL"
+            ICON="🔴"
+            COLOR="red"
+            SEVERITY="critical"
+          elif [ "$HTTP_CODE" -ge 400 ]; then
+            STATUS="WARNING"
+            ICON="🟡"
+            COLOR="yellow"
+            SEVERITY="warning"
+          else
+            STATUS="UNKNOWN"
+            ICON="⚪"
+            COLOR="gray"
+            SEVERITY="unknown"
+          fi
 
-                  # Performance evaluation
-                  if [ -z "$DURATION" ]; then
-                    DURATION=0
-                  fi
+          # Performance evaluation
+          if [ -z "$DURATION" ]; then
+            DURATION=0
+          fi
 
-                  if [ "$DURATION" -lt 500 ]; then
-                    PERF="EXCELLENT"
-                  elif [ "$DURATION" -lt 1000 ]; then
-                    PERF="GOOD"
-                  elif [ "$DURATION" -lt 2000 ]; then
-                    PERF="ACCEPTABLE"
-                  else
-                    PERF="SLOW"
-                  fi
+          if [ "$DURATION" -lt 500 ]; then
+            PERF="EXCELLENT"
+          elif [ "$DURATION" -lt 1000 ]; then
+            PERF="GOOD"
+          elif [ "$DURATION" -lt 2000 ]; then
+            PERF="ACCEPTABLE"
+          else
+            PERF="SLOW"
+          fi
 
-                  echo "status=$STATUS" >> $GITHUB_OUTPUT
-                  echo "icon=$ICON" >> $GITHUB_OUTPUT
-                  echo "color=$COLOR" >> $GITHUB_OUTPUT
-                  echo "severity=$SEVERITY" >> $GITHUB_OUTPUT
-                  echo "performance=$PERF" >> $GITHUB_OUTPUT
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+          echo "icon=$ICON" >> $GITHUB_OUTPUT
+          echo "color=$COLOR" >> $GITHUB_OUTPUT
+          echo "severity=$SEVERITY" >> $GITHUB_OUTPUT
+          echo "performance=$PERF" >> $GITHUB_OUTPUT
 
-                  echo "$ICON System Status: **$STATUS**"
-                  echo "⚡ Performance: **$PERF** (${DURATION}ms)"
+          echo "$ICON System Status: **$STATUS**"
+          echo "⚡ Performance: **$PERF** (${DURATION}ms)"
 
-            # ============================================================
-            # PHASE 6: COMPREHENSIVE REPORTING
-            # ============================================================
-            - name: 📊 Generate Comprehensive Report
-              id: report
-              if: always()
-              run: |
-                  JOB_START="${{ steps.init.outputs.job_start }}"
-                  START_TIME="${{ steps.init.outputs.start_time }}"
-                  HTTP_CODE="${{ steps.api_request.outputs.http_code }}"
-                  ATTEMPTS="${{ steps.api_request.outputs.attempts }}"
-                  DURATION="${{ steps.api_request.outputs.duration_ms }}"
-                  STATUS="${{ steps.health_status.outputs.status }}"
-                  ICON="${{ steps.health_status.outputs.icon }}"
-                  PERF="${{ steps.health_status.outputs.performance }}"
+      # ============================================================
+      # PHASE 6: COMPREHENSIVE REPORTING
+      # ============================================================
+      - name: 📊 Generate Comprehensive Report
+        id: report
+        if: always()
+        run: |
+          JOB_START="${{ steps.init.outputs.job_start }}"
+          START_TIME="${{ steps.init.outputs.start_time }}"
+          HTTP_CODE="${{ steps.api_request.outputs.http_code }}"
+          ATTEMPTS="${{ steps.api_request.outputs.attempts }}"
+          DURATION="${{ steps.api_request.outputs.duration_ms }}"
+          STATUS="${{ steps.health_status.outputs.status }}"
+          ICON="${{ steps.health_status.outputs.icon }}"
+          PERF="${{ steps.health_status.outputs.performance }}"
 
-                  JOB_END=$(date +%s)
-                  TOTAL_DURATION=$((JOB_END - JOB_START))
+          JOB_END=$(date +%s)
+          TOTAL_DURATION=$((JOB_END - JOB_START))
 
-                  # Create markdown report
-                  REPORT_FILE="artifacts/health-report-$(date +%Y%m%d-%H%M%S).md"
+          # Create markdown report
+          REPORT_FILE="artifacts/health-report-$(date +%Y%m%d-%H%M%S).md"
 
-                  cat > "$REPORT_FILE" << 'REPORT'
-                  # 🏥 System Health Check Report
+          cat > "$REPORT_FILE" << 'REPORT'
+          # 🏥 System Health Check Report
 
-                  REPORT
+          REPORT
 
-                  {
-                    echo ""
-                    echo "## 📋 Executive Summary"
-                    echo ""
-                    echo "| Key Metric | Value |"
-                    echo "|:---|:---|"
-                    echo "| **Overall Status** | $ICON **$STATUS** |"
-                    echo "| **Execution Time** | $(date '+%Y-%m-%d %H:%M:%S %Z') |"
-                    echo "| **Response Time** | ${DURATION}ms |"
-                    echo "| **Performance** | $PERF |"
-                    echo "| **HTTP Status Code** | \`$HTTP_CODE\` |"
-                    echo "| **Attempts** | $ATTEMPTS/${{ env.MAX_RETRIES }} |"
-                    echo "| **Job Duration** | ${TOTAL_DURATION}s |"
-                    echo ""
-                    echo "## 🎯 Target Endpoint"
-                    echo ""
-                    echo "\`\`\`"
-                    echo "POST ${{ env.TARGET_URL }}"
-                    echo "\`\`\`"
-                    echo ""
-                    echo "## 📊 Performance Metrics"
-                    echo ""
-                    echo "| Metric | Status |"
-                    echo "|:---|:---|"
-                    if [ "$DURATION" -lt 500 ]; then
-                      echo "| Response Time (<500ms) | ✅ EXCELLENT |"
-                    elif [ "$DURATION" -lt 1000 ]; then
-                      echo "| Response Time (<1000ms) | ✅ GOOD |"
-                    else
-                      echo "| Response Time | ⚠️ SLOW |"
-                    fi
-                    echo ""
-                    echo "## 🔄 Retry Information"
-                    echo ""
-                    echo "- **Attempts Made**: $ATTEMPTS"
-                    echo "- **Max Retries**: ${{ env.MAX_RETRIES }}"
-                    echo "- **Request Timeout**: ${{ env.REQUEST_TIMEOUT }}s"
-                    echo ""
-                    echo "## 🌐 Network Status"
-                    echo ""
-                    echo "- **DNS Resolution**: ${{ steps.preflight.outputs.dns_ok == 'true' && '✅ OK' || '❌ Failed' }}"
-                    echo "- **Host Reachability**: ${{ steps.preflight.outputs.reachable == 'true' && '✅ Reachable' || '⚠️ Unreachable' }}"
-                    echo ""
-                    echo "## 📄 Response Details"
-                    echo ""
-                    echo "- **JSON Valid**: ${{ steps.analyze.outputs.json_valid == 'true' && '✅ Yes' || '❌ No' }}"
-                    echo "- **File Size**: ${{ steps.analyze.outputs.file_size }} bytes"
-                    echo ""
-                    echo "### Response Preview"
-                    echo ""
-                    echo "\`\`\`json"
-                    if [ -f response.json ]; then
-                      cat response.json | jq . 2>/dev/null || cat response.json | head -20
-                    fi
-                    echo "\`\`\`"
-                    echo ""
-                    echo "## ✅ Checklist"
-                    echo ""
-                    echo "- $([ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 201 ] && echo "✅" || echo "❌") API Endpoint Responding"
-                    echo "- $([ "$DURATION" -lt 2000 ] && echo "✅" || echo "❌") Response Time Acceptable"
-                    echo "- ${{ steps.analyze.outputs.json_valid == 'true' && '✅' || '❌' }} Valid JSON Response"
-                    echo "- $([ "$ATTEMPTS" -eq 1 ] && echo "✅" || echo "⚠️") First Attempt Success"
-                    echo ""
-                    echo "---"
-                    echo "Generated: $(date '+%Y-%m-%d %H:%M:%S %Z')"
-                    echo "Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                  } >> "$REPORT_FILE"
+          {
+            echo ""
+            echo "## 📋 Executive Summary"
+            echo ""
+            echo "| Key Metric | Value |"
+            echo "|:---|:---|"
+            echo "| **Overall Status** | $ICON **$STATUS** |"
+            echo "| **Execution Time** | $(date '+%Y-%m-%d %H:%M:%S %Z') |"
+            echo "| **Response Time** | ${DURATION}ms |"
+            echo "| **Performance** | $PERF |"
+            echo "| **HTTP Status Code** | \`$HTTP_CODE\` |"
+            echo "| **Attempts** | $ATTEMPTS/${{ env.MAX_RETRIES }} |"
+            echo "| **Job Duration** | ${TOTAL_DURATION}s |"
+            echo ""
+            echo "## 🎯 Target Endpoint"
+            echo ""
+            echo "\`\`\`"
+            echo "POST ${{ env.TARGET_URL }}"
+            echo "\`\`\`"
+            echo ""
+            echo "## 📊 Performance Metrics"
+            echo ""
+            echo "| Metric | Status |"
+            echo "|:---|:---|"
+            if [ "$DURATION" -lt 500 ]; then
+              echo "| Response Time (<500ms) | ✅ EXCELLENT |"
+            elif [ "$DURATION" -lt 1000 ]; then
+              echo "| Response Time (<1000ms) | ✅ GOOD |"
+            else
+              echo "| Response Time | ⚠️ SLOW |"
+            fi
+            echo ""
+            echo "## 🔄 Retry Information"
+            echo ""
+            echo "- **Attempts Made**: $ATTEMPTS"
+            echo "- **Max Retries**: ${{ env.MAX_RETRIES }}"
+            echo "- **Request Timeout**: ${{ env.REQUEST_TIMEOUT }}s"
+            echo ""
+            echo "## 🌐 Network Status"
+            echo ""
+            echo "- **DNS Resolution**: ${{ steps.preflight.outputs.dns_ok == 'true' && '✅ OK' || '❌ Failed' }}"
+            echo "- **Host Reachability**: ${{ steps.preflight.outputs.reachable == 'true' && '✅ Reachable' || '⚠️ Unreachable' }}"
+            echo ""
+            echo "## 📄 Response Details"
+            echo ""
+            echo "- **JSON Valid**: ${{ steps.analyze.outputs.json_valid == 'true' && '✅ Yes' || '❌ No' }}"
+            echo "- **File Size**: ${{ steps.analyze.outputs.file_size }} bytes"
+            echo ""
+            echo "### Response Preview"
+            echo ""
+            echo "\`\`\`json"
+            if [ -f response.json ]; then
+              cat response.json | jq . 2>/dev/null || cat response.json | head -20
+            fi
+            echo "\`\`\`"
+            echo ""
+            echo "## ✅ Checklist"
+            echo ""
+            echo "- $([ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 201 ] && echo "✅" || echo "❌") API Endpoint Responding"
+            echo "- $([ "$DURATION" -lt 2000 ] && echo "✅" || echo "❌") Response Time Acceptable"
+            echo "- ${{ steps.analyze.outputs.json_valid == 'true' && '✅' || '❌' }} Valid JSON Response"
+            echo "- $([ "$ATTEMPTS" -eq 1 ] && echo "✅" || echo "⚠️") First Attempt Success"
+            echo ""
+            echo "---"
+            echo "Generated: $(date '+%Y-%m-%d %H:%M:%S %Z')"
+            echo "Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          } >> "$REPORT_FILE"
 
-                  echo "report_file=$REPORT_FILE" >> $GITHUB_OUTPUT
+          echo "report_file=$REPORT_FILE" >> $GITHUB_OUTPUT
 
-            # ============================================================
-            # PHASE 7: GITHUB ACTIONS SUMMARY
-            # ============================================================
-            - name: 📑 Publish GitHub Actions Summary
-              if: always()
-              run: |
-                  STATUS="${{ steps.health_status.outputs.status }}"
-                  ICON="${{ steps.health_status.outputs.icon }}"
-                  HTTP_CODE="${{ steps.api_request.outputs.http_code }}"
-                  DURATION="${{ steps.api_request.outputs.duration_ms }}"
-                  ATTEMPTS="${{ steps.api_request.outputs.attempts }}"
-                  PERF="${{ steps.health_status.outputs.performance }}"
+      # ============================================================
+      # PHASE 7: GITHUB ACTIONS SUMMARY
+      # ============================================================
+      - name: 📑 Publish GitHub Actions Summary
+        if: always()
+        run: |
+          STATUS="${{ steps.health_status.outputs.status }}"
+          ICON="${{ steps.health_status.outputs.icon }}"
+          HTTP_CODE="${{ steps.api_request.outputs.http_code }}"
+          DURATION="${{ steps.api_request.outputs.duration_ms }}"
+          ATTEMPTS="${{ steps.api_request.outputs.attempts }}"
+          PERF="${{ steps.health_status.outputs.performance }}"
 
-                  {
-                    echo "$ICON # System Health Check Report"
-                    echo ""
-                    echo "## 📊 Overall Status: **$STATUS**"
-                    echo ""
-                    echo "### ⚡ Key Metrics"
-                    echo ""
-                    echo "| Metric | Value | Status |"
-                    echo "|:---|:---:|:---:|"
-                    echo "| **System Health** | $STATUS | $ICON |"
-                    echo "| **HTTP Status Code** | \`$HTTP_CODE\` | $([ "$HTTP_CODE" -eq 200 ] && echo "✅" || echo "❌") |"
-                    echo "| **Response Time** | ${DURATION}ms | $([ "$DURATION" -lt 1000 ] && echo "⚡" || echo "🐢") |"
-                    echo "| **Performance** | $PERF | $([ "$PERF" = "EXCELLENT" ] || [ "$PERF" = "GOOD" ] && echo "✅" || echo "⚠️") |"
-                    echo "| **Attempts** | $ATTEMPTS/${{ env.MAX_RETRIES }} | $([ "$ATTEMPTS" -eq 1 ] && echo "✅" || echo "⚠️") |"
-                    echo ""
-                    echo "### 📋 Endpoint Details"
-                    echo ""
-                    echo "- **URL**: \`${{ env.TARGET_URL }}\`"
-                    echo "- **Method**: \`POST\`"
-                    echo "- **Payload**: \`{\"mode\":\"discord\"}\`"
-                    echo "- **Execution**: $(date '+%Y-%m-%d %H:%M:%S %Z')"
-                    echo ""
-                    echo "### 🔧 Configuration"
-                    echo ""
-                    echo "- **Request Timeout**: ${{ env.REQUEST_TIMEOUT }}s"
-                    echo "- **Max Retries**: ${{ env.MAX_RETRIES }}"
-                    echo "- **Timezone**: $TZ"
-                    echo ""
-                    echo "### 🌐 Network Status"
-                    echo ""
-                    echo "- DNS: ${{ steps.preflight.outputs.dns_ok == 'true' && '✅ Resolved' || '❌ Failed' }}"
-                    echo "- Host: ${{ steps.preflight.outputs.reachable == 'true' && '✅ Reachable' || '⚠️ Unreachable' }}"
-                    echo ""
-                    echo "### 💡 Recommendations"
-                    echo ""
-                    if [ "$HTTP_CODE" -eq 200 ]; then
-                      echo "✅ **System is HEALTHY** - All checks passed successfully"
-                    elif [ "$HTTP_CODE" -ge 500 ]; then
-                      echo "🚨 **CRITICAL**: Server error detected"
-                      echo "- Check backend logs: \`/var/log/laravel.log\`"
-                      echo "- Verify database connectivity"
-                      echo "- Check resource availability (CPU, Memory, Disk)"
-                    elif [ "$HTTP_CODE" -ge 400 ]; then
-                      echo "⚠️ **WARNING**: Client error detected"
-                      echo "- Verify endpoint URL configuration"
-                      echo "- Check request payload format"
-                      echo "- Review API authentication"
-                    fi
-                    echo ""
-                    if [ "$DURATION" -gt 2000 ]; then
-                      echo "⚡ **Performance Issue**: Response time is slow (${DURATION}ms)"
-                      echo "- Consider optimizing database queries"
-                      echo "- Check server load and resource usage"
-                    fi
-                    echo ""
-                    echo "---"
-                    echo ""
-                    echo "📍 **Workflow**: [${{ github.workflow }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
-                    echo ""
-                    echo "🕐 **Last Updated**: $(date '+%Y-%m-%d %H:%M:%S %Z')"
-                  } >> $GITHUB_STEP_SUMMARY
+          {
+            echo "$ICON # System Health Check Report"
+            echo ""
+            echo "## 📊 Overall Status: **$STATUS**"
+            echo ""
+            echo "### ⚡ Key Metrics"
+            echo ""
+            echo "| Metric | Value | Status |"
+            echo "|:---|:---:|:---:|"
+            echo "| **System Health** | $STATUS | $ICON |"
+            echo "| **HTTP Status Code** | \`$HTTP_CODE\` | $([ "$HTTP_CODE" -eq 200 ] && echo "✅" || echo "❌") |"
+            echo "| **Response Time** | ${DURATION}ms | $([ "$DURATION" -lt 1000 ] && echo "⚡" || echo "🐢") |"
+            echo "| **Performance** | $PERF | $([ "$PERF" = "EXCELLENT" ] || [ "$PERF" = "GOOD" ] && echo "✅" || echo "⚠️") |"
+            echo "| **Attempts** | $ATTEMPTS/${{ env.MAX_RETRIES }} | $([ "$ATTEMPTS" -eq 1 ] && echo "✅" || echo "⚠️") |"
+            echo ""
+            echo "### 📋 Endpoint Details"
+            echo ""
+            echo "- **URL**: \`${{ env.TARGET_URL }}\`"
+            echo "- **Method**: \`POST\`"
+            echo "- **Payload**: \`{\"mode\":\"discord\"}\`"
+            echo "- **Execution**: $(date '+%Y-%m-%d %H:%M:%S %Z')"
+            echo ""
+            echo "### 🔧 Configuration"
+            echo ""
+            echo "- **Request Timeout**: ${{ env.REQUEST_TIMEOUT }}s"
+            echo "- **Max Retries**: ${{ env.MAX_RETRIES }}"
+            echo "- **Timezone**: $TZ"
+            echo ""
+            echo "### 🌐 Network Status"
+            echo ""
+            echo "- DNS: ${{ steps.preflight.outputs.dns_ok == 'true' && '✅ Resolved' || '❌ Failed' }}"
+            echo "- Host: ${{ steps.preflight.outputs.reachable == 'true' && '✅ Reachable' || '⚠️ Unreachable' }}"
+            echo ""
+            echo "### 💡 Recommendations"
+            echo ""
+            if [ "$HTTP_CODE" -eq 200 ]; then
+              echo "✅ **System is HEALTHY** - All checks passed successfully"
+            elif [ "$HTTP_CODE" -ge 500 ]; then
+              echo "🚨 **CRITICAL**: Server error detected"
+              echo "- Check backend logs: \`/var/log/laravel.log\`"
+              echo "- Verify database connectivity"
+              echo "- Check resource availability (CPU, Memory, Disk)"
+            elif [ "$HTTP_CODE" -ge 400 ]; then
+              echo "⚠️ **WARNING**: Client error detected"
+              echo "- Verify endpoint URL configuration"
+              echo "- Check request payload format"
+              echo "- Review API authentication"
+            fi
+            echo ""
+            if [ "$DURATION" -gt 2000 ]; then
+              echo "⚡ **Performance Issue**: Response time is slow (${DURATION}ms)"
+              echo "- Consider optimizing database queries"
+              echo "- Check server load and resource usage"
+            fi
+            echo ""
+            echo "---"
+            echo ""
+            echo "📍 **Workflow**: [${{ github.workflow }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            echo ""
+            echo "🕐 **Last Updated**: $(date '+%Y-%m-%d %H:%M:%S %Z')"
+          } >> $GITHUB_STEP_SUMMARY
 
-            # ============================================================
-            # PHASE 8: ARTIFACT MANAGEMENT
-            # ============================================================
-            - name: 📦 Upload Artifacts
-              if: always()
-              uses: actions/upload-artifact@v4
-              with:
-                  name: health-check-report-${{ github.run_id }}
-                  path: |
-                      artifacts/
-                      response.json
-                      logs/
-                  retention-days: 30
-                  compression-level: 9
+      # ============================================================
+      # PHASE 8: ARTIFACT MANAGEMENT
+      # ============================================================
+      - name: 📦 Upload Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-check-report-${{ github.run_id }}
+          path: |
+            artifacts/
+            response.json
+            logs/
+          retention-days: 30
+          compression-level: 9
 
-            # ============================================================
-            # PHASE 9: FINAL STATUS & DECISION
-            # ============================================================
-            - name: 🚨 Final Status Decision
-              id: final_status
-              if: always()
-              run: |
-                  HTTP_CODE="${{ steps.api_request.outputs.http_code }}"
-                  STATUS="${{ steps.health_status.outputs.status }}"
-                  SEVERITY="${{ steps.health_status.outputs.severity }}"
-                  JOB_START="${{ steps.init.outputs.job_start }}"
-                  JOB_END=$(date +%s)
-                  DURATION=$((JOB_END - JOB_START))
+      # ============================================================
+      # PHASE 9: FINAL STATUS & DECISION
+      # ============================================================
+      - name: 🚨 Final Status Decision
+        id: final_status
+        if: always()
+        run: |
+          HTTP_CODE="${{ steps.api_request.outputs.http_code }}"
+          STATUS="${{ steps.health_status.outputs.status }}"
+          SEVERITY="${{ steps.health_status.outputs.severity }}"
+          JOB_START="${{ steps.init.outputs.job_start }}"
+          JOB_END=$(date +%s)
+          DURATION=$((JOB_END - JOB_START))
 
-                  echo "status=$STATUS" >> $GITHUB_OUTPUT
-                  echo "duration=${DURATION}s" >> $GITHUB_OUTPUT
-                  echo "severity=$SEVERITY" >> $GITHUB_OUTPUT
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+          echo "duration=${DURATION}s" >> $GITHUB_OUTPUT
+          echo "severity=$SEVERITY" >> $GITHUB_OUTPUT
 
-                  if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 201 ]; then
-                    echo ""
-                    echo "✅ ═════════════════════════════════════════"
-                    echo "   HEALTH CHECK: PASSED ✅"
-                    echo "═════════════════════════════════════════"
-                    exit 0
-                  else
-                    echo ""
-                    echo "❌ ═════════════════════════════════════════"
-                    echo "   HEALTH CHECK: FAILED ❌"
-                    echo "════════════════════════════════════════="
-                    echo ""
-                    echo "::error title=Health Check Failed::HTTP Status $HTTP_CODE"
-                    exit 1
-                  fi
+          if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 201 ]; then
+            echo ""
+            echo "✅ ═════════════════════════════════════════"
+            echo "   HEALTH CHECK: PASSED ✅"
+            echo "═════════════════════════════════════════"
+            exit 0
+          else
+            echo ""
+            echo "❌ ═════════════════════════════════════════"
+            echo "   HEALTH CHECK: FAILED ❌"
+            echo "════════════════════════════════════════="
+            echo ""
+            echo "::error title=Health Check Failed::HTTP Status $HTTP_CODE"
+            exit 1
+          fi
