@@ -76,6 +76,10 @@ import {
   buildSchoolOptions,
   validatePassword,
 } from "@/app/hardware/canteen/canteen.helper";
+import {
+  StatusModalComponent,
+  StatusModalType,
+} from "@/components/modal/status-modal-component";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
 import type {
   ApplicationRecord,
@@ -372,6 +376,50 @@ export default function CanteenAppManager() {
   const [debugData, setDebugData] = useState<any>(null);
   const [deleteTargetRecord, setDeleteTargetRecord] =
     useState<VersionRecord | null>(null);
+  const [statusModal, setStatusModal] = useState<{
+    open: boolean;
+    type: StatusModalType;
+    title?: string;
+    message?: string;
+    errorDetails?: any;
+    onConfirm?: () => void;
+    loading?: boolean;
+  }>({
+    open: false,
+    type: "success",
+  });
+
+  const closeStatusModal = useCallback(() => {
+    setStatusModal((prev) => ({ ...prev, open: false }));
+  }, []);
+
+  // Error Handler Helper
+  const handleApiError = useCallback(
+    (error: any, defaultMessage: string) => {
+      console.error("API Error:", error);
+      const status = error.response?.status || error.status;
+      const message = error.message || "";
+
+      if (status === 504 || message.includes("504")) {
+        setStatusModal({
+          open: true,
+          type: "error",
+          title: "เซิฟเวอร์ Hardware API ขัดข้อง",
+          message:
+            "เซิฟเวอร์ Hardware API กำลังปิดอยู่ โปรดติดต่อ พี่โจ้ , ไลท์ เพื่อเปิดเซิฟเวอร์",
+        });
+      } else {
+        setStatusModal({
+          open: true,
+          type: "error",
+          title: "เกิดข้อผิดพลาด",
+          message: defaultMessage,
+          errorDetails: error.response?.data || error.message,
+        });
+      }
+    },
+    [setStatusModal],
+  );
 
   // Roll-out State
   const [rolloutPercent, setRolloutPercent] = useState(0);
@@ -409,13 +457,15 @@ export default function CanteenAppManager() {
   // Data Fetchers
   const fetchSchools = useCallback(async () => {
     try {
-      const response = await axios.get("/api/v1/school/get-detail");
+      const response = await axios.get("/api/v1/school/get-detail", {
+        timeout: 10000,
+      });
       // response format: { data: { data: [...] }, curl: ... }
       setSchoolList(response.data?.data?.data ?? []);
     } catch (error) {
-      console.error("Failed to fetch schools", error);
+      handleApiError(error, "ไม่สามารถโหลดข้อมูลรายชื่อโรงเรียนได้");
     }
-  }, []);
+  }, [handleApiError]);
 
   const fetchApplications = useCallback(async () => {
     setIsApplicationLoading(true);
@@ -423,11 +473,11 @@ export default function CanteenAppManager() {
       const apiResponse = await GET_APPLICATION_LIST();
       setApplicationList(apiResponse?.data?.data ?? []);
     } catch (error) {
-      toast.error("โหลดรายการแอปพลิเคชันไม่สำเร็จ");
+      handleApiError(error, "โหลดรายการแอปพลิเคชันไม่สำเร็จ");
     } finally {
       setIsApplicationLoading(false);
     }
-  }, []);
+  }, [handleApiError]);
 
   const fetchApplicationVersions = useCallback(
     async (applicationId: string | number) => {
@@ -444,19 +494,19 @@ export default function CanteenAppManager() {
           curl: apiResponse?.curl ?? "",
         });
       } catch (error) {
-        toast.error("โหลดข้อมูลเวอร์ชันไม่สำเร็จ");
+        handleApiError(error, "โหลดข้อมูลเวอร์ชันไม่สำเร็จ");
         setVersionDataset((previousState) => ({
           ...previousState,
           loading: false,
         }));
       }
     },
-    [],
+    [handleApiError],
   );
 
   useEffect(() => {
-    fetchApplications();
-    fetchSchools();
+    void fetchApplications();
+    void fetchSchools();
   }, [fetchApplications, fetchSchools]);
 
   const handleExportHistory = async () => {
@@ -469,7 +519,7 @@ export default function CanteenAppManager() {
 
       const response = await axios.get(
         `/api/v1/hardware/canteen/export?appId=${appId}&appName=${encodeURIComponent(appName)}`,
-        { responseType: "blob" },
+        { responseType: "blob", timeout: 10000 },
       );
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -486,8 +536,8 @@ export default function CanteenAppManager() {
 
       toast.success("ส่งออกข้อมูลสำเร็จ", { id: toastId });
     } catch (error) {
-      console.error("Export error:", error);
-      toast.error("ไม่สามารถส่งออกข้อมูลได้", { id: toastId });
+      handleApiError(error, "ไม่สามารถส่งออกข้อมูลได้");
+      toast.dismiss(toastId);
     }
   };
 
@@ -602,10 +652,25 @@ export default function CanteenAppManager() {
       }
 
       setSubmissionStatus("success");
+      setStatusModal({
+        open: true,
+        type: "success",
+        title: "บันทึกข้อมูลสำเร็จ",
+        message:
+          versionFormMode === "add"
+            ? "เพิ่มเวอร์ชันใหม่เรียบร้อยแล้ว"
+            : "อัปเดตข้อมูลเวอร์ชันเรียบร้อยแล้ว",
+      });
+
       if (selectedApplication)
         fetchApplicationVersions(selectedApplication.app_id);
     } catch (error: any) {
       setSubmissionStatus("error");
+
+      const status = error.response?.status || error.status;
+      if (status === 504 || error.message?.includes("504")) {
+        handleApiError(error, "");
+      }
 
       // ดึงข้อมูล Error ออกมาแสดงผลเพื่อการ Debug
       const apiErrorData = error.response?.data;
@@ -622,18 +687,27 @@ export default function CanteenAppManager() {
 
   const handleVersionDeletion = async () => {
     if (!deleteTargetRecord) return;
+    setStatusModal((prev) => ({ ...prev, loading: true }));
     try {
       const apiResponse = await DELETE_APPLICATION_VERSION(
         deleteTargetRecord.version_id,
       );
       if (apiResponse?.data?.status === "failed")
         throw new Error("ไม่สามารถลบข้อมูลได้");
-      toast.success("ลบข้อมูลเวอร์ชันสำเร็จ");
+
+      setStatusModal({
+        open: true,
+        type: "success",
+        title: "ลบสำเร็จ",
+        message: "ลบข้อมูลเวอร์ชันเรียบร้อยแล้ว",
+      });
       setDeleteTargetRecord(null);
       if (selectedApplication)
         fetchApplicationVersions(selectedApplication.app_id);
     } catch (error) {
-      toast.error("ลบข้อมูลไม่สำเร็จ");
+      handleApiError(error, "ลบข้อมูลไม่สำเร็จ");
+    } finally {
+      setStatusModal((prev) => ({ ...prev, loading: false }));
     }
   };
 
@@ -652,6 +726,11 @@ export default function CanteenAppManager() {
       // API return format defined by proxy
       setCheckUpdateResult(response);
     } catch (error: any) {
+      const status = error.response?.status || error.status;
+      if (status === 504 || error.message?.includes("504")) {
+        handleApiError(error, "");
+      }
+
       console.error("Check Error:", error);
       const apiErrorData = error.response?.data;
       setCheckUpdateResult({
@@ -1714,33 +1793,29 @@ export default function CanteenAppManager() {
       </Modal>
 
       {/* Deletion Confirmation Modal */}
-      <Modal
-        title={
-          <Space>
-            <WarningOutlined style={{ color: "#ff4d4f" }} />
-            <span>ยืนยันการลบข้อมูล</span>
-          </Space>
-        }
+      <StatusModalComponent
         open={!!deleteTargetRecord}
-        onOk={handleVersionDeletion}
-        onCancel={() => setDeleteTargetRecord(null)}
-        okButtonProps={{ danger: true }}
-        okText="ยืนยันการลบ"
-        cancelText="ยกเลิก"
-      >
-        <AntText>
-          คุณแน่ใจหรือไม่ที่จะลบเวอร์ชัน{" "}
-          <AntText strong mark>
-            {deleteTargetRecord?.version_name}
-          </AntText>{" "}
-          ออกจากระบบ?
-        </AntText>
-        <div style={{ marginTop: 8 }}>
-          <AntText type="secondary" italic>
-            * ข้อมูลที่ลบไปแล้วจะไม่สามารถกู้คืนกลับมาได้
-          </AntText>
-        </div>
-      </Modal>
+        type="delete"
+        title="ยืนยันการลบข้อมูล"
+        message={`คุณแน่ใจหรือไม่ที่จะลบเวอร์ชัน "${deleteTargetRecord?.version_name}" ออกจากระบบ?`}
+        onClose={() => setDeleteTargetRecord(null)}
+        onConfirm={() => {
+          void handleVersionDeletion();
+        }}
+        loading={statusModal.loading}
+      />
+
+      {/* Shared Status Modal (Success, Error, etc.) */}
+      <StatusModalComponent
+        open={statusModal.open}
+        type={statusModal.type}
+        title={statusModal.title}
+        message={statusModal.message}
+        errorDetails={statusModal.errorDetails}
+        onClose={closeStatusModal}
+        onConfirm={statusModal.onConfirm}
+        loading={statusModal.loading}
+      />
     </DashboardLayout>
   );
 }

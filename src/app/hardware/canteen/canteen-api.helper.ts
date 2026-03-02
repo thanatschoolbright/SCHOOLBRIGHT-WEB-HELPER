@@ -3,7 +3,9 @@ import { callApiService as axios } from "@services/axios-instance/sb-helper.axio
 //** เรียกข้อมูลรายการแอปพลิเคชันทั้งหมด
 export const GET_APPLICATION_LIST = async () => {
   try {
-    const response = await axios.get("/api/v1/hardware/canteen/application");
+    const response = await axios.get("/api/v1/hardware/canteen/application", {
+      timeout: 10000,
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -17,6 +19,7 @@ export const GET_APPLICATION_VERSION_BY_APPID = async (
   try {
     const response = await axios.get(
       `/api/v1/hardware/canteen/version/${appId}`,
+      { timeout: 10000 },
     );
     return response.data;
   } catch (error) {
@@ -30,6 +33,7 @@ export const POST_CREATE_APPLICATION_VERSION = async (formData: FormData) => {
     const response = await axios.post(
       "/api/v1/hardware/canteen/create",
       formData,
+      { timeout: 10000 },
     );
     return response.data;
   } catch (error) {
@@ -46,6 +50,7 @@ export const POST_UPDATE_APPLICATION_VERSION = async (
     const response = await axios.post(
       `/api/v1/hardware/canteen/update?version_id=${versionId}`,
       formData,
+      { timeout: 10000 },
     );
     return response.data;
   } catch (error) {
@@ -60,6 +65,8 @@ export const DELETE_APPLICATION_VERSION = async (
   try {
     const response = await axios.post(
       `/api/v1/hardware/canteen/delete/${versionId}`,
+      {},
+      { timeout: 10000 },
     );
     return response.data;
   } catch (error) {
@@ -82,6 +89,7 @@ export const GET_CHECK_VERSION = async (params: {
         SchoolID: params.school_id,
         current_ver: params.current_ver || "",
       },
+      timeout: 10000,
     });
     return response.data;
   } catch (error) {

@@ -6,16 +6,7 @@ import {
   DeleteFilled,
   ExclamationCircleFilled,
 } from "@ant-design/icons";
-import {
-  Button,
-  Flex,
-  Input,
-  Modal,
-  Result,
-  Space,
-  theme,
-  Typography,
-} from "antd";
+import { Button, Flex, Input, Modal, Result, theme, Typography } from "antd";
 import React, { useState } from "react";
 
 const { Title, Text, Paragraph } = Typography;
@@ -30,7 +21,7 @@ interface StatusModalComponentProps {
   onClose: () => void;
   onConfirm?: () => void;
   loading?: boolean;
-  errorDetails?: any;
+  errorDetails?: unknown;
   confirmLabel?: string;
   cancelLabel?: string;
 }
@@ -58,7 +49,6 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
   const isSuccess = type === "success";
   const isError = type === "error";
   const isDelete = type === "delete";
-  const isConfirm = type === "confirm";
 
   const handleClose = () => {
     setConfirmInput("");
@@ -111,72 +101,73 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
       centered
       destroyOnHidden
       width={isError ? 600 : 420}
-      styles={{ body: { paddingBlock: token.paddingLG } }}
+      styles={{ body: { padding: token.paddingLG } }}
     >
       {/* ใช้ Flex คุมการจัดวางแนวตั้งให้กึ่งกลาง (https://ant.design/components/flex/) */}
-      <Flex vertical align="center" gap="middle">
+      <Flex vertical align="center" gap="large">
         {/* ส่วนแสดงสถานะ (Icon & Title) */}
         {isSuccess || isError ? (
           <Result
-            status={type as "success" | "error"}
-            title={title || (isSuccess ? "ดำเนินการสำเร็จ" : "เกิดข้อผิดพลาด")}
+            status={isSuccess ? "success" : "error"}
+            title={title ?? (isSuccess ? "ดำเนินการสำเร็จ" : "เกิดข้อผิดพลาด")}
             subTitle={message}
             // จัดการ Action Buttons ภายใน Result
             extra={
               !isError && (
-                <Button type="primary" onClick={handleClose} size="large" block>
-                  {confirmLabel || "ตกลง"}
+                <Button
+                  type="primary"
+                  onClick={handleClose}
+                  size="large"
+                  block
+                  style={{ height: 48, fontWeight: 600 }}
+                >
+                  {confirmLabel ?? "ตกลง"}
                 </Button>
               )
             }
           />
         ) : (
-          <Flex vertical align="center" gap="small">
+          <Flex vertical align="center" gap="middle" style={{ width: "100%" }}>
             {/* ไอคอนสถานะ */}
             {renderIcon()}
             {/* หัวข้อโมดอล */}
-            <Title level={4}>
-              {title || (isDelete ? "ยืนยันการลบ" : "ยืนยันรายการ")}
+            <Title level={4} style={{ margin: 0 }}>
+              {title ?? (isDelete ? "ยืนยันการลบ" : "ยืนยันรายการ")}
             </Title>
             {/* ส่วนข้อความรายละเอียด จัดกึ่งกลางด้วย Flex */}
-            <Flex justify="center" style={{ width: "100%" }}>
+            <div style={{ textAlign: "center", width: "100%" }}>
               <Text type="secondary">{message}</Text>
-            </Flex>
+            </div>
           </Flex>
         )}
 
         {/* ส่วนยืนยันการลบ (เฉพาะ Delete Mode) */}
         {isDelete && (
-          <Flex vertical gap="x-small" style={{ width: "100%" }}>
-            <Text type="danger" strong className="mb-3">
+          <Flex
+            vertical
+            gap="x-small"
+            style={{ width: "100%", marginBottom: token.marginSM }}
+          >
+            <Text type="danger" strong>
               โปรดพิมพ์คำว่า <Text code>Delete</Text> เพื่อยืนยัน
             </Text>
             <Input
               placeholder="Delete"
               size="large"
               value={confirmInput}
-              onChange={(e) => setConfirmInput(e.target.value)}
+              onChange={(e) => {
+                setConfirmInput(e.target.value);
+              }}
               onPressEnter={handleConfirm}
-              autoFocus
+              style={{ height: 40 }}
             />
           </Flex>
         )}
 
         {/* ปุ่มควบคุม (ยกเว้นโหมด Success ที่ใช้ Button ใน Result ไปแล้ว) */}
         {!isSuccess && (
-          <Space
-            size="middle"
-            style={{ width: "100%", justifyContent: "center" }}
-          >
-            {/* ปุ่มยกเลิก */}
-            <Button
-              onClick={handleClose}
-              size="large"
-              style={{ minWidth: 120 }}
-            >
-              {cancelLabel || "ยกเลิก"}
-            </Button>
-            {/* ปุ่มยืนยัน/ลบ */}
+          <Flex vertical gap="small" style={{ width: "100%" }}>
+            {/* ปุ่มยืนยัน/ลบ - อยู่ด้านบนเพื่อความเด่นชัด */}
             <Button
               type="primary"
               danger={isDelete}
@@ -184,11 +175,22 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
               size="large"
               loading={loading}
               disabled={isDelete && confirmInput !== "Delete"}
-              style={{ minWidth: 120 }}
+              block
+              style={{ height: 48, fontWeight: 600 }}
             >
-              {confirmLabel || (isDelete ? "ลบรายการ" : "ยืนยัน")}
+              {confirmLabel ?? (isDelete ? "ลบรายการ" : "ยืนยัน")}
             </Button>
-          </Space>
+
+            {/* ปุ่มยกเลิก - อยู่ด้านล่าง */}
+            <Button
+              onClick={handleClose}
+              size="large"
+              block
+              style={{ height: 48 }}
+            >
+              {cancelLabel ?? "ยกเลิก"}
+            </Button>
+          </Flex>
         )}
 
         {/* ส่วนแสดงรายละเอียด Error (แสดง Debug Info ในบรรทัดเดียวกับ Label) */}
@@ -200,6 +202,7 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
               background: token.colorFillAlter,
               padding: token.padding,
               borderRadius: token.borderRadiusLG,
+              marginTop: token.marginXS,
             }}
           >
             <Text strong type="danger" style={{ whiteSpace: "nowrap" }}>
@@ -210,9 +213,9 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
               ellipsis={{ rows: 2, expandable: true, symbol: "ดูเพิ่มเติม" }}
               style={{ margin: 0, whiteSpace: "pre-wrap", flex: 1 }}
             >
-              {typeof errorDetails === "object"
-                ? JSON.stringify(errorDetails)
-                : String(errorDetails)}
+              {typeof errorDetails === "string"
+                ? errorDetails
+                : JSON.stringify(errorDetails, null, 2)}
             </Paragraph>
           </Flex>
         )}
