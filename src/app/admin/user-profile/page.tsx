@@ -37,7 +37,6 @@ import {
   WarningOutlined,
 } from "@ant-design/icons";
 import {
-  App,
   Avatar,
   Badge,
   Button,
@@ -48,7 +47,6 @@ import {
   Drawer,
   Dropdown,
   Flex,
-  Form,
   Input,
   Modal,
   Row,
@@ -77,7 +75,7 @@ import { callApiService as axios } from "@services/axios-instance/sb-helper.axio
 import { useAppSelector } from "@stores/store";
 import { UserProfile } from "@stores/type";
 import { SyncModal } from "./components/sync-modal";
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text /* , Paragraph */ } = Typography;
 
 // ==========================================
 // 1. SERVICES & API CALLS (Logic)
@@ -130,6 +128,23 @@ interface FilterState {
 // 3. COMPONENTS
 // ==========================================
 
+// Constants moved outside for better performance and clean code
+const PASSWORD_RESET_STEPS = [
+  { title: "รวบรวมข้อมูล", icon: <CodeOutlined /> },
+  { title: "ตรวจสอบสิทธิ์", icon: <SafetyCertificateOutlined /> },
+  { title: "บันทึกรหัสผ่าน", icon: <DashboardOutlined /> },
+  { title: "นำส่ง Email", icon: <SendOutlined /> },
+  { title: "จัดส่งสำเร็จ", icon: <FlagOutlined /> },
+];
+
+const STATUS_MESSAGES = (count: number) => [
+  `กำลังรวบรวมข้อมูลพนักงาน ${String(count)} ท่าน และเตรียมข้อมูล...`,
+  "ตรวจสอบเบอร์โทรศัพท์และความถูกต้องของข้อมูลสิทธิ์...",
+  "กำลังทยอยอัปเดตรหัสผ่านใหม่เป็น 'เบอร์มือถือ' ลงในฐานข้อมูล...",
+  "กำลังนำส่งอีเมลแจ้งเตือนรหัสผ่านใหม่ไปยังพนักงานทุกคน...",
+  "ภารกิจเสร็จสิ้น! ทุกบัญชีถูกรีเซ็ตเป็นเบอร์มือถือเรียบร้อยแล้ว",
+];
+
 const ResetPasswordTrackingModal = ({
   open,
   users,
@@ -138,7 +153,7 @@ const ResetPasswordTrackingModal = ({
   onCancel,
 }: {
   open: boolean;
-  users: any[] | null;
+  users: UserProfile[] | null;
   adminId?: number | string;
   onComplete: () => void;
   onCancel: () => void;
@@ -146,31 +161,7 @@ const ResetPasswordTrackingModal = ({
   const { token } = theme.useToken();
   const [currentStep, setCurrentStep] = useState(0);
 
-  const steps = [
-    { title: "รวบรวมข้อมูล", icon: <CodeOutlined /> },
-    { title: "ตรวจสอบสิทธิ์", icon: <SafetyCertificateOutlined /> },
-    { title: "บันทึกรหัสผ่าน", icon: <DashboardOutlined /> },
-    { title: "นำส่ง Email", icon: <SendOutlined /> },
-    { title: "จัดส่งสำเร็จ", icon: <FlagOutlined /> },
-  ];
-
-  const statusMessages = [
-    `กำลังรวบรวมข้อมูลพนักงาน ${users?.length || 0} ท่าน และเตรียมข้อมูล...`,
-    "ตรวจสอบเบอร์โทรศัพท์และความถูกต้องของข้อมูลสิทธิ์...",
-    "กำลังทยอยอัปเดตรหัสผ่านใหม่เป็น 'เบอร์มือถือ' ลงในฐานข้อมูล...",
-    "กำลังนำส่งอีเมลแจ้งเตือนรหัสผ่านใหม่ไปยังพนักงานทุกคน...",
-    "ภารกิจเสร็จสิ้น! ทุกบัญชีถูกรีเซ็ตเป็นเบอร์มือถือเรียบร้อยแล้ว",
-  ];
-
-  useEffect(() => {
-    if (open && users && users.length > 0) {
-      runProcess();
-    } else {
-      setCurrentStep(0);
-    }
-  }, [open, users]);
-
-  const runProcess = async () => {
+  const runProcess = useCallback(async () => {
     try {
       // Step 0: Preparing
       setCurrentStep(0);
@@ -181,14 +172,15 @@ const ResetPasswordTrackingModal = ({
       const invalidUsers = users?.filter((u) => !u.phone && !(u as any).tel);
       if (invalidUsers && invalidUsers.length > 0) {
         throw new Error(
-          `พบพนักงาน ${invalidUsers.length} ท่านที่ยังไม่ได้ระบุเบอร์โทรศัพท์ กรุณาตรวจสอบข้อมูลก่อนดำเนินการแบบกลุ่ม`,
+          `พบพนักงาน ${String(invalidUsers.length)} ท่านที่ยังไม่ได้ระบุเบอร์โทรศัพท์ กรุณาตรวจสอบข้อมูลก่อนดำเนินการแบบกลุ่ม`,
         );
       }
-      await new Promise((r) => setTimeout(r, 1200));
+      await new Promise((r) => {
+        setTimeout(r, 1200);
+      });
 
       // Step 2: Hashing & Saving
       setCurrentStep(2);
-      // Process in batch
       const userIds = users?.map((u) => u.id);
       const res = await axios.post(
         "/api/v2/admin/user-management/reset-password-to-phone",
@@ -198,13 +190,16 @@ const ResetPasswordTrackingModal = ({
         },
       );
 
-      // ตรวจสอบความสำเร็จจากโครงสร้าง Response (res.data.data.success)
       if (res.data.status !== 200 || !res.data.data?.success) {
         throw new Error(
-          res.data.message_th || res.data.message_en || "API Connection Error",
+          (res.data.message_th as string) ??
+            (res.data.message_en as string) ??
+            "API Connection Error",
         );
       }
-      await new Promise((r) => setTimeout(r, 1500));
+      await new Promise((r) => {
+        setTimeout(r, 1500);
+      });
 
       // Step 3: Sending Email
       setCurrentStep(3);
@@ -212,11 +207,25 @@ const ResetPasswordTrackingModal = ({
 
       // Step 4: Finished
       setCurrentStep(4);
-    } catch (err: any) {
-      toast.error(err.message || "เกิดข้อผิดพลาดในการประมวลผลแบบกลุ่ม");
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "เกิดข้อผิดพลาดในการประมวลผลแบบกลุ่ม";
+      toast.error(errorMessage);
       onCancel();
     }
-  };
+  }, [users, adminId, onCancel]);
+
+  useEffect(() => {
+    if (open && users && users.length > 0) {
+      void runProcess();
+    } else {
+      setCurrentStep(0);
+    }
+  }, [open, users, runProcess]);
+
+  const messages = useMemo(() => STATUS_MESSAGES(users?.length || 0), [users]);
 
   return (
     <Modal
@@ -224,9 +233,9 @@ const ResetPasswordTrackingModal = ({
       footer={null}
       closable={currentStep === 4}
       onCancel={onCancel}
-      width={750}
+      width={900} // Increased width as requested
       centered
-      styles={{ body: { padding: "50px 40px" } }}
+      styles={{ body: { padding: "60px 50px" } }}
       modalRender={(node) => (
         <div style={{ position: "relative" }}>
           <div
@@ -237,36 +246,38 @@ const ResetPasswordTrackingModal = ({
               zIndex: 1,
               background: token.colorInfo,
               color: "white",
-              padding: "4px 12px",
+              padding: "4px 16px",
               borderRadius: 20,
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: 600,
-              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
             }}
           >
-            รีเซ็ตรหัสผ่านกลุ่ม #รายการ-{users?.length}-ท่าน
+            รีเซ็ตรหัสผ่านกลุ่ม #รายการ-{String(users?.length ?? 0)}-ท่าน
           </div>
           {node}
         </div>
       )}
     >
-      <div className="text-center">
-        <div className="py-10 mb-8 relative  rounded-3xl overflow-hidden border border-dashed border-slate-200 dark:border-slate-800">
+      <Flex vertical align="center" style={{ width: "100%" }}>
+        {/* Status Card Segment */}
+        <div className="w-full text-center py-12 mb-10 relative rounded-[32px] overflow-hidden border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/10">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentStep}
-              initial={{ x: -100, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: 100, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 100 }}
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
               className="flex flex-col items-center"
             >
               <div
                 style={{
-                  fontSize: 72,
+                  fontSize: 84,
                   color:
                     currentStep === 4 ? token.colorSuccess : token.colorPrimary,
-                  filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.1))",
+                  filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.1))",
+                  marginBottom: 24,
                 }}
               >
                 {currentStep === 4 ? (
@@ -274,62 +285,84 @@ const ResetPasswordTrackingModal = ({
                 ) : currentStep === 3 ? (
                   <SendOutlined />
                 ) : (
-                  <CarOutlined spin={false} />
+                  <CarOutlined />
                 )}
               </div>
-              <Typography.Title level={3} className="mt-6 mb-2">
-                {steps[currentStep].title}
-              </Typography.Title>
-              <Typography.Text
+              <Title level={2} style={{ marginBottom: 12 }}>
+                {PASSWORD_RESET_STEPS[currentStep]?.title || "กำลังดำเนินการ"}
+              </Title>
+              <Text
                 type="secondary"
-                className="text-lg px-8 max-w-md block mx-auto"
+                style={{ fontSize: 18, maxWidth: 600, display: "block" }}
               >
-                {statusMessages[currentStep]}
-              </Typography.Text>
+                {messages[currentStep] || "กำลังเตรียมข้อมูล..."}
+              </Text>
             </motion.div>
           </AnimatePresence>
 
-          {/* Road/Tracking Line */}
-          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-slate-200 dark:bg-slate-800">
+          {/* Progress Bar (Road) */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 6,
+              background: token.colorFillTertiary,
+            }}
+          >
             <motion.div
-              className="h-full bg-blue-500"
+              style={{
+                height: "100%",
+                background: token.colorPrimary,
+                borderRadius: "0 4px 4px 0",
+              }}
               initial={{ width: "0%" }}
               animate={{
-                width: `${(currentStep / (steps.length - 1)) * 100}%`,
+                width: `${(currentStep / (PASSWORD_RESET_STEPS.length - 1)) * 100}%`,
               }}
               transition={{ duration: 0.8, ease: "easeInOut" }}
             />
           </div>
         </div>
 
-        <Steps
-          current={currentStep}
-          labelPlacement="vertical"
-          items={steps.map((s) => ({
-            ...s,
-            icon:
-              currentStep > steps.indexOf(s) ? <CheckCircleOutlined /> : s.icon,
-          }))}
-        />
+        {/* Steps Container: Fixed potential overflow */}
+        <div style={{ width: "100%", padding: "0 20px" }}>
+          <Steps
+            current={currentStep}
+            labelPlacement="vertical"
+            items={PASSWORD_RESET_STEPS.map((s, idx) => ({
+              ...s,
+              icon: currentStep > idx ? <CheckCircleOutlined /> : s.icon,
+            }))}
+            style={{ minWidth: 0 }} // Ensures flex child doesn't blow up
+          />
+        </div>
 
         {currentStep === 4 && (
           <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="mt-10"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="w-full mt-12"
           >
             <Button
               type="primary"
               size="large"
               block
               onClick={onComplete}
-              style={{ height: 54, borderRadius: 16, fontSize: 18 }}
+              style={{
+                height: 60,
+                borderRadius: 20,
+                fontSize: 20,
+                fontWeight: 600,
+                boxShadow: `0 8px 24px ${token.colorPrimary}40`,
+              }}
             >
               ตรวจสอบความเรียบร้อย (ปิดหน้านี้)
             </Button>
           </motion.div>
         )}
-      </div>
+      </Flex>
     </Modal>
   );
 };
@@ -340,9 +373,9 @@ const ResetPasswordTrackingModal = ({
 
 export default function UserManagementPage() {
   const { token } = theme.useToken();
-  const { modal } = App.useApp();
-  const isDark = token.colorBgBase !== "#ffffff";
-  const [form] = Form.useForm();
+  // const { modal } = App.useApp();
+  // const isDark = token.colorBgBase !== "#ffffff";
+  // const [form] = Form.useForm();
   const router = useRouter();
 
   // Auth State
@@ -1148,7 +1181,7 @@ export default function UserManagementPage() {
       key: "action",
       align: "center",
       width: 150,
-      sorter: (a, b) => 0, // Placeholder sorter to satisfy standard requirement
+      sorter: () => 0,
       render: (_, r) => (
         <Space size={0}>
           <Tooltip title="ดูรายละเอียด">

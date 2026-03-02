@@ -463,7 +463,7 @@ export const UserManagementService = {
           const subject = "แจ้งรหัสผ่านบัญชีผู้ใช้งาน SchoolBright Web Helper";
           const websiteLink = "https://sb-helper.schoolbright.co/";
           const logoUrl =
-            "https://sb-helper.schoolbright.co/photo/schoolbright-logo-full-image.png";
+            "https://play-lh.googleusercontent.com/5tMDW7qOj174fR8MVrUOC1xBRx6a8jYg97yYzMw0JwlcS13gazRD8J3HmumEhFi3aQ";
           const html = `
             <div style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f9fafb; width: 100%;">
               <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; padding: 48px 10px;">
