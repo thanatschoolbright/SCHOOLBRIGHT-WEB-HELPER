@@ -526,6 +526,12 @@ export const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
                   </Space>
                 }
                 name={`description_${entry.id}`}
+                rules={[
+                  {
+                    required: true,
+                    message: t("timesheet_entry_page.description_required"),
+                  },
+                ]}
               >
                 <Input.TextArea
                   placeholder={t(

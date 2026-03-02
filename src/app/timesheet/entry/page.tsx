@@ -2217,6 +2217,15 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
                 }
                 name="description"
                 style={{ marginBottom: 0 }}
+                rules={[
+                  {
+                    required: true,
+                    message: t(
+                      "timesheet_entry_page.description_required",
+                      "กรุณาระบุรายละเอียดการทำงาน",
+                    ),
+                  },
+                ]}
               >
                 <Input.TextArea
                   rows={5}
@@ -2224,8 +2233,8 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
                   maxLength={500}
                   style={{ borderRadius: 12 }}
                   placeholder={t(
-                    "workDescriptionPlaceholder",
-                    "อธิบายรายละเอียดงานที่ปฏิบัติในวันนี้ เพื่อความชัดเจนในการตรวจสอบ...",
+                    "timesheet_entry_page.description_placeholder",
+                    "อธิบายรายละเอียดตัวอย่างงาน เช่น SBAPP-1927 Grade (A+) 215 โรงเรียนเทศบาล ๒ (บ้านมลายูบางกอก) ลิงค์ยืนยันอุปกรณ์ของคุณครูไม่สามารถกดได้",
                   )}
                 />
               </Form.Item>
