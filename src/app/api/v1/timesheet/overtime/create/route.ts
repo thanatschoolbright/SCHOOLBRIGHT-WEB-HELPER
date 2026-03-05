@@ -1,3 +1,4 @@
+import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import { successResponse } from "@/helpers/api/response";
 import { validateRequest } from "@/helpers/api/validate.request";
 import { sendOvertimeEmail } from "@/server/mailer";
@@ -90,71 +91,151 @@ export async function POST(request: NextRequest) {
     // --- Send Email Notification ---
     const managerEmail = process.env.NEXT_PUBLIC_EMAIL_NOTIFICATION;
     if (managerEmail) {
-      const emailDate = dayjs(payload.requestDate).format("D MMMM YYYY");
-      const emailSubject = `[Overtime Request] มีการขออนุมัติ OT ใหม่จาก ${payload.firstname ?? ""} ${payload.lastname ?? ""}`;
+      // Fetch enriched requester info from database
+      let fullName =
+        `${payload.firstname ?? ""} ${payload.lastname ?? ""}`.trim();
+      if (!fullName) fullName = "-";
+      let employeeCode = payload.employee_code ?? "-";
+      let department = payload.department ?? "-";
+
+      if (payload.requesterId) {
+        const user = await PrismaTimesheet.user.findFirst({
+          where: { admin_id: Number(payload.requesterId) },
+          include: { department: true },
+        });
+
+        if (user) {
+          const u = user as unknown as {
+            firstname_th?: string | null;
+            lastname_th?: string | null;
+            employee_code?: string | null;
+            department?: { name_th?: string | null } | null;
+          };
+          const dbFullName =
+            `${u.firstname_th ?? ""} ${u.lastname_th ?? ""}`.trim();
+          if (dbFullName) fullName = dbFullName;
+          employeeCode = u.employee_code ?? employeeCode;
+          department = u.department?.name_th ?? department;
+        }
+      }
+
+      const requesterInfo = {
+        fullName,
+        employeeCode,
+        department,
+      };
+
+      const formattedRequestDate = dayjs(payload.requestDate).format(
+        "DD/MM/YYYY HH:mm",
+      );
+      const overtimeType = "ปกติ";
+
+      const emailSubject = `[Overtime Request] มีการขออนุมัติ OT ใหม่จาก ${requesterInfo.fullName}`;
 
       const descriptionsHtml = payload.descriptions
         ?.map(
           (desc) => `
-        <div style="margin-bottom: 10px; padding: 10px; background-color: #f9f9f9; border-radius: 4px;">
-          <strong>วันที่:</strong> ${String(desc.date ?? emailDate)}<br/>
-          <strong>เวลา:</strong> ${String(desc.startDate ?? "-")} ถึง ${String(desc.endDate ?? "-")}<br/>
-          <strong>จำนวน:</strong> ${String(desc.duration)} ชั่วโมง<br/>
-          <strong>รายละเอียด:</strong> ${desc.description ?? "-"}<br/>
-          <strong>ผู้ที่เกียวข้อง:</strong> ${String(desc.assignee ?? "-")}
+        <div style="margin-bottom: 12px; padding: 16px; background-color: #ffffff; border: 1px solid #f0f0f0; border-radius: 8px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid #f9fafb; padding-bottom: 8px;">
+            <span style="color: #6b7280; font-size: 13px;">วันที่</span>
+            <span style="color: #111827; font-weight: 600; font-size: 13px;">${dayjs(desc.date).format("DD/MM/YYYY")}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span style="color: #6b7280; font-size: 13px;">ช่วงเวลา</span>
+            <span style="color: #111827; font-size: 13px;">${dayjs(desc.startDate).format("HH:mm")} - ${dayjs(desc.endDate).format("HH:mm")}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span style="color: #6b7280; font-size: 13px;">จำนวนชั่วโมง</span>
+            <span style="color: #f97316; font-weight: 600; font-size: 13px;">${String(desc.duration)} ชม.</span>
+          </div>
+          <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #f3f4f6;">
+            <div style="color: #6b7280; font-size: 12px; margin-bottom: 4px;">รายละเอียดงาน:</div>
+            <div style="color: #111827; font-size: 13px; line-height: 1.5;">${desc.description ?? "-"}</div>
+          </div>
+          ${
+            desc.assignee
+              ? `
+          <div style="margin-top: 8px; font-size: 12px; color: #6b7280;">
+            ผู้เกี่ยวข้อง: <span style="color: #374151;">${String(desc.assignee)}</span>
+          </div>
+          `
+              : ""
+          }
         </div>
       `,
         )
         .join("");
 
       const emailHtml = `
-        <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
-          <div style="background-color: #1a73e8; color: #ffffff; padding: 20px; text-align: center;">
-            <h1 style="margin: 0; font-size: 24px;">รายการขออนุมัติ OT ใหม่</h1>
-          </div>
-          <div style="padding: 20px; color: #333333; line-height: 1.6;">
-            <p style="font-size: 16px;">เรียน Manager,</p>
-            <p>มีการส่งคำขออนุมัติทำงานล่วงเวลา (OT) ใหม่ผ่านระบบ โดยมีรายละเอียดดังนี้:</p>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+          </style>
+        </head>
+        <body style="background-color: #f8fafc; padding: 20px; margin: 0;">
+          <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+            <div style="background-color: #f97316; padding: 32px 20px; text-align: center;">
+              <h2 style="margin: 0; color: #ffffff; font-size: 20px; font-weight: 700; letter-spacing: -0.025em;">Request for Overtime Approval</h2>
+              <p style="margin: 8px 0 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">รายการขออนุมัติทำงานล่วงเวลา</p>
+            </div>
+            
+            <div style="padding: 32px 24px;">
+              <div style="margin-bottom: 24px;">
+                <p style="margin: 0 0 16px; color: #111827; font-size: 16px; font-weight: 500;">เรียน ผู้จัดการ,</p>
+                <p style="margin: 0; color: #4b5563; font-size: 14px; line-height: 1.6;">มีพนักงานส่งคำขออนุมัติทำงานล่วงเวลา (OT) ผ่านระบบ SB Web Helper โปรดตรวจสอบข้อมูลด้านล่าง:</p>
+              </div>
 
-            <div style="background-color: #f1f3f4; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
-              <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                  <td style="padding: 5px 0; color: #666;"><strong>ชื่อ-นามสกุล<strong></td>
-                  <td style="padding: 5px 0;">: ${payload.firstname ?? ""} ${payload.lastname ?? ""}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 5px 0; color: #666;"><strong>รหัสพนักงาน<strong></td>
-                  <td style="padding: 5px 0;">: ${payload.employee_code ?? "-"}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 5px 0; color: #666;"><strong>แผนก<strong></td>
-                  <td style="padding: 5px 0;">: ${payload.department ?? "-"}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 5px 0; color: #666;"><strong>วันที่ขอ<strong></td>
-                  <td style="padding: 5px 0;">: ${emailDate}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 5px 0; color: #666;"><strong>ประเภท OT<strong></td>
-                  <td style="padding: 5px 0;">: ${payload.overtimeType ?? "-"}</td>
-                </tr>
-              </table>
+              <div style="background-color: #fffaf0; border: 1px solid #ffedd5; border-radius: 8px; padding: 20px; margin-bottom: 32px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 6px 0; color: #7c2d12; font-size: 13px; width: 40%;"><strong>ชื่อ-นามสกุล</strong></td>
+                    <td style="padding: 6px 0; color: #111827; font-size: 14px;">: ${requesterInfo.fullName}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; color: #7c2d12; font-size: 13px;"><strong>รหัสพนักงาน</strong></td>
+                    <td style="padding: 6px 0; color: #111827; font-size: 14px;">: ${requesterInfo.employeeCode}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; color: #7c2d12; font-size: 13px;"><strong>แผนก</strong></td>
+                    <td style="padding: 6px 0; color: #111827; font-size: 14px;">: ${requesterInfo.department}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; color: #7c2d12; font-size: 13px;"><strong>วันที่ขออนุมัติ</strong></td>
+                    <td style="padding: 6px 0; color: #111827; font-size: 14px;">: ${formattedRequestDate}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; color: #7c2d12; font-size: 13px;"><strong>ประเภท OT</strong></td>
+                    <td style="padding: 6px 0; color: #f97316; font-size: 14px; font-weight: 700;">: ${overtimeType}</td>
+                  </tr>
+                </table>
+              </div>
+
+              <h3 style="margin: 0 0 16px; color: #111827; font-size: 15px; font-weight: 600; border-left: 3px solid #f97316; padding-left: 10px;">รายการงานที่ปฏิบัติ</h3>
+              
+              <div style="background-color: #f9fafb; border-radius: 8px; padding: 12px;">
+                ${descriptionsHtml ?? '<p style="text-align: center; color: #6b7280; font-size: 14px; padding: 20px;">ไม่มีรายละเอียดรายการงาน</p>'}
+              </div>
+
+              <div style="margin-top: 40px; text-align: center;">
+                <a href="${process.env.NEXT_PUBLIC_SB_HELPER_URL ?? ""}/timesheet/overtime" 
+                   style="background-color: #f97316; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px; display: inline-block; transition: background-color 0.2s;">
+                  ตรวจสอบและอนุมัติในระบบ
+                </a>
+              </div>
             </div>
 
-            <h3 style="color: #1a73e8; border-bottom: 2px solid #1a73e8; padding-bottom: 5px;">รายละเอียดงาน</h3>
-            ${descriptionsHtml ?? "<p>ไม่มีรายละเอียดเพิ่มเติม</p>"}
-
-            <div style="margin-top: 30px; text-align: center;">
-              <a href="${process.env.NEXT_PUBLIC_SB_HELPER_URL ?? ""}/timesheet/overtime"
-                 style="background-color: #1a73e8; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">
-                ดูรายการทั้งหมดในระบบ
-              </a>
+            <div style="background-color: #f8fafc; border-top: 1px solid #f1f5f9; padding: 24px; text-align: center;">
+              <p style="margin: 0; color: #94a3b8; font-size: 12px; line-height: 1.5;">
+                นี่คือการแจ้งเตือนอัตโนมัติจากระบบ SB Web Helper<br>
+                © 2026 SCHOOLBRIGHT. All rights reserved.
+              </p>
             </div>
           </div>
-          <div style="background-color: #f8f9fa; color: #999; padding: 15px; text-align: center; font-size: 12px;">
-            <p style="margin: 0;">นี่เป็นอีเมลแจ้งเตือนอัตโนมัติจากระบบ SB Web Helper กรุณาอย่าตอบกลับอีเมลนี้</p>
-          </div>
-        </div>
+        </body>
+        </html>
       `;
 
       try {
