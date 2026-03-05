@@ -135,28 +135,28 @@ export async function POST(request: NextRequest) {
       const descriptionsHtml = payload.descriptions
         ?.map(
           (desc) => `
-        <div style="margin-bottom: 12px; padding: 16px; background-color: #ffffff; border: 1px solid #f0f0f0; border-radius: 8px;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid #f9fafb; padding-bottom: 8px;">
+        <div style="margin-bottom: 20px; padding: 20px; background-color: #ffffff; border: 1px solid #f0f0f0; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid #f9fafb; padding-bottom: 12px;">
             <span style="color: #6b7280; font-size: 13px;">วันที่</span>
             <span style="color: #111827; font-weight: 600; font-size: 13px;">${dayjs(desc.date).format("DD/MM/YYYY")}</span>
           </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
             <span style="color: #6b7280; font-size: 13px;">ช่วงเวลา</span>
             <span style="color: #111827; font-size: 13px;">${dayjs(desc.startDate).format("HH:mm")} - ${dayjs(desc.endDate).format("HH:mm")}</span>
           </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
             <span style="color: #6b7280; font-size: 13px;">จำนวนชั่วโมง</span>
             <span style="color: #f97316; font-weight: 600; font-size: 13px;">${String(desc.duration)} ชม.</span>
           </div>
-          <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #f3f4f6;">
-            <div style="color: #6b7280; font-size: 12px; margin-bottom: 4px;">รายละเอียดงาน:</div>
-            <div style="color: #111827; font-size: 13px; line-height: 1.5;">${desc.description ?? "-"}</div>
+          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #f3f4f6;">
+            <div style="color: #6b7280; font-size: 12px; margin-bottom: 6px;">รายละเอียดงาน:</div>
+            <div style="color: #111827; font-size: 13px; line-height: 1.6;">${desc.description ?? "-"}</div>
           </div>
           ${
             desc.assignee
               ? `
-          <div style="margin-top: 8px; font-size: 12px; color: #6b7280;">
-            ผู้เกี่ยวข้อง: <span style="color: #374151;">${String(desc.assignee)}</span>
+          <div style="margin-top: 12px; font-size: 12px; color: #6b7280;">
+            ผู้เกี่ยวข้อง: <span style="color: #374151; font-weight: 500;">${String(desc.assignee)}</span>
           </div>
           `
               : ""
@@ -175,60 +175,60 @@ export async function POST(request: NextRequest) {
             body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
           </style>
         </head>
-        <body style="background-color: #f8fafc; padding: 20px; margin: 0;">
-          <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-            <div style="background-color: #f97316; padding: 32px 20px; text-align: center;">
-              <h2 style="margin: 0; color: #ffffff; font-size: 20px; font-weight: 700; letter-spacing: -0.025em;">Request for Overtime Approval</h2>
-              <p style="margin: 8px 0 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">รายการขออนุมัติทำงานล่วงเวลา</p>
+        <body style="background-color: #f8fafc; padding: 40px 20px; margin: 0;">
+          <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
+            <div style="background-color: #f97316; padding: 48px 32px; text-align: center;">
+              <h2 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: -0.025em;">Request for Overtime Approval</h2>
+              <p style="margin: 12px 0 0; color: rgba(255, 255, 255, 0.9); font-size: 15px;">รายการขออนุมัติทำงานล่วงเวลา</p>
             </div>
             
-            <div style="padding: 32px 24px;">
-              <div style="margin-bottom: 24px;">
-                <p style="margin: 0 0 16px; color: #111827; font-size: 16px; font-weight: 500;">เรียน ผู้จัดการ,</p>
-                <p style="margin: 0; color: #4b5563; font-size: 14px; line-height: 1.6;">มีพนักงานส่งคำขออนุมัติทำงานล่วงเวลา (OT) ผ่านระบบ SB Web Helper โปรดตรวจสอบข้อมูลด้านล่าง:</p>
+            <div style="padding: 40px 32px;">
+              <div style="margin-bottom: 32px;">
+                <p style="margin: 0 0 18px; color: #111827; font-size: 16px; font-weight: 600;">เรียน ผู้จัดการ,</p>
+                <p style="margin: 0; color: #4b5563; font-size: 14px; line-height: 1.7;">มีพนักงานส่งคำขออนุมัติทำงานล่วงเวลา (OT) ผ่านระบบ SB Web Helper โดยมีความประสงค์ขออนุมัติตามข้อมูลที่ปรากฏด้านล่างนี้:</p>
               </div>
 
-              <div style="background-color: #fffaf0; border: 1px solid #ffedd5; border-radius: 8px; padding: 20px; margin-bottom: 32px;">
+              <div style="background-color: #fffaf0; border: 1px solid #ffedd5; border-radius: 12px; padding: 28px; margin-bottom: 40px;">
                 <table style="width: 100%; border-collapse: collapse;">
                   <tr>
-                    <td style="padding: 6px 0; color: #7c2d12; font-size: 13px; width: 40%;"><strong>ชื่อ-นามสกุล</strong></td>
-                    <td style="padding: 6px 0; color: #111827; font-size: 14px;">: ${requesterInfo.fullName}</td>
+                    <td style="padding: 10px 0; color: #7c2d12; font-size: 13px; width: 35%; vertical-align: top;"><strong>ชื่อ-นามสกุล</strong></td>
+                    <td style="padding: 10px 0; color: #111827; font-size: 14px; font-weight: 500;">: ${requesterInfo.fullName}</td>
                   </tr>
                   <tr>
-                    <td style="padding: 6px 0; color: #7c2d12; font-size: 13px;"><strong>รหัสพนักงาน</strong></td>
-                    <td style="padding: 6px 0; color: #111827; font-size: 14px;">: ${requesterInfo.employeeCode}</td>
+                    <td style="padding: 10px 0; color: #7c2d12; font-size: 13px; vertical-align: top;"><strong>รหัสพนักงาน</strong></td>
+                    <td style="padding: 10px 0; color: #111827; font-size: 14px;">: ${requesterInfo.employeeCode}</td>
                   </tr>
                   <tr>
-                    <td style="padding: 6px 0; color: #7c2d12; font-size: 13px;"><strong>แผนก</strong></td>
-                    <td style="padding: 6px 0; color: #111827; font-size: 14px;">: ${requesterInfo.department}</td>
+                    <td style="padding: 10px 0; color: #7c2d12; font-size: 13px; vertical-align: top;"><strong>แผนก</strong></td>
+                    <td style="padding: 10px 0; color: #111827; font-size: 14px;">: ${requesterInfo.department}</td>
                   </tr>
                   <tr>
-                    <td style="padding: 6px 0; color: #7c2d12; font-size: 13px;"><strong>วันที่ขออนุมัติ</strong></td>
-                    <td style="padding: 6px 0; color: #111827; font-size: 14px;">: ${formattedRequestDate}</td>
+                    <td style="padding: 10px 0; color: #7c2d12; font-size: 13px; vertical-align: top;"><strong>วันที่ขออนุมัติ</strong></td>
+                    <td style="padding: 10px 0; color: #111827; font-size: 14px;">: ${formattedRequestDate}</td>
                   </tr>
                   <tr>
-                    <td style="padding: 6px 0; color: #7c2d12; font-size: 13px;"><strong>ประเภท OT</strong></td>
-                    <td style="padding: 6px 0; color: #f97316; font-size: 14px; font-weight: 700;">: ${overtimeType}</td>
+                    <td style="padding: 10px 0; color: #7c2d12; font-size: 13px; vertical-align: top;"><strong>ประเภท OT</strong></td>
+                    <td style="padding: 10px 0; color: #f97316; font-size: 15px; font-weight: 700;">: ${overtimeType}</td>
                   </tr>
                 </table>
               </div>
 
-              <h3 style="margin: 0 0 16px; color: #111827; font-size: 15px; font-weight: 600; border-left: 3px solid #f97316; padding-left: 10px;">รายการงานที่ปฏิบัติ</h3>
+              <h3 style="margin: 0 0 20px; color: #111827; font-size: 16px; font-weight: 700; border-left: 4px solid #f97316; padding-left: 12px;">รายการงานที่ปฏิบัติ</h3>
               
-              <div style="background-color: #f9fafb; border-radius: 8px; padding: 12px;">
-                ${descriptionsHtml ?? '<p style="text-align: center; color: #6b7280; font-size: 14px; padding: 20px;">ไม่มีรายละเอียดรายการงาน</p>'}
+              <div style="background-color: #f9fafb; border-radius: 12px; padding: 16px; border: 1px solid #f1f5f9;">
+                ${descriptionsHtml ?? '<p style="text-align: center; color: #6b7280; font-size: 14px; padding: 32px;">ไม่มีรายละเอียดรายการงาน</p>'}
               </div>
 
-              <div style="margin-top: 40px; text-align: center;">
+              <div style="margin-top: 48px; text-align: center;">
                 <a href="${process.env.NEXT_PUBLIC_SB_HELPER_URL ?? ""}/timesheet/overtime" 
-                   style="background-color: #f97316; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px; display: inline-block; transition: background-color 0.2s;">
+                   style="background-color: #f97316; color: #ffffff; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 15px; display: inline-block; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.2);">
                   ตรวจสอบและอนุมัติในระบบ
                 </a>
               </div>
             </div>
 
-            <div style="background-color: #f8fafc; border-top: 1px solid #f1f5f9; padding: 24px; text-align: center;">
-              <p style="margin: 0; color: #94a3b8; font-size: 12px; line-height: 1.5;">
+            <div style="background-color: #f8fafc; border-top: 1px solid #f1f5f9; padding: 32px; text-align: center;">
+              <p style="margin: 0; color: #94a3b8; font-size: 12px; line-height: 1.6;">
                 นี่คือการแจ้งเตือนอัตโนมัติจากระบบ SB Web Helper<br>
                 © 2026 SCHOOLBRIGHT. All rights reserved.
               </p>
