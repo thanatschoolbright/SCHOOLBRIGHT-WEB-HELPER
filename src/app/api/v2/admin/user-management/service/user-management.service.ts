@@ -129,16 +129,60 @@ export const UserManagementService = {
     });
   },
 
-  // ปลดล็อกการระงับใช้งาน (Reset Failed Login Attempts)
+  // ปลดล็อกการระงับใช้งาน (Reset Failed Login Attempts) พร้อมแจ้งเตือนทางอีเมล
   async unlock(id: number, updatedBy?: number) {
-    return await PrismaTimesheet.user.update({
+    const user = await PrismaTimesheet.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new Error("ไม่พบข้อมูลผู้ใช้งาน");
+    }
+
+    const result = await PrismaTimesheet.user.update({
       where: { id },
       data: {
         failed_login_attempts: 0,
         status: "ACTIVE", // ปลดล็อกแล้วให้เป็น ACTIVE เสมอ
         updated_by: updatedBy,
+        updated_at: new Date(),
       },
     });
+
+    // แจ้งเตือนผ่านอีเมล (ถ้ามี Email)
+    if (user.email) {
+      try {
+        const subject = "แจ้งเตือนการปลดล็อกบัญชีผู้ใช้งาน - SchoolBright";
+        const fullName =
+          `${user.firstname_th || ""} ${user.lastname_th || ""}`.trim();
+        const html = `
+          <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
+            <h2 style="color: #2ecc71;">แจ้งเตือนการปลดล็อกบัญชีผู้ใช้งาน</h2>
+            <p>สวัสดีคุณ <strong>${fullName || user.username}</strong>,</p>
+            <p>บัญชีผู้ใช้งานของคุณได้รับการปลดล็อกโดยผู้ดูแลระบบเรียบร้อยแล้ว เนื่องจากก่อนหน้านี้มีการระบุรหัสผ่านผิดเกินกำหนด</p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+            <p><strong>รายละเอียดการตรวจสอบ:</strong></p>
+            <ul>
+              <li><strong>ชื่อผู้ใช้งาน:</strong> ${user.username}</li>
+              <li><strong>สถานะปัจจุบัน:</strong> <span style="color: #2ecc71;">ใช้งานได้ปกติ (Active)</span></li>
+              <li><strong>วันที่ดำเนินการ:</strong> ${dayjs().format("DD/MM/YYYY HH:mm")}</li>
+            </ul>
+            <p>หากคุณไม่ได้ดำเนินการร้องขอ หรือพบความผิดปกติ กรุณาเปลี่ยนรหัสผ่านเพื่อความปลอดภัย</p>
+            <p style="margin-top: 30px; font-size: 0.9em; color: #777;">
+              ขอแสดงความนับถือ,<br />
+              ทีมพัฒนา SchoolBright
+            </p>
+          </div>
+        `;
+
+        await sendMail(user.email, subject, "", html);
+      } catch (error) {
+        console.error("[MAIL_SEND_ERROR]:", error);
+        // ไม่ throw error เพื่อให้การ unlock ทำงานต่อได้ปกติ
+      }
+    }
+
+    return result;
   },
 
   // ลบผู้ใช้งาน (Soft Delete)
