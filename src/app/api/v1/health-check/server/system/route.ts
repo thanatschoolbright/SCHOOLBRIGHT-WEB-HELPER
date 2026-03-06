@@ -39,34 +39,42 @@ const DISCORD_CONFIG = {
 const THEMES = {
   HEALTHY: {
     color: 0x2ecc71,
-    title: "ระบบทำงานปกติสมบูรณ์",
-    icon: "",
+    title: "✨ ระบบทำงานปกติสมบูรณ์ ✨",
+    icon: "✅",
     image: "https://img2.pic.in.th/pic/Google-Gemini.th.jpg",
   },
   CRITICAL: {
     color: 0xed4245,
-    title: "ตรวจพบความผิดปกติของระบบ",
-    icon: "",
+    title: "🚨 ตรวจพบความผิดปกติของระบบ 🚨",
+    icon: "⚠️",
     image: "https://img5.pic.in.th/file/secure-sv1/Bad_job.md.jpg",
   },
 };
 
 const GROUP_LABELS: Record<string, string> = {
-  "login-system": "ระบบเข้าสู่ระบบ",
-  "user-system": "ระบบผู้ใช้งาน",
-  "attendance-system": "ระบบการมาเรียน",
-  "leave-system": "ระบบการลา",
-  "server-system": "ระบบเซิร์ฟเวอร์",
-  "school-system": "ระบบโรงเรียน",
-  "notification-system": "ระบบแจ้งเตือน",
-  other: "ระบบอื่นๆ",
+  "login-system": "🔑 ระบบเข้าสู่ระบบ",
+  "user-system": "👤 ระบบผู้ใช้งาน",
+  "attendance-system": "📝 ระบบการมาเรียน",
+  "leave-system": "🏥 ระบบการลา",
+  "server-system": "🖥️ ระบบเซิร์ฟเวอร์",
+  "school-system": "🏫 ระบบโรงเรียน",
+  "notification-system": "🔔 ระบบแจ้งเตือน",
+  other: "🛠️ ระบบอื่นๆ",
 };
 
 const getProgressBar = (percentage: number) => {
   const blocks = 10;
   const filled = Math.round((percentage / 100) * blocks);
   const empty = blocks - filled;
-  return `[${"#".repeat(filled)}${"-".repeat(empty)}] ${percentage}%`;
+  const emoji =
+    percentage === 100
+      ? "🌟"
+      : percentage > 80
+        ? "🟢"
+        : percentage > 50
+          ? "🟡"
+          : "🔴";
+  return `${emoji} [${"■".repeat(filled)}${"□".repeat(empty)}] ${percentage}%`;
 };
 
 const analyzeResults = (results: HealthCheckResult[]) => {
@@ -105,7 +113,7 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
   const mainEmbed = {
     title: `${theme.icon} ${theme.title}`,
     description: `> **รายงานสถานะระบบประจำวัน**\n> วันที่: \`${dayjs().format(
-      "D MMMM YYYY",
+      "DD/MM/YYYY",
     )}\`\n> เวลา: \`${dayjs().format("HH:mm น.")}\`\n\n${
       stats.healthScore === 100
         ? "**ยอดเยี่ยม!** ระบบทั้งหมดทำงานได้ตามปกติ"
@@ -127,8 +135,8 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
         const itemList = data.items
           .map((item) => {
             const statusIcon = ["200", "404"].includes(item.status)
-              ? "[PASS]"
-              : "[FAIL]";
+              ? "🟢 [PASS]"
+              : "🔴 [FAIL]";
             return `${statusIcon} ${item.name_th}`;
           })
           .join("\n");
@@ -159,13 +167,13 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
         );
 
         const fieldDetails = failedItems.map((item) => ({
-          name: `[FAIL] ${item.name_th} (${item.module})`,
+          name: `❌ [FAIL] ${item.name_th} (${item.module})`,
           value: `**สถานะ:** \`${item.status}\`\n**จุดเชื่อมต่อ:** \`${item.service}\`\n**คำสั่งตรวจสอบ:**\n\`\`\`bash\n${item.curl}\n\`\`\``,
           inline: false,
         }));
 
         embeds.push({
-          title: `[ERROR] รายละเอียดปัญหา: ${groupName}`,
+          title: `💥 [ERROR] รายละเอียดปัญหา: ${groupName}`,
           description: `พบข้อผิดพลาดจำนวน ${data.failed} รายการในกลุ่มนี้`,
           color: 0xed4245,
           fields: fieldDetails,
@@ -174,7 +182,7 @@ const buildDiscordPayload = (stats: ReturnType<typeof analyzeResults>) => {
     });
 
     // Add a summary mention for critical alert
-    const content = `# แจ้งเตือนวิกฤต!\nเรียน ${DISCORD_CONFIG.ALERT_USER_ID} พบความผิดปกติของระบบจำนวน ${stats.failed.length} จุด กรุณาตรวจสอบด่วน!`;
+    const content = `# 🆘 แจ้งเตือนวิกฤต!\nเรียน ${DISCORD_CONFIG.ALERT_USER_ID} พบความผิดปกติของระบบจำนวน ${stats.failed.length} จุด กรุณาตรวจสอบด่วน! 🔥`;
     return {
       username: DISCORD_CONFIG.BOT_NAME,
       avatar_url: DISCORD_CONFIG.AVATAR_URL,
