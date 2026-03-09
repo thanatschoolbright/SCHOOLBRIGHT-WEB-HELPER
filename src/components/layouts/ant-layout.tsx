@@ -262,14 +262,6 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
               transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
             }
 
-            .ant-card:hover {
-              transform: translateY(-4px);
-              box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.1) !important;
-            }
-            .dark .ant-card:hover {
-              box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.4) !important;
-            }
-
             /* Scrollbar Refinement */
             ::-webkit-scrollbar {
               width: 10px;
