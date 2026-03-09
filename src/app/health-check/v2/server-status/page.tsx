@@ -1,68 +1,63 @@
 "use client";
 
-import React, { useCallback, useEffect, useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import axios from "axios";
-import dayjs from "dayjs";
-import { toast } from "sonner";
+import SummaryCard from "@/components/card/summary-card";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
 import {
+  ApiOutlined,
+  BankOutlined,
+  BellOutlined,
+  BugOutlined,
+  CheckCircleFilled,
+  CheckCircleOutlined,
+  ClearOutlined,
+  CloseCircleFilled,
+  CloudDownloadOutlined,
+  CloudServerOutlined,
+  CopyOutlined,
+  DatabaseOutlined,
+  DiscordOutlined,
+  EyeOutlined,
+  FileExcelOutlined,
+  FilterOutlined,
+  IdcardOutlined,
+  LoadingOutlined,
+  ReloadOutlined,
+  ScanOutlined,
+  SearchOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import DashboardLayout from "@components/layouts/backend-layout";
+import {
+  Alert,
+  Avatar,
   Button,
   Card,
-  Table,
-  Tag,
-  Typography,
-  Tooltip,
-  Modal,
-  Space,
-  Progress,
-  Segmented,
-  Alert,
-  Flex,
-  Row,
   Col,
-  theme,
-  Grid,
-  Avatar,
-  Empty,
-  Spin,
-  Select,
-  Steps,
-  Result,
-  Tabs,
   Descriptions,
+  Empty,
+  Flex,
+  Grid,
+  Modal,
+  Result,
+  Row,
+  Segmented,
+  Select,
+  Space,
+  Steps,
+  Table,
+  Tabs,
+  Tag,
+  theme,
+  Typography,
 } from "antd";
-import {
-  CheckCircleFilled,
-  CloseCircleFilled,
-  ReloadOutlined,
-  NotificationOutlined,
-  EyeOutlined,
-  CopyOutlined,
-  ApiOutlined,
-  FileExcelOutlined,
-  LoadingOutlined,
-  CloudServerOutlined,
-  UserOutlined,
-  ScanOutlined,
-  BellOutlined,
-  BankOutlined,
-  IdcardOutlined,
-  CodeOutlined,
-  DatabaseOutlined,
-  SolutionOutlined,
-  CloudDownloadOutlined,
-  CheckCircleOutlined,
-  FilterOutlined,
-  SearchOutlined,
-  ClearOutlined,
-  BugOutlined,
-} from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
-import DashboardLayout from "@components/layouts/backend-layout";
-import { HeaderBar } from "@/components/typhography/header-bar-component";
-import SummaryCard from "@/components/card/summary-card";
-import buddhistEra from "dayjs/plugin/buddhistEra";
+import axios from "axios";
+import dayjs from "dayjs";
 import "dayjs/locale/th";
+import buddhistEra from "dayjs/plugin/buddhistEra";
+import { useRouter } from "next/navigation";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 // การตั้งค่าสำหรับการใช้งานวันที่แบบไทย
 dayjs.extend(buddhistEra);
@@ -144,7 +139,9 @@ const ExportModal: React.FC<ExportModalProps> = ({
             <Button
               type="primary"
               key="close"
-              onClick={() => setVisible(false)}
+              onClick={() => {
+                setVisible(false);
+              }}
               style={{
                 borderRadius: "8px",
                 height: "40px",
@@ -381,7 +378,9 @@ export default function ServerStatusPage() {
         if (isDiscordMode) {
           setIsSendingDiscordNotification(false);
         } else {
-          setTimeout(() => setIsFetchingServerStatus(false), 500);
+          setTimeout(() => {
+            setIsFetchingServerStatus(false);
+          }, 500);
         }
       }
     },
@@ -651,10 +650,15 @@ export default function ServerStatusPage() {
           extra={
             <Space>
               <Button
-                icon={<NotificationOutlined />}
-                onClick={() => handleRequestServerStatus("discord")}
+                type="primary"
+                style={{
+                  backgroundColor: "#5865F2",
+                  borderColor: "#5865F2",
+                  boxShadow: "none",
+                }}
+                icon={<DiscordOutlined />}
+                onClick={() => void handleRequestServerStatus("discord")}
                 loading={isSendingDiscordNotification}
-                style={{ borderRadius: 8, fontWeight: 600 }}
               >
                 แจ้งเตือน Discord
               </Button>
@@ -750,7 +754,9 @@ export default function ServerStatusPage() {
                 <input
                   placeholder="พิมพ์คำค้นหา..."
                   value={tempSearchQueryString}
-                  onChange={(e) => setTempSearchQueryString(e.target.value)}
+                  onChange={(e) => {
+                    setTempSearchQueryString(e.target.value);
+                  }}
                   onKeyDown={(e) =>
                     e.key === "Enter" && handleSearchFilterApply()
                   }
@@ -796,7 +802,9 @@ export default function ServerStatusPage() {
                   block
                   options={methodOptions}
                   value={methodFilterType}
-                  onChange={(v) => setMethodFilterType(v as string)}
+                  onChange={(v) => {
+                    setMethodFilterType(v);
+                  }}
                   style={{ height: 40, padding: 4 }}
                 />
               </Flex>
@@ -844,7 +852,9 @@ export default function ServerStatusPage() {
             <Button
               type="primary"
               icon={<FileExcelOutlined />}
-              onClick={() => setIsExportModalVisible(true)}
+              onClick={() => {
+                setIsExportModalVisible(true);
+              }}
               style={{ borderRadius: 8, fontWeight: 600 }}
               disabled={serverHealthData.length === 0}
             >
@@ -914,7 +924,9 @@ export default function ServerStatusPage() {
             </Flex>
           }
           open={isDetailModalVisible}
-          onCancel={() => setIsDetailModalVisible(false)}
+          onCancel={() => {
+            setIsDetailModalVisible(false);
+          }}
           footer={[
             <Button
               key="curl"
@@ -945,7 +957,9 @@ export default function ServerStatusPage() {
             <Button
               key="close"
               type="primary"
-              onClick={() => setIsDetailModalVisible(false)}
+              onClick={() => {
+                setIsDetailModalVisible(false);
+              }}
               style={{ borderRadius: 8, fontWeight: 600 }}
             >
               ปิดหน้าต่าง
