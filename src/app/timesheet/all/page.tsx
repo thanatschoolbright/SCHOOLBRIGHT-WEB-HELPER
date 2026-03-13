@@ -175,23 +175,21 @@ export default function TimesheetAllPage() {
   const reportMenuItems: MenuProps["items"] = [
     {
       key: "capturable",
-      label: (
-        <Space>
-          รายงานแคปทรัพย์สิน
-          <Badge
-            count="ใหม่"
-            style={{ backgroundColor: token.colorSuccess, fontSize: 10 }}
-          />
-        </Space>
-      ),
+      label: <Space>รายงานแคปทรัพย์สิน</Space>,
       icon: <ProjectOutlined />,
       onClick: () => router.push("/timesheet/all/report/capturable"),
     },
     {
       key: "not-entry-today",
-      label: "รายงานผู้ไม่กรอกไทม์ชีทวันนี้",
+      label: <Space>รายงานผู้ไม่กรอกไทม์ชีทวันนี้</Space>,
       icon: <TeamOutlined />,
       onClick: () => router.push("/timesheet/all/report/not-entry/today"),
+    },
+    {
+      key: "daily-description",
+      label: "รายงานการลงเวลาประจำวัน",
+      icon: <FileTextOutlined />,
+      onClick: () => router.push("/timesheet/all/description"),
     },
     {
       key: "migrate-project",
