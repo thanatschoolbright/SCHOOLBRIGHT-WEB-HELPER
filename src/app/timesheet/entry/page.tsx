@@ -108,7 +108,6 @@ import {
   setLoading,
   setModalType,
   setProjects,
-  setSelectedRowKeys,
   setSubProjects,
 } from "@stores/reducers/timesheet/timesheet-reducer";
 import { useAppSelector } from "@stores/store";
@@ -1162,16 +1161,14 @@ interface TimesheetTableProps {
   currentPage: number;
   pageSize: number;
   totalItems: number;
-  selectedRowKeys: any[];
   actionLoading: boolean;
   onPageChange: (page: number, size?: number) => void;
-  onRowSelect: (keys: any[]) => void;
   onRowClick: (record: TimesheetEntry) => void;
   onEdit: (record: TimesheetEntry) => void;
   onCopy: (record: TimesheetEntry) => void;
+  onDeleteSingle: (record: TimesheetEntry) => void;
   onRefresh: () => void;
   onAdd: () => void;
-  onDelete: () => void;
 }
 const TimesheetTable: React.FC<TimesheetTableProps> = ({
   entries,
@@ -1179,16 +1176,14 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
   currentPage,
   pageSize,
   totalItems,
-  selectedRowKeys,
   actionLoading,
   onPageChange,
-  onRowSelect,
   onRowClick,
   onEdit,
   onCopy,
+  onDeleteSingle,
   onRefresh,
   onAdd,
-  onDelete,
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
@@ -1518,6 +1513,36 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
                   }}
                 />
               </Tooltip>
+              <Tooltip
+                title={
+                  canEdit
+                    ? t("delete", "ลบ")
+                    : t(
+                        "cannot_delete_policy",
+                        "ไม่สามารถลบได้เนื่องจากรายลงเวลา เกิน 7 วัน",
+                      )
+                }
+              >
+                <Button
+                  type="text"
+                  size="small"
+                  shape="circle"
+                  disabled={!canEdit}
+                  icon={
+                    <DeleteOutlined
+                      style={{
+                        color: canEdit
+                          ? (token as any).colorError
+                          : (token as any).colorTextDisabled,
+                      }}
+                    />
+                  }
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (canEdit) onDeleteSingle(r);
+                  }}
+                />
+              </Tooltip>
             </Space>
           );
         },
@@ -1626,12 +1651,10 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
             </Tooltip>
           </Popover>
           <TimesheetActions
-            selectedCount={selectedRowKeys?.length}
             loading={actionLoading}
             refreshLoading={loading}
             onRefresh={onRefresh}
             onAdd={onAdd}
-            onDelete={onDelete}
           />
         </Space>
       }
@@ -1649,11 +1672,6 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
           columns={filteredColumns}
           dataSource={entries}
           loading={loading}
-          rowSelection={{
-            selectedRowKeys,
-            onChange: onRowSelect,
-            columnWidth: 48,
-          }}
           scroll={{ x: 1000 }}
           pagination={{
             current: currentPage,
@@ -3313,9 +3331,13 @@ export default function TimesheetEntryPage() {
     },
     [dispatch],
   );
-  const openDeleteModal = useCallback(() => {
-    dispatch(setModalType("delete"));
-  }, [dispatch]);
+  const openDeleteModal = useCallback(
+    (record: TimesheetEntry) => {
+      dispatch(setActiveRecord(record));
+      dispatch(setModalType("delete"));
+    },
+    [dispatch],
+  );
 
   const handleSubmitTimesheet = useCallback(
     async (values: any) => {
@@ -3340,12 +3362,14 @@ export default function TimesheetEntryPage() {
   );
 
   const handleDeleteTimesheet = useCallback(async () => {
-    const success = await deleteTimesheet(timesheetState.selectedRowKeys);
+    if (!timesheetState.activeRecord?.id) return;
+    const success = await deleteTimesheet([
+      String(timesheetState.activeRecord.id),
+    ]);
     if (success && isMountedRef.current) {
-      dispatch(setSelectedRowKeys([]));
       closeModal();
     }
-  }, [deleteTimesheet, timesheetState.selectedRowKeys, dispatch, closeModal]);
+  }, [deleteTimesheet, timesheetState.activeRecord, closeModal]);
 
   const handlePageChange = useCallback(
     (page: number, size?: number) => {
@@ -3468,16 +3492,14 @@ export default function TimesheetEntryPage() {
                 currentPage={currentPage}
                 pageSize={pageSize}
                 totalItems={totalItems}
-                selectedRowKeys={timesheetState?.selectedRowKeys}
                 actionLoading={actionLoading}
                 onPageChange={handlePageChange}
-                onRowSelect={(keys) => dispatch(setSelectedRowKeys(keys))}
                 onRowClick={openDetailModal}
                 onEdit={openEditForm}
                 onCopy={openCopyForm}
+                onDeleteSingle={openDeleteModal}
                 onRefresh={refetch_entries}
                 onAdd={openCreateForm}
-                onDelete={openDeleteModal}
               />
             </motion.div>
           </Space>
@@ -3508,7 +3530,7 @@ export default function TimesheetEntryPage() {
             open={timesheetState.modalType === "delete"}
             onCancel={closeModal}
             onConfirm={handleDeleteTimesheet}
-            selectedCount={timesheetState.selectedRowKeys.length}
+            selectedCount={1}
             loading={actionLoading}
           />
           <MultiEntryModal

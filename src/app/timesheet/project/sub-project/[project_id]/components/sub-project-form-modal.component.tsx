@@ -816,15 +816,15 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                           </Col>
                         </Row>
                       ))}
-                      <Button
-                        type="dashed"
-                        size="small"
-                        onClick={() => add()}
-                        icon={<PlusOutlined />}
-                        block
-                      >
-                        {t("sub_project_page.form_add_link")}
-                      </Button>
+                        <Button
+                          type="dashed"
+                          size="large"
+                          onClick={() => add()}
+                          icon={<PlusOutlined />}
+                          block
+                        >
+                          {t("sub_project_page.form_add_link")}
+                        </Button>
                     </Card>
                   )}
                 </Form.List>
