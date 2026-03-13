@@ -28,7 +28,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
   isLoading = false,
 }) => {
   const { token } = theme.useToken();
-  const themeColor = color || token.colorPrimary;
+  const themeColor = color ?? token.colorPrimary;
 
   // 1. Loading State
   if (isLoading) {
@@ -41,7 +41,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
           height: "100%",
           minHeight: 140,
         }}
-        bordered={false}
+        variant="borderless"
       >
         <Flex
           vertical
@@ -78,21 +78,22 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
           {
             "--theme-color": themeColor,
             "--theme-color-bg": `${themeColor}15`,
-            "--theme-color-hover": `${themeColor}08`,
+            "--theme-color-hover": `${themeColor}12`, // Increased opacity for hover highlight
             "--border-color": token.colorBorderSecondary,
             "--bg-color": token.colorBgContainer,
+            "--value-text-shadow": "none",
           } as React.CSSProperties
         }
         styles={{
           body: {
-            padding: "24px 24px 20px 24px",
+            padding: "32px 28px", // Increased padding from 24px 24px 20px 24px
             height: "100%",
-            minHeight: 140,
+            minHeight: 160,
             display: "flex",
             flexDirection: "column",
           },
         }}
-        bordered={false}
+        variant="borderless"
       >
         <Flex
           vertical
@@ -101,13 +102,13 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
         >
           {/* --- Top Section: Context (Icon + Title) --- */}
           <Flex align="center" justify="space-between">
-            <Flex align="center" gap={10}>
+            <Flex align="center" gap={12}>
               {icon && <div className="metric-icon">{icon}</div>}
               <Text
                 type="secondary"
                 style={{
-                  fontSize: 15,
-                  fontWeight: 500,
+                  fontSize: 16, // Increased from 15
+                  fontWeight: 600, // More emphasized
                   letterSpacing: "0.2px",
                 }}
               >
@@ -124,15 +125,17 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
           </Flex>
 
           {/* --- Bottom Section: The Big Number & Subtitle --- */}
-          <Flex vertical style={{ marginTop: 24 }}>
-            <Flex align="baseline" gap={8}>
+          <Flex vertical style={{ marginTop: 28 }}>
+            <Flex align="baseline" gap={8} wrap="wrap">
               <Text
                 style={{
-                  fontSize: 42,
-                  fontWeight: 800,
-                  letterSpacing: "-1px",
+                  fontSize: 52, // Increased from 42
+                  fontWeight: 900, // Much bolder for emphasis
+                  letterSpacing: "-2px",
                   color: token.colorText,
                   lineHeight: 1,
+                  display: "inline-block",
+                  textShadow: "var(--value-text-shadow)", // Use CSS variable for text shadow
                 }}
               >
                 {value}
@@ -141,10 +144,10 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
                 <Text
                   type="secondary"
                   style={{
-                    fontSize: 16,
-                    fontWeight: 600,
+                    fontSize: 18, // Increased from 16
+                    fontWeight: 700,
                     position: "relative",
-                    top: "-4px",
+                    top: "-6px",
                   }}
                 >
                   {unit}
@@ -157,10 +160,11 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
               <Text
                 type="secondary"
                 style={{
-                  fontSize: 13,
-                  marginTop: 4,
-                  fontWeight: 400,
+                  fontSize: 14, // Increased from 13
+                  marginTop: 6,
+                  fontWeight: 500,
                   lineHeight: 1.4,
+                  opacity: 0.85,
                 }}
               >
                 {subtitle}
@@ -173,19 +177,30 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
       {/* --- Styles --- */}
       <style jsx>{`
         :global(.metric-first-card) {
-          border-radius: 20px !important;
+          border-radius: 24px !important; // More rounded
           border: 1px solid var(--border-color) !important;
-          background-color: var(--bg-color);
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+          background-color: var(--bg-color) !important;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
           overflow: hidden;
           position: relative;
+        }
+
+        :global(.dark .metric-first-card) {
+          --value-text-shadow: 0 0 20px var(--theme-color-bg);
         }
 
         :global(.metric-first-card:hover) {
           border-color: var(--theme-color) !important;
           background-color: var(--theme-color-hover) !important;
-          box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.1) !important;
-          transform: translateY(-2px);
+          box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.12) !important;
+          transform: translateY(-4px);
+        }
+
+        :global(.dark .metric-first-card:hover) {
+          box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.4) !important;
+          background-color: var(
+            --theme-color-bg
+          ) !important; // Slightly deeper highlight in dark mode
         }
 
         :global(.metric-first-card::before) {
@@ -194,7 +209,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
           top: 0;
           left: 0;
           right: 0;
-          height: 3px;
+          height: 4px;
           background-color: var(--theme-color);
           opacity: 0;
           transition: opacity 0.3s ease;
@@ -205,23 +220,28 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
         }
 
         .metric-icon {
-          width: 32px;
-          height: 32px;
-          border-radius: 8px;
+          width: 40px; // Increased from 32
+          height: 40px;
+          border-radius: 10px;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 16px;
+          font-size: 18px;
           color: var(--theme-color);
           background-color: var(--theme-color-bg);
-          box-shadow: 0 2px 4px -2px var(--theme-color-bg);
+          box-shadow: 0 4px 8px -2px var(--theme-color-bg);
+          transition: all 0.3s ease;
+        }
+
+        :global(.metric-first-card:hover) .metric-icon {
+          transform: scale(1.1) rotate(-5deg);
         }
 
         .tooltip-trigger {
           color: ${token.colorTextQuaternary};
           font-size: 14px;
           cursor: help;
-          padding: 4px;
+          padding: 6px;
           border-radius: 50%;
           transition: all 0.2s ease;
           display: flex;
