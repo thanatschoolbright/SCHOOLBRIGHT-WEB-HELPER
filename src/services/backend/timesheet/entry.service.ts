@@ -1,5 +1,22 @@
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 
+const MAX_DAILY_HOURS = 16;
+
+// ✨ Custom Error สำหรับ Business Rule ชั่วโมงการทำงานเกินกำหนดต่อวัน
+export class DailyHoursLimitError extends Error {
+  readonly usedHours: number;
+  readonly requestedHours: number;
+
+  constructor(usedHours: number, requestedHours: number) {
+    super(
+      `ชั่วโมงการทำงานในวันนั้นเกินกำหนด: บันทึกไปแล้ว ${usedHours} ชั่วโมง ต้องการเพิ่ม ${requestedHours} ชั่วโมง (สูงสุด ${MAX_DAILY_HOURS} ชั่วโมง/วัน)`
+    );
+    this.name = "DailyHoursLimitError";
+    this.usedHours = usedHours;
+    this.requestedHours = requestedHours;
+  }
+}
+
 interface CreateTimesheetEntryInput {
   description?: string;
   createdBy?: number;
@@ -21,6 +38,36 @@ interface UpdateTimesheetEntryInput {
 }
 
 export const Service = {
+  // ✨ ตรวจสอบว่าชั่วโมงรวมของผู้ใช้ในวันนั้นไม่เกิน MAX_DAILY_HOURS
+  async checkDailyHoursLimit(
+    userId: number,
+    date: Date,
+    newHour: number,
+    excludeEntryId?: number
+  ) {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const entries = await PrismaTimesheet.timesheetEntry.findMany({
+      where: {
+        createdBy: userId,
+        is_deleted: false,
+        date: { gte: startOfDay, lte: endOfDay },
+        ...(excludeEntryId !== undefined ? { id: { not: excludeEntryId } } : {}),
+      },
+      select: { hours: true },
+    });
+
+    const usedHours = entries.reduce((sum, e) => sum + Number(e.hours), 0);
+
+    if (usedHours + newHour > MAX_DAILY_HOURS) {
+      throw new DailyHoursLimitError(usedHours, newHour);
+    }
+  },
+
   async validatorID(id: number) {
     const find = await PrismaTimesheet.timesheetEntry.findUnique({
       where: { id: id },
@@ -215,8 +262,14 @@ export const Service = {
     });
   },
 
-  // * สร้าง
+  // ✨ สร้าง entry ใหม่ พร้อมตรวจสอบจำนวนชั่วโมงสูงสุดต่อวัน
   async create(data: CreateTimesheetEntryInput) {
+    await Service.checkDailyHoursLimit(
+      data.createdBy ?? 0,
+      data.date,
+      data.hour
+    );
+
     return await PrismaTimesheet.timesheetEntry.create({
       data: {
         projectId: data.projectId,
@@ -230,10 +283,25 @@ export const Service = {
     });
   },
 
-  // * อัปเดต ตาม ID
+  // ✨ อัปเดต entry ตาม ID พร้อมตรวจสอบจำนวนชั่วโมงสูงสุดต่อวัน (ยกเว้น entry ปัจจุบัน)
   async update(id: number, data: UpdateTimesheetEntryInput) {
     if (!id || id <= 0) {
       throw new Error("Invalid id for update");
+    }
+
+    if (data.hour !== undefined && data.date) {
+      const existing = await PrismaTimesheet.timesheetEntry.findUnique({
+        where: { id },
+        select: { createdBy: true },
+      });
+      if (existing) {
+        await Service.checkDailyHoursLimit(
+          existing.createdBy ?? 0,
+          data.date,
+          data.hour,
+          id
+        );
+      }
     }
 
     const response = PrismaTimesheet.timesheetEntry.update({

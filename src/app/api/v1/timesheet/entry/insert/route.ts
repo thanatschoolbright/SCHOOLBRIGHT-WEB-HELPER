@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-import { Service } from "@services/backend/timesheet/entry.service";
+import { Service, DailyHoursLimitError } from "@services/backend/timesheet/entry.service";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { validateRequest } from "@helpers/api/validate.request";
 import {
@@ -121,6 +121,20 @@ export async function POST(request: NextRequest) {
       })
     );
   } catch (err) {
+    if (err instanceof DailyHoursLimitError) {
+      const used = String(err.usedHours);
+      const requested = String(err.requestedHours);
+      return NextResponse.json(
+        errorResponse({
+          status: 422,
+          message_en: `Daily hours limit exceeded: already logged ${used}h, requested ${requested}h (max 16h/day)`,
+          message_th: err.message,
+          error: err.message,
+        }),
+        { status: 422 }
+      );
+    }
+
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error("[timesheet][insert]", message, err);
 
