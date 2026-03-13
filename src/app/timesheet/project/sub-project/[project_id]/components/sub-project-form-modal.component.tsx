@@ -2,7 +2,6 @@ import { axios } from "@/helpers/api/api.log";
 import {
   CalendarOutlined,
   CheckCircleOutlined,
-  ClockCircleOutlined,
   CloseOutlined,
   CopyOutlined,
   DeleteOutlined,
@@ -46,7 +45,6 @@ import type {
   SubProjectFormValues,
 } from "../types/sub-project.types";
 import { ASSET_OPTIONS } from "../utils/constants";
-import { calculateWorkingHours } from "../utils/date-helpers";
 
 const { RangePicker } = DatePicker;
 const { Text, Title, Paragraph } = Typography;
@@ -289,10 +287,6 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
             asset_capture_type: data.assetCaptureType,
             projectStatusId: data.projectStatusId,
             dateRange: range,
-            estimate_time: calculateWorkingHours(
-              data.startDate || "",
-              data.endDate || "",
-            ).text,
             backlogDescription: data.backlogDescription,
             assignees:
               data.projectAssignees?.map((a) => ({
@@ -314,25 +308,6 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
       setTargetProjectId(null);
     }
   }, [open]);
-
-  useEffect(() => {
-    if (watchedDateRange && watchedDateRange[0] && watchedDateRange[1]) {
-      const { text } = calculateWorkingHours(
-        watchedDateRange[0],
-        watchedDateRange[1],
-      );
-
-      // ตรวจสอบค่าปัจจุบันก่อนอัปเดตเพื่อลดการ Re-render และป้องกัน Circular Reference
-      const currentVal = form.getFieldValue("estimate_time");
-      if (currentVal !== text) {
-        // ใช้ setTimeout เพื่อขยับการอัปเดตไปที่ Queue ถัดไป ป้องกันการเตือนเรื่องโครงสร้างข้อมูลพัวพันกัน (Circular references)
-        const timer = setTimeout(() => {
-          form.setFieldValue("estimate_time", text);
-        }, 0);
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [watchedDateRange, form]);
 
   const handleFinish = async (values: SubProjectFormValues) => {
     const payload = {
@@ -440,13 +415,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
         },
       }}
     >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleFinish}
-        size="large"
-        requiredMark="optional"
-      >
+      <Form form={form} layout="vertical" onFinish={handleFinish} size="large">
         <Row gutter={[24, 24]}>
           {/* Main Info */}
           <Col span={24}>
@@ -456,6 +425,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                 <Form.Item
                   name="name"
                   label={t("sub_project_page.form_name_th")}
+                  required
                   rules={[
                     {
                       required: true,
@@ -520,6 +490,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                 <Form.Item
                   name="asset_capture_type"
                   label={t("sub_project_page.form_asset_type")}
+                  required
                   rules={[{ required: true }]}
                 >
                   <Select options={ASSET_OPTIONS} />
@@ -529,6 +500,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                 <Form.Item
                   name="projectStatusId"
                   label="สถานะการดำเนินงาน"
+                  required
                   rules={[{ required: true }]}
                 >
                   <Select options={statusOptions} />
@@ -541,10 +513,11 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
           <Col span={24}>
             {renderSectionHeader("ระยะเวลาดำเนินงาน", <CalendarOutlined />)}
             <Row gutter={24}>
-              <Col span={16}>
+              <Col span={24}>
                 <Form.Item
                   name="dateRange"
                   label={t("sub_project_page.form_date_range")}
+                  required
                   rules={[
                     {
                       required: true,
@@ -556,25 +529,6 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                     className="w-full"
                     format="DD/MM/YYYY"
                     separator={<SwapOutlined />}
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item
-                  name="estimate_time"
-                  label={t("sub_project_page.form_estimate_time")}
-                >
-                  <Input
-                    readOnly
-                    prefix={
-                      <ClockCircleOutlined
-                        style={{ color: token.colorTextDescription }}
-                      />
-                    }
-                    style={{
-                      background: token.colorFillQuaternary,
-                      color: token.colorTextSecondary,
-                    }}
                   />
                 </Form.Item>
               </Col>
