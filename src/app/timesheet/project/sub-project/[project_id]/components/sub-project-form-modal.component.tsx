@@ -427,7 +427,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
           </Title>
         </Space>
       }
-      width={900}
+      width={1100}
       footer={null}
       destroyOnHidden
       centered
@@ -676,6 +676,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                                 value: u.admin_id,
                               }))}
                               prefix={<UserOutlined />}
+                              style={{ width: "100%" }}
                             />
                           </Form.Item>
                         </Col>
@@ -693,15 +694,31 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                                   .toUpperCase()
                                   .indexOf(inputValue.toUpperCase()) !== -1
                               }
+                              style={{ width: "100%" }}
                             />
                           </Form.Item>
                         </Col>
-                        <Col span={2}>
+                        <Col
+                          span={2}
+                          style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            height: 40, // Match heavy Ant Design large input height
+                          }}
+                        >
                           <Button
                             type="text"
                             danger
-                            icon={<MinusCircleOutlined />}
+                            icon={
+                              <MinusCircleOutlined style={{ fontSize: 20 }} />
+                            }
                             onClick={() => remove(name)}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
                           />
                         </Col>
                       </Row>

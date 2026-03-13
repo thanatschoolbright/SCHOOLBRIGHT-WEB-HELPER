@@ -571,9 +571,7 @@ export default function SubProjectPage() {
           bordered={false}
           style={{ fontWeight: 600 }}
         >
-          {type === "CAPTUREABLE"
-            ? "Capitalization ทรัพย์สิน"
-            : "Expense รายจ่าย"}
+          {type === "CAPTUREABLE" ? "Capitalization" : "Expense"}
         </Tag>
       ),
       sorter: (a, b) =>
