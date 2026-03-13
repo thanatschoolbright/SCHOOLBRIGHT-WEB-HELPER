@@ -173,6 +173,12 @@ export default function TimesheetDailyReportPage() {
     }
   }, [dateRange, departmentIds]);
 
+  // Initial load
+  useEffect(() => {
+    requestDepartments();
+    requestFetchDailyReport();
+  }, [requestDepartments, requestFetchDailyReport]);
+
   /**
    * กรองข้อมูลตาม Keyword (ชื่อ, นามสกุล, ชื่อเล่น, รหัสพนักงาน)
    */
