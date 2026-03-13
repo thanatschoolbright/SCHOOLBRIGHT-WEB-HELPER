@@ -92,7 +92,6 @@ import { toast } from "sonner";
 
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { TimesheetActions } from "@components/button/timesheet-actions";
-import { TimesheetStatCard } from "@components/card/timesheet-stat-card";
 import { TableSearch } from "@components/input-field/table-search";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { DeleteConfirmationModal } from "@components/modal/delete-confirmation-modal";
@@ -117,7 +116,6 @@ import { useAppSelector } from "@stores/store";
 import {
   useMonthlySummaryAPI,
   useTimesheetEntries,
-  useTopUsage,
 } from "@/hooks/use-timesheet-data";
 import { ApiResponse, SummaryMetadata, SummaryRecord } from "@/types/timesheet";
 import { STATUS_OPTIONS } from "@constants/timesheet.constants";
@@ -128,7 +126,6 @@ import {
 import {
   SearchableColumnKey,
   TimesheetEntry,
-  TopUsage,
 } from "./types/timesheet-entry.types";
 import {
   DAILY_TARGET_HOURS,
@@ -336,7 +333,7 @@ const GuideModal: React.FC<GuideModalProps> = ({ open, onCancel }) => {
           label: "SB-TS-DOC-001 - นโยบายการบันทึกต้นทุนการพัฒนาซอฟต์แวร์",
           url: "https://docs.google.com/document/d/1OkUIocbdpi0_T41WhHQsQmsbVrGzJ-bvYmnOLar-utg/edit?usp=sharing",
           tag: "Core Policy",
-        },
+        } as any,
       ],
     },
     {
@@ -507,6 +504,7 @@ interface PageHeaderProps {
   admin_name: string;
   admin_id?: number;
   on_add_click: () => void;
+  on_add_multi_click: () => void;
   on_bulk_all_click: () => void;
   on_my_work_click: () => void;
   on_guide_click: () => void;
@@ -1082,8 +1080,6 @@ interface StatsGridProps {
   admin_id: number | undefined;
   rank_board_ref: React.RefObject<MonthlyRankBoardRef>;
   monthly_summary: any[];
-  top_project_usage: TopUsage | null;
-  top_feature_usage: TopUsage | null;
   loading: boolean;
   monthly_summary_loading?: boolean;
   monthly_stats?: any;
@@ -1094,15 +1090,11 @@ const StatsGrid: React.FC<StatsGridProps> = ({
   admin_id,
   rank_board_ref,
   monthly_summary,
-  top_project_usage,
-  top_feature_usage,
-  loading,
   monthly_summary_loading = false,
   monthly_stats = null,
   selected_date,
   on_date_change,
 }) => {
-  const { t } = useTranslation();
   const { token } = theme.useToken();
 
   return (
@@ -1157,49 +1149,6 @@ const StatsGrid: React.FC<StatsGridProps> = ({
               </Card>
             </Badge.Ribbon>
           </div>
-
-          {/* Small Stat Cards Row */}
-          <Row gutter={[32, 32]}>
-            <Col xs={24} sm={12}>
-              <TimesheetStatCard
-                title={
-                  <Space>
-                    {t(
-                      "timesheet_entry_page.popular_projects",
-                      "โครงการยอดนิยม",
-                    )}{" "}
-                    <RocketOutlined />
-                  </Space>
-                }
-                value={top_project_usage ? top_project_usage.hours : 0}
-                color={token.colorPrimary}
-                loading={loading}
-                description={
-                  top_project_usage
-                    ? top_project_usage.name
-                    : t("timesheet_entry_page.no_data", "ยังไม่มีข้อมูล")
-                }
-              />
-            </Col>
-            <Col xs={24} sm={12}>
-              <TimesheetStatCard
-                title={
-                  <Space>
-                    {t("timesheet_entry_page.top_features", "ฟีเจอร์มาแรง")}{" "}
-                    <FireOutlined />
-                  </Space>
-                }
-                value={top_feature_usage ? top_feature_usage.hours : 0}
-                color={token.colorError}
-                loading={loading}
-                description={
-                  top_feature_usage
-                    ? top_feature_usage.name
-                    : t("timesheet_entry_page.no_data", "ยังไม่มีข้อมูล")
-                }
-              />
-            </Col>
-          </Row>
         </Flex>
       </Col>
     </Row>
@@ -3286,10 +3235,6 @@ export default function TimesheetEntryPage() {
     selected_summary_date.year(),
   );
 
-  const {
-    topProjectUsage: top_project_usage,
-    topFeatureUsage: top_feature_usage,
-  } = useTopUsage(entries);
   const { actionLoading, submitTimesheet, deleteTimesheet } =
     useTimesheetActions(
       admin_id,
@@ -3505,8 +3450,6 @@ export default function TimesheetEntryPage() {
               admin_id={admin_id}
               rank_board_ref={rankBoardRef}
               monthly_summary={monthly_summary as any}
-              top_project_usage={top_project_usage}
-              top_feature_usage={top_feature_usage}
               loading={table_loading}
               monthly_summary_loading={monthly_summary_loading}
               monthly_stats={monthly_stats}
