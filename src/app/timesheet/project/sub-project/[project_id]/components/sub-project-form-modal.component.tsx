@@ -594,122 +594,116 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
             >
               <Form.List name="assignees">
                 {(fields, { add, remove }) => (
-                  <>
+                  <Flex vertical gap={12}>
                     {fields.map(({ key, name, ...restField }) => (
-                      <Row
+                      <div
                         key={key}
-                        gutter={12}
-                        align="middle"
-                        className="mb-3"
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "1fr 1fr 40px",
+                          gap: "12px",
+                          alignItems: "center",
+                        }}
                       >
-                        <Col span={11}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "userId"]}
-                            rules={[
-                              { required: true, message: "ระบุผู้รับผิดชอบ" },
-                              ({ getFieldValue }) => ({
-                                validator(_, value) {
-                                  const assignees =
-                                    getFieldValue("assignees") || [];
-                                  const duplicates = assignees.filter(
-                                    (a: any) =>
-                                      a?.userId === value &&
-                                      value !== undefined,
-                                  );
-                                  if (duplicates.length > 1) {
-                                    return Promise.reject(
-                                      new Error("ชื่อผู้ใช้ซ้ำกัน!"),
-                                    );
-                                  }
-                                  return Promise.resolve();
-                                },
-                              }),
-                            ]}
-                            className="mb-0"
-                          >
-                            <Select
-                              placeholder="เลือกผู้รับผิดชอบ"
-                              showSearch
-                              onSearch={handleUserSearch}
-                              filterOption={false}
-                              loading={isFetchingUsers}
-                              notFoundContent={
-                                isFetchingUsers
-                                  ? "กำลังค้นหา..."
-                                  : "ไม่พบข้อมูล"
-                              }
-                              onChange={(userId) => {
-                                // ค้นหาข้อมูลพนักงานเพื่อดึงตำแหน่ง
-                                const selectedUser = users.find(
-                                  (u) => u.admin_id === userId,
+                        <Form.Item
+                          {...restField}
+                          name={[name, "userId"]}
+                          rules={[
+                            { required: true, message: "ระบุผู้รับผิดชอบ" },
+                            ({ getFieldValue }) => ({
+                              validator(_, value) {
+                                const assignees =
+                                  getFieldValue("assignees") || [];
+                                const duplicates = assignees.filter(
+                                  (a: any) =>
+                                    a?.userId === value && value !== undefined,
                                 );
-                                if (selectedUser) {
-                                  // ใช้ setTimeout (Macro-task) เพื่อให้ Ant Design ประมวลผลสถานะ Select ให้เสร็จก่อน
-                                  // ป้องกันปัญหา Circular Reference Warning เมื่ออัปเดต Field อื่นใน Form.List พร้อมกัน
-                                  setTimeout(() => {
-                                    form.setFieldValue(
-                                      ["assignees", name, "position"],
-                                      selectedUser.position || "พนักงาน",
-                                    );
-                                  }, 0);
+                                if (duplicates.length > 1) {
+                                  return Promise.reject(
+                                    new Error("ชื่อผู้ใช้ซ้ำกัน!"),
+                                  );
                                 }
-                              }}
-                              options={users.map((u) => ({
-                                label: (
-                                  <Flex justify="space-between" align="center">
-                                    <Space>
-                                      <Typography.Text strong>
-                                        {u.firstname} {u.lastname}
-                                      </Typography.Text>
-                                      {u.nickname && (
-                                        <Typography.Text type="secondary">
-                                          ({u.nickname})
-                                        </Typography.Text>
-                                      )}
-                                    </Space>
-                                    <Tag color="blue" bordered={false}>
-                                      {u.position}
-                                    </Tag>
-                                  </Flex>
-                                ),
-                                value: u.admin_id,
-                              }))}
-                              prefix={<UserOutlined />}
-                              style={{ width: "100%" }}
-                            />
-                          </Form.Item>
-                        </Col>
-                        <Col span={11}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "position"]}
-                            className="mb-0"
-                          >
-                            <AutoComplete
-                              options={POSITION_OPTIONS}
-                              placeholder="ตำแหน่ง / หน้าที่"
-                              filterOption={(inputValue, option) =>
-                                (option?.value ?? "")
-                                  .toUpperCase()
-                                  .indexOf(inputValue.toUpperCase()) !== -1
+                                return Promise.resolve();
+                              },
+                            }),
+                          ]}
+                          style={{ marginBottom: 0 }}
+                        >
+                          <Select
+                            placeholder="เลือกผู้รับผิดชอบ"
+                            showSearch
+                            onSearch={handleUserSearch}
+                            filterOption={false}
+                            loading={isFetchingUsers}
+                            notFoundContent={
+                              isFetchingUsers ? "กำลังค้นหา..." : "ไม่พบข้อมูล"
+                            }
+                            onChange={(userId) => {
+                              const selectedUser = users.find(
+                                (u) => u.admin_id === userId,
+                              );
+                              if (selectedUser) {
+                                setTimeout(() => {
+                                  form.setFieldValue(
+                                    ["assignees", name, "position"],
+                                    selectedUser.position || "พนักงาน",
+                                  );
+                                }, 0);
                               }
-                              style={{ width: "100%" }}
-                            />
-                          </Form.Item>
-                        </Col>
-                        <Col
-                          span={2}
+                            }}
+                            options={users.map((u) => ({
+                              label: (
+                                <Flex justify="space-between" align="center">
+                                  <Space>
+                                    <Typography.Text strong>
+                                      {u.firstname} {u.lastname}
+                                    </Typography.Text>
+                                    {u.nickname && (
+                                      <Typography.Text type="secondary">
+                                        ({u.nickname})
+                                      </Typography.Text>
+                                    )}
+                                  </Space>
+                                  <Tag color="blue" bordered={false}>
+                                    {u.position}
+                                  </Tag>
+                                </Flex>
+                              ),
+                              value: u.admin_id,
+                            }))}
+                            prefix={<UserOutlined />}
+                            style={{ width: "100%" }}
+                          />
+                        </Form.Item>
+
+                        <Form.Item
+                          {...restField}
+                          name={[name, "position"]}
+                          style={{ marginBottom: 0 }}
+                        >
+                          <AutoComplete
+                            options={POSITION_OPTIONS}
+                            placeholder="ตำแหน่ง / หน้าที่"
+                            filterOption={(inputValue, option) =>
+                              (option?.value ?? "")
+                                .toUpperCase()
+                                .indexOf(inputValue.toUpperCase()) !== -1
+                            }
+                            style={{ width: "100%" }}
+                          />
+                        </Form.Item>
+
+                        <div
                           style={{
                             display: "flex",
                             justifyContent: "center",
                             alignItems: "center",
-                            height: 40, // Match heavy Ant Design large input height
                           }}
                         >
                           <Button
                             type="text"
                             danger
+                            size="large"
                             icon={
                               <MinusCircleOutlined style={{ fontSize: 20 }} />
                             }
@@ -720,19 +714,20 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
                               justifyContent: "center",
                             }}
                           />
-                        </Col>
-                      </Row>
+                        </div>
+                      </div>
                     ))}
                     <Button
                       type="dashed"
                       onClick={() => add()}
                       block
                       icon={<PlusOutlined />}
-                      style={{ marginTop: 8 }}
+                      size="large"
+                      style={{ marginTop: 4 }}
                     >
                       เพิ่มผู้รับผิดชอบ
                     </Button>
-                  </>
+                  </Flex>
                 )}
               </Form.List>
             </Card>
