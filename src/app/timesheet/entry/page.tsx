@@ -188,10 +188,10 @@ const MyWorkModal: React.FC<MyWorkModalProps> = ({
     setLoading(true);
     try {
       const response = await axios.get(
-        `/api/v1/timesheet/my-work?user_id=${userId}`,
+        `/api/v1/timesheet/my-work?user_id=${String(userId)}`,
       );
       setData(response.data?.data ?? []);
-    } catch (error) {
+    } catch (_error) {
       toast.error("ไม่สามารถโหลดข้อมูลงานคืนได้");
     } finally {
       setLoading(false);
@@ -199,7 +199,9 @@ const MyWorkModal: React.FC<MyWorkModalProps> = ({
   }, [userId]);
 
   useEffect(() => {
-    if (open) fetchData();
+    if (open) {
+      void fetchData();
+    }
   }, [open, fetchData]);
 
   const columns = [
@@ -257,7 +259,7 @@ const MyWorkModal: React.FC<MyWorkModalProps> = ({
     {
       title: t("timesheet_entry_page.table_status", "สถานะ"),
       key: "status",
-      render: (_: any, record: MyWorkItem) => (
+      render: (_text: string, record: MyWorkItem) => (
         <Flex gap={4} wrap="wrap">
           <Tag
             color={record.project.status === "open" ? "processing" : "default"}
@@ -322,7 +324,6 @@ interface GuideModalProps {
 }
 
 const GuideModal: React.FC<GuideModalProps> = ({ open, onCancel }) => {
-  const { t } = useTranslation();
   const { token } = theme.useToken();
   const { Text, Title } = Typography;
 
@@ -506,11 +507,10 @@ interface PageHeaderProps {
   admin_name: string;
   admin_id?: number;
   on_add_click: () => void;
-  on_add_multi_click: () => void;
   on_bulk_all_click: () => void;
   on_my_work_click: () => void;
   on_guide_click: () => void;
-  token: any;
+  token: Record<string, any>;
 }
 const PageHeader: React.FC<PageHeaderProps> = ({
   admin_name,
@@ -810,7 +810,7 @@ const useMonthlyRankData = (adminId?: number) => {
   );
 
   useEffect(() => {
-    fetchData();
+    void fetchData();
   }, [fetchData]);
   return {
     records,
@@ -823,7 +823,7 @@ const useMonthlyRankData = (adminId?: number) => {
 };
 
 const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
-  ({ currentAdminId, variant = "wide", onVariantChange }, ref) => {
+  ({ currentAdminId, variant = "wide" }, ref) => {
     const { t } = useTranslation();
     const { token } = theme.useToken();
     const {
@@ -834,7 +834,7 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
       selectedMonth,
       setSelectedMonth,
     } = useMonthlyRankData(currentAdminId);
-    const [viewMode, setViewMode] = useState<MonthlyRankVariant>(variant);
+    const [viewMode] = useState<MonthlyRankVariant>(variant);
 
     useImperativeHandle(ref, () => ({ refetch }));
 
@@ -1062,7 +1062,9 @@ const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
               type="text"
               size="small"
               icon={<ReloadOutlined />}
-              onClick={refetch}
+              onClick={() => {
+                refetch();
+              }}
               style={{ color: token.colorTextSecondary }}
             >
               {t("timesheet_entry_page.update_data", "อัปเดตข้อมูล")}
@@ -1102,10 +1104,6 @@ const StatsGrid: React.FC<StatsGridProps> = ({
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
-  const [variant, setVariant] = useState<"compact" | "wide">("compact");
-  // Adjusted spans for better balance
-  const leftColSpan = 8;
-  const rightColSpan = 16;
 
   return (
     <Row gutter={[32, 32]} style={{ alignItems: "stretch" }}>
@@ -1120,7 +1118,6 @@ const StatsGrid: React.FC<StatsGridProps> = ({
           ref={rank_board_ref}
           currentAdminId={admin_id}
           variant="compact"
-          onVariantChange={setVariant}
         />
       </Col>
 
@@ -1497,7 +1494,9 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 style={{
                   fontSize: 20,
                   color:
-                    hours >= 8 ? token.colorSuccess : token.colorTextHeading,
+                    hours >= 8
+                      ? (token as any).colorSuccess
+                      : (token as any).colorTextHeading,
                 }}
               >
                 {hours.toFixed(1)}
@@ -1517,34 +1516,62 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
         fixed: "right",
         width: 100,
         align: "center",
-        render: (_: any, r: TimesheetEntry) => (
-          <Space>
-            <Tooltip title={t("edit", "แก้ไข")}>
-              <Button
-                type="text"
-                size="small"
-                shape="circle"
-                icon={<EditOutlined style={{ color: token.colorWarning }} />}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit(r);
-                }}
-              />
-            </Tooltip>
-            <Tooltip title={t("copy", "คัดลอก")}>
-              <Button
-                type="text"
-                size="small"
-                shape="circle"
-                icon={<CopyOutlined style={{ color: token.colorSuccess }} />}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCopy(r);
-                }}
-              />
-            </Tooltip>
-          </Space>
-        ),
+        render: (_text: string, r: TimesheetEntry) => {
+          const entryDate = dayjs(r.date);
+          const diffDays = dayjs().diff(entryDate, "day");
+          const canEdit = diffDays <= 7;
+
+          return (
+            <Space>
+              <Tooltip
+                title={
+                  canEdit
+                    ? t("edit", "แก้ไข")
+                    : t(
+                        "cannot_edit_policy",
+                        "ไม่สามารถแก้ไขได้เนื่องจากรายลงเวลา เกิน 7 วัน",
+                      )
+                }
+              >
+                <Button
+                  type="text"
+                  size="small"
+                  shape="circle"
+                  disabled={!canEdit}
+                  icon={
+                    <EditOutlined
+                      style={{
+                        color: canEdit
+                          ? (token as any).colorWarning
+                          : (token as any).colorTextDisabled,
+                      }}
+                    />
+                  }
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (canEdit) onEdit(r);
+                  }}
+                />
+              </Tooltip>
+              <Tooltip title={t("copy", "คัดลอก")}>
+                <Button
+                  type="text"
+                  size="small"
+                  shape="circle"
+                  icon={
+                    <CopyOutlined
+                      style={{ color: (token as any).colorSuccess }}
+                    />
+                  }
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCopy(r);
+                  }}
+                />
+              </Tooltip>
+            </Space>
+          );
+        },
       },
     ],
     [onEdit, onCopy, getColumnSearchProps, token, t],
@@ -1608,16 +1635,18 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
                     type="text"
                     size="small"
                     icon={<ReloadOutlined style={{ fontSize: 12 }} />}
-                    onClick={() =>
-                      setVisibleColumns(ALL_TIMESHEET_COLUMNS.map((c) => c.key))
-                    }
+                    onClick={() => {
+                      setVisibleColumns(
+                        ALL_TIMESHEET_COLUMNS.map((c) => c.key),
+                      );
+                    }}
                   />
                 </Flex>
                 <Checkbox.Group
                   value={visibleColumns}
-                  onChange={(checkedValues) =>
-                    setVisibleColumns(checkedValues as string[])
-                  }
+                  onChange={(checkedValues) => {
+                    setVisibleColumns(checkedValues);
+                  }}
                   style={{ width: "100%" }}
                 >
                   <Flex vertical gap={10}>
@@ -1686,7 +1715,9 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({
             position: ["bottomCenter"],
           }}
           onRow={(r) => ({
-            onClick: () => onRowClick(r),
+            onClick: () => {
+              onRowClick(r);
+            },
             style: { cursor: "pointer" },
           })}
         />
@@ -1803,7 +1834,9 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
           });
         }
       }, 100);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+      };
     }
   }, [open, formMode, form, record]);
 
@@ -1822,7 +1855,9 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
         });
       }
     }, 100);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [searchMode, form, open]);
 
   const projectOptions = useMemo(
@@ -1954,7 +1989,9 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
               </Space>
               <Radio.Group
                 value={searchMode}
-                onChange={(e) => setSearchMode(e.target.value)}
+                onChange={(e) => {
+                  setSearchMode(e.target.value);
+                }}
                 buttonStyle="solid"
                 size="middle"
               >
@@ -2147,6 +2184,9 @@ const CreateModalForm: React.FC<CreateModalProps> = ({
                       size="large"
                       format="DD/MM/BBBB"
                       style={{ width: "100%" }}
+                      disabledDate={(current) =>
+                        current && current > dayjs().endOf("day")
+                      }
                     />
                   </Form.Item>
                 </Col>
@@ -2306,19 +2346,22 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
     { id: `entry-${Date.now()}`, status: "IN_PROGRESS", date: dayjs() },
   ]);
 
-  const addEntry = () =>
+  const addEntry = () => {
     setEntries((prev) => [
       ...prev,
       { id: `entry-${Date.now()}`, status: "IN_PROGRESS", date: dayjs() },
     ]);
+  };
 
-  const removeEntry = (id: string) =>
+  const removeEntry = (id: string) => {
     setEntries((prev) => prev.filter((e) => e.id !== id));
+  };
 
-  const updateEntry = (id: string, field: string, value: any) =>
+  const updateEntry = (id: string, field: string, value: any) => {
     setEntries((prev) =>
       prev.map((e) => (e.id === id ? { ...e, [field]: value } : e)),
     );
+  };
 
   const handleProjectChange = async (id: string, projectId: any) => {
     updateEntry(id, "project_id", projectId);
@@ -2450,7 +2493,9 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
                       danger
                       type="text"
                       icon={<DeleteOutlined />}
-                      onClick={() => removeEntry(entry.id)}
+                      onClick={() => {
+                        removeEntry(entry.id);
+                      }}
                     />
                   )
                 }
@@ -2483,9 +2528,9 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
                         options={getSubProjectOptions(entry.project_id as any)}
                         showSearch
                         disabled={!entry.project_id}
-                        onChange={(v) =>
-                          updateEntry(entry.id, "sub_project_id", v)
-                        }
+                        onChange={(v) => {
+                          updateEntry(entry.id, "sub_project_id", v);
+                        }}
                         optionFilterProp="labelString"
                         placeholder={t("selectSubTask", "เลือกงานย่อย")}
                       />
@@ -2499,7 +2544,9 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
                     >
                       <DatePicker
                         style={{ width: "100%" }}
-                        onChange={(v) => updateEntry(entry.id, "date", v)}
+                        onChange={(v) => {
+                          updateEntry(entry.id, "date", v);
+                        }}
                         placeholder={t("selectDate", "เลือกวันที่")}
                         format="DD/MM/BBBB"
                       />
@@ -2516,7 +2563,9 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
                         min={0.1}
                         max={24}
                         step={0.5}
-                        onChange={(v) => updateEntry(entry.id, "work_hour", v)}
+                        onChange={(v) => {
+                          updateEntry(entry.id, "work_hour", v);
+                        }}
                         placeholder="0.0"
                       />
                     </Form.Item>
@@ -2531,7 +2580,9 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
                           label: s.label_th,
                           value: s.value,
                         }))}
-                        onChange={(v) => updateEntry(entry.id, "status", v)}
+                        onChange={(v) => {
+                          updateEntry(entry.id, "status", v);
+                        }}
                         placeholder={t("selectStatus", "เลือกสถานะ")}
                       />
                     </Form.Item>
@@ -2544,9 +2595,9 @@ const MultiEntryModal: React.FC<MultiEntryModalProps> = ({
                     >
                       <Input.TextArea
                         rows={2}
-                        onChange={(e) =>
-                          updateEntry(entry.id, "description", e.target.value)
-                        }
+                        onChange={(e) => {
+                          updateEntry(entry.id, "description", e.target.value);
+                        }}
                         placeholder={t(
                           "descriptionPlaceholder",
                           "ระบุรายละเอียดงาน...",
@@ -3360,24 +3411,21 @@ export default function TimesheetEntryPage() {
   );
 
   // Multi Entry Logic
-  const openMultiEntryForm = useCallback(
-    () => setMultiEntryModalOpen(true),
-    [],
-  );
+  const openMultiEntryForm = useCallback(() => {
+    setMultiEntryModalOpen(true);
+  }, []);
   const closeMultiEntryModal = useCallback(() => {
     setMultiEntryModalOpen(false);
     setSubProjectsCache({});
   }, []);
 
   // Bulk All Users Entry Logic
-  const openBulkAllUsersModal = useCallback(
-    () => setBulkAllUsersModalOpen(true),
-    [],
-  );
-  const closeBulkAllUsersModal = useCallback(
-    () => setBulkAllUsersModalOpen(false),
-    [],
-  );
+  const openBulkAllUsersModal = useCallback(() => {
+    setBulkAllUsersModalOpen(true);
+  }, []);
+  const closeBulkAllUsersModal = useCallback(() => {
+    setBulkAllUsersModalOpen(false);
+  }, []);
   const fetchSubProjectsForMulti = useCallback(
     async (projectId: string) => {
       if (subProjectsCache[projectId]) return;
@@ -3445,8 +3493,12 @@ export default function TimesheetEntryPage() {
               on_add_click={openCreateForm}
               on_add_multi_click={openMultiEntryForm}
               on_bulk_all_click={openBulkAllUsersModal}
-              on_guide_click={() => setGuideModalOpen(true)}
-              on_my_work_click={() => setMyWorkModalOpen(true)}
+              on_guide_click={() => {
+                setGuideModalOpen(true);
+              }}
+              on_my_work_click={() => {
+                setMyWorkModalOpen(true);
+              }}
               token={token}
             />
             <StatsGrid
@@ -3536,12 +3588,16 @@ export default function TimesheetEntryPage() {
           />
           <MyWorkModal
             open={myWorkModalOpen}
-            onCancel={() => setMyWorkModalOpen(false)}
+            onCancel={() => {
+              setMyWorkModalOpen(false);
+            }}
             userId={admin_id}
           />
           <GuideModal
             open={guideModalOpen}
-            onCancel={() => setGuideModalOpen(false)}
+            onCancel={() => {
+              setGuideModalOpen(false);
+            }}
           />
 
           <StatusModal
@@ -3549,7 +3605,9 @@ export default function TimesheetEntryPage() {
             type={statusModal.type}
             title={statusModal.title}
             message={statusModal.message}
-            onClose={() => setStatusModal((prev) => ({ ...prev, open: false }))}
+            onClose={() => {
+              setStatusModal((prev) => ({ ...prev, open: false }));
+            }}
           />
         </motion.div>
       </DashboardLayout>
