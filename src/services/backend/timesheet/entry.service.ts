@@ -2,6 +2,16 @@ import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 
 const MAX_DAILY_HOURS = 16;
 
+// ✨ Custom Error สำหรับ Business Rule ลง Timesheet ล่วงหน้า
+export class FutureDateError extends Error {
+  constructor() {
+    super(
+      "ไม่สามารถลง Timesheet ล่วงหน้าได้ กรุณาเลือกวันที่ไม่เกินวันปัจจุบัน"
+    );
+    this.name = "FutureDateError";
+  }
+}
+
 // ✨ Custom Error สำหรับ Business Rule ชั่วโมงการทำงานเกินกำหนดต่อวัน
 export class DailyHoursLimitError extends Error {
   readonly usedHours: number;
@@ -38,6 +48,15 @@ interface UpdateTimesheetEntryInput {
 }
 
 export const Service = {
+  // ✨ ตรวจสอบว่าวันที่ที่ส่งมาไม่ใช่วันล่วงหน้า
+  checkDateNotFuture(date: Date) {
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
+    if (date > endOfToday) {
+      throw new FutureDateError();
+    }
+  },
+
   // ✨ ตรวจสอบว่าชั่วโมงรวมของผู้ใช้ในวันนั้นไม่เกิน MAX_DAILY_HOURS
   async checkDailyHoursLimit(
     userId: number,
@@ -262,8 +281,9 @@ export const Service = {
     });
   },
 
-  // ✨ สร้าง entry ใหม่ พร้อมตรวจสอบจำนวนชั่วโมงสูงสุดต่อวัน
+  // ✨ สร้าง entry ใหม่ พร้อมตรวจสอบวันล่วงหน้าและจำนวนชั่วโมงสูงสุดต่อวัน
   async create(data: CreateTimesheetEntryInput) {
+    Service.checkDateNotFuture(data.date);
     await Service.checkDailyHoursLimit(
       data.createdBy ?? 0,
       data.date,
@@ -283,24 +303,28 @@ export const Service = {
     });
   },
 
-  // ✨ อัปเดต entry ตาม ID พร้อมตรวจสอบจำนวนชั่วโมงสูงสุดต่อวัน (ยกเว้น entry ปัจจุบัน)
+  // ✨ อัปเดต entry ตาม ID พร้อมตรวจสอบวันล่วงหน้าและจำนวนชั่วโมงสูงสุดต่อวัน (ยกเว้น entry ปัจจุบัน)
   async update(id: number, data: UpdateTimesheetEntryInput) {
     if (!id || id <= 0) {
       throw new Error("Invalid id for update");
     }
 
-    if (data.hour !== undefined && data.date) {
-      const existing = await PrismaTimesheet.timesheetEntry.findUnique({
-        where: { id },
-        select: { createdBy: true },
-      });
-      if (existing) {
-        await Service.checkDailyHoursLimit(
-          existing.createdBy ?? 0,
-          data.date,
-          data.hour,
-          id
-        );
+    if (data.date) {
+      Service.checkDateNotFuture(data.date);
+
+      if (data.hour !== undefined) {
+        const existing = await PrismaTimesheet.timesheetEntry.findUnique({
+          where: { id },
+          select: { createdBy: true },
+        });
+        if (existing) {
+          await Service.checkDailyHoursLimit(
+            existing.createdBy ?? 0,
+            data.date,
+            data.hour,
+            id
+          );
+        }
       }
     }
 

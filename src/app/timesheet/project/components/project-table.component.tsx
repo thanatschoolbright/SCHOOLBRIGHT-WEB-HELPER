@@ -322,7 +322,7 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
                 cursor: "pointer",
               },
             }}
-            size="large"
+            size="middle"
           >
             {assignees.map((a, i) => {
               const u = getUserById(a.userId);
@@ -345,9 +345,10 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
                 >
                   <Avatar
                     src={u?.profile_image}
+                    size="small"
                     style={{
                       backgroundColor: token.colorPrimary,
-                      border: `2px solid ${token.colorBgContainer}`,
+                      border: `1px solid ${token.colorBgContainer}`,
                     }}
                   >
                     {u?.firstname?.[0] || <UserOutlined />}

@@ -284,7 +284,7 @@ export default function BackendLayout({
             display: "flex",
             flexDirection: "column",
             gap: 32,
-            maxWidth: 1600,
+
             margin: "0 auto",
             width: "100%",
           }}

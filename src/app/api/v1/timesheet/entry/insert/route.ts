@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-import { Service, DailyHoursLimitError } from "@services/backend/timesheet/entry.service";
+import { Service, DailyHoursLimitError, FutureDateError } from "@services/backend/timesheet/entry.service";
 import { successResponse, errorResponse } from "@/helpers/api/response";
 import { validateRequest } from "@helpers/api/validate.request";
 import {
@@ -121,6 +121,18 @@ export async function POST(request: NextRequest) {
       })
     );
   } catch (err) {
+    if (err instanceof FutureDateError) {
+      return NextResponse.json(
+        errorResponse({
+          status: 422,
+          message_en: "Cannot log timesheet for a future date",
+          message_th:
+            "ไม่สามารถลง Timesheet ล่วงหน้าได้ กรุณาเลือกวันที่ไม่เกินวันปัจจุบัน",
+        }),
+        { status: 422 }
+      );
+    }
+
     if (err instanceof DailyHoursLimitError) {
       const used = String(err.usedHours);
       const requested = String(err.requestedHours);
