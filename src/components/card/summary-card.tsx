@@ -10,7 +10,7 @@ export interface SummaryCardProps {
   title: string;
   value: string | number;
   unit?: string;
-  subtitle?: React.ReactNode; // 🟢 เพิ่ม Prop subtitle (รับเป็น Node เพื่อให้ใส่ Tag/Icon ได้)
+  subtitle?: React.ReactNode;
   icon?: React.ReactNode;
   color?: string;
   tooltip?: string;
@@ -21,7 +21,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
   title,
   value,
   unit,
-  subtitle, // 🟢 ดึง subtitle มาใช้งาน
+  subtitle,
   icon,
   color,
   tooltip,

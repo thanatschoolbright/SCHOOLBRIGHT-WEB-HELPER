@@ -21,6 +21,7 @@ export const QA_CANCEL_SALES_CHAT_PROMPT = `
 - เมื่อแสดงผลลัพธ์ให้ผู้ใช้ ต้องมี code block ที่เป็น JSON โครงสร้างเดียวกับ cancellationPayload เสมอ เช่น \n\`\`\`json\n{\n  "SchoolID": "...",\n  "sID": "...",\n  "sID2": "...",\n  "sSellID": "..."\n}\n\`\`\`
 - หากยังข้อมูลไม่ครบ ให้ระบุอย่างสุภาพว่าต้องการข้อมูลใดเพิ่มเติม และยกตัวอย่างข้อความการกรอกให้เข้าใจง่าย
 `;
+
 // ** 2. Logic Config (Mapping เป็นภาษาไทยเพื่อการแสดงผลที่ถูกต้อง) **
 export const DEFAULT_KNOWLEDGE = `
 RULES:
