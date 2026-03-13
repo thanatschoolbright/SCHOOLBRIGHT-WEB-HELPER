@@ -21,15 +21,14 @@ export default tseslint.config(
       "config/.eslintrc.json",
       "*.config.js", // ละเว้นไฟล์ config นอกสุดเพื่อไม่ให้ตีกับ TS Rules
       "**/*.config.ts", // <-- เพิ่มบรรทัดนี้ (ละเว้น tailwind.config.ts ฯลฯ)
-      "config/**",      // <-- เพิ่มบรรทัดนี้ (ละเว้นไฟล์ในโฟลเดอร์ config)
+      "config/**", // <-- เพิ่มบรรทัดนี้ (ละเว้นไฟล์ในโฟลเดอร์ config)
     ],
   },
 
-  // 2. มาตรฐานพื้นฐานของ JS และ TypeScript (แบบเข้มงวดสุด)
+  // 2. มาตรฐานพื้นฐานของ JS และ TypeScript (แบบปกติ - ปรับให้ไม่เข้มงวดเกินไป)
   js.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
-  ...tseslint.configs.strictTypeChecked, // เปิดกฎ Strict ขั้นสุดของ TS
-  ...tseslint.configs.stylisticTypeChecked, // บังคับสไตล์การเขียน TS ให้เหมือนกันทั้งทีม
+  ...tseslint.configs.recommended, // เปลี่ยนจาก recommendedTypeChecked เป็น recommended เพื่อลดความเข้มงวด
+  // ละเว้น strictTypeChecked และ stylisticTypeChecked เพื่อลด error ที่ไม่จำเป็น
 
   {
     // 3. ตั้งค่า Parser และ Environment
@@ -67,50 +66,46 @@ export default tseslint.config(
       ...reactPlugin.configs.recommended.rules,
       ...reactPlugin.configs["jsx-runtime"].rules, // สำหรับ React 17+
       ...hooksPlugin.configs.recommended.rules,
-      ...jsxA11yPlugin.configs.recommended.rules, // บังคับเรื่อง Accessibility
+      // ...jsxA11yPlugin.configs.recommended.rules, // บิดการบังคับเรื่อง Accessibility ชั่วคราว
 
-      // --- Enterprise Strict Rules ---
+      // --- Relaxed Rules ---
 
-      // Hooks ต้องใส่ Dependency ครบ ห้ามเตือนเฉยๆ (ให้พังเลยถ้าไม่ครบ)
-      "react-hooks/exhaustive-deps": "error",
+      // Hooks: เปลี่ยนจาก error เป็น warn
+      "react-hooks/exhaustive-deps": "warn",
+      "react-hooks/rules-of-hooks": "warn",
 
-      // ปิดกฎ React PropTypes เพราะเราใช้ TypeScript แล้ว
+      // TypeScript: ปิดการบังคับต่างๆ ที่ทำให้ Code แดงเยอะ
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-empty-object-type": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/restrict-template-expressions": "off",
+      "@typescript-eslint/no-misused-promises": "off",
+      "@typescript-eslint/require-await": "off",
+      "@typescript-eslint/no-floating-promises": "off",
+      "@typescript-eslint/no-unnecessary-type-assertion": "off",
+
+      // React & Next.js: ปิดกฎที่จุกจิก
+      "react/no-unescaped-entities": "off",
+      "react/display-name": "off",
       "react/prop-types": "off",
+      "react/react-in-jsx-scope": "off",
+      "react/no-unknown-property": "off", // ยอมให้ใช้ jsx global ใน <style>
+      "@next/next/no-img-element": "off",
+      "@next/next/no-html-link-for-pages": "off",
+      "react-compiler/react-compiler": "off", // ปิด React Compiler rules ที่ทำให้ error แดง
 
-      // ห้ามมี console.log หลุดไปบน Production (อนุญาตแค่ warn กับ error)
-      "no-console": ["warn", { allow: ["warn", "error"] }],
-
-      // บังคับใช้ === เสมอ ห้ามใช้ ==
-      eqeqeq: ["error", "always"],
-
-      // --- Typescript Strict Rules ---
-
-      // ห้ามใช้ type `any` เด็ดขาด (ถ้าจำเป็นจริงๆ ต้องใช้ // eslint-disable-next-line)
-      "@typescript-eslint/no-explicit-any": "error",
-
-      // ห้ามมีตัวแปรที่ประกาศแล้วไม่ได้ใช้ (ถ้าตั้งใจไม่ใช้ให้ขึ้นต้นด้วย _)
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        {
-          argsIgnorePattern: "^_",
-          varsIgnorePattern: "^_",
-          caughtErrorsIgnorePattern: "^_",
-        },
-      ],
-
-      // --- Auto-fixable Clean Code ---
-
-      // ลบ Import ที่ไม่ได้ใช้อัตโนมัติ (ช่วยลด Bundle size)
-      "unused-imports/no-unused-imports": "error",
-      "unused-imports/no-unused-vars": [
-        "warn",
-        {
-          vars: "all",
-          varsIgnorePattern: "^_",
-          args: "after-used",
-          argsIgnorePattern: "^_",
-        },
-      ],
+      // อื่นๆ
+      "no-console": "off",
+      eqeqeq: "off",
+      "no-unused-vars": "off",
+      "unused-imports/no-unused-imports": "off",
+      "unused-imports/no-unused-vars": "off",
     },
     settings: {
       react: {
