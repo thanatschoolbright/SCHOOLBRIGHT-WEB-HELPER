@@ -486,23 +486,32 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
               <Col span={24}>
                 <Form.Item
                   name="ticket_number"
-                  label="เชื่อมต่อ backlog (เช่น SB-1234)"
+                  label="เชื่อมต่อ Backlog (เช่น SB-1234)"
                 >
                   <AutoComplete
-                    placeholder="ระบุรหัส Ticket เช่น SB-1234 หรือค้นหาด้วยชื่อ Task"
+                    popupClassName="backlog-autocomplete-popup"
                     onSearch={handleBacklogSearch}
                     options={backlogIssues}
+                    style={{ width: "100%" }}
                   >
                     <Input
+                      size="large"
+                      placeholder="ระบุรหัส Ticket เช่น SB-1234 หรือระบุเพื่อค้นหา..."
                       prefix={
                         isFetchingBacklog ? (
-                          <SyncOutlined spin />
+                          <SyncOutlined
+                            spin
+                            style={{ color: token.colorPrimary }}
+                          />
                         ) : (
                           <LinkOutlined
                             style={{ color: token.colorTextDescription }}
                           />
                         )
                       }
+                      style={{
+                        borderRadius: 12,
+                      }}
                     />
                   </AutoComplete>
                 </Form.Item>
