@@ -400,16 +400,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
       onCancel={onCancel}
       title={
         <Space>
-          <div
-            style={{
-              background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorInfo} 100%)`,
-              padding: 8,
-              borderRadius: 8,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+          <div>
             {mode === "create" ? (
               <PlusOutlined style={{ color: "#fff" }} />
             ) : mode === "clone" ? (

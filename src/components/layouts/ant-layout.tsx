@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unknown-property */
 "use client";
 
 import type { ThemeConfig } from "antd";
@@ -149,12 +148,7 @@ const getModernTheme = (
       Select: {
         controlOutline: "none",
       },
-      Modal: {
-        borderRadiusLG: 24,
-        paddingLG: 32,
-        headerBg: "transparent",
-        contentBg: isDark ? "#1E293B" : "#FFFFFF",
-      },
+
       Menu: {
         itemBorderRadius: 12,
         activeBarBorderWidth: 0,
@@ -298,23 +292,11 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
               backdrop-filter: blur(1rem) !important;
               background: var(--modal-mask-bg) !important;
             }
-            .ant-modal-content {
-              background: var(--modal-bg) !important;
-              backdrop-filter: none !important;
-              -webkit-backdrop-filter: none !important;
-              border: 1px solid var(--border-secondary) !important;
-              box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.1) !important;
-            }
+
             .dark .ant-modal-content {
               background: #1e293b !important;
               border: 1px solid #334155;
               box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5) !important;
-            }
-
-            .ant-modal-content {
-              background: #fcfcfd !important;
-              border: 1px solid #f8fafc !important;
-              box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.04) !important;
             }
 
             /* Fix Body Scroll Lock for Modal and Drawer */

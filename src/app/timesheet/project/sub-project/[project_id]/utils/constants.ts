@@ -1,12 +1,12 @@
 export const ASSET_OPTIONS = [
   {
     value: "CAPTUREABLE",
-    label: "Capitalization ทรัพย์สิน",
+    label: "Capitalization",
     color: "success",
   },
   {
     value: "UN_CAPTUREABLE",
-    label: "Expense รายจ่าย",
+    label: "Expense",
     color: "default",
   },
 ];
