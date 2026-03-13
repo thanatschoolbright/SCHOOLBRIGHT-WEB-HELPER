@@ -258,7 +258,7 @@ export default function TimesheetDailyReportPage() {
       render: (_, record) => {
         const isComplete = record.hours_gap <= 0;
         const isOT = record.total_hours > 8;
-        
+
         // กำหนดสีและ Icon ตามสถานะ
         let tagColor = isComplete ? "success" : "error";
         let tagIcon = isComplete ? (
@@ -298,8 +298,8 @@ export default function TimesheetDailyReportPage() {
                 record.total_hours > 8
                   ? token.colorWarning
                   : record.hours_gap > 0
-                  ? token.colorError
-                  : token.colorSuccess,
+                    ? token.colorError
+                    : token.colorSuccess,
             }}
           >
             {record.progress_text}
@@ -309,8 +309,8 @@ export default function TimesheetDailyReportPage() {
               record.total_hours > 8
                 ? "warning"
                 : record.hours_gap > 0
-                ? "error"
-                : "success"
+                  ? "error"
+                  : "success"
             }
             text={`${record.completion_rate}%`}
           />
