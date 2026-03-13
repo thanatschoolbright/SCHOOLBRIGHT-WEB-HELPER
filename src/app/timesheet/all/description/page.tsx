@@ -5,6 +5,7 @@ import {
   CheckCircleTwoTone,
   ClearOutlined,
   ClockCircleOutlined,
+  CopyOutlined,
   ExclamationCircleTwoTone,
   FieldTimeOutlined,
   FilterOutlined,
@@ -172,12 +173,6 @@ export default function TimesheetDailyReportPage() {
     }
   }, [dateRange, departmentIds]);
 
-  // Initial load
-  useEffect(() => {
-    requestDepartments();
-    requestFetchDailyReport();
-  }, []);
-
   /**
    * กรองข้อมูลตาม Keyword (ชื่อ, นามสกุล, ชื่อเล่น, รหัสพนักงาน)
    */
@@ -194,12 +189,45 @@ export default function TimesheetDailyReportPage() {
   }, [records, keyword]);
 
   /**
+   * คัดลอกรายชื่อผู้ที่ยังลงเวลาไม่ครบถ้วนไปยัง Clipboard เพื่อแจ้งเตือน
+   */
+  const requestCopyIncompleteList = useCallback(() => {
+    const incompleteList = filteredRecords.filter((rec) => rec.hours_gap > 0);
+
+    if (incompleteList.length === 0) {
+      toast.info("ไม่พบรายชื่อผู้ที่ยังลงเวลาไม่ครบถ้วน");
+      return;
+    }
+
+    const title = `รายงานผู้ยังไม่ลงเวลาวันนี้ โปรดลงเวลาให้ครบถ้วน\n`;
+    const body = incompleteList
+      .map((rec, index) => {
+        const nicknameText = rec.nickname ? ` (${rec.nickname})` : "";
+        return `ลำดับที่ ${index + 1}\nรหัสพนักงาน ${rec.employee_code}\n${rec.full_name}${nicknameText}\nจำนวนชั่วโมงที่ลงวันนี้ : ${rec.progress_text} (ขาด ${rec.hours_gap} ชั่วโมง)`;
+      })
+      .join("\n\n");
+
+    const fullText = `${title}\n${body}`;
+
+    navigator.clipboard
+      .writeText(fullText)
+      .then(() => {
+        toast.success("คัดลอกรายชื่อผู้ยังไม่ลงเวลาสำเร็จ");
+      })
+      .catch((err) => {
+        console.error("Failed to copy list: ", err);
+        toast.error("ไม่สามารถคัดลอกข้อมูลได้");
+      });
+  }, [filteredRecords]);
+
+  /**
    * คำนวณสรุปข้อมูลจาก Raw Data
    */
   const summaryStats = useMemo(() => {
     const totalMembers = records.length;
     const completedMembers = records.filter((r) => r.hours_gap <= 0).length;
     const totalHours = records.reduce((sum, r) => sum + r.total_hours, 0);
+    const requiredHours = records.reduce((sum, r) => sum + r.required_hours, 0);
     const missingHours = records.reduce((sum, r) => sum + r.hours_gap, 0);
 
     return {
@@ -207,6 +235,7 @@ export default function TimesheetDailyReportPage() {
       completedMembers,
       incompleteMembers: totalMembers - completedMembers,
       totalHours,
+      requiredHours,
       missingHours,
     };
   }, [records]);
@@ -380,7 +409,17 @@ export default function TimesheetDailyReportPage() {
             title="รายงานการลงเวลาประจำวัน"
             subTitle={
               metadata
-                ? `ช่วงวันที่: ${metadata.range.label_th}`
+                ? `ช่วงวันที่: ${metadata.range.label_th} | แผนก: ${
+                    departmentIds.length > 0
+                      ? departmentIds
+                          .map(
+                            (id) =>
+                              departments.find((d) => d.id === id)?.name_th ||
+                              id,
+                          )
+                          .join(", ")
+                      : "ทั้งหมด"
+                  }`
                 : "ตรวจสอบความเรียบร้อยในการกรอกไทม์ชีทรายวัน"
             }
             extra={
@@ -402,7 +441,7 @@ export default function TimesheetDailyReportPage() {
             <Col xs={24} sm={12} md={6}>
               <SummaryCard
                 title="พนักงานทั้งหมด"
-                value={summaryStats.totalMembers}
+                value={`${summaryStats.totalMembers}/${summaryStats.totalMembers}`}
                 icon={<UserOutlined />}
                 color={token.colorPrimary}
                 iconBg={token.colorPrimaryBg}
@@ -413,7 +452,7 @@ export default function TimesheetDailyReportPage() {
             <Col xs={24} sm={12} md={6}>
               <SummaryCard
                 title="กรอกครบถ้วน"
-                value={summaryStats.completedMembers}
+                value={`${summaryStats.completedMembers}/${summaryStats.totalMembers}`}
                 icon={<CalendarOutlined />}
                 color={token.colorSuccess}
                 iconBg={token.colorSuccessBg}
@@ -424,7 +463,7 @@ export default function TimesheetDailyReportPage() {
             <Col xs={24} sm={12} md={6}>
               <SummaryCard
                 title="ยังไม่ครบ"
-                value={summaryStats.incompleteMembers}
+                value={`${summaryStats.incompleteMembers}/${summaryStats.totalMembers}`}
                 icon={<FieldTimeOutlined />}
                 color={token.colorError}
                 iconBg={token.colorErrorBg}
@@ -435,7 +474,7 @@ export default function TimesheetDailyReportPage() {
             <Col xs={24} sm={12} md={6}>
               <SummaryCard
                 title="ชั่วโมงรวม"
-                value={summaryStats.totalHours}
+                value={`${summaryStats.totalHours}/${summaryStats.requiredHours}`}
                 icon={<ClockCircleOutlined />}
                 color={token.colorInfo}
                 iconBg={token.colorInfoBg}
@@ -552,6 +591,15 @@ export default function TimesheetDailyReportPage() {
                     />
                   )}
                 </Space>
+
+                <Button
+                  icon={<CopyOutlined />}
+                  onClick={requestCopyIncompleteList}
+                  disabled={loading || filteredRecords.length === 0}
+                  shape="round"
+                >
+                  คัดลอกรายชื่อผู้ยังไม่ลง Timesheet
+                </Button>
               </Flex>
 
               <Table
