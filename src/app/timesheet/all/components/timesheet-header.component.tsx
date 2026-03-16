@@ -1,14 +1,10 @@
 "use client";
 
-import React from "react";
-import { Typography, Space, Button, Row, Col, theme } from "antd";
-import {
-  AreaChartOutlined,
-  PieChartOutlined,
-  FileSearchOutlined,
-} from "@ant-design/icons";
-import { useTranslation } from "react-i18next";
+import { AreaChartOutlined, PieChartOutlined } from "@ant-design/icons";
+import { Button, Col, Row, Space, theme, Typography } from "antd";
 import { useRouter } from "next/navigation";
+import React from "react";
+import { useTranslation } from "react-i18next";
 
 export const TimesheetHeader: React.FC = () => {
   const { t } = useTranslation("translate");
