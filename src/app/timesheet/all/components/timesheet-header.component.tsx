@@ -54,22 +54,6 @@ export const TimesheetHeader: React.FC = () => {
             >
               รายงานตามทรัพย์สิน
             </Button>
-
-            <Button
-              type="primary"
-              icon={<FileSearchOutlined />}
-              size="large"
-              onClick={() =>
-                router.push("/timesheet/all/report/not-entry/today")
-              }
-              className="shadow-md shadow-blue-100"
-              style={{
-                borderRadius: 8,
-                height: 42,
-              }}
-            >
-              รายงานผู้ไม่กรอก (วันนี้)
-            </Button>
           </Space>
         </Col>
       </Row>

@@ -180,12 +180,6 @@ export default function TimesheetAllPage() {
       onClick: () => router.push("/timesheet/all/report/capturable"),
     },
     {
-      key: "not-entry-today",
-      label: <Space>รายงานผู้ไม่กรอกไทม์ชีทวันนี้</Space>,
-      icon: <TeamOutlined />,
-      onClick: () => router.push("/timesheet/all/report/not-entry/today"),
-    },
-    {
       key: "daily-description",
       label: "รายงานการลงเวลาประจำวัน",
       icon: <FileTextOutlined />,
