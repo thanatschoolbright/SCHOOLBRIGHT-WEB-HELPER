@@ -516,11 +516,13 @@
       "development": "DEVELOPMENT",
       "ui": "UI/UX",
       "legacy": "LEGACY VR",
+      "postgresql": "POSTGRESQL",
       "production_desc": "Access the live system currently used by the institution.",
       "staging_desc": "Test environment for previewing upcoming features and updates.",
       "development_desc": "Developer-only access (data may not be up-to-date).",
       "ui_desc": "UI/UX verification environment for the design team.",
-      "legacy_desc": "Legacy version for backward compatibility and archival access."
+      "legacy_desc": "Legacy version for backward compatibility and archival access.",
+      "postgresql_desc": "Digital Library Management System (PostgreSQL Version)"
     },
     "ranking": {
       "province_title": "Province Analysis & Ranking",

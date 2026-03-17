@@ -96,6 +96,7 @@ const BypassSelectionModal = ({
       development: translate("bypass_page.environments.development_desc"),
       ui: translate("bypass_page.environments.ui_desc"),
       legacy: translate("bypass_page.environments.legacy_desc"),
+      postgresql: translate("bypass_page.environments.postgresql_desc"),
     }),
     [translate],
   );
@@ -107,6 +108,7 @@ const BypassSelectionModal = ({
       development: translate("bypass_page.environments.development"),
       ui: translate("bypass_page.environments.ui"),
       legacy: translate("bypass_page.environments.legacy"),
+      postgresql: translate("bypass_page.environments.postgresql"),
     }),
     [translate],
   );

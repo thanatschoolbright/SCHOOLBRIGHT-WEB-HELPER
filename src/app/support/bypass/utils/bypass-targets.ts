@@ -70,6 +70,10 @@ export const BYPASS_TARGETS: Record<string, BypassTarget> = {
         label: "Production",
         url: "https://library.schoolbright.co/Home/ByPass?token=",
       },
+      postgresql: {
+        label: "POSTGRESQL",
+        url: "https://pgsql-library.schoolbright.co/Home/ByPass?token=",
+      },
       development: {
         label: "Development",
         url: "https://library-dev.schoolbright.co/Home/ByPass?token=",
@@ -83,6 +87,10 @@ export const BYPASS_TARGETS: Record<string, BypassTarget> = {
         label: "Production",
         url: "https://canteen.schoolbright.co/BypassSuperAdmin.aspx?q=",
       },
+      postgresql: {
+        label: "POSTGRESQL",
+        url: "https://pgsql-canteen.schoolbright.co/BypassSuperAdmin.aspx?q=",
+      },
       development: {
         label: "Development",
         url: "https://dev-canteen.schoolbright.co/BypassSuperAdmin.aspx?q=",
@@ -95,6 +103,10 @@ export const BYPASS_TARGETS: Record<string, BypassTarget> = {
       production: {
         label: "Production",
         url: "https://kindergarten.schoolbright.co/Home/ByPass?token=",
+      },
+      postgresql: {
+        label: "POSTGRESQL",
+        url: "https://pgsql-kindergarten.schoolbright.co/Home/ByPass?token=",
       },
       legacy: {
         label: "Legacy Version",
