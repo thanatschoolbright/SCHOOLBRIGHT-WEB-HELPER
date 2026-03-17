@@ -215,7 +215,8 @@ const BypassSelectionModal = ({
                   ([environmentKey, environmentConfiguration]) => {
                     const isProductionEnvironment =
                       environmentKey === "production";
-                    const isPostgresEnvironment = environmentKey === "postgresql";
+                    const isPostgresEnvironment =
+                      environmentKey === "postgresql";
 
                     return (
                       <Col xs={12} sm={8} key={environmentKey}>
