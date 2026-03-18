@@ -53,7 +53,7 @@ export default function RootLayout({
       >
         <AntdRegistry>
           <Toaster
-            position="bottom-right"
+            position="bottom-center"
             richColors
             closeButton
             visibleToasts={5}
