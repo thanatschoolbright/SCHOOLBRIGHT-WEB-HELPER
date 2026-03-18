@@ -1,42 +1,50 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import SummaryCard from "@/components/card/summary-card";
+import PermissionLayout from "@/components/layouts/permission-layout";
+import { StatusModalComponent } from "@/components/modal/status-modal-component";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
 import {
-  Space,
-  Button,
-  theme,
-  Input,
-  Modal,
-  Form,
-  Tag,
-  Tooltip,
-  Table,
-  Row,
-  Col,
-  Card,
-  Typography,
-  Alert,
-  Progress,
-  Steps,
-} from "antd";
-import {
+  CheckCircleOutlined,
+  CheckOutlined,
+  ClearOutlined,
+  CloseOutlined,
+  CloudServerOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  FilterOutlined,
+  LoadingOutlined,
+  PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
-  CheckCircleOutlined,
-  EditOutlined,
-  DeleteOutlined,
   SolutionOutlined,
-  PlusOutlined,
-  ExclamationCircleOutlined,
-  CloudServerOutlined,
-  LoadingOutlined,
+  UnorderedListOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
-import type { ColumnsType } from "antd/es/table";
-import { toast } from "sonner";
 import DashboardLayout from "@components/layouts/backend-layout";
-import PermissionLayout from "@/components/layouts/permission-layout";
-import { HeaderBar } from "@/components/typhography/header-bar-component";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
+import {
+  Alert,
+  Button,
+  Card,
+  Col,
+  Flex,
+  Form,
+  Input,
+  Modal,
+  Progress,
+  Row,
+  Space,
+  Steps,
+  Table,
+  Tag,
+  theme,
+  Tooltip,
+  Typography,
+} from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 // Position Type
 interface Position {
@@ -111,6 +119,17 @@ export default function PositionManagementPage() {
   const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
   const [selectedPos, setSelectedPos] = useState<Position | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [statusModal, setStatusModal] = useState<{
+    open: boolean;
+    type: "success" | "error" | "confirm" | "delete";
+    title: string;
+    message: string;
+  }>({
+    open: false,
+    type: "success",
+    title: "",
+    message: "",
+  });
 
   // Auto Gen State
   const [autoGenModalOpen, setAutoGenModalOpen] = useState(false);
@@ -224,14 +243,28 @@ export default function PositionManagementPage() {
 
     setGenStep("summary");
     fetchData(); // Refresh main table
+    setStatusModal({
+      open: true,
+      type: "success",
+      title: "ดำเนินการสำเร็จ",
+      message: "ระบบได้ทำการสร้างตำแหน่งงานจากเทมเพลตเรียบร้อยแล้ว",
+    });
   };
 
+  /**
+   * ลบรายการ candidate ออกจากรายการที่จะสร้าง
+   * @param index ลำดับของรายการ
+   */
   const handleDeleteCandidate = (index: number) => {
     const newCandidates = [...candidatePositions];
     newCandidates.splice(index, 1);
     setCandidatePositions(newCandidates);
   };
 
+  /**
+   * บันทึกข้อมูลตำแหน่งงาน (สร้างใหม่ หรือ แก้ไข)
+   * @param values ข้อมูลจากฟอร์ม
+   */
   const handleSubmit = async (values: any) => {
     try {
       if (modalMode === "create") {
@@ -251,6 +284,9 @@ export default function PositionManagementPage() {
     }
   };
 
+  /**
+   * ลบตำแหน่งงาน
+   */
   const handleDelete = async () => {
     if (!selectedPos) return;
     try {
@@ -263,6 +299,13 @@ export default function PositionManagementPage() {
     } catch {
       toast.error("เกิดข้อผิดพลาดในการลบ");
     }
+  };
+
+  /**
+   * ล้างค่าการค้นหา
+   */
+  const handleResetSearch = () => {
+    setSearch("");
   };
 
   // --- Columns ---
@@ -294,11 +337,17 @@ export default function PositionManagementPage() {
       title: "สถานะ",
       dataIndex: "is_active",
       align: "center",
+      sorter: (a, b) =>
+        a.is_active === b.is_active ? 0 : a.is_active ? -1 : 1,
       render: (active) =>
         active ? (
-          <Tag color="success">Active</Tag>
+          <Tag color="success" icon={<CheckCircleOutlined />}>
+            เปิดใช้งาน
+          </Tag>
         ) : (
-          <Tag color="default">Inactive</Tag>
+          <Tag color="default" icon={<CloseOutlined />}>
+            ปิดใช้งาน
+          </Tag>
         ),
     },
     {
@@ -335,7 +384,7 @@ export default function PositionManagementPage() {
       <DashboardLayout>
         <HeaderBar
           icon={<SolutionOutlined />}
-          title="จัดการตำแหน่งงาน (Position)"
+          title="จัดการตำแหน่งงาน"
           subTitle="บริหารจัดการตำแหน่งพนักงานในองค์กร"
           extra={
             <Space>
@@ -346,54 +395,151 @@ export default function PositionManagementPage() {
           }
         />
 
+        <Row gutter={[24, 24]} style={{ marginBottom: 32 }}>
+          <Col xs={24} sm={12} md={8}>
+            <SummaryCard
+              title="จำนวนตำแหน่งทั้งหมด"
+              value={positions.length}
+              unit="รายการ"
+              icon={<SolutionOutlined />}
+              color={token.colorPrimary}
+              isLoading={loading}
+            />
+          </Col>
+          <Col xs={24} sm={12} md={8}>
+            <SummaryCard
+              title="ตำแหน่งที่เปิดใช้งาน"
+              value={positions.filter((p) => p.is_active).length}
+              unit="รายการ"
+              icon={<CheckCircleOutlined />}
+              color={token.colorSuccess}
+              isLoading={loading}
+            />
+          </Col>
+          <Col xs={24} sm={12} md={8}>
+            <SummaryCard
+              title="จำนวนพนักงานรวม"
+              value={positions.reduce(
+                (acc, curr) => acc + (curr._count?.users || 0),
+                0,
+              )}
+              unit="คน"
+              icon={<UserOutlined />}
+              color={token.colorInfo}
+              isLoading={loading}
+            />
+          </Col>
+        </Row>
+
         <Card
-          styles={{ body: { padding: 16 } }}
+          styles={{ body: { padding: 24 } }}
+          style={{
+            borderRadius: 16,
+            border: `1px solid ${token.colorBorderSecondary}`,
+            marginBottom: 32,
+          }}
+        >
+          <Flex align="center" gap={12} style={{ marginBottom: 24 }}>
+            <FilterOutlined
+              style={{ fontSize: "1.2rem", color: token.colorPrimary }}
+            />
+            <Typography.Text strong style={{ fontSize: "1.1rem" }}>
+              ตัวกรองข้อมูล
+            </Typography.Text>
+          </Flex>
+
+          <Row gutter={[24, 24]}>
+            <Col xs={24} md={12}>
+              <Form.Item label="ค้นหาชื่อตำแหน่ง" style={{ marginBottom: 0 }}>
+                <Input
+                  prefix={<SearchOutlined />}
+                  placeholder="เช่น Software Engineer, Manager..."
+                  size="large"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  allowClear
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Flex justify="end" gap={12} style={{ marginTop: 32 }}>
+            <Button
+              icon={<ClearOutlined />}
+              onClick={handleResetSearch}
+              size="large"
+            >
+              ล้างการค้นหา
+            </Button>
+            <Button
+              type="primary"
+              icon={<SearchOutlined />}
+              onClick={fetchData}
+              size="large"
+            >
+              ค้นหา
+            </Button>
+          </Flex>
+        </Card>
+
+        <Card
+          styles={{ body: { padding: 24 } }}
           style={{
             borderRadius: 16,
             border: `1px solid ${token.colorBorderSecondary}`,
           }}
         >
-          <Row justify="space-between" align="middle" className="mb-4">
-            <Col>
-              <Input
-                prefix={<SearchOutlined />}
-                placeholder="ค้นหาชื่อตำแหน่ง..."
-                style={{ width: 300, borderRadius: 8 }}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                allowClear
+          <Flex
+            justify="space-between"
+            align="center"
+            style={{ marginBottom: 24 }}
+          >
+            <Space align="center" size={12}>
+              <UnorderedListOutlined
+                style={{ fontSize: "1.2rem", color: token.colorPrimary }}
               />
-            </Col>
-            <Col>
-              <Space>
-                {/* Auto Gen Button */}
-                <Button
-                  onClick={handleOpenAutoGen}
-                  icon={<CloudServerOutlined />}
-                  className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100"
-                >
-                  เทมเพลตตำแหน่งอัตโนมัติ
-                </Button>
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={() => {
-                    setModalMode("create");
-                    form.resetFields();
-                  }}
-                >
-                  เพิ่มตำแหน่ง
-                </Button>
-              </Space>
-            </Col>
-          </Row>
+              <Typography.Text strong style={{ fontSize: "1.1rem" }}>
+                รายการตำแหน่งงานทั้งหมด
+              </Typography.Text>
+            </Space>
+            <Space size={12}>
+              <Button
+                onClick={handleOpenAutoGen}
+                icon={<CloudServerOutlined />}
+                size="large"
+                style={{
+                  backgroundColor: token.colorSuccessBg,
+                  color: token.colorSuccess,
+                  borderColor: token.colorSuccessBorder,
+                }}
+              >
+                เทมเพลตตำแหน่งอัตโนมัติ
+              </Button>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                size="large"
+                onClick={() => {
+                  setModalMode("create");
+                  form.resetFields();
+                }}
+              >
+                เพิ่มตำแหน่ง
+              </Button>
+            </Space>
+          </Flex>
 
           <Table
             columns={columns}
             dataSource={positions}
             loading={loading}
             rowKey="id"
-            pagination={{ pageSize: 10 }}
+            pagination={{
+              pageSize: 10,
+              showSizeChanger: true,
+              showTotal: (total) => `ทั้งหมด ${total} รายการ`,
+              style: { marginTop: 24 },
+            }}
           />
         </Card>
 
@@ -403,6 +549,7 @@ export default function PositionManagementPage() {
           title={modalMode === "create" ? "เพิ่มตำแหน่งใหม่" : "แก้ไขตำแหน่ง"}
           onCancel={() => setModalMode(null)}
           footer={null}
+          destroyOnClose
         >
           <Form
             form={form}
@@ -417,7 +564,7 @@ export default function PositionManagementPage() {
             <Form.Item
               name="name_th"
               label="ชื่อตำแหน่ง (TH)"
-              rules={[{ required: true, message: "กรุณาระบุชื่อ" }]}
+              rules={[{ required: true, message: "กรุณาระบุชื่อภาษาไทย" }]}
             >
               <Input placeholder="เช่น ผู้จัดการฝ่ายขาย" />
             </Form.Item>
@@ -425,38 +572,71 @@ export default function PositionManagementPage() {
               <Input placeholder="e.g. Sales Manager" />
             </Form.Item>
             <Form.Item name="description" label="คำอธิบาย">
-              <Input.TextArea rows={3} />
+              <Input.TextArea
+                rows={3}
+                placeholder="รายละเอียดหน้าที่ความรับผิดชอบ"
+              />
+            </Form.Item>
+            <Form.Item
+              name="is_active"
+              label="สถานะการใช้งาน"
+              valuePropName="checked"
+            >
+              <Button.Group>
+                <Button
+                  type={form.getFieldValue("is_active") ? "primary" : "default"}
+                  onClick={() => form.setFieldsValue({ is_active: true })}
+                  icon={<CheckOutlined />}
+                >
+                  เปิดใช้งาน
+                </Button>
+                <Button
+                  type={
+                    !form.getFieldValue("is_active") ? "primary" : "default"
+                  }
+                  danger={!form.getFieldValue("is_active")}
+                  onClick={() => form.setFieldsValue({ is_active: false })}
+                  icon={<CloseOutlined />}
+                >
+                  ปิดใช้งาน
+                </Button>
+              </Button.Group>
             </Form.Item>
 
-            <Space className="w-full justify-end mt-4">
+            <Flex justify="end" gap={8} className="mt-6">
               <Button onClick={() => setModalMode(null)}>ยกเลิก</Button>
               <Button
                 type="primary"
                 htmlType="submit"
                 icon={<CheckCircleOutlined />}
               >
-                บันทึก
+                บันทึกข้อมูล
               </Button>
-            </Space>
+            </Flex>
           </Form>
         </Modal>
 
         {/* Delete Confirmation */}
-        <Modal
-          title={
-            <Space className="text-red-500">
-              <ExclamationCircleOutlined /> ยืนยันการลบ
-            </Space>
-          }
+        <StatusModalComponent
           open={deleteModalOpen}
-          onCancel={() => setDeleteModalOpen(false)}
-          onOk={handleDelete}
-          okButtonProps={{ danger: true }}
-        >
-          <p>
-            คุณต้องการลบตำแหน่ง <strong>{selectedPos?.name_th}</strong> หรือไม่?
-          </p>
-        </Modal>
+          type="delete"
+          title="ยืนยันการลบตำแหน่งงาน"
+          message={`คุณต้องการลบตำแหน่ง "${selectedPos?.name_th}" หรือไม่? การดำเนินการนี้ไม่สามารถเรียกคืนได้`}
+          onClose={() => setDeleteModalOpen(false)}
+          onConfirm={handleDelete}
+          confirmLabel="ลบทิ้ง"
+          cancelLabel="ยกเลิก"
+        />
+
+        {/* Status Notification Modal */}
+        <StatusModalComponent
+          open={statusModal.open}
+          type={statusModal.type}
+          title={statusModal.title}
+          message={statusModal.message}
+          onClose={() => setStatusModal({ ...statusModal, open: false })}
+        />
+
         {/* Auto Gen Modal */}
         <Modal
           open={autoGenModalOpen}
