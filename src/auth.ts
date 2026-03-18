@@ -1,8 +1,16 @@
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import bcrypt from "bcryptjs";
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { authConfig } from "./auth.config";
+
+class CustomAuthError extends CredentialsSignin {
+  code: string;
+  constructor(code: string) {
+    super();
+    this.code = code;
+  }
+}
 
 export const {
   handlers: { GET, POST },
@@ -17,7 +25,7 @@ export const {
         try {
           if (!credentials?.username || !credentials?.password) {
             console.error("[AUTH_ERROR] Missing credentials");
-            throw new Error("MISSING_CREDENTIALS");
+            throw new CustomAuthError("MISSING_CREDENTIALS");
           }
 
           const username = (credentials.username as string).trim();
@@ -48,7 +56,7 @@ export const {
           });
 
           if (!databaseUser) {
-            throw new Error(`USER_NOT_FOUND: ${username}`);
+            throw new CustomAuthError("INVALID_CREDENTIALS");
           }
 
           // 2. Check if locked out (IPO Standard - with 15 min Auto-Unlock)
@@ -56,7 +64,7 @@ export const {
           const LOCKOUT_MINUTES = 15;
 
           if (databaseUser.status !== "ACTIVE") {
-            throw new Error("ACCOUNT_LOCKED_OR_INACTIVE");
+            throw new CustomAuthError("ACCOUNT_LOCKED_OR_INACTIVE");
           }
 
           if (databaseUser.failed_login_attempts >= MAX_FAILED_ATTEMPTS) {
@@ -66,9 +74,7 @@ export const {
               (now.getTime() - lastAttempt.getTime()) / (1000 * 60);
 
             if (diffInMinutes < LOCKOUT_MINUTES) {
-              throw new Error("MAX_ATTEMPTS_EXCEEDED");
-            } else {
-              // Lockout duration expired for: ${databaseUser.username}. Allowing attempt...
+              throw new CustomAuthError("MAX_ATTEMPTS_EXCEEDED");
             }
           }
 
@@ -97,7 +103,7 @@ export const {
                 },
               },
             });
-            throw new Error("INVALID_PASSWORD");
+            throw new CustomAuthError("INVALID_CREDENTIALS");
           }
 
           // 4. Success - Reset failed attempts & Update last_login

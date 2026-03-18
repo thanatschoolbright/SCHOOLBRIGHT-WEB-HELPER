@@ -27,37 +27,47 @@ export async function loginAction(values: any) {
 
     if (error instanceof AuthError) {
       // Auth.js v5 wraps custom errors from authorize in the 'cause' or provides them in the message
-      const errorMessage = (error.cause?.message || error.message) as string;
+      const cause = error.cause as any;
+      const errorCode = cause?.code || cause?.err?.code || error.code || "";
+      const errorMessage = cause?.message || error.message || "";
 
-      if (errorMessage && typeof errorMessage === "string") {
-        if (errorMessage.includes("MAX_ATTEMPTS_EXCEEDED")) {
-          return {
-            error:
-              "บัญชีของคุณถูกระงับชั่วคราว เนื่องจากระบุรหัสผ่านผิดเกิน 5 ครั้ง โดยระบบจะปลดล็อกอัตโนมัติในภายหลัง (หรือโปรดติดต่อแอดมิน)",
-            code: "MAX_ATTEMPTS_EXCEEDED",
-          };
-        }
-        if (errorMessage.includes("ACCOUNT_LOCKED_OR_INACTIVE")) {
-          return {
-            error:
-              "บัญชีของคุณไม่อยู่ในสถานะที่ใช้งานได้ โปรดติดต่อฝ่ายบุคคลหรือแอดมิน",
-            code: "ACCOUNT_LOCKED_OR_INACTIVE",
-          };
-        }
+      if (
+        errorCode === "MAX_ATTEMPTS_EXCEEDED" ||
+        errorMessage.includes("MAX_ATTEMPTS_EXCEEDED")
+      ) {
+        return {
+          error:
+            "บัญชีของคุณถูกระงับชั่วคราว เนื่องจากระบุรหัสผ่านผิดเกิน 5 ครั้ง โดยระบบจะปลดล็อกอัตโนมัติในภายหลัง (หรือโปรดติดต่อแอดมิน)",
+          code: "MAX_ATTEMPTS_EXCEEDED",
+        };
       }
 
-      switch (error.type) {
-        case "CredentialsSignin":
-          return {
-            error: "อีเมล/รหัสพนักงาน หรือ รหัสผ่านไม่ถูกต้อง",
-            code: "INVALID_CREDENTIALS",
-          };
-        default:
-          return {
-            error: "เกิดข้อผิดพลาดในการเข้าสู่ระบบ",
-            code: "AUTH_ERROR",
-          };
+      if (
+        errorCode === "ACCOUNT_LOCKED_OR_INACTIVE" ||
+        errorMessage.includes("ACCOUNT_LOCKED_OR_INACTIVE")
+      ) {
+        return {
+          error:
+            "บัญชีของคุณไม่อยู่ในสถานะที่ใช้งานได้ โปรดติดต่อฝ่ายบุคคลหรือแอดมิน",
+          code: "ACCOUNT_LOCKED_OR_INACTIVE",
+        };
       }
+
+      if (
+        errorCode === "INVALID_CREDENTIALS" ||
+        errorMessage.includes("INVALID_CREDENTIALS") ||
+        error.type === "CredentialsSignin"
+      ) {
+        return {
+          error: "อีเมล/รหัสพนักงาน หรือ รหัสผ่านไม่ถูกต้อง",
+          code: "INVALID_CREDENTIALS",
+        };
+      }
+
+      return {
+        error: "เกิดข้อผิดพลาดในการเข้าสู่ระบบ",
+        code: "AUTH_ERROR",
+      };
     }
     throw error;
   }
