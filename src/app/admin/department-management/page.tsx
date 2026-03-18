@@ -1,26 +1,33 @@
 "use client";
 
+import SummaryCard from "@/components/card/summary-card";
 import PermissionLayout from "@/components/layouts/permission-layout";
+import { StatusModalComponent } from "@/components/modal/status-modal-component";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
 import {
   ApartmentOutlined,
   CheckCircleOutlined,
+  CheckOutlined,
+  ClearOutlined,
+  CloseOutlined,
   CloudServerOutlined,
   DeleteOutlined,
   EditOutlined,
   ExclamationCircleOutlined,
-  LoadingOutlined,
+  FilterOutlined,
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
+  UnorderedListOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import {
-  Alert,
   Button,
   Card,
   Col,
+  Flex,
   Form,
   Input,
   Modal,
@@ -74,6 +81,17 @@ export default function DepartmentManagementPage() {
   const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
   const [selectedDept, setSelectedDept] = useState<Department | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [statusModal, setStatusModal] = useState<{
+    open: boolean;
+    type: "success" | "error" | "confirm" | "delete";
+    title: string;
+    message: string;
+  }>({
+    open: false,
+    type: "success",
+    title: "",
+    message: "",
+  });
 
   // Auto Gen State
   const [autoGenModalOpen, setAutoGenModalOpen] = useState(false);
@@ -171,14 +189,28 @@ export default function DepartmentManagementPage() {
 
     setGenStep("summary");
     fetchData();
+    setStatusModal({
+      open: true,
+      type: "success",
+      title: "ดำเนินการสำเร็จ",
+      message: "ระบบได้ทำการสร้างแผนกจากเทมเพลตเรียบร้อยแล้ว",
+    });
   };
 
+  /**
+   * ลบรายการ candidate ออกจากรายการที่จะสร้าง
+   * @param index ลำดับของรายการ
+   */
   const handleDeleteCandidate = (index: number) => {
     const newCandidates = [...candidateDepartments];
     newCandidates.splice(index, 1);
     setCandidateDepartments(newCandidates);
   };
 
+  /**
+   * บันทึกข้อมูลแผนก (สร้างใหม่ หรือ แก้ไข)
+   * @param values ข้อมูลจากฟอร์ม
+   */
   const handleSubmit = async (values: any) => {
     try {
       if (modalMode === "create") {
@@ -198,6 +230,9 @@ export default function DepartmentManagementPage() {
     }
   };
 
+  /**
+   * ลบแผนก
+   */
   const handleDelete = async () => {
     if (!selectedDept) return;
     try {
@@ -212,40 +247,57 @@ export default function DepartmentManagementPage() {
     }
   };
 
+  /**
+   * ล้างค่าการค้นหา
+   */
+  const handleResetSearch = () => {
+    setSearch("");
+  };
+
   // --- Columns ---
   const columns: ColumnsType<Department> = [
     {
       title: "ID",
       dataIndex: "id",
       width: 80,
-      render: (text) => <span className="text-gray-400">#{text}</span>,
+      render: (text) => (
+        <span style={{ color: token.colorTextDescription }}>#{text}</span>
+      ),
     },
     {
       title: "ชื่อแผนก (TH)",
       dataIndex: "name_th",
       sorter: (a, b) => a.name_th.localeCompare(b.name_th),
-      render: (text) => <span className="font-semibold">{text}</span>,
+      render: (text) => <Typography.Text strong>{text}</Typography.Text>,
     },
     {
       title: "ชื่อแผนก (EN)",
       dataIndex: "name_en",
+      sorter: (a, b) => (a.name_en || "").localeCompare(b.name_en || ""),
       render: (text) => text || "-",
     },
     {
       title: "จำนวนพนักงาน",
       dataIndex: ["_count", "users"],
       align: "center",
+      sorter: (a, b) => (a._count?.users || 0) - (b._count?.users || 0),
       render: (count) => <Tag color="blue">{count || 0} คน</Tag>,
     },
     {
       title: "สถานะ",
       dataIndex: "is_active",
       align: "center",
+      sorter: (a, b) =>
+        a.is_active === b.is_active ? 0 : a.is_active ? -1 : 1,
       render: (active) =>
         active ? (
-          <Tag color="success">Active</Tag>
+          <Tag color="success" icon={<CheckCircleOutlined />}>
+            เปิดใช้งาน
+          </Tag>
         ) : (
-          <Tag color="default">Inactive</Tag>
+          <Tag color="default" icon={<CloseOutlined />}>
+            ปิดใช้งาน
+          </Tag>
         ),
     },
     {
@@ -256,7 +308,7 @@ export default function DepartmentManagementPage() {
         <Space>
           <Button
             type="text"
-            icon={<EditOutlined className="text-yellow-500" />}
+            icon={<EditOutlined style={{ color: token.colorWarning }} />}
             onClick={() => {
               setSelectedDept(r);
               setModalMode("edit");
@@ -283,7 +335,7 @@ export default function DepartmentManagementPage() {
       <DashboardLayout>
         <HeaderBar
           icon={<ApartmentOutlined />}
-          title="จัดการแผนก (Department)"
+          title="จัดการแผนก"
           subTitle="บริหารจัดการแผนกและโครงสร้างองค์กร"
           extra={
             <Space>
@@ -294,54 +346,152 @@ export default function DepartmentManagementPage() {
           }
         />
 
+        <Row gutter={[24, 24]} style={{ marginBottom: 32 }}>
+          <Col xs={24} sm={12} md={8}>
+            <SummaryCard
+              title="จำนวนแผนกทั้งหมด"
+              value={departments.length}
+              unit="รายการ"
+              icon={<ApartmentOutlined />}
+              color={token.colorPrimary}
+              isLoading={loading}
+            />
+          </Col>
+          <Col xs={24} sm={12} md={8}>
+            <SummaryCard
+              title="แผนกที่เปิดใช้งาน"
+              value={departments.filter((d) => d.is_active).length}
+              unit="รายการ"
+              icon={<CheckCircleOutlined />}
+              color={token.colorSuccess}
+              isLoading={loading}
+            />
+          </Col>
+          <Col xs={24} sm={12} md={8}>
+            <SummaryCard
+              title="พนักงานรวมทุกแผนก"
+              value={departments.reduce(
+                (acc, curr) => acc + (curr._count?.users || 0),
+                0,
+              )}
+              unit="คน"
+              icon={<UserOutlined />}
+              color={token.colorInfo}
+              isLoading={loading}
+            />
+          </Col>
+        </Row>
+
         <Card
-          styles={{ body: { padding: 16 } }}
+          style={{
+            borderRadius: 16,
+            border: `1px solid ${token.colorBorderSecondary}`,
+            marginBottom: 32,
+          }}
+          styles={{ body: { padding: 24 } }}
+        >
+          <Flex align="center" gap={12} style={{ marginBottom: 24 }}>
+            <FilterOutlined
+              style={{ fontSize: "1.2rem", color: token.colorPrimary }}
+            />
+            <Typography.Text strong style={{ fontSize: "1.1rem" }}>
+              ตัวกรองข้อมูล
+            </Typography.Text>
+          </Flex>
+
+          <Row gutter={[24, 24]}>
+            <Col xs={24} md={12}>
+              <Form.Item label="ค้นหาชื่อแผนก" style={{ marginBottom: 0 }}>
+                <Input
+                  prefix={<SearchOutlined />}
+                  placeholder="เช่น ฝ่ายบริหาร, IT..."
+                  size="large"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  allowClear
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Flex justify="end" gap={12} style={{ marginTop: 32 }}>
+            <Button
+              icon={<ClearOutlined />}
+              onClick={handleResetSearch}
+              size="large"
+            >
+              ล้างการค้นหา
+            </Button>
+            <Button
+              type="primary"
+              icon={<SearchOutlined />}
+              onClick={fetchData}
+              size="large"
+            >
+              ค้นหา
+            </Button>
+          </Flex>
+        </Card>
+
+        <Card
           style={{
             borderRadius: 16,
             border: `1px solid ${token.colorBorderSecondary}`,
           }}
+          styles={{ body: { padding: 24 } }}
         >
-          <Row justify="space-between" align="middle" className="mb-4">
-            <Col>
-              <Input
-                prefix={<SearchOutlined />}
-                placeholder="ค้นหาชื่อแผนก..."
-                style={{ width: 300, borderRadius: 8 }}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                allowClear
+          <Flex
+            justify="space-between"
+            align="center"
+            style={{ marginBottom: 24 }}
+          >
+            <Space align="center" size={12}>
+              <UnorderedListOutlined
+                style={{ fontSize: "1.2rem", color: token.colorPrimary }}
               />
-            </Col>
-            <Col>
-              <Space>
-                <Button
-                  onClick={handleOpenAutoGen}
-                  icon={<CloudServerOutlined />}
-                  className="bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100"
-                >
-                  เทมเพลตแผนกอัตโนมัติ
-                </Button>
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={() => {
-                    setModalMode("create");
-                    form.resetFields();
-                    form.setFieldsValue({ is_active: true });
-                  }}
-                >
-                  เพิ่มแผนก
-                </Button>
-              </Space>
-            </Col>
-          </Row>
+              <Typography.Text strong style={{ fontSize: "1.1rem" }}>
+                รายการแผนกทั้งหมด
+              </Typography.Text>
+            </Space>
+            <Space size={12}>
+              <Button
+                onClick={handleOpenAutoGen}
+                icon={<CloudServerOutlined />}
+                size="large"
+                style={{
+                  backgroundColor: token.colorSuccessBg,
+                  color: token.colorSuccess,
+                  borderColor: token.colorSuccessBorder,
+                }}
+              >
+                เทมเพลตแผนกอัตโนมัติ
+              </Button>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                size="large"
+                onClick={() => {
+                  setModalMode("create");
+                  form.resetFields();
+                  form.setFieldsValue({ is_active: true });
+                }}
+              >
+                เพิ่มแผนก
+              </Button>
+            </Space>
+          </Flex>
 
           <Table
             columns={columns}
             dataSource={departments}
             loading={loading}
             rowKey="id"
-            pagination={{ pageSize: 15 }}
+            pagination={{
+              pageSize: 15,
+              showSizeChanger: true,
+              showTotal: (total) => `ทั้งหมด ${total} รายการ`,
+              style: { marginTop: 24 },
+            }}
           />
         </Card>
 
@@ -351,12 +501,13 @@ export default function DepartmentManagementPage() {
           title={modalMode === "create" ? "เพิ่มแผนกใหม่" : "แก้ไขแผนก"}
           onCancel={() => setModalMode(null)}
           footer={null}
+          destroyOnClose
         >
           <Form form={form} layout="vertical" onFinish={handleSubmit}>
             <Form.Item
               name="name_th"
               label="ชื่อแผนก (TH)"
-              rules={[{ required: true, message: "กรุณาระบุชื่อแผนก" }]}
+              rules={[{ required: true, message: "กรุณาระบุชื่อแผนกภาษาไทย" }]}
             >
               <Input placeholder="เช่น ฝ่ายทรัพยากรบุคคล" />
             </Form.Item>
@@ -372,6 +523,7 @@ export default function DepartmentManagementPage() {
                 <Button
                   type={form.getFieldValue("is_active") ? "primary" : "default"}
                   onClick={() => form.setFieldValue("is_active", true)}
+                  icon={<CheckOutlined />}
                 >
                   เปิดใช้งาน
                 </Button>
@@ -381,159 +533,189 @@ export default function DepartmentManagementPage() {
                   }
                   danger={!form.getFieldValue("is_active")}
                   onClick={() => form.setFieldValue("is_active", false)}
+                  icon={<CloseOutlined />}
                 >
                   ปิดใช้งาน
                 </Button>
               </Button.Group>
             </Form.Item>
 
-            <Space className="w-full justify-end mt-4">
+            <Flex justify="end" gap={12} style={{ marginTop: 24 }}>
               <Button onClick={() => setModalMode(null)}>ยกเลิก</Button>
               <Button
                 type="primary"
                 htmlType="submit"
                 icon={<CheckCircleOutlined />}
               >
-                บันทึก
+                บันทึกข้อมูล
               </Button>
-            </Space>
+            </Flex>
           </Form>
         </Modal>
 
         {/* Delete Confirmation */}
-        <Modal
-          title={
-            <Space className="text-red-500">
-              <ExclamationCircleOutlined /> ยืนยันการลบ
-            </Space>
-          }
+        <StatusModalComponent
           open={deleteModalOpen}
-          onCancel={() => setDeleteModalOpen(false)}
-          onOk={handleDelete}
-          okButtonProps={{ danger: true }}
-        >
-          <p>
-            คุณต้องการลบแผนก <strong>{selectedDept?.name_th}</strong> หรือไม่?
-          </p>
-          <p className="text-xs text-gray-400">
-            *ไม่สามารถลบแผนกที่มีพนักงานสังกัดอยู่ได้
-          </p>
-        </Modal>
+          type="delete"
+          title="ยืนยันการลบแผนก"
+          message={`คุณต้องการลบแผนก "${selectedDept?.name_th}" หรือไม่? การดำเนินการนี้ไม่สามารถเรียกคืนได้ และแผนกต้องไม่มีพนักงานสังกัดอยู่`}
+          onClose={() => setDeleteModalOpen(false)}
+          onConfirm={handleDelete}
+          confirmLabel="ลบทิ้ง"
+          cancelLabel="ยกเลิก"
+        />
+
+        {/* Status Notification Modal */}
+        <StatusModalComponent
+          open={statusModal.open}
+          type={statusModal.type}
+          title={statusModal.title}
+          message={statusModal.message}
+          onClose={() => setStatusModal({ ...statusModal, open: false })}
+        />
 
         {/* Auto Gen Modal */}
         <Modal
-          open={autoGenModalOpen}
           title={
-            <Space>
-              <CloudServerOutlined className="text-purple-500" />
-              ระบบสร้างแผนกอัตโนมัติ (Department Generator)
+            <Space align="center" size={12}>
+              <CloudServerOutlined
+                style={{ fontSize: "1.2rem", color: token.colorPrimary }}
+              />
+              <Typography.Text strong style={{ fontSize: "1.1rem" }}>
+                สร้างแผนกจากเทมเพลตมาตรฐาน
+              </Typography.Text>
             </Space>
           }
-          width={700}
+          open={autoGenModalOpen}
           onCancel={() => {
-            if (genStep === "executing") return;
-            setAutoGenModalOpen(false);
+            if (genStep !== "executing") setAutoGenModalOpen(false);
           }}
+          width={800}
           footer={
-            genStep === "review"
-              ? [
-                  <Button
-                    key="cancel"
-                    onClick={() => setAutoGenModalOpen(false)}
-                  >
-                    ยกเลิก
-                  </Button>,
-                  <Button
-                    key="confirm"
-                    type="primary"
-                    onClick={handleConfirmAutoGen}
-                  >
-                    ยืนยันและเริ่มสร้าง (
-                    {
-                      candidateDepartments.filter((c) => c.status === "READY")
-                        .length
-                    }
-                    )
-                  </Button>,
-                ]
-              : genStep === "summary"
-                ? [
-                    <Button
-                      key="close"
-                      type="primary"
-                      onClick={() => setAutoGenModalOpen(false)}
-                    >
-                      ปิดหน้าต่าง
-                    </Button>,
-                  ]
-                : null
+            genStep === "review" ? (
+              <Flex justify="end" gap={12}>
+                <Button onClick={() => setAutoGenModalOpen(false)}>
+                  ยกเลิก
+                </Button>
+                <Button
+                  type="primary"
+                  onClick={handleConfirmAutoGen}
+                  disabled={candidateDepartments.length === 0}
+                  icon={<CloudServerOutlined />}
+                  size="large"
+                >
+                  เริ่มสร้างแผนก (
+                  {
+                    candidateDepartments.filter((c) => c.status === "READY")
+                      .length
+                  }{" "}
+                  รายการ )
+                </Button>
+              </Flex>
+            ) : genStep === "summary" ? (
+              <Button
+                type="primary"
+                onClick={() => setAutoGenModalOpen(false)}
+                size="large"
+              >
+                เสร็จสิ้น
+              </Button>
+            ) : null
           }
+          closable={genStep !== "executing"}
+          maskClosable={genStep !== "executing"}
         >
           {genStep === "generating" && (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="animate-spin text-4xl text-purple-500 mb-4">
-                <CloudServerOutlined />
+            <div style={{ padding: "60px 0", textAlign: "center" }}>
+              <div
+                style={{
+                  fontSize: "3rem",
+                  color: token.colorPrimary,
+                  marginBottom: 24,
+                }}
+              >
+                <CloudServerOutlined className="animate-spin" />
               </div>
-              <Typography.Text type="secondary">
+              <Typography.Text type="secondary" style={{ fontSize: "1.1rem" }}>
                 กำลังวิเคราะห์และสร้างรายการแผนกมาตรฐาน...
               </Typography.Text>
             </div>
           )}
 
           {genStep === "review" && (
-            <div className="space-y-4">
-              <Alert
-                type="info"
-                showIcon
-                message="ตรวจสอบรายการแผนก"
-                description="ระบบได้สร้างรายการแผนกมาตรฐานให้คุณแล้ว หากแผนกใดมีอยู่แล้วระบบจะข้ามการสร้าง"
-              />
-              <div className="max-h-[400px] overflow-y-auto border rounded-lg">
-                <Table
-                  dataSource={candidateDepartments}
-                  pagination={false}
-                  rowKey="name_th"
-                  size="small"
-                  columns={[
-                    { title: "ชื่อแผนก (TH)", dataIndex: "name_th" },
-                    { title: "ชื่อแผนก (EN)", dataIndex: "name_en" },
-                    {
-                      title: "สถานะ",
-                      dataIndex: "status",
-                      width: 100,
-                      render: (status) =>
-                        status === "DUPLICATE" ? (
-                          <Tag color="warning">มีอยู่แล้ว</Tag>
-                        ) : (
-                          <Tag color="success">พร้อมสร้าง</Tag>
-                        ),
-                    },
-                    {
-                      title: "จัดการ",
-                      key: "action",
-                      width: 60,
-                      render: (_, _r, idx) => (
-                        <Button
-                          type="text"
-                          danger
-                          size="small"
-                          icon={<DeleteOutlined />}
-                          onClick={() => handleDeleteCandidate(idx)}
-                        />
-                      ),
-                    },
-                  ]}
-                />
+            <div style={{ padding: "8px 0" }}>
+              <div
+                style={{
+                  padding: 16,
+                  backgroundColor: token.colorInfoBg,
+                  borderRadius: 12,
+                  marginBottom: 24,
+                  border: `1px solid ${token.colorInfoBorder}`,
+                }}
+              >
+                <Typography.Text style={{ color: token.colorInfoText }}>
+                  ระบบจะตรวจสอบรายชื่อแผนกมาตรฐานและข้ามรายการที่ซ้ำกับข้อมูลปัจจุบันของคุณ
+                  คุณสามารถลบบางรายการที่ไม่ต้องการได้ก่อนกดยืนยัน
+                </Typography.Text>
               </div>
+
+              <Table
+                size="small"
+                dataSource={candidateDepartments}
+                rowKey="name_th"
+                pagination={false}
+                scroll={{ y: 350 }}
+                columns={[
+                  {
+                    title: "ชื่อแผนก (TH)",
+                    dataIndex: "name_th",
+                    render: (t) => (
+                      <Typography.Text strong>{t}</Typography.Text>
+                    ),
+                  },
+                  { title: "ชื่อแผนก (EN)", dataIndex: "name_en" },
+                  {
+                    title: "ตรวจสอบ",
+                    dataIndex: "status",
+                    width: 120,
+                    render: (s) =>
+                      s === "DUPLICATE" ? (
+                        <Tag
+                          color="warning"
+                          icon={<ExclamationCircleOutlined />}
+                        >
+                          ซ้ำ
+                        </Tag>
+                      ) : (
+                        <Tag color="success" icon={<CheckCircleOutlined />}>
+                          ใหม่
+                        </Tag>
+                      ),
+                  },
+                  {
+                    title: "ลบ",
+                    align: "center",
+                    width: 60,
+                    render: (_, __, i) => (
+                      <Button
+                        type="text"
+                        danger
+                        icon={<DeleteOutlined />}
+                        onClick={() => handleDeleteCandidate(i)}
+                      />
+                    ),
+                  },
+                ]}
+              />
             </div>
           )}
 
           {(genStep === "executing" || genStep === "summary") && (
-            <div className="space-y-6">
-              <div className="text-center">
+            <div style={{ padding: "16px 0" }}>
+              <div style={{ textAlign: "center", marginBottom: 32 }}>
                 <Typography.Title level={4}>
                   {genStep === "executing"
-                    ? "กำลังส่งข้อมูล..."
+                    ? "กำลังดำเนินการ..."
                     : "ดำเนินการเสร็จสิ้น"}
                 </Typography.Title>
                 <Progress
@@ -543,11 +725,25 @@ export default function DepartmentManagementPage() {
                       100,
                   )}
                   status={genStep === "summary" ? "success" : "active"}
-                  strokeColor="#722ed1"
+                  strokeColor={{
+                    "0%": token.colorPrimary,
+                    "100%": token.colorSuccess,
+                  }}
+                  strokeWidth={12}
                 />
               </div>
 
-              <div className="h-[300px] overflow-y-auto bg-gray-50 p-4 rounded-lg border">
+              <div
+                style={{
+                  height: 300,
+                  overflowY: "auto",
+                  backgroundColor: token.colorFillAlter,
+                  padding: 24,
+                  borderRadius: 12,
+                  border: `1px solid ${token.colorBorderSecondary}`,
+                  marginBottom: 24,
+                }}
+              >
                 <Steps
                   direction="vertical"
                   size="small"
@@ -558,9 +754,13 @@ export default function DepartmentManagementPage() {
                       item.execStatus === "skipped" ? (
                         "ข้าม (มีอยู่แล้ว)"
                       ) : item.execStatus === "error" ? (
-                        <span className="text-red-500">เกิดข้อผิดพลาด</span>
+                        <span style={{ color: token.colorError }}>
+                          เกิดข้อผิดพลาด
+                        </span>
                       ) : item.execStatus === "success" ? (
-                        <span className="text-green-500">สร้างสำเร็จ</span>
+                        <span style={{ color: token.colorSuccess }}>
+                          สร้างสำเร็จ
+                        </span>
                       ) : (
                         "รอการดำเนินการ"
                       ),
@@ -572,53 +772,56 @@ export default function DepartmentManagementPage() {
                           : item.execStatus === "error"
                             ? "error"
                             : item.execStatus === "skipped"
-                              ? "process"
+                              ? "finish"
                               : "wait",
-                    icon:
-                      item.execStatus === "pending" &&
-                      idx === currentExecutionIndex ? (
-                        <LoadingOutlined />
-                      ) : item.execStatus === "skipped" ? (
-                        <CheckCircleOutlined className="text-gray-400" />
-                      ) : undefined,
                   }))}
                 />
               </div>
 
               {genStep === "summary" && (
-                <Alert
-                  type="success"
-                  showIcon
-                  message="สรุปผล"
-                  description={
-                    <Space size="large">
-                      <span>
-                        สำเร็จ:{" "}
-                        {
-                          executionStatus.filter(
-                            (i) => i.execStatus === "success",
-                          ).length
-                        }
-                      </span>
-                      <span>
-                        ข้าม:{" "}
-                        {
-                          executionStatus.filter(
-                            (i) => i.execStatus === "skipped",
-                          ).length
-                        }
-                      </span>
-                      <span>
-                        ล้มเหลว:{" "}
-                        {
-                          executionStatus.filter(
-                            (i) => i.execStatus === "error",
-                          ).length
-                        }
-                      </span>
-                    </Space>
-                  }
-                />
+                <div
+                  style={{
+                    padding: 16,
+                    backgroundColor: token.colorSuccessBg,
+                    border: `1px solid ${token.colorSuccessBorder}`,
+                    borderRadius: 12,
+                  }}
+                >
+                  <Flex justify="space-around" align="center">
+                    <Typography.Text
+                      strong
+                      style={{ color: token.colorSuccessText }}
+                    >
+                      สำเร็จ:{" "}
+                      {
+                        executionStatus.filter(
+                          (i) => i.execStatus === "success",
+                        ).length
+                      }
+                    </Typography.Text>
+                    <Typography.Text
+                      strong
+                      style={{ color: token.colorWarningText }}
+                    >
+                      ข้าม:{" "}
+                      {
+                        executionStatus.filter(
+                          (i) => i.execStatus === "skipped",
+                        ).length
+                      }
+                    </Typography.Text>
+                    <Typography.Text
+                      strong
+                      style={{ color: token.colorErrorText }}
+                    >
+                      ล้มเหลว:{" "}
+                      {
+                        executionStatus.filter((i) => i.execStatus === "error")
+                          .length
+                      }
+                    </Typography.Text>
+                  </Flex>
+                </div>
               )}
             </div>
           )}
