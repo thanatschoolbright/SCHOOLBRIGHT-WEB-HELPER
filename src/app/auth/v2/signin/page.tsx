@@ -408,10 +408,17 @@ export default function SignInPage() {
                     required: true,
                     message: "กรุณาระบุอีเมล หรือ รหัสพนักงาน",
                   },
+                  {
+                    transform: (value) => value.trim(),
+                  },
                 ]}
               >
                 <Input
                   placeholder="อีเมล / รหัสพนักงาน"
+                  onChange={(e) => {
+                    const { value } = e.target;
+                    e.target.value = value.trim();
+                  }}
                   prefix={
                     <UserOutlined
                       style={{

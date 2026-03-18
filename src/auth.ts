@@ -20,16 +20,16 @@ export const {
             throw new Error("MISSING_CREDENTIALS");
           }
 
-          const username = credentials.username as string;
+          const username = (credentials.username as string).trim();
           const password = credentials.password as string;
 
           // 1. Find User by Email OR Employee Code
           const databaseUser = await PrismaTimesheet.user.findFirst({
             where: {
               OR: [
-                { email: username },
-                { employee_code: username },
-                { username: username }, // Also allow username
+                { email: { equals: username, mode: "insensitive" } },
+                { employee_code: { equals: username, mode: "insensitive" } },
+                { username: { equals: username, mode: "insensitive" } }, // Also allow username
               ],
               is_deleted: false,
             },
