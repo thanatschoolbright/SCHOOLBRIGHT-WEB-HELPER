@@ -95,7 +95,7 @@ export const {
 
           if (!finalPasswordStatus) {
             // Increment failed attempts
-            await PrismaTimesheet.user.update({
+            const updatedUser = await PrismaTimesheet.user.update({
               where: { id: databaseUser.id },
               data: {
                 failed_login_attempts: {
@@ -103,7 +103,14 @@ export const {
                 },
               },
             });
-            throw new CustomAuthError("INVALID_CREDENTIALS");
+            
+            const remaining = MAX_FAILED_ATTEMPTS - updatedUser.failed_login_attempts;
+            
+            if (remaining > 0) {
+              throw new CustomAuthError(`INVALID_CREDENTIALS|ATTEMPTS_LEFT:${remaining}`);
+            } else {
+              throw new CustomAuthError("MAX_ATTEMPTS_EXCEEDED");
+            }
           }
 
           // 4. Success - Reset failed attempts & Update last_login

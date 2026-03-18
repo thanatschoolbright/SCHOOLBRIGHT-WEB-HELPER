@@ -58,8 +58,14 @@ export async function loginAction(values: any) {
         errorMessage.includes("INVALID_CREDENTIALS") ||
         error.type === "CredentialsSignin"
       ) {
+        // ดึงจำนวนครั้งที่เหลือจาก Error Message (ถ้ามี)
+        const attemptsLeftMatch = errorMessage.match(/ATTEMPTS_LEFT:(\d+)/);
+        const attemptsLeft = attemptsLeftMatch ? parseInt(attemptsLeftMatch[1]) : null;
+
         return {
-          error: "อีเมล/รหัสพนักงาน หรือ รหัสผ่านไม่ถูกต้อง",
+          error: attemptsLeft !== null 
+            ? `ชื่อผู้ใช้งาน หรือรหัสผ่านไม่ถูกต้อง (ลองได้อีก ${attemptsLeft} ครั้ง ก่อนบัญชีถูกล็อกชั่วคราว)`
+            : "ชื่อผู้ใช้งาน หรือรหัสผ่านไม่ถูกต้อง",
           code: "INVALID_CREDENTIALS",
         };
       }
