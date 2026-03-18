@@ -2,15 +2,8 @@
 
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import "@ant-design/v5-patch-for-react-19";
-import { Button, Drawer, Flex, Grid, Layout, Skeleton, theme } from "antd";
-import { AnimatePresence, motion } from "framer-motion";
-import React, {
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { Button, Drawer, Flex, Grid, Layout, theme } from "antd";
+import React, { Suspense, useCallback, useEffect, useState } from "react";
 
 import BreadcrumbComponent from "@components/breadcrump/breadcrumb-component";
 import MainHeader from "@components/layouts/backend/navbar";
@@ -74,27 +67,6 @@ export default function BackendLayout({
   const currentSidebarWidth = collapsed
     ? COLLAPSED_SIDEBAR_WIDTH
     : DESKTOP_SIDEBAR_WIDTH;
-
-  /**
-   * Content Skeleton for Suspense fallback
-   */
-  const contentSkeleton = useMemo(
-    () => (
-      <Flex vertical gap="large" style={{ padding: "12px 24px" }}>
-        <Skeleton active title={{ width: "30%" }} paragraph={{ rows: 1 }} />
-        <div
-          style={{
-            background: token.colorBgContainer,
-            padding: 32,
-            borderRadius: token.borderRadiusLG,
-          }}
-        >
-          <Skeleton active paragraph={{ rows: 8 }} />
-        </div>
-      </Flex>
-    ),
-    [token.colorBgContainer, token.borderRadiusLG],
-  );
 
   if (!isMounted)
     return (
@@ -284,15 +256,11 @@ export default function BackendLayout({
             display: "flex",
             flexDirection: "column",
             gap: 32,
-
             margin: "0 auto",
             width: "100%",
           }}
         >
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+          <div
             style={{
               display: "flex",
               flexDirection: "column",
@@ -305,30 +273,14 @@ export default function BackendLayout({
             <Layout.Content
               style={{ background: "transparent", position: "relative" }}
             >
-              <Suspense fallback={contentSkeleton}>
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key="content-wrapper"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {children}
-                  </motion.div>
-                </AnimatePresence>
-              </Suspense>
+              <Suspense fallback={null}>{children}</Suspense>
             </Layout.Content>
-          </motion.div>
+          </div>
         </Content>
 
         {/* Dynamic Mobile Float Button (Optional enhancement) */}
         {!isDesktop && !mobileDrawerOpen && (
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+          <div
             style={{
               position: "fixed",
               bottom: 32,
@@ -354,7 +306,7 @@ export default function BackendLayout({
                 background: `linear-gradient(135deg, ${token.colorPrimary}, ${token.colorPrimaryHover})`,
               }}
             />
-          </motion.div>
+          </div>
         )}
       </Layout>
     </Layout>
