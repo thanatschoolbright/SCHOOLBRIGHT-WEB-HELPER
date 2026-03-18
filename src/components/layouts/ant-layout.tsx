@@ -122,9 +122,11 @@ const getModernTheme = (
         controlOutline: "none",
         fontWeight: 600,
         paddingInlineLG: 32,
-        borderRadius: 12,
-        defaultShadow: "none",
+        borderRadius: 999, // Perfect Capsule Shape
+        defaultShadow: "0 2px 0 rgba(0, 0, 0, 0.02)",
         primaryShadow: "0 4px 12px rgba(255, 140, 0, 0.25)",
+        contentFontSize: 14,
+        paddingBlock: 8,
       },
       Card: {
         paddingLG: 24,
