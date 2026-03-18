@@ -630,7 +630,7 @@ export default function SignInPage() {
           footer={null}
           closable={false}
           centered
-          width={480}
+          width={640}
           styles={{
             mask: {
               backdropFilter: "blur(12px)",
@@ -638,12 +638,12 @@ export default function SignInPage() {
             },
             content: {
               borderRadius: 32,
-              padding: 40,
+
               boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
             },
           }}
         >
-          <div style={{ textAlign: "center", marginBottom: 40 }}>
+          <div style={{ textAlign: "center", marginBottom: 48 }}>
             <div
               style={{
                 width: 72,
@@ -667,58 +667,25 @@ export default function SignInPage() {
           </div>
 
           <Steps
-            direction="vertical"
             current={currentStep}
             status="process"
-            style={{ paddingLeft: 24 }}
+            labelPlacement="vertical"
             items={[
               {
-                title: (
-                  <Text strong style={{ fontSize: 14 }}>
-                    Connection Estabished
-                  </Text>
-                ),
-                description: (
-                  <Text style={{ fontSize: 12, color: "#94a3b8" }}>
-                    เชื่อมต่อกับเซิร์ฟเวอร์หลัก
-                  </Text>
-                ),
+                title: "Connection",
+                description: "เชื่อมต่อเซิร์ฟเวอร์",
               },
               {
-                title: (
-                  <Text strong style={{ fontSize: 14 }}>
-                    Identity Audit
-                  </Text>
-                ),
-                description: (
-                  <Text style={{ fontSize: 12, color: "#94a3b8" }}>
-                    ตรวจสอบสิทธิ์ผ่าน Auth Gateway
-                  </Text>
-                ),
+                title: "Audit",
+                description: "ตรวจสอบสิทธิ์",
               },
               {
-                title: (
-                  <Text strong style={{ fontSize: 14 }}>
-                    Policy Sync
-                  </Text>
-                ),
-                description: (
-                  <Text style={{ fontSize: 12, color: "#94a3b8" }}>
-                    ดึงข้อมูลสิทธิ์การเข้าใช้งาน
-                  </Text>
-                ),
+                title: "Policy",
+                description: "ดึงข้อมูลสิทธิ์",
               },
               {
-                title: (
-                  <Text strong style={{ fontSize: 14 }}>
-                    Interface Setup
-                  </Text>
-                ),
-                description: (
-                  <Text style={{ fontSize: 12, color: "#94a3b8" }}>
-                    เตรียมหน้าจอหลักของคุณ
-                  </Text>
-                ),
+                title: "Setup",
+                description: "เตรียมหน้าจอ",
               },
             ]}
           />
