@@ -2,7 +2,6 @@
 
 import i18n from "@/i18n";
 import {
-  ClockCircleFilled,
   CrownFilled,
   DownOutlined,
   FireFilled,
@@ -11,7 +10,6 @@ import {
   LogoutOutlined,
   SafetyCertificateFilled,
   ThunderboltFilled,
-  TrophyFilled,
   UserOutlined,
 } from "@ant-design/icons";
 import { useAppSelector } from "@stores/store";
@@ -25,6 +23,7 @@ import {
   Flex,
   Segmented,
   Space,
+  Tag,
   theme,
   Typography,
 } from "antd";
@@ -156,40 +155,20 @@ const RankAvatarDisplay = ({
 }) => {
   const { token } = theme.useToken();
   const rankThemeConfig =
-    RANK_THEME_CONFIG[currentRankLetter] ?? RANK_THEME_CONFIG.F;
+    RANK_THEME_CONFIG[currentRankLetter] || RANK_THEME_CONFIG.F;
 
   return (
-    <Badge
-      count={
-        <div
-          style={{
-            background: rankThemeConfig.color,
-            color: "#fff",
-            borderRadius: "50%",
-            width: 20,
-            height: 20,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 10,
-            border: `2px solid ${token.colorBgContainer}`,
-          }}
-        >
-          {rankThemeConfig.icon}
-        </div>
-      }
-      offset={[-5, avatarSize - 5]}
-    >
-      <Avatar
-        size={avatarSize}
-        src={generateAvatarUrl(userProfile)}
-        style={{
-          border: `2px solid ${rankThemeConfig.color}`,
-          backgroundColor: token.colorBgContainer,
-          padding: 2,
-        }}
-      />
-    </Badge>
+    <Avatar
+      size={avatarSize}
+      src={generateAvatarUrl(userProfile)}
+      style={{
+        border: `3px solid ${rankThemeConfig.color}`,
+        backgroundColor: token.colorBgContainer,
+        padding: 2,
+        boxShadow: `0 0 20px ${rankThemeConfig.color}44`,
+        transition: "all 0.3s ease",
+      }}
+    />
   );
 };
 
@@ -209,9 +188,9 @@ const UserRankDetailsCard = ({
   const { t: TRANSLATION } = useTranslation("translate");
   const { token } = theme.useToken();
   const isDark = token.colorBgBase !== "#FFFFFF";
-  const currentRankLetter = userRankDetails?.rankLetter?.toUpperCase() ?? "F";
+  const currentRankLetter = userRankDetails?.rankLetter?.toUpperCase() || "F";
   const rankConfig =
-    RANK_THEME_CONFIG[currentRankLetter] ?? RANK_THEME_CONFIG.F;
+    RANK_THEME_CONFIG[currentRankLetter] || RANK_THEME_CONFIG.F;
 
   const completionPercent = Math.min(
     Math.round(userRankDetails?.completion_rate ?? 0),
@@ -228,118 +207,208 @@ const UserRankDetailsCard = ({
     <Card
       styles={{
         body: {
-          padding: token.padding,
-          background: isDark ? rankConfig.darkBg : rankConfig.bg,
+          padding: 0,
+          background: isDark ? "#141414" : "#ffffff",
           borderRadius: 24,
-          position: "relative",
           overflow: "hidden",
+          border: `1px solid ${isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}`,
+          boxShadow: isDark
+            ? "0 8px 32px rgba(0,0,0,0.4)"
+            : "0 8px 32px rgba(0,0,0,0.05)",
         },
       }}
     >
-      {/* Background Decoration Icon */}
+      {/* Top Banner: Rank Focus */}
       <div
         style={{
-          position: "absolute",
-          right: -16,
-          bottom: -16,
-          fontSize: 72,
-          opacity: 0.1,
-          color: rankConfig.color,
-          pointerEvents: "none",
-          transform: "rotate(12deg)",
+          padding: "24px 20px",
+          background: isDark ? rankConfig.darkBg : rankConfig.bg,
+          position: "relative",
+          overflow: "hidden",
         }}
       >
-        {rankConfig.icon}
-      </div>
+        {/* Glow Effect */}
+        <div
+          style={{
+            position: "absolute",
+            top: "-20%",
+            right: "-10%",
+            width: "150px",
+            height: "150px",
+            background: rankConfig.color,
+            filter: "blur(60px)",
+            opacity: 0.2,
+            borderRadius: "50%",
+          }}
+        />
 
-      <Flex align="center" justify="space-between" style={{ marginBottom: 16 }}>
-        <Flex align="center" gap={12}>
-          <div
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 16,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 24,
-              background: isDark ? "rgba(0,0,0,0.3)" : "#fff",
-              color: rankConfig.color,
-              border: `1.5px solid ${rankConfig.accent}44`,
-            }}
-          >
-            {rankConfig.icon}
-          </div>
+        <Flex align="center" justify="space-between">
           <Flex vertical>
             <Text
               style={{
                 fontSize: 12,
-                fontWeight: 900,
+                fontWeight: 800,
                 color: rankConfig.color,
-                letterSpacing: 1,
+                textTransform: "uppercase",
+                letterSpacing: 1.5,
               }}
             >
-              {TRANSLATION(rankConfig.labelKey)}
+              Current Prestige
             </Text>
-            <Title
-              level={3}
+            <Flex align="baseline" gap={8}>
+              <Title
+                level={1}
+                style={{
+                  margin: 0,
+                  fontSize: 48,
+                  fontWeight: 900,
+                  color: isDark ? "#fff" : token.colorTextHeading,
+                  letterSpacing: -2,
+                  lineHeight: 1,
+                }}
+              >
+                {currentRankLetter}
+              </Title>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: rankConfig.color,
+                  opacity: 0.8,
+                }}
+              >
+                CLASS
+              </Text>
+            </Flex>
+          </Flex>
+
+          <Flex vertical align="end">
+            <div
               style={{
-                margin: 0,
-                fontSize: 24,
-                fontWeight: 900,
-                fontStyle: "italic",
-                color: isDark ? "#fff" : token.colorTextHeading,
+                width: 64,
+                height: 64,
+                borderRadius: 20,
+                background: isDark
+                  ? "rgba(0,0,0,0.3)"
+                  : "rgba(255,255,255,0.8)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 32,
+                color: rankConfig.color,
+                boxShadow: `0 8px 16px ${rankConfig.color}22`,
+                border: `1px solid ${rankConfig.color}33`,
               }}
             >
-              RANK {currentRankLetter}
-            </Title>
+              {rankConfig.icon}
+            </div>
           </Flex>
         </Flex>
 
-        <Flex vertical align="end">
-          <Text
+        {/* Progress Bar To Next Level (Visual Only for motivation) */}
+        <div style={{ marginTop: 24 }}>
+          <Flex justify="space-between" style={{ marginBottom: 6 }}>
+            <Text
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.45)",
+              }}
+            >
+              Ranking Progress
+            </Text>
+            <Text
+              style={{
+                fontSize: 11,
+                fontWeight: 900,
+                color: rankConfig.color,
+              }}
+            >
+              {completionPercent}%
+            </Text>
+          </Flex>
+          <div
             style={{
-              fontSize: 10,
-              fontWeight: "bold",
-              opacity: 0.5,
-              color: token.colorTextSecondary,
+              width: "100%",
+              height: 6,
+              background: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
+              borderRadius: 10,
+              overflow: "hidden",
             }}
           >
-            {TRANSLATION("user_dropdown.rank_title")}
-          </Text>
-          <Text
-            style={{
-              fontSize: 18,
-              fontWeight: 900,
-              color: rankConfig.color,
-            }}
-          >
-            #{userRankDetails?.rank ?? "-"}
-          </Text>
-        </Flex>
-      </Flex>
+            <div
+              style={{
+                width: `${completionPercent}%`,
+                height: "100%",
+                background: rankConfig.color,
+                borderRadius: 10,
+                boxShadow: `0 0 10px ${rankConfig.color}66`,
+              }}
+            />
+          </div>
+        </div>
+      </div>
 
-      <Flex gap={8} justify="space-between">
-        <StatisticBoxItem
-          label={TRANSLATION("user_dropdown.total_hours")}
-          value={totalHours}
-          icon={<ClockCircleFilled />}
-          rankColor={rankConfig.color}
-        />
-        <StatisticBoxItem
-          label={TRANSLATION("user_dropdown.discipline_score")}
-          value={disciplineScore}
-          icon={<TrophyFilled />}
-          rankColor={rankConfig.color}
-          highlight
-        />
-        <StatisticBoxItem
-          label={TRANSLATION("user_dropdown.success_rate")}
-          value={`${completionPercent}%`}
-          icon={<ThunderboltFilled />}
-          rankColor={rankConfig.color}
-        />
-      </Flex>
+      {/* Bottom Stats: Clean & Technical */}
+      <div style={{ padding: "16px 20px" }}>
+        <Flex gap={16} justify="space-between">
+          <Flex vertical flex={1}>
+            <Text
+              style={{
+                fontSize: 10,
+                color: token.colorTextTertiary,
+                fontWeight: 700,
+                textTransform: "uppercase",
+              }}
+            >
+              Work Hours
+            </Text>
+            <Title level={5} style={{ margin: 0, fontWeight: 800 }}>
+              {totalHours}{" "}
+              <small style={{ fontSize: 10, fontWeight: 400 }}>Hrs</small>
+            </Title>
+          </Flex>
+
+          <Divider type="vertical" style={{ height: 32, margin: "auto 0" }} />
+
+          <Flex vertical flex={1} align="center">
+            <Text
+              style={{
+                fontSize: 10,
+                color: token.colorTextTertiary,
+                fontWeight: 700,
+                textTransform: "uppercase",
+              }}
+            >
+              Discipline
+            </Text>
+            <Title
+              level={5}
+              style={{ margin: 0, fontWeight: 800, color: rankConfig.color }}
+            >
+              {disciplineScore}
+            </Title>
+          </Flex>
+
+          <Divider type="vertical" style={{ height: 32, margin: "auto 0" }} />
+
+          <Flex vertical flex={1} align="end">
+            <Text
+              style={{
+                fontSize: 10,
+                color: token.colorTextTertiary,
+                fontWeight: 700,
+                textTransform: "uppercase",
+              }}
+            >
+              Leaderboard
+            </Text>
+            <Title level={5} style={{ margin: 0, fontWeight: 800 }}>
+              #{userRankDetails?.rank ?? "-"}
+            </Title>
+          </Flex>
+        </Flex>
+      </div>
     </Card>
   );
 };
@@ -468,48 +537,71 @@ export default function UserProfileDropdown(): React.JSX.Element {
     void signOut({ callbackUrl: window.location.origin });
   };
 
-  const currentRankLetter = userRankData?.rankLetter?.toUpperCase() ?? "F";
+  const isDark = token.colorBgBase !== "#FFFFFF";
+  const currentRankLetter = userRankData?.rankLetter?.toUpperCase() || "F";
   const currentRankThemeConfig =
-    RANK_THEME_CONFIG[currentRankLetter] ?? RANK_THEME_CONFIG.F;
+    RANK_THEME_CONFIG[currentRankLetter] || RANK_THEME_CONFIG.F;
 
   const userProfileDropdownContent = (
     <Flex vertical>
       <Flex
-        gap={16}
+        vertical
         align="center"
-        style={{ padding: "0 4px", marginBottom: 24 }}
+        style={{
+          padding: "32px 0",
+          background: isDark
+            ? `linear-gradient(180deg, ${currentRankThemeConfig.color}15 0%, transparent 100%)`
+            : `linear-gradient(180deg, ${currentRankThemeConfig.color}08 0%, transparent 100%)`,
+          borderRadius: 24,
+          marginBottom: 24,
+        }}
       >
         <RankAvatarDisplay
           userProfile={userProfileData}
           currentRankLetter={currentRankLetter}
-          avatarSize={80}
+          avatarSize={120}
         />
-        <Flex vertical flex={1} style={{ overflow: "hidden" }}>
+        <Flex vertical align="center" style={{ marginTop: 20 }}>
           <Title
-            level={4}
+            level={3}
             style={{
               margin: 0,
               lineHeight: 1.2,
               color: token.colorTextHeading,
+              fontWeight: 800,
             }}
-            ellipsis
           >
             {userProfileData.firstname} {userProfileData.lastname}
           </Title>
-          <Flex align="center" gap={4} style={{ marginTop: 8 }}>
-            <Badge status="processing" color="green" />
-            <Text type="secondary" style={{ fontSize: 14 }}>
-              {userProfileData.position_name ??
-                TRANSLATION("user_dropdown.default_position")}
-            </Text>
-          </Flex>
+          <Tag
+            color={currentRankThemeConfig.color}
+            style={{
+              marginTop: 12,
+              borderRadius: 50,
+              paddingInline: 16,
+              fontWeight: 700,
+              border: "none",
+            }}
+          >
+            {userProfileData.position_name ??
+              TRANSLATION("user_dropdown.default_position")}
+          </Tag>
         </Flex>
       </Flex>
 
       {userRankData && <UserRankDetailsCard userRankDetails={userRankData} />}
 
       <Flex vertical gap={12} style={{ marginTop: 32 }}>
-        <Text strong style={{ fontSize: 14, color: token.colorTextSecondary }}>
+        <Text
+          strong
+          style={{
+            fontSize: 12,
+            color: token.colorTextDescription,
+            textTransform: "uppercase",
+            letterSpacing: 1,
+            paddingLeft: 4,
+          }}
+        >
           {TRANSLATION("user_dropdown.settings")}
         </Text>
         <Segmented
@@ -518,12 +610,10 @@ export default function UserProfileDropdown(): React.JSX.Element {
             {
               label: TRANSLATION("user_dropdown.lang_th_label"),
               value: "th",
-              icon: <span style={{ marginRight: 4 }}>TH</span>,
             },
             {
               label: TRANSLATION("user_dropdown.lang_en_label"),
               value: "en",
-              icon: <span style={{ marginRight: 4 }}>EN</span>,
             },
           ]}
           value={currentLanguageCode}
