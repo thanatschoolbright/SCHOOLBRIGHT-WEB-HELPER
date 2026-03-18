@@ -25,7 +25,14 @@
       "professional": "ระดับมืออาชีพ",
       "intermediate": "ระดับกลาง",
       "beginner": "ระดับเริ่มต้น"
-    }
+    },
+    "prestige_title": "อันดับเกียรติยศ",
+    "prestige_class": "CLASS",
+    "ranking_progress": "ความคืบหน้าการจัดอันดับ",
+    "work_hours": "ชั่วโมงทำงาน",
+    "work_hours_unit": "ชม.",
+    "discipline": "วินัย",
+    "leaderboard": "อันดับรวม"
   },
   "welcome": "ยินดีต้อนรับ",
   "notSignedIn": "คุณยังไม่ได้เข้าสู่ระบบ",

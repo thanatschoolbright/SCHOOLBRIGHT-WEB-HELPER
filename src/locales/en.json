@@ -25,7 +25,14 @@
       "professional": "Professional",
       "intermediate": "Intermediate",
       "beginner": "Beginner"
-    }
+    },
+    "prestige_title": "Current Prestige",
+    "prestige_class": "CLASS",
+    "ranking_progress": "Ranking Progress",
+    "work_hours": "Work Hours",
+    "work_hours_unit": "Hrs",
+    "discipline": "Discipline",
+    "leaderboard": "Leaderboard"
   },
   "welcome": "Welcome",
   "notSignedIn": "You are not signed in",

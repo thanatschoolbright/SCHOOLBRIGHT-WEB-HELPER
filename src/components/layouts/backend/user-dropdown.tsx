@@ -187,7 +187,6 @@ const UserRankDetailsCard = ({
 }) => {
   const { t: TRANSLATION } = useTranslation("translate");
   const { token } = theme.useToken();
-  const isDark = token.colorBgBase !== "#FFFFFF";
   const currentRankLetter = userRankDetails?.rankLetter?.toUpperCase() || "F";
   const rankConfig =
     RANK_THEME_CONFIG[currentRankLetter] || RANK_THEME_CONFIG.F;
@@ -208,13 +207,8 @@ const UserRankDetailsCard = ({
       styles={{
         body: {
           padding: 0,
-          background: isDark ? "#141414" : "#ffffff",
           borderRadius: 24,
           overflow: "hidden",
-          border: `1px solid ${isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}`,
-          boxShadow: isDark
-            ? "0 8px 32px rgba(0,0,0,0.4)"
-            : "0 8px 32px rgba(0,0,0,0.05)",
         },
       }}
     >
@@ -222,38 +216,21 @@ const UserRankDetailsCard = ({
       <div
         style={{
           padding: "24px 20px",
-          background: isDark ? rankConfig.darkBg : rankConfig.bg,
           position: "relative",
           overflow: "hidden",
         }}
       >
-        {/* Glow Effect */}
-        <div
-          style={{
-            position: "absolute",
-            top: "-20%",
-            right: "-10%",
-            width: "150px",
-            height: "150px",
-            background: rankConfig.color,
-            filter: "blur(60px)",
-            opacity: 0.2,
-            borderRadius: "50%",
-          }}
-        />
-
         <Flex align="center" justify="space-between">
           <Flex vertical>
             <Text
               style={{
                 fontSize: 12,
                 fontWeight: 800,
-                color: rankConfig.color,
                 textTransform: "uppercase",
                 letterSpacing: 1.5,
               }}
             >
-              Current Prestige
+              {TRANSLATION("user_dropdown.prestige_title")}
             </Text>
             <Flex align="baseline" gap={8}>
               <Title
@@ -262,7 +239,6 @@ const UserRankDetailsCard = ({
                   margin: 0,
                   fontSize: 48,
                   fontWeight: 900,
-                  color: isDark ? "#fff" : token.colorTextHeading,
                   letterSpacing: -2,
                   lineHeight: 1,
                 }}
@@ -273,11 +249,10 @@ const UserRankDetailsCard = ({
                 style={{
                   fontSize: 16,
                   fontWeight: 700,
-                  color: rankConfig.color,
                   opacity: 0.8,
                 }}
               >
-                CLASS
+                {TRANSLATION("user_dropdown.prestige_class")}
               </Text>
             </Flex>
           </Flex>
@@ -288,16 +263,10 @@ const UserRankDetailsCard = ({
                 width: 64,
                 height: 64,
                 borderRadius: 20,
-                background: isDark
-                  ? "rgba(0,0,0,0.3)"
-                  : "rgba(255,255,255,0.8)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: 32,
-                color: rankConfig.color,
-                boxShadow: `0 8px 16px ${rankConfig.color}22`,
-                border: `1px solid ${rankConfig.color}33`,
               }}
             >
               {rankConfig.icon}
@@ -312,16 +281,14 @@ const UserRankDetailsCard = ({
               style={{
                 fontSize: 11,
                 fontWeight: 700,
-                color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.45)",
               }}
             >
-              Ranking Progress
+              {TRANSLATION("user_dropdown.ranking_progress")}
             </Text>
             <Text
               style={{
                 fontSize: 11,
                 fontWeight: 900,
-                color: rankConfig.color,
               }}
             >
               {completionPercent}%
@@ -331,7 +298,6 @@ const UserRankDetailsCard = ({
             style={{
               width: "100%",
               height: 6,
-              background: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
               borderRadius: 10,
               overflow: "hidden",
             }}
@@ -340,9 +306,7 @@ const UserRankDetailsCard = ({
               style={{
                 width: `${completionPercent}%`,
                 height: "100%",
-                background: rankConfig.color,
                 borderRadius: 10,
-                boxShadow: `0 0 10px ${rankConfig.color}66`,
               }}
             />
           </div>
@@ -356,16 +320,17 @@ const UserRankDetailsCard = ({
             <Text
               style={{
                 fontSize: 10,
-                color: token.colorTextTertiary,
                 fontWeight: 700,
                 textTransform: "uppercase",
               }}
             >
-              Work Hours
+              {TRANSLATION("user_dropdown.work_hours")}
             </Text>
             <Title level={5} style={{ margin: 0, fontWeight: 800 }}>
               {totalHours}{" "}
-              <small style={{ fontSize: 10, fontWeight: 400 }}>Hrs</small>
+              <small style={{ fontSize: 10, fontWeight: 400 }}>
+                {TRANSLATION("user_dropdown.work_hours_unit")}
+              </small>
             </Title>
           </Flex>
 
@@ -375,17 +340,13 @@ const UserRankDetailsCard = ({
             <Text
               style={{
                 fontSize: 10,
-                color: token.colorTextTertiary,
                 fontWeight: 700,
                 textTransform: "uppercase",
               }}
             >
-              Discipline
+              {TRANSLATION("user_dropdown.discipline")}
             </Text>
-            <Title
-              level={5}
-              style={{ margin: 0, fontWeight: 800, color: rankConfig.color }}
-            >
+            <Title level={5} style={{ margin: 0, fontWeight: 800 }}>
               {disciplineScore}
             </Title>
           </Flex>
@@ -396,12 +357,11 @@ const UserRankDetailsCard = ({
             <Text
               style={{
                 fontSize: 10,
-                color: token.colorTextTertiary,
                 fontWeight: 700,
                 textTransform: "uppercase",
               }}
             >
-              Leaderboard
+              {TRANSLATION("user_dropdown.leaderboard")}
             </Text>
             <Title level={5} style={{ margin: 0, fontWeight: 800 }}>
               #{userRankDetails?.rank ?? "-"}
