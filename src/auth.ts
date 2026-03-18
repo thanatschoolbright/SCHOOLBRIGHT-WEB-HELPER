@@ -103,11 +103,14 @@ export const {
                 },
               },
             });
-            
-            const remaining = MAX_FAILED_ATTEMPTS - updatedUser.failed_login_attempts;
-            
+
+            const remaining =
+              MAX_FAILED_ATTEMPTS - updatedUser.failed_login_attempts;
+
             if (remaining > 0) {
-              throw new CustomAuthError(`INVALID_CREDENTIALS|ATTEMPTS_LEFT:${remaining}`);
+              throw new CustomAuthError(
+                `INVALID_CREDENTIALS|ATTEMPTS_LEFT:${remaining}`,
+              );
             } else {
               throw new CustomAuthError("MAX_ATTEMPTS_EXCEEDED");
             }
