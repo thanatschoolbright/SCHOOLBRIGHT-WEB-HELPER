@@ -2,6 +2,7 @@
 
 "use client";
 
+import SummaryCard from "@/components/card/summary-card";
 import {
   AppstoreOutlined,
   BarcodeOutlined,
@@ -20,9 +21,12 @@ import {
   ShopOutlined,
   SyncOutlined,
   ThunderboltFilled,
+  UnorderedListOutlined,
   WifiOutlined,
 } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
+import { StatusModalComponent } from "@components/modal/status-modal-component";
+import { HeaderBar } from "@components/typhography/header-bar-component";
 import { AppDispatch, useAppSelector } from "@stores/store";
 import {
   Avatar,
@@ -35,11 +39,11 @@ import {
   Divider,
   Flex,
   Form,
+  Grid,
   Input,
   Row,
   Select,
   Space,
-  Statistic,
   Table,
   Tag,
   theme,
@@ -59,9 +63,9 @@ dayjs.extend(relativeTime);
 dayjs.extend(buddhistEra);
 dayjs.locale("th");
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { RangePicker } = DatePicker;
-const { Panel } = Collapse;
+const { useBreakpoint } = Grid;
 
 // Interface
 interface DeviceStatusData {
@@ -92,6 +96,7 @@ interface DeviceStatusApiResponse {
 export default function OnlineDeviceDashboard() {
   const [searchForm] = Form.useForm();
   const { token } = theme.useToken();
+  const screens = useBreakpoint();
   const dispatch = useDispatch<AppDispatch>();
 
   const schoolListState = useAppSelector((state) => state.callSchoolList);
@@ -118,6 +123,19 @@ export default function OnlineDeviceDashboard() {
     [schoolList],
   );
 
+  // Modal State
+  const [statusModal, setStatusModal] = useState<{
+    open: boolean;
+    type: "success" | "error" | "confirm" | "delete";
+    title?: string;
+    message?: string;
+  }>({
+    open: false,
+    type: "success",
+    title: "",
+    message: "",
+  });
+
   const [isFetchingDeviceStatus, setIsFetchingDeviceStatus] = useState(false);
   const [deviceStatusList, setDeviceStatusList] = useState<DeviceStatusData[]>(
     [],
@@ -143,37 +161,41 @@ export default function OnlineDeviceDashboard() {
     return uniqueVersions.map((v) => ({ label: `v.${v}`, value: v }));
   }, [deviceStatusList]);
 
+  /**
+   * ค้นหาชื่อโรงเรียนจาก SchoolID
+   * @param schoolId รหัสโรงเรียน
+   */
   const getSchoolName = useCallback(
     (schoolId: number) => {
       if (!Array.isArray(schoolList) || schoolList.length === 0)
-        return `โรงเรียน #${schoolId}`;
+        return "โรงเรียน #" + schoolId;
       const foundSchool = schoolList.find(
         (school: any) => school.SchoolID === schoolId,
       );
       return foundSchool
-        ? `${foundSchool.SchoolName} (${foundSchool.SchoolID})`
-        : `ไม่พบชื่อโรงเรียน (${schoolId})`;
+        ? foundSchool.SchoolName + " (" + foundSchool.SchoolID + ")"
+        : "ไม่พบชื่อโรงเรียน (" + schoolId + ")";
     },
     [schoolList],
   );
 
+  /**
+   * ดึงข้อมูลสถานะอุปกรณ์จาก API
+   * @param pageIndex ลำดับหน้า
+   * @param pageSizeLimit จำนวนรายการต่อหน้า
+   */
   const fetchDeviceStatusData = useCallback(
     async (pageIndex = 1, pageSizeLimit = 20) => {
       setIsFetchingDeviceStatus(true);
       try {
-        // * ปรับปรุง: ใช้ try-catch ครอบเฉพาะการดึงค่าจาก Form
-        let formValues: any = { isOnline: true }; // Default values
-
+        let formValues: any = { isOnline: true };
         try {
-          // พยายามดึงค่าจากฟอร์ม
           const values = searchForm.getFieldsValue();
-          // ถ้าดึงได้ ให้ merge กับ default (ถ้า isOnline เป็น undefined จะใช้ true)
           formValues = {
             ...values,
             isOnline: values.isOnline ?? true,
           };
         } catch (e) {
-          // กรณี Form ยังไม่ Mount (เกิดขึ้นน้อยมากถ้าใช้ forceRender) ให้ใช้ค่า Default
           console.warn("Form instance not ready, using defaults");
         }
 
@@ -225,7 +247,6 @@ export default function OnlineDeviceDashboard() {
     [searchForm],
   );
 
-  // FIX: ลบ Logic การ setFieldsValue ออกจาก useEffect เพื่อแก้ปัญหา Warning
   useEffect(() => {
     fetchDeviceStatusData();
   }, [fetchDeviceStatusData]);
@@ -240,14 +261,19 @@ export default function OnlineDeviceDashboard() {
 
   const handleResetFilters = () => {
     searchForm.resetFields();
-    // Reset แล้วต้อง set ค่า default กลับไปเป็น true ด้วย
     searchForm.setFieldsValue({ isOnline: true });
     fetchDeviceStatusData(1, deviceStatusPagination.pageSize);
   };
 
   const handleManualCheckStatus = async (deviceRecord: DeviceStatusData) => {
-    toast.info(`กำลังตรวจสอบสถานะเครื่อง ${deviceRecord.DeviceID}...`);
+    toast.info("กำลังตรวจสอบสถานะเครื่อง " + deviceRecord.DeviceID + "...");
     setTimeout(() => {
+      setStatusModal({
+        open: true,
+        type: "success",
+        title: "ตรวจสอบสำเร็จ",
+        message: "อุปกรณ์หมายเลข " + deviceRecord.DeviceID + " สถานะปกติ",
+      });
       toast.success("ตรวจสอบเรียบร้อย: สถานะปกติ");
     }, 1500);
   };
@@ -382,9 +408,10 @@ export default function OnlineDeviceDashboard() {
           </Tag>
           {record.OnlineTime && (
             <Tooltip
-              title={`อัปเดตล่าสุด: ${dayjs(record.OnlineTime).format(
-                "DD/MM/YYYY HH:mm:ss",
-              )}`}
+              title={
+                "อัปเดตล่าสุด: " +
+                dayjs(record.OnlineTime).format("DD/MM/YYYY HH:mm:ss")
+              }
             >
               <Text type="secondary" style={{ fontSize: 10, cursor: "help" }}>
                 <ClockCircleOutlined /> {dayjs(record.OnlineTime).fromNow()}
@@ -418,7 +445,7 @@ export default function OnlineDeviceDashboard() {
               width: "100%",
               textAlign: "center",
               border: isLoggedIn
-                ? `1px solid ${token.colorPrimary}`
+                ? "1px solid " + token.colorPrimary
                 : undefined,
             }}
           >
@@ -427,9 +454,13 @@ export default function OnlineDeviceDashboard() {
           </Tag>
           {(isLoggedIn ? record.LoginTime : record.LogoutTime) && (
             <Tooltip
-              title={`${isLoggedIn ? "เข้าใช้งาน" : "ออกระบบ"}: ${dayjs(
-                isLoggedIn ? record.LoginTime! : record.LogoutTime!,
-              ).format("DD/MM/YYYY HH:mm:ss")}`}
+              title={
+                (isLoggedIn ? "เข้าใช้งาน" : "ออกระบบ") +
+                ": " +
+                dayjs(
+                  isLoggedIn ? record.LoginTime! : record.LogoutTime!,
+                ).format("DD/MM/YYYY HH:mm:ss")
+              }
             >
               <Text type="secondary" style={{ fontSize: 10, cursor: "help" }}>
                 {dayjs(
@@ -484,7 +515,7 @@ export default function OnlineDeviceDashboard() {
       label: (
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <FilterFilled style={{ color: token.colorPrimary }} />
-          <Text strong style={{ fontSize: 16 }}>
+          <Text strong style={{ fontSize: 14 }}>
             ตัวกรองข้อมูลขั้นสูง (Filter)
           </Text>
         </div>
@@ -494,10 +525,17 @@ export default function OnlineDeviceDashboard() {
           form={searchForm}
           layout="vertical"
           onFinish={handleSearchSubmit}
-          // FIX: กำหนดค่าเริ่มต้นให้กับ Form ที่นี่ เพื่อให้ UI แสดงผลถูกต้องทันทีที่ Render
           initialValues={{ isOnline: true }}
         >
-          {/* 2 Columns Grid for Filters */}
+          <Flex align="center" gap={8} style={{ marginBottom: 16 }}>
+            <FilterFilled
+              style={{ fontSize: "1rem", color: token.colorPrimary }}
+            />
+            <Text strong style={{ fontSize: "1rem", fontWeight: 600 }}>
+              ตัวกรอง
+            </Text>
+          </Flex>
+
           <Row gutter={[24, 16]}>
             <Col xs={24} md={12}>
               <Form.Item
@@ -544,11 +582,6 @@ export default function OnlineDeviceDashboard() {
                   <Space>
                     <AppstoreOutlined />
                     <span>ชื่อแอปพลิเคชัน (App Name)</span>
-                    <Tooltip title="กรองเฉพาะชื่อแอปที่ต้องการ">
-                      <InfoCircleOutlined
-                        style={{ color: token.colorTextTertiary }}
-                      />
-                    </Tooltip>
                   </Space>
                 }
                 name="appName"
@@ -652,7 +685,7 @@ export default function OnlineDeviceDashboard() {
                 onClick={handleResetFilters}
                 size="large"
               >
-                ล้างค่า
+                ล้างข้อมูล
               </Button>
             </Col>
             <Col>
@@ -662,7 +695,7 @@ export default function OnlineDeviceDashboard() {
                 icon={<SearchOutlined />}
                 size="large"
               >
-                ค้นหาข้อมูล
+                ค้นหา
               </Button>
             </Col>
           </Row>
@@ -680,105 +713,62 @@ export default function OnlineDeviceDashboard() {
           paddingBottom: 32,
         }}
       >
-        {/* --- Header Section --- */}
-        <div
-          style={{
-            marginBottom: 24,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            flexWrap: "wrap",
-            gap: 16,
-          }}
-        >
-          <div>
-            <Title
-              level={3}
-              style={{
-                margin: 0,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
-              <GlobalOutlined style={{ color: token.colorPrimary }} />
-              ตรวจสอบสถานะอุปกรณ์
-            </Title>
-            <Text type="secondary">
-              ติดตามสถานะการเชื่อมต่อ (ออนไลน์/ออฟไลน์) และการใช้งาน
-              (เข้าสู่ระบบ/ออกจากระบบ) ของเครื่อง POS แบบเรียลไทม์
-            </Text>
-          </div>
-          <Space direction="vertical" align="end" size={0}>
-            <Tag
-              icon={<SyncOutlined spin={isFetchingDeviceStatus} />}
-              color={isFetchingDeviceStatus ? "processing" : "default"}
-            >
-              {isFetchingDeviceStatus ? "กำลังอัปเดตข้อมูล..." : "ข้อมูลล่าสุด"}
-            </Tag>
-            <Text type="secondary" style={{ fontSize: 11 }}>
-              อัปเดตเมื่อ: {dayjs().format("HH:mm:ss")}
-            </Text>
-          </Space>
-        </div>
+        <HeaderBar
+          icon={<GlobalOutlined />}
+          title="ตรวจสอบสถานะอุปกรณ์"
+          subTitle="ติดตามสถานะการเชื่อมต่อ (ออนไลน์/ออฟไลน์) และการใช้งาน (เข้าสู่ระบบ/ออกจากระบบ) ของเครื่อง POS แบบเรียลไทม์"
+          extra={
+            <Space direction="vertical" align="end" size={0}>
+              <Tag
+                icon={<SyncOutlined spin={isFetchingDeviceStatus} />}
+                color={isFetchingDeviceStatus ? "processing" : "default"}
+              >
+                {isFetchingDeviceStatus
+                  ? "กำลังอัปเดตข้อมูล..."
+                  : "ข้อมูลล่าสุด"}
+              </Tag>
+              <Text type="secondary" style={{ fontSize: 11 }}>
+                อัปเดตเมื่อ: {dayjs().format("HH:mm:ss")}
+              </Text>
+            </Space>
+          }
+        />
 
-        {/* --- Summary Cards (Overview) --- */}
-        <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+        <Row gutter={[16, 16]} style={{ marginBottom: 24, marginTop: 24 }}>
           <Col xs={24} sm={8}>
-            <Card
-              style={{
-                borderRadius: 16,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-              }}
-            >
-              <Statistic
-                title="อุปกรณ์ทั้งหมด"
-                value={deviceStatusPagination.total}
-                prefix={<DesktopOutlined />}
-                suffix="เครื่อง"
-                valueStyle={{ fontWeight: 700 }}
-              />
-            </Card>
+            <SummaryCard
+              title="อุปกรณ์ทั้งหมด"
+              value={summaryStatistics.totalDevices}
+              unit="เครื่อง"
+              icon={<DesktopOutlined />}
+              isLoading={isFetchingDeviceStatus}
+            />
           </Col>
           <Col xs={24} sm={8}>
-            <Card
-              style={{
-                borderRadius: 16,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-              }}
-            >
-              <Statistic
-                title="ออนไลน์พร้อมใช้งาน"
-                value={summaryStatistics.onlineCount}
-                prefix={<WifiOutlined />}
-                suffix="เครื่อง"
-                valueStyle={{ color: token.colorSuccess, fontWeight: 700 }}
-              />
-            </Card>
+            <SummaryCard
+              title="ออนไลน์พร้อมใช้งาน"
+              value={summaryStatistics.onlineCount}
+              unit="เครื่อง"
+              icon={<WifiOutlined />}
+              color={token.colorSuccess}
+              isLoading={isFetchingDeviceStatus}
+            />
           </Col>
           <Col xs={24} sm={8}>
-            <Card
-              style={{
-                borderRadius: 16,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-              }}
-            >
-              <Statistic
-                title="กำลังใช้งาน (Active)"
-                value={summaryStatistics.loginCount}
-                prefix={<ThunderboltFilled />}
-                suffix="เครื่อง"
-                valueStyle={{ color: token.colorPrimary, fontWeight: 700 }}
-              />
-            </Card>
+            <SummaryCard
+              title="กำลังใช้งาน (Active)"
+              value={summaryStatistics.loginCount}
+              unit="เครื่อง"
+              icon={<ThunderboltFilled />}
+              color={token.colorPrimary}
+              isLoading={isFetchingDeviceStatus}
+            />
           </Col>
         </Row>
 
-        {/* --- Filter Section (Enhanced with Collapse) --- */}
         <div style={{ marginBottom: 24 }}>
-          {/* Added destroyInactivePanel={false} to keep form mounted */}
           <Collapse
-            defaultActiveKey={[]}
+            defaultActiveKey={["1"]}
             ghost
             expandIconPosition="end"
             items={collapseItems}
@@ -792,14 +782,42 @@ export default function OnlineDeviceDashboard() {
           />
         </div>
 
-        {/* --- Table Section --- */}
         <Card
+          styles={{ body: { padding: 16 } }}
           style={{
             borderRadius: 16,
             boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
             overflow: "hidden",
+            borderColor: token.colorBorderSecondary,
           }}
         >
+          <Flex
+            justify="space-between"
+            align="center"
+            style={{ marginBottom: 16 }}
+          >
+            <Space>
+              <UnorderedListOutlined style={{ fontSize: "1rem" }} />
+              <Text strong style={{ fontSize: "1rem" }}>
+                รายการอุปกรณ์
+              </Text>
+            </Space>
+            <Space>
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={() =>
+                  fetchDeviceStatusData(
+                    deviceStatusPagination.current,
+                    deviceStatusPagination.pageSize,
+                  )
+                }
+                loading={isFetchingDeviceStatus}
+              >
+                รีเฟรช
+              </Button>
+            </Space>
+          </Flex>
+
           <Table
             columns={tableColumns}
             dataSource={deviceStatusList}
@@ -835,6 +853,14 @@ export default function OnlineDeviceDashboard() {
           />
         </Card>
       </div>
+
+      <StatusModalComponent
+        open={statusModal.open}
+        type={statusModal.type}
+        title={statusModal.title}
+        message={statusModal.message}
+        onClose={() => setStatusModal((prev) => ({ ...prev, open: false }))}
+      />
     </DashboardLayout>
   );
 }
