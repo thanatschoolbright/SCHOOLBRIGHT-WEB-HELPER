@@ -23,6 +23,7 @@ import {
   Card,
   Col,
   Divider,
+  Empty,
   Flex,
   Input,
   Modal,
@@ -32,7 +33,7 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SchoolDetail } from "../types/bypass.types";
 import { BYPASS_TARGETS } from "../utils/bypass-targets";
@@ -68,6 +69,21 @@ const BypassSelectionModal = ({
   const { token } = theme.useToken();
   const { modal } = App.useApp();
   const [systemSearchText, setSystemSearchText] = useState("");
+  const [isGuideVisible, setIsGuideVisible] = useState(true);
+
+  useEffect(() => {
+    const hiddenUntil = localStorage.getItem("bypass_guide_hidden_until");
+    if (hiddenUntil && new Date().getTime() < parseInt(hiddenUntil, 10)) {
+      setIsGuideVisible(false);
+    }
+  }, []);
+
+  const handleCloseGuide = () => {
+    const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+    const expiryTime = new Date().getTime() + sevenDaysInMs;
+    localStorage.setItem("bypass_guide_hidden_until", expiryTime.toString());
+    setIsGuideVisible(false);
+  };
 
   const isDarkModeActive = useMemo(
     () => token.colorBgBase !== "#ffffff",
@@ -154,132 +170,149 @@ const BypassSelectionModal = ({
 
   const renderBypassCards = (targetKeys: string[]) => (
     <Flex vertical gap={24}>
-      {targetKeys.map((targetKey) => {
-        const targetConfiguration = BYPASS_TARGETS[targetKey];
-        if (!targetConfiguration) {
-          return null;
-        }
+      {targetKeys.length === 0 ? (
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description={
+            <Text type="secondary">{translate("bypass_page.no_data")}</Text>
+          }
+          style={{ margin: "40px 0" }}
+        />
+      ) : (
+        targetKeys.map((targetKey) => {
+          const targetConfiguration = BYPASS_TARGETS[targetKey];
+          if (!targetConfiguration) {
+            return null;
+          }
 
-        return (
-          <Card
-            key={targetKey}
-            variant="borderless"
-            style={{
-              background: token.colorFillAlter,
-              borderRadius: 24,
-            }}
-            styles={{ body: { padding: 32 } }}
-          >
-            <Flex vertical gap={24}>
-              <Flex justify="space-between" align="start">
-                <Flex gap={20}>
-                  <Flex
-                    justify="center"
-                    align="center"
-                    style={{
-                      width: 56,
-                      height: 56,
-                      borderRadius: 16,
-                      fontSize: 28,
-                      background: token.colorBgContainer,
-                      color: token.colorPrimary,
-                    }}
-                  >
-                    {targetIconMap[targetKey] || <GlobalOutlined />}
-                  </Flex>
-                  <Flex vertical gap={6}>
-                    <Flex align="center" gap={12}>
-                      <Title level={4} style={{ margin: 0, fontWeight: 700 }}>
-                        {translate(`bypass_page.target_labels.${targetKey}`) ||
-                          targetConfiguration.label}
-                      </Title>
-                      {targetKey === "bus" && (
-                        <Tag color="cyan" bordered={false}>
-                          {translate("bypass_page.selection_modal.new_system")}
-                        </Tag>
-                      )}
+          return (
+            <Card
+              key={targetKey}
+              variant="borderless"
+              style={{
+                background: token.colorFillAlter,
+                borderRadius: 24,
+              }}
+              styles={{ body: { padding: 32 } }}
+            >
+              <Flex vertical gap={24}>
+                <Flex justify="space-between" align="start">
+                  <Flex gap={20}>
+                    <Flex
+                      justify="center"
+                      align="center"
+                      style={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: 16,
+                        fontSize: 28,
+                        background: token.colorBgContainer,
+                        color: token.colorPrimary,
+                      }}
+                    >
+                      {targetIconMap[targetKey] || <GlobalOutlined />}
                     </Flex>
-                    <Text type="secondary" style={{ fontSize: 14 }}>
-                      {targetDescriptionMap[targetKey]}
-                    </Text>
+                    <Flex vertical gap={6}>
+                      <Flex align="center" gap={12}>
+                        <Title level={4} style={{ margin: 0, fontWeight: 700 }}>
+                          {translate(
+                            `bypass_page.target_labels.${targetKey}`,
+                          ) || targetConfiguration.label}
+                        </Title>
+                        {targetKey === "bus" && (
+                          <Tag color="cyan" bordered={false}>
+                            {translate(
+                              "bypass_page.selection_modal.new_system",
+                            )}
+                          </Tag>
+                        )}
+                      </Flex>
+                      <Text type="secondary" style={{ fontSize: 14 }}>
+                        {targetDescriptionMap[targetKey]}
+                      </Text>
+                    </Flex>
                   </Flex>
+                  <Tooltip title={targetDescriptionMap[targetKey]}>
+                    <InfoCircleOutlined
+                      style={{ color: token.colorTextQuaternary }}
+                    />
+                  </Tooltip>
                 </Flex>
-                <Tooltip title={targetDescriptionMap[targetKey]}>
-                  <InfoCircleOutlined
-                    style={{ color: token.colorTextQuaternary }}
-                  />
-                </Tooltip>
-              </Flex>
 
-              <Row gutter={[16, 16]}>
-                {Object.entries(targetConfiguration.environments).map(
-                  ([environmentKey, environmentConfiguration]) => {
-                    const isProductionEnvironment =
-                      environmentKey === "production";
-                    const isPostgresEnvironment =
-                      environmentKey === "postgresql";
+                <Row gutter={[16, 16]}>
+                  {Object.entries(targetConfiguration.environments).map(
+                    ([environmentKey, environmentConfiguration]) => {
+                      const isProductionEnvironment =
+                        environmentKey === "production";
+                      const isPostgresEnvironment =
+                        environmentKey === "postgresql";
 
-                    return (
-                      <Col xs={12} sm={8} key={environmentKey}>
-                        <Tooltip
-                          title={environmentDescriptionMap[environmentKey]}
-                        >
-                          <Button
-                            block
-                            size="large"
-                            type={
-                              isProductionEnvironment
-                                ? "primary"
-                                : isPostgresEnvironment
-                                  ? "default"
-                                  : "default"
-                            }
-                            icon={
-                              isPostgresEnvironment ? (
-                                <PostgresElephantIcon />
-                              ) : (
-                                <ArrowRightOutlined />
-                              )
-                            }
-                            iconPosition="end"
-                            onClick={() => onSelect(targetKey, environmentKey)}
-                            style={{
-                              height: 54,
-                              borderRadius: 16,
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              fontWeight: 800,
-                              fontSize: 14,
-                              letterSpacing: "0.5px",
-                              fontFamily: "'Segoe UI', Roboto, sans-serif",
-                              boxShadow: isProductionEnvironment
-                                ? `0 4px 12px ${token.colorPrimary}40`
-                                : isPostgresEnvironment
-                                  ? "0 4px 12px rgba(51, 103, 145, 0.3)"
-                                  : "none",
-                              backgroundColor: isPostgresEnvironment
-                                ? "#336791"
-                                : undefined,
-                              color: isPostgresEnvironment ? "#fff" : undefined,
-                              border: isPostgresEnvironment
-                                ? "none"
-                                : undefined,
-                            }}
+                      return (
+                        <Col xs={12} sm={8} key={environmentKey}>
+                          <Tooltip
+                            title={environmentDescriptionMap[environmentKey]}
                           >
-                            {environmentNameMap[environmentKey] ||
-                              environmentConfiguration.label}
-                          </Button>
-                        </Tooltip>
-                      </Col>
-                    );
-                  },
-                )}
-              </Row>
-            </Flex>
-          </Card>
-        );
-      })}
+                            <Button
+                              block
+                              size="large"
+                              type={
+                                isProductionEnvironment
+                                  ? "primary"
+                                  : isPostgresEnvironment
+                                    ? "default"
+                                    : "default"
+                              }
+                              icon={
+                                isPostgresEnvironment ? (
+                                  <PostgresElephantIcon />
+                                ) : (
+                                  <ArrowRightOutlined />
+                                )
+                              }
+                              iconPosition="end"
+                              onClick={() =>
+                                onSelect(targetKey, environmentKey)
+                              }
+                              style={{
+                                height: 54,
+                                borderRadius: 16,
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                fontWeight: 800,
+                                fontSize: 14,
+                                letterSpacing: "0.5px",
+                                fontFamily: "'Segoe UI', Roboto, sans-serif",
+                                boxShadow: isProductionEnvironment
+                                  ? `0 4px 12px ${token.colorPrimary}40`
+                                  : isPostgresEnvironment
+                                    ? "0 4px 12px rgba(51, 103, 145, 0.3)"
+                                    : "none",
+                                backgroundColor: isPostgresEnvironment
+                                  ? "#336791"
+                                  : undefined,
+                                color: isPostgresEnvironment
+                                  ? "#fff"
+                                  : undefined,
+                                border: isPostgresEnvironment
+                                  ? "none"
+                                  : undefined,
+                              }}
+                            >
+                              {environmentNameMap[environmentKey] ||
+                                environmentConfiguration.label}
+                            </Button>
+                          </Tooltip>
+                        </Col>
+                      );
+                    },
+                  )}
+                </Row>
+              </Flex>
+            </Card>
+          );
+        })
+      )}
     </Flex>
   );
 
@@ -511,30 +544,48 @@ const BypassSelectionModal = ({
               <Divider style={{ margin: 0 }} />
             </Flex>
 
-            <Alert
-              message={
-                <Text strong style={{ fontSize: 18 }}>
-                  {translate("bypass_page.selection_modal.guide_title")}
-                </Text>
-              }
-              description={
-                <Flex vertical gap={10} style={{ marginTop: 12 }}>
-                  <Text style={{ fontSize: 15 }}>
-                    {translate("bypass_page.selection_modal.guide_1")}
-                  </Text>
-                  <Text style={{ fontSize: 15 }}>
-                    {translate("bypass_page.selection_modal.guide_2")}
-                  </Text>
-                  <Text style={{ fontSize: 15 }}>
-                    {translate("bypass_page.selection_modal.guide_3")}
-                  </Text>
-                </Flex>
-              }
-              type="info"
-              showIcon
-              icon={<InfoCircleOutlined style={{ fontSize: 28 }} />}
-              style={{ borderRadius: 24, padding: 24 }}
-            />
+            {isGuideVisible && (
+              <Alert
+                message={
+                  <Flex align="center" justify="space-between">
+                    <Text strong style={{ fontSize: 18 }}>
+                      {translate("bypass_page.selection_modal.guide_title")}
+                    </Text>
+                    <Text
+                      type="secondary"
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: token.colorError,
+                      }}
+                    >
+                      {translate(
+                        "bypass_page.selection_modal.guide_close_warning",
+                      )}
+                    </Text>
+                  </Flex>
+                }
+                description={
+                  <Flex vertical gap={10} style={{ marginTop: 12 }}>
+                    <Text style={{ fontSize: 15 }}>
+                      {translate("bypass_page.selection_modal.guide_1")}
+                    </Text>
+                    <Text style={{ fontSize: 15 }}>
+                      {translate("bypass_page.selection_modal.guide_2")}
+                    </Text>
+                    <Text style={{ fontSize: 15 }}>
+                      {translate("bypass_page.selection_modal.guide_3")}
+                    </Text>
+                  </Flex>
+                }
+                type="info"
+                showIcon
+                closable
+                onClose={handleCloseGuide}
+                icon={<InfoCircleOutlined style={{ fontSize: 28 }} />}
+                style={{ borderRadius: 24, padding: 24 }}
+              />
+            )}
 
             <Flex vertical gap={56}>
               <Flex vertical gap={24}>

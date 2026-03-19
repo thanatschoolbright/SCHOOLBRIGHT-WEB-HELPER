@@ -495,7 +495,8 @@
       "group_core": "CORE SYSTEMS",
       "group_secondary": "SECONDARY SYSTEMS",
       "system_list_title": "Accessible Systems",
-      "search_system_placeholder": "Search system name (e.g., Exam, System...)"
+      "search_system_placeholder": "Search system name (e.g., Exam, System...)",
+      "guide_close_warning": "If you close this guide, it will not be shown again for 7 days."
     },
     "target_labels": {
       "system": "System Management",

@@ -495,7 +495,8 @@
       "group_core": "ระบบหลัก",
       "group_secondary": "ระบบรอง",
       "system_list_title": "รายการระบบที่เข้าถึงได้",
-      "search_system_placeholder": "ค้นหาชื่อระบบ (เช่น การจัดการสอบ, System...)"
+      "search_system_placeholder": "ค้นหาชื่อระบบ (เช่น การจัดการสอบ, System...)",
+      "guide_close_warning": "หากคุณปิดคู่มือนี้ ระบบจะไม่แสดงให้เห็นอีกเป็นเวลา 7 วัน"
     },
     "target_labels": {
       "system": "ระบบจัดการหลัก (System)",
