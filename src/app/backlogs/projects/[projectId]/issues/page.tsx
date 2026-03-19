@@ -164,7 +164,10 @@ const IssueDetailModal: React.FC<{
               {issue.issueType?.name || "N/A"}
             </Tag>
           </Descriptions.Item>
-          <Descriptions.Item label="หัวข้องาน" span={2}>
+          <Descriptions.Item
+            label="หัวข้องาน"
+            span={{ xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }}
+          >
             <Text strong>{issue.summary}</Text>
           </Descriptions.Item>
           <Descriptions.Item label="สถานะ">
