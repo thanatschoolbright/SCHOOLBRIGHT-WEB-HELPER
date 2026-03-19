@@ -143,18 +143,13 @@ const BypassSelectionModal = ({
           return null;
         }
 
-        const isExamDisabled = targetKey === "exam";
-
         return (
           <Card
             key={targetKey}
             variant="borderless"
             style={{
-              background: isExamDisabled
-                ? token.colorFillTertiary
-                : token.colorFillAlter,
+              background: token.colorFillAlter,
               borderRadius: 24,
-              opacity: isExamDisabled ? 0.6 : 1,
             }}
             styles={{ body: { padding: 32 } }}
           >
@@ -170,9 +165,7 @@ const BypassSelectionModal = ({
                       borderRadius: 16,
                       fontSize: 28,
                       background: token.colorBgContainer,
-                      color: isExamDisabled
-                        ? token.colorTextDisabled
-                        : token.colorPrimary,
+                      color: token.colorPrimary,
                     }}
                   >
                     {targetIconMap[targetKey] || <GlobalOutlined />}
@@ -188,18 +181,9 @@ const BypassSelectionModal = ({
                           {translate("bypass_page.selection_modal.new_system")}
                         </Tag>
                       )}
-                      {isExamDisabled && (
-                        <Tag color="warning" bordered={false}>
-                          {translate("bypass_page.selection_modal.maintenance")}
-                        </Tag>
-                      )}
                     </Flex>
                     <Text type="secondary" style={{ fontSize: 14 }}>
-                      {isExamDisabled
-                        ? translate(
-                            "bypass_page.selection_modal.maintenance_desc",
-                          )
-                        : targetDescriptionMap[targetKey]}
+                      {targetDescriptionMap[targetKey]}
                     </Text>
                   </Flex>
                 </Flex>
@@ -242,7 +226,6 @@ const BypassSelectionModal = ({
                             }
                             iconPosition="end"
                             onClick={() => onSelect(targetKey, environmentKey)}
-                            disabled={isExamDisabled}
                             style={{
                               height: 54,
                               borderRadius: 16,
@@ -361,6 +344,22 @@ const BypassSelectionModal = ({
                 >
                   {school.company_name}
                 </Text>
+
+                <Flex justify="center" style={{ marginTop: 24 }}>
+                  <img
+                    src="/photo/undraw/undraw_secure-password_9qv4.svg"
+                    alt="Access Secure"
+                    style={{
+                      width: "100%",
+                      maxWidth: 240,
+                      height: "auto",
+                      opacity: 0.85,
+                      filter: isDarkModeActive
+                        ? "brightness(0.8) contrast(1.2)"
+                        : "none",
+                    }}
+                  />
+                </Flex>
               </Flex>
 
               <Divider style={{ margin: "12px 0" }} />

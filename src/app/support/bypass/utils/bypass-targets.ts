@@ -138,11 +138,15 @@ export const BYPASS_TARGETS: Record<string, BypassTarget> = {
     environments: {
       production: {
         label: "Production",
-        url: "https://exam.schoolbright.co/home/getToken?token=",
+        url: "https://exam.schoolbright.co/ByPass?token=",
+      },
+      postgresql: {
+        label: "POSTGRESQL",
+        url: "https://pgsql-exam.schoolbright.co/ByPass?token=",
       },
       development: {
         label: "Development",
-        url: "https://dev-exam.schoolbright.co/home/getToken?token=",
+        url: "https://exam-dev.schoolbright.co/ByPass?token=",
       },
     },
   },
