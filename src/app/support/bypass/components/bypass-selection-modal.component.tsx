@@ -12,6 +12,7 @@ import {
   InfoCircleOutlined,
   ReadOutlined,
   RestOutlined,
+  SearchOutlined,
   SmileOutlined,
   WalletOutlined,
 } from "@ant-design/icons";
@@ -23,6 +24,7 @@ import {
   Col,
   Divider,
   Flex,
+  Input,
   Modal,
   Row,
   Tag,
@@ -30,7 +32,7 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SchoolDetail } from "../types/bypass.types";
 import { BYPASS_TARGETS } from "../utils/bypass-targets";
@@ -65,6 +67,7 @@ const BypassSelectionModal = ({
   const { t: translate } = useTranslation("translate");
   const { token } = theme.useToken();
   const { modal } = App.useApp();
+  const [systemSearchText, setSystemSearchText] = useState("");
 
   const isDarkModeActive = useMemo(
     () => token.colorBgBase !== "#ffffff",
@@ -125,14 +128,28 @@ const BypassSelectionModal = ({
     [translate],
   );
 
+  const filterSystemKeys = (keys: string[]) => {
+    if (!systemSearchText) return keys;
+    return keys.filter((key) => {
+      const label = (
+        translate(`bypass_page.target_labels.${key}`) ||
+        BYPASS_TARGETS[key].label
+      ).toLowerCase();
+      const description = (targetDescriptionMap[key] || "").toLowerCase();
+      const search = systemSearchText.toLowerCase();
+      return label.includes(search) || description.includes(search);
+    });
+  };
+
   const coreSystemKeys = useMemo(
-    () => ["system", "academic", "accounting", "canteen"],
-    [],
+    () => filterSystemKeys(["system", "academic", "accounting", "canteen"]),
+    [systemSearchText, translate, targetDescriptionMap],
   );
 
   const secondarySystemKeys = useMemo(
-    () => ["bus", "kindergarten", "activity", "exam", "library"],
-    [],
+    () =>
+      filterSystemKeys(["bus", "kindergarten", "activity", "exam", "library"]),
+    [systemSearchText, translate, targetDescriptionMap],
   );
 
   const renderBypassCards = (targetKeys: string[]) => (
@@ -455,6 +472,45 @@ const BypassSelectionModal = ({
           }}
         >
           <Flex vertical gap={48}>
+            <Flex vertical gap={24}>
+              <Row gutter={[24, 24]} align="middle">
+                <Col xs={24} lg={8}>
+                  <Flex align="center" gap={12}>
+                    <div
+                      style={{
+                        width: 8,
+                        height: 24,
+                        borderRadius: 4,
+                        background: token.colorPrimary,
+                      }}
+                    />
+                    <Title level={4} style={{ margin: 0, fontWeight: 800 }}>
+                      {translate(
+                        "bypass_page.selection_modal.system_list_title",
+                      )}
+                    </Title>
+                  </Flex>
+                </Col>
+                <Col xs={24} lg={16}>
+                  <Input
+                    placeholder={translate(
+                      "bypass_page.selection_modal.search_system_placeholder",
+                    )}
+                    prefix={<SearchOutlined style={{ opacity: 0.5 }} />}
+                    size="large"
+                    style={{
+                      borderRadius: 16,
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                    }}
+                    value={systemSearchText}
+                    onChange={(e) => setSystemSearchText(e.target.value)}
+                    allowClear
+                  />
+                </Col>
+              </Row>
+              <Divider style={{ margin: 0 }} />
+            </Flex>
+
             <Alert
               message={
                 <Text strong style={{ fontSize: 18 }}>

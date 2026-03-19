@@ -493,7 +493,9 @@
       "maintenance_desc": "สภาพแวดล้อมของระบบกำลังอยู่ระหว่างการอัปเกรด จะกลับมาเปิดให้บริการเร็วๆ นี้",
       "new_system": "ระบบใหม่",
       "group_core": "ระบบหลัก",
-      "group_secondary": "ระบบรอง"
+      "group_secondary": "ระบบรอง",
+      "system_list_title": "รายการระบบที่เข้าถึงได้",
+      "search_system_placeholder": "ค้นหาชื่อระบบ (เช่น การจัดการสอบ, System...)"
     },
     "target_labels": {
       "system": "ระบบจัดการหลัก (System)",

@@ -493,7 +493,9 @@
       "maintenance_desc": "System environment is being upgraded. Services will resume shortly.",
       "new_system": "NEW SYSTEM",
       "group_core": "CORE SYSTEMS",
-      "group_secondary": "SECONDARY SYSTEMS"
+      "group_secondary": "SECONDARY SYSTEMS",
+      "system_list_title": "Accessible Systems",
+      "search_system_placeholder": "Search system name (e.g., Exam, System...)"
     },
     "target_labels": {
       "system": "System Management",
