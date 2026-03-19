@@ -478,6 +478,7 @@
     "server_config_not_found": "Server configuration not found",
     "copy_link": "Copy Link",
     "copy_token": "Copy Token",
+    "no_data": "No systems found matching your search",
     "selection_modal": {
       "access_title": "Institutional Access",
       "access_subtitle": "Select the subsystem to bypass for this institution:",
