@@ -499,6 +499,7 @@ export default function SignInPage() {
                       fontSize: "17px",
                       background: "#f8fafc",
                       border: "1.5px solid #e2e8f0",
+                      color: "#1e293b", // Force Black Text
                     }}
                   />
                 </Form.Item>
@@ -529,6 +530,7 @@ export default function SignInPage() {
                       fontSize: "17px",
                       background: "#f8fafc",
                       border: "1.5px solid #e2e8f0",
+                      color: "#1e293b", // Force Black Text
                     }}
                   />
                 </Form.Item>
