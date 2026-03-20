@@ -9,6 +9,10 @@ export const BYPASS_TARGETS: Record<string, BypassTarget> = {
         label: "Production",
         url: "https://system.schoolbright.co/BypassSuperAdmin.aspx?q=",
       },
+      postgresql: {
+        label: "POSTGRESQL",
+        url: "https://pg-system.schoolbright.co/BypassSuperAdmin.aspx?q=",
+      },
       staging: {
         label: "Beta / Staging",
         url: "https://beta.schoolbright.co/BypassSuperAdmin.aspx?q=",
