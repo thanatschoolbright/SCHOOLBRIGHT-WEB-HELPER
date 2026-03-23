@@ -56,8 +56,6 @@ import {
   WidthType,
 } from "docx";
 import { saveAs } from "file-saver";
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -515,7 +513,10 @@ export default function ReleaseNotesPage() {
   /**
    * ส่งออกไฟล์ PDF มาตรฐาน IPO
    */
-  const requestExportPDF = (record: GitHubReleaseItem) => {
+  const requestExportPDF = async (record: GitHubReleaseItem) => {
+    // @ts-ignore
+    const { jsPDF } = await import("jspdf/dist/jspdf.es.min.js");
+    const { default: autoTable } = await import("jspdf-autotable");
     const doc = new jsPDF();
 
     // Embed and set Thai fonts
