@@ -250,58 +250,94 @@ const BypassSelectionModal = ({
                       return (
                         <Col xs={12} sm={8} key={environmentKey}>
                           <Tooltip
-                            title={environmentDescriptionMap[environmentKey]}
+                            title={
+                              <Flex vertical gap={4}>
+                                <Text strong style={{ color: "inherit" }}>
+                                  {environmentDescriptionMap[environmentKey]}
+                                </Text>
+                                <Text
+                                  style={{
+                                    fontSize: 11,
+                                    color: "rgba(255, 255, 255, 0.8)",
+                                    wordBreak: "break-all",
+                                  }}
+                                >
+                                  {environmentConfiguration.url}
+                                  {environmentConfiguration.extendPath || ""}
+                                </Text>
+                              </Flex>
+                            }
                           >
-                            <Button
-                              block
-                              size="large"
-                              type={
-                                isProductionEnvironment
-                                  ? "primary"
-                                  : isPostgresEnvironment
-                                    ? "default"
-                                    : "default"
-                              }
-                              icon={
-                                isPostgresEnvironment ? (
-                                  <PostgresElephantIcon />
-                                ) : (
-                                  <ArrowRightOutlined />
-                                )
-                              }
-                              iconPosition="end"
-                              onClick={() =>
-                                onSelect(targetKey, environmentKey)
-                              }
-                              style={{
-                                height: 54,
-                                borderRadius: 16,
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                fontWeight: 800,
-                                fontSize: 14,
-                                letterSpacing: "0.5px",
-                                fontFamily: "'Segoe UI', Roboto, sans-serif",
-                                boxShadow: isProductionEnvironment
-                                  ? `0 4px 12px ${token.colorPrimary}40`
-                                  : isPostgresEnvironment
-                                    ? "0 4px 12px rgba(51, 103, 145, 0.3)"
-                                    : "none",
-                                backgroundColor: isPostgresEnvironment
-                                  ? "#336791"
-                                  : undefined,
-                                color: isPostgresEnvironment
-                                  ? "#fff"
-                                  : undefined,
-                                border: isPostgresEnvironment
-                                  ? "none"
-                                  : undefined,
-                              }}
-                            >
-                              {environmentNameMap[environmentKey] ||
-                                environmentConfiguration.label}
-                            </Button>
+                            <Flex vertical gap={4}>
+                              <Button
+                                block
+                                size="large"
+                                type={
+                                  isProductionEnvironment
+                                    ? "primary"
+                                    : isPostgresEnvironment
+                                      ? "default"
+                                      : "default"
+                                }
+                                icon={
+                                  isPostgresEnvironment ? (
+                                    <PostgresElephantIcon />
+                                  ) : (
+                                    <ArrowRightOutlined />
+                                  )
+                                }
+                                iconPosition="end"
+                                onClick={() =>
+                                  onSelect(targetKey, environmentKey)
+                                }
+                                style={{
+                                  height: 54,
+                                  borderRadius: 16,
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  fontWeight: 800,
+                                  fontSize: 14,
+                                  letterSpacing: "0.5px",
+                                  fontFamily: "'Segoe UI', Roboto, sans-serif",
+                                  boxShadow: isProductionEnvironment
+                                    ? `0 4px 12px ${token.colorPrimary}40`
+                                    : isPostgresEnvironment
+                                      ? "0 4px 12px rgba(51, 103, 145, 0.3)"
+                                      : "none",
+                                  backgroundColor: isPostgresEnvironment
+                                    ? "#336791"
+                                    : undefined,
+                                  color: isPostgresEnvironment
+                                    ? "#fff"
+                                    : undefined,
+                                  border: isPostgresEnvironment
+                                    ? "none"
+                                    : undefined,
+                                }}
+                              >
+                                {environmentNameMap[environmentKey] ||
+                                  environmentConfiguration.label}
+                              </Button>
+                              <Text
+                                ellipsis={{
+                                  tooltip: environmentConfiguration.url,
+                                }}
+                                type="secondary"
+                                style={{
+                                  fontSize: 10,
+                                  textAlign: "center",
+                                  padding: "0 8px",
+                                  opacity: 0.7,
+                                  fontFamily: "monospace",
+                                }}
+                              >
+                                {environmentConfiguration.url
+                                  .replace("https://", "")
+                                  .split("/")[0] ||
+                                  environmentConfiguration.url}
+                              </Text>
+                            </Flex>
                           </Tooltip>
                         </Col>
                       );
