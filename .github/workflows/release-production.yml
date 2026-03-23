@@ -29,7 +29,7 @@ jobs:
   # 1. Pre-flight Checks
   # ============================================
   pre_flight_checks:
-    name: 🔍 Pre-flight Checks
+    name: Pre-flight Checks
     runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
     timeout-minutes: 5
     environment: production
@@ -56,14 +56,27 @@ jobs:
           echo "ref=${REF}" >> $GITHUB_OUTPUT
           echo "sha=${SHA}" >> $GITHUB_OUTPUT
 
-      - name: Validate Directorys
+      - name: Validate Deploy Directory
         run: mkdir -p "${{ env.DEPLOY_PATH }}"
 
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## Pre-flight Checks" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Parameter | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| Trigger | \`${{ github.event_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Actor | \`${{ github.actor }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit SHA | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deploy Path | \`${{ env.DEPLOY_PATH }}\` |" >> $GITHUB_STEP_SUMMARY
+
   # ============================================
-  # 3. Build on GitHub Cloud
+  # 2. Build
   # ============================================
   build:
-    name: 🔨 Build on GitHub
+    name: Build
     runs-on: ubuntu-latest
     needs: [pre_flight_checks]
     if: |
@@ -85,7 +98,7 @@ jobs:
       - name: Install Dependencies
         run: npm ci --prefer-offline --no-audit
 
-      - name: Generate Prisma Client (Build Time)
+      - name: Generate Prisma Client
         run: |
           if [ -f "prisma/schema.prisma" ]; then npx prisma generate --schema=prisma/schema.prisma; fi
           if [ -f "prisma/timesheet/schema.prisma" ]; then npx prisma generate --schema=prisma/timesheet/schema.prisma; fi
@@ -93,8 +106,7 @@ jobs:
       - name: Build Application
         run: npm run build
 
-      # ✅ Pack ไฟล์เป็นก้อนเดียว (Tarball)
-      - name: 📦 Pack Artifacts
+      - name: Pack Artifacts
         run: |
           tar -czf artifact.tar.gz .next public package.json package-lock.json next.config.mjs prisma
 
@@ -105,11 +117,23 @@ jobs:
           retention-days: 1
           path: artifact.tar.gz
 
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## Build" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Parameter | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| Node.js Version | \`${{ env.NODE_VERSION }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Artifact Name | \`${{ env.ARTIFACT_NAME }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit SHA | \`${{ needs.pre_flight_checks.outputs.deployment_sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Artifact Retention | \`1 day\` |" >> $GITHUB_STEP_SUMMARY
+
   # ============================================
-  # 4. Deploy to Production (Self-hosted)
+  # 3. Deploy to Production
   # ============================================
   deploy:
-    name: 🚀 Deploy to Production
+    name: Deploy to Production
     runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
     needs: [pre_flight_checks, build]
     environment:
@@ -119,58 +143,47 @@ jobs:
     steps:
       - name: Prepare Deployment Directory
         run: |
-          echo "🔧 Cleaning: ${{ env.DEPLOY_PATH }}"
+          echo "Cleaning deployment path: ${{ env.DEPLOY_PATH }}"
           sudo mkdir -p "${{ env.DEPLOY_PATH }}"
-
-          # เปลี่ยนเจ้าของชั่วคราวให้ Runner เขียนไฟล์ได้
-          echo "🔐 Granting write access to runner..."
           sudo chown -R $USER:$USER "${{ env.DEPLOY_PATH }}"
-
-          # ล้างไฟล์เก่าทิ้ง
           cd "${{ env.DEPLOY_PATH }}"
           rm -rf *
 
-      # ✅ แยก Step ออกมาถูกต้องแล้ว
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.DEPLOY_PATH }}
 
-      # ✅ แตกไฟล์ Tarball
-      - name: 📦 Extract Artifacts
+      - name: Extract Artifacts
         run: |
           cd "${{ env.DEPLOY_PATH }}"
-          echo "📂 Extracting artifact..."
+          echo "Extracting artifact archive..."
           tar -xzf artifact.tar.gz
           rm artifact.tar.gz
 
-          # ตรวจสอบทันทีว่า .next มาจริงไหม
           if [ -d ".next" ]; then
-             echo "✅ .next folder found!"
+            echo ".next directory verified."
           else
-             echo "❌ Error: .next folder is missing!"
-             exit 1
+            echo "ERROR: .next directory is missing after extraction."
+            exit 1
           fi
 
-      - name: Install Deps & Regenerate Prisma
+      - name: Install Production Dependencies
         run: |
           cd "${{ env.DEPLOY_PATH }}"
 
-          echo "📦 Installing Prod Dependencies..."
-          # ✅ ใช้ --legacy-peer-deps แก้ปัญหา ESLint Conflict
+          echo "Installing production dependencies..."
           npm ci --omit=dev --legacy-peer-deps --prefer-offline --no-audit
 
-          echo "🔧 Installing Prisma CLI..."
-          # ✅ ลง Prisma แยกเพื่อให้ npx หา version เจอ
+          echo "Installing Prisma CLI..."
           npm install --no-save --legacy-peer-deps prisma
 
-          echo "⚙️ Regenerating Prisma (Server OS)..."
+          echo "Regenerating Prisma client for target OS..."
           if [ -f "prisma/schema.prisma" ]; then npx prisma generate --schema=prisma/schema.prisma; fi
           if [ -f "prisma/timesheet/schema.prisma" ]; then npx prisma generate --schema=prisma/timesheet/schema.prisma; fi
 
-          echo "🔐 Setting Permissions for Service..."
-          # ✅ ตั้ง Owner เป็น root ให้ตรงกับ Service File ของคุณ
+          echo "Setting file permissions..."
           sudo chown -R root:root "${{ env.DEPLOY_PATH }}"
           sudo chmod -R 755 "${{ env.DEPLOY_PATH }}"
 
@@ -179,64 +192,98 @@ jobs:
           sudo systemctl restart sb-web-helper.service
           sleep 5
           if sudo systemctl is-active --quiet sb-web-helper.service; then
-            echo "✅ Service Active"
+            echo "Service is active."
           else
-            echo "❌ Service Failed"
+            echo "ERROR: Service failed to start."
             sudo journalctl -u sb-web-helper.service -n 20 --no-pager
             exit 1
           fi
 
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## Deploy to Production" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Parameter | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deploy Path | \`${{ env.DEPLOY_PATH }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Artifact | \`${{ env.ARTIFACT_NAME }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deployment Ref | \`${{ needs.pre_flight_checks.outputs.deployment_ref }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | \`sb-web-helper.service\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment URL | https://sb-helper.schoolbright.co |" >> $GITHUB_STEP_SUMMARY
+
   # ============================================
-  # 5. Verification
+  # 4. Verification
   # ============================================
   verify:
-    name: ✅ Verify
+    name: Verify
     runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
     needs: deploy
     steps:
-      - name: Check HTTP
+      - name: HTTP Health Check
+        id: health
         run: |
           HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}\n" http://localhost:3000 || echo "FAILED")
-          if [ "$HTTP_STATUS" == "200" ]; then echo "✅ OK"; else echo "⚠️ Status: $HTTP_STATUS"; fi
+          echo "status=${HTTP_STATUS}" >> $GITHUB_OUTPUT
+          if [ "$HTTP_STATUS" == "200" ]; then
+            echo "Health check passed. HTTP 200."
+          else
+            echo "Health check returned: ${HTTP_STATUS}"
+          fi
+
+      - name: Job Summary
+        if: always()
+        run: |
+          HTTP_STATUS="${{ steps.health.outputs.status }}"
+          if [ "$HTTP_STATUS" == "200" ]; then
+            RESULT="PASSED"
+          else
+            RESULT="FAILED (HTTP ${HTTP_STATUS})"
+          fi
+
+          echo "## Verification" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Result |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| HTTP Health Check | \`${RESULT}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Endpoint | \`http://localhost:3000\` |" >> $GITHUB_STEP_SUMMARY
 
   # ============================================
-  # 6. Deployment Summary
+  # 5. Deployment Summary
   # ============================================
   summary:
-    name: 📝 Deployment Summary
+    name: Deployment Summary
     runs-on: ubuntu-latest
     needs: [pre_flight_checks, build, deploy, verify]
     if: always()
     steps:
-      - name: Generate Summary Table
+      - name: Generate Summary Report
         run: |
-          # กำหนด Emoji ตามสถานะของ Job
-          get_status_emoji() {
+          get_status_label() {
             case "$1" in
-              success) echo "✅ Success" ;;
-              failure) echo "❌ Failed" ;;
-              cancelled) echo "🚫 Cancelled" ;;
-              skipped) echo "⏭️ Skipped" ;;
-              *) echo "❓ Unknown" ;;
+              success)   echo "SUCCESS" ;;
+              failure)   echo "FAILED" ;;
+              cancelled) echo "CANCELLED" ;;
+              skipped)   echo "SKIPPED" ;;
+              *)         echo "UNKNOWN" ;;
             esac
           }
 
-          PRE_FLIGHT=$(get_status_emoji "${{ needs.pre_flight_checks.result }}")
-          BUILD=$(get_status_emoji "${{ needs.build.result }}")
-          DEPLOY=$(get_status_emoji "${{ needs.deploy.result }}")
-          VERIFY=$(get_status_emoji "${{ needs.verify.result }}")
+          PRE_FLIGHT=$(get_status_label "${{ needs.pre_flight_checks.result }}")
+          BUILD=$(get_status_label "${{ needs.build.result }}")
+          DEPLOY=$(get_status_label "${{ needs.deploy.result }}")
+          VERIFY=$(get_status_label "${{ needs.verify.result }}")
 
-          # เขียน Markdown ลงใน $GITHUB_STEP_SUMMARY
-          echo "## 🚀 Production Deployment Report" >> $GITHUB_STEP_SUMMARY
+          echo "## Production Deployment Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Job Name | Status | Details |" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status | Details |" >> $GITHUB_STEP_SUMMARY
           echo "| :--- | :--- | :--- |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🔍 Pre-flight Checks | $PRE_FLIGHT | Ref: \`${{ needs.pre_flight_checks.outputs.deployment_ref }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🛡️ Quality Gates | $QUALITY | Lint & Unit Tests |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🔨 Build Artifact | $BUILD | Node v${{ env.NODE_VERSION }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🚀 Production Deploy | $DEPLOY | Path: \`${{ env.DEPLOY_PATH }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| ✅ Health Check | $VERIFY | URL: [schoolbright.co](https://sb-helper.schoolbright.co) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Pre-flight Checks | \`${PRE_FLIGHT}\` | Ref: \`${{ needs.pre_flight_checks.outputs.deployment_ref }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build Artifact | \`${BUILD}\` | Node v${{ env.NODE_VERSION }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Production Deploy | \`${DEPLOY}\` | Path: \`${{ env.DEPLOY_PATH }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Health Check | \`${VERIFY}\` | https://sb-helper.schoolbright.co |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
-          echo "**Triggered by:** @${{ github.actor }} via \`${{ github.event_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Deployment Time:** $(date '+%Y-%m-%d %H:%M:%S') (UTC)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** \`${{ github.actor }}\` via \`${{ github.event_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployment Time:** $(date '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
