@@ -188,166 +188,166 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
       input={{ autoComplete: "off" }}
     >
       <App>
-        {!isMounted ? (
-          <div style={{ visibility: "hidden" }}>{children}</div>
-        ) : (
         <div
-          className="ant-theme-root"
+          className={isMounted ? "ant-theme-root" : undefined}
           style={
-            {
-              "--primary": BRAND_COLORS.primary,
-              "--bg-layout": palette.bgLayout,
-              "--border": palette.border,
-              "--text-main": palette.textMain,
-              "--glass-bg": isDark
-                ? "rgba(15, 23, 42, 0.7)"
-                : "rgba(255, 255, 255, 0.7)",
-              "--card-glass-bg": isDark
-                ? "rgba(15, 23, 42, 0.65)"
-                : "rgba(255, 255, 255, 0.65)",
-              "--modal-mask-bg": isDark
-                ? "rgba(0, 0, 0, 0.6)"
-                : "rgba(0, 0, 0, 0.45)",
-              "--scroll-thumb": isDark ? "#1E293B" : "#CBD5E1",
-              "--scroll-thumb-hover": isDark ? "#334155" : "#94A3B8",
-              "--modal-bg": isDark ? "#1E293B" : "#FFFFFF",
-            } as React.CSSProperties
+            isMounted
+              ? ({
+                  "--primary": BRAND_COLORS.primary,
+                  "--bg-layout": palette.bgLayout,
+                  "--border": palette.border,
+                  "--text-main": palette.textMain,
+                  "--glass-bg": isDark
+                    ? "rgba(15, 23, 42, 0.7)"
+                    : "rgba(255, 255, 255, 0.7)",
+                  "--card-glass-bg": isDark
+                    ? "rgba(15, 23, 42, 0.65)"
+                    : "rgba(255, 255, 255, 0.65)",
+                  "--modal-mask-bg": isDark
+                    ? "rgba(0, 0, 0, 0.6)"
+                    : "rgba(0, 0, 0, 0.45)",
+                  "--scroll-thumb": isDark ? "#1E293B" : "#CBD5E1",
+                  "--scroll-thumb-hover": isDark ? "#334155" : "#94A3B8",
+                  "--modal-bg": isDark ? "#1E293B" : "#FFFFFF",
+                } as React.CSSProperties)
+              : { visibility: "hidden" }
           }
         >
-          <style jsx global>{`
-            :root {
-              --font-family: ${FONTS[themeFont]};
-            }
-            body {
-              background-color: var(--bg-layout);
-              color: var(--text-main);
-              font-family: var(--font-family);
-              -webkit-font-smoothing: antialiased;
-              transition:
-                background-color 0.4s ease,
-                color 0.4s ease;
-              margin: 0;
-            }
+          {isMounted && (
+            <style jsx global>{`
+              :root {
+                --font-family: ${FONTS[themeFont]};
+              }
+              body {
+                background-color: var(--bg-layout);
+                color: var(--text-main);
+                font-family: var(--font-family);
+                -webkit-font-smoothing: antialiased;
+                transition:
+                  background-color 0.4s ease,
+                  color 0.4s ease;
+                margin: 0;
+              }
 
-            /* Modern Glassmorphism Utilities */
-            .ant-card,
-            .glass-card {
-              background: var(--card-glass-bg) !important;
-              backdrop-filter: blur(1rem) saturate(180%) !important;
-              -webkit-backdrop-filter: blur(1rem) saturate(180%) !important;
-              border: 1px solid var(--border);
-              box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.03) !important;
-            }
-            .dark .ant-card,
-            .dark .glass-card {
-              border-color: var(--border) !important;
-              box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.2) !important;
-            }
+              /* Modern Glassmorphism Utilities */
+              .ant-card,
+              .glass-card {
+                background: var(--card-glass-bg) !important;
+                backdrop-filter: blur(1rem) saturate(180%) !important;
+                -webkit-backdrop-filter: blur(1rem) saturate(180%) !important;
+                border: 1px solid var(--border);
+                box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.03) !important;
+              }
+              .dark .ant-card,
+              .dark .glass-card {
+                border-color: var(--border) !important;
+                box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.2) !important;
+              }
 
-            .glass-header {
-              background: var(--glass-bg) !important;
-              backdrop-filter: blur(1rem) saturate(180%);
-              -webkit-backdrop-filter: blur(1rem) saturate(180%);
-              border-bottom: 1px solid var(--border);
-            }
+              .glass-header {
+                background: var(--glass-bg) !important;
+                backdrop-filter: blur(1rem) saturate(180%);
+                -webkit-backdrop-filter: blur(1rem) saturate(180%);
+                border-bottom: 1px solid var(--border);
+              }
 
-            /* Custom Transitions for Premium Feel */
-            .ant-btn,
-            .ant-card,
-            .ant-input,
-            .ant-select {
-              transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-            }
+              /* Custom Transitions for Premium Feel */
+              .ant-btn,
+              .ant-card,
+              .ant-input,
+              .ant-select {
+                transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+              }
 
-            /* Scrollbar Refinement */
-            ::-webkit-scrollbar {
-              width: 10px;
-              height: 10px;
-            }
-            ::-webkit-scrollbar-track {
-              background: transparent;
-            }
-            ::-webkit-scrollbar-thumb {
-              background: var(--scroll-thumb);
-              border-radius: 10px;
-              border: 3px solid var(--bg-layout);
-            }
-            ::-webkit-scrollbar-thumb:hover {
-              background: var(--scroll-thumb-hover);
-            }
+              /* Scrollbar Refinement */
+              ::-webkit-scrollbar {
+                width: 10px;
+                height: 10px;
+              }
+              ::-webkit-scrollbar-track {
+                background: transparent;
+              }
+              ::-webkit-scrollbar-thumb {
+                background: var(--scroll-thumb);
+                border-radius: 10px;
+                border: 3px solid var(--bg-layout);
+              }
+              ::-webkit-scrollbar-thumb:hover {
+                background: var(--scroll-thumb-hover);
+              }
 
-            /* Global Component Polishing */
-            .ant-table-wrapper .ant-table {
-              background: transparent !important;
-            }
-            .ant-table-wrapper .ant-table-container {
-              border: 1px solid var(--border) !important;
-              border-radius: 16px !important;
-              overflow: hidden;
-            }
+              /* Global Component Polishing */
+              .ant-table-wrapper .ant-table {
+                background: transparent !important;
+              }
+              .ant-table-wrapper .ant-table-container {
+                border: 1px solid var(--border) !important;
+                border-radius: 16px !important;
+                overflow: hidden;
+              }
 
-            /* Premium Modal Glassmorphism & Perfect Centering */
-            .ant-modal {
-              padding-top: 40px !important;
-              padding-bottom: 40px !important;
-            }
-            .ant-modal-mask {
-              backdrop-filter: blur(1rem) !important;
-              background: var(--modal-mask-bg) !important;
-            }
+              /* Premium Modal Glassmorphism & Perfect Centering */
+              .ant-modal {
+                padding-top: 40px !important;
+                padding-bottom: 40px !important;
+              }
+              .ant-modal-mask {
+                backdrop-filter: blur(1rem) !important;
+                background: var(--modal-mask-bg) !important;
+              }
 
-            .dark .ant-modal-content {
-              background: #1e293b !important;
-              border: 1px solid #334155;
-              box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5) !important;
-            }
+              .dark .ant-modal-content {
+                background: #1e293b !important;
+                border: 1px solid #334155;
+                box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5) !important;
+              }
 
-            /* Fix Body Scroll Lock for Modal and Drawer */
-            body.ant-scrolling-effect {
-              overflow: hidden !important;
-              touch-action: none;
-              -ms-touch-action: none;
-            }
+              /* Fix Body Scroll Lock for Modal and Drawer */
+              body.ant-scrolling-effect {
+                overflow: hidden !important;
+                touch-action: none;
+                -ms-touch-action: none;
+              }
 
-            /* Apple Store Connect Style Drawer */
-            .ant-drawer-mask {
-              background: transparent !important;
-              backdrop-filter: none !important;
-            }
-            .ant-drawer-content-wrapper {
-              padding: 24px !important;
-              box-sizing: border-box !important;
-              background: transparent !important;
-              box-shadow: none !important;
-            }
-            .ant-drawer-content {
-              border-radius: 20px !important;
-              overflow: hidden !important;
-              background: #fcfcfd !important;
-              backdrop-filter: none !important;
-              -webkit-backdrop-filter: none !important;
-              border: 1px solid #e2e8f0 !important;
-              box-shadow: none !important;
-            }
-            .dark .ant-drawer-content {
-              background: #1c1c1e !important;
-              border-color: #334155 !important;
-              box-shadow: none !important;
-            }
-            .ant-drawer-header-title {
-              display: flex !important;
-              flex-direction: row-reverse !important;
-              justify-content: space-between !important;
-              width: 100% !important;
-            }
-            .ant-drawer-close {
-              margin-inline-end: 0 !important;
-              margin-inline-start: auto !important;
-            }
-          `}</style>
+              /* Apple Store Connect Style Drawer */
+              .ant-drawer-mask {
+                background: transparent !important;
+                backdrop-filter: none !important;
+              }
+              .ant-drawer-content-wrapper {
+                padding: 24px !important;
+                box-sizing: border-box !important;
+                background: transparent !important;
+                box-shadow: none !important;
+              }
+              .ant-drawer-content {
+                border-radius: 20px !important;
+                overflow: hidden !important;
+                background: #fcfcfd !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                border: 1px solid #e2e8f0 !important;
+                box-shadow: none !important;
+              }
+              .dark .ant-drawer-content {
+                background: #1c1c1e !important;
+                border-color: #334155 !important;
+                box-shadow: none !important;
+              }
+              .ant-drawer-header-title {
+                display: flex !important;
+                flex-direction: row-reverse !important;
+                justify-content: space-between !important;
+                width: 100% !important;
+              }
+              .ant-drawer-close {
+                margin-inline-end: 0 !important;
+                margin-inline-start: auto !important;
+              }
+            `}</style>
+          )}
           {children}
         </div>
-        )}
       </App>
     </ConfigProvider>
   );
