@@ -211,16 +211,16 @@ export default function SidebarContent({
   const sidebarTheme = {
     token: {
       fontFamily: token.fontFamily,
-      colorBgContainer: "transparent", // Make background transparent
+      colorBgContainer: token.colorBgContainer, // Solid background
     },
     components: {
       Menu: {
-        itemActiveBg: "rgba(255, 255, 255, 0.1)",
-        itemHoverBg: "rgba(255, 255, 255, 0.05)",
-        itemSelectedBg: `linear-gradient(90deg, ${token.colorPrimary}20 0%, ${token.colorPrimary}05 100%)`,
+        itemActiveBg: token.colorFillTertiary,
+        itemHoverBg: token.colorFillQuaternary,
+        itemSelectedBg: token.colorPrimaryBgHover,
         itemSelectedColor: token.colorPrimary,
-        itemMarginInline: 12,
-        itemBorderRadius: 12,
+        itemMarginInline: 16,
+        itemBorderRadius: 10,
         subMenuItemBg: "transparent",
       },
     },
@@ -364,12 +364,24 @@ export default function SidebarContent({
 
   return (
     <ConfigProvider theme={sidebarTheme}>
+      <style>{`
+        .sidebar-menu-wrapper .ant-menu-item-selected {
+          border: 1px solid ${token.colorPrimary} !important;
+          background-color: ${token.colorPrimaryBg} !important;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+          font-weight: 600 !important;
+        }
+        .sidebar-menu-wrapper .ant-menu-item {
+          transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+        }
+      `}</style>
       <Flex
+        className="sidebar-menu-wrapper"
         vertical
         style={{
           height: "100vh",
           padding: "24px 0",
-          background: "transparent",
+          background: token.colorBgContainer, // Solid color for clear visibility
         }}
       >
         <Flex
