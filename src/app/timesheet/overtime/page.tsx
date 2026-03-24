@@ -1346,7 +1346,7 @@ const OvertimeManagementPage = () => {
 
         itemsForZip.push({
           employeeCode: empCode,
-          fileName: `OT_${empCode}_${reqName}_${dayjs(data.request_date).format("DD-MM-YYYY")}.pdf`,
+          fileName: `OT_${empCode}_${reqName}_${dayjs(data.request_date).format("DD-MM-YYYY")}_${data.id}.pdf`,
           element: [tempDiv, evidenceDiv],
         });
       }
