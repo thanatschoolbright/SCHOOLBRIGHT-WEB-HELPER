@@ -4,11 +4,7 @@
 import {
   ArrowLeftOutlined,
   ExclamationCircleOutlined,
-  HistoryOutlined,
-  MailOutlined,
-  SafetyCertificateOutlined,
   SaveOutlined,
-  SearchOutlined,
   SolutionOutlined,
   UserOutlined,
 } from "@ant-design/icons";
@@ -22,7 +18,6 @@ import {
   Modal,
   Row,
   Space,
-  Steps,
   Typography,
   theme,
 } from "antd";
@@ -249,66 +244,6 @@ const UserEditPage = () => {
             </Col>
 
             <Col xs={24} lg={16}>
-              {/* Quick Navigation */}
-              <div
-                className="mb-8 p-4 rounded-2xl sticky top-[80px] z-10 transition-all"
-                style={{
-                  backgroundColor: token.colorBgElevated,
-                  border: `1px solid ${token.colorBorderSecondary}`,
-                  boxShadow: token.boxShadowTertiary,
-                  backdropFilter: "blur(20px)",
-                }}
-              >
-                <div className="flex items-center justify-between mb-4 px-2">
-                  <Typography.Text
-                    strong
-                    className="text-[11px] uppercase tracking-[0.15em]"
-                    style={{ color: token.colorPrimary }}
-                  >
-                    <SearchOutlined className="mr-2" /> Quick Navigation
-                  </Typography.Text>
-                  <Typography.Text
-                    type="secondary"
-                    className="text-[10px] opacity-70"
-                  >
-                    คลิกเพื่อวาร์ปไปยังส่วนต่างๆ
-                  </Typography.Text>
-                </div>
-                <Steps
-                  size="small"
-                  className="px-2"
-                  current={-1}
-                  items={[
-                    { title: "ข้อมูลส่วนตัว", icon: <UserOutlined /> },
-                    { title: "บัญชี/ติดต่อ", icon: <MailOutlined /> },
-                    { title: "การจ้างงาน", icon: <HistoryOutlined /> },
-                    {
-                      title: "หน้าที่/สิทธิ์",
-                      icon: <SafetyCertificateOutlined />,
-                    },
-                  ]}
-                  onChange={(current) => {
-                    const sections = [
-                      "personal",
-                      "account",
-                      "employment",
-                      "responsibility",
-                    ];
-                    const element = document.getElementById(
-                      `section-${sections[current]}`,
-                    );
-                    if (element) {
-                      const yOffset = -200;
-                      const y =
-                        element.getBoundingClientRect().top +
-                        window.pageYOffset +
-                        yOffset;
-                      window.scrollTo({ top: y, behavior: "smooth" });
-                    }
-                  }}
-                />
-              </div>
-
               <Card
                 variant="borderless"
                 style={{ borderRadius: 16 }}
