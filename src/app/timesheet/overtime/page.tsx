@@ -45,6 +45,7 @@ import {
 } from "chart.js";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
+import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
@@ -1255,6 +1256,8 @@ const OvertimeManagementPage = () => {
             </div>
           </div>
 
+          <!-- แยกหน้าสำหรับหลักฐานการทำงาน -->
+          <div style="page-break-before: always; height: 1px; overflow: hidden;"></div>
           <div class="evidence-page-temp">
             <div style="font-size:16px; font-weight:700; text-align:center; border:2px solid #000; padding:8px; border-radius:4px;">หลักฐานการทำงาน</div>
             <div class="evidence-grid-temp">
