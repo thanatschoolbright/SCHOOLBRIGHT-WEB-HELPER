@@ -1,5 +1,8 @@
 name: HEALTH CHECK - HOURLY
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 on:
     schedule:
         # รันทุกชั่วโมง (0 นาที ของทุกชั่วโมง)

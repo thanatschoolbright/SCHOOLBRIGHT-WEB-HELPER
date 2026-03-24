@@ -1,5 +1,8 @@
 name: NOTIFICATION DISCORD WHO NOT ENTRY TODAY
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 on:
     schedule:
         # รันทุกวันเวลา 11:00 UTC (เท่ากับ 18:00 ประเทศไทย UTC+7)

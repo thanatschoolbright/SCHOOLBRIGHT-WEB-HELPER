@@ -1,5 +1,8 @@
 name: SYSTEM LOG CLEANUP
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 on:
   schedule:
     - cron: "0 2 * * 0" # รันทุกวันอาทิตย์ เวลา 02:00 UTC (เวลาที่ระบบมี load น้อย)  workflow_dispatch: # สามารถรันด้วยตนเองได้
