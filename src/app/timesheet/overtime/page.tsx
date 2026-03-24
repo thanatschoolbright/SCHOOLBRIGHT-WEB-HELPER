@@ -108,6 +108,8 @@ import { useAppSelector } from "@/stores/store";
 import { getUserById, getUserData } from "@helpers/local_storage/user.storage";
 import type { SelectOption, UserProfile } from "@stores/type";
 
+import { useOvertimeStore } from "./_state/overtime-store";
+
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(buddhistEra);
@@ -175,6 +177,19 @@ const OvertimeManagementPage = () => {
   const [overtimeForm] = Form.useForm();
   const authenticationState = useAppSelector((state) => state.callAdminLogin);
 
+  // --- Zustund Store สำหรับจัดการสถานะ Overtime (Refactored) ---
+  const {
+    isBulkDownloading,
+    bulkDownloadProgress,
+    isBulkTrackingModalVisible,
+    bulkTrackingData,
+    setIsBulkDownloading,
+    setBulkDownloadProgress,
+    setIsBulkTrackingModalVisible,
+    setBulkTrackingData,
+    fetchOvertimeDataForBulk,
+  } = useOvertimeStore();
+
   // --- สถานะการแสดงผล UI (Visibility State) ---
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
@@ -183,17 +198,10 @@ const OvertimeManagementPage = () => {
   const [isExportModalVisible, setIsExportModalVisible] = useState(false);
   const [isAnalyticsModalVisible, setIsAnalyticsModalVisible] = useState(false);
   const [isRulesModalVisible, setIsRulesModalVisible] = useState(false);
-  const [isBulkDownloading, setIsBulkDownloading] = useState(false);
-  const [bulkDownloadProgress, setBulkDownloadProgress] = useState(0);
 
   // --- สถานะการส่งคำขอ OT (Submission Tracking) ---
   const [isSubmissionLoading, setIsSubmissionLoading] = useState(false);
   const [currentSubmissionStep, setCurrentSubmissionStep] = useState(0);
-
-  // --- สถานะสำหรับการดาวน์โหลด Bulk (Tracking) ---
-  const [bulkTrackingData, setBulkTrackingData] = useState<any[]>([]);
-  const [isBulkTrackingModalVisible, setIsBulkTrackingModalVisible] =
-    useState(false);
 
   // --- ข้อมูลและผลลัพธ์จาก API (Data State) ---
   const [isLoadingOvertimeData, setIsLoadingOvertimeData] = useState(false);
@@ -1753,8 +1761,6 @@ const OvertimeManagementPage = () => {
             setIsBatchStatusModalVisible={setIsBatchStatusModalVisible}
             requestBatchSendOvertimeMailToHR={requestBatchSendOvertimeMailToHR}
             handleBulkPdfDownloadZip={handleBulkPdfDownloadZip}
-            isBulkDownloading={isBulkDownloading}
-            bulkDownloadProgress={bulkDownloadProgress}
             navigationRouter={navigationRouter}
             setIsAnalyticsModalVisible={setIsAnalyticsModalVisible}
             themeToken={themeToken}
@@ -2031,138 +2037,139 @@ const ActionBarSection = ({
   setIsBatchStatusModalVisible,
   requestBatchSendOvertimeMailToHR,
   handleBulkPdfDownloadZip,
-  isBulkDownloading,
-  bulkDownloadProgress,
   navigationRouter,
   setIsAnalyticsModalVisible,
   themeToken,
-}: any) => (
-  <Card
-    style={{
-      borderRadius: 20,
-      background: `linear-gradient(135deg, ${themeToken.colorPrimary}08 0%, ${themeToken.colorInfo}08 100%)`,
-      border: `1px dashed ${themeToken.colorPrimary}40`,
-      boxShadow: "0 4px 15px rgba(0,0,0,0.02)",
-    }}
-  >
-    {/* ส่วนดำเนินการกับหลายรายการพร้อมกัน (Batch Action Bar) */}
-    <Row gutter={[16, 24]} align="middle">
-      <Col xs={24} lg={16}>
-        <Space wrap size="large">
-          <Badge
-            count={selectedRowKeys.length}
-            style={{
-              backgroundColor: themeToken.colorError,
-              boxShadow: "0 0 0 2px #fff",
-            }}
-          >
-            <Flex
-              align="center"
-              gap={10}
+}: any) => {
+  const { isBulkDownloading, bulkDownloadProgress } = useOvertimeStore();
+  return (
+    <Card
+      style={{
+        borderRadius: 20,
+        background: `linear-gradient(135deg, ${themeToken.colorPrimary}08 0%, ${themeToken.colorInfo}08 100%)`,
+        border: `1px dashed ${themeToken.colorPrimary}40`,
+        boxShadow: "0 4px 15px rgba(0,0,0,0.02)",
+      }}
+    >
+      {/* ส่วนดำเนินการกับหลายรายการพร้อมกัน (Batch Action Bar) */}
+      <Row gutter={[16, 24]} align="middle">
+        <Col xs={24} lg={16}>
+          <Space wrap size="large">
+            <Badge
+              count={selectedRowKeys.length}
               style={{
-                padding: "10px 20px",
-                borderRadius: 12,
-                border: `1px solid ${themeToken.colorBorderSecondary}`,
+                backgroundColor: themeToken.colorError,
+                boxShadow: "0 0 0 2px #fff",
               }}
             >
-              <StarOutlined
-                style={{ color: themeToken.colorWarning, fontSize: 18 }}
-              />
-              <Typography.Text strong>เลือกรายการไว้</Typography.Text>
-            </Flex>
-          </Badge>
+              <Flex
+                align="center"
+                gap={10}
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: 12,
+                  border: `1px solid ${themeToken.colorBorderSecondary}`,
+                }}
+              >
+                <StarOutlined
+                  style={{ color: themeToken.colorWarning, fontSize: 18 }}
+                />
+                <Typography.Text strong>เลือกรายการไว้</Typography.Text>
+              </Flex>
+            </Badge>
 
-          <Button
-            type="primary"
-            ghost
-            icon={<FilePdfOutlined />}
-            onClick={() =>
-              navigationRouter.push(
-                `/timesheet/overtime/preview/bulk?ids=${selectedRowKeys.join(",")}`,
-              )
-            }
-            style={{ borderRadius: 12, height: 44 }}
-          >
-            ดูรายงาน PDF รวม
-          </Button>
+            <Button
+              type="primary"
+              ghost
+              icon={<FilePdfOutlined />}
+              onClick={() =>
+                navigationRouter.push(
+                  `/timesheet/overtime/preview/bulk?ids=${selectedRowKeys.join(",")}`,
+                )
+              }
+              style={{ borderRadius: 12, height: 44 }}
+            >
+              ดูรายงาน PDF รวม
+            </Button>
 
-          <Button
-            type="primary"
-            icon={<CloudDownloadOutlined />}
-            loading={isBulkDownloading}
-            onClick={handleBulkPdfDownloadZip}
-            style={{
-              borderRadius: 12,
-              height: 44,
-              background: themeToken.colorInfo,
-              border: "none",
-            }}
-          >
-            {isBulkDownloading
-              ? `กำลังเตรียมไฟล์ (${bulkDownloadProgress}%)`
-              : "ดาวน์โหลด PDF ทุกคน (.zip)"}
-          </Button>
+            <Button
+              type="primary"
+              icon={<CloudDownloadOutlined />}
+              loading={isBulkDownloading}
+              onClick={handleBulkPdfDownloadZip}
+              style={{
+                borderRadius: 12,
+                height: 44,
+                background: themeToken.colorInfo,
+                border: "none",
+              }}
+            >
+              {isBulkDownloading
+                ? `กำลังเตรียมไฟล์ (${bulkDownloadProgress}%)`
+                : "ดาวน์โหลด PDF ทุกคน (.zip)"}
+            </Button>
 
-          <Button
-            type="primary"
-            icon={<CheckOutlined />}
-            loading={isBatchProcessing}
-            onClick={() => setIsBatchStatusModalVisible(true)}
-            style={{
-              borderRadius: 12,
-              height: 44,
-              background: themeToken.colorSuccess,
-              border: "none",
-            }}
-          >
-            จัดการสถานะกลุ่ม
-          </Button>
+            <Button
+              type="primary"
+              icon={<CheckOutlined />}
+              loading={isBatchProcessing}
+              onClick={() => setIsBatchStatusModalVisible(true)}
+              style={{
+                borderRadius: 12,
+                height: 44,
+                background: themeToken.colorSuccess,
+                border: "none",
+              }}
+            >
+              จัดการสถานะกลุ่ม
+            </Button>
 
-          <Button
-            danger
-            icon={<MailOutlined />}
-            loading={isBatchProcessing}
-            onClick={requestBatchSendOvertimeMailToHR}
-            style={{ borderRadius: 12, height: 44, background: "#fff" }}
-          >
-            ส่งอีเมลเข้า HR
-          </Button>
+            <Button
+              danger
+              icon={<MailOutlined />}
+              loading={isBatchProcessing}
+              onClick={requestBatchSendOvertimeMailToHR}
+              style={{ borderRadius: 12, height: 44, background: "#fff" }}
+            >
+              ส่งอีเมลเข้า HR
+            </Button>
 
-          <Button
-            type="text"
-            danger
-            icon={<CloseOutlined />}
-            onClick={() => {
-              setSelectedRowKeys([]);
-              setProcessedRecordItems(new Set());
-            }}
-            style={{ fontWeight: 600 }}
-          >
-            ยกเลิกการเลือก
-          </Button>
-        </Space>
-      </Col>
+            <Button
+              type="text"
+              danger
+              icon={<CloseOutlined />}
+              onClick={() => {
+                setSelectedRowKeys([]);
+                setProcessedRecordItems(new Set());
+              }}
+              style={{ fontWeight: 600 }}
+            >
+              ยกเลิกการเลือก
+            </Button>
+          </Space>
+        </Col>
 
-      <Col xs={24} lg={8}>
-        <Flex justify="flex-end" gap={16}>
-          <Button
-            icon={<BarChartOutlined />}
-            onClick={() => setIsAnalyticsModalVisible(true)}
-            style={{
-              borderRadius: 12,
-              height: 44,
-              color: themeToken.colorPrimary,
-              borderColor: themeToken.colorPrimary,
-              fontWeight: 600,
-            }}
-          >
-            สถิติและวิเคราะห์
-          </Button>
-        </Flex>
-      </Col>
-    </Row>
-  </Card>
-);
+        <Col xs={24} lg={8}>
+          <Flex justify="flex-end" gap={16}>
+            <Button
+              icon={<BarChartOutlined />}
+              onClick={() => setIsAnalyticsModalVisible(true)}
+              style={{
+                borderRadius: 12,
+                height: 44,
+                color: themeToken.colorPrimary,
+                borderColor: themeToken.colorPrimary,
+                fontWeight: 600,
+              }}
+            >
+              สถิติและวิเคราะห์
+            </Button>
+          </Flex>
+        </Col>
+      </Row>
+    </Card>
+  );
+};
 
 const OvertimeTableSection = ({
   dataSource,
