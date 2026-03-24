@@ -209,6 +209,9 @@ const OvertimeManagementPage = () => {
   const [filterSearchTextValue, setFilterSearchTextValue] = useState("");
   const [filterSelectedMonthValue, setFilterSelectedMonthValue] =
     useState<dayjs.Dayjs | null>(null);
+  const [filterStatusValue, setFilterStatusValue] = useState<string | null>(
+    null,
+  );
 
   // --- สถานะการทำงานแบบกลุ่ม (Batch Processing State) ---
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -374,12 +377,18 @@ const OvertimeManagementPage = () => {
       pageSize?: number;
       filters?: any;
       overtimeId?: string | number;
+      searchText?: string;
+      monthValue?: dayjs.Dayjs | null;
+      statusValue?: string | null;
     }) => {
       const currentPageIndex = requestOptionsParameter?.page ?? 1;
       const currentPageSizeValue =
         requestOptionsParameter?.pageSize ?? paginationState.pageSize;
       const requestFiltersDataValues = requestOptionsParameter?.filters ?? {};
       const targetOvertimeIdentifier = requestOptionsParameter?.overtimeId;
+      const appliedSearchText = requestOptionsParameter?.searchText ?? "";
+      const appliedMonthValue = requestOptionsParameter?.monthValue ?? null;
+      const appliedStatusValue = requestOptionsParameter?.statusValue ?? null;
 
       try {
         setIsLoadingOvertimeData(true);
@@ -393,6 +402,16 @@ const OvertimeManagementPage = () => {
             ? String(parameterUserId)
             : currentAdminIdValue;
 
+        const filterApiParams = {
+          ...(appliedMonthValue
+            ? {
+                from: appliedMonthValue.startOf("month").toISOString(),
+                to: appliedMonthValue.endOf("month").toISOString(),
+              }
+            : {}),
+          ...(appliedStatusValue ? { status: appliedStatusValue } : {}),
+        };
+
         const apiRequestParametersBody = targetOvertimeIdentifier
           ? isBypassUserSettingValue
             ? { id: String(targetOvertimeIdentifier) }
@@ -405,6 +424,7 @@ const OvertimeManagementPage = () => {
                 limit: currentPageSizeValue,
                 offset: (currentPageIndex - 1) * currentPageSizeValue,
                 ...requestFiltersDataValues,
+                ...filterApiParams,
                 ...(parameterUserId
                   ? { request_id: String(parameterUserId) }
                   : {}),
@@ -414,6 +434,7 @@ const OvertimeManagementPage = () => {
                 offset: (currentPageIndex - 1) * currentPageSizeValue,
                 request_id: effectiveRequestId,
                 ...requestFiltersDataValues,
+                ...filterApiParams,
               };
 
         const apiResponseFullPayload = await callApiService.post(
@@ -436,32 +457,19 @@ const OvertimeManagementPage = () => {
 
         if (targetOvertimeIdentifier) return overtimeRecordsListContent;
 
+        // text search คงทำ client-side เพราะ API ไม่รองรับค้นหาด้วยชื่อ
         let filteredOvertimeItemsResultList = overtimeRecordsListContent;
-        if (filterSelectedMonthValue) {
-          const startOfOperatingMonth =
-            filterSelectedMonthValue.startOf("month");
-          const endOfOperatingMonth = filterSelectedMonthValue.endOf("month");
-
-          filteredOvertimeItemsResultList = overtimeRecordsListContent.filter(
-            (item: any) => {
-              if (!item.request_date) return false;
-              const requestDateObject = dayjs(item.request_date);
-              return (
-                requestDateObject.isSameOrAfter(startOfOperatingMonth, "day") &&
-                requestDateObject.isSameOrBefore(endOfOperatingMonth, "day")
-              );
-            },
-          );
-        }
-
-        if (filterSearchTextValue) {
-          const lowerCaseSearchTextString = filterSearchTextValue.toLowerCase();
+        if (appliedSearchText) {
+          const lowerCaseSearchTextString = appliedSearchText.toLowerCase();
           filteredOvertimeItemsResultList =
-            filteredOvertimeItemsResultList.filter((item: any) => {
+            overtimeRecordsListContent.filter((item: any) => {
               const searchFieldValues = [
                 item.id?.toString(),
                 item.requester_id?.toString(),
+                item.requester_name,
+                item.requester_employee_code,
                 item.status,
+                item.reason,
                 item.descriptions
                   ?.map((desc: any) => desc.description)
                   .join(" "),
@@ -499,8 +507,6 @@ const OvertimeManagementPage = () => {
     [
       authenticationState,
       paginationState.pageSize,
-      filterSelectedMonthValue,
-      filterSearchTextValue,
       requestCurrentLocalUserID,
       processAndDisplaySystemError,
     ],
@@ -1693,9 +1699,9 @@ const OvertimeManagementPage = () => {
           setFilterSearchTextValue={setFilterSearchTextValue}
           filterSelectedMonthValue={filterSelectedMonthValue}
           setFilterSelectedMonthValue={setFilterSelectedMonthValue}
+          filterStatusValue={filterStatusValue}
+          setFilterStatusValue={setFilterStatusValue}
           isLoadingOvertimeData={isLoadingOvertimeData}
-          paginationState={paginationState}
-          onTableChange={requestTablePaginationAndFilterDataChange}
           requestOvertimeRequestListData={requestOvertimeRequestListData}
           themeToken={themeToken}
         />
@@ -1834,8 +1840,8 @@ const FilterBarSection = ({
   setFilterSearchTextValue,
   filterSelectedMonthValue,
   setFilterSelectedMonthValue,
-  paginationState,
-  onTableChange,
+  filterStatusValue,
+  setFilterStatusValue,
   requestOvertimeRequestListData,
   isLoadingOvertimeData,
   themeToken,
@@ -1874,7 +1880,12 @@ const FilterBarSection = ({
               onChange={(event) => setFilterSearchTextValue(event.target.value)}
               onKeyDown={(event) =>
                 event.key === "Enter" &&
-                requestOvertimeRequestListData({ page: 1 })
+                requestOvertimeRequestListData({
+                  page: 1,
+                  searchText: filterSearchTextValue,
+                  monthValue: filterSelectedMonthValue,
+                  statusValue: filterStatusValue,
+                })
               }
               style={{ height: 48, borderRadius: 12 }}
               allowClear
@@ -1909,16 +1920,12 @@ const FilterBarSection = ({
               placeholder="ทั้งหมดที่แสดงผล..."
               style={{ width: "100%", height: 48 }}
               allowClear
+              value={filterStatusValue}
               options={OT_STATUS.map((status) => ({
                 label: status.text,
                 value: status.value,
               }))}
-              onChange={(valueValues) =>
-                onTableChange(
-                  { current: 1, pageSize: paginationState.pageSize },
-                  { status: valueValues ? [valueValues] : [] },
-                )
-              }
+              onChange={(value) => setFilterStatusValue(value ?? null)}
             />
           </Flex>
         </Col>
@@ -1930,7 +1937,13 @@ const FilterBarSection = ({
           onClick={() => {
             setFilterSelectedMonthValue(null);
             setFilterSearchTextValue("");
-            requestOvertimeRequestListData({ page: 1 });
+            setFilterStatusValue(null);
+            requestOvertimeRequestListData({
+              page: 1,
+              searchText: "",
+              monthValue: null,
+              statusValue: null,
+            });
           }}
           style={{ borderRadius: 12, height: 45, paddingInline: 24 }}
         >
@@ -1940,7 +1953,14 @@ const FilterBarSection = ({
           type="primary"
           icon={<SearchOutlined />}
           loading={isLoadingOvertimeData}
-          onClick={() => requestOvertimeRequestListData({ page: 1 })}
+          onClick={() =>
+            requestOvertimeRequestListData({
+              page: 1,
+              searchText: filterSearchTextValue,
+              monthValue: filterSelectedMonthValue,
+              statusValue: filterStatusValue,
+            })
+          }
           style={{
             borderRadius: 12,
             height: 45,
