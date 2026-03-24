@@ -26,12 +26,13 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { toast } from "sonner";
 
 const { Title, Text } = Typography;
 
 import PermissionLayout from "@/components/layouts/permission-layout";
+import { StatusModalComponent } from "@/components/modal/status-modal-component";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
 import DashboardLayout from "@components/layouts/backend-layout";
 
@@ -50,6 +51,7 @@ const UserEditPage = () => {
   const { user_id } = useParams();
   const userId = Array.isArray(user_id) ? user_id[0] : user_id;
   const [form] = Form.useForm();
+  const [showSuccess, setShowSuccess] = React.useState(false);
 
   // Zustand States & Actions
   const {
@@ -373,8 +375,7 @@ const UserEditPage = () => {
           };
 
           await updateUser(payload);
-          toast.success("อัปเดตข้อมูลสำเร็จ");
-          router.push("/admin/user-profile");
+          setShowSuccess(true);
         } catch (error: any) {
           showErrorModal(error, "อัปเดตข้อมูลผู้ใช้งาน");
           console.error("onFinish error:", error);
@@ -445,6 +446,17 @@ const UserEditPage = () => {
             </Col>
           </Row>
         </div>
+
+        <StatusModalComponent
+          open={showSuccess}
+          type="success"
+          title="อัปเดตข้อมูลสำเร็จ"
+          message="ข้อมูลผู้ใช้งานถูกบันทึกเข้าสู่ระบบเรียบร้อยแล้ว"
+          onClose={() => {
+            setShowSuccess(false);
+            router.push("/admin/user-profile");
+          }}
+        />
       </DashboardLayout>
     </PermissionLayout>
   );
