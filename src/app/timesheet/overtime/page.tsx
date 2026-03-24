@@ -1055,13 +1055,11 @@ const OvertimeManagementPage = () => {
 
       // 3. วนลูปเรนเดอร์และเตรียมข้อมูลสำหรับ ZIP
       for (const data of dataItems) {
-        const userData = getUserById(data?.requester_id ?? "");
-        const empCode =
-          userData?.employee_code || data?.created_by || "UNKNOWN";
-        const reqName =
-          userData && (userData.firstname || userData.lastname)
-            ? `${userData.firstname ?? ""} ${userData.lastname ?? ""}`.trim()
-            : (data?.requester_id ?? "-");
+        // ดึงข้อมูลจาก Payload ตามโครงสร้าง CURL (data.data[0])
+        const empCode = data?.requester_employee_code || "UNKNOWN";
+        const reqName = data?.requester_name || "-";
+        const position = data?.requester_position || "-";
+        const department = data?.department || "IT";
 
         // คํานวณเวลา Budget
         const totalBudgetHours =
@@ -1091,14 +1089,27 @@ const OvertimeManagementPage = () => {
             ? `${h}:${m.toString().padStart(2, "0")}`
             : "-";
 
-        const firstProof = data.descriptions?.[0]?.proof || {};
+        // ดึงข้อมูลหลักฐานจาก descriptions รายการแรก (มี id 87 ตามตัวอย่าง)
+        const firstDescription = data.descriptions?.[0] || {};
+        const proofData = firstDescription.proof || {};
         const headerDate = data.request_date || data.created_at;
+
+        // ฟังก์ชันช่วยจัดการรูปภาพ (CORS) สำหรับ html2canvas
+        const getProxiedImgHtml = (
+          url: string,
+          className: string = "",
+          style: string = "",
+        ) => {
+          if (!url) return "";
+          // ใช้ proxy หรือ attribute ที่จำเป็นเพื่อให้ html2canvas โหลดรูปข้ามโดเมนได้
+          return `<img src="${url}" class="${className}" style="${style}" crossOrigin="anonymous">`;
+        };
 
         const tempDiv = document.createElement("div");
         tempDiv.className = "ot-print-temp";
         tempDiv.innerHTML = `
           <div class="ot-header-temp">
-            <div class="ot-logo" style="width:140px"><img src="/sb_logo.webp" style="max-height:40px"></div>
+            <div class="ot-logo" style="width:140px"><img src="/sb_logo.webp" style="max-height:40px" crossOrigin="anonymous"></div>
             <div class="ot-doc-title-temp">แบบคำขอทำงานล่วงเวลา (OT)</div>
             <div class="ot-doc-meta-temp">
               <div>ประจำเดือน: ${headerDate ? dayjs(headerDate).locale("th").format("MMMM") : "-"}</div>
@@ -1109,8 +1120,8 @@ const OvertimeManagementPage = () => {
           <div class="ot-info-temp">
             <div style="display:flex"><span class="ot-label-temp">ชื่อ - สกุล:</span><span class="ot-value-temp">${reqName}</span></div>
             <div style="display:flex"><span class="ot-label-temp">รหัสพนักงาน:</span><span class="ot-value-temp">${empCode}</span></div>
-            <div style="display:flex"><span class="ot-label-temp">ตำแหน่ง:</span><span class="ot-value-temp">${userData?.position || "-"}</span></div>
-            <div style="display:flex"><span class="ot-label-temp">ฝ่าย/แผนก:</span><span class="ot-value-temp">${data.department || "IT"}</span></div>
+            <div style="display:flex"><span class="ot-label-temp">ตำแหน่ง:</span><span class="ot-value-temp">${position}</span></div>
+            <div style="display:flex"><span class="ot-label-temp">ฝ่าย/แผนก:</span><span class="ot-value-temp">${department}</span></div>
           </div>
 
           <div style="margin-bottom:12px; padding:8px; border:1px solid #000; border-left:4px solid #000;"><strong>รายละเอียดการทำงานล่วงเวลา</strong></div>
@@ -1165,14 +1176,14 @@ const OvertimeManagementPage = () => {
           <div class="ot-sign-container-temp">
             <div class="ot-sign-box-temp">
               <div class="ot-sign-title-temp">ผู้ขออนุมัติ</div>
-              ${firstProof.signature_1 ? `<img src="${firstProof.signature_1}" style="height:50px">` : `<div style="height:50px"></div>`}
+              ${proofData.signature_1 ? getProxiedImgHtml(proofData.signature_1, "", "height:50px") : `<div style="height:50px"></div>`}
               <div class="ot-sign-line-temp"></div>
               <div>(${reqName})</div>
               <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
             </div>
             <div class="ot-sign-box-temp">
-              <div class="ot-sign-title-temp">ผู้อนุมัติ (หัวหน้างาน)</div>
-              <img src="/signatures/THANAT.png" style="height:50px">
+              <div class="ot-sign-title-temp">ผู้ตรวจสอบ / รับทราบ</div>
+              <img src="/signatures/THANAT.png" style="height:50px" crossOrigin="anonymous">
               <div class="ot-sign-line-temp"></div>
               <div>(หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ)</div>
               <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
@@ -1221,6 +1232,23 @@ const OvertimeManagementPage = () => {
             <div class="ot-summary-temp">
               <div style="margin-left:auto">รวมเวลาปฏิบัติงานจริง: <span style="font-size:16px">${actualDisplay}</span></div>
             </div>
+
+            <div class="ot-sign-container-temp">
+              <div class="ot-sign-box-temp">
+                <div class="ot-sign-title-temp">ผู้ขออนุมัติ</div>
+                ${proofData.signature_1 ? getProxiedImgHtml(proofData.signature_1, "", "height:50px") : `<div style="height:50px"></div>`}
+                <div class="ot-sign-line-temp"></div>
+                <div>(${reqName})</div>
+                <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
+              </div>
+              <div class="ot-sign-box-temp">
+                <div class="ot-sign-title-temp">ผู้ตรวจสอบ / รับทราบ</div>
+                <img src="/signatures/THANAT.png" style="height:50px" crossOrigin="anonymous">
+                <div class="ot-sign-line-temp"></div>
+                <div>(หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ)</div>
+                <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
+              </div>
+            </div>
           </div>
 
           <div class="evidence-page-temp">
@@ -1231,7 +1259,7 @@ const OvertimeManagementPage = () => {
                   (idx) => `
                 <div class="evidence-item-temp">
                   <div style="font-weight:600; margin-bottom:5px;">หลักฐาน #${idx}</div>
-                  ${firstProof[`image_${idx}`] ? `<img src="${firstProof[`image_${idx}`]}" class="evidence-img-temp">` : `<div style="color:#999">ไม่มีรูปภาพ</div>`}
+                  ${proofData[`image_${idx}`] ? getProxiedImgHtml(proofData[`image_${idx}`], "evidence-img-temp") : `<div style="color:#999">ไม่มีรูปภาพ</div>`}
                 </div>
               `,
                 )
