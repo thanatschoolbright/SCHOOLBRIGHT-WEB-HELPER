@@ -976,8 +976,11 @@ const OvertimeManagementPage = () => {
 
     const fetchImageAsBase64 = async (url: string): Promise<string> => {
       try {
-        const proxyUrl = `/api/v1/proxy/image?url=${encodeURIComponent(url)}`;
-        const res = await fetch(proxyUrl);
+        // local paths (public folder) ดึงตรง, external URLs ผ่าน proxy เพื่อแก้ CORS
+        const fetchUrl = url.startsWith("/")
+          ? url
+          : `/api/v1/proxy/image?url=${encodeURIComponent(url)}`;
+        const res = await fetch(fetchUrl);
         const blob = await res.blob();
         return await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
@@ -1068,10 +1071,12 @@ const OvertimeManagementPage = () => {
         .ot-sign-title-temp { font-weight: 600; margin-bottom: 8px; font-size: 12px; }
         .ot-sign-line-temp { border-bottom: 1px dotted #000; margin: 40px auto 4px; width: 85%; }
         .ot-sub-form-temp { margin-top: 20px; border-top: 2px solid #000; padding-top: 16px; }
-        .evidence-page-temp { page-break-before: always; padding: 24px 32px; }
+        .evidence-page-temp { padding: 24px 32px; }
         .evidence-grid-temp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
-        .evidence-item-temp { border: 2px dashed #ccc; border-radius: 8px; padding: 10px; height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .evidence-img-temp { max-width: 100%; max-height: 160px; object-fit: contain; }
+        .evidence-item-temp { border: 2px dashed #ccc; border-radius: 8px; padding: 10px; height: 480px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+        .evidence-label-temp { font-weight: 600; margin-top: 1rem; margin-bottom: 8px; text-align: center; flex-shrink: 0; }
+        .evidence-img-wrapper-temp { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
+        .evidence-img-temp { max-width: 100%; max-height: 100%; object-fit: contain; }
       `;
       container.appendChild(styleElement);
 
@@ -1133,10 +1138,18 @@ const OvertimeManagementPage = () => {
             ? fetchImageAsBase64(proofData.signature_1)
             : Promise.resolve(""),
           fetchImageAsBase64("/signatures/THANAT.png"),
-          proofData.image_1 ? fetchImageAsBase64(proofData.image_1) : Promise.resolve(""),
-          proofData.image_2 ? fetchImageAsBase64(proofData.image_2) : Promise.resolve(""),
-          proofData.image_3 ? fetchImageAsBase64(proofData.image_3) : Promise.resolve(""),
-          proofData.image_4 ? fetchImageAsBase64(proofData.image_4) : Promise.resolve(""),
+          proofData.image_1
+            ? fetchImageAsBase64(proofData.image_1)
+            : Promise.resolve(""),
+          proofData.image_2
+            ? fetchImageAsBase64(proofData.image_2)
+            : Promise.resolve(""),
+          proofData.image_3
+            ? fetchImageAsBase64(proofData.image_3)
+            : Promise.resolve(""),
+          proofData.image_4
+            ? fetchImageAsBase64(proofData.image_4)
+            : Promise.resolve(""),
         ]);
         const evidenceBase64 = [img1Base64, img2Base64, img3Base64, img4Base64];
 
@@ -1225,7 +1238,7 @@ const OvertimeManagementPage = () => {
                 ${thanatBase64 ? `<img src="${thanatBase64}" style="max-height:50px;">` : ""}
               </div>
               <div class="ot-sign-line-temp" style="margin-top:4px;"></div>
-              <div style="font-size:12px">(.......................................................)</div>
+              <div style="font-size:12px">ธนัท พรหมพิริยา</div>
               <div style="font-size:11px">หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ</div>
               <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
             </div>
@@ -1271,7 +1284,7 @@ const OvertimeManagementPage = () => {
               </tbody>
             </table>
             <div class="ot-summary-temp">
-              <div style="margin-left:auto">รวมเวลาปฏิบัติงานจริง: <span style="font-size:16px">${actualDisplay}</span></div>
+              <div style="margin-left:auto">รวมเวลาปฏิบัติงานจริง: <span style="font-size:16px">${actualDisplay}</span> ชั่วโมง</div>
             </div>
 
             <div class="ot-sign-container-temp">
@@ -1312,8 +1325,10 @@ const OvertimeManagementPage = () => {
                 .map(
                   (idx) => `
                 <div class="evidence-item-temp">
-                  <div style="font-weight:600; margin-bottom:5px;">หลักฐาน #${idx + 1}</div>
-                  ${evidenceBase64[idx] ? `<img src="${evidenceBase64[idx]}" class="evidence-img-temp">` : `<div style="color:#999">ไม่มีรูปภาพ</div>`}
+                  <div class="evidence-label-temp">หลักฐาน #${idx + 1}</div>
+                  <div class="evidence-img-wrapper-temp">
+                    ${evidenceBase64[idx] ? `<img src="${evidenceBase64[idx]}" class="evidence-img-temp">` : `<div style="color:#999">ไม่มีรูปภาพ</div>`}
+                  </div>
                 </div>
               `,
                 )
