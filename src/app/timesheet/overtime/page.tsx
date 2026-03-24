@@ -63,6 +63,7 @@ import {
   CheckCircleOutlined,
   CheckOutlined,
   ClockCircleOutlined,
+  CloseCircleOutlined,
   CloseOutlined,
   CloudDownloadOutlined,
   DeleteOutlined,
@@ -71,6 +72,7 @@ import {
   FilePdfOutlined,
   FileSearchOutlined,
   FileTextOutlined,
+  FileZipOutlined,
   FilterOutlined,
   HistoryOutlined,
   LoadingOutlined,
@@ -972,6 +974,21 @@ const OvertimeManagementPage = () => {
       return;
     }
 
+    const fetchImageAsBase64 = async (url: string): Promise<string> => {
+      try {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        return await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      } catch {
+        return "";
+      }
+    };
+
     try {
       setIsBulkDownloading(true);
       setBulkDownloadProgress(0);
@@ -1100,21 +1117,33 @@ const OvertimeManagementPage = () => {
         const proofData = firstDescription.proof || {};
         const headerDate = data.request_date || data.created_at;
 
-        // ฟังก์ชันช่วยจัดการรูปภาพ (CORS) และรอโหลดรูปให้เสร็จ (Async)
-        const getProxiedImgHtml = (
-          url: string,
-          className: string = "",
-          style: string = "",
-        ) => {
-          if (!url) return "";
-          return `<img src="${url}" class="${className}" style="${style}" crossOrigin="anonymous" data-need-load="true">`;
-        };
+        // Pre-fetch รูปภาพทั้งหมดเป็น base64 ก่อนสร้าง HTML (แก้ปัญหา CORS กับ html2canvas)
+        const [
+          logoBase64,
+          sig1Base64,
+          thanatBase64,
+          img1Base64,
+          img2Base64,
+          img3Base64,
+          img4Base64,
+        ] = await Promise.all([
+          fetchImageAsBase64("/sb_logo.webp"),
+          proofData.signature_1
+            ? fetchImageAsBase64(proofData.signature_1)
+            : Promise.resolve(""),
+          fetchImageAsBase64("/signatures/THANAT.png"),
+          proofData.image_1 ? fetchImageAsBase64(proofData.image_1) : Promise.resolve(""),
+          proofData.image_2 ? fetchImageAsBase64(proofData.image_2) : Promise.resolve(""),
+          proofData.image_3 ? fetchImageAsBase64(proofData.image_3) : Promise.resolve(""),
+          proofData.image_4 ? fetchImageAsBase64(proofData.image_4) : Promise.resolve(""),
+        ]);
+        const evidenceBase64 = [img1Base64, img2Base64, img3Base64, img4Base64];
 
         const tempDiv = document.createElement("div");
         tempDiv.className = "ot-print-temp";
         tempDiv.innerHTML = `
           <div class="ot-header-temp">
-            <div class="ot-logo" style="width:140px"><img src="/sb_logo.webp" style="max-height:40px" crossOrigin="anonymous" data-need-load="true"></div>
+            <div class="ot-logo" style="width:140px">${logoBase64 ? `<img src="${logoBase64}" style="max-height:40px">` : ""}</div>
             <div class="ot-doc-title-temp">แบบคำขอทำงานล่วงเวลา (OT)</div>
             <div class="ot-doc-meta-temp">
               <div>ประจำเดือน: ${headerDate ? dayjs(headerDate).locale("th").format("MMMM") : "-"}</div>
@@ -1181,14 +1210,14 @@ const OvertimeManagementPage = () => {
           <div class="ot-sign-container-temp">
             <div class="ot-sign-box-temp">
               <div class="ot-sign-title-temp">ผู้ขออนุมัติ</div>
-              ${proofData.signature_1 ? getProxiedImgHtml(proofData.signature_1, "", "height:50px") : `<div style="height:50px"></div>`}
+              ${sig1Base64 ? `<img src="${sig1Base64}" style="height:50px">` : `<div style="height:50px"></div>`}
               <div class="ot-sign-line-temp"></div>
               <div>(${reqName})</div>
               <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
             </div>
             <div class="ot-sign-box-temp">
               <div class="ot-sign-title-temp">ผู้ตรวจสอบ / รับทราบ</div>
-              <img src="/signatures/THANAT.png" style="height:50px" crossOrigin="anonymous" data-need-load="true">
+              ${thanatBase64 ? `<img src="${thanatBase64}" style="height:50px">` : ""}
               <div class="ot-sign-line-temp"></div>
               <div>(หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ)</div>
               <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
@@ -1241,14 +1270,14 @@ const OvertimeManagementPage = () => {
             <div class="ot-sign-container-temp">
               <div class="ot-sign-box-temp">
                 <div class="ot-sign-title-temp">ผู้ขออนุมัติ</div>
-                ${proofData.signature_1 ? getProxiedImgHtml(proofData.signature_1, "", "height:50px") : `<div style="height:50px"></div>`}
+                ${sig1Base64 ? `<img src="${sig1Base64}" style="height:50px">` : `<div style="height:50px"></div>`}
                 <div class="ot-sign-line-temp"></div>
                 <div>(${reqName})</div>
                 <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
               </div>
               <div class="ot-sign-box-temp">
                 <div class="ot-sign-title-temp">ผู้ตรวจสอบ / รับทราบ</div>
-                <img src="/signatures/THANAT.png" style="height:50px" crossOrigin="anonymous" data-need-load="true">
+                ${thanatBase64 ? `<img src="${thanatBase64}" style="height:50px">` : ""}
                 <div class="ot-sign-line-temp"></div>
                 <div>(หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ)</div>
                 <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
@@ -1261,12 +1290,12 @@ const OvertimeManagementPage = () => {
           <div class="evidence-page-temp">
             <div style="font-size:16px; font-weight:700; text-align:center; border:2px solid #000; padding:8px; border-radius:4px;">หลักฐานการทำงาน</div>
             <div class="evidence-grid-temp">
-              ${[1, 2, 3, 4]
+              ${[0, 1, 2, 3]
                 .map(
                   (idx) => `
                 <div class="evidence-item-temp">
-                  <div style="font-weight:600; margin-bottom:5px;">หลักฐาน #${idx}</div>
-                  ${proofData[`image_${idx}`] ? getProxiedImgHtml(proofData[`image_${idx}`], "evidence-img-temp") : `<div style="color:#999">ไม่มีรูปภาพ</div>`}
+                  <div style="font-weight:600; margin-bottom:5px;">หลักฐาน #${idx + 1}</div>
+                  ${evidenceBase64[idx] ? `<img src="${evidenceBase64[idx]}" class="evidence-img-temp">` : `<div style="color:#999">ไม่มีรูปภาพ</div>`}
                 </div>
               `,
                 )
@@ -1275,20 +1304,6 @@ const OvertimeManagementPage = () => {
           </div>
         `;
         container.appendChild(tempDiv);
-
-        // รอให้รูปภาพทั้งหมดใน tempDiv โหลดเสร็จก่อนไปรายการถัดไป
-        const images = tempDiv.querySelectorAll('img[data-need-load="true"]');
-        const loadPromises = Array.from(images).map((img: any) => {
-          return new Promise((resolve) => {
-            if (img.complete) {
-              resolve(true);
-            } else {
-              img.onload = () => resolve(true);
-              img.onerror = () => resolve(false);
-            }
-          });
-        });
-        await Promise.all(loadPromises);
 
         itemsForZip.push({
           employeeCode: empCode,
@@ -1320,6 +1335,21 @@ const OvertimeManagementPage = () => {
 
           setBulkTrackingData((prev) => {
             const newData = [...prev];
+
+            // ใช้ index จาก callback ร่วมกับ fileName เพื่อระบุแถวที่ถูกต้อง
+            // โดยหาข้อมูลใน newData ที่ตำแหน่ง index นั้นๆ เลย (เพราะลำดับตรงกัน)
+            if (
+              newData[index] &&
+              (newData[index].fileName === fileName || status === "zipping")
+            ) {
+              newData[index] = {
+                ...newData[index],
+                status: status,
+              };
+              return newData;
+            }
+
+            // Fallback เผื่อไว้
             const itemIndex = newData.findIndex((i) => i.fileName === fileName);
 
             if (status === "zipping") {
@@ -1446,7 +1476,7 @@ const OvertimeManagementPage = () => {
               dataSource={bulkTrackingData}
               pagination={false}
               size="small"
-              rowKey="fileName"
+              rowKey="key"
               columns={[
                 {
                   title: "ลำดับ",
