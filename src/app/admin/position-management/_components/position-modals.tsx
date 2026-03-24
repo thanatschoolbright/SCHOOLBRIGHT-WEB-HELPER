@@ -92,7 +92,7 @@ export const PositionModals = () => {
             label="สถานะการใช้งาน"
             valuePropName="checked"
           >
-            <Button.Group>
+            <Space.Compact>
               <Button
                 type={form.getFieldValue("is_active") ? "primary" : "default"}
                 onClick={() => form.setFieldsValue({ is_active: true })}
@@ -108,7 +108,7 @@ export const PositionModals = () => {
               >
                 ปิดใช้งาน
               </Button>
-            </Button.Group>
+            </Space.Compact>
           </Form.Item>
 
           <Flex justify="end" gap={8} style={{ marginTop: 24 }}>
