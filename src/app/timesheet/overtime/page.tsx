@@ -225,8 +225,8 @@ const OvertimeManagementPage = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [isBatchProcessing, setIsBatchProcessing] = useState(false);
   const [processedRecordItems, setProcessedRecordItems] = useState<
-    Set<React.Key>
-  >(new Set());
+    Map<React.Key, "waiting" | "processing" | "completed" | "failed">
+  >(new Map());
   const [selectedBatchStatus, setSelectedBatchStatus] =
     useState<string>("approved");
 
@@ -795,12 +795,23 @@ const OvertimeManagementPage = () => {
       return toast.error("คุณไม่มีสิทธิ์ปรับสถานะ");
 
     setIsBatchProcessing(true);
-    setProcessedRecordItems(new Set());
+    // เริ่มต้นสถานะเป็น waiting สำหรับทุกรายการ
+    const initialProgress = new Map();
+    selectedRowKeys.forEach((key) =>
+      initialProgress.set(key, "waiting" as const),
+    );
+    setProcessedRecordItems(initialProgress);
+
     let successfulOperationsCount = 0;
     let failedOperationsCount = 0;
 
     for (const recordIdentifier of selectedRowKeys) {
       try {
+        // อัปเดตสถานะรายการที่กำลังประมวลผล
+        setProcessedRecordItems((prev) =>
+          new Map(prev).set(recordIdentifier, "processing"),
+        );
+
         const operatingApproverToken = await requestCurrentLocalUserID();
         const apiResponseResultObject = await callApiService.post(
           `/api/v1/timesheet/overtime/change-status?id=${recordIdentifier}`,
@@ -809,18 +820,26 @@ const OvertimeManagementPage = () => {
             updated_by: Number(operatingApproverToken),
           },
         );
+
         if (apiResponseResultObject?.data?.status === 200) {
           successfulOperationsCount++;
-          setProcessedRecordItems(
-            (previousItemsSet) =>
-              new Set([...previousItemsSet, recordIdentifier]),
+          setProcessedRecordItems((prev) =>
+            new Map(prev).set(recordIdentifier, "completed"),
           );
         } else {
           failedOperationsCount++;
+          setProcessedRecordItems((prev) =>
+            new Map(prev).set(recordIdentifier, "failed"),
+          );
         }
       } catch (error) {
         failedOperationsCount++;
+        setProcessedRecordItems((prev) =>
+          new Map(prev).set(recordIdentifier, "failed"),
+        );
       }
+      // ดีเลย์เล็กน้อยเพื่อให้ UI แสดงผลทัน
+      await new Promise((resolve) => setTimeout(resolve, 300));
     }
 
     setIsBatchProcessing(false);
@@ -830,8 +849,7 @@ const OvertimeManagementPage = () => {
       );
       await requestOvertimeRequestListData({ page: paginationState.current });
     }
-    setSelectedRowKeys([]);
-    setProcessedRecordItems(new Set());
+    // ไม่เคลียร์ selectedRowKeys ทันทีเพื่อให้ผู้ใช้เห็นผลลัพธ์ในตาราง Modal
   };
 
   // ส่งอีเมลแจ้งเตือน HR สำหรับคำขอ OT หลายรายการพร้อมกัน (Batch Email)
@@ -1791,6 +1809,10 @@ const OvertimeManagementPage = () => {
             requestBatchApproveOvertimeSubmissions
           }
           batchProcessing={isBatchProcessing}
+          processedRecordItems={processedRecordItems}
+          overtimeDataSource={overtimeDataSource}
+          setSelectedRowKeys={setSelectedRowKeys}
+          setProcessedRecordItems={setProcessedRecordItems}
           themeToken={themeToken}
         />
 
@@ -3143,81 +3165,203 @@ const BatchStatusModalSection = ({
   setBatchSelectedStatus,
   requestBatchApproveOvertimeSubmission,
   batchProcessing,
+  processedRecordItems,
+  overtimeDataSource,
+  setSelectedRowKeys,
+  setProcessedRecordItems,
   themeToken,
-}: any) => (
-  <Modal
-    title={
-      <Space>
-        <ThunderboltOutlined style={{ color: themeToken.colorWarning }} />{" "}
-        เปลี่ยนสถานะรายการที่เลือกพร้อมกัน
-      </Space>
+}: any) => {
+  const selectedRecords = useMemo(() => {
+    return overtimeDataSource.filter((item: any) =>
+      selectedRowKeys.includes(item.id),
+    );
+  }, [selectedRowKeys, overtimeDataSource]);
+
+  const handleClose = () => {
+    setVisible(false);
+    // เคลียร์ข้อมูลเมื่อปิด Modal
+    if (!batchProcessing) {
+      setSelectedRowKeys([]);
+      setProcessedRecordItems(new Map());
     }
-    open={visible}
-    onCancel={() => setVisible(false)}
-    onOk={async () => {
-      await requestBatchApproveOvertimeSubmission(batchSelectedStatus);
-      setVisible(false);
-    }}
-    confirmLoading={batchProcessing}
-    okText="ยืนยันการเปลี่ยนสถานะ"
-    cancelText="ยกเลิก"
-    centered
-    width={500}
-    style={{ borderRadius: 20, overflow: "hidden" }}
-  >
-    {/* Modal สำหรับการเปลี่ยนสถานะแบบกลุ่มพร้อมกันหลายรายการ */}
-    <Flex vertical gap={20} style={{ paddingBlock: 24 }}>
-      <Flex
-        style={{
-          padding: "16px 20px",
-          background: themeToken.colorInfoBg,
-          borderRadius: 12,
-          border: `1px solid ${themeToken.colorInfoBorder}`,
-        }}
-      >
-        <Typography.Text>
-          ท่านกำลังดำเนินการกับคำขอจำนวน{" "}
-          <Typography.Text strong color="primary">
-            {selectedRowKeys.length}
-          </Typography.Text>{" "}
-          รายการที่เลือกไว้
-        </Typography.Text>
-      </Flex>
+  };
 
-      <Flex vertical gap={10}>
-        <Typography.Text strong>
-          เลือกสถานะที่ต้องการปรับปรุงให้เหมือนกัน:
-        </Typography.Text>
-        <Select
-          value={batchSelectedStatus}
-          onChange={setBatchSelectedStatus}
-          options={OT_STATUS.map((item) => ({
-            label: item.text,
-            value: item.value,
-          }))}
-          style={{ width: "100%", height: 48 }}
-          styles={{ popup: { root: { borderRadius: 12 } } }}
-        />
-      </Flex>
+  return (
+    <Modal
+      title={
+        <Space>
+          <ThunderboltOutlined style={{ color: themeToken.colorWarning }} />{" "}
+          เปลี่ยนสถานะรายการที่เลือกพร้อมกัน
+        </Space>
+      }
+      open={visible}
+      onCancel={handleClose}
+      onOk={async () => {
+        await requestBatchApproveOvertimeSubmission(batchSelectedStatus);
+      }}
+      confirmLoading={batchProcessing}
+      okText={batchProcessing ? "กำลังดำเนินการ..." : "ยืนยันการเปลี่ยนสถานะ"}
+      cancelText="ปิดหน้าต่าง"
+      centered
+      width={1000} // ขยายความกว้าง Modal
+      style={{ borderRadius: 20, overflow: "hidden" }}
+      maskClosable={false}
+    >
+      <Flex vertical gap={24} style={{ paddingBlock: 24 }}>
+        <Row gutter={24}>
+          <Col span={8}>
+            <Flex vertical gap={20}>
+              <Flex
+                vertical
+                gap={8}
+                style={{
+                  padding: "16px 20px",
+                  background: themeToken.colorInfoBg,
+                  borderRadius: 12,
+                  border: `1px solid ${themeToken.colorInfoBorder}`,
+                }}
+              >
+                <Typography.Text>
+                  รายการที่เลือกทั้งหมด:{" "}
+                  <Typography.Text strong color="primary">
+                    {selectedRowKeys.length}
+                  </Typography.Text>{" "}
+                  รายการ
+                </Typography.Text>
+              </Flex>
 
-      <Flex
-        align="center"
-        gap={10}
-        style={{
-          padding: "12px 16px",
-          borderRadius: 12,
-          border: "1px solid #ffe58f",
-        }}
-      >
-        <WarningOutlined style={{ color: "#faad14" }} />
-        <Typography.Text style={{ fontSize: 13 }}>
-          การดำเนินการนี้จะส่งผลต่อข้อมูลดิบในฐานข้อมูลทันที
-          โปรงานตรวจสอบให้รอบคอบ
-        </Typography.Text>
+              <Flex vertical gap={10}>
+                <Typography.Text strong>
+                  เลือกสถานะที่ต้องการปรับปรุง:
+                </Typography.Text>
+                <Select
+                  value={batchSelectedStatus}
+                  onChange={setBatchSelectedStatus}
+                  disabled={batchProcessing}
+                  options={OT_STATUS.map((item) => ({
+                    label: item.text,
+                    value: item.value,
+                  }))}
+                  style={{ width: "100%", height: 48 }}
+                />
+              </Flex>
+
+              <Flex
+                align="center"
+                gap={10}
+                style={{
+                  padding: "12px 16px",
+                  borderRadius: 12,
+                }}
+              >
+                <WarningOutlined style={{ color: "#faad14" }} />
+                <Typography.Text style={{ fontSize: 12 }}>
+                  ระบบจะดำเนินการประมวลผลทีละรายการ (Queue)
+                  เพื่อความถูกต้องของข้อมูล
+                </Typography.Text>
+              </Flex>
+            </Flex>
+          </Col>
+
+          <Col span={16}>
+            <div
+              style={{
+                border: `1px solid ${themeToken.colorBorderSecondary}`,
+                borderRadius: 12,
+                overflow: "hidden",
+              }}
+            >
+              <Table
+                dataSource={selectedRecords}
+                pagination={false}
+                size="small"
+                scroll={{ y: 400 }}
+                rowKey="id"
+                columns={[
+                  {
+                    title: "รหัส",
+                    dataIndex: "id",
+                    width: 100,
+                    render: (id) => <Tag>#{id}</Tag>,
+                  },
+                  {
+                    title: "พนักงาน",
+                    key: "requester",
+                    render: (record) => {
+                      const name =
+                        record.requester_name ||
+                        record.requester_user?.name ||
+                        "-";
+                      return (
+                        <Space>
+                          <Avatar
+                            size="small"
+                            src={record.requester_user?.profile_image}
+                          />
+                          <Typography.Text ellipsis style={{ maxWidth: 150 }}>
+                            {name}
+                          </Typography.Text>
+                        </Space>
+                      );
+                    },
+                  },
+                  {
+                    title: "วันที่ขอ",
+                    dataIndex: "request_date",
+                    width: 120,
+                    render: (date) => dayjs(date).format("DD/MM/BBBB"),
+                  },
+                  {
+                    title: "สถานะดำเนินการ",
+                    key: "processing_status",
+                    width: 180,
+                    align: "center",
+                    render: (record) => {
+                      const status =
+                        processedRecordItems.get(record.id) || "waiting";
+                      const configs: any = {
+                        waiting: {
+                          color: "default",
+                          icon: <ClockCircleOutlined />,
+                          text: "รอคิว",
+                        },
+                        processing: {
+                          color: "processing",
+                          icon: <LoadingOutlined />,
+                          text: "กำลังส่งข้อมูล",
+                        },
+                        completed: {
+                          color: "success",
+                          icon: <CheckCircleOutlined />,
+                          text: "สำเร็จ",
+                        },
+                        failed: {
+                          color: "error",
+                          icon: <CloseCircleOutlined />,
+                          text: "ล้มเหลว",
+                        },
+                      };
+                      const config = configs[status];
+                      return (
+                        <Tag
+                          icon={config.icon}
+                          color={config.color}
+                          style={{ margin: 0 }}
+                        >
+                          {config.text}
+                        </Tag>
+                      );
+                    },
+                  },
+                ]}
+              />
+            </div>
+          </Col>
+        </Row>
       </Flex>
-    </Flex>
-  </Modal>
-);
+    </Modal>
+  );
+};
 
 const DetailModalSection = ({
   visible,
