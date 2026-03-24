@@ -88,11 +88,11 @@ import {
 
 import { toast } from "sonner";
 
-import { bulkPdfDownloadService } from "@/helpers/bulk-pdf-download.helper";
 import SummaryCard from "@/components/card/summary-card";
 import StatusModalComponent, {
   type StatusModalProps,
 } from "@/components/modal/status-modal";
+import { bulkPdfDownloadService } from "@/helpers/bulk-pdf-download.helper";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
 
@@ -1021,11 +1021,12 @@ const OvertimeManagementPage = () => {
       // 3. วนลูปเรนเดอร์และเตรียมข้อมูลสำหรับ ZIP
       for (const data of dataItems) {
         const userData = getUserById(data?.requester_id ?? "");
-        const empCode = userData?.employee_code || data?.created_by || "UNKNOWN";
+        const empCode =
+          userData?.employee_code || data?.created_by || "UNKNOWN";
         const reqName =
           userData && (userData.firstname || userData.lastname)
             ? `${userData.firstname ?? ""} ${userData.lastname ?? ""}`.trim()
-            : data?.requester_id ?? "-";
+            : (data?.requester_id ?? "-");
 
         const tempDiv = document.createElement("div");
         tempDiv.className = "ot-print-temp";
@@ -1080,7 +1081,7 @@ const OvertimeManagementPage = () => {
 
         itemsForZip.push({
           employeeCode: empCode,
-          fileName: `OT_${data.id}_${dayjs(data.request_date).format("YYYYMMDD")}.pdf`,
+          fileName: `OT_${empCode}_${reqName}_${dayjs(data.request_date).format("DD-MM-YYYY")}.pdf`,
           element: tempDiv,
         });
       }

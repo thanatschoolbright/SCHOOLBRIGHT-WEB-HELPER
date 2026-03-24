@@ -1,9 +1,9 @@
 "use client";
 
+import { saveAs } from "file-saver";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import JSZip from "jszip";
-import { saveAs } from "file-saver";
 
 /**
  * Service สำหรับการสร้างไฟล์ PDF จาก HTML Element และรวมเป็นไฟล์ ZIP
@@ -64,17 +64,17 @@ export const bulkPdfDownloadService = {
       element: HTMLElement;
     }>,
     zipFileName: string = `OT_Reports_${new Date().getTime()}.zip`,
-    onProgress?: (progress: number) => void
+    onProgress?: (progress: number) => void,
   ): Promise<void> {
     const zip = new JSZip();
     const total = items.length;
 
     for (let i = 0; i < total; i++) {
       const { employeeCode, fileName, element } = items[i];
-      
+
       try {
         const pdfBlob = await this.generatePdfBlob(element);
-        
+
         // แยกโฟลเดอร์ตามรหัสพนักงาน
         const folder = zip.folder(employeeCode);
         if (folder) {
