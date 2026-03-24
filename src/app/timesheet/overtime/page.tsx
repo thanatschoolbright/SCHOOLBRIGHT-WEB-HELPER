@@ -179,6 +179,11 @@ const OvertimeManagementPage = () => {
   const [isBulkDownloading, setIsBulkDownloading] = useState(false);
   const [bulkDownloadProgress, setBulkDownloadProgress] = useState(0);
 
+  // --- สถานะสำหรับการดาวน์โหลด Bulk (Tracking) ---
+  const [bulkTrackingData, setBulkTrackingData] = useState<any[]>([]);
+  const [isBulkTrackingModalVisible, setIsBulkTrackingModalVisible] =
+    useState(false);
+
   // --- ข้อมูลและผลลัพธ์จาก API (Data State) ---
   const [isLoadingOvertimeData, setIsLoadingOvertimeData] = useState(false);
   const [overtimeDataSource, setOvertimeDataSource] = useState<
@@ -1276,19 +1281,58 @@ const OvertimeManagementPage = () => {
         });
       }
 
-      // 4. สั่งดาวน์โหลด ZIP
+      // 4. สั่งดาวน์โหลด ZIP พร้อม Tracking
+      setBulkTrackingData(
+        itemsForZip.map((item) => ({
+          fileName: item.fileName,
+          status: "waiting",
+          progress: 0,
+        })),
+      );
+      setIsBulkTrackingModalVisible(true);
+
       await bulkPdfDownloadService.generateZip(
         itemsForZip,
         `SB_OT_Bulk_${dayjs().format("YYYYMMDD_HHmm")}.zip`,
-        (progress) => setBulkDownloadProgress(progress),
+        (index, total, status, fileName) => {
+          setBulkDownloadProgress(
+            Math.round(
+              ((index + (status === "completed" ? 1 : 0)) / total) * 100,
+            ),
+          );
+
+          setBulkTrackingData((prev) => {
+            const newData = [...prev];
+            const itemIndex = newData.findIndex((i) => i.fileName === fileName);
+
+            if (status === "zipping") {
+              // กรณีพิเศษสำหรับการรวมไฟล์ ZIP
+              return prev.map((item) => ({
+                ...item,
+                status: item.status === "completed" ? "completed" : "failed",
+              }));
+            }
+
+            if (itemIndex !== -1) {
+              newData[itemIndex] = {
+                ...newData[itemIndex],
+                status: status,
+              };
+            }
+            return newData;
+          });
+        },
       );
 
       // 5. Cleanup
       document.body.removeChild(container);
       toast.success("ดาวน์โหลดไฟล์ ZIP สำเร็จ");
+      // สั่งปิด Modal Tracking หลังจากสำเร็จ 3 วินาที
+      setTimeout(() => setIsBulkTrackingModalVisible(false), 3000);
     } catch (error) {
       console.error("Bulk Download Error:", error);
       toast.error("เกิดข้อผิดพลาดในการดาวน์โหลด กรุณาลองใหม่");
+      setIsBulkTrackingModalVisible(false);
     } finally {
       setIsBulkDownloading(false);
       setBulkDownloadProgress(0);
@@ -1328,6 +1372,129 @@ const OvertimeManagementPage = () => {
 
   return (
     <DashboardLayout>
+      {/* Modal แสดงความคืบหน้าการดาวน์โหลด Bulk (Delivery Tracking) */}
+      <Modal
+        title={
+          <Space>
+            <HistoryOutlined style={{ color: themeToken.colorPrimary }} />
+            <span>สถานะการเตรียมไฟล์ดาวน์โหลด (Bulk Download)</span>
+          </Space>
+        }
+        open={isBulkTrackingModalVisible}
+        onCancel={() => setIsBulkTrackingModalVisible(false)}
+        footer={[
+          <Button
+            key="close"
+            type="primary"
+            onClick={() => setIsBulkTrackingModalVisible(false)}
+            disabled={bulkDownloadProgress < 100}
+          >
+            {bulkDownloadProgress < 100
+              ? `กำลังดำเนินการ (${bulkDownloadProgress}%)`
+              : "ตกลง"}
+          </Button>,
+        ]}
+        width={800}
+        centered
+        maskClosable={false}
+        styles={{ body: { padding: "20px 0" } }}
+      >
+        <div style={{ padding: "0 24px" }}>
+          <div style={{ marginBottom: 24 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: 8,
+              }}
+            >
+              <span style={{ fontWeight: 600 }}>ความคืบหน้าภาพรวม</span>
+              <span style={{ color: themeToken.colorPrimary, fontWeight: 700 }}>
+                {bulkDownloadProgress}%
+              </span>
+            </div>
+            <Progress
+              percent={bulkDownloadProgress}
+              status={bulkDownloadProgress < 100 ? "active" : "success"}
+              strokeColor={{
+                "0%": themeToken.colorPrimary,
+                "100%": themeToken.colorSuccess,
+              }}
+              showInfo={false}
+            />
+          </div>
+
+          <div style={{ maxHeight: 400, overflowY: "auto" }}>
+            <Table
+              dataSource={bulkTrackingData}
+              pagination={false}
+              size="small"
+              rowKey="fileName"
+              columns={[
+                {
+                  title: "ลำดับ",
+                  key: "index",
+                  width: 60,
+                  render: (_: any, __: any, index: number) => index + 1,
+                },
+                {
+                  title: "ชื่อไฟล์",
+                  dataIndex: "fileName",
+                  key: "fileName",
+                },
+                {
+                  title: "สถานะ",
+                  dataIndex: "status",
+                  key: "status",
+                  width: 150,
+                  render: (status: string) => {
+                    const config: any = {
+                      waiting: {
+                        color: "default",
+                        icon: <ClockCircleOutlined />,
+                        text: "รอการดำเนินการ",
+                      },
+                      processing: {
+                        color: "processing",
+                        icon: <LoadingOutlined />,
+                        text: "กำลังสร้าง PDF",
+                      },
+                      completed: {
+                        color: "success",
+                        icon: <CheckCircleOutlined />,
+                        text: "เสร็จสมบูรณ์",
+                      },
+                      failed: {
+                        color: "error",
+                        icon: <CloseCircleOutlined />,
+                        text: "ล้มเหลว",
+                      },
+                      zipping: {
+                        color: "warning",
+                        icon: <LoadingOutlined />,
+                        text: "กำลังรวมไฟล์ ZIP",
+                      },
+                      finished: {
+                        color: "success",
+                        icon: <FileZipOutlined />,
+                        text: "ดาวน์โหลดสำเร็จ",
+                      },
+                    };
+                    const item = config[status] || config.waiting;
+                    return (
+                      <Tag icon={item.icon} color={item.color}>
+                        {item.text}
+                      </Tag>
+                    );
+                  },
+                },
+              ]}
+              locale={{ emptyText: "ไม่มีข้อมูลการดาวน์โหลด" }}
+            />
+          </div>
+        </div>
+      </Modal>
+
       <Flex vertical gap={40} style={{ paddingBottom: 60 }}>
         {/* ส่วนหัวของหน้าจอ แสดงชื่อระบบและปุ่มหลักในการใช้งาน */}
         <HeaderBar

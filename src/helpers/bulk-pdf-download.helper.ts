@@ -55,7 +55,7 @@ export const bulkPdfDownloadService = {
    * สร้างไฟล์ ZIP ที่บรรจุ PDF แยกตามโฟลเดอร์รหัสพนักงาน
    * @param items รายการข้อมูล { employeeCode, fileName, element }
    * @param zipFileName ชื่อไฟล์ ZIP หลัก
-   * @param onProgress Callback สำหรับแจ้งความคืบหน้า (0-100)
+   * @param onProgress Callback สำหรับแจ้งความคืบหน้า (index, total, status, fileName)
    */
   async generateZip(
     items: Array<{
@@ -64,13 +64,22 @@ export const bulkPdfDownloadService = {
       element: HTMLElement;
     }>,
     zipFileName: string = `OT_Reports_${new Date().getTime()}.zip`,
-    onProgress?: (progress: number) => void,
+    onProgress?: (
+      index: number,
+      total: number,
+      status: string,
+      fileName: string,
+    ) => void,
   ): Promise<void> {
     const zip = new JSZip();
     const total = items.length;
 
     for (let i = 0; i < total; i++) {
       const { employeeCode, fileName, element } = items[i];
+
+      if (onProgress) {
+        onProgress(i, total, "processing", fileName);
+      }
 
       try {
         const pdfBlob = await this.generatePdfBlob(element);
@@ -80,16 +89,30 @@ export const bulkPdfDownloadService = {
         if (folder) {
           folder.file(fileName, pdfBlob);
         }
+
+        if (onProgress) {
+          onProgress(i, total, "completed", fileName);
+        }
       } catch (error) {
         console.error(`Failed to generate PDF for ${employeeCode}:`, error);
-      }
-
-      if (onProgress) {
-        onProgress(Math.round(((i + 1) / total) * 100));
+        if (onProgress) {
+          onProgress(i, total, "failed", fileName);
+        }
       }
     }
 
-    const content = await zip.generateAsync({ type: "blob" });
+    if (onProgress) {
+      onProgress(total, total, "zipping", zipFileName);
+    }
+
+    const content = await zip.generateAsync({ type: "blob" }, (metadata) => {
+      // สามารถส่ง progress ของการ zip จริงๆ ได้ถ้าต้องการ
+    });
+
     saveAs(content, zipFileName);
+
+    if (onProgress) {
+      onProgress(total, total, "finished", zipFileName);
+    }
   },
 };
