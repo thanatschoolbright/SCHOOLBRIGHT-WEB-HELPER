@@ -4,16 +4,13 @@ import {
   CameraOutlined,
   CheckCircleOutlined,
   HistoryOutlined,
-  IdcardOutlined,
   LinkOutlined,
   LoadingOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import {
-  Alert,
   Avatar,
   Card,
-  Divider,
   Space,
   Tag,
   theme,
@@ -77,20 +74,31 @@ export const UserProfileCard = ({
   };
 
   return (
-    <Space direction="vertical" size={24} style={{ width: "100%" }}>
+    <div style={{ width: "100%" }}>
       <Card
         variant="borderless"
-        styles={{ body: { textAlign: "center", padding: "40px 24px" } }}
-        style={{ borderRadius: 16 }}
+        styles={{
+          body: {
+            textAlign: "center",
+            padding: "48px 24px 32px 24px",
+            background: `linear-gradient(180deg, ${token.colorPrimaryBg} 0%, ${token.colorBgContainer} 150px)`,
+          },
+        }}
+        style={{
+          borderRadius: 24,
+          overflow: "hidden",
+          boxShadow: "0 20px 40px -20px rgba(0,0,0,0.1)",
+          border: `1px solid ${token.colorBorderSecondary}`,
+        }}
       >
         <div
           style={{
             position: "relative",
             display: "inline-block",
-            marginBottom: 24,
+            marginBottom: 20,
           }}
         >
-          <div className="relative group cursor-pointer">
+          <div className="relative group cursor-pointer transition-transform hover:scale-105 duration-300">
             <Upload
               name="avatar"
               listType="picture-circle"
@@ -100,18 +108,16 @@ export const UserProfileCard = ({
             >
               <div style={{ position: "relative" }}>
                 <Avatar
-                  size={120}
+                  size={140}
                   icon={uploading ? <LoadingOutlined /> : <UserOutlined />}
                   src={userData?.profile_image_path}
                   style={{
-                    backgroundColor: token.colorPrimaryBg,
+                    backgroundColor: "white",
                     color: token.colorPrimary,
-                    border: `4px solid white`,
-                    boxShadow: `0 4px 12px rgba(0,0,0,0.1)`,
+                    border: `6px solid white`,
+                    boxShadow: `0 8px 24px rgba(0,0,0,0.12)`,
                     opacity: uploading ? 0.6 : 1,
-                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                   }}
-                  className="hover:scale-105"
                 />
                 <div
                   style={{
@@ -121,84 +127,114 @@ export const UserProfileCard = ({
                     flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
-                    backgroundColor: "rgba(0,0,0,0.5)",
+                    backgroundColor: "rgba(0,0,0,0.4)",
                     borderRadius: "50%",
-                    opacity: userData?.profile_image_path ? 0 : 1,
-                    transition: "opacity 0.3s",
+                    opacity: 0,
+                    transition: "all 0.3s ease",
+                    backdropFilter: "blur(2px)",
                   }}
-                  className={
-                    userData?.profile_image_path
-                      ? "group-hover:opacity-100"
-                      : ""
-                  }
+                  className="group-hover:opacity-100"
                 >
                   <CameraOutlined
-                    style={{ color: "white", fontSize: 24, marginBottom: 4 }}
+                    style={{ color: "white", fontSize: 28, marginBottom: 4 }}
                   />
-                  {!userData?.profile_image_path && (
-                    <Text
-                      style={{ color: "white", fontSize: 10, fontWeight: 700 }}
-                    >
-                      อัปโหลดรูปภาพที่นี่
-                    </Text>
-                  )}
+                  <Text
+                    style={{ color: "white", fontSize: 11, fontWeight: 600 }}
+                  >
+                    เปลี่ยนรูปโปรไฟล์
+                  </Text>
                 </div>
               </div>
             </Upload>
           </div>
           {userData?.profile_image_path && (
-            <div style={{ position: "absolute", bottom: 4, right: 12 }}>
+            <div style={{ position: "absolute", bottom: 8, right: 16 }}>
               <div
                 style={{
                   backgroundColor: token.colorSuccess,
-                  width: 24,
-                  height: 24,
+                  width: 28,
+                  height: 28,
                   borderRadius: "50%",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  border: "2px solid white",
-                  boxShadow: token.boxShadow,
+                  border: "3px solid white",
+                  boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
                   zIndex: 2,
                 }}
               >
-                <CheckCircleOutlined style={{ color: "white", fontSize: 14 }} />
+                <CheckCircleOutlined style={{ color: "white", fontSize: 16 }} />
               </div>
             </div>
           )}
         </div>
 
-        <Title level={3} style={{ marginBottom: 4 }}>
-          {userData?.firstname_th} {userData?.lastname_th}
-        </Title>
-        <Text type="secondary" style={{ display: "block", marginBottom: 16 }}>
-          {userData?.email || "ไม่มีอีเมล"}
-        </Text>
+        <div style={{ marginBottom: 24 }}>
+          <Title level={4} style={{ marginBottom: 4, fontWeight: 700 }}>
+            {userData?.firstname_th} {userData?.lastname_th}
+          </Title>
+          <Text
+            type="secondary"
+            style={{
+              display: "block",
+              fontSize: 13,
+              opacity: 0.8,
+              marginBottom: 16,
+            }}
+          >
+            {userData?.email || "ไม่มีข้อมูลอีเมล"}
+          </Text>
 
-        <Space size={8} wrap>
-          <Tag color="blue">{userData?.role?.role_name || "ไม่มีสิทธิ์"}</Tag>
-          <Tag color="cyan">
-            {userData?.position_ref?.name_th || "ไม่มีตำแหน่ง"}
-          </Tag>
-          <Tag color="purple">
-            {userData?.department?.name_th || "ไม่มีแผนก"}
-          </Tag>
-        </Space>
+          <Space size={6} wrap style={{ justifyContent: "center" }}>
+            <Tag
+              bordered={false}
+              color="blue"
+              style={{ padding: "0 12px", borderRadius: 100 }}
+            >
+              {userData?.role?.role_name || "Guest"}
+            </Tag>
+            {userData?.position_ref?.name_th && (
+              <Tag
+                bordered={false}
+                color="cyan"
+                style={{ padding: "0 12px", borderRadius: 100 }}
+              >
+                {userData?.position_ref?.name_th}
+              </Tag>
+            )}
+            {userData?.department?.name_th && (
+              <Tag
+                bordered={false}
+                color="purple"
+                style={{ padding: "0 12px", borderRadius: 100 }}
+              >
+                {userData?.department?.name_th}
+              </Tag>
+            )}
+          </Space>
+        </div>
 
-        <Divider />
-
-        <div style={{ textAlign: "left" }}>
+        <div
+          style={{
+            textAlign: "left",
+            backgroundColor: token.colorFillAlter,
+            padding: "20px",
+            borderRadius: 20,
+            border: `1px solid ${token.colorBorderSecondary}`,
+          }}
+        >
           <Space direction="vertical" size={16} style={{ width: "100%" }}>
-            <Space align="start" size={12}>
+            <div className="flex items-start gap-3">
               <div
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  backgroundColor: token.colorPrimaryBg,
+                  minWidth: 36,
+                  height: 36,
+                  borderRadius: 12,
+                  backgroundColor: "white",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
                 }}
               >
                 <LinkOutlined style={{ color: token.colorPrimary }} />
@@ -206,111 +242,57 @@ export const UserProfileCard = ({
               <div>
                 <Text
                   type="secondary"
-                  style={{ fontSize: 12, display: "block" }}
+                  style={{ fontSize: 11, display: "block", color: "#8c8c8c" }}
                 >
-                  รหัสเชื่อมต่อ (adminsystem.schoolbright.co)
+                  ADMIN ID
                 </Text>
-                <Text strong style={{ color: token.colorPrimary }}>
+                <Text strong style={{ fontSize: 14 }}>
                   {userData?.admin_id || "-"}
                 </Text>
               </div>
-            </Space>
+            </div>
 
-            <Space align="start" size={12}>
+            <div className="flex items-start gap-3">
               <div
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  backgroundColor: token.colorFillAlter,
+                  minWidth: 36,
+                  height: 36,
+                  borderRadius: 12,
+                  backgroundColor: "white",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
                 }}
               >
-                <HistoryOutlined style={{ color: token.colorTextSecondary }} />
+                <HistoryOutlined style={{ color: token.colorInfoText }} />
               </div>
               <div>
                 <Text
                   type="secondary"
-                  style={{ fontSize: 12, display: "block" }}
+                  style={{ fontSize: 11, display: "block", color: "#8c8c8c" }}
                 >
-                  ข้อมูลล่าสุดเมื่อ
+                  ข้อมูลล่าสุด
                 </Text>
-                <Text strong>
+                <Text strong style={{ fontSize: 14 }}>
                   {userData?.updated_at
                     ? dayjs(userData.updated_at).format("DD/MM/YYYY HH:mm")
                     : "-"}
                 </Text>
               </div>
-            </Space>
+            </div>
 
-            <Space align="start" size={12}>
+            <div className="flex items-start gap-3">
               <div
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  backgroundColor: token.colorFillAlter,
+                  minWidth: 36,
+                  height: 36,
+                  borderRadius: 12,
+                  backgroundColor: "white",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                }}
-              >
-                <IdcardOutlined style={{ color: token.colorTextSecondary }} />
-              </div>
-              <div>
-                <Text
-                  type="secondary"
-                  style={{ fontSize: 12, display: "block" }}
-                >
-                  วันที่เข้าสู่ระบบ
-                </Text>
-                <Text strong>
-                  {dayjs(userData?.created_at).format("DD/MM/YYYY")}
-                </Text>
-              </div>
-            </Space>
-
-            <Space align="start" size={12}>
-              <div
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  backgroundColor: token.colorFillAlter,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <CalendarOutlined style={{ color: token.colorHighlight }} />
-              </div>
-              <div>
-                <Text
-                  type="secondary"
-                  style={{ fontSize: 12, display: "block" }}
-                >
-                  วันที่เริ่มงาน (Joined)
-                </Text>
-                <Text strong>
-                  {userData?.joined_date
-                    ? dayjs(userData.joined_date).format("DD/MM/YYYY")
-                    : "ไม่ได้ระบุ"}
-                </Text>
-              </div>
-            </Space>
-
-            <Space align="start" size={12}>
-              <div
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  backgroundColor: token.colorFillAlter,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
                 }}
               >
                 <CalendarOutlined style={{ color: token.colorWarning }} />
@@ -318,28 +300,20 @@ export const UserProfileCard = ({
               <div>
                 <Text
                   type="secondary"
-                  style={{ fontSize: 12, display: "block" }}
+                  style={{ fontSize: 11, display: "block", color: "#8c8c8c" }}
                 >
-                  วันเกิด (Birthday)
+                  วันที่เริ่มงาน
                 </Text>
-                <Text strong>
-                  {userData?.birth_date
-                    ? dayjs(userData.birth_date).format("DD/MM/YYYY")
+                <Text strong style={{ fontSize: 14 }}>
+                  {userData?.joined_date
+                    ? dayjs(userData.joined_date).format("DD/MM/YYYY")
                     : "ไม่ได้ระบุ"}
                 </Text>
               </div>
-            </Space>
+            </div>
           </Space>
         </div>
       </Card>
-
-      <Alert
-        message="คำแนะนำ"
-        description="การแก้ไขข้อมูลระดับสิทธิ์ของพนักงาน จะมีผลเมื่อพนักงานทำการเข้าสู่ระบบใหม่ในครั้งถัดไป"
-        type="info"
-        showIcon
-        style={{ borderRadius: 12 }}
-      />
-    </Space>
+    </div>
   );
 };

@@ -1,10 +1,12 @@
 import {
+  HistoryOutlined,
   IdcardOutlined,
   MailOutlined,
   PhoneOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import {
+  Badge,
   Button,
   Col,
   DatePicker,
@@ -14,7 +16,6 @@ import {
   Row,
   Select,
   Space,
-  Tag,
   Typography,
   theme,
 } from "antd";
@@ -45,60 +46,82 @@ export const UserEditForm = ({
       requiredMark="optional"
     >
       {/* Personal Information */}
-      <div id="section-personal" style={{ marginBottom: 32 }}>
-        <Space size={8} style={{ marginBottom: 16 }}>
-          <div
-            style={{
-              width: 4,
-              height: 20,
-              backgroundColor: token.colorPrimary,
-              borderRadius: 2,
-            }}
-          />
-          <Title level={5} style={{ margin: 0 }}>
-            ข้อมูลส่วนตัว
-          </Title>
-        </Space>
-        <Row gutter={16}>
+      <div id="section-personal" style={{ marginBottom: 40 }}>
+        <Row gutter={[24, 24]}>
           <Col xs={24} md={12}>
             <Form.Item
-              label="ชื่อ (ไทย)"
+              label={<span style={{ fontWeight: 600 }}>ชื่อ (ภาษาไทย)</span>}
               name="firstname_th"
               rules={[{ required: true, message: "กรุณาระบุชื่อ" }]}
             >
-              <Input placeholder="ชื่อ" />
+              <Input
+                placeholder="กรอกชื่อภาษาไทย"
+                size="large"
+                style={{ borderRadius: 12 }}
+              />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
             <Form.Item
-              label="นามสกุล (ไทย)"
+              label={<span style={{ fontWeight: 600 }}>นามสกุล (ภาษาไทย)</span>}
               name="lastname_th"
               rules={[{ required: true, message: "กรุณาระบุนามสกุล" }]}
             >
-              <Input placeholder="นามสกุล" />
+              <Input
+                placeholder="กรอกนามสกุลภาษาไทย"
+                size="large"
+                style={{ borderRadius: 12 }}
+              />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
-            <Form.Item label="ชื่อ (อังกฤษ)" name="firstname_en">
-              <Input placeholder="First Name" />
+            <Form.Item
+              label={<span style={{ fontWeight: 600 }}>ชื่อ (ภาษาอังกฤษ)</span>}
+              name="firstname_en"
+            >
+              <Input
+                placeholder="First Name"
+                size="large"
+                style={{ borderRadius: 12 }}
+              />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
-            <Form.Item label="นามสกุล (อังกฤษ)" name="lastname_en">
-              <Input placeholder="Last Name" />
+            <Form.Item
+              label={
+                <span style={{ fontWeight: 600 }}>นามสกุล (ภาษาอังกฤษ)</span>
+              }
+              name="lastname_en"
+            >
+              <Input
+                placeholder="Last Name"
+                size="large"
+                style={{ borderRadius: 12 }}
+              />
             </Form.Item>
           </Col>
-          <Col xs={24} md={12}>
-            <Form.Item label="ชื่อเล่น" name="nickname">
-              <Input placeholder="ชื่อเล่น" />
+          <Col xs={24} md={8}>
+            <Form.Item
+              label={<span style={{ fontWeight: 600 }}>ชื่อเล่น</span>}
+              name="nickname"
+            >
+              <Input
+                placeholder="ชื่อเล่น"
+                size="large"
+                style={{ borderRadius: 12 }}
+              />
             </Form.Item>
           </Col>
-          <Col xs={24} md={12}>
-            <Form.Item label="วันเกิด" name="birth_date">
+          <Col xs={24} md={16}>
+            <Form.Item
+              label={<span style={{ fontWeight: 600 }}>วันเกิด</span>}
+              name="birth_date"
+            >
               <DatePicker
-                placeholder="เลือกวันเกิด"
-                style={{ width: "100%" }}
+                placeholder="วว/ดด/ปปปป"
                 format="DD/MM/YYYY"
+                size="large"
+                style={{ width: "100%", borderRadius: 12 }}
               />
             </Form.Item>
           </Col>
@@ -106,24 +129,20 @@ export const UserEditForm = ({
       </div>
 
       {/* Account & Contact */}
-      <div id="section-account" style={{ marginBottom: 32 }}>
-        <Space size={8} style={{ marginBottom: 16 }}>
-          <div
-            style={{
-              width: 4,
-              height: 20,
-              backgroundColor: token.colorPrimary,
-              borderRadius: 2,
-            }}
-          />
-          <Title level={5} style={{ margin: 0 }}>
-            ข้อมูลบัญชีผู้ใช้และติดต่อ
-          </Title>
-        </Space>
-        <Row gutter={16}>
+      <div id="section-account" style={{ marginBottom: 40 }}>
+        <Divider orientation="left" style={{ margin: "24px 0 32px 0" }}>
+          <Space>
+            <MailOutlined style={{ color: token.colorPrimary }} />
+            <span style={{ fontWeight: 700, fontSize: 16 }}>
+              ข้อมูลบัญชีและช่องทางการติดต่อ
+            </span>
+          </Space>
+        </Divider>
+
+        <Row gutter={[24, 24]}>
           <Col xs={24} md={12}>
             <Form.Item
-              label="ชื่อผู้ใช้งาน (Username)"
+              label={<span style={{ fontWeight: 600 }}>ชื่อผู้ใช้งาน</span>}
               name="username"
               rules={[{ required: true, message: "กรุณาระบุชื่อผู้ใช้งาน" }]}
             >
@@ -131,23 +150,30 @@ export const UserEditForm = ({
                 prefix={
                   <UserOutlined style={{ color: token.colorTextDisabled }} />
                 }
-                placeholder="username"
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={12}>
-            <Form.Item label="รหัสพนักงาน" name="employee_code">
-              <Input
-                prefix={
-                  <IdcardOutlined style={{ color: token.colorTextDisabled }} />
-                }
-                placeholder="รหัสพนักงาน"
+                placeholder="Username สำหรับเข้าสู่ระบบ"
+                size="large"
+                style={{ borderRadius: 12 }}
               />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
             <Form.Item
-              label="อีเมล"
+              label={<span style={{ fontWeight: 600 }}>รหัสพนักงาน</span>}
+              name="employee_code"
+            >
+              <Input
+                prefix={
+                  <IdcardOutlined style={{ color: token.colorTextDisabled }} />
+                }
+                placeholder="รหัสพนักงานภายในองค์กร"
+                size="large"
+                style={{ borderRadius: 12 }}
+              />
+            </Form.Item>
+          </Col>
+          <Col xs={24} md={12}>
+            <Form.Item
+              label={<span style={{ fontWeight: 600 }}>อีเมล</span>}
               name="email"
               rules={[{ type: "email", message: "รูปแบบอีเมลไม่ถูกต้อง" }]}
             >
@@ -155,17 +181,24 @@ export const UserEditForm = ({
                 prefix={
                   <MailOutlined style={{ color: token.colorTextDisabled }} />
                 }
-                placeholder="email@example.com"
+                placeholder="example@schoolbright.co"
+                size="large"
+                style={{ borderRadius: 12 }}
               />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
-            <Form.Item label="เบอร์โทรศัพท์" name="phone">
+            <Form.Item
+              label={<span style={{ fontWeight: 600 }}>เบอร์โทรศัพท์</span>}
+              name="phone"
+            >
               <Input
                 prefix={
                   <PhoneOutlined style={{ color: token.colorTextDisabled }} />
                 }
-                placeholder="08X-XXX-XXXX"
+                placeholder="0XX-XXX-XXXX"
+                size="large"
+                style={{ borderRadius: 12 }}
               />
             </Form.Item>
           </Col>
@@ -173,52 +206,57 @@ export const UserEditForm = ({
       </div>
 
       {/* Employment Timeline */}
-      <div id="section-employment" style={{ marginBottom: 32 }}>
-        <Space size={8} style={{ marginBottom: 16 }}>
-          <div
-            style={{
-              width: 4,
-              height: 20,
-              backgroundColor: token.colorWarning,
-              borderRadius: 2,
-            }}
-          />
-          <Title level={5} style={{ margin: 0 }}>
-            ข้อมูลการจ้างงาน (Employment Timeline)
-          </Title>
-        </Space>
-        <Row gutter={16}>
+      <div id="section-employment" style={{ marginBottom: 40 }}>
+        <Divider orientation="left" style={{ margin: "24px 0 32px 0" }}>
+          <Space>
+            <HistoryOutlined style={{ color: token.colorWarning }} />
+            <span style={{ fontWeight: 700, fontSize: 16 }}>
+              ข้อมูลการจ้างงาน
+            </span>
+          </Space>
+        </Divider>
+
+        <Row gutter={[24, 24]}>
           <Col xs={24} md={8}>
-            <Form.Item label="วันที่เริ่มงาน" name="joined_date">
+            <Form.Item
+              label={<span style={{ fontWeight: 600 }}>วันที่เริ่มงาน</span>}
+              name="joined_date"
+            >
               <DatePicker
-                placeholder="เลือกวันที่เริ่มงาน"
-                style={{ width: "100%" }}
+                placeholder="วว/ดด/ปปปป"
+                size="large"
+                style={{ width: "100%", borderRadius: 12 }}
                 format="DD/MM/YYYY"
               />
             </Form.Item>
           </Col>
           <Col xs={24} md={8}>
-            <Form.Item label="วันที่ลาออก" name="resigned_date">
+            <Form.Item
+              label={<span style={{ fontWeight: 600 }}>วันที่ลาออก</span>}
+              name="resigned_date"
+            >
               <DatePicker
-                placeholder="เลือกวันที่ลาออก"
-                style={{ width: "100%" }}
+                placeholder="วว/ดด/ปปปป"
+                size="large"
+                style={{ width: "100%", borderRadius: 12 }}
                 format="DD/MM/YYYY"
               />
             </Form.Item>
           </Col>
           <Col xs={24} md={8}>
-            <Form.Item label="ประเภทการจ้างงาน" name="employment_type">
-              <Select placeholder="เลือกประเภทการจ้างงาน">
-                <Select.Option value="FULL_TIME">
-                  Full-time (พนักงานประจำ)
-                </Select.Option>
-                <Select.Option value="PART_TIME">
-                  Part-time (พนักงานชั่วคราว)
-                </Select.Option>
-                <Select.Option value="CONTRACT">
-                  Contract (สัญญาจ้าง)
-                </Select.Option>
-                <Select.Option value="INTERN">Intern (ฝึกงาน)</Select.Option>
+            <Form.Item
+              label={<span style={{ fontWeight: 600 }}>ประเภทการจ้างงาน</span>}
+              name="employment_type"
+            >
+              <Select
+                placeholder="เลือกประเภท"
+                size="large"
+                style={{ borderRadius: 12 }}
+              >
+                <Select.Option value="FULL_TIME">Full-time</Select.Option>
+                <Select.Option value="PART_TIME">Part-time</Select.Option>
+                <Select.Option value="CONTRACT">Contract</Select.Option>
+                <Select.Option value="INTERN">Intern</Select.Option>
               </Select>
             </Form.Item>
           </Col>
@@ -226,25 +264,26 @@ export const UserEditForm = ({
       </div>
 
       {/* Role & Position */}
-      <div id="section-responsibility">
-        <Space size={8} style={{ marginBottom: 16 }}>
-          <div
-            style={{
-              width: 4,
-              height: 20,
-              backgroundColor: token.colorPrimary,
-              borderRadius: 2,
-            }}
-          />
-          <Title level={5} style={{ margin: 0 }}>
-            หน้าที่และความรับผิดชอบ
-          </Title>
-        </Space>
-        <Row gutter={16}>
+      <div id="section-responsibility" style={{ marginBottom: 40 }}>
+        <Divider orientation="left" style={{ margin: "24px 0 32px 0" }}>
+          <Space>
+            <IdcardOutlined style={{ color: token.colorPrimary }} />
+            <span style={{ fontWeight: 700, fontSize: 16 }}>
+              บทบาทและความรับผิดชอบ
+            </span>
+          </Space>
+        </Divider>
+
+        <Row gutter={[24, 24]}>
           <Col xs={24} md={12}>
-            <Form.Item label="สิทธิ์การใช้งาน (Role)" name="role_id">
+            <Form.Item
+              label={<span style={{ fontWeight: 600 }}>สิทธิ์การใช้งาน</span>}
+              name="role_id"
+            >
               <Select
-                placeholder="เลือกสิทธิ์การใช้งาน"
+                placeholder="ระบุสิทธิ์ในระบบ"
+                size="large"
+                style={{ borderRadius: 12 }}
                 options={roles.map((r) => ({
                   label: r.role_name,
                   value: r.id,
@@ -253,9 +292,14 @@ export const UserEditForm = ({
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
-            <Form.Item label="ตำแหน่ง (Position)" name="position_id">
+            <Form.Item
+              label={<span style={{ fontWeight: 600 }}>ตำแหน่งงาน</span>}
+              name="position_id"
+            >
               <Select
-                placeholder="เลือกตำแหน่ง"
+                placeholder="ระบุตำแหน่งงาน"
+                size="large"
+                style={{ borderRadius: 12 }}
                 showSearch
                 optionFilterProp="label"
                 options={positions.map((p) => ({
@@ -266,9 +310,14 @@ export const UserEditForm = ({
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
-            <Form.Item label="แผนก (Department)" name="department_id">
+            <Form.Item
+              label={<span style={{ fontWeight: 600 }}>หน่วยงาน / แผนก</span>}
+              name="department_id"
+            >
               <Select
-                placeholder="เลือกแผนก"
+                placeholder="ระบุหน่วยงาน"
+                size="large"
+                style={{ borderRadius: 12 }}
                 showSearch
                 optionFilterProp="label"
                 options={departments.map((d) => ({
@@ -279,31 +328,16 @@ export const UserEditForm = ({
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
-            <Form.Item label="สถานะการใช้งาน" name="status">
-              <Select>
+            <Form.Item
+              label={<span style={{ fontWeight: 600 }}>สถานะการใช้งาน</span>}
+              name="status"
+            >
+              <Select size="large" style={{ borderRadius: 12 }}>
                 <Select.Option value="ACTIVE">
-                  <Tag
-                    color="success"
-                    style={{
-                      border: "none",
-                      background: "transparent",
-                      margin: 0,
-                    }}
-                  >
-                    ใช้งานปกติ
-                  </Tag>
+                  <Badge status="success" text="ใช้งานปกติ (Active)" />
                 </Select.Option>
                 <Select.Option value="INACTIVE">
-                  <Tag
-                    color="default"
-                    style={{
-                      border: "none",
-                      background: "transparent",
-                      margin: 0,
-                    }}
-                  >
-                    ปิดการใช้งาน
-                  </Tag>
+                  <Badge status="default" text="ระงับการใช้งาน (Inactive)" />
                 </Select.Option>
               </Select>
             </Form.Item>
@@ -314,16 +348,34 @@ export const UserEditForm = ({
         </Form.Item>
       </div>
 
-      <Divider />
+      <Divider style={{ margin: "24px 0" }} />
 
-      <Space style={{ width: "100%", justifyContent: "flex-end" }} size={12}>
-        <Button onClick={() => router.push("/admin/user-profile")}>
-          ยกเลิก
-        </Button>
-        <Button type="primary" htmlType="submit" loading={submitting}>
-          ยืนยันการบันทึกข้อมูล
-        </Button>
-      </Space>
+      <Row justify="end">
+        <Col>
+          <Space size={12}>
+            <Button
+              size="large"
+              style={{ borderRadius: 12, minWidth: 120 }}
+              onClick={() => router.push("/admin/user-profile")}
+            >
+              ยกเลิก
+            </Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              size="large"
+              loading={submitting}
+              style={{
+                borderRadius: 12,
+                minWidth: 180,
+                boxShadow: "0 4px 12px rgba(24, 144, 255, 0.25)",
+              }}
+            >
+              บันทึกการแก้ไข
+            </Button>
+          </Space>
+        </Col>
+      </Row>
     </Form>
   );
 };
