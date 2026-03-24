@@ -16,14 +16,9 @@ export const bulkPdfDownloadService = {
    * @param fileName ชื่อไฟล์ PDF
    * @returns Blob ของไฟล์ PDF
    */
-  async generatePdfBlob(element: HTMLElement): Promise<Blob> {
-    const canvas = await html2canvas(element, {
-      scale: 2, // เพิ่มความละเอียดของภาพ
-      useCORS: true, // รองรับรูปภาพที่โหลดข้ามโดเมน
-      logging: false,
-    });
+  async generatePdfBlob(elements: HTMLElement | HTMLElement[]): Promise<Blob> {
+    const elementList = Array.isArray(elements) ? elements : [elements];
 
-    const imgData = canvas.toDataURL("image/jpeg", 0.95);
     const pdf = new jsPDF({
       orientation: "portrait",
       unit: "mm",
@@ -32,20 +27,36 @@ export const bulkPdfDownloadService = {
 
     const imgWidth = 210; // A4 width in mm
     const pageHeight = 297; // A4 height in mm
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    let position = 0;
 
-    // หน้าแรก
-    pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
+    for (let i = 0; i < elementList.length; i++) {
+      const el = elementList[i];
+      if (!el) continue;
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
 
-    // กรณีข้อมูลยาวเกิน 1 หน้า A4 (วนลูปสร้างหน้าใหม่)
-    while (heightLeft >= 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
+      const imgData = canvas.toDataURL("image/jpeg", 0.95);
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      // แต่ละ element เริ่มหน้าใหม่เสมอ (ยกเว้น element แรก)
+      if (i > 0) {
+        pdf.addPage();
+      }
+
       pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
+
+      // กรณีข้อมูลยาวเกิน 1 หน้า A4
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
     }
 
     return pdf.output("blob");
@@ -61,7 +72,7 @@ export const bulkPdfDownloadService = {
     items: Array<{
       employeeCode: string;
       fileName: string;
-      element: HTMLElement;
+      element: HTMLElement | HTMLElement[];
     }>,
     zipFileName: string = `OT_Reports_${new Date().getTime()}.zip`,
     onProgress?: (
@@ -75,7 +86,9 @@ export const bulkPdfDownloadService = {
     const total = items.length;
 
     for (let i = 0; i < total; i++) {
-      const { employeeCode, fileName, element } = items[i];
+      const item = items[i];
+      if (!item) continue;
+      const { employeeCode, fileName, element } = item;
 
       if (onProgress) {
         onProgress(i, total, "processing", fileName);
@@ -105,9 +118,7 @@ export const bulkPdfDownloadService = {
       onProgress(total, total, "zipping", zipFileName);
     }
 
-    const content = await zip.generateAsync({ type: "blob" }, (metadata) => {
-      // สามารถส่ง progress ของการ zip จริงๆ ได้ถ้าต้องการ
-    });
+    const content = await zip.generateAsync({ type: "blob" });
 
     saveAs(content, zipFileName);
 

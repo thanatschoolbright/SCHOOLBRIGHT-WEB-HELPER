@@ -1211,16 +1211,22 @@ const OvertimeManagementPage = () => {
           <div class="ot-sign-container-temp">
             <div class="ot-sign-box-temp">
               <div class="ot-sign-title-temp">ผู้ขออนุมัติ</div>
-              ${sig1Base64 ? `<img src="${sig1Base64}" style="height:50px">` : `<div style="height:50px"></div>`}
-              <div class="ot-sign-line-temp"></div>
-              <div>(${reqName})</div>
+              <div style="height:55px; display:flex; align-items:flex-end; justify-content:center;">
+                ${sig1Base64 ? `<img src="${sig1Base64}" style="max-height:50px;">` : ""}
+              </div>
+              <div class="ot-sign-line-temp" style="margin-top:4px;"></div>
+              <div style="font-size:12px">(${reqName.replace(/\s*\([^)]*\)/g, "").trim()})</div>
+              <div style="font-size:11px">${position}</div>
               <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
             </div>
             <div class="ot-sign-box-temp">
               <div class="ot-sign-title-temp">ผู้ตรวจสอบ / รับทราบ</div>
-              ${thanatBase64 ? `<img src="${thanatBase64}" style="height:50px">` : ""}
-              <div class="ot-sign-line-temp"></div>
-              <div>(หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ)</div>
+              <div style="height:55px; display:flex; align-items:flex-end; justify-content:center;">
+                ${thanatBase64 ? `<img src="${thanatBase64}" style="max-height:50px;">` : ""}
+              </div>
+              <div class="ot-sign-line-temp" style="margin-top:4px;"></div>
+              <div style="font-size:12px">(.......................................................)</div>
+              <div style="font-size:11px">หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ</div>
               <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
             </div>
           </div>
@@ -1271,23 +1277,34 @@ const OvertimeManagementPage = () => {
             <div class="ot-sign-container-temp">
               <div class="ot-sign-box-temp">
                 <div class="ot-sign-title-temp">ผู้ขออนุมัติ</div>
-                ${sig1Base64 ? `<img src="${sig1Base64}" style="height:50px">` : `<div style="height:50px"></div>`}
-                <div class="ot-sign-line-temp"></div>
-                <div>(${reqName})</div>
+                <div style="height:55px; display:flex; align-items:flex-end; justify-content:center;">
+                  ${sig1Base64 ? `<img src="${sig1Base64}" style="max-height:50px;">` : ""}
+                </div>
+                <div class="ot-sign-line-temp" style="margin-top:4px;"></div>
+                <div style="font-size:12px">(${reqName.replace(/\s*\([^)]*\)/g, "").trim()})</div>
+                <div style="font-size:11px">${position}</div>
                 <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
               </div>
               <div class="ot-sign-box-temp">
                 <div class="ot-sign-title-temp">ผู้ตรวจสอบ / รับทราบ</div>
-                ${thanatBase64 ? `<img src="${thanatBase64}" style="height:50px">` : ""}
-                <div class="ot-sign-line-temp"></div>
-                <div>(หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ)</div>
+                <div style="height:55px; display:flex; align-items:flex-end; justify-content:center;">
+                  ${thanatBase64 ? `<img src="${thanatBase64}" style="max-height:50px;">` : ""}
+                </div>
+                <div class="ot-sign-line-temp" style="margin-top:4px;"></div>
+                <div style="font-size:12px">(.......................................................)</div>
+                <div style="font-size:11px">หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ</div>
                 <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
               </div>
             </div>
           </div>
 
-          <!-- แยกหน้าสำหรับหลักฐานการทำงาน -->
-          <div style="page-break-before: always; height: 1px; overflow: hidden;"></div>
+        `;
+        container.appendChild(tempDiv);
+
+        // หน้าที่ 2: หลักฐานการทำงาน (แยก element เพื่อให้ jsPDF ขึ้นหน้าใหม่เสมอ)
+        const evidenceDiv = document.createElement("div");
+        evidenceDiv.className = "ot-print-temp";
+        evidenceDiv.innerHTML = `
           <div class="evidence-page-temp">
             <div style="font-size:16px; font-weight:700; text-align:center; border:2px solid #000; padding:8px; border-radius:4px;">หลักฐานการทำงาน</div>
             <div class="evidence-grid-temp">
@@ -1304,12 +1321,12 @@ const OvertimeManagementPage = () => {
             </div>
           </div>
         `;
-        container.appendChild(tempDiv);
+        container.appendChild(evidenceDiv);
 
         itemsForZip.push({
           employeeCode: empCode,
           fileName: `OT_${empCode}_${reqName}_${dayjs(data.request_date).format("DD-MM-YYYY")}.pdf`,
-          element: tempDiv,
+          element: [tempDiv, evidenceDiv],
         });
       }
 
