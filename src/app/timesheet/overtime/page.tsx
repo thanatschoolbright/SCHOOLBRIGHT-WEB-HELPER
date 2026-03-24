@@ -88,6 +88,7 @@ import {
 
 import { toast } from "sonner";
 
+import { bulkPdfDownloadService } from "@/helpers/bulk-pdf-download.helper";
 import SummaryCard from "@/components/card/summary-card";
 import StatusModalComponent, {
   type StatusModalProps,
@@ -175,6 +176,8 @@ const OvertimeManagementPage = () => {
   const [isExportModalVisible, setIsExportModalVisible] = useState(false);
   const [isAnalyticsModalVisible, setIsAnalyticsModalVisible] = useState(false);
   const [isRulesModalVisible, setIsRulesModalVisible] = useState(false);
+  const [isBulkDownloading, setIsBulkDownloading] = useState(false);
+  const [bulkDownloadProgress, setBulkDownloadProgress] = useState(0);
 
   // --- ข้อมูลและผลลัพธ์จาก API (Data State) ---
   const [isLoadingOvertimeData, setIsLoadingOvertimeData] = useState(false);
@@ -953,6 +956,154 @@ const OvertimeManagementPage = () => {
     }
   };
 
+  /**
+   * จัดการดาวน์โหลด PDF ทั้งหมดที่เลือกในรูปแบบไฟล์ ZIP
+   * แยกโฟลเดอร์ตามรหัสพนักงาน
+   */
+  const handleBulkPdfDownloadZip = async () => {
+    if (selectedRowKeys.length === 0) {
+      toast.error("โปรดเลือกรายการที่ต้องการดาวน์โหลด");
+      return;
+    }
+
+    try {
+      setIsBulkDownloading(true);
+      setBulkDownloadProgress(0);
+      const requesterId = (await requestCurrentLocalUserID()) || "system";
+
+      // 1. ดึงข้อมูลดิบของทุกรายการที่เลือก
+      const dataItems = [];
+      for (const id of selectedRowKeys) {
+        try {
+          const response = await callApiService.post(
+            "/api/v1/timesheet/overtime/read",
+            { id: String(id), request_id: String(requesterId) },
+          );
+          if (response?.data?.status === 200 && response.data.data?.[0]) {
+            dataItems.push(response.data.data[0]);
+          }
+        } catch (err) {
+          console.error(`Failed to fetch OT ${id}:`, err);
+        }
+      }
+
+      if (dataItems.length === 0) {
+        toast.error("ไม่พบข้อมูลที่จะดาวน์โหลด");
+        setIsBulkDownloading(false);
+        return;
+      }
+
+      // 2. สร้าง Container ชั่วคราวสำหรับการเรนเดอร์ (Hidden)
+      const container = document.createElement("div");
+      container.style.position = "fixed";
+      container.style.left = "-9999px";
+      container.style.top = "0";
+      container.id = "bulk-pdf-render-container";
+      document.body.appendChild(container);
+
+      // สร้าง Style สำหรับการพิมพ์
+      const styleElement = document.createElement("style");
+      styleElement.innerHTML = `
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
+        .ot-print-temp { font-family: 'Sarabun', sans-serif; color: #000; background: #fff; width: 210mm; padding: 20px; box-sizing: border-box; }
+        .ot-header-temp { display: flex; align-items: center; border: 1px solid #000; padding: 10px; margin-bottom: 15px; border-radius: 4px; }
+        .ot-table-temp { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px; }
+        .ot-table-temp th, .ot-table-temp td { border: 1px solid #000; padding: 5px; text-align: center; }
+        .ot-info-temp { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; border: 1px solid #000; padding: 10px; border-radius: 4px; }
+        .ot-sign-container-temp { display: flex; justify-content: space-around; margin-top: 30px; }
+        .ot-sign-box-temp { text-align: center; width: 40%; }
+        .ot-sign-line-temp { border-bottom: 1px dotted #000; margin: 40px 0 5px; }
+      `;
+      container.appendChild(styleElement);
+
+      const itemsForZip = [];
+
+      // 3. วนลูปเรนเดอร์และเตรียมข้อมูลสำหรับ ZIP
+      for (const data of dataItems) {
+        const userData = getUserById(data?.requester_id ?? "");
+        const empCode = userData?.employee_code || data?.created_by || "UNKNOWN";
+        const reqName =
+          userData && (userData.firstname || userData.lastname)
+            ? `${userData.firstname ?? ""} ${userData.lastname ?? ""}`.trim()
+            : data?.requester_id ?? "-";
+
+        const tempDiv = document.createElement("div");
+        tempDiv.className = "ot-print-temp";
+        tempDiv.innerHTML = `
+          <div class="ot-header-temp">
+            <div style="flex:1; text-align:center; font-weight:700; font-size:18px;">แบบคำขอทำงานล่วงเวลา (OT)</div>
+          </div>
+          <div class="ot-info-temp">
+            <div><strong>ชื่อ-สกุล:</strong> ${reqName}</div>
+            <div><strong>รหัสพนักงาน:</strong> ${empCode}</div>
+            <div><strong>ตำแหน่ง:</strong> ${userData?.position || "-"}</div>
+            <div><strong>วันที่ขอ:</strong> ${dayjs(data.request_date).format("DD/MM/YYYY")}</div>
+          </div>
+          <table class="ot-table-temp">
+            <thead>
+              <tr style="background:#f0f0f0;">
+                <th style="width:50px">ลำดับ</th>
+                <th>รายละเอียดงาน</th>
+                <th style="width:80px">เริ่ม</th>
+                <th style="width:80px">สิ้นสุด</th>
+                <th style="width:70px">ชม.</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(data.descriptions || [])
+                .map(
+                  (d: any, i: number) => `
+                <tr>
+                  <td>${i + 1}</td>
+                  <td style="text-align:left">${d.description || "-"}</td>
+                  <td>${d.start_date ? dayjs(d.start_date).format("HH:mm") : "-"}</td>
+                  <td>${d.end_date ? dayjs(d.end_date).format("HH:mm") : "-"}</td>
+                  <td>${d.duration || "0"}</td>
+                </tr>
+              `,
+                )
+                .join("")}
+            </tbody>
+          </table>
+          <div class="ot-sign-container-temp">
+            <div class="ot-sign-box-temp">
+              <div class="ot-sign-line-temp"></div>
+              <div>ผู้อนุมัติ (หัวหน้างาน)</div>
+            </div>
+            <div class="ot-sign-box-temp">
+              <div class="ot-sign-line-temp"></div>
+              <div>ผู้ขอรับรอง (${reqName})</div>
+            </div>
+          </div>
+        `;
+        container.appendChild(tempDiv);
+
+        itemsForZip.push({
+          employeeCode: empCode,
+          fileName: `OT_${data.id}_${dayjs(data.request_date).format("YYYYMMDD")}.pdf`,
+          element: tempDiv,
+        });
+      }
+
+      // 4. สั่งดาวน์โหลด ZIP
+      await bulkPdfDownloadService.generateZip(
+        itemsForZip,
+        `SB_OT_Bulk_${dayjs().format("YYYYMMDD_HHmm")}.zip`,
+        (progress) => setBulkDownloadProgress(progress),
+      );
+
+      // 5. Cleanup
+      document.body.removeChild(container);
+      toast.success("ดาวน์โหลดไฟล์ ZIP สำเร็จ");
+    } catch (error) {
+      console.error("Bulk Download Error:", error);
+      toast.error("เกิดข้อผิดพลาดในการดาวน์โหลด กรุณาลองใหม่");
+    } finally {
+      setIsBulkDownloading(false);
+      setBulkDownloadProgress(0);
+    }
+  };
+
   // จัดการการเปลี่ยนแปลงสถานะของตารางข้อมูล เช่น การเปลี่ยนหน้า หรือการกรองข้อมูลแบบเรียลไทม์
   const requestTablePaginationAndFilterDataChange = (
     paginationParametersSource: any,
@@ -1114,6 +1265,9 @@ const OvertimeManagementPage = () => {
             isBatchProcessing={isBatchProcessing}
             setIsBatchStatusModalVisible={setIsBatchStatusModalVisible}
             requestBatchSendOvertimeMailToHR={requestBatchSendOvertimeMailToHR}
+            handleBulkPdfDownloadZip={handleBulkPdfDownloadZip}
+            isBulkDownloading={isBulkDownloading}
+            bulkDownloadProgress={bulkDownloadProgress}
             navigationRouter={navigationRouter}
             setIsAnalyticsModalVisible={setIsAnalyticsModalVisible}
             themeToken={themeToken}
@@ -1364,6 +1518,9 @@ const ActionBarSection = ({
   isBatchProcessing,
   setIsBatchStatusModalVisible,
   requestBatchSendOvertimeMailToHR,
+  handleBulkPdfDownloadZip,
+  isBulkDownloading,
+  bulkDownloadProgress,
   navigationRouter,
   setIsAnalyticsModalVisible,
   themeToken,
@@ -1416,6 +1573,23 @@ const ActionBarSection = ({
             style={{ borderRadius: 12, height: 44 }}
           >
             ดูรายงาน PDF รวม
+          </Button>
+
+          <Button
+            type="primary"
+            icon={<CloudDownloadOutlined />}
+            loading={isBulkDownloading}
+            onClick={handleBulkPdfDownloadZip}
+            style={{
+              borderRadius: 12,
+              height: 44,
+              background: themeToken.colorInfo,
+              border: "none",
+            }}
+          >
+            {isBulkDownloading
+              ? `กำลังเตรียมไฟล์ (${bulkDownloadProgress}%)`
+              : "ดาวน์โหลด PDF ทุกคน (.zip)"}
           </Button>
 
           <Button
