@@ -41,12 +41,12 @@ const SYSTEM_PALETTE = {
     borderSecondary: "#F8FAFC",
   },
   dark: {
-    bgLayout: "#020617",
-    bgContainer: "#0F172A",
-    bgElevated: "#1E293B",
-    textMain: "#F8FAFC",
-    textSub: "#94A3B8",
-    border: "#1E293B",
+    bgLayout: "#0F172A", // Slate 900 (Brighter than previous Slate 950)
+    bgContainer: "#1E293B", // Slate 800 
+    bgElevated: "#334155", // Slate 700
+    textMain: "#FFFFFF", // Max contrast pure white
+    textSub: "#CBD5E1", // Brighter secondary text (Slate 300)
+    border: "#334155", // More visible border (Slate 700)
     borderSecondary: "#1E293B",
   },
 };
@@ -131,21 +131,21 @@ const getModernTheme = (
       Card: {
         paddingLG: 24,
         colorBgContainer: isDark
-          ? "rgba(15, 23, 42, 0.65)"
+          ? "rgba(30, 41, 59, 0.7)" // Brightened glass background
           : "rgba(255, 255, 255, 0.75)",
         boxShadowTertiary: isDark
-          ? "0 4px 24px -2px rgba(0, 0, 0, 0.4)"
+          ? "0 4px 24px -2px rgba(0, 0, 0, 0.3)"
           : "0 4px 24px -2px rgba(0, 0, 0, 0.04)",
       },
       Table: {
-        headerBg: isDark ? "#1E293B" : "#F8FAFC",
+        headerBg: isDark ? "#334155" : "#F8FAFC", // Brighter table header
         headerSplitColor: "transparent",
         headerBorderRadius: 16,
         padding: 16,
       },
       Input: {
         activeShadow: "0 0 0 2px rgba(255, 140, 0, 0.1)",
-        colorBgContainer: isDark ? "rgba(2, 6, 23, 0.5)" : "#FFFFFF",
+        colorBgContainer: isDark ? "rgba(15, 23, 42, 0.6)" : "#FFFFFF", // Brighter input background
       },
       Select: {
         controlOutline: "none",
@@ -198,16 +198,16 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                   "--border": palette.border,
                   "--text-main": palette.textMain,
                   "--glass-bg": isDark
-                    ? "rgba(15, 23, 42, 0.7)"
+                    ? "rgba(30, 41, 59, 0.75)"
                     : "rgba(255, 255, 255, 0.7)",
                   "--card-glass-bg": isDark
-                    ? "rgba(15, 23, 42, 0.65)"
+                    ? "rgba(30, 41, 59, 0.7)"
                     : "rgba(255, 255, 255, 0.65)",
                   "--modal-mask-bg": isDark
-                    ? "rgba(0, 0, 0, 0.6)"
+                    ? "rgba(0, 0, 0, 0.5)"
                     : "rgba(0, 0, 0, 0.45)",
-                  "--scroll-thumb": isDark ? "#1E293B" : "#CBD5E1",
-                  "--scroll-thumb-hover": isDark ? "#334155" : "#94A3B8",
+                  "--scroll-thumb": isDark ? "#334155" : "#CBD5E1",
+                  "--scroll-thumb-hover": isDark ? "#475569" : "#94A3B8",
                   "--modal-bg": isDark ? "#1E293B" : "#FFFFFF",
                 } as React.CSSProperties)
               : { visibility: "hidden" }
@@ -298,8 +298,8 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
 
               .dark .ant-modal-content {
                 background: #1e293b !important;
-                border: 1px solid #334155;
-                box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5) !important;
+                border: 1px solid #475569;
+                box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.4) !important;
               }
 
               /* Fix Body Scroll Lock for Modal and Drawer */
@@ -330,8 +330,8 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 box-shadow: none !important;
               }
               .dark .ant-drawer-content {
-                background: #1c1c1e !important;
-                border-color: #334155 !important;
+                background: #1e293b !important;
+                border-color: #475569 !important;
                 box-shadow: none !important;
               }
               .ant-drawer-header-title {
