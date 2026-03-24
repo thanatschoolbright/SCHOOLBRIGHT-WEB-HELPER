@@ -45,7 +45,6 @@ import {
 } from "chart.js";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
-import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
@@ -74,6 +73,7 @@ import {
   FileTextOutlined,
   FilterOutlined,
   HistoryOutlined,
+  LoadingOutlined,
   MailOutlined,
   PlusOutlined,
   ReloadOutlined,
@@ -1299,7 +1299,8 @@ const OvertimeManagementPage = () => {
 
       // 4. สั่งดาวน์โหลด ZIP พร้อม Tracking
       setBulkTrackingData(
-        itemsForZip.map((item) => ({
+        itemsForZip.map((item, index) => ({
+          key: `${item.fileName}_${index}`,
           fileName: item.fileName,
           status: "waiting",
           progress: 0,
