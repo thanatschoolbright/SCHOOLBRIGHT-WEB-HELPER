@@ -993,6 +993,12 @@ const OvertimeManagementPage = () => {
       }
     };
 
+    const formatDateThai = (date: string | null | undefined, sep = "/") => {
+      if (!date) return "-";
+      const d = dayjs(date);
+      return `${d.format("DD")}${sep}${d.format("MM")}${sep}${d.year() + 543}`;
+    };
+
     try {
       setIsBulkDownloading(true);
       setBulkDownloadProgress(0);
@@ -1160,8 +1166,8 @@ const OvertimeManagementPage = () => {
             <div class="ot-logo" style="width:140px">${logoBase64 ? `<img src="${logoBase64}" style="max-height:40px">` : ""}</div>
             <div class="ot-doc-title-temp">แบบคำขอทำงานล่วงเวลา (OT)</div>
             <div class="ot-doc-meta-temp">
-              <div>ประจำเดือน: ${headerDate ? dayjs(headerDate).locale("th").format("MMMM") : "-"}</div>
-              <div>วันที่: ${headerDate ? dayjs(headerDate).format("DD/MM/YYYY") : "-"}</div>
+              <div>ประจำเดือน: ${headerDate ? `${dayjs(headerDate).format("MM")}/${dayjs(headerDate).year() + 543}` : "-"}</div>
+              <div>วันที่: ${formatDateThai(headerDate)}</div>
             </div>
           </div>
 
@@ -1204,7 +1210,7 @@ const OvertimeManagementPage = () => {
                   return `
                   <tr>
                     <td>${i + 1}</td>
-                    <td>${d.date ? dayjs(d.date).format("DD/MM/YYYY") : "-"}</td>
+                    <td>${d.date ? formatDateThai(d.date) : "-"}</td>
                     <td style="text-align:left">${d.description || "-"}</td>
                     <td>${bS}</td>
                     <td>${bE}</td>
@@ -1230,7 +1236,7 @@ const OvertimeManagementPage = () => {
               <div class="ot-sign-line-temp" style="margin-top:4px;"></div>
               <div style="font-size:12px">(${reqName.replace(/\s*\([^)]*\)/g, "").trim()})</div>
               <div style="font-size:11px">${position}</div>
-              <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
+              <div style="font-size:11px">วันที่ ${formatDateThai(headerDate, " / ")}</div>
             </div>
             <div class="ot-sign-box-temp">
               <div class="ot-sign-title-temp">ผู้ตรวจสอบ / รับทราบ</div>
@@ -1240,7 +1246,7 @@ const OvertimeManagementPage = () => {
               <div class="ot-sign-line-temp" style="margin-top:4px;"></div>
               <div style="font-size:12px">ธนัท พรหมพิริยา</div>
               <div style="font-size:11px">หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ</div>
-              <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
+              <div style="font-size:11px">วันที่ ${formatDateThai(headerDate, " / ")}</div>
             </div>
           </div>
 
@@ -1272,7 +1278,7 @@ const OvertimeManagementPage = () => {
                     return `
                     <tr>
                       <td>${i + 1}</td>
-                      <td>${d.date ? dayjs(d.date).format("DD/MM/YYYY") : "-"}</td>
+                      <td>${d.date ? formatDateThai(d.date) : "-"}</td>
                       <td style="text-align:left">${d.description || "-"}</td>
                       <td>${d.start_date ? dayjs(d.start_date).format("HH:mm") : "-"}</td>
                       <td>${d.end_date ? dayjs(d.end_date).format("HH:mm") : "-"}</td>
@@ -1296,7 +1302,7 @@ const OvertimeManagementPage = () => {
                 <div class="ot-sign-line-temp" style="margin-top:4px;"></div>
                 <div style="font-size:12px">(${reqName.replace(/\s*\([^)]*\)/g, "").trim()})</div>
                 <div style="font-size:11px">${position}</div>
-                <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
+                <div style="font-size:11px">วันที่ ${formatDateThai(headerDate, " / ")}</div>
               </div>
               <div class="ot-sign-box-temp">
                 <div class="ot-sign-title-temp">ผู้ตรวจสอบ / รับทราบ</div>
@@ -1306,7 +1312,7 @@ const OvertimeManagementPage = () => {
                 <div class="ot-sign-line-temp" style="margin-top:4px;"></div>
                 <div style="font-size:12px">ธนัท พรหมพิริยา</div>
                 <div style="font-size:11px">หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ</div>
-                <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
+                <div style="font-size:11px">วันที่ ${formatDateThai(headerDate, " / ")}</div>
               </div>
             </div>
           </div>
