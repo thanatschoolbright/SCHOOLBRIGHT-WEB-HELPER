@@ -14,7 +14,7 @@ jobs:
   automated-api-tests:
     runs-on: ["self-hosted", "AUTOMATED_TEST_API"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Login to Postman CLI
         run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
@@ -27,7 +27,7 @@ jobs:
             --reporter-json-export postman-test-result.json
 
       - name: Upload JSON result
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: postman-result
           path: postman-test-result.json

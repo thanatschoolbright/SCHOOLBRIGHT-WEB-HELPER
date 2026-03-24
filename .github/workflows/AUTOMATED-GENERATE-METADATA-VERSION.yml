@@ -34,12 +34,12 @@ jobs:
       # 1. Checkout & Setup
       # ------------------------------------------------------------------
       - name: 📥 Checkout main project repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: 📁 Checkout meta-version repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ${{ env.META_REPO }}
           token: ${{ secrets.SECRET_TOKEN }}

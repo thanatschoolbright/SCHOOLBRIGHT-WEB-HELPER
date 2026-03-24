@@ -39,7 +39,7 @@ jobs:
       deployment_sha: ${{ steps.ref.outputs.sha }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag != '' && format('refs/tags/{0}', inputs.tag) || github.ref }}
@@ -86,12 +86,12 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ needs.pre_flight_checks.outputs.deployment_sha }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
@@ -112,7 +112,7 @@ jobs:
           tar -czf artifact.tar.gz .next public package.json package-lock.json next.config.mjs prisma
 
       - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ env.ARTIFACT_NAME }}
           retention-days: 1
@@ -151,7 +151,7 @@ jobs:
           rm -rf *
 
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.DEPLOY_PATH }}
