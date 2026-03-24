@@ -2906,7 +2906,6 @@ const BatchStatusModalSection = ({
         gap={10}
         style={{
           padding: "12px 16px",
-          background: "#fffbe6",
           borderRadius: 12,
           border: "1px solid #ffe58f",
         }}
