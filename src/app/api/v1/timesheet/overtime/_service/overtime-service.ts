@@ -60,10 +60,8 @@ export async function createOvertimeWithNotification(
       department,
     };
 
-    const formattedRequestDate = dayjs(payload.requestDate).format(
-      "DD/MM/YYYY HH:mm",
-    );
-    const overtimeType = "ปกติ";
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SB_HELPER_URL || "http://localhost:3000";
 
     // 5. สร้างเนื้อหา Email (HTML Template)
     const emailSubject = `[Overtime Request] มีการขออนุมัติ OT ใหม่จาก ${requesterInfo.fullName}`;
@@ -156,7 +154,7 @@ export async function createOvertimeWithNotification(
             </div>
 
             <div style="margin-top: 48px; text-align: center;">
-              <a href="${process.env.NEXT_PUBLIC_SB_HELPER_URL ?? ""}/timesheet/overtime"
+              <a href="${baseUrl}/timesheet/overtime"
                  style="background-color: #f97316; color: #ffffff; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 15px; display: inline-block; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.2);">
                 ตรวจสอบและอนุมัติในระบบ
               </a>
@@ -245,6 +243,8 @@ export async function updateOvertimeStatusWithNotification(
           pending: "รออนุมัติ",
         }[status] || status;
 
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SB_HELPER_URL || "http://localhost:3000";
       const emailSubject = `[Overtime Status] คำขอ OT ของคุณได้รับการ${statusLabel}แล้ว`;
 
       const emailHtml = `
@@ -284,7 +284,7 @@ export async function updateOvertimeStatusWithNotification(
               </div>
 
               <div style="margin-top: 40px; text-align: center;">
-                <a href="${process.env.NEXT_PUBLIC_SB_HELPER_URL ?? ""}/timesheet/overtime"
+                <a href="${baseUrl}/timesheet/overtime"
                    style="color: #6366f1; text-decoration: underline; font-weight: 500; font-size: 14px;">
                   คลิกที่นี่เพื่อตรวจสอบรายละเอียดในระบบ
                 </a>
