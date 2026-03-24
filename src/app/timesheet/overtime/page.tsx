@@ -976,7 +976,8 @@ const OvertimeManagementPage = () => {
 
     const fetchImageAsBase64 = async (url: string): Promise<string> => {
       try {
-        const res = await fetch(url);
+        const proxyUrl = `/api/v1/proxy/image?url=${encodeURIComponent(url)}`;
+        const res = await fetch(proxyUrl);
         const blob = await res.blob();
         return await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
