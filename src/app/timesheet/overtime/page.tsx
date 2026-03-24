@@ -1,6 +1,10 @@
 "use client";
 
 import {
+  DeliveryLoadingModal,
+  overtimeSubmissionSteps,
+} from "@/components/modal/delivery-loading-modal";
+import {
   App,
   Avatar,
   Badge,
@@ -181,6 +185,10 @@ const OvertimeManagementPage = () => {
   const [isRulesModalVisible, setIsRulesModalVisible] = useState(false);
   const [isBulkDownloading, setIsBulkDownloading] = useState(false);
   const [bulkDownloadProgress, setBulkDownloadProgress] = useState(0);
+
+  // --- สถานะการส่งคำขอ OT (Submission Tracking) ---
+  const [isSubmissionLoading, setIsSubmissionLoading] = useState(false);
+  const [currentSubmissionStep, setCurrentSubmissionStep] = useState(0);
 
   // --- สถานะสำหรับการดาวน์โหลด Bulk (Tracking) ---
   const [bulkTrackingData, setBulkTrackingData] = useState<any[]>([]);
@@ -461,8 +469,8 @@ const OvertimeManagementPage = () => {
         let filteredOvertimeItemsResultList = overtimeRecordsListContent;
         if (appliedSearchText) {
           const lowerCaseSearchTextString = appliedSearchText.toLowerCase();
-          filteredOvertimeItemsResultList =
-            overtimeRecordsListContent.filter((item: any) => {
+          filteredOvertimeItemsResultList = overtimeRecordsListContent.filter(
+            (item: any) => {
               const searchFieldValues = [
                 item.id?.toString(),
                 item.requester_id?.toString(),
@@ -477,7 +485,8 @@ const OvertimeManagementPage = () => {
               return searchFieldValues.some((field) =>
                 field?.toLowerCase().includes(lowerCaseSearchTextString),
               );
-            });
+            },
+          );
         }
 
         setOvertimeDataSource(
@@ -566,7 +575,8 @@ const OvertimeManagementPage = () => {
     formSubmissionPayload: any,
   ) => {
     try {
-      setIsLoadingOvertimeData(true);
+      setIsSubmissionLoading(true);
+      setCurrentSubmissionStep(0); // ขั้นตอนที่ 1: เตรียมข้อมูล
       const currentOperatingUserToken = await requestCurrentLocalUserID();
 
       // 1. ตรวจสอบความถูกต้องของไฟล์รูปภาพก่อนดำเนินธุรกรรม
@@ -577,7 +587,10 @@ const OvertimeManagementPage = () => {
         ...(formSubmissionPayload.proof_work_2 || []),
         ...(formSubmissionPayload.signature_file || []),
       ];
-      if (!validateImageFiles(allFiles)) return null;
+      if (!validateImageFiles(allFiles)) {
+        setIsSubmissionLoading(false);
+        return null;
+      }
 
       // 2. เตรียมข้อมูล Payload สำหรับการสร้าง Record หลัก
       const baseDate = formSubmissionPayload.request_date
@@ -626,6 +639,8 @@ const OvertimeManagementPage = () => {
         "signature_file",
       ].forEach((key) => delete (submissionBodyPayload as any)[key]);
 
+      setCurrentSubmissionStep(1); // ขั้นตอนที่ 2: บันทึกข้อมูลลงฐานข้อมูล
+
       // 3. ยิง API สร้างรายการหลัก
       const result = await callApiService.post(
         "/api/v1/timesheet/overtime/create",
@@ -634,6 +649,7 @@ const OvertimeManagementPage = () => {
       const resData = result?.data;
 
       if (resData && (resData.status === 200 || resData.status === 201)) {
+        setCurrentSubmissionStep(2); // ขั้นตอนที่ 3: ส่งอีเมลแจ้งเตือน
         const firstId = resData.data?.descriptions?.[0]?.id;
 
         if (firstId) {
@@ -653,15 +669,18 @@ const OvertimeManagementPage = () => {
           }
         }
 
+        setCurrentSubmissionStep(3); // ขั้นตอนที่ 4: เสร็จสมบูรณ์
         toast.success(resData.message_th ?? "สร้างรายการสำเร็จ");
+        setTimeout(() => {
+          setIsSubmissionLoading(false);
+        }, 1000);
         return resData.data;
       }
       throw new Error(resData?.message_th ?? "ไม่สามารถสร้างรายการได้");
     } catch (error) {
+      setIsSubmissionLoading(false);
       processAndDisplaySystemError(error, "เกิดข้อผิดพลาดในการสร้างรายการ");
       return null;
-    } finally {
-      setIsLoadingOvertimeData(false);
     }
   };
 
@@ -1829,6 +1848,13 @@ const OvertimeManagementPage = () => {
               open: false,
             }))
           }
+        />
+
+        {/* Modal แสดงความคืบหน้าการส่งข้อมูล (Delivery Tracking) */}
+        <DeliveryLoadingModal
+          open={isSubmissionLoading}
+          currentStep={currentSubmissionStep}
+          steps={overtimeSubmissionSteps}
         />
       </Flex>
     </DashboardLayout>
