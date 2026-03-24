@@ -1099,22 +1099,21 @@ const OvertimeManagementPage = () => {
         const proofData = firstDescription.proof || {};
         const headerDate = data.request_date || data.created_at;
 
-        // ฟังก์ชันช่วยจัดการรูปภาพ (CORS) สำหรับ html2canvas
+        // ฟังก์ชันช่วยจัดการรูปภาพ (CORS) และรอโหลดรูปให้เสร็จ (Async)
         const getProxiedImgHtml = (
           url: string,
           className: string = "",
           style: string = "",
         ) => {
           if (!url) return "";
-          // ใช้ proxy หรือ attribute ที่จำเป็นเพื่อให้ html2canvas โหลดรูปข้ามโดเมนได้
-          return `<img src="${url}" class="${className}" style="${style}" crossOrigin="anonymous">`;
+          return `<img src="${url}" class="${className}" style="${style}" crossOrigin="anonymous" data-need-load="true">`;
         };
 
         const tempDiv = document.createElement("div");
         tempDiv.className = "ot-print-temp";
         tempDiv.innerHTML = `
           <div class="ot-header-temp">
-            <div class="ot-logo" style="width:140px"><img src="/sb_logo.webp" style="max-height:40px" crossOrigin="anonymous"></div>
+            <div class="ot-logo" style="width:140px"><img src="/sb_logo.webp" style="max-height:40px" crossOrigin="anonymous" data-need-load="true"></div>
             <div class="ot-doc-title-temp">แบบคำขอทำงานล่วงเวลา (OT)</div>
             <div class="ot-doc-meta-temp">
               <div>ประจำเดือน: ${headerDate ? dayjs(headerDate).locale("th").format("MMMM") : "-"}</div>
@@ -1188,7 +1187,7 @@ const OvertimeManagementPage = () => {
             </div>
             <div class="ot-sign-box-temp">
               <div class="ot-sign-title-temp">ผู้ตรวจสอบ / รับทราบ</div>
-              <img src="/signatures/THANAT.png" style="height:50px" crossOrigin="anonymous">
+              <img src="/signatures/THANAT.png" style="height:50px" crossOrigin="anonymous" data-need-load="true">
               <div class="ot-sign-line-temp"></div>
               <div>(หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ)</div>
               <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
@@ -1248,7 +1247,7 @@ const OvertimeManagementPage = () => {
               </div>
               <div class="ot-sign-box-temp">
                 <div class="ot-sign-title-temp">ผู้ตรวจสอบ / รับทราบ</div>
-                <img src="/signatures/THANAT.png" style="height:50px" crossOrigin="anonymous">
+                <img src="/signatures/THANAT.png" style="height:50px" crossOrigin="anonymous" data-need-load="true">
                 <div class="ot-sign-line-temp"></div>
                 <div>(หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ)</div>
                 <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
@@ -1273,6 +1272,20 @@ const OvertimeManagementPage = () => {
           </div>
         `;
         container.appendChild(tempDiv);
+
+        // รอให้รูปภาพทั้งหมดใน tempDiv โหลดเสร็จก่อนไปรายการถัดไป
+        const images = tempDiv.querySelectorAll('img[data-need-load="true"]');
+        const loadPromises = Array.from(images).map((img: any) => {
+          return new Promise((resolve) => {
+            if (img.complete) {
+              resolve(true);
+            } else {
+              img.onload = () => resolve(true);
+              img.onerror = () => resolve(false);
+            }
+          });
+        });
+        await Promise.all(loadPromises);
 
         itemsForZip.push({
           employeeCode: empCode,
