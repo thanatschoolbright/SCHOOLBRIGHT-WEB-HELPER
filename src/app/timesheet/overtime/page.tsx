@@ -1987,10 +1987,21 @@ const TaskDescriptionCard = ({
                 รายละเอียดภาระงาน
               </Typography.Text>
             }
-            rules={[{ required: true, message: "ระบุเนื้องาน" }]}
+            rules={[
+              { required: true, message: "ระบุเนื้องาน" },
+              { max: 200, message: "จำกัดไม่เกิน 200 ตัวอักษร" },
+            ]}
+            extra={
+              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                * จำกัดไม่เกิน 200 ตัวอักษร หากมีรายละเอียดเพิ่มเติม
+                ให้กดเพิ่มรายการ
+              </Typography.Text>
+            }
             style={{ marginBottom: 16 }}
           >
             <Input
+              maxLength={200}
+              showCount
               placeholder="เช่น ตรวจสอบความถูกต้องของฐานข้อมูลรายชื่อ..."
               style={{ height: 44, borderRadius: 10, marginBottom: 4 }}
             />
@@ -2070,6 +2081,7 @@ const TaskDescriptionCard = ({
             <Input
               type="number"
               step="0.5"
+              disabled
               suffix={
                 <Typography.Text type="secondary" style={{ fontSize: 11 }}>
                   ชม.
@@ -2322,7 +2334,7 @@ const CreateModalSection = ({
                     borderWidth: 2,
                   }}
                 >
-                  เพิ่มรายการภาระงานถัดไป
+                  เพิ่มรายการ
                 </Button>
 
                 <Flex
