@@ -178,18 +178,19 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
   );
   const palette = isDark ? SYSTEM_PALETTE.dark : SYSTEM_PALETTE.light;
 
-  if (!isMounted) {
-    return <div style={{ visibility: "hidden" }}>{children}</div>;
-  }
-
+  // ConfigProvider ต้องครอบ children ตั้งแต่แรก เพื่อให้ locale={thTH} ถูก apply
+  // ก่อน DatePicker / component ต่างๆ mount (ถ้าไม่ทำ locale จะติดค่า default ภาษาอังกฤษ)
   return (
     <ConfigProvider
       locale={thTH}
-      theme={themeConfig}
+      theme={isMounted ? themeConfig : undefined}
       componentSize="middle"
       input={{ autoComplete: "off" }}
     >
       <App>
+        {!isMounted ? (
+          <div style={{ visibility: "hidden" }}>{children}</div>
+        ) : (
         <div
           className="ant-theme-root"
           style={
@@ -346,6 +347,7 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
           `}</style>
           {children}
         </div>
+        )}
       </App>
     </ConfigProvider>
   );
