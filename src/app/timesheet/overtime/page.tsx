@@ -1739,7 +1739,6 @@ const ActionBarSection = ({
               align="center"
               gap={10}
               style={{
-                background: "#fff",
                 padding: "10px 20px",
                 borderRadius: 12,
                 border: `1px solid ${themeToken.colorBorderSecondary}`,
