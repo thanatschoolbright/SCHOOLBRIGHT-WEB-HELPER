@@ -1001,18 +1001,53 @@ const OvertimeManagementPage = () => {
       container.id = "bulk-pdf-render-container";
       document.body.appendChild(container);
 
-      // สร้าง Style สำหรับการพิมพ์
+      // สร้าง Style สำหรับการพิมพ์ที่ถอดแบบมาจาก preview/[id]/page.tsx
       const styleElement = document.createElement("style");
       styleElement.innerHTML = `
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
-        .ot-print-temp { font-family: 'Sarabun', sans-serif; color: #000; background: #fff; width: 210mm; padding: 20px; box-sizing: border-box; }
-        .ot-header-temp { display: flex; align-items: center; border: 1px solid #000; padding: 10px; margin-bottom: 15px; border-radius: 4px; }
-        .ot-table-temp { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px; }
-        .ot-table-temp th, .ot-table-temp td { border: 1px solid #000; padding: 5px; text-align: center; }
-        .ot-info-temp { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; border: 1px solid #000; padding: 10px; border-radius: 4px; }
-        .ot-sign-container-temp { display: flex; justify-content: space-around; margin-top: 30px; }
-        .ot-sign-box-temp { text-align: center; width: 40%; }
-        .ot-sign-line-temp { border-bottom: 1px dotted #000; margin: 40px 0 5px; }
+        .ot-print-temp {
+          font-family: 'Sarabun', sans-serif;
+          color: #000;
+          background: #fff;
+          width: 210mm;
+          padding: 24px 32px;
+          box-sizing: border-box;
+          line-height: 1.3;
+        }
+        .ot-header-temp {
+          display: flex;
+          align-items: center;
+          border: 1px solid #000;
+          padding: 10px;
+          margin-bottom: 16px;
+          border-radius: 4px;
+        }
+        .ot-doc-title-temp { flex: 1; text-align: center; font-size: 16px; font-weight: 700; }
+        .ot-doc-meta-temp { font-size: 12px; display: flex; gap: 16px; }
+        .ot-info-temp {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px 24px;
+          margin-bottom: 16px;
+          padding: 12px;
+          border: 1px solid #000;
+          border-radius: 4px;
+        }
+        .ot-label-temp { font-weight: 600; margin-right: 8px; min-width: 90px; }
+        .ot-value-temp { flex: 1; border-bottom: 1px dotted #000; padding-bottom: 2px; }
+        .ot-table-temp { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 11px; }
+        .ot-table-temp th, .ot-table-temp td { border: 1px solid #000; padding: 6px 8px; vertical-align: middle; text-align: center; }
+        .ot-table-temp th { background-color: #fff; font-weight: 600; }
+        .ot-summary-temp { display: flex; justify-content: flex-end; gap: 24px; font-weight: 600; font-size: 12px; margin-bottom: 16px; padding: 8px 12px; border: 1px solid #000; }
+        .ot-sign-container-temp { display: flex; justify-content: space-between; margin-top: 20px; }
+        .ot-sign-box-temp { text-align: center; width: 45%; }
+        .ot-sign-title-temp { font-weight: 600; margin-bottom: 8px; font-size: 12px; }
+        .ot-sign-line-temp { border-bottom: 1px dotted #000; margin: 40px auto 4px; width: 85%; }
+        .ot-sub-form-temp { margin-top: 20px; border-top: 2px solid #000; padding-top: 16px; }
+        .evidence-page-temp { page-break-before: always; padding: 24px 32px; }
+        .evidence-grid-temp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
+        .evidence-item-temp { border: 2px dashed #ccc; border-radius: 8px; padding: 10px; height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .evidence-img-temp { max-width: 100%; max-height: 160px; object-fit: contain; }
       `;
       container.appendChild(styleElement);
 
@@ -1028,52 +1063,179 @@ const OvertimeManagementPage = () => {
             ? `${userData.firstname ?? ""} ${userData.lastname ?? ""}`.trim()
             : (data?.requester_id ?? "-");
 
+        // คํานวณเวลา Budget
+        const totalBudgetHours =
+          data.descriptions?.reduce((acc: number, item: any) => {
+            if (!item?.start_date || !item?.end_date)
+              return acc + (Number(item?.duration) || 0);
+            const bStart = dayjs(item.start_date).startOf("hour");
+            const bEnd = dayjs(item.end_date).add(1, "hour").startOf("hour");
+            const diff = bEnd.diff(bStart, "hour");
+            return acc + (diff > 0 ? diff : 0);
+          }, 0) || 0;
+
+        // คำนวณเวลา Actual
+        const totalActualMinutes =
+          data.descriptions?.reduce((acc: number, item: any) => {
+            if (!item?.start_date || !item?.end_date) return acc;
+            const diff = dayjs(item.end_date).diff(
+              dayjs(item.start_date),
+              "minute",
+            );
+            return acc + (diff > 0 ? diff : 0);
+          }, 0) || 0;
+        const h = Math.floor(totalActualMinutes / 60);
+        const m = totalActualMinutes % 60;
+        const actualDisplay =
+          totalActualMinutes > 0
+            ? `${h}:${m.toString().padStart(2, "0")}`
+            : "-";
+
+        const firstProof = data.descriptions?.[0]?.proof || {};
+        const headerDate = data.request_date || data.created_at;
+
         const tempDiv = document.createElement("div");
         tempDiv.className = "ot-print-temp";
         tempDiv.innerHTML = `
           <div class="ot-header-temp">
-            <div style="flex:1; text-align:center; font-weight:700; font-size:18px;">แบบคำขอทำงานล่วงเวลา (OT)</div>
+            <div class="ot-logo" style="width:140px"><img src="/sb_logo.webp" style="max-height:40px"></div>
+            <div class="ot-doc-title-temp">แบบคำขอทำงานล่วงเวลา (OT)</div>
+            <div class="ot-doc-meta-temp">
+              <div>ประจำเดือน: ${headerDate ? dayjs(headerDate).locale("th").format("MMMM") : "-"}</div>
+              <div>วันที่: ${headerDate ? dayjs(headerDate).format("DD/MM/YYYY") : "-"}</div>
+            </div>
           </div>
+
           <div class="ot-info-temp">
-            <div><strong>ชื่อ-สกุล:</strong> ${reqName}</div>
-            <div><strong>รหัสพนักงาน:</strong> ${empCode}</div>
-            <div><strong>ตำแหน่ง:</strong> ${userData?.position || "-"}</div>
-            <div><strong>วันที่ขอ:</strong> ${dayjs(data.request_date).format("DD/MM/YYYY")}</div>
+            <div style="display:flex"><span class="ot-label-temp">ชื่อ - สกุล:</span><span class="ot-value-temp">${reqName}</span></div>
+            <div style="display:flex"><span class="ot-label-temp">รหัสพนักงาน:</span><span class="ot-value-temp">${empCode}</span></div>
+            <div style="display:flex"><span class="ot-label-temp">ตำแหน่ง:</span><span class="ot-value-temp">${userData?.position || "-"}</span></div>
+            <div style="display:flex"><span class="ot-label-temp">ฝ่าย/แผนก:</span><span class="ot-value-temp">${data.department || "IT"}</span></div>
           </div>
+
+          <div style="margin-bottom:12px; padding:8px; border:1px solid #000; border-left:4px solid #000;"><strong>รายละเอียดการทำงานล่วงเวลา</strong></div>
           <table class="ot-table-temp">
             <thead>
-              <tr style="background:#f0f0f0;">
-                <th style="width:50px">ลำดับ</th>
-                <th>รายละเอียดงาน</th>
-                <th style="width:80px">เริ่ม</th>
-                <th style="width:80px">สิ้นสุด</th>
-                <th style="width:70px">ชม.</th>
+              <tr>
+                <th style="width:5%">ลำดับ</th>
+                <th style="width:12%">วันที่</th>
+                <th>รายละเอียดงานที่ปฏิบัติจริง</th>
+                <th style="width:12%">เวลาเริ่ม</th>
+                <th style="width:12%">เวลาสิ้นสุด</th>
+                <th style="width:10%">รวม (ชม.)</th>
+                <th style="width:15%">หมายเหตุ</th>
               </tr>
             </thead>
             <tbody>
               ${(data.descriptions || [])
-                .map(
-                  (d: any, i: number) => `
-                <tr>
-                  <td>${i + 1}</td>
-                  <td style="text-align:left">${d.description || "-"}</td>
-                  <td>${d.start_date ? dayjs(d.start_date).format("HH:mm") : "-"}</td>
-                  <td>${d.end_date ? dayjs(d.end_date).format("HH:mm") : "-"}</td>
-                  <td>${d.duration || "0"}</td>
-                </tr>
-              `,
-                )
+                .map((d: any, i: number) => {
+                  const bS = d.start_date
+                    ? dayjs(d.start_date).format("HH:00")
+                    : "-";
+                  const bE = d.end_date
+                    ? dayjs(d.end_date).add(1, "hour").format("HH:00")
+                    : "-";
+                  const bDuration =
+                    d.start_date && d.end_date
+                      ? dayjs(d.end_date)
+                          .add(1, "hour")
+                          .startOf("hour")
+                          .diff(dayjs(d.start_date).startOf("hour"), "hour")
+                      : d.duration || "-";
+                  return `
+                  <tr>
+                    <td>${i + 1}</td>
+                    <td>${d.date ? dayjs(d.date).format("DD/MM/YYYY") : "-"}</td>
+                    <td style="text-align:left">${d.description || "-"}</td>
+                    <td>${bS}</td>
+                    <td>${bE}</td>
+                    <td>${bDuration}</td>
+                    <td>-</td>
+                  </tr>`;
+                })
                 .join("")}
             </tbody>
           </table>
+
+          <div class="ot-summary-temp">
+            <div style="margin-right:auto">เหตุผลการขอ: ${data.reason || "-"}</div>
+            <div>รวมเวลาทั้งหมด: <span style="font-size:16px">${totalBudgetHours}</span> ชั่วโมง</div>
+          </div>
+
           <div class="ot-sign-container-temp">
             <div class="ot-sign-box-temp">
+              <div class="ot-sign-title-temp">ผู้ขออนุมัติ</div>
+              ${firstProof.signature_1 ? `<img src="${firstProof.signature_1}" style="height:50px">` : `<div style="height:50px"></div>`}
               <div class="ot-sign-line-temp"></div>
-              <div>ผู้อนุมัติ (หัวหน้างาน)</div>
+              <div>(${reqName})</div>
+              <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
             </div>
             <div class="ot-sign-box-temp">
+              <div class="ot-sign-title-temp">ผู้อนุมัติ (หัวหน้างาน)</div>
+              <img src="/signatures/THANAT.png" style="height:50px">
               <div class="ot-sign-line-temp"></div>
-              <div>ผู้ขอรับรอง (${reqName})</div>
+              <div>(หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ)</div>
+              <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
+            </div>
+          </div>
+
+          <div class="ot-sub-form-temp">
+            <div style="margin-bottom:12px; padding:8px; border:1px solid #000; border-left:4px solid #000;"><strong>ส่วนสำหรับบันทึกการปฏิบัติงานจริง</strong></div>
+            <table class="ot-table-temp">
+              <thead>
+                <tr>
+                  <th style="width:5%">ลำดับ</th>
+                  <th style="width:12%">วันที่</th>
+                  <th>รายละเอียดงานที่ปฏิบัติจริง</th>
+                  <th style="width:12%">เวลาเริ่ม</th>
+                  <th style="width:12%">เวลาสิ้นสุด</th>
+                  <th style="width:10%">รวม (ชม.)</th>
+                  <th style="width:15%">หมายเหตุ</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${(data.descriptions || [])
+                  .map((d: any, i: number) => {
+                    const diffM =
+                      d.start_date && d.end_date
+                        ? dayjs(d.end_date).diff(dayjs(d.start_date), "minute")
+                        : 0;
+                    const durText =
+                      diffM > 0
+                        ? `${Math.floor(diffM / 60)}:${(diffM % 60).toString().padStart(2, "0")}`
+                        : "-";
+                    return `
+                    <tr>
+                      <td>${i + 1}</td>
+                      <td>${d.date ? dayjs(d.date).format("DD/MM/YYYY") : "-"}</td>
+                      <td style="text-align:left">${d.description || "-"}</td>
+                      <td>${d.start_date ? dayjs(d.start_date).format("HH:mm") : "-"}</td>
+                      <td>${d.end_date ? dayjs(d.end_date).format("HH:mm") : "-"}</td>
+                      <td>${durText}</td>
+                      <td>-</td>
+                    </tr>`;
+                  })
+                  .join("")}
+              </tbody>
+            </table>
+            <div class="ot-summary-temp">
+              <div style="margin-left:auto">รวมเวลาปฏิบัติงานจริง: <span style="font-size:16px">${actualDisplay}</span></div>
+            </div>
+          </div>
+
+          <div class="evidence-page-temp">
+            <div style="font-size:16px; font-weight:700; text-align:center; border:2px solid #000; padding:8px; border-radius:4px;">หลักฐานการทำงาน</div>
+            <div class="evidence-grid-temp">
+              ${[1, 2, 3, 4]
+                .map(
+                  (idx) => `
+                <div class="evidence-item-temp">
+                  <div style="font-weight:600; margin-bottom:5px;">หลักฐาน #${idx}</div>
+                  ${firstProof[`image_${idx}`] ? `<img src="${firstProof[`image_${idx}`]}" class="evidence-img-temp">` : `<div style="color:#999">ไม่มีรูปภาพ</div>`}
+                </div>
+              `,
+                )
+                .join("")}
             </div>
           </div>
         `;
@@ -1909,8 +2071,9 @@ const OvertimeTableSection = ({
               icon={<FilePdfOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
-                navigationRouter.push(
+                window.open(
                   `/timesheet/overtime/preview/${recordContentData.id}`,
+                  "_blank",
                 );
               }}
               style={{ borderRadius: 8, color: themeToken.colorError }}
