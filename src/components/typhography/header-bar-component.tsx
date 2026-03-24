@@ -98,7 +98,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
                 <Title
                   level={isMobile ? 4 : 2}
                   ellipsis
-                  style={{ fontWeight: 700, lineHeight: 1.2 }}
+                  style={{ fontWeight: 700, lineHeight: 1.6 }}
                 >
                   {title}
                 </Title>
