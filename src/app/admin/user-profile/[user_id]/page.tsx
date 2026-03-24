@@ -510,7 +510,7 @@ const UserEditPage = () => {
                           <Text strong>
                             {userData?.updated_at
                               ? dayjs(userData.updated_at).format(
-                                  "DD MMM YYYY HH:mm",
+                                  "DD/MM/YYYY HH:mm",
                                 )
                               : "-"}
                           </Text>
@@ -541,7 +541,7 @@ const UserEditPage = () => {
                             วันที่เข้าสู่ระบบ
                           </Text>
                           <Text strong>
-                            {dayjs(userData?.created_at).format("DD MMM YYYY")}
+                            {dayjs(userData?.created_at).format("DD/MM/YYYY")}
                           </Text>
                         </div>
                       </Space>
@@ -571,9 +571,7 @@ const UserEditPage = () => {
                           </Text>
                           <Text strong>
                             {userData?.joined_date
-                              ? dayjs(userData.joined_date).format(
-                                  "DD MMM YYYY",
-                                )
+                              ? dayjs(userData.joined_date).format("DD/MM/YYYY")
                               : "ไม่ได้ระบุ"}
                           </Text>
                         </div>
@@ -604,7 +602,7 @@ const UserEditPage = () => {
                           </Text>
                           <Text strong>
                             {userData?.birth_date
-                              ? dayjs(userData.birth_date).format("DD MMM YYYY")
+                              ? dayjs(userData.birth_date).format("DD/MM/YYYY")
                               : "ไม่ได้ระบุ"}
                           </Text>
                         </div>
