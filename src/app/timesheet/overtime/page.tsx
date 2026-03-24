@@ -1081,8 +1081,8 @@ const OvertimeManagementPage = () => {
         .evidence-grid-temp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
         .evidence-item-temp { border: 2px dashed #ccc; border-radius: 8px; padding: 10px; height: 480px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
         .evidence-label-temp { font-weight: 600; margin-top: 1rem; margin-bottom: 8px; text-align: center; flex-shrink: 0; }
-        .evidence-img-wrapper-temp { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
-        .evidence-img-temp { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .evidence-img-wrapper-temp { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; padding: 8px; box-sizing: border-box; overflow: hidden; min-height: 0; }
+        .evidence-img-temp { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block; }
       `;
       container.appendChild(styleElement);
 
