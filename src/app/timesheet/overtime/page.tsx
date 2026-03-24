@@ -1218,7 +1218,7 @@ const OvertimeManagementPage = () => {
 
           <div class="ot-summary-temp">
             <div style="margin-right:auto">เหตุผลการขอ: ${data.reason || "-"}</div>
-            <div>รวมเวลาทั้งหมด: <span style="font-size:16px">${totalBudgetHours}</span> ชั่วโมง</div>
+            <div>รวมเวลาทั้งหมด: <span style="font-size:16px">${totalBudgetHours}:00</span> ชั่วโมง</div>
           </div>
 
           <div class="ot-sign-container-temp">
@@ -1304,7 +1304,7 @@ const OvertimeManagementPage = () => {
                   ${thanatBase64 ? `<img src="${thanatBase64}" style="max-height:50px;">` : ""}
                 </div>
                 <div class="ot-sign-line-temp" style="margin-top:4px;"></div>
-                <div style="font-size:12px">(.......................................................)</div>
+                <div style="font-size:12px">ธนัท พรหมพิริยา</div>
                 <div style="font-size:11px">หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ</div>
                 <div style="font-size:11px">วันที่ ${headerDate ? dayjs(headerDate).format("DD / MM / YYYY") : "-"}</div>
               </div>
