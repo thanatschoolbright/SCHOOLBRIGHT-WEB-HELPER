@@ -1,9 +1,8 @@
-name: System Log Cleanup
+name: SYSTEM LOG CLEANUP
 
 on:
   schedule:
-    - cron: "0 2 * * 0" # รันทุกวันอาทิตย์ เวลา 02:00 UTC (เวลาที่ระบบมี load น้อย)
-  workflow_dispatch: # สามารถรันด้วยตนเองได้
+    - cron: "0 2 * * 0" # รันทุกวันอาทิตย์ เวลา 02:00 UTC (เวลาที่ระบบมี load น้อย)  workflow_dispatch: # สามารถรันด้วยตนเองได้
 
 jobs:
   clean-logs:

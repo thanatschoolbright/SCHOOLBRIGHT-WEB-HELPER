@@ -1,4 +1,4 @@
-name: Automated API tests using Postman CLI
+name: AUTOMATED API TESTS USING POSTMAN CLI
 
 on:
   workflow_run:

@@ -1,4 +1,4 @@
-name: Update Version Control (Auto Metadata Sync)
+name: UPDATE VERSION CONTROL (AUTO METADATA SYNC)
 
 on:
   push:

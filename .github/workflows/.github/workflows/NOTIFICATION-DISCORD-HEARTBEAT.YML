@@ -1,4 +1,4 @@
-name: Health Check - Hourly
+name: HEALTH CHECK - HOURLY
 
 on:
     schedule:

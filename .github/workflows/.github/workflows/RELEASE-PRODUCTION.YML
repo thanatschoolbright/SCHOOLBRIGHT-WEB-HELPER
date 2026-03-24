@@ -1,4 +1,4 @@
-name: Production Deployment Pipeline
+name: PRODUCTION DEPLOYMENT PIPELINE
 
 on:
   push:

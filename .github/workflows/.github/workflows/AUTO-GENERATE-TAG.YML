@@ -1,4 +1,4 @@
-name: Sync Release Notes (Auto Tag Sync)
+name: SYNC RELEASE NOTES (AUTO TAG SYNC)
 
 on:
   push:

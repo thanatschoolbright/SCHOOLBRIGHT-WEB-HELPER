@@ -1,8 +1,8 @@
-name: 🏥 Enterprise System Health Check Monitor
+name: 🏥 ENTERPRISE SYSTEM HEALTH CHECK MONITOR
 
 on:
   schedule:
-    - cron: "0 * * * *" # Every hour
+    - cron: "*/15 * * * *" # Every 15 minutes
   workflow_dispatch:
     inputs:
       verbose:
@@ -12,7 +12,7 @@ on:
 
 env:
   TZ: "Asia/Bangkok"
-  TARGET_URL: "https://sb-helper.schoolbright.co/api/v1/health-check/server/system"
+  TARGET_URL: "https://sb-helper.schoolbright.co/api/v2/server/status"
   MAX_RETRIES: 3
   RETRY_DELAY: 5
   REQUEST_TIMEOUT: 30
