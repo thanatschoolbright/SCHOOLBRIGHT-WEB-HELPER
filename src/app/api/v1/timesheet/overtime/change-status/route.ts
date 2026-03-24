@@ -1,9 +1,9 @@
 import { errorResponse, successResponse } from "@/helpers/api/response";
 import { validateRequest } from "@helpers/api/validate.request";
 import { handleError } from "@helpers/controller/handle-error.params";
-import Service from "@services/overtime/overtime.service";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { updateOvertimeStatusWithNotification } from "../_service/overtime-service";
 
 // Schema for change-status body (accept snake_case updated_by)
 const ChangeStatusSchema = z.object({
@@ -50,10 +50,11 @@ export async function POST(request: NextRequest) {
     const status = bodyData.status as string;
     const updatedBy = bodyData.updated_by;
 
-    const updated = await Service.update(id, {
+    const updated = await updateOvertimeStatusWithNotification(
+      id,
       status,
-      updatedBy: updatedBy !== undefined ? Number(updatedBy) : undefined,
-    });
+      updatedBy !== undefined ? Number(updatedBy) : undefined,
+    );
 
     return NextResponse.json(
       successResponse({
