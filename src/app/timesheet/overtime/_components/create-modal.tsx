@@ -47,6 +47,20 @@ interface CreateModalProps {
  * คอมโพเนนต์ย่อยสำหรับแสดง Card รายละเอียดงานแต่ละรายการ
  */
 const TaskDescriptionCard = ({ fieldProps, remove, token }: any) => {
+  const form = Form.useFormInstance();
+
+  const validateEndDate = (_: any, value: any) => {
+    const startDate = form.getFieldValue([
+      "descriptions",
+      fieldProps.name,
+      "startDate",
+    ]);
+    if (value && startDate && !dayjs(value).isAfter(dayjs(startDate))) {
+      return Promise.reject("เวลาสิ้นสุดต้องมากกว่าเวลาเริ่มต้น");
+    }
+    return Promise.resolve();
+  };
+
   return (
     <Card
       size="small"
@@ -98,9 +112,8 @@ const TaskDescriptionCard = ({ fieldProps, remove, token }: any) => {
               style={{ marginBottom: 0 }}
             >
               <DatePicker
-                showTime
-                format="HH:mm"
-                picker="time"
+                showTime={{ format: "HH:mm" }}
+                format="DD/MM/YYYY HH:mm"
                 style={{ width: "100%", height: 40, borderRadius: 10 }}
               />
             </Form.Item>
@@ -110,13 +123,15 @@ const TaskDescriptionCard = ({ fieldProps, remove, token }: any) => {
               {...fieldProps}
               name={[fieldProps.name, "endDate"]}
               label={<Typography.Text strong>เวลาสิ้นสุด</Typography.Text>}
-              rules={[{ required: true, message: "โปรดระบุ" }]}
+              rules={[
+                { required: true, message: "โปรดระบุ" },
+                { validator: validateEndDate },
+              ]}
               style={{ marginBottom: 0 }}
             >
               <DatePicker
-                showTime
-                format="HH:mm"
-                picker="time"
+                showTime={{ format: "HH:mm" }}
+                format="DD/MM/YYYY HH:mm"
                 style={{ width: "100%", height: 40, borderRadius: 10 }}
               />
             </Form.Item>
@@ -128,13 +143,13 @@ const TaskDescriptionCard = ({ fieldProps, remove, token }: any) => {
               label={
                 <Typography.Text strong>จำนวนชั่วโมง (ชม.)</Typography.Text>
               }
-              rules={[{ required: true, message: "โปรดระบุ" }]}
               style={{ marginBottom: 0 }}
             >
               <Input
                 type="number"
-                step="0.25"
+                step="0.01"
                 suffix="ชม."
+                disabled
                 style={{ height: 40, borderRadius: 10 }}
               />
             </Form.Item>
@@ -161,6 +176,7 @@ const UploadFieldItem = ({ name, label, required, form }: any) => {
 
   return (
     <Form.Item
+      name={name}
       label={<Typography.Text strong>{label}</Typography.Text>}
       rules={[{ required, message: "โปรดอัปโหลดไฟล์หลักฐาน" }]}
       style={{ marginBottom: 12 }}
