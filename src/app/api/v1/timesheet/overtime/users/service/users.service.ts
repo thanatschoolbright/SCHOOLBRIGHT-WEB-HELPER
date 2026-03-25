@@ -12,6 +12,7 @@ export class UsersService {
 
       const users = await this.prisma.user.findMany({
         select: {
+          id: true,
           admin_id: true,
           firstname_en: true,
           firstname_th: true,
@@ -25,7 +26,7 @@ export class UsersService {
         take: 100,
       });
 
-      return users;
+      return users as any;
     } catch (error) {
       throw new Error(
         `Failed to fetch users: ${error instanceof Error ? error.message : "Unknown error"}`,
@@ -47,6 +48,7 @@ export class UsersService {
       const [users, total] = await Promise.all([
         this.prisma.user.findMany({
           select: {
+            id: true,
             admin_id: true,
             firstname_en: true,
             firstname_th: true,
@@ -65,7 +67,7 @@ export class UsersService {
         }),
       ]);
 
-      return { users, total };
+      return { users: users as any, total };
     } catch (error) {
       throw new Error(
         `Failed to fetch users with pagination: ${error instanceof Error ? error.message : "Unknown error"}`,

@@ -127,7 +127,15 @@ ChartJS.register(
   LineElement,
 );
 
-const BYPASS_ADMIN_ID = "117";
+const OT_STATUS = [
+  { text: "รออนุมัติ", value: "pending", color: "gold" },
+  { text: "อนุมัติ", value: "approved", color: "green" },
+  { text: "ปฏิเสธ", value: "rejected", color: "red" },
+  { text: "จ่าย OT สำเร็จ", value: "paid", color: "cyan" },
+  { text: "จ่าย OT ล้มเหลว", value: "payment_failed", color: "volcano" },
+];
+
+const BYPASS_USER_ID = "49"; // ID ของ User แทน admin_id: "117"
 
 interface OvertimeDescription {
   id?: string | number;
@@ -155,14 +163,6 @@ interface PaginationState {
   pageSize: number;
   total: number;
 }
-
-const OT_STATUS = [
-  { text: "รออนุมัติ", value: "pending", color: "gold" },
-  { text: "อนุมัติ", value: "approved", color: "green" },
-  { text: "ปฏิเสธ", value: "rejected", color: "red" },
-  { text: "จ่าย OT สำเร็จ", value: "paid", color: "cyan" },
-  { text: "จ่าย OT ล้มเหลว", value: "payment_failed", color: "volcano" },
-];
 
 const OvertimeManagementPage = () => {
   // --- เครื่องมือพื้นฐาน (Hooks & Helpers) ---
@@ -257,13 +257,12 @@ const OvertimeManagementPage = () => {
   // ดึงข้อมูลรหัสผู้ดูแลระบบปัจจุบันจากสถานะการเข้าสู่ระบบหรือ Local Storage
   const requestCurrentLocalUserID = useCallback(async (): Promise<string> => {
     try {
-      const authenticationId =
-        authenticationState?.response?.data?.user_data?.admin_id;
-      if (authenticationId) return String(authenticationId);
+      const userId = authenticationState?.response?.data?.user_data?.id;
+      if (userId) return String(userId);
 
       const users = (await getUserData()) as UserProfile[] | null;
       if (Array.isArray(users) && users.length > 0) {
-        return String(users[0].admin_id ?? users[0].id ?? "system");
+        return String(users[0].id ?? "system");
       }
     } catch (error) {
       console.error(error);
@@ -334,7 +333,7 @@ const OvertimeManagementPage = () => {
         return {
           label:
             `${firstName} ${lastName} ${nicknameValue} ${employeeCodeValue}`.trim(),
-          value: String(user.admin_id),
+          value: String(user.id),
         };
       });
 
@@ -348,12 +347,16 @@ const OvertimeManagementPage = () => {
   // ดึงรายการรายละเอียดงานล่าสุดเพื่อนำมาเป็นคำแนะนำในการกรอกข้อมูล
   const requestDescriptionSelectionListData = useCallback(async () => {
     try {
-      const requestParameters = {
+      const currentUserId = authenticationState?.response?.data?.user_data?.id;
+
+      const requestParameters: any = {
         limit: 30,
         page: 1,
-        user_id:
-          authenticationState?.response?.data?.user_data?.admin_id || "0",
       };
+
+      if (currentUserId) {
+        requestParameters.user_id = Number(currentUserId);
+      }
 
       const apiResponseResult = await callApiService.post(
         "/api/v1/timesheet/entry/read/",
@@ -409,14 +412,13 @@ const OvertimeManagementPage = () => {
       try {
         setIsLoadingOvertimeData(true);
 
-        const currentAdminIdValue = await requestCurrentLocalUserID();
-        const isBypassUserSettingValue =
-          currentAdminIdValue === BYPASS_ADMIN_ID;
+        const currentUserIdValue = await requestCurrentLocalUserID();
 
-        const effectiveRequestId =
-          isBypassUserSettingValue && parameterUserId
-            ? String(parameterUserId)
-            : currentAdminIdValue;
+        const isBypassUser = currentUserIdValue === BYPASS_USER_ID;
+
+        const effectiveRequestId = parameterUserId
+          ? String(parameterUserId)
+          : currentUserIdValue;
 
         const filterApiParams = {
           ...(appliedMonthValue
@@ -429,29 +431,14 @@ const OvertimeManagementPage = () => {
         };
 
         const apiRequestParametersBody = targetOvertimeIdentifier
-          ? isBypassUserSettingValue
-            ? { id: String(targetOvertimeIdentifier) }
-            : {
-                id: String(targetOvertimeIdentifier),
-                request_id: effectiveRequestId,
-              }
-          : isBypassUserSettingValue
-            ? {
-                limit: currentPageSizeValue,
-                offset: (currentPageIndex - 1) * currentPageSizeValue,
-                ...requestFiltersDataValues,
-                ...filterApiParams,
-                ...(parameterUserId
-                  ? { request_id: String(parameterUserId) }
-                  : {}),
-              }
-            : {
-                limit: currentPageSizeValue,
-                offset: (currentPageIndex - 1) * currentPageSizeValue,
-                request_id: effectiveRequestId,
-                ...requestFiltersDataValues,
-                ...filterApiParams,
-              };
+          ? { id: String(targetOvertimeIdentifier) }
+          : {
+              limit: currentPageSizeValue,
+              offset: (currentPageIndex - 1) * currentPageSizeValue,
+              ...(!isBypassUser ? { request_id: effectiveRequestId } : {}),
+              ...requestFiltersDataValues,
+              ...filterApiParams,
+            };
 
         const apiResponseFullPayload = await callApiService.post(
           "/api/v1/timesheet/overtime/read",
@@ -2987,7 +2974,7 @@ const CreateModalSection = ({
             <Form.Item
               name="assignee"
               label={<Typography.Text strong>ผู้มอบหมายงาน</Typography.Text>}
-              initialValue={BYPASS_ADMIN_ID}
+              initialValue={BYPASS_USER_ID}
               rules={[{ required: true, message: "โปรดเลือกผู้มอบหมายงาน" }]}
               style={{ marginBottom: 24 }}
             >

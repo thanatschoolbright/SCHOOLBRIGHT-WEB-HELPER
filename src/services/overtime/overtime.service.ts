@@ -79,28 +79,29 @@ const DEFAULT_CREATED_BY = 0;
  * Helper to map user names and details to overtime records using admin_id
  */
 const mapUsersToOvertime = async (overtimeItems: any[]) => {
-  const adminIds = new Set<number>();
+  const userIds = new Set<number>();
   overtimeItems.forEach((item) => {
     // Collect IDs for users not already provided by Prisma include
     if (!item.requester && item.requesterId && !isNaN(Number(item.requesterId)))
-      adminIds.add(Number(item.requesterId));
+      userIds.add(Number(item.requesterId));
     if (!item.creator && item.createdBy && !isNaN(Number(item.createdBy)))
-      adminIds.add(Number(item.createdBy));
+      userIds.add(Number(item.createdBy));
     if (item.updatedBy && !isNaN(Number(item.updatedBy)))
-      adminIds.add(Number(item.updatedBy));
+      userIds.add(Number(item.updatedBy));
     if (item.descriptions) {
       item.descriptions.forEach((desc: any) => {
         if (desc.assignee && !isNaN(Number(desc.assignee)))
-          adminIds.add(Number(desc.assignee));
+          userIds.add(Number(desc.assignee));
       });
     }
   });
 
   let userMap = new Map();
-  if (adminIds.size > 0) {
+  if (userIds.size > 0) {
     const users = await (PrismaTimesheet as any).user.findMany({
-      where: { admin_id: { in: Array.from(adminIds) } },
+      where: { id: { in: Array.from(userIds) } },
       select: {
+        id: true,
         admin_id: true,
         firstname_th: true,
         lastname_th: true,
@@ -108,7 +109,7 @@ const mapUsersToOvertime = async (overtimeItems: any[]) => {
         position_ref: { select: { name_th: true } },
       },
     });
-    users.forEach((u: any) => userMap.set(u.admin_id, u));
+    users.forEach((u: any) => userMap.set(u.id, u));
   }
 
   return overtimeItems.map((item) => {
@@ -123,7 +124,7 @@ const mapUsersToOvertime = async (overtimeItems: any[]) => {
       const enName = `${u.firstname_en || ""} ${u.lastname_en || ""}`.trim();
       const nickname = u.nickname ? `(${u.nickname})` : "";
 
-      const fullName = thName || enName || u.username || String(u.admin_id);
+      const fullName = thName || enName || u.username || String(u.id);
       return nickname ? `${fullName} ${nickname}`.trim() : fullName;
     };
 
