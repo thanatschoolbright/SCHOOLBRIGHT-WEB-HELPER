@@ -419,7 +419,7 @@ export const OvertimeService = {
         summary.employeeCode,
         summary.fullName,
         summary.taskCount,
-        Number(summary.totalDuration.toFixed(2)),
+        summary.totalDuration,
       ]);
 
       row.height = 32; // Fixed height (Minimal Theme)
@@ -469,7 +469,7 @@ export const OvertimeService = {
       "",
       "",
       grandTotalTasks,
-      Number(grandTotalHours.toFixed(2)),
+      grandTotalHours,
     ]);
     grandTotalRow.height = 32;
 
@@ -610,7 +610,7 @@ function formatDataRow(row: ExcelJS.Row) {
       pattern: "solid",
       fgColor: { argb: "FFFFF9C4" },
     };
-  } else if (statusVal === "ปฏิเสธ" || statusVal === "ยกเลิก") {
+  } else if (statusVal === "ไม่อนุมัติ" || statusVal === "ยกเลิก") {
     statusCell.font = {
       bold: true,
       color: { argb: "FFC62828" },
