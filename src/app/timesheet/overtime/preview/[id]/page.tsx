@@ -1173,7 +1173,7 @@ const generateEmptyRows = (count: number) =>
 export default function OTPreviewPage() {
   const router = useRouter();
   const pathname = usePathname();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const authentication = useAppSelector((state) => state.callAdminLogin);
 
   const [data, setData] = useState<OvertimeData | null>(null);
@@ -1676,7 +1676,7 @@ export default function OTPreviewPage() {
                     <EditableSignature initialImageSrc="/signatures/THANAT.png" />
                     <div className="ot-sign-line"></div>
                     <div className="ot-sign-name">
-                      <EditableField placeholder="(หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ)" />
+                      <p>(ธนัท พรหมพิริยา)</p>
                     </div>
                     <div className="ot-sign-date">
                       วันที่{" "}
@@ -1953,7 +1953,7 @@ export default function OTPreviewPage() {
                     <EditableSignature initialImageSrc="/signatures/THANAT.png" />
                     <div className="ot-sign-line"></div>
                     <div className="ot-sign-name">
-                      <EditableField placeholder="(หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ)" />
+                      <p>(ธนัท พรหมพิริยา)</p>
                     </div>
                     <div className="ot-sign-date">
                       วันที่{" "}

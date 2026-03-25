@@ -7,6 +7,7 @@ import {
   EditOutlined,
   EyeOutlined,
   FileExcelOutlined,
+  FilePdfOutlined,
   MailOutlined,
   UnorderedListOutlined,
   UserOutlined,
@@ -28,6 +29,7 @@ import {
   Typography,
 } from "antd";
 import dayjs from "dayjs";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { useOvertimeStore } from "../_state/overtime-store";
 
@@ -78,6 +80,7 @@ const UserTable: React.FC<UserTableProps> = ({
 }) => {
   const { token } = theme.useToken();
   const { overtimeDataSource, isLoadingOvertimeData } = useOvertimeStore();
+  const router = useRouter();
 
   /**
    * ระบบตรวจสอบความสมบูรณ์ของข้อมูลเบื้องต้น
@@ -240,6 +243,15 @@ const UserTable: React.FC<UserTableProps> = ({
               </Popconfirm>
             </>
           )}
+          <Tooltip title="ดู PDF">
+            <Button
+              type="text"
+              icon={<FilePdfOutlined style={{ color: token.colorError }} />}
+              onClick={() =>
+                window.open(`/timesheet/overtime/preview/${record.id}`, "_blank")
+              }
+            />
+          </Tooltip>
           <Tooltip title="ส่งอีเมลแจ้ง HR">
             <Button
               type="text"
