@@ -528,6 +528,7 @@ export interface ResponseLoginV2 {
     success: boolean;
     token: string;
     user_data: {
+      id: any;
       admin_id: number;
       user_id: number;
       employee_code: string;

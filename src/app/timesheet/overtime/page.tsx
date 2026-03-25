@@ -12,7 +12,7 @@ import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -52,14 +52,6 @@ dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(buddhistEra);
 dayjs.locale("th");
-
-const OT_STATUS = [
-  { text: "รออนุมัติ", value: "pending", color: "gold" },
-  { text: "อนุมัติ", value: "approved", color: "green" },
-  { text: "ปฏิเสธ", value: "rejected", color: "red" },
-  { text: "จ่าย OT สำเร็จ", value: "paid", color: "cyan" },
-  { text: "จ่าย OT ล้มเหลว", value: "payment_failed", color: "volcano" },
-];
 
 const BYPASS_USER_ID = "49"; // ID ของ User แทน admin_id: "117"
 
@@ -105,7 +97,6 @@ const OvertimeManagementPage = () => {
 
   // --- Zustund Store สำหรับจัดการสถานะ Overtime (Refactored) ---
   const {
-    isBulkDownloading,
     bulkDownloadProgress,
     isBulkTrackingModalVisible,
     bulkTrackingData,
@@ -113,7 +104,6 @@ const OvertimeManagementPage = () => {
     setBulkDownloadProgress,
     setIsBulkTrackingModalVisible,
     setBulkTrackingData,
-    fetchOvertimeDataForBulk,
     setIsLoadingOvertimeData: setStoreIsLoadingOvertimeData,
     setOvertimeDataSource: setStoreOvertimeDataSource,
     setTotalRecords,
@@ -212,22 +202,6 @@ const OvertimeManagementPage = () => {
     },
     [],
   );
-
-  const overtimeStatistics = useMemo(() => {
-    const totalCountValue = paginationState.total;
-    const pendingCountValue = overtimeDataSource.filter(
-      (item) => item.status === "pending",
-    ).length;
-    const approvedCountValue = overtimeDataSource.filter((item) =>
-      ["approved", "paid", "payment_failed"].includes(item.status || ""),
-    ).length;
-
-    return {
-      total: totalCountValue,
-      pending: pendingCountValue,
-      approved: approvedCountValue,
-    };
-  }, [overtimeDataSource, paginationState.total]);
 
   // ดึงรายการผู้ใช้งานทั้งหมดสำหรับใช้ในตัวเลือก Select
   const requestUserSelectionListData = useCallback(async () => {
@@ -449,8 +423,8 @@ const OvertimeManagementPage = () => {
       }
     },
     [
-      authenticationState,
       paginationState.pageSize,
+      parameterUserId,
       requestCurrentLocalUserID,
       processAndDisplaySystemError,
       setStoreIsLoadingOvertimeData,
@@ -909,24 +883,6 @@ const OvertimeManagementPage = () => {
   };
 
   // ดึงรายละเอียดข้อมูลคำขอ OT ฉบับเต็มตามรหัส ID ที่ระบุ
-  const requestDetailedOvertimeContentByID = async (
-    overtimeSubmissionIdentifier: string | number,
-  ) => {
-    try {
-      setIsLoadingOvertimeData(true);
-      const apiResponseItemsListResult = await requestOvertimeRequestListData({
-        overtimeId: overtimeSubmissionIdentifier,
-      });
-      if (apiResponseItemsListResult && apiResponseItemsListResult.length > 0) {
-        setSelectedOvertimeDetail(apiResponseItemsListResult[0]);
-        setIsDetailModalVisible(true);
-      }
-    } catch (error) {
-      processAndDisplaySystemError(error, "ไม่สามารถดึงข้อมูลรายละเอียดได้");
-    } finally {
-      setIsLoadingOvertimeData(false);
-    }
-  };
 
   // จัดการการส่งข้อมูลจากฟอร์มสร้างรายการคำขอ OT ใหม่และรีเซ็ตค่าสถานะ
   const requestHandleCreateOvertimeFormSubmission = async (

@@ -171,7 +171,7 @@ const UploadFieldItem = ({ name, label, required, form }: any) => {
     // จำกัดให้เหลือรูปเดียว
     const latestFile = newFileList.slice(-1);
     setFileList(latestFile);
-    form.setFieldValue(name, latestFile.length > 0 ? latestFile[0] : null);
+    form.setFieldValue(name, latestFile);
   };
 
   return (
