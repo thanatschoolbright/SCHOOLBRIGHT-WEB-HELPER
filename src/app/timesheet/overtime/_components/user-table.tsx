@@ -29,7 +29,6 @@ import {
   Typography,
 } from "antd";
 import dayjs from "dayjs";
-import { useRouter } from "next/navigation";
 import React from "react";
 import { useOvertimeStore } from "../_state/overtime-store";
 
@@ -80,7 +79,6 @@ const UserTable: React.FC<UserTableProps> = ({
 }) => {
   const { token } = theme.useToken();
   const { overtimeDataSource, isLoadingOvertimeData } = useOvertimeStore();
-  const router = useRouter();
 
   /**
    * ระบบตรวจสอบความสมบูรณ์ของข้อมูลเบื้องต้น
