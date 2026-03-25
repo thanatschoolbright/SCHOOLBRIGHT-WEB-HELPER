@@ -242,8 +242,8 @@ model Overtime {
   updatedAt    DateTime              @updatedAt @map("updated_at")
   isDeleted    Boolean               @default(false) @map("is_deleted")
   descriptions OvertimeDescription[] @relation("OvertimeDescriptions")
-  requester    User?                 @relation("OvertimeRequester", fields: [requesterId], references: [admin_id])
-  creator      User?                 @relation("OvertimeCreator", fields: [createdBy], references: [admin_id])
+  requester    User?                 @relation("OvertimeRequester", fields: [requesterId], references: [id])
+  creator      User?                 @relation("OvertimeCreator", fields: [createdBy], references: [id])
 
   @@index([requesterId, isDeleted])
   @@index([status, isDeleted])
