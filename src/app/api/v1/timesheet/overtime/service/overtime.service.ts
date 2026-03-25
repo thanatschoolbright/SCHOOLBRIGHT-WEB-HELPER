@@ -297,10 +297,14 @@ export const OvertimeService = {
         item.descriptions.forEach((desc: any) => {
           const duration = Number(desc.duration || 0);
 
-          // อัปเดตยอดสรุป
+          // อัปเดตยอดสรุป เฉพาะสถานะที่อนุมัติแล้ว (approved, paid)
           const summary = summaryMap.get(String(item.requesterId))!;
-          summary.totalDuration += duration;
-          summary.taskCount += 1;
+          const isApproved =
+            item.status === "approved" || item.status === "paid";
+          if (isApproved) {
+            summary.totalDuration += duration;
+            summary.taskCount += 1;
+          }
 
           const proof = desc.proof || {};
           const row = worksheet.addRow({
@@ -445,7 +449,7 @@ export const OvertimeService = {
 
         // ไฮไลท์จำนวนชั่วโมงรวมด้วยสีแบรนด์
         if (
-          cell.value &&
+          cell.value !== undefined &&
           typeof cell.value === "number" &&
           cell.fullAddress.column === 5
         ) {
@@ -460,6 +464,7 @@ export const OvertimeService = {
             pattern: "solid",
             fgColor: { argb: "FFFFF7ED" }, // ส้มจางคลีนๆ
           };
+          cell.numFmt = "0.00";
         }
       });
       rowCursor++;
@@ -477,6 +482,8 @@ export const OvertimeService = {
 
     // Merge Cells สำหรับ Label "ยอดรวมสุทธิ" (A-C)
     worksheet.mergeCells(`A${rowCursor}:C${rowCursor}`);
+
+    grandTotalRow.getCell(5).numFmt = "0.00";
 
     grandTotalRow.eachCell((cell) => {
       cell.font = {
@@ -549,6 +556,12 @@ function formatDataRow(row: ExcelJS.Row) {
           fgColor: { argb: "FFFFF7ED" }, // ส้มจางคลีนๆ สไตล์ Minimal
         }));
     });
+  }
+
+  // format จำนวนชั่วโมง ทศนิยม 2 หลัก
+  const durationCell = row.getCell("duration");
+  if (typeof durationCell.value === "number") {
+    durationCell.numFmt = "0.00";
   }
 
   // ตกแต่ง Link รูปภาพให้เป็นสีน้ำเงินและขีดเส้นใต้
