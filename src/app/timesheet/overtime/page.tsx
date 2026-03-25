@@ -18,8 +18,6 @@ import {
   Row,
   Space,
   Steps,
-  Table,
-  Tag,
   theme,
   Timeline,
   Typography,
@@ -51,17 +49,12 @@ import {
   BarChartOutlined,
   BookOutlined,
   BulbOutlined,
-  CheckCircleOutlined,
   CheckOutlined,
   ClockCircleOutlined,
-  CloseCircleOutlined,
   CloudDownloadOutlined,
   FileExcelOutlined,
   FilePdfOutlined,
   FileTextOutlined,
-  FileZipOutlined,
-  HistoryOutlined,
-  LoadingOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
 
@@ -74,6 +67,7 @@ import { bulkPdfDownloadService } from "@/helpers/bulk-pdf-download.helper";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
 import BatchStatusModal from "./_components/batch-status-modal";
+import BulkDownloadTrackingModal from "./_components/bulk-download-tracking-modal";
 import CreateModal from "./_components/create-modal";
 import DetailModal from "./_components/detail-modal";
 import FilterSection from "./_components/filter-section";
@@ -1491,127 +1485,12 @@ const OvertimeManagementPage = () => {
   return (
     <DashboardLayout>
       {/* Modal แสดงความคืบหน้าการดาวน์โหลด Bulk (Delivery Tracking) */}
-      <Modal
-        title={
-          <Space>
-            <HistoryOutlined style={{ color: themeToken.colorPrimary }} />
-            <span>สถานะการเตรียมไฟล์ดาวน์โหลด (Bulk Download)</span>
-          </Space>
-        }
-        open={isBulkTrackingModalVisible}
-        onCancel={() => setIsBulkTrackingModalVisible(false)}
-        footer={[
-          <Button
-            key="close"
-            type="primary"
-            onClick={() => setIsBulkTrackingModalVisible(false)}
-            disabled={bulkDownloadProgress < 100}
-          >
-            {bulkDownloadProgress < 100
-              ? `กำลังดำเนินการ (${bulkDownloadProgress}%)`
-              : "ตกลง"}
-          </Button>,
-        ]}
-        width={800}
-        centered
-        maskClosable={false}
-        styles={{ body: { padding: "20px 0" } }}
-      >
-        <div style={{ padding: "0 24px" }}>
-          <div style={{ marginBottom: 24 }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginBottom: 8,
-              }}
-            >
-              <span style={{ fontWeight: 600 }}>ความคืบหน้าภาพรวม</span>
-              <span style={{ color: themeToken.colorPrimary, fontWeight: 700 }}>
-                {bulkDownloadProgress}%
-              </span>
-            </div>
-            <Progress
-              percent={bulkDownloadProgress}
-              status={bulkDownloadProgress < 100 ? "active" : "success"}
-              strokeColor={{
-                "0%": themeToken.colorPrimary,
-                "100%": themeToken.colorSuccess,
-              }}
-              showInfo={false}
-            />
-          </div>
-
-          <div style={{ maxHeight: 400, overflowY: "auto" }}>
-            <Table
-              dataSource={bulkTrackingData}
-              pagination={false}
-              size="small"
-              rowKey="key"
-              columns={[
-                {
-                  title: "ลำดับ",
-                  key: "index",
-                  width: 60,
-                  render: (_: any, __: any, index: number) => index + 1,
-                },
-                {
-                  title: "ชื่อไฟล์",
-                  dataIndex: "fileName",
-                  key: "fileName",
-                },
-                {
-                  title: "สถานะ",
-                  dataIndex: "status",
-                  key: "status",
-                  width: 150,
-                  render: (status: string) => {
-                    const config: any = {
-                      waiting: {
-                        color: "default",
-                        icon: <ClockCircleOutlined />,
-                        text: "รอการดำเนินการ",
-                      },
-                      processing: {
-                        color: "processing",
-                        icon: <LoadingOutlined />,
-                        text: "กำลังสร้าง PDF",
-                      },
-                      completed: {
-                        color: "success",
-                        icon: <CheckCircleOutlined />,
-                        text: "เสร็จสมบูรณ์",
-                      },
-                      failed: {
-                        color: "error",
-                        icon: <CloseCircleOutlined />,
-                        text: "ล้มเหลว",
-                      },
-                      zipping: {
-                        color: "warning",
-                        icon: <LoadingOutlined />,
-                        text: "กำลังรวมไฟล์ ZIP",
-                      },
-                      finished: {
-                        color: "success",
-                        icon: <FileZipOutlined />,
-                        text: "ดาวน์โหลดสำเร็จ",
-                      },
-                    };
-                    const item = config[status] || config.waiting;
-                    return (
-                      <Tag icon={item.icon} color={item.color}>
-                        {item.text}
-                      </Tag>
-                    );
-                  },
-                },
-              ]}
-              locale={{ emptyText: "ไม่มีข้อมูลการดาวน์โหลด" }}
-            />
-          </div>
-        </div>
-      </Modal>
+      <BulkDownloadTrackingModal
+        visible={isBulkTrackingModalVisible}
+        onClose={() => setIsBulkTrackingModalVisible(false)}
+        bulkDownloadProgress={bulkDownloadProgress}
+        bulkTrackingData={bulkTrackingData}
+      />
 
       <Flex vertical gap={40} style={{ paddingBottom: 60 }}>
         {/* ส่วนหัวของหน้าจอ แสดงชื่อระบบและปุ่มหลักในการใช้งาน */}
@@ -1772,7 +1651,6 @@ const OvertimeManagementPage = () => {
           setExportStepCount={setExportStepCount}
           isExportOperationSuccess={isExportOperationSuccess}
           setIsExportOperationSuccess={setIsExportOperationSuccess}
-          themeToken={themeToken}
           exportSelectedDateRange={exportSelectedDateRange}
           setExportSelectedDateRange={setExportSelectedDateRange}
         />
@@ -2105,169 +1983,162 @@ const ExportModalSection = ({
   setExportStepCount,
   isExportOperationSuccess,
   setIsExportOperationSuccess,
-  themeToken,
   exportSelectedDateRange,
   setExportSelectedDateRange,
-}: any) => (
-  <Modal
-    title={
-      <Space>
-        <CloudDownloadOutlined /> ศูนย์บริการการนำออกข้อมูลรายงาน
-      </Space>
-    }
-    open={visible}
-    onCancel={() => setVisible(false)}
-    footer={null}
-    width={560}
-    centered
-    style={{ borderRadius: 24, overflow: "hidden" }}
-  >
-    {isExportOperationSuccess ? (
-      <Result
-        status="success"
-        title="ระบบปฏิบัติการประมวลผลสำเร็จ"
-        subTitle="ข้อมูลรายงาน OT ถูกส่งมอบไปยังเบราว์เซอร์ของท่านแล้ว โปรดตรวจสอบที่ไฟล์ดาวน์โหลด"
-        extra={[
-          <Button
-            key="close"
-            size="large"
-            onClick={() => setVisible(false)}
-            style={{ borderRadius: 12, height: 50, paddingInline: 32 }}
-          >
-            ปิดการทำงาน
-          </Button>,
-          <Button
-            key="retry"
-            type="link"
-            onClick={() => {
-              setIsExportOperationSuccess(false);
-              setExportStepCount(0);
-            }}
-          >
-            ส่งออกรายงานชุดอื่น
-          </Button>,
-        ]}
-      />
-    ) : (
-      <Flex vertical gap={40} style={{ paddingBlock: 32 }}>
-        <Flex vertical gap={12} align="center">
-          <Typography.Text strong style={{ fontSize: 16 }}>
-            กำหนดช่วงเวลาในการส่งออก (Start - End Date)
-          </Typography.Text>
-          <DatePicker.RangePicker
-            size="large"
-            allowClear={false}
-            value={exportSelectedDateRange}
-            onChange={(dates) =>
-              setExportSelectedDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])
-            }
-            style={{ width: "100%", borderRadius: 12 }}
-            format="DD / MM / BBBB"
-          />
-          <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-            ระบบจะประมวลผลตามช่วงวันที่ระบุ รวมถึงสรุปยอดสะสม (Payroll)
-          </Typography.Text>
-        </Flex>
+}: {
+  visible: boolean;
+  setVisible: (v: boolean) => void;
+  onExport: (dateRange?: [dayjs.Dayjs, dayjs.Dayjs]) => Promise<boolean>;
+  loading: boolean;
+  exportStepCount: number;
+  setExportStepCount: (v: number) => void;
+  isExportOperationSuccess: boolean;
+  setIsExportOperationSuccess: (v: boolean) => void;
+  exportSelectedDateRange: [dayjs.Dayjs, dayjs.Dayjs] | null;
+  setExportSelectedDateRange: (v: [dayjs.Dayjs, dayjs.Dayjs] | null) => void;
+}) => {
+  const { token } = theme.useToken();
 
-        <Flex
-          vertical
-          gap={16}
-          style={{
-            background: themeToken.colorFillQuaternary,
-            padding: 32,
-            borderRadius: 20,
-          }}
-        >
-          <Steps
-            direction="vertical"
-            size="small"
-            current={exportStepCount > 0 ? exportStepCount - 1 : undefined}
-            status={loading ? "process" : "wait"}
-            items={[
-              {
-                title: "ขั้นตอนตรวจสอบสิทธิ์และข้อมูล",
-                description: "ระบบกำลัง Mapping โครงสร้างข้อมูลสมาชิก",
-              },
-              {
-                title: "ขั้นตอนประมวลผลสูตรคำนวณ",
-                description: "กำลังคำนวณชั่วโมงงานล่วงเวลาทั้งหมดในงวด",
-              },
-              {
-                title: "ขั้นตอนเข้ารหัสและจัดส่งไฟล์",
-                description: "กำลัง Generate ไฟล์รูปแบบ .xlsx และส่งมอบ",
-              },
-            ]}
-          />
-        </Flex>
-
-        {exportStepCount === 0 && (
-          <Row gutter={20}>
-            <Col span={12}>
-              <Button
-                type="primary"
-                icon={
-                  <FileExcelOutlined
-                    style={{ fontSize: 24, marginBottom: 8 }}
-                  />
-                }
-                loading={loading}
-                onClick={() => onExport(exportSelectedDateRange)}
-                block
-                style={{
-                  height: 100,
-                  borderRadius: 20,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <span style={{ fontWeight: 600 }}>Export Excel</span>
-              </Button>
-            </Col>
-            <Col span={12}>
-              <Button
-                disabled
-                icon={
-                  <FilePdfOutlined style={{ fontSize: 24, marginBottom: 8 }} />
-                }
-                block
-                style={{
-                  height: 100,
-                  borderRadius: 20,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <span style={{ fontWeight: 600 }}>Export PDF</span>
-              </Button>
-            </Col>
-          </Row>
-        )}
-
-        {loading && (
-          <Flex vertical align="center" gap={16}>
-            <Progress
-              percent={
-                exportStepCount === 1 ? 33 : exportStepCount === 2 ? 66 : 100
-              }
-              status="active"
-              strokeColor={{
-                "0%": themeToken.colorPrimary,
-                "100%": themeToken.colorSuccess,
+  return (
+    <Modal
+      title={
+        <Space>
+          <CloudDownloadOutlined /> ศูนย์บริการการนำออกข้อมูลรายงาน
+        </Space>
+      }
+      open={visible}
+      onCancel={() => setVisible(false)}
+      footer={null}
+      width={560}
+      centered
+    >
+      {isExportOperationSuccess ? (
+        // แสดงผลลัพธ์หลังส่งออกสำเร็จ
+        <Result
+          status="success"
+          title="ระบบปฏิบัติการประมวลผลสำเร็จ"
+          subTitle="ข้อมูลรายงาน OT ถูกส่งมอบไปยังเบราว์เซอร์ของท่านแล้ว โปรดตรวจสอบที่ไฟล์ดาวน์โหลด"
+          extra={[
+            <Button key="close" size="large" onClick={() => setVisible(false)}>
+              ปิดการทำงาน
+            </Button>,
+            <Button
+              key="retry"
+              type="link"
+              onClick={() => {
+                setIsExportOperationSuccess(false);
+                setExportStepCount(0);
               }}
-              style={{ width: "80%" }}
+            >
+              ส่งออกรายงานชุดอื่น
+            </Button>,
+          ]}
+        />
+      ) : (
+        <Flex vertical gap={40} style={{ paddingBlock: 32 }}>
+          {/* ส่วนเลือกช่วงวันที่ */}
+          <Flex vertical gap={12} align="center">
+            <Typography.Text strong>
+              กำหนดช่วงเวลาในการส่งออก (Start - End Date)
+            </Typography.Text>
+            <DatePicker.RangePicker
+              size="large"
+              allowClear={false}
+              value={exportSelectedDateRange}
+              onChange={(dates) =>
+                setExportSelectedDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])
+              }
+              style={{ width: "100%" }}
+              format="DD / MM / BBBB"
             />
-            <Typography.Text type="secondary" italic>
-              ระบบกำลังเชื่อมต่อกับ Cloud Infrastructure...
+            <Typography.Text type="secondary">
+              ระบบจะประมวลผลตามช่วงวันที่ระบุ รวมถึงสรุปยอดสะสม (Payroll)
             </Typography.Text>
           </Flex>
-        )}
-      </Flex>
-    )}
-  </Modal>
-);
+
+          {/* แสดงขั้นตอนการส่งออก */}
+          <Flex
+            vertical
+            gap={16}
+            style={{
+              background: token.colorFillQuaternary,
+              padding: 32,
+              borderRadius: token.borderRadiusLG,
+            }}
+          >
+            <Steps
+              direction="vertical"
+              size="small"
+              current={exportStepCount > 0 ? exportStepCount - 1 : undefined}
+              status={loading ? "process" : "wait"}
+              items={[
+                {
+                  title: "ขั้นตอนตรวจสอบสิทธิ์และข้อมูล",
+                  description: "ระบบกำลัง Mapping โครงสร้างข้อมูลสมาชิก",
+                },
+                {
+                  title: "ขั้นตอนประมวลผลสูตรคำนวณ",
+                  description: "กำลังคำนวณชั่วโมงงานล่วงเวลาทั้งหมดในงวด",
+                },
+                {
+                  title: "ขั้นตอนเข้ารหัสและจัดส่งไฟล์",
+                  description: "กำลัง Generate ไฟล์รูปแบบ .xlsx และส่งมอบ",
+                },
+              ]}
+            />
+          </Flex>
+
+          {/* ปุ่มส่งออก */}
+          {exportStepCount === 0 && (
+            <Row gutter={20}>
+              <Col span={12}>
+                <Button
+                  type="primary"
+                  icon={<FileExcelOutlined />}
+                  loading={loading}
+                  onClick={() => onExport(exportSelectedDateRange ?? undefined)}
+                  block
+                  style={{ height: 80, fontWeight: 600 }}
+                >
+                  Export Excel
+                </Button>
+              </Col>
+              <Col span={12}>
+                <Button
+                  disabled
+                  icon={<FilePdfOutlined />}
+                  block
+                  style={{ height: 80, fontWeight: 600 }}
+                >
+                  Export PDF
+                </Button>
+              </Col>
+            </Row>
+          )}
+
+          {/* แสดงความคืบหน้าขณะประมวลผล */}
+          {loading && (
+            <Flex vertical align="center" gap={16}>
+              <Progress
+                percent={
+                  exportStepCount === 1 ? 33 : exportStepCount === 2 ? 66 : 100
+                }
+                status="active"
+                strokeColor={{
+                  "0%": token.colorPrimary,
+                  "100%": token.colorSuccess,
+                }}
+                style={{ width: "80%" }}
+              />
+              <Typography.Text type="secondary" italic>
+                ระบบกำลังเชื่อมต่อกับ Cloud Infrastructure...
+              </Typography.Text>
+            </Flex>
+          )}
+        </Flex>
+      )}
+    </Modal>
+  );
+};
 
 export default OvertimeManagementPage;
