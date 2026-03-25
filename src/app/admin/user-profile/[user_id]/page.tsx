@@ -375,7 +375,16 @@ const UserEditPage = () => {
             profile_image: values.profile_image || undefined,
           };
 
-          await updateUser(payload);
+          const response = await updateUser(payload);
+          if (response?.data?.status !== 200) {
+            const err = new Error(
+              response?.data?.message_th ||
+                response?.data?.message_en ||
+                "เกิดข้อผิดพลาดในการอัปเดตข้อมูล",
+            );
+            (err as any).response = { data: response?.data };
+            throw err;
+          }
           setShowSuccess(true);
         } catch (error: any) {
           showErrorModal(error, "อัปเดตข้อมูลผู้ใช้งาน");

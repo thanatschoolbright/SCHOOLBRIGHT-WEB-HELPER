@@ -26,6 +26,10 @@ This updates your Prisma schema to match the current state of the database.
 npx prisma db push --schema=prisma/timesheet/schema.prisma
 ```
 
+```
+npx prisma migrate dev --schema=prisma/timesheet/schema.prisma --name change_requester_id_type
+```
+
 Use this to sync your database schema with your Prisma schema without creating migration files.
 
 ---

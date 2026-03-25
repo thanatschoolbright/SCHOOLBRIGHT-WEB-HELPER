@@ -152,13 +152,13 @@ exports.Prisma.UserScalarFieldEnum = {
   lastname_th: 'lastname_th',
   firstname_en: 'firstname_en',
   lastname_en: 'lastname_en',
+  gender: 'gender',
   nickname: 'nickname',
   position_id: 'position_id',
   department_id: 'department_id',
   status: 'status',
   email: 'email',
   phone: 'phone',
-  birth_date: 'birth_date',
   profile_image_path: 'profile_image_path',
   joined_date: 'joined_date',
   resigned_date: 'resigned_date',
@@ -172,7 +172,8 @@ exports.Prisma.UserScalarFieldEnum = {
   created_by: 'created_by',
   updated_at: 'updated_at',
   updated_by: 'updated_by',
-  deleted_at: 'deleted_at'
+  deleted_at: 'deleted_at',
+  birth_date: 'birth_date'
 };
 
 exports.Prisma.RoleScalarFieldEnum = {
