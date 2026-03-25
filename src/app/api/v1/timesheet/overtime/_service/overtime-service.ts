@@ -60,8 +60,13 @@ export async function createOvertimeWithNotification(
       department,
     };
 
-    const formattedRequestDate = dayjs(payload.requestDate).format("DD/MM/YYYY");
-    const overtimeType = payload.overtimeType === "weekday" ? "วันทำงานปกติ" : "วันหยุด/นักขัตฤกษ์";
+    const formattedRequestDate = dayjs(payload.requestDate).format(
+      "DD/MM/YYYY",
+    );
+    const overtimeType =
+      payload.overtimeType === "weekday"
+        ? "วันทำงานปกติ"
+        : "วันหยุด/นักขัตฤกษ์";
 
     const baseUrl =
       process.env.NEXT_PUBLIC_SB_HELPER_URL || "http://localhost:3000";

@@ -30,7 +30,6 @@ import {
   Tag,
   theme,
   Timeline,
-  TimePicker,
   Tooltip,
   Typography,
   Upload,
@@ -2611,7 +2610,11 @@ const UploadFieldItem = ({
       </Typography.Text>
     }
     valuePropName="fileList"
-    getValueFromEvent={(e: any) => (Array.isArray(e) ? e : e?.fileList)}
+    getValueFromEvent={(e: any) => {
+      // จำกัดให้เหลือเพียง 1 ไฟล์ล่าสุดเสมอ
+      if (Array.isArray(e)) return e.slice(-1);
+      return e?.fileList?.slice(-1);
+    }}
     rules={required ? [{ required: true, message: `โปรดอัปโหลด${label}` }] : []}
     style={{ marginBottom: 20 }}
   >
@@ -2711,20 +2714,21 @@ const TaskDescriptionCard = ({
         </Col>
       </Row>
       <Row gutter={12}>
-        <Col xs={24} md={8}>
+        <Col xs={24} md={10}>
           <Form.Item
             {...fieldProps}
             name={[fieldProps.name, "startDate"]}
             label={
               <Typography.Text style={{ fontSize: 12 }}>
-                เริ่มกี่โมง?
+                เริ่มเมื่อไหร่? (DATE/TIME)
               </Typography.Text>
             }
-            rules={[{ required: true, message: "โปรดระบุเวลา" }]}
+            rules={[{ required: true, message: "โปรดระบุวันและเวลา" }]}
             style={{ marginBottom: 16 }}
           >
-            <TimePicker
-              format="HH:mm"
+            <DatePicker
+              showTime
+              format="DD/MM/YYYY HH:mm"
               style={{
                 width: "100%",
                 height: 38,
@@ -2735,20 +2739,21 @@ const TaskDescriptionCard = ({
             />
           </Form.Item>
         </Col>
-        <Col xs={24} md={8}>
+        <Col xs={24} md={10}>
           <Form.Item
             {...fieldProps}
             name={[fieldProps.name, "endDate"]}
             label={
               <Typography.Text style={{ fontSize: 12 }}>
-                เสร็จกี่โมง?
+                เสร็จเมื่อไหร่? (DATE/TIME)
               </Typography.Text>
             }
-            rules={[{ required: true, message: "โปรดระบุเวลา" }]}
+            rules={[{ required: true, message: "โปรดระบุวันและเวลา" }]}
             style={{ marginBottom: 16 }}
           >
-            <TimePicker
-              format="HH:mm"
+            <DatePicker
+              showTime
+              format="DD/MM/YYYY HH:mm"
               style={{
                 width: "100%",
                 height: 38,
@@ -2759,7 +2764,7 @@ const TaskDescriptionCard = ({
             />
           </Form.Item>
         </Col>
-        <Col xs={24} md={8}>
+        <Col xs={24} md={4}>
           <Form.Item
             {...fieldProps}
             name={[fieldProps.name, "duration"]}
@@ -2773,14 +2778,14 @@ const TaskDescriptionCard = ({
           >
             <Input
               type="number"
-              step="0.5"
+              step="0.01"
               disabled
               suffix={
                 <Typography.Text type="secondary" style={{ fontSize: 11 }}>
                   ชม.
                 </Typography.Text>
               }
-              placeholder="0.0"
+              placeholder="0.00"
               style={{ height: 38, borderRadius: 8, marginBottom: 4 }}
             />
           </Form.Item>
@@ -2814,8 +2819,11 @@ const CreateModalSection = ({
           const end = updatedDescriptions[idx].endDate;
 
           if (start && end) {
+            // คำนวณส่วนต่างเป็นชั่วโมง (รองรับข้ามคืนเพราะใช้ DatePicker DateTime)
             const diff = dayjs(end).diff(dayjs(start), "hour", true);
-            const duration = Math.max(0, diff).toFixed(1);
+
+            // ปรับทศนิยม 2 ตำแหน่ง (เช่น 1.50, 2.00)
+            const duration = diff > 0 ? diff.toFixed(2) : "0.00";
 
             if (updatedDescriptions[idx].duration !== duration) {
               updatedDescriptions[idx].duration = duration;
@@ -2878,7 +2886,7 @@ const CreateModalSection = ({
       open={visible}
       onCancel={() => setVisible(false)}
       footer={null}
-      width={760}
+      width={900}
       centered
       style={{ borderRadius: 20, overflow: "hidden" }}
     >
@@ -2978,15 +2986,14 @@ const CreateModalSection = ({
           </Space>
         </Divider>
 
-        {/* ส่วนจัดการรายการภาระงานที่ทำในคำขอนี้ */}
         <Form.List
           name="descriptions"
           initialValue={[
             {
               description: "",
-              duration: "1.0",
-              startDate: dayjs().hour(18).minute(0),
-              endDate: dayjs().hour(19).minute(0),
+              duration: "1.00",
+              startDate: dayjs().hour(18).minute(0).second(0),
+              endDate: dayjs().hour(19).minute(0).second(0),
             },
           ]}
         >
@@ -3013,9 +3020,9 @@ const CreateModalSection = ({
                   onClick={() =>
                     add({
                       description: "",
-                      duration: "1.0",
-                      startDate: dayjs().hour(18).minute(0),
-                      endDate: dayjs().hour(19).minute(0),
+                      duration: "1.00",
+                      startDate: dayjs().hour(18).minute(0).second(0),
+                      endDate: dayjs().hour(19).minute(0).second(0),
                     })
                   }
                   icon={<PlusOutlined />}
@@ -3054,7 +3061,7 @@ const CreateModalSection = ({
                       fontWeight: 700,
                     }}
                   >
-                    {totalHours.toFixed(1)} ชั่วโมง
+                    {totalHours.toFixed(2)} ชั่วโมง
                   </Tag>
                 </Flex>
               </Flex>
