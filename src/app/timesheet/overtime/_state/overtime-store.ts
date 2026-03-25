@@ -10,11 +10,32 @@ interface OvertimeState {
   isBulkTrackingModalVisible: boolean;
   bulkTrackingData: any[];
 
+  // Summary State
+  overtimeDataSource: any[];
+  isLoadingOvertimeData: boolean;
+  totalRecords: number;
+
+  // Filter State
+  filterSearchText: string;
+  filterSelectedMonth: any | null;
+  filterStatus: string | null;
+
   // Action Methods
   setIsBulkDownloading: (status: boolean) => void;
   setBulkDownloadProgress: (progress: number) => void;
   setIsBulkTrackingModalVisible: (status: boolean) => void;
   setBulkTrackingData: (data: any[] | ((prev: any[]) => any[])) => void;
+
+  // Data Methods
+  setOvertimeDataSource: (data: any[]) => void;
+  setIsLoadingOvertimeData: (status: boolean) => void;
+  setTotalRecords: (total: number) => void;
+
+  // Filter Methods
+  setFilterSearchText: (text: string) => void;
+  setFilterSelectedMonth: (month: any | null) => void;
+  setFilterStatus: (status: string | null) => void;
+  resetFilters: () => void;
 
   /**
    * ดึง ID ผู้ใช้งานปัจจุบันจากระบบ (Redux > LocalStorage > Fallback)
@@ -42,6 +63,16 @@ export const useOvertimeStore = create<OvertimeState>((set, get) => ({
   isBulkTrackingModalVisible: false,
   bulkTrackingData: [],
 
+  // Summary State Initial
+  overtimeDataSource: [],
+  isLoadingOvertimeData: false,
+  totalRecords: 0,
+
+  // Filter State Initial
+  filterSearchText: "",
+  filterSelectedMonth: null,
+  filterStatus: null,
+
   setIsBulkDownloading: (status) => set({ isBulkDownloading: status }),
   setBulkDownloadProgress: (progress) =>
     set({ bulkDownloadProgress: progress }),
@@ -52,6 +83,20 @@ export const useOvertimeStore = create<OvertimeState>((set, get) => ({
       bulkTrackingData:
         typeof data === "function" ? data(state.bulkTrackingData) : data,
     })),
+
+  setOvertimeDataSource: (data) => set({ overtimeDataSource: data }),
+  setIsLoadingOvertimeData: (status) => set({ isLoadingOvertimeData: status }),
+  setTotalRecords: (total) => set({ totalRecords: total }),
+
+  setFilterSearchText: (text) => set({ filterSearchText: text }),
+  setFilterSelectedMonth: (month) => set({ filterSelectedMonth: month }),
+  setFilterStatus: (status) => set({ filterStatus: status }),
+  resetFilters: () =>
+    set({
+      filterSearchText: "",
+      filterSelectedMonth: null,
+      filterStatus: null,
+    }),
 
   requestCurrentLocalUserID: async (
     authenticationState?: any,

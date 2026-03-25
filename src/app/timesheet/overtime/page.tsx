@@ -6,33 +6,23 @@ import {
 } from "@/components/modal/delivery-loading-modal";
 import {
   App,
-  Avatar,
-  Badge,
   Button,
   Card,
   Col,
   DatePicker,
-  Divider,
-  Empty,
   Flex,
   Form,
-  Image,
-  Input,
   Modal,
   Progress,
   Result,
   Row,
-  Select,
-  Skeleton,
   Space,
   Steps,
   Table,
   Tag,
   theme,
   Timeline,
-  Tooltip,
   Typography,
-  Upload,
 } from "antd";
 import {
   ArcElement,
@@ -61,51 +51,38 @@ import {
   BarChartOutlined,
   BookOutlined,
   BulbOutlined,
-  CalendarOutlined,
-  CameraOutlined,
   CheckCircleOutlined,
   CheckOutlined,
   ClockCircleOutlined,
   CloseCircleOutlined,
-  CloseOutlined,
   CloudDownloadOutlined,
-  DeleteOutlined,
-  EditOutlined,
   FileExcelOutlined,
   FilePdfOutlined,
-  FileSearchOutlined,
   FileTextOutlined,
   FileZipOutlined,
-  FilterOutlined,
   HistoryOutlined,
-  InfoCircleOutlined,
   LoadingOutlined,
-  MailOutlined,
-  PlusOutlined,
-  ReloadOutlined,
-  SearchOutlined,
-  SolutionOutlined,
-  StarOutlined,
   TeamOutlined,
-  ThunderboltOutlined,
-  UnorderedListOutlined,
-  UserOutlined,
-  WarningOutlined,
 } from "@ant-design/icons";
 
 import { toast } from "sonner";
 
-import SummaryCard from "@/components/card/summary-card";
 import StatusModalComponent, {
   type StatusModalProps,
 } from "@/components/modal/status-modal";
 import { bulkPdfDownloadService } from "@/helpers/bulk-pdf-download.helper";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
+import BatchStatusModal from "./_components/batch-status-modal";
+import CreateModal from "./_components/create-modal";
+import DetailModal from "./_components/detail-modal";
+import FilterSection from "./_components/filter-section";
+import SummarySection from "./_components/summary-section";
+import UserTable from "./_components/user-table";
 
 import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 import { useAppSelector } from "@/stores/store";
-import { getUserById, getUserData } from "@helpers/local_storage/user.storage";
+import { getUserData } from "@helpers/local_storage/user.storage";
 import type { SelectOption, UserProfile } from "@stores/type";
 
 import { useOvertimeStore } from "./_state/overtime-store";
@@ -188,6 +165,9 @@ const OvertimeManagementPage = () => {
     setIsBulkTrackingModalVisible,
     setBulkTrackingData,
     fetchOvertimeDataForBulk,
+    setIsLoadingOvertimeData: setStoreIsLoadingOvertimeData,
+    setOvertimeDataSource: setStoreOvertimeDataSource,
+    setTotalRecords,
   } = useOvertimeStore();
 
   // --- สถานะการแสดงผล UI (Visibility State) ---
@@ -490,6 +470,12 @@ const OvertimeManagementPage = () => {
             ...item,
           })),
         );
+        setStoreOvertimeDataSource(
+          filteredOvertimeItemsResultList.map((item: any) => ({
+            key: item.id,
+            ...item,
+          })),
+        );
         setPaginationState({
           current: apiResponseDataContent.pagination?.page ?? currentPageIndex,
           pageSize:
@@ -499,6 +485,10 @@ const OvertimeManagementPage = () => {
             apiResponseDataContent.pagination?.total ??
             filteredOvertimeItemsResultList.length,
         });
+        setTotalRecords(
+          apiResponseDataContent.pagination?.total ??
+            filteredOvertimeItemsResultList.length,
+        );
 
         return overtimeRecordsListContent;
       } catch (error) {
@@ -506,6 +496,7 @@ const OvertimeManagementPage = () => {
         return null;
       } finally {
         setIsLoadingOvertimeData(false);
+        setStoreIsLoadingOvertimeData(false);
       }
     },
     [
@@ -513,6 +504,9 @@ const OvertimeManagementPage = () => {
       paginationState.pageSize,
       requestCurrentLocalUserID,
       processAndDisplaySystemError,
+      setStoreIsLoadingOvertimeData,
+      setStoreOvertimeDataSource,
+      setTotalRecords,
     ],
   );
 
@@ -1653,89 +1647,12 @@ const OvertimeManagementPage = () => {
         />
 
         {/* ส่วนแสดงข้อมูลสรุปทางสถิติในรูปแบบ Card */}
-        <Row gutter={[24, 24]}>
-          <Col xs={24} sm={12} lg={6}>
-            <SummaryCard
-              title="คำขอทั้งหมด"
-              value={overtimeStatistics.total}
-              subtitle="ยอดรวมคำขอทั้งหมดในระบบ"
-              icon={<FileTextOutlined />}
-              suffix="รายการ"
-              color={themeToken.colorPrimary}
-              percent={100}
-            />
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <SummaryCard
-              title="รอการพิจารณา"
-              value={overtimeStatistics.pending}
-              subtitle="รอหัวหน้างานตรวจสอบ"
-              icon={<ClockCircleOutlined />}
-              color={themeToken.colorWarning}
-              iconBg={themeToken.colorWarningBg}
-              percent={
-                overtimeStatistics.total > 0
-                  ? (overtimeStatistics.pending / overtimeStatistics.total) *
-                    100
-                  : 0
-              }
-            />
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <SummaryCard
-              title="อนุมัติแล้ว"
-              value={overtimeStatistics.approved}
-              subtitle="ผ่านการพิจารณาแล้ว"
-              icon={<CheckCircleOutlined />}
-              color={themeToken.colorSuccess}
-              iconBg={themeToken.colorSuccessBg}
-              percent={
-                overtimeStatistics.total > 0
-                  ? (overtimeStatistics.approved / overtimeStatistics.total) *
-                    100
-                  : 0
-              }
-            />
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <SummaryCard
-              title="อัตราการอนุมัติ"
-              value={
-                overtimeStatistics.total > 0
-                  ? Number(
-                      (
-                        (overtimeStatistics.approved /
-                          overtimeStatistics.total) *
-                        100
-                      ).toFixed(1),
-                    )
-                  : 0
-              }
-              subtitle="เปอร์เซ็นต์การอนุมัติ"
-              icon={<CheckCircleOutlined />}
-              suffix="%"
-              color={themeToken.colorInfo}
-              percent={
-                overtimeStatistics.total > 0
-                  ? (overtimeStatistics.approved / overtimeStatistics.total) *
-                    100
-                  : 0
-              }
-            />
-          </Col>
-        </Row>
+        <SummarySection />
 
         {/* ส่วนของแถบเครื่องมือดักกรองข้อมูลและการค้นหา */}
-        <FilterBarSection
-          filterSearchTextValue={filterSearchTextValue}
-          setFilterSearchTextValue={setFilterSearchTextValue}
-          filterSelectedMonthValue={filterSelectedMonthValue}
-          setFilterSelectedMonthValue={setFilterSelectedMonthValue}
-          filterStatusValue={filterStatusValue}
-          setFilterStatusValue={setFilterStatusValue}
-          isLoadingOvertimeData={isLoadingOvertimeData}
-          requestOvertimeRequestListData={requestOvertimeRequestListData}
-          themeToken={themeToken}
+        <FilterSection
+          onSearch={requestOvertimeRequestListData}
+          isLoading={isLoadingOvertimeData}
         />
 
         {/* ส่วนแสดงปุ่มดำเนินการกับรายการที่ถูกเลือกจำนวนมาก */}
@@ -1755,47 +1672,57 @@ const OvertimeManagementPage = () => {
         )}
 
         {/* ส่วนแสดงตารางข้อมูลรายการคำขอ OT ทั้งหมด */}
-        <OvertimeTableSection
-          dataSource={overtimeDataSource}
-          isLoadingOvertimeData={isLoadingOvertimeData}
-          paginationState={paginationState}
-          selectedRowKeys={selectedRowKeys}
-          setSelectedRowKeys={setSelectedRowKeys}
+        <UserTable
           onTableChange={requestTablePaginationAndFilterDataChange}
-          requestDeleteOvertimeSubmission={requestDeleteOvertimeSubmission}
-          requestApproveOvertimeSubmission={requestApproveOvertimeSubmission}
-          requestSendOvertimeMailToHR={requestSendOvertimeMailToHR}
-          requestDetailedOvertimeContentByID={
-            requestDetailedOvertimeContentByID
-          }
-          navigationRouter={navigationRouter}
-          setIsAnalyticsModalVisible={setIsAnalyticsModalVisible}
-          setIsExportModalVisible={() => {
+          onViewDetail={(record) => {
+            setSelectedOvertimeDetail(record);
+            setIsDetailModalVisible(true);
+          }}
+          onEdit={(record) => {
+            setSelectedOvertimeDetail(record);
+            overtimeForm.setFieldsValue({
+              ...record,
+              date: dayjs(record.request_date),
+            });
+            setIsCreateModalVisible(true);
+          }}
+          onDelete={requestDeleteOvertimeSubmission}
+          onApprove={requestApproveOvertimeSubmission}
+          onSendMail={requestSendOvertimeMailToHR}
+          onShowAnalytics={() => setIsAnalyticsModalVisible(true)}
+          onShowExport={() => {
             setIsExportOperationSuccess(false);
             setExportStepCount(0);
             setIsExportModalVisible(true);
           }}
-          themeToken={themeToken}
+          selectedRowKeys={selectedRowKeys}
+          setSelectedRowKeys={setSelectedRowKeys}
+          pagination={paginationState}
         />
 
         {/* หน้าต่าง Modal สำหรับสร้างรายการคำขอ OT ใหม่ */}
-        <CreateModalSection
+        <CreateModal
           visible={isCreateModalVisible}
-          setVisible={setIsCreateModalVisible}
+          onClose={() => setIsCreateModalVisible(false)}
           userOptions={userSelectionOptions}
           requestCreateOvertimeSubmission={
             requestHandleCreateOvertimeFormSubmission
           }
           loading={isLoadingOvertimeData}
           form={overtimeForm}
-          themeToken={themeToken}
           currentUserId={authenticationState?.response?.data?.user_data?.id}
         />
 
         {/* หน้าต่าง Modal สำหรับเปลี่ยนสถานะรายการจำนวนมากพร้อมกัน */}
-        <BatchStatusModalSection
+        <BatchStatusModal
           visible={isBatchStatusModalVisible}
-          setVisible={setIsBatchStatusModalVisible}
+          onClose={() => {
+            setIsBatchStatusModalVisible(false);
+            if (!isBatchProcessing) {
+              setSelectedRowKeys([]);
+              setProcessedRecordItems(new Map());
+            }
+          }}
           selectedRowKeys={selectedRowKeys}
           batchSelectedStatus={selectedBatchStatus}
           setBatchSelectedStatus={setSelectedBatchStatus}
@@ -1805,17 +1732,13 @@ const OvertimeManagementPage = () => {
           batchProcessing={isBatchProcessing}
           processedRecordItems={processedRecordItems}
           overtimeDataSource={overtimeDataSource}
-          setSelectedRowKeys={setSelectedRowKeys}
-          setProcessedRecordItems={setProcessedRecordItems}
-          themeToken={themeToken}
         />
 
         {/* หน้าต่าง Modal แสดงรายละเอียดข้อมูลของรายการที่เลือก */}
-        <DetailModalSection
+        <DetailModal
           visible={isDetailModalVisible}
-          setVisible={setIsDetailModalVisible}
+          onClose={() => setIsDetailModalVisible(false)}
           selectedDetail={selectedOvertimeDetail}
-          themeToken={themeToken}
         />
 
         {/* หน้าต่าง Modal สำหรับแสดงกราฟวิเคราะห์ข้อมูลทางสถิติ */}
@@ -1874,1954 +1797,6 @@ const OvertimeManagementPage = () => {
         />
       </Flex>
     </DashboardLayout>
-  );
-};
-
-const FilterBarSection = ({
-  filterSearchTextValue,
-  setFilterSearchTextValue,
-  filterSelectedMonthValue,
-  setFilterSelectedMonthValue,
-  filterStatusValue,
-  setFilterStatusValue,
-  requestOvertimeRequestListData,
-  isLoadingOvertimeData,
-  themeToken,
-}: any) => (
-  <Card
-    variant="borderless"
-    style={{
-      borderRadius: 20,
-      boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
-      marginBottom: 32,
-    }}
-  >
-    {/* ส่วนของการกรองและค้นหาข้อมูล (Advanced Search Section) */}
-    <Flex vertical gap={24}>
-      <Space>
-        <FilterOutlined style={{ color: themeToken.colorPrimary }} />
-        <Typography.Text strong style={{ fontSize: 16 }}>
-          ค้นหาและกรองข้อมูลเชิงลึก
-        </Typography.Text>
-      </Space>
-
-      <Row gutter={[24, 24]}>
-        <Col xs={24} md={12}>
-          <Flex vertical gap={8}>
-            <Typography.Text strong type="secondary" style={{ fontSize: 13 }}>
-              ระบุคำสำคัญในการค้นหา
-            </Typography.Text>
-            <Input
-              placeholder="ค้นหาด้วยรหัสคำขอ หรือชื่อพนักงาน..."
-              prefix={
-                <SearchOutlined
-                  style={{ color: themeToken.colorTextDescription }}
-                />
-              }
-              value={filterSearchTextValue}
-              onChange={(event) => setFilterSearchTextValue(event.target.value)}
-              onKeyDown={(event) =>
-                event.key === "Enter" &&
-                requestOvertimeRequestListData({
-                  page: 1,
-                  searchText: filterSearchTextValue,
-                  monthValue: filterSelectedMonthValue,
-                  statusValue: filterStatusValue,
-                })
-              }
-              style={{ height: 48, borderRadius: 12 }}
-              allowClear
-            />
-          </Flex>
-        </Col>
-
-        <Col xs={24} md={12}>
-          <Flex vertical gap={8}>
-            <Typography.Text strong type="secondary" style={{ fontSize: 13 }}>
-              เลือกช่วงเวลาประจำเดือน
-            </Typography.Text>
-            <DatePicker
-              picker="month"
-              style={{ width: "100%", height: 48, borderRadius: 12 }}
-              value={filterSelectedMonthValue}
-              onChange={setFilterSelectedMonthValue}
-              format="MMMM YYYY"
-              suffixIcon={
-                <CalendarOutlined style={{ color: themeToken.colorInfo }} />
-              }
-            />
-          </Flex>
-        </Col>
-
-        <Col xs={24} md={12}>
-          <Flex vertical gap={8}>
-            <Typography.Text strong type="secondary" style={{ fontSize: 13 }}>
-              สถานะการดำเนินการ
-            </Typography.Text>
-            <Select
-              placeholder="ทั้งหมดที่แสดงผล..."
-              style={{ width: "100%", height: 48 }}
-              allowClear
-              value={filterStatusValue}
-              options={OT_STATUS.map((status) => ({
-                label: status.text,
-                value: status.value,
-              }))}
-              onChange={(value) => setFilterStatusValue(value ?? null)}
-            />
-          </Flex>
-        </Col>
-      </Row>
-
-      <Flex justify="flex-end" gap={12}>
-        <Button
-          icon={<ReloadOutlined />}
-          onClick={() => {
-            setFilterSelectedMonthValue(null);
-            setFilterSearchTextValue("");
-            setFilterStatusValue(null);
-            requestOvertimeRequestListData({
-              page: 1,
-              searchText: "",
-              monthValue: null,
-              statusValue: null,
-            });
-          }}
-          style={{ borderRadius: 12, height: 45, paddingInline: 24 }}
-        >
-          ล้างเงื่อนไข
-        </Button>
-        <Button
-          type="primary"
-          icon={<SearchOutlined />}
-          loading={isLoadingOvertimeData}
-          onClick={() =>
-            requestOvertimeRequestListData({
-              page: 1,
-              searchText: filterSearchTextValue,
-              monthValue: filterSelectedMonthValue,
-              statusValue: filterStatusValue,
-            })
-          }
-          style={{
-            borderRadius: 12,
-            height: 45,
-            paddingInline: 32,
-            fontWeight: 600,
-          }}
-        >
-          ค้นหาข้อมูล
-        </Button>
-      </Flex>
-    </Flex>
-  </Card>
-);
-
-const ActionBarSection = ({
-  selectedRowKeys,
-  setSelectedRowKeys,
-  setProcessedRecordItems,
-  isBatchProcessing,
-  setIsBatchStatusModalVisible,
-  requestBatchSendOvertimeMailToHR,
-  handleBulkPdfDownloadZip,
-  navigationRouter,
-  setIsAnalyticsModalVisible,
-  themeToken,
-}: any) => {
-  const { isBulkDownloading, bulkDownloadProgress } = useOvertimeStore();
-  return (
-    <Card
-      style={{
-        borderRadius: 20,
-        background: `linear-gradient(135deg, ${themeToken.colorPrimary}08 0%, ${themeToken.colorInfo}08 100%)`,
-        border: `1px dashed ${themeToken.colorPrimary}40`,
-        boxShadow: "0 4px 15px rgba(0,0,0,0.02)",
-      }}
-    >
-      {/* ส่วนดำเนินการกับหลายรายการพร้อมกัน (Batch Action Bar) */}
-      <Row gutter={[16, 24]} align="middle">
-        <Col xs={24} lg={16}>
-          <Space wrap size="large">
-            <Badge
-              count={selectedRowKeys.length}
-              style={{
-                backgroundColor: themeToken.colorError,
-                boxShadow: "0 0 0 2px #fff",
-              }}
-            >
-              <Flex
-                align="center"
-                gap={10}
-                style={{
-                  padding: "10px 20px",
-                  borderRadius: 12,
-                  border: `1px solid ${themeToken.colorBorderSecondary}`,
-                }}
-              >
-                <StarOutlined
-                  style={{ color: themeToken.colorWarning, fontSize: 18 }}
-                />
-                <Typography.Text strong>เลือกรายการไว้</Typography.Text>
-              </Flex>
-            </Badge>
-
-            <Button
-              type="primary"
-              ghost
-              icon={<FilePdfOutlined />}
-              onClick={() =>
-                navigationRouter.push(
-                  `/timesheet/overtime/preview/bulk?ids=${selectedRowKeys.join(",")}`,
-                )
-              }
-              style={{ borderRadius: 12, height: 44 }}
-            >
-              ดูรายงาน PDF รวม
-            </Button>
-
-            <Button
-              type="primary"
-              icon={<CloudDownloadOutlined />}
-              loading={isBulkDownloading}
-              onClick={handleBulkPdfDownloadZip}
-              style={{
-                borderRadius: 12,
-                height: 44,
-                background: themeToken.colorInfo,
-                border: "none",
-              }}
-            >
-              {isBulkDownloading
-                ? `กำลังเตรียมไฟล์ (${bulkDownloadProgress}%)`
-                : "ดาวน์โหลด PDF ทุกคน (.zip)"}
-            </Button>
-
-            <Button
-              type="primary"
-              icon={<CheckOutlined />}
-              loading={isBatchProcessing}
-              onClick={() => setIsBatchStatusModalVisible(true)}
-              style={{
-                borderRadius: 12,
-                height: 44,
-                background: themeToken.colorSuccess,
-                border: "none",
-              }}
-            >
-              จัดการสถานะกลุ่ม
-            </Button>
-
-            <Button
-              danger
-              icon={<MailOutlined />}
-              loading={isBatchProcessing}
-              onClick={requestBatchSendOvertimeMailToHR}
-              style={{ borderRadius: 12, height: 44, background: "#fff" }}
-            >
-              ส่งอีเมลเข้า HR
-            </Button>
-
-            <Button
-              type="text"
-              danger
-              icon={<CloseOutlined />}
-              onClick={() => {
-                setSelectedRowKeys([]);
-                setProcessedRecordItems(new Set());
-              }}
-              style={{ fontWeight: 600 }}
-            >
-              ยกเลิกการเลือก
-            </Button>
-          </Space>
-        </Col>
-
-        <Col xs={24} lg={8}>
-          <Flex justify="flex-end" gap={16}>
-            <Button
-              icon={<BarChartOutlined />}
-              onClick={() => setIsAnalyticsModalVisible(true)}
-              style={{
-                borderRadius: 12,
-                height: 44,
-                color: themeToken.colorPrimary,
-                borderColor: themeToken.colorPrimary,
-                fontWeight: 600,
-              }}
-            >
-              สถิติและวิเคราะห์
-            </Button>
-          </Flex>
-        </Col>
-      </Row>
-    </Card>
-  );
-};
-
-const OvertimeTableSection = ({
-  dataSource,
-  isLoadingOvertimeData,
-  paginationState,
-  selectedRowKeys,
-  setSelectedRowKeys,
-  onTableChange,
-  requestDeleteOvertimeSubmission,
-  requestApproveOvertimeSubmission,
-  requestSendOvertimeMailToHR,
-  requestDetailedOvertimeContentByID,
-  navigationRouter,
-  setIsAnalyticsModalVisible,
-  setIsExportModalVisible,
-  themeToken,
-}: any) => {
-  /**
-   * ระบบตรวจสอบความสมบูรณ์ของข้อมูลเบื้องต้น (Preliminary Validation)
-   * เพื่อแจ้งเตือนผู้อนุมัติหากข้อมูลที่พนักงานส่งมาไม่ครบถ้วนตามเกณฑ์
-   */
-  const validateOvertimeRecordCompleteness = (record: any) => {
-    const firstDescription = record.descriptions?.[0];
-    const proofData = firstDescription?.proof || {};
-    const missingItems = [];
-
-    // 1. ตรวจสอบลายเซ็นรับรอง
-    if (!proofData.signature_1) {
-      missingItems.push("ลายเซ็นรับรอง");
-    }
-
-    // 2. ตรวจสอบรูปภาพมัดจำงาน 1, 2, 3, 4
-    const requiredImageKeys = ["image_1", "image_2", "image_3", "image_4"];
-    const missingImages = requiredImageKeys.filter((key) => !proofData[key]);
-    if (missingImages.length > 0) {
-      const displayIndices = missingImages.map((k) => k.split("_")[1]);
-      missingItems.push(`รูปภาพหลักฐานชุดที่ ${displayIndices.join(", ")}`);
-    }
-
-    // 3. ตรวจสอบรายละเอียดงาน (ต้องมีข้อมูลครบทุกรายการ)
-    const hasEmptyDescription =
-      !record.descriptions ||
-      record.descriptions.length === 0 ||
-      record.descriptions.some((d: any) => !d.description?.trim());
-    if (hasEmptyDescription) {
-      missingItems.push("รายละเอียดภาระงาน");
-    }
-
-    return missingItems;
-  };
-
-  // การตั้งค่าคอลัมน์ของตารางรายการ OT
-  const tableColumnsConfiguration = [
-    {
-      title: "",
-      key: "completeness_alert",
-      width: 50,
-      render: (recordContentData: any) => {
-        const errors = validateOvertimeRecordCompleteness(recordContentData);
-        if (errors.length === 0) return null;
-
-        return (
-          <Tooltip
-            title={
-              <Flex vertical gap={4} style={{ padding: "4px 8px" }}>
-                <Typography.Text
-                  strong
-                  style={{ color: "rgba(255,255,255,0.9)", fontSize: 13 }}
-                >
-                  <WarningOutlined style={{ marginRight: 8 }} />
-                  ข้อมูลไม่ครบถ้วน
-                </Typography.Text>
-                <div style={{ fontSize: 11, opacity: 0.8 }}>
-                  {errors.map((err, i) => (
-                    <div key={i}>- {err}</div>
-                  ))}
-                </div>
-              </Flex>
-            }
-          >
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <Badge dot status="warning" offset={[-2, 2]}>
-                <WarningOutlined
-                  style={{ color: themeToken.colorWarning, fontSize: 18 }}
-                />
-              </Badge>
-            </div>
-          </Tooltip>
-        );
-      },
-    },
-    {
-      title: "รหัสอ้างอิง",
-      dataIndex: "id",
-      key: "id",
-      width: 120,
-      sorter: (a: any, b: any) => Number(a.id) - Number(b.id),
-      render: (textValue: string) => (
-        <Typography.Text strong style={{ color: themeToken.colorPrimary }}>
-          OT-{String(textValue).padStart(4, "0")}
-        </Typography.Text>
-      ),
-    },
-    {
-      title: "พนักงานผู้ยื่นคำขอ",
-      key: "requester_data_source",
-      width: 280,
-      sorter: (a: any, b: any) => {
-        const getName = (record: any) => {
-          const localUser = getUserById(record.requester_id);
-          const backendUser = record.requester_user;
-          const userObj = localUser || backendUser;
-          if (!userObj)
-            return String(
-              record.requester_name || record.requester_id || "",
-            ).toLowerCase();
-          return `${userObj.firstname || userObj.firstname_th || ""} ${userObj.lastname || userObj.lastname_th || ""}`
-            .trim()
-            .toLowerCase();
-        };
-        return getName(a).localeCompare(getName(b));
-      },
-      render: (recordContentData: any) => {
-        // Priority: local storage -> backend user -> direct name
-        const localUser = getUserById(recordContentData.requester_id);
-        const backendUser = recordContentData.requester_user;
-
-        const userObj = localUser || backendUser;
-
-        const name = (() => {
-          if (!userObj)
-            return (
-              recordContentData.requester_name || recordContentData.requester_id
-            );
-
-          const thName =
-            `${userObj.firstname || userObj.firstname_th || ""} ${userObj.lastname || userObj.lastname_th || ""}`.trim();
-          const enName =
-            `${userObj.firstname_en || ""} ${userObj.lastname_en || ""}`.trim();
-          const nickname = userObj.nickname ? `(${userObj.nickname})` : "";
-
-          const primaryName =
-            thName || enName || userObj.username || String(userObj.admin_id);
-          return nickname ? `${primaryName} ${nickname}`.trim() : primaryName;
-        })();
-
-        const avatarSrc =
-          userObj?.profile_image ||
-          userObj?.profile_image_path ||
-          userObj?.image_profile;
-
-        return (
-          <Flex align="center" gap={12}>
-            <Avatar
-              size={44}
-              src={avatarSrc}
-              icon={<UserOutlined />}
-              style={{ border: `2px solid ${themeToken.colorBorderSecondary}` }}
-            >
-              {!avatarSrc && name ? name[0] : "?"}
-            </Avatar>
-            <Flex vertical>
-              <Typography.Text strong style={{ fontSize: 14 }}>
-                {name}
-              </Typography.Text>
-              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                {userObj?.employee_code ||
-                  recordContentData.requester_employee_code ||
-                  `ID: ${recordContentData.requester_id || "-"}`}
-              </Typography.Text>
-            </Flex>
-          </Flex>
-        );
-      },
-    },
-    {
-      title: "วันที่และเวลาทำงาน",
-      dataIndex: "request_date",
-      key: "request_date_display",
-      sorter: (a: any, b: any) =>
-        dayjs(a.request_date).unix() - dayjs(b.request_date).unix(),
-      render: (dateStringValue: string, recordContentData: any) => {
-        const totalDurationValue =
-          recordContentData.descriptions?.reduce(
-            (sumValue: number, itemSource: any) =>
-              sumValue + Number(itemSource.duration || 0),
-            0,
-          ) || 0;
-        return (
-          <Flex vertical gap={4}>
-            <Space>
-              <CalendarOutlined style={{ color: themeToken.colorPrimary }} />
-              <Typography.Text>
-                {dayjs(dateStringValue).format("DD/MM/YYYY")}
-              </Typography.Text>
-            </Space>
-            <Tag
-              color="processing"
-              style={{ width: "fit-content", borderRadius: 4 }}
-            >
-              รวม {totalDurationValue} ชั่วโมง
-            </Tag>
-          </Flex>
-        );
-      },
-    },
-    {
-      title: "สถานะปัจจุบัน",
-      dataIndex: "status",
-      key: "status_badge",
-      sorter: (a: any, b: any) =>
-        (a.status || "").localeCompare(b.status || ""),
-      render: (statusValueString: string) => {
-        const statusConfigData = OT_STATUS.find(
-          (item) => item.value === statusValueString,
-        );
-        return (
-          <Flex align="center" gap={8}>
-            <Badge status={statusConfigData?.color as any} />
-            <Typography.Text
-              strong
-              style={{
-                color:
-                  statusConfigData?.color === "gold" ? "#d48806" : undefined,
-              }}
-            >
-              {statusConfigData?.text || statusValueString}
-            </Typography.Text>
-          </Flex>
-        );
-      },
-    },
-    {
-      title: "จัดการรายการ",
-      key: "action_menu",
-      align: "center" as const,
-      width: 220,
-      render: (recordContentData: any) => (
-        <Space size="middle">
-          <Tooltip title="ดูรายละเอียดภาระงาน">
-            <Button
-              shape="default"
-              icon={<SearchOutlined />}
-              onClick={(e) => {
-                e.stopPropagation();
-                requestDetailedOvertimeContentByID(recordContentData.id);
-              }}
-              style={{ borderRadius: 8 }}
-            />
-          </Tooltip>
-          <Tooltip title="พิมพ์รายงาน PDF">
-            <Button
-              shape="default"
-              icon={<FilePdfOutlined />}
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(
-                  `/timesheet/overtime/preview/${recordContentData.id}`,
-                  "_blank",
-                );
-              }}
-              style={{ borderRadius: 8, color: themeToken.colorError }}
-            />
-          </Tooltip>
-          <Tooltip title="อนุมัติผ่านระบบ">
-            <Button
-              shape="default"
-              type="primary"
-              icon={<CheckCircleOutlined />}
-              onClick={(e) => {
-                e.stopPropagation();
-                requestApproveOvertimeSubmission(recordContentData.id);
-              }}
-              style={{
-                background: themeToken.colorSuccess,
-                borderColor: themeToken.colorSuccess,
-                borderRadius: 8,
-              }}
-            />
-          </Tooltip>
-          <Tooltip title="ส่งอีเมลแจ้ง HR">
-            <Button
-              shape="default"
-              icon={<MailOutlined />}
-              onClick={(e) => {
-                e.stopPropagation();
-                requestSendOvertimeMailToHR(recordContentData.id);
-              }}
-              style={{ borderRadius: 8 }}
-            />
-          </Tooltip>
-          <Tooltip title="ลบข้อมูลถาวร">
-            <Button
-              shape="default"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={(e) => {
-                e.stopPropagation();
-                requestDeleteOvertimeSubmission(recordContentData.id);
-              }}
-              style={{ borderRadius: 8 }}
-            />
-          </Tooltip>
-        </Space>
-      ),
-    },
-  ];
-
-  return (
-    <Card
-      variant="borderless"
-      style={{
-        borderRadius: 20,
-        boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
-        overflow: "hidden",
-      }}
-      title={
-        <Space>
-          <UnorderedListOutlined style={{ color: themeToken.colorPrimary }} />
-          <Typography.Text strong style={{ fontSize: 16 }}>
-            รายการคำขอ OT ทั้งหมดในระบบ
-          </Typography.Text>
-        </Space>
-      }
-      extra={
-        <Space size="middle">
-          <Button
-            icon={<BarChartOutlined />}
-            onClick={() => setIsAnalyticsModalVisible(true)}
-            style={{ borderRadius: 10, height: 40 }}
-          >
-            สถิติเชิงลึก
-          </Button>
-          <Button
-            type="primary"
-            ghost
-            icon={<CloudDownloadOutlined />}
-            onClick={() => setIsExportModalVisible(true)}
-            style={{ borderRadius: 10, height: 40 }}
-          >
-            ดาวน์โหลดรายงาน Excel
-          </Button>
-        </Space>
-      }
-      styles={{ body: { padding: "8px 24px 24px" } }}
-    >
-      {/* ตารางแสดงผลรายการคำขอ OT พร้อมฟังก์ชันขยายแถว */}
-      <Table
-        loading={isLoadingOvertimeData}
-        dataSource={dataSource}
-        columns={tableColumnsConfiguration}
-        rowSelection={{
-          selectedRowKeys,
-          onChange: (newRowKeys) => setSelectedRowKeys(newRowKeys),
-        }}
-        pagination={{
-          ...paginationState,
-          showSizeChanger: true,
-          showTotal: (totalRecords) => `แสดงผลทั้งหมด ${totalRecords} รายการ`,
-          style: { padding: "20px 24px" },
-        }}
-        onChange={onTableChange}
-        expandable={{
-          expandedRowRender: (recordContentData) => (
-            <Flex
-              vertical
-              gap={16}
-              style={{
-                padding: "20px 32px",
-                background: themeToken.colorFillQuaternary,
-                borderRadius: "0 0 12px 12px",
-              }}
-            >
-              <Typography.Text
-                strong
-                style={{ fontSize: 13, color: themeToken.colorTextSecondary }}
-              >
-                <SolutionOutlined style={{ marginRight: 8 }} />
-                รายการภาระงานและเวลาปฏิบัติงานจริง
-              </Typography.Text>
-              <Row gutter={[12, 12]}>
-                {recordContentData.descriptions?.map(
-                  (descriptionItem: any, indexValue: number) => (
-                    <Col span={24} key={indexValue}>
-                      <Flex justify="space-between" align="center">
-                        <Typography.Text style={{ fontSize: 14 }}>
-                          {descriptionItem.description}
-                        </Typography.Text>
-                        <Tag
-                          color="geekblue"
-                          style={{
-                            borderRadius: 6,
-                            paddingInline: 12,
-                            fontWeight: 600,
-                          }}
-                        >
-                          {descriptionItem.duration} ชม.
-                        </Tag>
-                      </Flex>
-                    </Col>
-                  ),
-                )}
-              </Row>
-            </Flex>
-          ),
-          expandRowByClick: true,
-        }}
-        onRow={(record) => ({
-          onClick: () => requestDetailedOvertimeContentByID(record.id),
-        })}
-        style={{ cursor: "pointer" }}
-      />
-    </Card>
-  );
-};
-
-// --- ส่วนประกอบ UI ย่อย (Sub-components) สำหรับแสดงผลในแต่ละหน้าส่วน ---
-
-/**
- * ส่วนแสดงผลรูปภาพอัปโหลด สำหรับหน้าสร้างรายการคำขอ
- * ช่วยลดการเขียน Code ซ้ำซ้อนและทำให้อ่านง่ายขึ้น
- */
-const UploadFieldItem = ({
-  name,
-  label,
-  required = false,
-  form,
-}: {
-  name: string;
-  label: string;
-  required?: boolean;
-  form: any;
-}) => (
-  <Form.Item
-    name={name}
-    label={
-      <Typography.Text style={{ fontSize: 13 }}>
-        {label} {required && <span style={{ color: "red" }}>*</span>}
-      </Typography.Text>
-    }
-    valuePropName="fileList"
-    getValueFromEvent={(e: any) => {
-      // จำกัดให้เหลือเพียง 1 ไฟล์ล่าสุดเสมอ
-      if (Array.isArray(e)) return e.slice(-1);
-      return e?.fileList?.slice(-1);
-    }}
-    rules={required ? [{ required: true, message: `โปรดอัปโหลด${label}` }] : []}
-    style={{ marginBottom: 20 }}
-  >
-    <Upload
-      listType="picture-card"
-      maxCount={1}
-      multiple={false}
-      showUploadList={{ showRemoveIcon: true }}
-      style={{ marginBottom: 8 }}
-      beforeUpload={(file) => {
-        const isLt2M = file.size < 2 * 1024 * 1024;
-        if (!isLt2M) {
-          toast.error(`ไฟล์ "${file.name}" ใหญ่เกินไป (จำกัด 2MB)`);
-          return Upload.LIST_IGNORE;
-        }
-        return false;
-      }}
-    >
-      <Form.Item noStyle dependencies={[name]}>
-        {({ getFieldValue }) => (
-          <div
-            style={{
-              display: getFieldValue(name)?.length >= 1 ? "none" : "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 4,
-            }}
-          >
-            <PlusOutlined />
-            <div style={{ fontSize: 10 }}>อัปโหลด</div>
-          </div>
-        )}
-      </Form.Item>
-    </Upload>
-  </Form.Item>
-);
-
-/**
- * การ์ดแสดงข้อมูลรายงานภาระงานรายข้อ สำหรับหน้าสร้างคำขอ
- */
-const TaskDescriptionCard = ({
-  fieldProps,
-  remove,
-  themeToken,
-}: {
-  fieldProps: any;
-  remove: (index: number) => void;
-  themeToken: any;
-}) => (
-  <Card
-    size="small"
-    variant="borderless"
-    style={{
-      background: themeToken.colorFillQuaternary,
-      borderRadius: 12,
-    }}
-  >
-    <Flex vertical gap={12}>
-      <Row gutter={12}>
-        <Col flex="auto">
-          {/* บรรยายรายละเอียดเนื้องาน */}
-          <Form.Item
-            {...fieldProps}
-            name={[fieldProps.name, "description"]}
-            label={
-              <Typography.Text strong style={{ fontSize: 12 }}>
-                รายละเอียดภาระงาน
-              </Typography.Text>
-            }
-            rules={[
-              { required: true, message: "ระบุเนื้องาน" },
-              { max: 200, message: "จำกัดไม่เกิน 200 ตัวอักษร" },
-            ]}
-            extra={
-              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                * จำกัดไม่เกิน 200 ตัวอักษร หากมีรายละเอียดเพิ่มเติม
-                ให้กดเพิ่มรายการ
-              </Typography.Text>
-            }
-            style={{ marginBottom: 16 }}
-          >
-            <Input
-              maxLength={200}
-              showCount
-              placeholder="เช่น ตรวจสอบความถูกต้องของฐานข้อมูลรายชื่อ..."
-              style={{ height: 44, borderRadius: 10, marginBottom: 4 }}
-            />
-          </Form.Item>
-        </Col>
-        <Col flex="none">
-          <Button
-            type="text"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => remove(fieldProps.name)}
-            style={{ marginTop: 28 }}
-          />
-        </Col>
-      </Row>
-      <Row gutter={12}>
-        <Col xs={24} md={10}>
-          <Form.Item
-            {...fieldProps}
-            name={[fieldProps.name, "startDate"]}
-            label={
-              <Typography.Text style={{ fontSize: 12 }}>
-                เริ่มเมื่อไหร่? (DATE/TIME)
-              </Typography.Text>
-            }
-            rules={[{ required: true, message: "โปรดระบุวันและเวลา" }]}
-            style={{ marginBottom: 16 }}
-          >
-            <DatePicker
-              showTime
-              format="DD/MM/YYYY HH:mm"
-              style={{
-                width: "100%",
-                height: 38,
-                borderRadius: 8,
-                marginBottom: 4,
-              }}
-              placeholder="เริ่ม"
-            />
-          </Form.Item>
-        </Col>
-        <Col xs={24} md={10}>
-          <Form.Item
-            {...fieldProps}
-            name={[fieldProps.name, "endDate"]}
-            label={
-              <Typography.Text style={{ fontSize: 12 }}>
-                เสร็จเมื่อไหร่? (DATE/TIME)
-              </Typography.Text>
-            }
-            rules={[{ required: true, message: "โปรดระบุวันและเวลา" }]}
-            style={{ marginBottom: 16 }}
-          >
-            <DatePicker
-              showTime
-              format="DD/MM/YYYY HH:mm"
-              style={{
-                width: "100%",
-                height: 38,
-                borderRadius: 8,
-                marginBottom: 4,
-              }}
-              placeholder="จบ"
-            />
-          </Form.Item>
-        </Col>
-        <Col xs={24} md={4}>
-          <Form.Item
-            {...fieldProps}
-            name={[fieldProps.name, "duration"]}
-            label={
-              <Space size={4}>
-                <Typography.Text style={{ fontSize: 12 }}>
-                  ชม. รวม (อัตโนมัติ)
-                </Typography.Text>
-                <Tooltip
-                  title={
-                    <Flex vertical gap={6} style={{ padding: "4px 2px" }}>
-                      <Typography.Text
-                        strong
-                        style={{ color: "#fff", fontSize: 12 }}
-                      >
-                        สูตรการคำนวณชั่วโมง OT
-                      </Typography.Text>
-                      <Typography.Text
-                        style={{
-                          color: "rgba(255,255,255,0.85)",
-                          fontSize: 11,
-                        }}
-                      >
-                        {"diffMs = เวลาสิ้นสุด − เวลาเริ่มต้น (ms)"}
-                      </Typography.Text>
-                      <Typography.Text
-                        style={{
-                          color: "rgba(255,255,255,0.85)",
-                          fontSize: 11,
-                        }}
-                      >
-                        {"ชั่วโมง = diffMs ÷ 3,600,000"}
-                      </Typography.Text>
-                      <Typography.Text
-                        style={{
-                          color: "rgba(255,255,255,0.85)",
-                          fontSize: 11,
-                        }}
-                      >
-                        {"ผล = Math.round(ชั่วโมง × 100) / 100"}
-                      </Typography.Text>
-                      <Divider
-                        style={{
-                          margin: "4px 0",
-                          borderColor: "rgba(255,255,255,0.2)",
-                        }}
-                      />
-                      <Typography.Text
-                        style={{ color: "rgba(255,255,255,0.7)", fontSize: 10 }}
-                      >
-                        ตัวอย่าง: 18:00 → 19:23 = 1.38 ชม.
-                      </Typography.Text>
-                      <Typography.Text
-                        style={{ color: "rgba(255,255,255,0.7)", fontSize: 10 }}
-                      >
-                        ตัวอย่าง: 22:10 → 00:15+1 = 2.08 ชม.
-                      </Typography.Text>
-                    </Flex>
-                  }
-                  styles={{ root: { maxWidth: 280 } }}
-                >
-                  <InfoCircleOutlined
-                    style={{ color: "#8c8c8c", fontSize: 12, cursor: "help" }}
-                  />
-                </Tooltip>
-              </Space>
-            }
-            rules={[{ required: true, message: "ระบุเวลา" }]}
-            style={{ marginBottom: 16 }}
-          >
-            <Input
-              type="number"
-              step="0.01"
-              disabled
-              suffix={
-                <Typography.Text type="secondary" style={{ fontSize: 11 }}>
-                  ชม.
-                </Typography.Text>
-              }
-              placeholder="0.00"
-              style={{ height: 38, borderRadius: 8, marginBottom: 4 }}
-            />
-          </Form.Item>
-        </Col>
-      </Row>
-    </Flex>
-  </Card>
-);
-
-const CreateModalSection = ({
-  visible,
-  setVisible,
-  userOptions,
-  requestCreateOvertimeSubmission,
-  loading,
-  form,
-  themeToken,
-  currentUserId,
-}: any) => {
-  const [requesterName, setRequesterName] = useState<string>("กำลังโหลด...");
-
-  // ดึงชื่อผู้ขอทำงานล่วงเวลาจาก API
-  useEffect(() => {
-    const fetchRequesterName = async () => {
-      if (!currentUserId || !visible) return;
-      try {
-        const response = await callApiService.get(
-          `/api/v2/admin/user-management/detail/${currentUserId}`,
-        );
-        if (response?.data?.status === 200 && response.data.data) {
-          const user = response.data.data;
-          setRequesterName(
-            `${user.firstname_th || ""} ${user.lastname_th || ""}`.trim() ||
-              "-",
-          );
-        } else {
-          setRequesterName("-");
-        }
-      } catch (error) {
-        console.error("Failed to fetch requester name:", error);
-        setRequesterName("-");
-      }
-    };
-
-    fetchRequesterName();
-  }, [currentUserId, visible]);
-
-  // ฟังก์ชันย่อยสำหรับประมวลผลการคำนวณชั่วโมงทำงานอัตโนมัติ
-  const calculateAutoDuration = (changedValues: any, allValues: any) => {
-    if (!changedValues.descriptions) return;
-
-    const updatedDescriptions = [...(allValues.descriptions || [])];
-    let isChanged = false;
-
-    Object.entries(changedValues.descriptions).forEach(
-      ([indexStr, value]: [string, any]) => {
-        const idx = parseInt(indexStr, 10);
-        if (value && (value.startDate || value.endDate)) {
-          const start = updatedDescriptions[idx].startDate;
-          const end = updatedDescriptions[idx].endDate;
-
-          if (start && end) {
-            // คำนวณส่วนต่างเป็น ms แล้วแปลงเป็นชั่วโมงทศนิยม (รองรับข้ามวัน)
-            const diffMs = new Date(end).getTime() - new Date(start).getTime();
-            const diffHours = diffMs / 1000 / 60 / 60;
-
-            // ปัดทศนิยม 2 ตำแหน่งแบบ Math.round (เศษส่วน 100)
-            const duration =
-              diffHours > 0 ? Math.round(diffHours * 100) / 100 : 0;
-
-            if (updatedDescriptions[idx].duration !== duration) {
-              updatedDescriptions[idx].duration = duration;
-              isChanged = true;
-            }
-          }
-        }
-      },
-    );
-
-    if (isChanged) form.setFieldsValue({ descriptions: updatedDescriptions });
-  };
-
-  const handleSubmission = async (formValues: any) => {
-    const success = await requestCreateOvertimeSubmission(formValues);
-    if (success) setVisible(false);
-  };
-
-  return (
-    <Modal
-      title={
-        <Flex
-          align="center"
-          gap={12}
-          style={{
-            background: `linear-gradient(90deg, ${themeToken.colorPrimary}, ${themeToken.colorInfo})`,
-            padding: "24px",
-            margin: "-20px -24px 0",
-            borderRadius: "20px 20px 0 0",
-          }}
-        >
-          {/* หน้าต่าง Modal สำหรับขั้นตอนการสร้างรายการคำขอ OT ใหม่ */}
-          <Flex
-            align="center"
-            justify="center"
-            style={{
-              background: "rgba(255,255,255,0.2)",
-              width: 40,
-              height: 40,
-              borderRadius: 12,
-            }}
-          >
-            <PlusOutlined style={{ color: "#fff", fontSize: 20 }} />
-          </Flex>
-          <Flex vertical>
-            <Typography.Text
-              strong
-              style={{ color: "#fff", fontSize: 18, lineHeight: 1.2 }}
-            >
-              เพิ่มรายการคำขอ OT ใหม่
-            </Typography.Text>
-            <Typography.Text
-              style={{ color: "rgba(255,255,255,0.8)", fontSize: 12 }}
-            >
-              กรุณาระบุข้อมูลการทำงานให้ครบถ้วนเพื่อการพิจารณา
-            </Typography.Text>
-          </Flex>
-        </Flex>
-      }
-      open={visible}
-      onCancel={() => setVisible(false)}
-      footer={null}
-      width={1200}
-      centered
-      style={{ borderRadius: 20, overflow: "hidden" }}
-    >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmission}
-        style={{ paddingTop: 32 }}
-        onValuesChange={calculateAutoDuration}
-      >
-        <Row gutter={24}>
-          <Col xs={24} md={12}>
-            {/* แสดงชื่อผู้ขอทำงานล่วงเวลา - ดึงจาก user_id */}
-            <Form.Item
-              label={
-                <Typography.Text strong>ชื่อผู้ขอทำงานล่วงเวลา</Typography.Text>
-              }
-              style={{ marginBottom: 24 }}
-            >
-              <Input
-                value={requesterName}
-                disabled
-                style={{
-                  height: 48,
-                  borderRadius: 12,
-                  marginBottom: 4,
-                  backgroundColor: "#f5f5f5",
-                  color: "#000",
-                }}
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={12}>
-            {/* ระบุวันที่ปฏิบัติงานจริง */}
-            <Form.Item
-              name="request_date"
-              label={<Typography.Text strong>วันที่ปฏิบัติงาน</Typography.Text>}
-              initialValue={dayjs()}
-              rules={[{ required: true, message: "โปรดระบุวันที่" }]}
-              style={{ marginBottom: 24 }}
-            >
-              <DatePicker
-                style={{
-                  width: "100%",
-                  height: 48,
-                  borderRadius: 12,
-                  marginBottom: 4,
-                }}
-                format="DD/MM/YYYY"
-                suffixIcon={<CalendarOutlined />}
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={12}>
-            {/* เลือกพนักงานที่เป็นผู้มอบหมายงาน - ล็อกไว้ที่ Admin SB Helper */}
-            <Form.Item
-              name="assignee"
-              label={<Typography.Text strong>ผู้มอบหมายงาน</Typography.Text>}
-              initialValue={BYPASS_USER_ID}
-              rules={[{ required: true, message: "โปรดเลือกผู้มอบหมายงาน" }]}
-              style={{ marginBottom: 24 }}
-            >
-              <Select
-                options={userOptions}
-                disabled
-                showSearch
-                placeholder="ระบุชื่อผู้มอบหมายงาน..."
-                optionFilterProp="label"
-                loading={loading}
-                style={{ height: 48, marginBottom: 4 }}
-                styles={{ popup: { root: { borderRadius: 12 } } }}
-                notFoundContent={
-                  loading ? (
-                    <Typography.Text type="secondary">
-                      กำลังโหลดข้อมูลพนักงาน...
-                    </Typography.Text>
-                  ) : (
-                    <Typography.Text type="secondary">
-                      ไม่พบพนักงาน
-                    </Typography.Text>
-                  )
-                }
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={24}>
-          <Col xs={24} md={12}>
-            {/* เลือกประเภทการทำ OT (วันปกติ หรือ วันหยุด) */}
-            <Form.Item
-              name="overtime_type"
-              label={
-                <Typography.Text strong>ประเภทการทำงาน (OT)</Typography.Text>
-              }
-              rules={[{ required: true, message: "โปรดเลือกประเภท OT" }]}
-              initialValue="weekday"
-              style={{ marginBottom: 24 }}
-            >
-              <Select
-                options={[
-                  { label: "OT วันทำงานปกติ (Weekday OT)", value: "weekday" },
-                  { label: "OT วันหยุด (Holiday OT)", value: "holiday" },
-                ]}
-                style={{ height: 48, marginBottom: 4 }}
-                styles={{ popup: { root: { borderRadius: 12 } } }}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Divider orientation="left" style={{ marginBlock: 32 }}>
-          <Space>
-            <FileTextOutlined />{" "}
-            <Typography.Text strong>
-              รายละเอียดงานที่ได้รับมอบหมาย
-            </Typography.Text>
-          </Space>
-        </Divider>
-
-        <Form.List
-          name="descriptions"
-          initialValue={[
-            {
-              description: "",
-              duration: "1.00",
-              startDate: dayjs().hour(18).minute(0).second(0),
-              endDate: dayjs().hour(19).minute(0).second(0),
-            },
-          ]}
-        >
-          {(fields, { add, remove }) => {
-            const descriptions = form.getFieldValue("descriptions") || [];
-            const totalHours = descriptions.reduce(
-              (sumValue: number, currentItem: any) =>
-                sumValue + Number(currentItem?.duration || 0),
-              0,
-            );
-
-            return (
-              <Flex vertical gap={20}>
-                {fields.map(({ key, ...fieldProps }) => (
-                  <TaskDescriptionCard
-                    key={key}
-                    fieldProps={fieldProps}
-                    remove={remove}
-                    themeToken={themeToken}
-                  />
-                ))}
-                <Button
-                  type="dashed"
-                  onClick={() =>
-                    add({
-                      description: "",
-                      duration: "1.00",
-                      startDate: dayjs().hour(18).minute(0).second(0),
-                      endDate: dayjs().hour(19).minute(0).second(0),
-                    })
-                  }
-                  icon={<PlusOutlined />}
-                  block
-                  style={{
-                    height: 48,
-                    borderRadius: 12,
-                    borderStyle: "dashed",
-                    borderWidth: 2,
-                  }}
-                >
-                  เพิ่มรายการ
-                </Button>
-
-                <Flex
-                  justify="flex-end"
-                  align="center"
-                  gap={12}
-                  style={{
-                    padding: "16px 20px",
-                    background: themeToken.colorInfoBg,
-                    borderRadius: 12,
-                    marginTop: 8,
-                  }}
-                >
-                  <Typography.Text strong type="secondary">
-                    รวมชั่วโมง OT ทั้งหมดในคำขอนี้:
-                  </Typography.Text>
-                  <Tag
-                    color="blue"
-                    style={{
-                      fontSize: 16,
-                      paddingInline: 16,
-                      paddingBlock: 4,
-                      borderRadius: 8,
-                      fontWeight: 700,
-                    }}
-                  >
-                    {totalHours.toFixed(2)} ชั่วโมง
-                  </Tag>
-                </Flex>
-              </Flex>
-            );
-          }}
-        </Form.List>
-
-        {/* --- ส่วนที่ 1: หลักฐานการทำงาน (Work Evidence Section) --- */}
-        <div style={{ marginTop: 24 }}>
-          <Divider orientation="left" style={{ marginBlock: 16 }}>
-            <Space>
-              <CameraOutlined style={{ color: themeToken.colorWarning }} />
-              <Typography.Text strong>หลักฐานการทำงาน</Typography.Text>
-            </Space>
-          </Divider>
-          <Card
-            size="small"
-            style={{
-              borderRadius: 16,
-              background: themeToken.colorFillAlter,
-            }}
-          >
-            <Row gutter={[16, 24]}>
-              <Col xs={24} sm={12}>
-                <UploadFieldItem
-                  name="proof_checkin"
-                  label="1. หลักฐานการเข้าทำงาน (Line Group)"
-                  required
-                  form={form}
-                />
-              </Col>
-              <Col xs={24} sm={12}>
-                <UploadFieldItem
-                  name="proof_checkout"
-                  label="2. หลักฐานการออกทำงาน (Line Group)"
-                  required
-                  form={form}
-                />
-              </Col>
-              <Col xs={24} sm={12}>
-                <UploadFieldItem
-                  name="proof_work_1"
-                  label="3. หลักฐานการทำงานจริง #1"
-                  required
-                  form={form}
-                />
-              </Col>
-              <Col xs={24} sm={12}>
-                <UploadFieldItem
-                  name="proof_work_2"
-                  label="4. หลักฐานการทำงานจริง #2"
-                  required
-                  form={form}
-                />
-              </Col>
-            </Row>
-          </Card>
-        </div>
-
-        {/* --- ส่วนที่ 2: ลายเซ็นการทำงาน (Work Signature Section) --- */}
-        <div style={{ marginTop: 16 }}>
-          <Divider orientation="left" style={{ marginBlock: 16 }}>
-            <Space>
-              <EditOutlined style={{ color: themeToken.colorSuccess }} />
-              <Typography.Text strong>ลายเซ็นผู้ปฏิบัติงาน</Typography.Text>
-            </Space>
-          </Divider>
-          <Card
-            size="small"
-            style={{
-              borderRadius: 16,
-              background: themeToken.colorFillAlter,
-            }}
-          >
-            <UploadFieldItem
-              name="signature_file"
-              label="อัปโหลดรูปภาพลายเซ็นรับรอง (1 รูป)"
-              required
-              form={form}
-            />
-          </Card>
-        </div>
-
-        <Flex justify="flex-end" gap={16} style={{ marginTop: 48 }}>
-          <Button
-            onClick={() => setVisible(false)}
-            style={{ borderRadius: 12, height: 48, paddingInline: 32 }}
-          >
-            ยกเลิกคำขอ
-          </Button>
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={loading}
-            style={{
-              borderRadius: 12,
-              height: 48,
-              paddingInline: 48,
-              fontWeight: 600,
-            }}
-          >
-            ส่งคำขออนุมัติ
-          </Button>
-        </Flex>
-      </Form>
-    </Modal>
-  );
-};
-
-const BatchStatusModalSection = ({
-  visible,
-  setVisible,
-  selectedRowKeys,
-  batchSelectedStatus,
-  setBatchSelectedStatus,
-  requestBatchApproveOvertimeSubmission,
-  batchProcessing,
-  processedRecordItems,
-  overtimeDataSource,
-  setSelectedRowKeys,
-  setProcessedRecordItems,
-  themeToken,
-}: any) => {
-  const selectedRecords = useMemo(() => {
-    return overtimeDataSource.filter((item: any) =>
-      selectedRowKeys.includes(item.id),
-    );
-  }, [selectedRowKeys, overtimeDataSource]);
-
-  const handleClose = () => {
-    setVisible(false);
-    // เคลียร์ข้อมูลเมื่อปิด Modal
-    if (!batchProcessing) {
-      setSelectedRowKeys([]);
-      setProcessedRecordItems(new Map());
-    }
-  };
-
-  return (
-    <Modal
-      title={
-        <Space>
-          <ThunderboltOutlined style={{ color: themeToken.colorWarning }} />{" "}
-          เปลี่ยนสถานะรายการที่เลือกพร้อมกัน
-        </Space>
-      }
-      open={visible}
-      onCancel={handleClose}
-      onOk={async () => {
-        await requestBatchApproveOvertimeSubmission(batchSelectedStatus);
-      }}
-      confirmLoading={batchProcessing}
-      okText={batchProcessing ? "กำลังดำเนินการ..." : "ยืนยันการเปลี่ยนสถานะ"}
-      cancelText="ปิดหน้าต่าง"
-      centered
-      width={1000} // ขยายความกว้าง Modal
-      style={{ borderRadius: 20, overflow: "hidden" }}
-      maskClosable={false}
-    >
-      <Flex vertical gap={24} style={{ paddingBlock: 24 }}>
-        <Row gutter={24}>
-          <Col span={8}>
-            <Flex vertical gap={20}>
-              <Flex
-                vertical
-                gap={8}
-                style={{
-                  padding: "16px 20px",
-                  background: themeToken.colorInfoBg,
-                  borderRadius: 12,
-                  border: `1px solid ${themeToken.colorInfoBorder}`,
-                }}
-              >
-                <Typography.Text>
-                  รายการที่เลือกทั้งหมด:{" "}
-                  <Typography.Text strong color="primary">
-                    {selectedRowKeys.length}
-                  </Typography.Text>{" "}
-                  รายการ
-                </Typography.Text>
-              </Flex>
-
-              <Flex vertical gap={10}>
-                <Typography.Text strong>
-                  เลือกสถานะที่ต้องการปรับปรุง:
-                </Typography.Text>
-                <Select
-                  value={batchSelectedStatus}
-                  onChange={setBatchSelectedStatus}
-                  disabled={batchProcessing}
-                  options={OT_STATUS.map((item) => ({
-                    label: item.text,
-                    value: item.value,
-                  }))}
-                  style={{ width: "100%", height: 48 }}
-                />
-              </Flex>
-
-              <Flex
-                align="center"
-                gap={10}
-                style={{
-                  padding: "12px 16px",
-                  borderRadius: 12,
-                }}
-              >
-                <WarningOutlined style={{ color: "#faad14" }} />
-                <Typography.Text style={{ fontSize: 12 }}>
-                  ระบบจะดำเนินการประมวลผลทีละรายการ (Queue)
-                  เพื่อความถูกต้องของข้อมูล
-                </Typography.Text>
-              </Flex>
-            </Flex>
-          </Col>
-
-          <Col span={16}>
-            <div
-              style={{
-                border: `1px solid ${themeToken.colorBorderSecondary}`,
-                borderRadius: 12,
-                overflow: "hidden",
-              }}
-            >
-              <Table
-                dataSource={selectedRecords}
-                pagination={false}
-                size="small"
-                scroll={{ y: 400 }}
-                rowKey="id"
-                columns={[
-                  {
-                    title: "รหัส",
-                    dataIndex: "id",
-                    width: 100,
-                    render: (id) => <Tag>#{id}</Tag>,
-                  },
-                  {
-                    title: "พนักงาน",
-                    key: "requester",
-                    render: (record) => {
-                      const name =
-                        record.requester_name ||
-                        record.requester_user?.name ||
-                        "-";
-                      return (
-                        <Space>
-                          <Avatar
-                            size="small"
-                            src={record.requester_user?.profile_image}
-                          />
-                          <Typography.Text ellipsis style={{ maxWidth: 150 }}>
-                            {name}
-                          </Typography.Text>
-                        </Space>
-                      );
-                    },
-                  },
-                  {
-                    title: "วันที่ขอ",
-                    dataIndex: "request_date",
-                    width: 120,
-                    render: (date) => dayjs(date).format("DD/MM/BBBB"),
-                  },
-                  {
-                    title: "สถานะดำเนินการ",
-                    key: "processing_status",
-                    width: 180,
-                    align: "center",
-                    render: (record) => {
-                      const status =
-                        processedRecordItems.get(record.id) || "waiting";
-                      const configs: any = {
-                        waiting: {
-                          color: "default",
-                          icon: <ClockCircleOutlined />,
-                          text: "รอคิว",
-                        },
-                        processing: {
-                          color: "processing",
-                          icon: <LoadingOutlined />,
-                          text: "กำลังส่งข้อมูล",
-                        },
-                        completed: {
-                          color: "success",
-                          icon: <CheckCircleOutlined />,
-                          text: "สำเร็จ",
-                        },
-                        failed: {
-                          color: "error",
-                          icon: <CloseCircleOutlined />,
-                          text: "ล้มเหลว",
-                        },
-                      };
-                      const config = configs[status];
-                      return (
-                        <Tag
-                          icon={config.icon}
-                          color={config.color}
-                          style={{ margin: 0 }}
-                        >
-                          {config.text}
-                        </Tag>
-                      );
-                    },
-                  },
-                ]}
-              />
-            </div>
-          </Col>
-        </Row>
-      </Flex>
-    </Modal>
-  );
-};
-
-const DetailModalSection = ({
-  visible,
-  setVisible,
-  selectedDetail,
-  themeToken,
-}: any) => {
-  // คำนวณสรุปจำนวนชั่วโมงทำงานโดยรวมในคำขอที่ถูกเลือก
-  const totalDurationSummaryValue = useMemo(() => {
-    return (
-      selectedDetail?.descriptions?.reduce(
-        (sum: number, item: any) => sum + Number(item.duration || 0),
-        0,
-      ) || 0
-    );
-  }, [selectedDetail]);
-
-  // รวบรวมรูปภาพหลักฐานทั้งหมดจากทุกรายการภาระงาน (ปกติจะอยู่ที่รายการแรก)
-  const proofImages = useMemo(() => {
-    if (!selectedDetail?.descriptions) return {};
-    return selectedDetail.descriptions.reduce(
-      (acc: any, item: any) => ({
-        ...acc,
-        ...(item.proof || {}),
-      }),
-      {},
-    );
-  }, [selectedDetail]);
-
-  const hasAnyProof = Object.keys(proofImages).length > 0;
-
-  return (
-    <Modal
-      title={
-        <Flex align="center" gap={12}>
-          <div
-            style={{
-              background: themeToken.colorPrimaryBg,
-              padding: 8,
-              borderRadius: 10,
-              display: "flex",
-            }}
-          >
-            <FileSearchOutlined style={{ color: themeToken.colorPrimary }} />
-          </div>
-          <Typography.Text strong style={{ fontSize: 16 }}>
-            รายละเอียดคำขอ OT #{selectedDetail?.id}
-          </Typography.Text>
-        </Flex>
-      }
-      open={visible}
-      onCancel={() => setVisible(false)}
-      footer={[
-        <Button
-          key="close"
-          type="primary"
-          onClick={() => setVisible(false)}
-          style={{ borderRadius: 10, height: 40, paddingInline: 32 }}
-        >
-          ตกลง
-        </Button>,
-      ]}
-      width={900}
-      centered
-      style={{ borderRadius: 20, overflow: "hidden" }}
-    >
-      {selectedDetail ? (
-        <Flex vertical gap={24} style={{ paddingBlock: 16 }}>
-          {/* ส่วนที่ 1: ข้อมูลพนักงานและสถานะ */}
-          <Card
-            variant="borderless"
-            style={{
-              background: themeToken.colorFillQuaternary,
-              borderRadius: 16,
-            }}
-            styles={{ body: { padding: 20 } }}
-          >
-            <Row gutter={[24, 16]} align="middle">
-              <Col xs={24} md={14}>
-                <Flex gap={16} align="center">
-                  <Avatar
-                    size={64}
-                    src={
-                      selectedDetail.requester_user?.profile_image ||
-                      getUserById(selectedDetail.requester_id)?.profile_image
-                    }
-                    icon={<UserOutlined />}
-                    style={{
-                      border: `2px solid #fff`,
-                      boxShadow: themeToken.boxShadowTertiary,
-                    }}
-                  />
-                  <Flex vertical>
-                    <Typography.Text strong style={{ fontSize: 18 }}>
-                      {selectedDetail.requester_name ||
-                        `${selectedDetail.requester_user?.firstname_th} ${selectedDetail.requester_user?.lastname_th}`}
-                      {selectedDetail.requester_user?.nickname && (
-                        <span
-                          style={{
-                            marginLeft: 4,
-                            color: themeToken.colorTextSecondary,
-                            fontWeight: 400,
-                          }}
-                        >
-                          ({selectedDetail.requester_user.nickname})
-                        </span>
-                      )}
-                    </Typography.Text>
-                    <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-                      {selectedDetail.requester_position ||
-                        selectedDetail.requester_user?.position_th}{" "}
-                      -{" "}
-                      {selectedDetail.requester_employee_code ||
-                        selectedDetail.requester_user?.employee_code}
-                    </Typography.Text>
-                  </Flex>
-                </Flex>
-              </Col>
-              <Col xs={24} md={10}>
-                <Flex vertical align="flex-end" gap={8}>
-                  <Tag
-                    color={
-                      OT_STATUS.find(
-                        (item) => item.value === selectedDetail.status,
-                      )?.color
-                    }
-                    style={{
-                      fontSize: 14,
-                      padding: "4px 16px",
-                      borderRadius: 8,
-                      margin: 0,
-                      fontWeight: 600,
-                    }}
-                  >
-                    {OT_STATUS.find(
-                      (item) => item.value === selectedDetail.status,
-                    )?.text || selectedDetail.status}
-                  </Tag>
-                  <Typography.Text type="secondary" style={{ fontSize: 11 }}>
-                    วันที่ปฏิบัติงาน:{" "}
-                    {dayjs(selectedDetail.request_date).format("DD/MM/YYYY")}
-                  </Typography.Text>
-                </Flex>
-              </Col>
-            </Row>
-          </Card>
-
-          {/* ส่วนที่ 2: รายละเอียดเนื้องาน */}
-          <Flex vertical gap={12}>
-            <Divider orientation="left" style={{ margin: "8px 0" }}>
-              <Space>
-                <FileTextOutlined style={{ color: themeToken.colorInfo }} />
-                <Typography.Text strong>
-                  รายการภาระงานที่ปฏิบัติ
-                </Typography.Text>
-              </Space>
-            </Divider>
-            <Table
-              dataSource={selectedDetail.descriptions}
-              pagination={false}
-              rowKey="id"
-              size="middle"
-              columns={[
-                {
-                  title: "รายละเอียดเนื้องาน",
-                  dataIndex: "description",
-                  key: "desc",
-                  render: (text) => (
-                    <Typography.Text style={{ fontSize: 14 }}>
-                      {text}
-                    </Typography.Text>
-                  ),
-                },
-                {
-                  title: "เวลาปฏิบัติงาน",
-                  key: "time",
-                  width: 220,
-                  render: (record) => (
-                    <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-                      {record.start_date
-                        ? dayjs(record.start_date).format("HH:mm")
-                        : "-"}{" "}
-                      -{" "}
-                      {record.end_date
-                        ? dayjs(record.end_date).format("HH:mm")
-                        : "-"}{" "}
-                      น.
-                    </Typography.Text>
-                  ),
-                },
-                {
-                  title: "จำนวน (ชม.)",
-                  dataIndex: "duration",
-                  key: "dur",
-                  align: "center",
-                  width: 120,
-                  render: (value) => (
-                    <Tag
-                      color="blue"
-                      style={{ borderRadius: 6, fontWeight: 700, margin: 0 }}
-                    >
-                      {value} ชม.
-                    </Tag>
-                  ),
-                },
-              ]}
-              summary={() => (
-                <Table.Summary fixed>
-                  <Table.Summary.Row>
-                    <Table.Summary.Cell index={0} colSpan={2}>
-                      <Typography.Text strong>
-                        รวมจำนวนชั่วโมงทั้งหมด
-                      </Typography.Text>
-                    </Table.Summary.Cell>
-                    <Table.Summary.Cell index={1} align="center">
-                      <Typography.Text
-                        strong
-                        style={{ color: themeToken.colorError, fontSize: 16 }}
-                      >
-                        {totalDurationSummaryValue}
-                      </Typography.Text>
-                    </Table.Summary.Cell>
-                  </Table.Summary.Row>
-                </Table.Summary>
-              )}
-              style={{
-                border: `1px solid ${themeToken.colorBorderSecondary}`,
-                borderRadius: 12,
-                overflow: "hidden",
-              }}
-            />
-          </Flex>
-
-          {/* ส่วนที่ 3: หลักฐานรูปภาพและลายเซ็น */}
-          <Flex vertical gap={16}>
-            <Divider orientation="left" style={{ margin: "8px 0" }}>
-              <Space>
-                <CameraOutlined style={{ color: themeToken.colorWarning }} />
-                <Typography.Text strong>หลักฐานการทำงาน</Typography.Text>
-              </Space>
-            </Divider>
-
-            {hasAnyProof ? (
-              <Card
-                variant="borderless"
-                style={{
-                  background: themeToken.colorFillQuaternary,
-                  borderRadius: 16,
-                }}
-              >
-                <Image.PreviewGroup>
-                  <Row gutter={[16, 24]}>
-                    {[
-                      { key: "image_1", label: "1. หลักฐานเข้าทำงาน" },
-                      { key: "image_2", label: "2. หลักฐานออกทำงาน" },
-                      { key: "image_3", label: "3. หลักฐานงานจริง #1" },
-                      { key: "image_4", label: "4. หลักฐานงานจริง #2" },
-                    ].map(
-                      (item) =>
-                        proofImages[item.key] && (
-                          <Col xs={12} sm={6} md={4} key={item.key}>
-                            <Flex vertical gap={8} align="flex-start">
-                              <Image
-                                src={proofImages[item.key]}
-                                alt={item.label}
-                                style={{
-                                  borderRadius: 12,
-                                  objectFit: "cover",
-                                  height: 100,
-                                  width: "100%",
-                                  cursor: "pointer",
-                                }}
-                                fallback="/photo/no-image.png"
-                              />
-                              <Typography.Text
-                                type="secondary"
-                                style={{ fontSize: 11, textAlign: "left" }}
-                              >
-                                {item.label}
-                              </Typography.Text>
-                            </Flex>
-                          </Col>
-                        ),
-                    )}
-
-                    {/* ช่องแสดงลายเซ็นแยกต่างหาก */}
-                    {proofImages.signature_1 && (
-                      <Col span={24}>
-                        <Divider dashed style={{ margin: "16px 0" }} />
-                        <Flex align="flex-start" vertical gap={12}>
-                          <Typography.Text strong style={{ fontSize: 13 }}>
-                            ลายเซ็นรับรองผู้ปฏิบัติงาน
-                          </Typography.Text>
-                          <div
-                            style={{
-                              padding: "16px 24px",
-                              background: "#fff",
-                              borderRadius: 12,
-                              border: `1px solid ${themeToken.colorBorderSecondary}`,
-                              display: "inline-flex",
-                            }}
-                          >
-                            <Image
-                              src={proofImages.signature_1}
-                              width={180}
-                              style={{ maxHeight: 80, objectFit: "contain" }}
-                              alt="Signature"
-                            />
-                          </div>
-                        </Flex>
-                      </Col>
-                    )}
-                  </Row>
-                </Image.PreviewGroup>
-              </Card>
-            ) : (
-              <Empty
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                description="ไม่พบไฟล์ยอดหลักฐานรูปภาพในคำขอนี้"
-                style={{ marginBlock: 20 }}
-              />
-            )}
-          </Flex>
-
-          {/* ส่วนท้าย: ข้อมูลการประมวลผล */}
-          <Flex justify="space-between" align="center" style={{ marginTop: 8 }}>
-            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              <HistoryOutlined style={{ marginRight: 4 }} />
-              ยื่นคำขอเมื่อ:{" "}
-              {dayjs(selectedDetail.created_at).format("DD/MM/YYYY HH:mm")}
-            </Typography.Text>
-            {selectedDetail.updated_by && (
-              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                อัปเดตล่าสุดโดย: {selectedDetail.updater_name} (
-                {dayjs(selectedDetail.updated_at).format("DD/MM/YYYY HH:mm")})
-              </Typography.Text>
-            )}
-          </Flex>
-        </Flex>
-      ) : (
-        <div style={{ padding: 40, textAlign: "center" }}>
-          <Skeleton active paragraph={{ rows: 8 }} />
-        </div>
-      )}
-    </Modal>
   );
 };
 
@@ -3912,11 +1887,9 @@ const AnalyticsModalSection = ({
       centered
       style={{ borderRadius: 24, overflow: "hidden" }}
     >
-      {/* หน้าต่าง Dashboard สำหรับการแสดงผลเชิงสถิติ (Data Visualization) */}
       <Flex vertical gap={32} style={{ paddingBlock: 32 }}>
         <Row gutter={[24, 24]}>
           <Col xs={24} lg={16}>
-            {/* ส่วนแสดงแนวโน้มชั่วโมงงานสะสมผ่านกราฟแท่ง */}
             <Card
               title="ภาพรวมแนวโน้มภาระงานรายเดือน (ชั่วโมงสะสม)"
               variant="borderless"
@@ -3948,7 +1921,6 @@ const AnalyticsModalSection = ({
             </Card>
           </Col>
           <Col xs={24} lg={8}>
-            {/* ส่วนแสดงสัดส่วนสถานะงานผ่าน Doughnut Chart */}
             <Card
               title="สัดส่วนสถานะคำขอในระบบ"
               variant="borderless"
@@ -4023,7 +1995,6 @@ const RulesModalSection = ({
     width={680}
     style={{ borderRadius: 24, overflow: "hidden" }}
   >
-    {/* Modal คู่มือและระเบียบการเบิกจ่ายค่าล่วงเวลา */}
     <Flex vertical align="center" gap={40} style={{ paddingBlock: 48 }}>
       <Flex style={{ position: "relative" }}>
         <Flex
@@ -4078,7 +2049,6 @@ const RulesModalSection = ({
       </Flex>
 
       <Flex style={{ width: "100%", paddingInline: 40 }}>
-        {/* แสดงขั้นตอนสำคัญในการขอ OT */}
         <Timeline
           mode="left"
           items={[
@@ -4149,7 +2119,6 @@ const ExportModalSection = ({
     centered
     style={{ borderRadius: 24, overflow: "hidden" }}
   >
-    {/* หน้าต่าง Modal จัดการการดาวน์โหลดและส่งออกไฟล์รายงาน */}
     {isExportOperationSuccess ? (
       <Result
         status="success"
