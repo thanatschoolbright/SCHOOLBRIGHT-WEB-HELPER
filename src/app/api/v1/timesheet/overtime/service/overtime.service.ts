@@ -423,6 +423,11 @@ export const OvertimeService = {
       ]);
 
       row.height = 32; // Fixed height (Minimal Theme)
+
+      // Force Column 5 (รวมชั่วโมง OT ทั้งสิ้น) to be 2 decimal places
+      const otCell = row.getCell(5);
+      otCell.numFmt = "0.00";
+
       row.eachCell((cell) => {
         cell.font = {
           name: "Google Sans",
