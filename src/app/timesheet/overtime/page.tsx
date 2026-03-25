@@ -4,36 +4,7 @@ import {
   DeliveryLoadingModal,
   overtimeSubmissionSteps,
 } from "@/components/modal/delivery-loading-modal";
-import {
-  App,
-  Button,
-  Card,
-  Col,
-  DatePicker,
-  Flex,
-  Form,
-  Modal,
-  Progress,
-  Result,
-  Row,
-  Space,
-  Steps,
-  theme,
-  Timeline,
-  Typography,
-} from "antd";
-import {
-  ArcElement,
-  BarElement,
-  CategoryScale,
-  Chart as ChartJS,
-  Title as ChartTitle,
-  Tooltip as ChartTooltip,
-  Legend,
-  LinearScale,
-  LineElement,
-  PointElement,
-} from "chart.js";
+import { App, Button, Flex, Form, Space, theme } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
@@ -42,18 +13,10 @@ import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Bar, Doughnut } from "react-chartjs-2";
 import { useTranslation } from "react-i18next";
 
 import {
-  BarChartOutlined,
-  BookOutlined,
-  BulbOutlined,
-  CheckOutlined,
   ClockCircleOutlined,
-  CloudDownloadOutlined,
-  FileExcelOutlined,
-  FilePdfOutlined,
   FileTextOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
@@ -66,11 +29,14 @@ import StatusModalComponent, {
 import { bulkPdfDownloadService } from "@/helpers/bulk-pdf-download.helper";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
+import AnalyticsModal from "./_components/analytics-modal";
 import BatchStatusModal from "./_components/batch-status-modal";
 import BulkDownloadTrackingModal from "./_components/bulk-download-tracking-modal";
 import CreateModal from "./_components/create-modal";
 import DetailModal from "./_components/detail-modal";
+import ExportModal from "./_components/export-modal";
 import FilterSection from "./_components/filter-section";
+import RulesModal from "./_components/rules-modal";
 import SummarySection from "./_components/summary-section";
 import UserTable from "./_components/user-table";
 
@@ -85,18 +51,6 @@ dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(buddhistEra);
 dayjs.locale("th");
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  ChartTitle,
-  ChartTooltip,
-  Legend,
-  ArcElement,
-  PointElement,
-  LineElement,
-);
 
 const OT_STATUS = [
   { text: "รออนุมัติ", value: "pending", color: "gold" },
@@ -1503,21 +1457,17 @@ const OvertimeManagementPage = () => {
             <Space size="middle">
               <Button
                 icon={<FileTextOutlined />}
+                size="large"
                 onClick={() => setIsRulesModalVisible(true)}
-                style={{ borderRadius: 10, height: 44, paddingInline: 20 }}
               >
                 ระเบียบการขอ OT
               </Button>
               <Button
                 type="primary"
                 icon={<ClockCircleOutlined />}
+                size="large"
                 onClick={() => setIsCreateModalVisible(true)}
-                style={{
-                  borderRadius: 10,
-                  height: 44,
-                  paddingInline: 24,
-                  fontWeight: 600,
-                }}
+                style={{ fontWeight: 600 }}
               >
                 สร้างคำขอ OT
               </Button>
@@ -1621,15 +1571,14 @@ const OvertimeManagementPage = () => {
         />
 
         {/* หน้าต่าง Modal สำหรับแสดงกราฟวิเคราะห์ข้อมูลทางสถิติ */}
-        <AnalyticsModalSection
+        <AnalyticsModal
           visible={isAnalyticsModalVisible}
           setVisible={setIsAnalyticsModalVisible}
           dataSource={overtimeDataSource}
-          themeToken={themeToken}
         />
 
         {/* หน้าต่าง Modal แสดงกฎระเบียบและข้อบังคับในการปฏิบัติงาน OT */}
-        <RulesModalSection
+        <RulesModal
           visible={isRulesModalVisible}
           setVisible={setIsRulesModalVisible}
           onAccept={() => {
@@ -1642,7 +1591,7 @@ const OvertimeManagementPage = () => {
         />
 
         {/* หน้าต่าง Modal สำหรับการส่งออกข้อมูลรายงานในรูปแบบไฟล์ */}
-        <ExportModalSection
+        <ExportModal
           visible={isExportModalVisible}
           setVisible={setIsExportModalVisible}
           onExport={requestExportOvertimeReportFile}
@@ -1674,470 +1623,6 @@ const OvertimeManagementPage = () => {
         />
       </Flex>
     </DashboardLayout>
-  );
-};
-
-const AnalyticsModalSection = ({
-  visible,
-  setVisible,
-  dataSource,
-  themeToken,
-}: {
-  visible: boolean;
-  setVisible: (visible: boolean) => void;
-  dataSource: OvertimeRecord[];
-  themeToken: any;
-}) => {
-  // จัดเรียงข้อมูลเพื่อนำเสนอในรูปแบบกราฟวิเคราะห์ เพื่อดูแนวโน้มการทำ OT รายเดือน
-  const chartConfigurationData = useMemo(() => {
-    const hourlyDistribution: Record<string, number> = {};
-    dataSource.forEach((record: OvertimeRecord) => {
-      const monthIdentifier = dayjs(record.request_date).format("MMM BB");
-      const durationValue =
-        record.descriptions?.reduce(
-          (sum: number, d: any) => sum + Number(d.duration || 0),
-          0,
-        ) || 0;
-      hourlyDistribution[monthIdentifier] =
-        (hourlyDistribution[monthIdentifier] || 0) + durationValue;
-    });
-
-    const monthLabels = Object.keys(hourlyDistribution).sort(
-      (a, b) => dayjs(a, "MMM BB").unix() - dayjs(b, "MMM BB").unix(),
-    );
-
-    return {
-      labels: monthLabels,
-      datasets: [
-        {
-          label: "จำนวนชั่วโมง OT รวม",
-          data: monthLabels.map((label) => hourlyDistribution[label]),
-          backgroundColor: themeToken.colorPrimary + "90",
-          borderRadius: 8,
-          barThickness: 32,
-        },
-      ],
-    };
-  }, [dataSource, themeToken.colorPrimary]);
-
-  // จัดสรุปสถานะรายการทั้งหมดในรูปแบบร้อยละและจำนวนจริง เพื่อแสดงในกราฟวงกลม
-  const pieChartConfiguration = useMemo(() => {
-    const statusCounts: Record<string, number> = {
-      pending: 0,
-      approved: 0,
-      rejected: 0,
-    };
-    dataSource.forEach((record: OvertimeRecord) => {
-      if (record.status && statusCounts[record.status] !== undefined)
-        statusCounts[record.status]++;
-      else statusCounts["rejected"]++;
-    });
-
-    return {
-      labels: ["รอการอนุมัติ", "อนุมัติแล้ว", "ปฏิเสธ/อื่นๆ"],
-      datasets: [
-        {
-          data: [
-            statusCounts.pending,
-            statusCounts.approved,
-            statusCounts.rejected,
-          ],
-          backgroundColor: ["#faad14", "#52c41a", "#ff4d4f"],
-          hoverOffset: 12,
-          borderWidth: 0,
-        },
-      ],
-    };
-  }, [dataSource]);
-
-  return (
-    <Modal
-      title={
-        <Space>
-          <BarChartOutlined /> แดชบอร์ดวิเคราะห์สถิติการทำงานล่วงเวลา
-        </Space>
-      }
-      open={visible}
-      onCancel={() => setVisible(false)}
-      footer={null}
-      width={1200}
-      centered
-      style={{ borderRadius: 24, overflow: "hidden" }}
-    >
-      <Flex vertical gap={32} style={{ paddingBlock: 32 }}>
-        <Row gutter={[24, 24]}>
-          <Col xs={24} lg={16}>
-            <Card
-              title="ภาพรวมแนวโน้มภาระงานรายเดือน (ชั่วโมงสะสม)"
-              variant="borderless"
-              style={{
-                background: themeToken.colorFillQuaternary,
-                borderRadius: 20,
-              }}
-            >
-              <Flex vertical style={{ height: 450 }}>
-                <Bar
-                  data={chartConfigurationData}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                      y: {
-                        beginAtZero: true,
-                        grid: {
-                          color: themeToken.colorBorderSecondary,
-                          borderDash: [4, 4],
-                        } as any,
-                      },
-                      x: { grid: { display: false } },
-                    },
-                  }}
-                />
-              </Flex>
-            </Card>
-          </Col>
-          <Col xs={24} lg={8}>
-            <Card
-              title="สัดส่วนสถานะคำขอในระบบ"
-              variant="borderless"
-              style={{
-                background: themeToken.colorFillQuaternary,
-                borderRadius: 20,
-              }}
-            >
-              <Flex
-                vertical
-                style={{
-                  height: 450,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Doughnut
-                  data={pieChartConfiguration}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        position: "bottom",
-                        labels: { padding: 20, usePointStyle: true },
-                      },
-                    },
-                    cutout: "65%",
-                  }}
-                />
-              </Flex>
-            </Card>
-          </Col>
-        </Row>
-      </Flex>
-    </Modal>
-  );
-};
-
-const RulesModalSection = ({
-  visible,
-  setVisible,
-  onAccept,
-}: {
-  visible: boolean;
-  setVisible: (v: boolean) => void;
-  onAccept: () => void;
-}) => {
-  const { token } = theme.useToken();
-
-  return (
-    <Modal
-      title={
-        <Space>
-          <BookOutlined /> คู่มือและระเบียบการเบิกจ่ายค่าล่วงเวลา
-        </Space>
-      }
-      open={visible}
-      onCancel={() => setVisible(false)}
-      footer={[
-        <Button
-          key="confirm"
-          type="primary"
-          size="large"
-          onClick={onAccept}
-          style={{ fontWeight: 600 }}
-        >
-          ยอมรับและปฏิบัติตามระเบียบ
-        </Button>,
-      ]}
-      centered
-      width={680}
-    >
-      <Flex vertical align="center" gap={40} style={{ paddingBlock: 48 }}>
-        {/* ไอคอนประกอบหัว Modal */}
-        <div style={{ position: "relative" }}>
-          <Flex
-            justify="center"
-            align="center"
-            style={{
-              width: 120,
-              height: 120,
-              borderRadius: 40,
-              background: token.colorPrimaryBg,
-              transform: "rotate(10deg)",
-            }}
-          >
-            <BulbOutlined
-              style={{
-                fontSize: 56,
-                color: token.colorPrimary,
-                transform: "rotate(-10deg)",
-              }}
-            />
-          </Flex>
-          <Flex
-            justify="center"
-            align="center"
-            style={{
-              position: "absolute",
-              bottom: -5,
-              right: -5,
-              width: 32,
-              height: 32,
-              background: token.colorSuccess,
-              borderRadius: "50%",
-              border: `4px solid ${token.colorBgContainer}`,
-            }}
-          >
-            <CheckOutlined style={{ color: token.colorWhite, fontSize: 14 }} />
-          </Flex>
-        </div>
-
-        {/* หัวข้อและคำอธิบาย */}
-        <Flex vertical align="center" gap={8}>
-          <Typography.Title level={3} style={{ margin: 0, fontWeight: 600 }}>
-            โปรดศึกษาระเบียบการ
-          </Typography.Title>
-          <Typography.Text
-            type="secondary"
-            style={{ textAlign: "center", maxWidth: 460 }}
-          >
-            พนักงานทุกท่านต้องปฏิบัติตามแนวทางที่บริษัทกำหนด
-            เพื่อความถูกต้องรวดเร็วในการเบิกจ่ายผลตอบแทน
-          </Typography.Text>
-        </Flex>
-
-        {/* ขั้นตอนการขอ OT */}
-        <Flex style={{ width: "100%", paddingInline: 40 }}>
-          <Timeline
-            mode="left"
-            items={[
-              {
-                label: "ขั้นตอนที่ 1",
-                color: "blue",
-                children: "ได้รับมอบหมายภารกิจจากหัวหน้าทีมงานโดยตรง",
-              },
-              {
-                label: "ขั้นตอนที่ 2",
-                color: "green",
-                children:
-                  "ลงบันทึกเวลาปฏิบัติงานในระบบ SB Helper ทันทีหลังจบงาน",
-              },
-              {
-                label: "ขั้นตอนที่ 3",
-                color: "orange",
-                children: "ตรวจสอบยอดชั่วโมงงานให้ตรงกับหน้างานจริง",
-              },
-              {
-                label: "ขั้นตอนที่ 4",
-                color: "cyan",
-                children: "ฝ่ายบุคคล (HR) ตรวจสอบและอนุมัติจ่ายในงวดถัดไป",
-              },
-            ]}
-          />
-        </Flex>
-
-        <Button
-          type="link"
-          size="large"
-          onClick={() =>
-            window.open(
-              "https://docs.google.com/document/d/12eEuCzFtCxE3C_CfhkGZ9J8yo3jiKVD2uANYBMXXnUE/edit?tab=t.0",
-              "_blank",
-            )
-          }
-          style={{ fontWeight: 600 }}
-        >
-          ดูระเบียบการบริษัทฉบับสมบูรณ์
-        </Button>
-      </Flex>
-    </Modal>
-  );
-};
-
-const ExportModalSection = ({
-  visible,
-  setVisible,
-  onExport,
-  loading,
-  exportStepCount,
-  setExportStepCount,
-  isExportOperationSuccess,
-  setIsExportOperationSuccess,
-  exportSelectedDateRange,
-  setExportSelectedDateRange,
-}: {
-  visible: boolean;
-  setVisible: (v: boolean) => void;
-  onExport: (dateRange?: [dayjs.Dayjs, dayjs.Dayjs]) => Promise<boolean>;
-  loading: boolean;
-  exportStepCount: number;
-  setExportStepCount: (v: number) => void;
-  isExportOperationSuccess: boolean;
-  setIsExportOperationSuccess: (v: boolean) => void;
-  exportSelectedDateRange: [dayjs.Dayjs, dayjs.Dayjs] | null;
-  setExportSelectedDateRange: (v: [dayjs.Dayjs, dayjs.Dayjs] | null) => void;
-}) => {
-  const { token } = theme.useToken();
-
-  return (
-    <Modal
-      title={
-        <Space>
-          <CloudDownloadOutlined /> ศูนย์บริการการนำออกข้อมูลรายงาน
-        </Space>
-      }
-      open={visible}
-      onCancel={() => setVisible(false)}
-      footer={null}
-      width={560}
-      centered
-    >
-      {isExportOperationSuccess ? (
-        // แสดงผลลัพธ์หลังส่งออกสำเร็จ
-        <Result
-          status="success"
-          title="ระบบปฏิบัติการประมวลผลสำเร็จ"
-          subTitle="ข้อมูลรายงาน OT ถูกส่งมอบไปยังเบราว์เซอร์ของท่านแล้ว โปรดตรวจสอบที่ไฟล์ดาวน์โหลด"
-          extra={[
-            <Button key="close" size="large" onClick={() => setVisible(false)}>
-              ปิดการทำงาน
-            </Button>,
-            <Button
-              key="retry"
-              type="link"
-              onClick={() => {
-                setIsExportOperationSuccess(false);
-                setExportStepCount(0);
-              }}
-            >
-              ส่งออกรายงานชุดอื่น
-            </Button>,
-          ]}
-        />
-      ) : (
-        <Flex vertical gap={40} style={{ paddingBlock: 32 }}>
-          {/* ส่วนเลือกช่วงวันที่ */}
-          <Flex vertical gap={12} align="center">
-            <Typography.Text strong>
-              กำหนดช่วงเวลาในการส่งออก (Start - End Date)
-            </Typography.Text>
-            <DatePicker.RangePicker
-              size="large"
-              allowClear={false}
-              value={exportSelectedDateRange}
-              onChange={(dates) =>
-                setExportSelectedDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])
-              }
-              style={{ width: "100%" }}
-              format="DD / MM / BBBB"
-            />
-            <Typography.Text type="secondary">
-              ระบบจะประมวลผลตามช่วงวันที่ระบุ รวมถึงสรุปยอดสะสม (Payroll)
-            </Typography.Text>
-          </Flex>
-
-          {/* แสดงขั้นตอนการส่งออก */}
-          <Flex
-            vertical
-            gap={16}
-            style={{
-              background: token.colorFillQuaternary,
-              padding: 32,
-              borderRadius: token.borderRadiusLG,
-            }}
-          >
-            <Steps
-              direction="vertical"
-              size="small"
-              current={exportStepCount > 0 ? exportStepCount - 1 : undefined}
-              status={loading ? "process" : "wait"}
-              items={[
-                {
-                  title: "ขั้นตอนตรวจสอบสิทธิ์และข้อมูล",
-                  description: "ระบบกำลัง Mapping โครงสร้างข้อมูลสมาชิก",
-                },
-                {
-                  title: "ขั้นตอนประมวลผลสูตรคำนวณ",
-                  description: "กำลังคำนวณชั่วโมงงานล่วงเวลาทั้งหมดในงวด",
-                },
-                {
-                  title: "ขั้นตอนเข้ารหัสและจัดส่งไฟล์",
-                  description: "กำลัง Generate ไฟล์รูปแบบ .xlsx และส่งมอบ",
-                },
-              ]}
-            />
-          </Flex>
-
-          {/* ปุ่มส่งออก */}
-          {exportStepCount === 0 && (
-            <Row gutter={20}>
-              <Col span={12}>
-                <Button
-                  type="primary"
-                  icon={<FileExcelOutlined />}
-                  loading={loading}
-                  onClick={() => onExport(exportSelectedDateRange ?? undefined)}
-                  block
-                  style={{ height: 80, fontWeight: 600 }}
-                >
-                  Export Excel
-                </Button>
-              </Col>
-              <Col span={12}>
-                <Button
-                  disabled
-                  icon={<FilePdfOutlined />}
-                  block
-                  style={{ height: 80, fontWeight: 600 }}
-                >
-                  Export PDF
-                </Button>
-              </Col>
-            </Row>
-          )}
-
-          {/* แสดงความคืบหน้าขณะประมวลผล */}
-          {loading && (
-            <Flex vertical align="center" gap={16}>
-              <Progress
-                percent={
-                  exportStepCount === 1 ? 33 : exportStepCount === 2 ? 66 : 100
-                }
-                status="active"
-                strokeColor={{
-                  "0%": token.colorPrimary,
-                  "100%": token.colorSuccess,
-                }}
-                style={{ width: "80%" }}
-              />
-              <Typography.Text type="secondary" italic>
-                ระบบกำลังเชื่อมต่อกับ Cloud Infrastructure...
-              </Typography.Text>
-            </Flex>
-          )}
-        </Flex>
-      )}
-    </Modal>
   );
 };
 
