@@ -107,15 +107,12 @@ export const OvertimeService = {
       if (params.to) where.requestDate.lte = new Date(params.to);
     }
 
-    // ดึงข้อมูล OT และข้อมูลผู้ใช้งานพร้อมกัน
-    const [items, userMap] = await Promise.all([
-      (PrismaTimesheet as any).overtime.findMany({
-        where,
-        orderBy: { requestDate: "asc" },
-        include: { descriptions: true },
-      }),
-      this.fetchUsers(),
-    ]);
+    // ดึงข้อมูล OT พร้อม relation requester เพื่อให้ได้ชื่อ-นามสกุลที่ถูกต้อง
+    const items = await (PrismaTimesheet as any).overtime.findMany({
+      where,
+      orderBy: { requestDate: "asc" },
+      include: { descriptions: true, requester: true },
+    });
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("รายการ OT");
@@ -295,9 +292,11 @@ export const OvertimeService = {
       const statusTh = translateStatus(item.status);
       const requestDateTh = dayjs(item.requestDate).format("DD/MM/BBBB");
 
-      const userData = userMap.get(String(item.requesterId));
-      const fullName = userData?.fullName || item.requesterId;
-      const employeeCode = userData?.employeeCode || "-";
+      const requester = item.requester;
+      const thName = [requester?.firstname_th, requester?.lastname_th].filter(Boolean).join(" ").trim();
+      const enName = [requester?.firstname_en, requester?.lastname_en].filter(Boolean).join(" ").trim();
+      const fullName = thName || enName || String(item.requesterId);
+      const employeeCode = requester?.employee_code || "-";
 
       // เตรียมข้อมูลสำหรับการสรุปยอดรายบุคคล
       if (!summaryMap.has(String(item.requesterId))) {
