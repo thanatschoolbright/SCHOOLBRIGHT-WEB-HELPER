@@ -143,7 +143,7 @@ export const OvertimeService = {
     worksheet.getCell("A1").fill = {
       type: "pattern",
       pattern: "solid",
-      fgColor: { argb: "FFFFF7ED" }, // ส้มอ่อนมากๆ (School Bright Minimal)
+      fgColor: { argb: "FFF8FAFC" }, // Slate-50 (Very light gray-blue)
     };
 
     const fromDateDisplay = params.from
@@ -164,23 +164,23 @@ export const OvertimeService = {
       cell.font = {
         bold: true,
         name: "Google Sans",
-        size: 14,
-        color: { argb: "FF8C4D00" },
-      }; // ส้มน้ำตาลเข้ม
+        size: 13,
+        color: { argb: "FF334155" }, // Slate-700
+      };
     });
 
     ["B1", "B2", "B3"].forEach((ref) => {
       const cell = worksheet.getCell(ref);
       cell.font = {
         name: "Google Sans",
-        size: 14,
-        color: { argb: "FF434343" },
+        size: 13,
+        color: { argb: "FF1E293B" }, // Slate-800
       };
     });
     worksheet.getCell("B1").font = {
       bold: true,
       name: "Google Sans",
-      size: 15,
+      size: 14,
       color: { argb: "FFF37021" }, // School Bright Orange
     };
 
@@ -231,21 +231,21 @@ export const OvertimeService = {
     tableHeaderRow.eachCell((cell) => {
       cell.font = {
         name: "Google Sans",
-        size: 14,
+        size: 13,
         bold: true,
         color: { argb: "FFFFFFFF" },
       };
       cell.fill = {
         type: "pattern",
         pattern: "solid",
-        fgColor: { argb: "FFF37021" }, // School Bright Orange (Brand Identity)
+        fgColor: { argb: "FF1E293B" }, // Slate-800 (Dark Professional)
       };
       cell.alignment = { vertical: "middle", horizontal: "center" };
       cell.border = {
-        top: { style: "thin", color: { argb: "FFE25E00" } }, // ส้มเข้มขึ้นนิดหน่วยสำหรับขอบ
-        left: { style: "thin", color: { argb: "FFFFFFFF" } }, // ขอบสีขาวข้างใน (Minimal Look)
-        bottom: { style: "medium", color: { argb: "FFE25E00" } },
-        right: { style: "thin", color: { argb: "FFFFFFFF" } },
+        top: { style: "thin", color: { argb: "FF0F172A" } },
+        left: { style: "thin", color: { argb: "FF334155" } },
+        bottom: { style: "medium", color: { argb: "FF0F172A" } },
+        right: { style: "thin", color: { argb: "FF334155" } },
       };
     });
 
@@ -254,7 +254,7 @@ export const OvertimeService = {
       const statusMap: any = {
         pending: "รออนุมัติ",
         approved: "อนุมัติ",
-        rejected: "ปฏิเสธ",
+        rejected: "ไม่อนุมัติ",
         cancelled: "ยกเลิก",
         paid: "จ่ายสำเร็จ",
       };
@@ -369,16 +369,15 @@ export const OvertimeService = {
     rowCursor += 3;
     worksheet.mergeCells(`A${rowCursor}:E${rowCursor}`);
     const summaryTitleCell = worksheet.getCell(`A${rowCursor}`);
-    summaryTitleCell.value =
-      "ข้อมูลสรุปรายพนักงาน (School Bright Payroll Summary Analytics)";
+    summaryTitleCell.value = "ข้อมูลสรุปรายพนักงาน (Payroll Summary Analytics)";
     summaryTitleCell.font = {
       bold: true,
-      size: 16,
+      size: 15,
       name: "Google Sans",
-      color: { argb: "FFF37021" },
+      color: { argb: "FF334155" }, // Slate-700
     };
     summaryTitleCell.alignment = { horizontal: "center", vertical: "middle" };
-    worksheet.getRow(rowCursor).height = 32;
+    worksheet.getRow(rowCursor).height = 36;
     rowCursor++;
 
     const summaryHeaderRow = worksheet.getRow(rowCursor);
@@ -394,22 +393,16 @@ export const OvertimeService = {
     summaryHeaderRow.eachCell((cell) => {
       cell.font = {
         bold: true,
-        size: 13,
+        size: 12,
         name: "Google Sans",
         color: { argb: "FFFFFFFF" },
       };
       cell.fill = {
         type: "pattern",
         pattern: "solid",
-        fgColor: { argb: "FFF37021" }, // School Bright Orange
+        fgColor: { argb: "FF475569" }, // Slate-600
       };
       cell.alignment = { horizontal: "center", vertical: "middle" };
-      cell.border = {
-        top: { style: "thin", color: { argb: "FFE25E00" } },
-        left: { style: "thin", color: { argb: "FFFFFFFF" } },
-        bottom: { style: "medium", color: { argb: "FFE25E00" } },
-        right: { style: "thin", color: { argb: "FFFFFFFF" } },
-      };
     });
     rowCursor++;
 
@@ -426,7 +419,7 @@ export const OvertimeService = {
         summary.employeeCode,
         summary.fullName,
         summary.taskCount,
-        summary.totalDuration,
+        Number(summary.totalDuration.toFixed(2)),
       ]);
 
       row.height = 32; // Fixed height (Minimal Theme)
@@ -476,7 +469,7 @@ export const OvertimeService = {
       "",
       "",
       grandTotalTasks,
-      grandTotalHours,
+      Number(grandTotalHours.toFixed(2)),
     ]);
     grandTotalRow.height = 32;
 
@@ -489,23 +482,23 @@ export const OvertimeService = {
       cell.font = {
         bold: true,
         name: "Google Sans",
-        size: 14,
+        size: 13,
         color: { argb: "FFFFFFFF" },
       };
       cell.fill = {
         type: "pattern",
         pattern: "solid",
-        fgColor: { argb: "FF8C4D00" }, // ส้มน้ำตาลเข้ม (Professional Look)
+        fgColor: { argb: "FF0F172A" }, // Slate-900
       };
       cell.alignment = {
         vertical: "middle",
         horizontal: "center",
       };
       cell.border = {
-        top: { style: "medium", color: { argb: "FF000000" } },
-        left: { style: "thin", color: { argb: "FF000000" } },
-        bottom: { style: "double", color: { argb: "FF000000" } },
-        right: { style: "thin", color: { argb: "FF000000" } },
+        top: { style: "medium", color: { argb: "FF0F172A" } },
+        left: { style: "thin", color: { argb: "FF0F172A" } },
+        bottom: { style: "double", color: { argb: "FF0F172A" } },
+        right: { style: "thin", color: { argb: "FF0F172A" } },
       };
     });
     rowCursor++;
@@ -535,26 +528,25 @@ export const OvertimeService = {
 function formatDataRow(row: ExcelJS.Row) {
   row.height = 32; // Fixed Height ตามคำขอ
   row.eachCell((cell) => {
-    cell.font = { name: "Google Sans", size: 13, color: { argb: "FF434343" } };
+    cell.font = { name: "Google Sans", size: 12, color: { argb: "FF334155" } };
     cell.border = {
-      top: { style: "thin", color: { argb: "FFF9E7D8" } }, // Soft Orange Tint Border
-      left: { style: "thin", color: { argb: "FFF9E7D8" } },
-      bottom: { style: "thin", color: { argb: "FFF9E7D8" } },
-      right: { style: "thin", color: { argb: "FFF9E7D8" } },
+      top: { style: "thin", color: { argb: "FFE2E8F0" } }, // Slate-200
+      left: { style: "thin", color: { argb: "FFE2E8F0" } },
+      bottom: { style: "thin", color: { argb: "FFE2E8F0" } },
+      right: { style: "thin", color: { argb: "FFE2E8F0" } },
     };
     cell.alignment = { vertical: "middle", wrapText: true };
   });
 
-  // ใส่สีพื้นหลังสลับแถว (Zebra Effect - School Bright Light Orange)
+  // ใส่สีพื้นหลังสลับแถว (Zebra Effect)
   const rowNumber = Number(row.number);
   if (rowNumber % 2 === 0) {
     row.eachCell((cell) => {
-      horizontal: ("center",
-        (cell.fill = {
-          type: "pattern",
-          pattern: "solid",
-          fgColor: { argb: "FFFFF7ED" }, // ส้มจางคลีนๆ สไตล์ Minimal
-        }));
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFF8FAFC" }, // Slate-50
+      };
     });
   }
 

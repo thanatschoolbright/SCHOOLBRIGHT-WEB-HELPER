@@ -21,6 +21,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import packageJson from "../../../../package.json";
 
 const { Text } = Typography;
 
@@ -479,6 +480,22 @@ export default function SidebarContent({
           }}
         >
           <DarkModeToggle collapsed={collapsed} />
+          <Flex
+            justify={collapsed ? "center" : "flex-start"}
+            style={{ padding: "0 4px" }}
+          >
+            <Text
+              type="secondary"
+              style={{
+                fontSize: 10,
+                opacity: 0.6,
+                fontWeight: 500,
+                letterSpacing: 0.5,
+              }}
+            >
+              v{packageJson.version}
+            </Text>
+          </Flex>
         </Flex>
       </Flex>
     </ConfigProvider>
