@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { successResponse, errorResponse } from "@/helpers/api/response";
-import axios from "axios";
+import { errorResponse, successResponse } from "@/helpers/api/response";
 import { API_URL } from "@/services/api-url";
+import axios from "axios";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
   request: NextRequest,
@@ -10,7 +10,7 @@ export async function POST(
   try {
     const { version_id } = await context.params;
 
-    const hardwareUrl = API_URL.DEV_HARDWARE_API_URL;
+    const hardwareUrl = API_URL.PROD_HARDWARE_API_URL;
     const endpoint = `${hardwareUrl}/api/v2/applications/version/delete/${version_id}`;
 
     if (!version_id) {

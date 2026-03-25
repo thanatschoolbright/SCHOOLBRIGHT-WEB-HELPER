@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
-import { successResponse, errorResponse } from "@/helpers/api/response";
+import { errorResponse, successResponse } from "@/helpers/api/response";
 import { API_URL } from "@/services/api-url";
 import { sanitizeForwardHeaders } from "@services/api-header";
+import axios from "axios";
+import { NextRequest, NextResponse } from "next/server";
 
 export type HeartbeatResponse = {
   ID: number;
@@ -16,7 +16,7 @@ export type HeartbeatResponse = {
 };
 
 export async function GET(request: NextRequest) {
-  const apiUrl = API_URL.DEV_HARDWARE_API_URL;
+  const apiUrl = API_URL.PROD_HARDWARE_API_URL;
   const headers = sanitizeForwardHeaders(request);
 
   const endpoint = `/api/v2/heartbeats/latest`;

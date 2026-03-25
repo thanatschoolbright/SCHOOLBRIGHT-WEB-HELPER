@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
       backendFormData.append(key, value);
     }
 
-    const apiUrl = API_URL.DEV_HARDWARE_API_URL;
+    const apiUrl = API_URL.PROD_HARDWARE_API_URL;
     const endpoint = "/api/v2/applications/version";
     const fullURL = `${apiUrl}${endpoint}`;
 

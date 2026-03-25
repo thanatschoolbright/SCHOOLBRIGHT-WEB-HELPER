@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
 import { API_URL } from "@/services/api-url";
-import axios from "axios";
 import { convertToCurl } from "@helpers/api/convert-to-curl";
+import axios from "axios";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   // ดึงข้อมูลรายการ application ของ hardware canteen
-  const apiUrl = API_URL.DEV_HARDWARE_API_URL;
+  const apiUrl = API_URL.PROD_HARDWARE_API_URL;
   const endpoint = "/api/v2/applications";
   const fullURL = `${apiUrl}${endpoint}`;
   const curlCommand = convertToCurl(apiUrl, endpoint);

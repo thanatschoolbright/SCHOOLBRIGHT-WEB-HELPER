@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const apiUrl = API_URL.DEV_HARDWARE_API_URL;
+    const apiUrl = API_URL.PROD_HARDWARE_API_URL;
     const endpoint = "/api/v2/applications/version-control/check";
     const fullURL = `${apiUrl}${endpoint}`;
 

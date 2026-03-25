@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import ExcelJS from "exceljs";
+import { API_URL } from "@/services/api-url";
 import axios from "axios";
 import dayjs from "dayjs";
-import { API_URL } from "@/services/api-url";
+import ExcelJS from "exceljs";
+import { NextRequest, NextResponse } from "next/server";
 
 const EXCEL_STYLES = {
   TITLE_FONT: {
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const apiUrl = API_URL.DEV_HARDWARE_API_URL;
+    const apiUrl = API_URL.PROD_HARDWARE_API_URL;
     const response = await axios.get(
       `${apiUrl}/api/v2/applications/version/${appId}`,
     );

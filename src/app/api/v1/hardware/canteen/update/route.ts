@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
 import { API_URL } from "@/services/api-url";
-import axios from "axios";
 import { convertToCurl } from "@helpers/api/convert-to-curl";
+import axios from "axios";
+import { NextRequest, NextResponse } from "next/server";
 
 /**
  * ฟังก์ชันนี้เป็น endpoint สำหรับอัปเดตเวอร์ชันแอปพลิเคชันฮาร์ดแวร์โรงอาหาร โดยส่งข้อมูล multipart/form-data ไปยัง DEV_HARDWARE_API_URL
  */
 export async function POST(request: NextRequest) {
-  const apiUrl = API_URL.DEV_HARDWARE_API_URL;
+  const apiUrl = API_URL.PROD_HARDWARE_API_URL;
   const formData = await request.formData();
   const versionId = formData.get("version_id");
   const endpoint = "/api/v2/applications/version/update/";

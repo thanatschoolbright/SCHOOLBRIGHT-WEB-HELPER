@@ -1,17 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
-import { Service } from "@services/backend/timesheet/sub-project/sub-project.service";
-import { successResponse, errorResponse } from "@helpers/api/response";
-import axios from "axios"
-import { sanitizeForwardHeaders } from "@services/api-header";
+import { errorResponse, successResponse } from "@helpers/api/response";
 import { API_URL } from "@services/api-url";
+import axios from "axios";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await context.params;
-    const apiUrl = `${API_URL.DEV_HARDWARE_API_URL}`;
+    const apiUrl = `${API_URL.PROD_HARDWARE_API_URL}`;
     const endpoint = `/api/v2/heartbeats/update/${id}`;
     const fullURL = apiUrl + endpoint;
     console.info("FULL URL", fullURL);
@@ -28,7 +26,7 @@ export async function POST(
         data: responseFromAPI.data,
         message_en: "Succesfully!",
         message_th: "สำเร็จ",
-      })
+      }),
     );
   } catch (error: any) {
     return NextResponse.json(
@@ -37,7 +35,7 @@ export async function POST(
         message_th: "เกิดข้อผิดพลาดภายในระบบ",
         error,
       }),
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

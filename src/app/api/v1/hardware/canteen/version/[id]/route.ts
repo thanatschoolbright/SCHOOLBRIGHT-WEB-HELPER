@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
 import { API_URL } from "@/services/api-url";
-import axios from "axios";
 import { convertToCurl } from "@helpers/api/convert-to-curl";
+import axios from "axios";
+import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
@@ -9,7 +9,7 @@ export async function GET(
 ) {
   // ดึงข้อมูลเวอร์ชันของ hardware canteen
   const { id } = await params;
-  const apiUrl = API_URL.DEV_HARDWARE_API_URL;
+  const apiUrl = API_URL.PROD_HARDWARE_API_URL;
   const endpoint = `/api/v2/applications/version/${id}`;
   const curlCommand = convertToCurl(apiUrl, endpoint);
 
