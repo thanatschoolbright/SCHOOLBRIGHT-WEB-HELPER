@@ -1789,6 +1789,7 @@ const OvertimeManagementPage = () => {
           loading={isLoadingOvertimeData}
           form={overtimeForm}
           themeToken={themeToken}
+          currentUserId={authenticationState?.response?.data?.user_data?.id}
         />
 
         {/* หน้าต่าง Modal สำหรับเปลี่ยนสถานะรายการจำนวนมากพร้อมกัน */}
@@ -2851,7 +2852,36 @@ const CreateModalSection = ({
   loading,
   form,
   themeToken,
+  currentUserId,
 }: any) => {
+  const [requesterName, setRequesterName] = useState<string>("กำลังโหลด...");
+
+  // ดึงชื่อผู้ขอทำงานล่วงเวลาจาก API
+  useEffect(() => {
+    const fetchRequesterName = async () => {
+      if (!currentUserId || !visible) return;
+      try {
+        const response = await callApiService.get(
+          `/api/v2/admin/user-management/detail/${currentUserId}`,
+        );
+        if (response?.data?.status === 200 && response.data.data) {
+          const user = response.data.data;
+          setRequesterName(
+            `${user.firstname_th || ""} ${user.lastname_th || ""}`.trim() ||
+              "-",
+          );
+        } else {
+          setRequesterName("-");
+        }
+      } catch (error) {
+        console.error("Failed to fetch requester name:", error);
+        setRequesterName("-");
+      }
+    };
+
+    fetchRequesterName();
+  }, [currentUserId, visible]);
+
   // ฟังก์ชันย่อยสำหรับประมวลผลการคำนวณชั่วโมงทำงานอัตโนมัติ
   const calculateAutoDuration = (changedValues: any, allValues: any) => {
     if (!changedValues.descriptions) return;
@@ -2948,6 +2978,27 @@ const CreateModalSection = ({
         onValuesChange={calculateAutoDuration}
       >
         <Row gutter={24}>
+          <Col xs={24} md={12}>
+            {/* แสดงชื่อผู้ขอทำงานล่วงเวลา - ดึงจาก user_id */}
+            <Form.Item
+              label={
+                <Typography.Text strong>ชื่อผู้ขอทำงานล่วงเวลา</Typography.Text>
+              }
+              style={{ marginBottom: 24 }}
+            >
+              <Input
+                value={requesterName}
+                disabled
+                style={{
+                  height: 48,
+                  borderRadius: 12,
+                  marginBottom: 4,
+                  backgroundColor: "#f5f5f5",
+                  color: "#000",
+                }}
+              />
+            </Form.Item>
+          </Col>
           <Col xs={24} md={12}>
             {/* ระบุวันที่ปฏิบัติงานจริง */}
             <Form.Item
