@@ -4,7 +4,7 @@ import {
   DeliveryLoadingModal,
   overtimeSubmissionSteps,
 } from "@/components/modal/delivery-loading-modal";
-import { App, Button, Flex, Form, Space, theme } from "antd";
+import { App, Button, Flex, Form, Space } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
@@ -29,6 +29,7 @@ import StatusModalComponent, {
 import { bulkPdfDownloadService } from "@/helpers/bulk-pdf-download.helper";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
+import ActionBarSection from "./_components/action-bar-section";
 import AnalyticsModal from "./_components/analytics-modal";
 import BatchStatusModal from "./_components/batch-status-modal";
 import BulkDownloadTrackingModal from "./_components/bulk-download-tracking-modal";
@@ -93,7 +94,7 @@ const OvertimeManagementPage = () => {
   // --- เครื่องมือพื้นฐาน (Hooks & Helpers) ---
   const navigationRouter = useRouter();
   const { t: translate } = useTranslation();
-  const { token: themeToken } = theme.useToken();
+
   const { message: antMessage, modal: antModal } = App.useApp();
   const { data: userSession } = useSession();
   const { user_id: parameterUserId } = useParams();
@@ -728,7 +729,7 @@ const OvertimeManagementPage = () => {
     if (selectedRowKeys.length === 0) return toast.error("กรุณาเลือกรายการ");
 
     const currentUserTokenIdentifier = await requestCurrentLocalUserID();
-    if (currentUserTokenIdentifier !== BYPASS_ADMIN_ID)
+    if (currentUserTokenIdentifier !== BYPASS_USER_ID)
       return toast.error("คุณไม่มีสิทธิ์ปรับสถานะ");
 
     setIsBatchProcessing(true);
@@ -794,7 +795,7 @@ const OvertimeManagementPage = () => {
     if (selectedRowKeys.length === 0) return toast.error("กรุณาเลือกรายการ");
 
     const currentUserTokenIdentifier = await requestCurrentLocalUserID();
-    if (currentUserTokenIdentifier !== BYPASS_ADMIN_ID)
+    if (currentUserTokenIdentifier !== BYPASS_USER_ID)
       return toast.error("คุณไม่มีสิทธิ์ส่งอีเมล");
 
     setIsBatchProcessing(true);
@@ -847,7 +848,7 @@ const OvertimeManagementPage = () => {
 
       const currentAdminTokenIdentifier = await requestCurrentLocalUserID();
       const isBypassUserSettingEnabled =
-        currentAdminTokenIdentifier === BYPASS_ADMIN_ID;
+        currentAdminTokenIdentifier === BYPASS_USER_ID;
 
       const exportRequestParameters: any = {
         requester_id: isBypassUserSettingEnabled
@@ -1496,7 +1497,6 @@ const OvertimeManagementPage = () => {
             handleBulkPdfDownloadZip={handleBulkPdfDownloadZip}
             navigationRouter={navigationRouter}
             setIsAnalyticsModalVisible={setIsAnalyticsModalVisible}
-            themeToken={themeToken}
           />
         )}
 
