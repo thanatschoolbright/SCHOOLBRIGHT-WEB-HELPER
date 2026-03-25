@@ -731,6 +731,7 @@ export default function ServerStatusPage() {
 
         {/* ส่วนที่ 3: ฟิลเตอร์ข้อมูล (Filter Section) */}
         <Card
+          variant="outlined"
           style={{
             borderRadius: 16,
             marginBottom: 24,
@@ -832,7 +833,7 @@ export default function ServerStatusPage() {
 
         {/* ส่วนที่ 4: ตารางข้อมูลเนื้อหา */}
         <Card
-          bordered={false}
+          variant="borderless"
           styles={{ body: { padding: 16 } }}
           style={{
             borderRadius: 16,
