@@ -2622,6 +2622,7 @@ const UploadFieldItem = ({
       listType="picture-card"
       maxCount={1}
       multiple={false}
+      showUploadList={{ showRemoveIcon: true }}
       style={{ marginBottom: 8 }}
       beforeUpload={(file) => {
         const isLt2M = file.size < 2 * 1024 * 1024;
@@ -2633,10 +2634,10 @@ const UploadFieldItem = ({
       }}
     >
       <Form.Item noStyle dependencies={[name]}>
-        {() => (
+        {({ getFieldValue }) => (
           <div
             style={{
-              display: form.getFieldValue(name)?.length >= 1 ? "none" : "flex",
+              display: getFieldValue(name)?.length >= 1 ? "none" : "flex",
               flexDirection: "column",
               alignItems: "center",
               gap: 4,
