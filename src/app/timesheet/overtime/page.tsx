@@ -2268,7 +2268,7 @@ const OvertimeTableSection = ({
       sorter: (a: any, b: any) => Number(a.id) - Number(b.id),
       render: (textValue: string) => (
         <Typography.Text strong style={{ color: themeToken.colorPrimary }}>
-          #{textValue}
+          OT-{String(textValue).padStart(4, "0")}
         </Typography.Text>
       ),
     },

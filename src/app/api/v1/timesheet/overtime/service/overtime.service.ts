@@ -196,8 +196,10 @@ export const OvertimeService = {
       "สถานะ",
       "ผู้อนุมัติรายการ",
       "วันที่ทำงาน",
-      "ช่วงเวลา",
+      "วันที่และเวลาเริ่มต้น",
+      "วันที่และเวลาสิ้นสุด",
       "จำนวนชั่วโมง",
+      "จำนวนชั่วโมง (เศษส่วน 100)",
       "รายละเอียดงาน",
       "หลักฐานเข้าทำงาน",
       "หลักฐานออกทำงาน",
@@ -215,8 +217,10 @@ export const OvertimeService = {
       { key: "status", width: 14 },
       { key: "approver", width: 25 },
       { key: "ot_date", width: 15 },
-      { key: "time_range", width: 20 },
+      { key: "start_datetime", width: 22 },
+      { key: "end_datetime", width: 22 },
       { key: "duration", width: 14 },
+      { key: "duration_hhmm", width: 22 },
       { key: "description", width: 48 },
       { key: "proof_in", width: 20 },
       { key: "proof_out", width: 20 },
@@ -248,6 +252,18 @@ export const OvertimeService = {
         right: { style: "thin", color: { argb: "FF334155" } },
       };
     });
+
+    // ฟังก์ชันคำนวณชั่วโมงแบบเศษส่วน 100 (HH.MM) จาก startDate และ endDate
+    const calcDurationHHMM = (start: any, end: any): number | string => {
+      if (!start || !end) return "-";
+      const startDjs = dayjs(start);
+      const endDjs = dayjs(end);
+      const totalMinutes = endDjs.diff(startDjs, "minute");
+      if (totalMinutes <= 0) return "-";
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      return hours + minutes / 100;
+    };
 
     // ฟังก์ชันแปลสถานะ
     const translateStatus = (status: string) => {
@@ -316,11 +332,14 @@ export const OvertimeService = {
             status: statusTh,
             approver: "นายธนัท พรหมพิริยา\n(Head of Technology)",
             ot_date: dayjs(desc.date || item.requestDate).format("DD/MM/BBBB"),
-            time_range:
-              desc.startDate && desc.endDate
-                ? `${dayjs(desc.startDate).format("HH:mm")} - ${dayjs(desc.endDate).format("HH:mm")}`
-                : "-",
+            start_datetime: desc.startDate
+              ? dayjs(desc.startDate).format("DD/MM/BBBB HH:mm")
+              : "-",
+            end_datetime: desc.endDate
+              ? dayjs(desc.endDate).format("DD/MM/BBBB HH:mm")
+              : "-",
             duration: duration,
+            duration_hhmm: calcDurationHHMM(desc.startDate, desc.endDate),
             description: desc.description,
             proof_in: proof.image_1
               ? {
@@ -559,6 +578,12 @@ function formatDataRow(row: ExcelJS.Row) {
   const durationCell = row.getCell("duration");
   if (typeof durationCell.value === "number") {
     durationCell.numFmt = "0.00";
+  }
+
+  // format จำนวนชั่วโมงแบบเศษส่วน 100 ทศนิยม 2 หลัก
+  const durationHhmmCell = row.getCell("duration_hhmm");
+  if (typeof durationHhmmCell.value === "number") {
+    durationHhmmCell.numFmt = "0.00";
   }
 
   // ตกแต่ง Link รูปภาพให้เป็นสีน้ำเงินและขีดเส้นใต้
