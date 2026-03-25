@@ -18,6 +18,7 @@ import { checkSubmitLeaveService } from "./helper/mobile/leave-system/check-subm
 import { checkLoginService } from "./helper/mobile/login-system/login.service";
 import { checkRefreshTokenService } from "./helper/mobile/login-system/refresh-token.service";
 import { checkNotificationService } from "./helper/mobile/notification-system/notification.service";
+import { checkSystemNotificationService } from "./helper/mobile/notification-system/system-notification.service";
 import { checkGetSchoolListService } from "./helper/mobile/school-system/get-school-list.service";
 import { checkSystemApiUrlsService } from "./helper/mobile/server-system/api-url-check.service";
 import { checkServerStatusService } from "./helper/mobile/server-system/server-status.service";
@@ -229,6 +230,7 @@ async function executeHealthChecks(): Promise<HealthCheckResult[]> {
   const otherServicesResults = await Promise.all([
     checkVerificationService(freshToken),
     checkNotificationService(freshToken),
+    checkSystemNotificationService(freshToken),
     checkFlagPoleAttendanceService(freshToken),
     checkFlagPoleScanService(freshToken),
     checkServerStatusService(),

@@ -1,7 +1,7 @@
-import axios from "axios";
 import { API_URL } from "@/services/api-url";
-import { HealthCheckResult } from "../../health-check.type";
+import axios from "axios";
 import { generateCurlCommand } from "../../generate-curl.helper";
+import { HealthCheckResult } from "../../health-check.type";
 
 // รับ accessToken เข้ามาเป็น Argument (Optional)
 export async function checkNotificationService(
@@ -21,7 +21,9 @@ export async function checkNotificationService(
   let domain = "localhost";
   try {
     domain = new URL(NOTIFICATION_CONFIG.url).hostname;
-  } catch {}
+  } catch {
+    console.error("Invalid URL:", NOTIFICATION_CONFIG.url);
+  }
 
   const curlCommand = generateCurlCommand(NOTIFICATION_CONFIG);
 
