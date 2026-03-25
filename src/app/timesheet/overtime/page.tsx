@@ -850,7 +850,7 @@ const OvertimeManagementPage = () => {
       return toast.error("คุณไม่มีสิทธิ์ส่งอีเมล");
 
     setIsBatchProcessing(true);
-    setProcessedRecordItems(new Set());
+    setProcessedRecordItems(new Map());
     let emailSentSuccessCount = 0;
 
     for (const recordIdentifier of selectedRowKeys) {
@@ -871,8 +871,8 @@ const OvertimeManagementPage = () => {
         ) {
           emailSentSuccessCount++;
           setProcessedRecordItems(
-            (previousItemsSet) =>
-              new Set([...previousItemsSet, recordIdentifier]),
+            (prev) =>
+              new Map([...prev, [recordIdentifier, "completed" as const]]),
           );
         }
       } catch (error) {
@@ -885,7 +885,7 @@ const OvertimeManagementPage = () => {
       toast.success(`ส่งหัวข้อคำขอสำเร็จ ${emailSentSuccessCount} รายการ`);
     }
     setSelectedRowKeys([]);
-    setProcessedRecordItems(new Set());
+    setProcessedRecordItems(new Map());
   };
 
   // ประมวลผลและดาวน์โหลดไฟล์รายงาน OT ในรูปแบบ Excel ตามเงื่อนไขที่ระบุ
@@ -1760,7 +1760,6 @@ const OvertimeManagementPage = () => {
             );
             setIsRulesModalVisible(false);
           }}
-          themeToken={themeToken}
         />
 
         {/* หน้าต่าง Modal สำหรับการส่งออกข้อมูลรายงานในรูปแบบไฟล์ */}
@@ -1965,133 +1964,137 @@ const RulesModalSection = ({
   visible,
   setVisible,
   onAccept,
-  themeToken,
-}: any) => (
-  <Modal
-    title={
-      <Space>
-        <BookOutlined /> คู่มือและระเบียบการเบิกจ่ายค่าล่วงเวลา
-      </Space>
-    }
-    open={visible}
-    onCancel={() => setVisible(false)}
-    footer={[
-      <Button
-        key="confirm"
-        type="primary"
-        size="large"
-        onClick={onAccept}
-        style={{
-          borderRadius: 12,
-          height: 52,
-          paddingInline: 40,
-          fontWeight: 600,
-        }}
-      >
-        ยอมรับและปฏิบัติตามระเบียบ
-      </Button>,
-    ]}
-    centered
-    width={680}
-    style={{ borderRadius: 24, overflow: "hidden" }}
-  >
-    <Flex vertical align="center" gap={40} style={{ paddingBlock: 48 }}>
-      <Flex style={{ position: "relative" }}>
-        <Flex
-          justify="center"
-          align="center"
-          style={{
-            width: 120,
-            height: 120,
-            borderRadius: 40,
-            background: themeToken.colorPrimaryBg,
-            transform: "rotate(10deg)",
-          }}
+}: {
+  visible: boolean;
+  setVisible: (v: boolean) => void;
+  onAccept: () => void;
+}) => {
+  const { token } = theme.useToken();
+
+  return (
+    <Modal
+      title={
+        <Space>
+          <BookOutlined /> คู่มือและระเบียบการเบิกจ่ายค่าล่วงเวลา
+        </Space>
+      }
+      open={visible}
+      onCancel={() => setVisible(false)}
+      footer={[
+        <Button
+          key="confirm"
+          type="primary"
+          size="large"
+          onClick={onAccept}
+          style={{ fontWeight: 600 }}
         >
-          <BulbOutlined
+          ยอมรับและปฏิบัติตามระเบียบ
+        </Button>,
+      ]}
+      centered
+      width={680}
+    >
+      <Flex vertical align="center" gap={40} style={{ paddingBlock: 48 }}>
+        {/* ไอคอนประกอบหัว Modal */}
+        <div style={{ position: "relative" }}>
+          <Flex
+            justify="center"
+            align="center"
             style={{
-              fontSize: 56,
-              color: themeToken.colorPrimary,
-              transform: "rotate(-10deg)",
+              width: 120,
+              height: 120,
+              borderRadius: 40,
+              background: token.colorPrimaryBg,
+              transform: "rotate(10deg)",
             }}
+          >
+            <BulbOutlined
+              style={{
+                fontSize: 56,
+                color: token.colorPrimary,
+                transform: "rotate(-10deg)",
+              }}
+            />
+          </Flex>
+          <Flex
+            justify="center"
+            align="center"
+            style={{
+              position: "absolute",
+              bottom: -5,
+              right: -5,
+              width: 32,
+              height: 32,
+              background: token.colorSuccess,
+              borderRadius: "50%",
+              border: `4px solid ${token.colorBgContainer}`,
+            }}
+          >
+            <CheckOutlined style={{ color: token.colorWhite, fontSize: 14 }} />
+          </Flex>
+        </div>
+
+        {/* หัวข้อและคำอธิบาย */}
+        <Flex vertical align="center" gap={8}>
+          <Typography.Title level={3} style={{ margin: 0, fontWeight: 600 }}>
+            โปรดศึกษาระเบียบการ
+          </Typography.Title>
+          <Typography.Text
+            type="secondary"
+            style={{ textAlign: "center", maxWidth: 460 }}
+          >
+            พนักงานทุกท่านต้องปฏิบัติตามแนวทางที่บริษัทกำหนด
+            เพื่อความถูกต้องรวดเร็วในการเบิกจ่ายผลตอบแทน
+          </Typography.Text>
+        </Flex>
+
+        {/* ขั้นตอนการขอ OT */}
+        <Flex style={{ width: "100%", paddingInline: 40 }}>
+          <Timeline
+            mode="left"
+            items={[
+              {
+                label: "ขั้นตอนที่ 1",
+                color: "blue",
+                children: "ได้รับมอบหมายภารกิจจากหัวหน้าทีมงานโดยตรง",
+              },
+              {
+                label: "ขั้นตอนที่ 2",
+                color: "green",
+                children:
+                  "ลงบันทึกเวลาปฏิบัติงานในระบบ SB Helper ทันทีหลังจบงาน",
+              },
+              {
+                label: "ขั้นตอนที่ 3",
+                color: "orange",
+                children: "ตรวจสอบยอดชั่วโมงงานให้ตรงกับหน้างานจริง",
+              },
+              {
+                label: "ขั้นตอนที่ 4",
+                color: "cyan",
+                children: "ฝ่ายบุคคล (HR) ตรวจสอบและอนุมัติจ่ายในงวดถัดไป",
+              },
+            ]}
           />
         </Flex>
-        <Flex
-          style={{
-            position: "absolute",
-            bottom: -5,
-            right: -5,
-            width: 32,
-            height: 32,
-            background: themeToken.colorSuccess,
-            borderRadius: "50%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            border: "4px solid #fff",
-          }}
+
+        <Button
+          type="link"
+          size="large"
+          onClick={() =>
+            window.open(
+              "https://docs.google.com/document/d/12eEuCzFtCxE3C_CfhkGZ9J8yo3jiKVD2uANYBMXXnUE/edit?tab=t.0",
+              "_blank",
+            )
+          }
+          style={{ fontWeight: 600 }}
         >
-          <CheckOutlined style={{ color: "#fff", fontSize: 14 }} />
-        </Flex>
+          ดูระเบียบการบริษัทฉบับสมบูรณ์
+        </Button>
       </Flex>
-
-      <Flex vertical align="center" gap={8}>
-        <Typography.Title level={2} style={{ margin: 0 }}>
-          โปรดศึกษาระเบียบการ
-        </Typography.Title>
-        <Typography.Text
-          type="secondary"
-          style={{ fontSize: 16, textAlign: "center", maxWidth: 460 }}
-        >
-          พนักงานทุกท่านต้องปฏิบัติตามแนวทางที่บริษัทกำหนด
-          เพื่อความถูกต้องรวดเร็วในการเบิกจ่ายผลตอบแทน
-        </Typography.Text>
-      </Flex>
-
-      <Flex style={{ width: "100%", paddingInline: 40 }}>
-        <Timeline
-          mode="left"
-          items={[
-            {
-              label: "ขั้นตอนที่ 1",
-              color: "blue",
-              children: "ได้รับมอบหมายภารกิจจากหัวหน้าทีมงานโดยตรง",
-            },
-            {
-              label: "ขั้นตอนที่ 2",
-              color: "green",
-              children: "ลงบันทึกเวลาปฏิบัติงานในระบบ SB Helper ทันทีหลังจบงาน",
-            },
-            {
-              label: "ขั้นตอนที่ 3",
-              color: "orange",
-              children: "ตรวจสอบยอดชั่วโมงงานให้ตรงกับหน้างานจริง",
-            },
-            {
-              label: "ขั้นตอนที่ 4",
-              color: "cyan",
-              children: "ฝ่ายบุคคล (HR) ตรวจสอบและอนุมัติจ่ายในงวดถัดไป",
-            },
-          ]}
-        />
-      </Flex>
-
-      <Button
-        type="link"
-        size="large"
-        onClick={() =>
-          window.open(
-            "https://docs.google.com/document/d/12eEuCzFtCxE3C_CfhkGZ9J8yo3jiKVD2uANYBMXXnUE/edit?tab=t.0",
-            "_blank",
-          )
-        }
-        style={{ fontWeight: 600 }}
-      >
-        ดูระเบียบการบริษัทฉบับสมบูรณ์
-      </Button>
-    </Flex>
-  </Modal>
-);
+    </Modal>
+  );
+};
 
 const ExportModalSection = ({
   visible,

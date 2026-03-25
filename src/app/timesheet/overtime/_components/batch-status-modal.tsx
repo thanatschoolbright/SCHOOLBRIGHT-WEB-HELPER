@@ -35,7 +35,7 @@ interface BatchStatusModalProps {
     status: string | null,
   ) => Promise<void>;
   batchProcessing: boolean;
-  processedRecordItems: Map<number, string>;
+  processedRecordItems: Map<React.Key, string>;
   overtimeDataSource: any[];
 }
 
