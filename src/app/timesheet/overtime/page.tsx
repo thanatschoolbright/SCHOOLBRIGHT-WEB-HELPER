@@ -78,6 +78,7 @@ import {
   FileZipOutlined,
   FilterOutlined,
   HistoryOutlined,
+  InfoCircleOutlined,
   LoadingOutlined,
   MailOutlined,
   PlusOutlined,
@@ -2770,9 +2771,68 @@ const TaskDescriptionCard = ({
             {...fieldProps}
             name={[fieldProps.name, "duration"]}
             label={
-              <Typography.Text style={{ fontSize: 12 }}>
-                ชม. รวม (อัตโนมัติ)
-              </Typography.Text>
+              <Space size={4}>
+                <Typography.Text style={{ fontSize: 12 }}>
+                  ชม. รวม (อัตโนมัติ)
+                </Typography.Text>
+                <Tooltip
+                  title={
+                    <Flex vertical gap={6} style={{ padding: "4px 2px" }}>
+                      <Typography.Text
+                        strong
+                        style={{ color: "#fff", fontSize: 12 }}
+                      >
+                        สูตรการคำนวณชั่วโมง OT
+                      </Typography.Text>
+                      <Typography.Text
+                        style={{
+                          color: "rgba(255,255,255,0.85)",
+                          fontSize: 11,
+                        }}
+                      >
+                        {"diffMs = เวลาสิ้นสุด − เวลาเริ่มต้น (ms)"}
+                      </Typography.Text>
+                      <Typography.Text
+                        style={{
+                          color: "rgba(255,255,255,0.85)",
+                          fontSize: 11,
+                        }}
+                      >
+                        {"ชั่วโมง = diffMs ÷ 3,600,000"}
+                      </Typography.Text>
+                      <Typography.Text
+                        style={{
+                          color: "rgba(255,255,255,0.85)",
+                          fontSize: 11,
+                        }}
+                      >
+                        {"ผล = Math.round(ชั่วโมง × 100) / 100"}
+                      </Typography.Text>
+                      <Divider
+                        style={{
+                          margin: "4px 0",
+                          borderColor: "rgba(255,255,255,0.2)",
+                        }}
+                      />
+                      <Typography.Text
+                        style={{ color: "rgba(255,255,255,0.7)", fontSize: 10 }}
+                      >
+                        ตัวอย่าง: 18:00 → 19:23 = 1.38 ชม.
+                      </Typography.Text>
+                      <Typography.Text
+                        style={{ color: "rgba(255,255,255,0.7)", fontSize: 10 }}
+                      >
+                        ตัวอย่าง: 22:10 → 00:15+1 = 2.08 ชม.
+                      </Typography.Text>
+                    </Flex>
+                  }
+                  styles={{ root: { maxWidth: 280 } }}
+                >
+                  <InfoCircleOutlined
+                    style={{ color: "#8c8c8c", fontSize: 12, cursor: "help" }}
+                  />
+                </Tooltip>
+              </Space>
             }
             rules={[{ required: true, message: "ระบุเวลา" }]}
             style={{ marginBottom: 16 }}
@@ -2821,8 +2881,7 @@ const CreateModalSection = ({
 
           if (start && end) {
             // คำนวณส่วนต่างเป็น ms แล้วแปลงเป็นชั่วโมงทศนิยม (รองรับข้ามวัน)
-            const diffMs =
-              new Date(end).getTime() - new Date(start).getTime();
+            const diffMs = new Date(end).getTime() - new Date(start).getTime();
             const diffHours = diffMs / 1000 / 60 / 60;
 
             // ปัดทศนิยม 2 ตำแหน่งแบบ Math.round (เศษส่วน 100)
@@ -2890,7 +2949,7 @@ const CreateModalSection = ({
       open={visible}
       onCancel={() => setVisible(false)}
       footer={null}
-      width={900}
+      width={1200}
       centered
       style={{ borderRadius: 20, overflow: "hidden" }}
     >
