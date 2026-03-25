@@ -2820,11 +2820,14 @@ const CreateModalSection = ({
           const end = updatedDescriptions[idx].endDate;
 
           if (start && end) {
-            // คำนวณส่วนต่างเป็นชั่วโมง (รองรับข้ามคืนเพราะใช้ DatePicker DateTime)
-            const diff = dayjs(end).diff(dayjs(start), "hour", true);
+            // คำนวณส่วนต่างเป็น ms แล้วแปลงเป็นชั่วโมงทศนิยม (รองรับข้ามวัน)
+            const diffMs =
+              new Date(end).getTime() - new Date(start).getTime();
+            const diffHours = diffMs / 1000 / 60 / 60;
 
-            // ปรับทศนิยม 2 ตำแหน่ง (เช่น 1.50, 2.00)
-            const duration = diff > 0 ? diff.toFixed(2) : "0.00";
+            // ปัดทศนิยม 2 ตำแหน่งแบบ Math.round (เศษส่วน 100)
+            const duration =
+              diffHours > 0 ? Math.round(diffHours * 100) / 100 : 0;
 
             if (updatedDescriptions[idx].duration !== duration) {
               updatedDescriptions[idx].duration = duration;
