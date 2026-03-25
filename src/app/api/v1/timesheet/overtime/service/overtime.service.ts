@@ -399,6 +399,32 @@ export const OvertimeService = {
     worksheet.getRow(rowCursor).height = 36;
     rowCursor++;
 
+    // แถวกำชับ: สถานะที่ไม่ถูกนับใน Summary
+    worksheet.mergeCells(`A${rowCursor}:E${rowCursor}`);
+    const noteCell = worksheet.getCell(`A${rowCursor}`);
+    noteCell.value =
+      "⚠ หมายเหตุ: สถานะ รออนุมัติ, ไม่อนุมัติ, จ่ายสำเร็จ, ยกเลิก — จะไม่ถูกนำมาคำนวณชั่วโมง OT ตารางนี้นับเฉพาะรายการที่ อนุมัติ เท่านั้น";
+    noteCell.font = {
+      bold: true,
+      name: "Google Sans",
+      size: 12,
+      color: { argb: "FFC62828" }, // Red
+    };
+    noteCell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFFFEBEE" }, // Light red background
+    };
+    noteCell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
+    noteCell.border = {
+      top: { style: "thin", color: { argb: "FFEF9A9A" } },
+      left: { style: "thin", color: { argb: "FFEF9A9A" } },
+      bottom: { style: "thin", color: { argb: "FFEF9A9A" } },
+      right: { style: "thin", color: { argb: "FFEF9A9A" } },
+    };
+    worksheet.getRow(rowCursor).height = 32;
+    rowCursor++;
+
     const summaryHeaderRow = worksheet.getRow(rowCursor);
     summaryHeaderRow.height = 32;
     summaryHeaderRow.values = [
