@@ -56,6 +56,7 @@ model User {
   profile_image_path    String?     @map("profile_image")
   joined_date           DateTime?   @map("joined_date")
   resigned_date         DateTime?   @map("resigned_date")
+  gender                String?     @map("gender")
   employment_type       String?     @default("FULL_TIME") @map("employment_type")
   last_login            DateTime?   @map("last_login")
   failed_login_attempts Int         @default(0) @map("failed_login_attempts")

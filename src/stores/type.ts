@@ -559,6 +559,7 @@ export interface UserProfile {
   email?: string;
   phone?: string;
   birth_date?: string | Date;
+  gender?: string;
   profile_image_path?: string;
   status: string;
   position_id?: number;

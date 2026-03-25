@@ -24,6 +24,7 @@ export interface CreateUserDto {
   profile_image?: string | null;
   profile_image_path?: string | null;
   created_by?: number | null;
+  gender?: string | null;
   joined_date?: string | Date | null;
   resigned_date?: string | Date | null;
   employment_type?: string | null;
@@ -50,6 +51,7 @@ export interface UpdateUserDto {
   profile_image?: string | null;
   profile_image_path?: string | null;
   updated_by?: number | null;
+  gender?: string | null;
   joined_date?: string | Date | null;
   resigned_date?: string | Date | null;
   employment_type?: string | null;
@@ -83,6 +85,7 @@ export const UserManagementService = {
         resigned_date: data.resigned_date
           ? new Date(data.resigned_date)
           : undefined,
+        gender: data.gender ?? undefined,
         employment_type: data.employment_type || "FULL_TIME",
       },
     });
@@ -111,6 +114,7 @@ export const UserManagementService = {
       resigned_date: data.resigned_date
         ? new Date(data.resigned_date)
         : undefined,
+      gender: data.gender ?? undefined,
       employment_type: data.employment_type,
       updated_at: new Date(),
       updated_by: data.updated_by,

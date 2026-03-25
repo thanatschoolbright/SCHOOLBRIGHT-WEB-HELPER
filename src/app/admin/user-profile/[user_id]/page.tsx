@@ -204,6 +204,7 @@ const UserEditPage = () => {
       firstname_en: "ชื่อ (อังกฤษ)",
       lastname_en: "นามสกุล (อังกฤษ)",
       nickname: "ชื่อเล่น",
+      gender: "เพศ",
       username: "ชื่อผู้ใช้งาน",
       email: "อีเมล",
       phone: "เบอร์โทรศัพท์",

@@ -112,7 +112,24 @@ export const UserEditForm = ({
               />
             </Form.Item>
           </Col>
-          <Col xs={24} md={16}>
+          <Col xs={24} md={8}>
+            <Form.Item
+              label={<span style={{ fontWeight: 600 }}>เพศ</span>}
+              name="gender"
+            >
+              <Select
+                placeholder="เลือกเพศ"
+                size="large"
+                style={{ borderRadius: 12 }}
+                allowClear
+              >
+                <Select.Option value="MALE">ชาย</Select.Option>
+                <Select.Option value="FEMALE">หญิง</Select.Option>
+                <Select.Option value="OTHER">ไม่ระบุ</Select.Option>
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col xs={24} md={8}>
             <Form.Item
               label={<span style={{ fontWeight: 600 }}>วันเกิด</span>}
               name="birth_date"

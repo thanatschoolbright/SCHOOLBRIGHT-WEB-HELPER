@@ -21,6 +21,7 @@ export const CreateUserSchema = z.object({
   created_by: z.number().int().optional(),
   joined_date: z.string().optional().nullable(),
   resigned_date: z.string().optional().nullable(),
+  gender: z.string().optional().nullable(),
   employment_type: z.string().optional(),
 });
 
@@ -48,6 +49,7 @@ export const UpdateUserSchema = z.object({
   updated_by: z.number().int().optional(),
   joined_date: z.string().optional().nullable(),
   resigned_date: z.string().optional().nullable(),
+  gender: z.string().optional().nullable(),
   employment_type: z.string().optional(),
 });
 

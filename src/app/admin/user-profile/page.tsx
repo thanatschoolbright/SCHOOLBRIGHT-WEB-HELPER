@@ -1747,6 +1747,15 @@ export default function UserManagementPage() {
                     ? dayjs(selectedUser.birth_date).format("DD MMMM YYYY")
                     : "-"}
                 </Descriptions.Item>
+                <Descriptions.Item label="เพศ">
+                  {selectedUser.gender === "MALE"
+                    ? "ชาย"
+                    : selectedUser.gender === "FEMALE"
+                      ? "หญิง"
+                      : selectedUser.gender === "OTHER"
+                        ? "ไม่ระบุ"
+                        : "-"}
+                </Descriptions.Item>
                 <Descriptions.Item label="อีเมลสำรอง">
                   {(selectedUser as any).backlog_email || "-"}
                 </Descriptions.Item>
