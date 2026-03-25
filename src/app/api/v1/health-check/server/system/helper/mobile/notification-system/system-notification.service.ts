@@ -32,7 +32,7 @@ export async function checkSystemNotificationService(
   const curlCommand = generateCurlCommand(SYSTEM_NOTIFICATION_CONFIG);
 
   const baseResult = {
-    module: "notification",
+    module: "system-notification",
     group: "notification-system",
     name_th: "ระบบแจ้งเตือนจากทาง SchoolBright",
     name_en: "SchoolBright System Notification Service",

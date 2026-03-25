@@ -867,7 +867,9 @@ export default function ServerStatusPage() {
             <Table
               columns={tableColumns}
               dataSource={filteredServerHealthData}
-              rowKey={(record) => record.module + record.service}
+              rowKey={(record) =>
+                `${record.group}-${record.module}-${record.service}`
+              }
               loading={isFetchingServerStatus}
               pagination={{
                 pageSize: 10,
