@@ -33,11 +33,11 @@ export const FaceScanSection = () => {
   const { requestFaceScan, isLoading, scanResult } = useFaceScanStore();
 
   const handleScanOperation = async () => {
-    /** 📷 การจำลองการแสกนใบหน้า (ส่ง schoolId, userCode, sID ตาม cURL) */
+    /** 📷 การจำลองการแสกนใบหน้า (ใช้ข้อมูลตาม Curl ที่ระบุ) */
     await requestFaceScan({
       school_id: "39",
-      user_code: "116572", // JJ00147 คุณสมจิตต์ ทองสุข
-      s_id: "1233827",
+      user_code: "1233762",
+      s_id: "1233762",
     });
   };
 

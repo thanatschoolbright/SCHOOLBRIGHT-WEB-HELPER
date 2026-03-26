@@ -46,10 +46,6 @@ export async function POST(request: NextRequest) {
       { status: 200 },
     );
   } catch (error: any) {
-    console.error(
-      "Scan Light API Error:",
-      error.response?.data || error.message,
-    );
     return NextResponse.json(
       {
         status_code: 500,

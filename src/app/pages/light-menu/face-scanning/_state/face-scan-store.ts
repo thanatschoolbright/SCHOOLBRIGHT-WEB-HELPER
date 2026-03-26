@@ -31,7 +31,6 @@ export const useFaceScanStore = create<FaceScanState>((set) => ({
         toast.error(response.message_th || "แสกนใบหน้าไม่สำเร็จ");
       }
     } catch (error: any) {
-      console.error("Store requestFaceScan Error:", error);
       toast.error(
         error.response?.data?.message_th || "เกิดข้อผิดพลาดในการแสกนใบหน้า",
       );

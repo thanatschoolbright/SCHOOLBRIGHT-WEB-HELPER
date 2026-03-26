@@ -27,22 +27,19 @@ export const scanLightService = {
     version: string;
   }) {
     const externalUrl = `${API_URL.PROD_HARDWARE_API_URL}/api/jobscan/TimeStamp`;
+    const requestPayload = {
+      schoolId: String(payload.school_id),
+      UserCode: String(payload.user_code),
+      sID: String(payload.s_id),
+      version: payload.version,
+    };
 
-    const response = await axios.post(
-      externalUrl,
-      {
-        schoolId: String(payload.school_id),
-        UserCode: String(payload.user_code),
-        sID: String(payload.s_id),
-        version: payload.version,
+    const response = await axios.post(externalUrl, requestPayload, {
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: "HWWAFSESID=03e7db5aba0cb39b6c; HWWAFSESTIME=1774516432923",
       },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: "HWWAFSESID=03e7db5aba0cb39b6c; HWWAFSESTIME=1774516432923",
-        },
-      },
-    );
+    });
 
     const rawData = response.data;
 
