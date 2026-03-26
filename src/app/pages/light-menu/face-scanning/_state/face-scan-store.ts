@@ -23,8 +23,9 @@ export const useFaceScanStore = create<FaceScanState>((set) => ({
     set({ isLoading: true });
     try {
       const response = await fetchScanLightFace(payload);
-      if (response.status_code === 200) {
-        set({ scanResult: response.data });
+      // ตรวจสอบ status_code จาก API response (มาตรฐาน Backend API Master Prompt)
+      if (response.status_code === 200 || response.status === 200) {
+        set({ scanResult: response });
         toast.success(response.message_th || "แสกนใบหน้าสำเร็จ");
       } else {
         toast.error(response.message_th || "แสกนใบหน้าไม่สำเร็จ");

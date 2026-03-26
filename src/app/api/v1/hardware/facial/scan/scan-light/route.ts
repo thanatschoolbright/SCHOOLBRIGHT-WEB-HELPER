@@ -1,54 +1,48 @@
-import { errorResponse, successResponse } from "@/helpers/api/response";
-import axios from "axios";
+import { successResponse } from "@/helpers/api/response";
 import { NextRequest, NextResponse } from "next/server";
+import { scanLightService } from "./_service/scan-light-service";
+import { ScanLightSchema } from "./_validation/scan-light-schema";
 
-/**
- * ฟังก์ชันสำหรับแสกนใบหน้า (Light Version)
- * @param request
- * @returns
- */
+/** ✨ ฟังก์ชันสำหรับแสกนใบหน้า (Light Version) - POST Request Handler */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const rawBody = await request.json();
 
-    const { school_id, user_code, s_id, version = "1.2.5" } = body;
+    // 🛡️ ตรวจสอบข้อมูลด้วย Zod Schema ก่อนประมวลผล
+    const validationResult = ScanLightSchema.safeParse(rawBody);
 
-    if (!school_id || !user_code || !s_id) {
+    if (!validationResult.success) {
       return NextResponse.json(
-        errorResponse({
-          message_en: "Missing required fields",
-          message_th: "ข้อมูลไม่ครบถ้วน",
-          status: 400,
-        }),
+        {
+          status_code: 400,
+          message_th:
+            "ข้อมูลไม่ถูกต้อง: " + validationResult.error.errors[0].message,
+          message_en:
+            "Invalid request payload: " +
+            validationResult.error.errors[0].message,
+        },
         { status: 400 },
       );
     }
 
-    // เตรียม Payload สำหรับ Externel API
-    const payload = {
-      schoolId: String(school_id),
-      UserCode: String(user_code),
-      sID: String(s_id),
-      version: version,
-    };
+    const body = validationResult.data;
 
-    const externalUrl =
-      "https://hardware.schoolbright.co/api/jobscan/TimeStamp";
+    // 🚀 เรียกใช้งาน Service Layer เพื่อประมวลผล Business Logic
+    const formattedData = await scanLightService.executeScan(body);
 
-    const response = await axios.post(externalUrl, payload, {
-      headers: {
-        "Content-Type": "application/json",
-        // หมายเหตุ: Cookie อาจจะหมดอายุได้ในอนาคต หากใช้ถาวรควรมีการจัดการ Session
-        Cookie: "HWWAFSESID=03e7db5aba0cb39b6c; HWWAFSESTIME=1774516432923",
-      },
+    const response = successResponse({
+      message_th: "แสกนใบหน้าสำเร็จ",
+      message_en: "Face scan successful",
+      data: formattedData,
     });
 
     return NextResponse.json(
-      successResponse({
-        message_th: "แสกนใบหน้าสำเร็จ",
-        message_en: "Face scan successful",
+      {
+        status_code: 200,
+        message_th: response.message_th,
+        message_en: response.message_en,
         data: response.data,
-      }),
+      },
       { status: 200 },
     );
   } catch (error: any) {
@@ -57,11 +51,12 @@ export async function POST(request: NextRequest) {
       error.response?.data || error.message,
     );
     return NextResponse.json(
-      errorResponse({
+      {
+        status_code: 500,
+        message_th:
+          "เกิดข้อผิดพลาดในการเชื่อมต่อกับ Hardware API หรือระบบประมวลผล",
         message_en: error.message || "Internal Server Error",
-        message_th: "เกิดข้อผิดพลาดในการเชื่อมต่อกับ Hardware API",
-        status: 500,
-      }),
+      },
       { status: 500 },
     );
   }

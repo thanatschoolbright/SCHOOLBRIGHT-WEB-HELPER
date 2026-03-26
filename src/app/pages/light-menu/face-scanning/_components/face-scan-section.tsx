@@ -3,15 +3,18 @@
 import {
   CalendarOutlined,
   ClockCircleOutlined,
+  CodeOutlined,
   IdcardOutlined,
+  InfoCircleOutlined,
   ScanOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import {
+  Alert,
   Avatar,
-  Badge,
   Button,
   Card,
+  Collapse,
   Descriptions,
   Divider,
   Flex,
@@ -30,11 +33,11 @@ export const FaceScanSection = () => {
   const { requestFaceScan, isLoading, scanResult } = useFaceScanStore();
 
   const handleScanOperation = async () => {
-    /** การจำลองการแสกนใบหน้า (ส่ง schoolId, userCode, sID ตาม cURL) */
+    /** 📷 การจำลองการแสกนใบหน้า (ส่ง schoolId, userCode, sID ตาม cURL) */
     await requestFaceScan({
       school_id: "39",
-      user_code: "1233762",
-      s_id: "1233762",
+      user_code: "116572", // JJ00147 คุณสมจิตต์ ทองสุข
+      s_id: "1233827",
     });
   };
 
@@ -132,14 +135,61 @@ export const FaceScanSection = () => {
                     <Tag color="cyan">ลงชื่อออกเมือง</Tag>
                   )}
                 </Descriptions.Item>
-                <Descriptions.Item label="สถานะการแสกน">
-                  {userData.LogScanStatus === "2" ? (
-                    <Badge status="success" text="สำเร็จ" />
-                  ) : (
-                    <Badge status="processing" text="รอดำเนินการ" />
-                  )}
+                <Descriptions.Item label="สถานะการเข้าเรียน">
+                  <Tag color={userData.attendance_status?.color || "default"}>
+                    {userData.attendance_status?.text || "ไม่ระบุ"}
+                  </Tag>
                 </Descriptions.Item>
               </Descriptions>
+
+              <Alert
+                message="สรุปผลการทำงาน"
+                description={
+                  <Flex vertical gap={4}>
+                    <Text size="sm">
+                      ระบบได้ทำการบันทึกเวลาของ{" "}
+                      <Text strong>{userData.sName}</Text> เมื่อเวลา{" "}
+                      <Text strong>{userData.LogTime}</Text> น. เรียบร้อยแล้ว
+                    </Text>
+                    <Text type="secondary" style={{ fontSize: "12px" }}>
+                      <InfoCircleOutlined /> ข้อมูลนี้ถูกส่งไปยังระบบส่วนกลางของ
+                      School Bright เพื่อใช้สำหรับการเช็คชื่ออัตโนมัติ
+                    </Text>
+                  </Flex>
+                }
+                type="success"
+                showIcon
+                style={{ borderRadius: "8px" }}
+              />
+
+              <Collapse
+                ghost
+                items={[
+                  {
+                    key: "1",
+                    label: (
+                      <Space>
+                        <CodeOutlined />
+                        <Text type="secondary">แสดง RAW Response จาก API</Text>
+                      </Space>
+                    ),
+                    children: (
+                      <pre
+                        style={{
+                          backgroundColor: "#f5f5f5",
+                          padding: "12px",
+                          borderRadius: "8px",
+                          fontSize: "12px",
+                          overflow: "auto",
+                          maxHeight: "200px",
+                        }}
+                      >
+                        {JSON.stringify(scanResult, null, 2)}
+                      </pre>
+                    ),
+                  },
+                ]}
+              />
             </Flex>
           </Card>
         )}
