@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ApartmentOutlined,
   ApiOutlined,
   AppstoreOutlined,
   AuditOutlined,
@@ -15,17 +14,14 @@ import {
   CloudSyncOutlined,
   ClusterOutlined,
   CodeOutlined,
-  ConsoleSqlOutlined,
   ControlOutlined,
   CustomerServiceOutlined,
   DashboardOutlined,
-  DatabaseOutlined,
   DesktopOutlined,
   ExperimentOutlined,
   FieldTimeOutlined,
   FileAddOutlined,
   FileExcelOutlined,
-  FileSearchOutlined,
   FileTextOutlined,
   FireOutlined,
   FormOutlined,
@@ -52,7 +48,7 @@ import {
   WifiOutlined,
 } from "@ant-design/icons";
 import { useSession } from "next-auth/react";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { PERMISSIONS } from "./permission.constant";
 
@@ -84,16 +80,38 @@ export const useSidebarMenu = (): SidebarItem[] => {
   const userPermissions = (session?.user as any)?.permissions || [];
   const isAdminId117 = (session?.user as any)?.admin_id === 117;
 
-  const hasPermission = (required: string | string[] | undefined) => {
-    if (!required || isAdminId117) return true;
-    const requiredArray = Array.isArray(required) ? required : [required];
-    return requiredArray.some((p) => userPermissions.includes(p));
-  };
+  const hasPermission = useCallback(
+    (required: string | string[] | undefined) => {
+      if (!required || isAdminId117) return true;
+      const requiredArray = Array.isArray(required) ? required : [required];
+      return requiredArray.some((p) => userPermissions.includes(p));
+    },
+    [isAdminId117, userPermissions],
+  );
 
   const menu = useMemo(() => {
     if (!i18n.isInitialized || !i18n.hasResourceBundle(i18n.language, "menu")) {
       return [];
     }
+
+    const filterMenu = (items: any[]): any[] => {
+      return items
+        .map((item) => {
+          if (item.children) {
+            const filteredChildren = filterMenu(item.children);
+            return { ...item, children: filteredChildren };
+          }
+          return item;
+        })
+        .filter((item) => {
+          const hasOwnPermission = hasPermission(item.permission);
+          const hasVisibleChildren = item.children && item.children.length > 0;
+          const isLink = !!item.href;
+
+          if (isLink) return hasOwnPermission;
+          return hasOwnPermission || hasVisibleChildren;
+        });
+    };
 
     const rawMenu: SidebarItem[] = [
       {
@@ -397,27 +415,8 @@ export const useSidebarMenu = (): SidebarItem[] => {
       },
     ];
 
-    const filterMenu = (items: any[]): any[] => {
-      return items
-        .map((item) => {
-          if (item.children) {
-            const filteredChildren = filterMenu(item.children);
-            return { ...item, children: filteredChildren };
-          }
-          return item;
-        })
-        .filter((item) => {
-          const hasOwnPermission = hasPermission(item.permission);
-          const hasVisibleChildren = item.children && item.children.length > 0;
-          const isLink = !!item.href;
-
-          if (isLink) return hasOwnPermission;
-          return hasOwnPermission || hasVisibleChildren;
-        });
-    };
-
     return filterMenu(rawMenu);
-  }, [t, i18n.isInitialized, i18n.language, userPermissions, isAdminId117]);
+  }, [t, i18n, hasPermission]);
 
   return menu;
 };
