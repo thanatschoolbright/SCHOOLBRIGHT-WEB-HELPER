@@ -977,7 +977,7 @@ const OvertimeManagementPage = () => {
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
         .ot-print-temp {
           font-family: 'Sarabun', sans-serif;
-          color: #000;
+          color: #1a1a1b;
           background: #fff;
           width: 210mm;
           padding: 24px 32px;
@@ -987,39 +987,78 @@ const OvertimeManagementPage = () => {
         .ot-header-temp {
           display: flex;
           align-items: center;
-          border: 1px solid #000;
-          padding: 10px;
-          margin-bottom: 16px;
-          border-radius: 4px;
+          border: 1px solid #e2e8f0;
+          padding: 12px;
+          margin-bottom: 20px;
+          border-radius: 8px;
+          background: #f8fafc;
         }
-        .ot-doc-title-temp { flex: 1; text-align: center; font-size: 16px; font-weight: 700; }
-        .ot-doc-meta-temp { font-size: 12px; display: flex; gap: 16px; }
+        .ot-doc-title-temp {
+          flex: 1;
+          text-align: center;
+          font-size: 18px;
+          font-weight: 700;
+          color: #1e293b;
+        }
+        .ot-doc-meta-temp {
+          font-size: 11px;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          color: #64748b;
+          text-align: right;
+        }
         .ot-info-temp {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 8px 24px;
-          margin-bottom: 16px;
-          padding: 12px;
-          border: 1px solid #000;
-          border-radius: 4px;
+          gap: 12px 32px;
+          margin-bottom: 20px;
+          padding: 16px;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          background: #ffffff;
         }
-        .ot-label-temp { font-weight: 600; margin-right: 8px; min-width: 90px; }
-        .ot-value-temp { flex: 1; border-bottom: 1px dotted #000; padding-bottom: 2px; }
-        .ot-table-temp { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 11px; }
-        .ot-table-temp th, .ot-table-temp td { border: 1px solid #000; padding: 6px 8px; vertical-align: middle; text-align: center; }
-        .ot-table-temp th { background-color: #fff; font-weight: 600; }
-        .ot-summary-temp { display: flex; justify-content: flex-end; gap: 24px; font-weight: 600; font-size: 12px; margin-bottom: 16px; padding: 8px 12px; border: 1px solid #000; }
-        .ot-sign-container-temp { display: flex; justify-content: space-between; margin-top: 20px; }
-        .ot-sign-box-temp { text-align: center; width: 45%; }
-        .ot-sign-title-temp { font-weight: 600; margin-bottom: 8px; font-size: 12px; }
-        .ot-sign-line-temp { border-bottom: 1px dotted #000; margin: 40px auto 4px; width: 85%; }
-        .ot-sub-form-temp { margin-top: 20px; border-top: 2px solid #000; padding-top: 16px; }
+        .ot-label-temp { font-weight: 600; color: #475569; min-width: 90px; }
+        .ot-value-temp { flex: 1; border-bottom: 1px solid #f1f5f9; padding-bottom: 2px; color: #1e293b; }
+        .ot-table-temp { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 11px; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
+        .ot-table-temp th, .ot-table-temp td { padding: 8px 10px; vertical-align: middle; text-align: center; border: 1px solid #e2e8f0; }
+        .ot-table-temp th { background-color: #f1f5f9; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 10px; }
+        .ot-table-temp td { color: #334155; }
+        .ot-section-header {
+          margin-bottom: 12px;
+          padding: 8px 12px;
+          background: #f8fafc;
+          border-left: 4px solid #334155;
+          color: #1e293b;
+          font-size: 12px;
+          font-weight: 700;
+        }
+        .ot-summary-temp {
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+          gap: 24px;
+          font-weight: 600;
+          font-size: 12px;
+          margin-bottom: 24px;
+          padding: 12px 16px;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+        }
+        .ot-total-label { color: #64748b; }
+        .ot-total-value { font-size: 16px; color: #1e293b; font-weight: 700; }
+        .ot-sign-container-temp { display: flex; justify-content: space-between; margin-top: 32px; gap: 20px; }
+        .ot-sign-box-temp { text-align: center; width: 48%; padding: 16px; border: 1px solid #f1f5f9; border-radius: 8px; background: #fafafa; }
+        .ot-sign-title-temp { font-weight: 700; margin-bottom: 12px; font-size: 12px; color: #475569; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+        .ot-sign-line-temp { border-bottom: 1px solid #cbd5e1; margin: 12px auto 8px; width: 80%; }
+        .ot-sub-form-temp { margin-top: 40px; border-top: 2px dashed #e2e8f0; padding-top: 24px; }
         .evidence-page-temp { padding: 24px 32px; }
-        .evidence-grid-temp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
-        .evidence-item-temp { border: 2px dashed #ccc; border-radius: 8px; padding: 10px; height: 480px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
-        .evidence-label-temp { font-weight: 600; margin-top: 1rem; margin-bottom: 8px; text-align: center; flex-shrink: 0; }
-        .evidence-img-wrapper-temp { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; padding: 8px; box-sizing: border-box; overflow: hidden; min-height: 0; }
-        .evidence-img-temp { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block; }
+        .evidence-grid-temp { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .evidence-item-temp { border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; height: 500px; display: flex; flex-direction: column; align-items: center; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .evidence-label-temp { font-weight: 700; color: #1e293b; margin-bottom: 12px; text-align: center; font-size: 13px; }
+        .evidence-img-wrapper-temp { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; border-radius: 8px; background: #f8fafc; padding: 8px; overflow: hidden; }
+        .evidence-img-temp { max-width: 100%; max-height: 100%; object-fit: contain; }
       `;
       container.appendChild(styleElement);
 
@@ -1066,6 +1105,12 @@ const OvertimeManagementPage = () => {
         const proofData = firstDescription.proof || {};
         const headerDate = data.request_date || data.created_at;
 
+        // ฟังก์ชันแปลงเวลาเป็นทศนิยม 2 ตำแหน่ง (เช่น 4:30 -> 4.50, 4:00 -> 4.00)
+        const formatDurationToDecimal = (minutes: number) => {
+          if (!minutes || minutes <= 0) return "0.00";
+          return (minutes / 60).toFixed(2);
+        };
+
         // Pre-fetch รูปภาพทั้งหมดเป็น base64 ก่อนสร้าง HTML (แก้ปัญหา CORS กับ html2canvas)
         const [
           logoBase64,
@@ -1100,11 +1145,11 @@ const OvertimeManagementPage = () => {
         tempDiv.className = "ot-print-temp";
         tempDiv.innerHTML = `
           <div class="ot-header-temp">
-            <div class="ot-logo" style="width:140px">${logoBase64 ? `<img src="${logoBase64}" style="max-height:40px">` : ""}</div>
+            <div class="ot-logo" style="width:140px">${logoBase64 ? `<img src="${logoBase64}" style="max-height:45px">` : ""}</div>
             <div class="ot-doc-title-temp">แบบคำขอทำงานล่วงเวลา (OT)</div>
             <div class="ot-doc-meta-temp">
-              <div>ประจำเดือน: ${headerDate ? `${dayjs(headerDate).format("MM")}/${dayjs(headerDate).year() + 543}` : "-"}</div>
-              <div>วันที่: ${formatDateThai(headerDate)}</div>
+              <div><strong>ประจำเดือน:</strong> ${headerDate ? `${dayjs(headerDate).format("MM")}/${dayjs(headerDate).year() + 543}` : "-"}</div>
+              <div><strong>วันที่พิมพ์:</strong> ${formatDateThai(headerDate)}</div>
             </div>
           </div>
 
@@ -1115,7 +1160,7 @@ const OvertimeManagementPage = () => {
             <div style="display:flex"><span class="ot-label-temp">ฝ่าย/แผนก:</span><span class="ot-value-temp">${department}</span></div>
           </div>
 
-          <div style="margin-bottom:12px; padding:8px; border:1px solid #000; border-left:4px solid #000;"><strong>รายละเอียดการทำงานล่วงเวลา</strong></div>
+          <div class="ot-section-header">รายละเอียดการทำงานล่วงเวลา (ตามแผน)</div>
           <table class="ot-table-temp">
             <thead>
               <tr>
@@ -1131,27 +1176,22 @@ const OvertimeManagementPage = () => {
             <tbody>
               ${(data.descriptions || [])
                 .map((d: any, i: number) => {
-                  const bS = d.start_date
-                    ? dayjs(d.start_date).format("HH:00")
-                    : "-";
-                  const bE = d.end_date
-                    ? dayjs(d.end_date).add(1, "hour").format("HH:00")
-                    : "-";
-                  const bDuration =
+                  const diffMinutes =
                     d.start_date && d.end_date
                       ? dayjs(d.end_date)
                           .add(1, "hour")
                           .startOf("hour")
-                          .diff(dayjs(d.start_date).startOf("hour"), "hour")
-                      : d.duration || "-";
+                          .diff(dayjs(d.start_date).startOf("hour"), "minute")
+                      : (Number(d.duration) || 0) * 60;
+
                   return `
                   <tr>
                     <td>${i + 1}</td>
                     <td>${d.date ? formatDateThai(d.date) : "-"}</td>
                     <td style="text-align:left">${d.description || "-"}</td>
-                    <td>${bS}</td>
-                    <td>${bE}</td>
-                    <td>${bDuration}</td>
+                    <td>${d.start_date ? dayjs(d.start_date).format("HH:00") : "-"}</td>
+                    <td>${d.end_date ? dayjs(d.end_date).add(1, "hour").format("HH:00") : "-"}</td>
+                    <td style="font-weight:600">${formatDurationToDecimal(diffMinutes)}</td>
                     <td>-</td>
                   </tr>`;
                 })
@@ -1160,35 +1200,36 @@ const OvertimeManagementPage = () => {
           </table>
 
           <div class="ot-summary-temp">
-            <div style="margin-right:auto">เหตุผลการขอ: ${data.reason || "-"}</div>
-            <div>รวมเวลาทั้งหมด: <span style="font-size:16px">${totalBudgetHours}:00</span> ชั่วโมง</div>
+            <div style="margin-right:auto; color: #64748b;">เหตุผลการขอ: <span style="color:#1e293b">${data.reason || "-"}</span></div>
+            <div class="ot-total-label">รวมเวลาทั้งหมด (Plan):</div>
+            <div class="ot-total-value">${formatDurationToDecimal(totalBudgetHours * 60)} ชม.</div>
           </div>
 
           <div class="ot-sign-container-temp">
             <div class="ot-sign-box-temp">
               <div class="ot-sign-title-temp">ผู้ขออนุมัติ</div>
-              <div style="height:55px; display:flex; align-items:flex-end; justify-content:center;">
-                ${sig1Base64 ? `<img src="${sig1Base64}" style="max-height:50px;">` : ""}
+              <div style="height:65px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:5px;">
+                ${sig1Base64 ? `<img src="${sig1Base64}" style="max-height:55px;">` : ""}
               </div>
-              <div class="ot-sign-line-temp" style="margin-top:4px;"></div>
-              <div style="font-size:12px">(${reqName.replace(/\s*\([^)]*\)/g, "").trim()})</div>
-              <div style="font-size:11px">${position}</div>
-              <div style="font-size:11px">วันที่ ${formatDateThai(headerDate, " / ")}</div>
+              <div class="ot-sign-line-temp"></div>
+              <div style="font-size:12px; font-weight:600;">(${reqName.replace(/\s*\([^)]*\)/g, "").trim()})</div>
+              <div style="font-size:10px; color:#64748b; margin-top:2px;">${position}</div>
+              <div style="font-size:10px; color:#94a3b8; margin-top:4px;">วันที่ ${formatDateThai(headerDate, " / ")}</div>
             </div>
             <div class="ot-sign-box-temp">
               <div class="ot-sign-title-temp">ผู้ตรวจสอบ / รับทราบ</div>
-              <div style="height:55px; display:flex; align-items:flex-end; justify-content:center;">
-                ${thanatBase64 ? `<img src="${thanatBase64}" style="max-height:50px;">` : ""}
+              <div style="height:65px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:5px;">
+                ${thanatBase64 ? `<img src="${thanatBase64}" style="max-height:55px;">` : ""}
               </div>
-              <div class="ot-sign-line-temp" style="margin-top:4px;"></div>
-              <div style="font-size:12px">ธนัท พรหมพิริยา</div>
-              <div style="font-size:11px">หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ</div>
-              <div style="font-size:11px">วันที่ ${formatDateThai(headerDate, " / ")}</div>
+              <div class="ot-sign-line-temp"></div>
+              <div style="font-size:12px; font-weight:600;">ธนัท พรหมพิริยา</div>
+              <div style="font-size:10px; color:#64748b; margin-top:2px;">หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ</div>
+              <div style="font-size:10px; color:#94a3b8; margin-top:4px;">วันที่ ${formatDateThai(headerDate, " / ")}</div>
             </div>
           </div>
 
           <div class="ot-sub-form-temp">
-            <div style="margin-bottom:12px; padding:8px; border:1px solid #000; border-left:4px solid #000;"><strong>ส่วนสำหรับบันทึกการปฏิบัติงานจริง</strong></div>
+            <div class="ot-section-header">ส่วนสำหรับบันทึกการปฏิบัติงานจริง (Actual)</div>
             <table class="ot-table-temp">
               <thead>
                 <tr>
@@ -1208,10 +1249,6 @@ const OvertimeManagementPage = () => {
                       d.start_date && d.end_date
                         ? dayjs(d.end_date).diff(dayjs(d.start_date), "minute")
                         : 0;
-                    const durText =
-                      diffM > 0
-                        ? `${Math.floor(diffM / 60)}:${(diffM % 60).toString().padStart(2, "0")}`
-                        : "-";
                     return `
                     <tr>
                       <td>${i + 1}</td>
@@ -1219,7 +1256,7 @@ const OvertimeManagementPage = () => {
                       <td style="text-align:left">${d.description || "-"}</td>
                       <td>${d.start_date ? dayjs(d.start_date).format("HH:mm") : "-"}</td>
                       <td>${d.end_date ? dayjs(d.end_date).format("HH:mm") : "-"}</td>
-                      <td>${durText}</td>
+                      <td style="font-weight:600">${formatDurationToDecimal(diffM)}</td>
                       <td>-</td>
                     </tr>`;
                   })
@@ -1227,29 +1264,30 @@ const OvertimeManagementPage = () => {
               </tbody>
             </table>
             <div class="ot-summary-temp">
-              <div style="margin-left:auto">รวมเวลาปฏิบัติงานจริง: <span style="font-size:16px">${actualDisplay}</span> ชั่วโมง</div>
+              <div style="margin-left:auto" class="ot-total-label">รวมเวลาปฏิบัติงานจริง (Actual):</div>
+              <div class="ot-total-value">${formatDurationToDecimal(totalActualMinutes)} ชม.</div>
             </div>
 
             <div class="ot-sign-container-temp">
               <div class="ot-sign-box-temp">
-                <div class="ot-sign-title-temp">ผู้ขออนุมัติ</div>
-                <div style="height:55px; display:flex; align-items:flex-end; justify-content:center;">
-                  ${sig1Base64 ? `<img src="${sig1Base64}" style="max-height:50px;">` : ""}
+                <div class="ot-sign-title-temp">ผู้บันทึกการทำงาน</div>
+                <div style="height:65px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:5px;">
+                  ${sig1Base64 ? `<img src="${sig1Base64}" style="max-height:55px;">` : ""}
                 </div>
-                <div class="ot-sign-line-temp" style="margin-top:4px;"></div>
-                <div style="font-size:12px">(${reqName.replace(/\s*\([^)]*\)/g, "").trim()})</div>
-                <div style="font-size:11px">${position}</div>
-                <div style="font-size:11px">วันที่ ${formatDateThai(headerDate, " / ")}</div>
+                <div class="ot-sign-line-temp"></div>
+                <div style="font-size:12px; font-weight:600;">(${reqName.replace(/\s*\([^)]*\)/g, "").trim()})</div>
+                <div style="font-size:10px; color:#64748b; margin-top:2px;">${position}</div>
+                <div style="font-size:10px; color:#94a3b8; margin-top:4px;">วันที่ ${formatDateThai(headerDate, " / ")}</div>
               </div>
               <div class="ot-sign-box-temp">
-                <div class="ot-sign-title-temp">ผู้ตรวจสอบ / รับทราบ</div>
-                <div style="height:55px; display:flex; align-items:flex-end; justify-content:center;">
-                  ${thanatBase64 ? `<img src="${thanatBase64}" style="max-height:50px;">` : ""}
+                <div class="ot-sign-title-temp">ผู้รับรองการทำงาน</div>
+                <div style="height:65px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:5px;">
+                  ${thanatBase64 ? `<img src="${thanatBase64}" style="max-height:55px;">` : ""}
                 </div>
-                <div class="ot-sign-line-temp" style="margin-top:4px;"></div>
-                <div style="font-size:12px">ธนัท พรหมพิริยา</div>
-                <div style="font-size:11px">หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ</div>
-                <div style="font-size:11px">วันที่ ${formatDateThai(headerDate, " / ")}</div>
+                <div class="ot-sign-line-temp"></div>
+                <div style="font-size:12px; font-weight:600;">ธนัท พรหมพิริยา</div>
+                <div style="font-size:10px; color:#64748b; margin-top:2px;">หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ</div>
+                <div style="font-size:10px; color:#94a3b8; margin-top:4px;">วันที่ ${formatDateThai(headerDate, " / ")}</div>
               </div>
             </div>
           </div>
