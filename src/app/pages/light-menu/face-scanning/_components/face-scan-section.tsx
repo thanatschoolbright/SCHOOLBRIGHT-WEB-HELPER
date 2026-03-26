@@ -9,6 +9,7 @@ import {
 } from "@ant-design/icons";
 import {
   Avatar,
+  Badge,
   Button,
   Card,
   Descriptions,
@@ -107,11 +108,13 @@ export const FaceScanSection = () => {
                     </Space>
                   }
                 >
-                  {new Date(userData.LogDate).toLocaleDateString("th-TH", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
+                  {userData.LogDate
+                    ? new Date(userData.LogDate).toLocaleDateString("th-TH", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })
+                    : "-"}
                 </Descriptions.Item>
                 <Descriptions.Item
                   label={
@@ -120,10 +123,21 @@ export const FaceScanSection = () => {
                     </Space>
                   }
                 >
-                  <Text strong>{userData.LogTime} น.</Text>
+                  <Text strong>{userData.LogTime || "-"} น.</Text>
                 </Descriptions.Item>
-                <Descriptions.Item label="สถานะ">
-                  {userData.LogScanStatus === "2" ? "ปกติ" : "อื่นๆ"}
+                <Descriptions.Item label="ประเภทการบันทึก">
+                  {userData.LogType === "1" ? (
+                    <Tag color="blue">ลงชื่อเข้าเมือง</Tag>
+                  ) : (
+                    <Tag color="cyan">ลงชื่อออกเมือง</Tag>
+                  )}
+                </Descriptions.Item>
+                <Descriptions.Item label="สถานะการแสกน">
+                  {userData.LogScanStatus === "2" ? (
+                    <Badge status="success" text="สำเร็จ" />
+                  ) : (
+                    <Badge status="processing" text="รอดำเนินการ" />
+                  )}
                 </Descriptions.Item>
               </Descriptions>
             </Flex>
