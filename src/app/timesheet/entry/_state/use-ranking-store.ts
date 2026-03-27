@@ -1,7 +1,7 @@
 import dayjs, { Dayjs } from "dayjs";
 import { toast } from "sonner";
 import { create } from "zustand";
-import { getMonthlyRanking } from "../_services/ranking-service";
+import { rankingApi } from "../_api/ranking-api";
 
 interface SummaryRecord {
   admin_id: number;
@@ -42,7 +42,11 @@ export const useRankingStore = create<RankingState>((set, get) => ({
     try {
       const month = get().selectedMonth.format("M");
       const year = get().selectedMonth.format("YYYY");
-      const response = await getMonthlyRanking(month, year, adminId);
+      const response = await rankingApi.requestMonthlyRanking(
+        month,
+        year,
+        adminId,
+      );
 
       let records = [];
       if (adminId) {

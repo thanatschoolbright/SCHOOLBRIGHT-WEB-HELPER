@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { toast } from "sonner";
 import { create } from "zustand";
-import { timesheetService } from "../_services/timesheet-service";
+import { timesheetApi } from "../_api/timesheet-api";
 import { TimesheetEntry } from "../types/timesheet-entry.types";
 
 /**
@@ -117,7 +117,7 @@ export const useTimesheetStore = create<TimesheetState>((set, get) => ({
         "with filters:",
         filters,
       );
-      const response = await timesheetService.requestTimesheetList(admin_id);
+      const response = await timesheetApi.requestTimesheetList(admin_id);
 
       // Log response details to debug data flow
       console.log("fetchEntries: Raw response from API:", response);
@@ -186,7 +186,7 @@ export const useTimesheetStore = create<TimesheetState>((set, get) => ({
   fetchProjects: async () => {
     set({ projectsLoading: true });
     try {
-      const response = await timesheetService.requestProjectList();
+      const response = await timesheetApi.requestProjectList();
       if (response.status === 200) {
         set({ projects: response.data || [] });
       }
@@ -199,7 +199,7 @@ export const useTimesheetStore = create<TimesheetState>((set, get) => ({
 
   fetchSubProjects: async (project_id) => {
     try {
-      const response = await timesheetService.requestSubProjectList(project_id);
+      const response = await timesheetApi.requestSubProjectList(project_id);
       if (response.status === 200) {
         set({ subProjects: response.data || [] });
       }
@@ -212,7 +212,7 @@ export const useTimesheetStore = create<TimesheetState>((set, get) => ({
     if (!admin_id) return;
     set({ summaryLoading: true });
     try {
-      const response = await timesheetService.requestCalculateMonthlySummary(
+      const response = await timesheetApi.requestCalculateMonthlySummary(
         Number(admin_id),
         date.month() + 1,
         date.year(),
@@ -247,7 +247,7 @@ export const useTimesheetStore = create<TimesheetState>((set, get) => ({
     try {
       const start = date.startOf("month").format("YYYY-MM-DD");
       const end = date.endOf("month").format("YYYY-MM-DD");
-      const response = await timesheetService.requestWeeklySummary(start, end);
+      const response = await timesheetApi.requestWeeklySummary(start, end);
 
       const apiResponse = response.data || response;
       const dataList =
@@ -288,7 +288,7 @@ export const useTimesheetStore = create<TimesheetState>((set, get) => ({
     set({ actionLoading: true });
     const toast_id = toast.loading("กำลังบันทึกข้อมูล...");
     try {
-      const response = await timesheetService.requestUpsertTimesheet(payload);
+      const response = await timesheetApi.requestUpsertTimesheet(payload);
       if (response.status === 200) {
         toast.success("บันทึกข้อมูลสำเร็จ", { id: toast_id });
         return true;
@@ -309,7 +309,7 @@ export const useTimesheetStore = create<TimesheetState>((set, get) => ({
     set({ actionLoading: true });
     const toast_id = toast.loading("กำลังลบข้อมูล...");
     try {
-      const response = await timesheetService.requestDeleteTimesheet(ids, by);
+      const response = await timesheetApi.requestDeleteTimesheet(ids, by);
       if (response.status === 200) {
         toast.success("ลบข้อมูลสำเร็จ", { id: toast_id });
         return true;

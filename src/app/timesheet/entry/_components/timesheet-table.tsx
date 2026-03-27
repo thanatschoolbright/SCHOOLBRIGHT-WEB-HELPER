@@ -562,13 +562,6 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
   return (
     <Card
       variant="outlined"
-      styles={{ body: { padding: 0 } }}
-      style={{
-        borderRadius: 24,
-        overflow: "hidden",
-        border: `1px solid ${token.colorBorderSecondary}`,
-        boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
-      }}
       title={
         <Flex align="center" gap={16}>
           <UnorderedListOutlined style={{ fontSize: "1rem" }} />

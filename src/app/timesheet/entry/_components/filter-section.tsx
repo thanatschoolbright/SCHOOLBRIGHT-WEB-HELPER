@@ -27,9 +27,9 @@ interface FilterSectionProps {
   projects: any[];
   /** สถานะการโหลดโครงการ */
   projectsLoading: boolean;
-  /** ฟังก์ชันเมื่อกดค้นหา */
+  /** ฟังก์ชันเมื่อกดค้นหา (Request) */
   onSearch: (values: any) => void;
-  /** ฟังก์ชันเมื่อกดล้างตัวกรอง */
+  /** ฟังก์ชันเมื่อกดล้างตัวกรอง (Reset) */
   onReset: () => void;
   /** สถานะการโหลดข้อมูลในตาราง เพื่อ Disable ปุ่ม */
   loading?: boolean;
@@ -50,13 +50,13 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
   const { token } = theme.useToken();
   const [form] = Form.useForm();
 
-  /** ฟังก์ชันจัดการเมื่อกดปุ่มค้นหา */
+  /** ฟังก์ชันจัดการเมื่อกดปุ่มค้นหา (Request Search) */
   const handleSearch = () => {
     const values = form.getFieldsValue();
     onSearch(values);
   };
 
-  /** ฟังก์ชันจัดการเมื่อกดปุ่มล้างตัวกรอง */
+  /** ฟังก์ชันจัดการเมื่อกดปุ่มล้างตัวกรอง (Reset Filter) */
   const handleReset = () => {
     form.resetFields();
     onReset();
@@ -68,12 +68,12 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
       styles={{ body: { padding: 16 } }}
       style={{
         marginBottom: 24,
-        borderRadius: 12,
+        borderRadius: 16,
         border: `1px solid ${token.colorBorderSecondary}`,
       }}
     >
       <Flex align="center" gap={8} style={{ marginBottom: 16 }}>
-        <FilterOutlined style={{ fontSize: "1rem" }} />
+        <FilterOutlined style={{ fontSize: "1rem", fontWeight: 600 }} />
         <Text strong style={{ fontSize: "1rem" }}>
           ตัวกรอง
         </Text>
