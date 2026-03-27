@@ -10,20 +10,22 @@ import {
   Skeleton,
   Space,
   Tag,
+  theme,
   Timeline,
   Typography,
-  theme,
 } from "antd";
 import dayjs from "dayjs";
 import { useBacklogDashboardStore } from "../_state/use-backlog-dashboard-store";
 
 const { Text, Title } = Typography;
+const { useToken } = theme;
 
 /**
  * Modal สำหรับแสดง Timeline การส่งต่องาน (Tracking)
  * ดึงข้อมูลจาก History ของ Issue ใน Backlog
  */
 export const IssueTimelineModal = () => {
+  const { token } = useToken();
   const {
     timelineData,
     timelineLoading,
