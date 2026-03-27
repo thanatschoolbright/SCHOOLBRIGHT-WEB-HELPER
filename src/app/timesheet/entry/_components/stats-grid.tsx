@@ -1,10 +1,10 @@
 "use client";
 
-import React from "react";
+import { WeeklySummary } from "@/components/timesheet/weekly-summary";
 import { Col, Row, theme } from "antd";
 import dayjs from "dayjs";
+import React from "react";
 import { MonthlyRankBoard } from "./monthly-rank-board";
-import { WeeklySummary } from "@/components/timesheet/weekly-summary";
 
 /**
  * Interface สำหรับ Props ของ StatsGrid
@@ -59,15 +59,15 @@ export const StatsGrid: React.FC<StatsGridProps> = ({
 
       {/* ส่วนแสดงสรุปรายสัปดาห์/เดือน (Weekly Summary) */}
       <Col xs={24} lg={12}>
-        <div 
-          style={{ 
-            height: "100%", 
+        <div
+          style={{
+            height: "100%",
             display: "flex",
             border: `1px solid ${token.colorBorderSecondary}`,
             borderRadius: 24,
             overflow: "hidden",
             background: token.colorBgContainer,
-            boxShadow: "0 4px 20px rgba(0,0,0,0.03)"
+            boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
           }}
         >
           <WeeklySummary

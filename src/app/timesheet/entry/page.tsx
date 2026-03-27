@@ -20,13 +20,11 @@ import {
   Button,
   Card,
   Checkbox,
-  Col,
   Flex,
   Form,
   InputRef,
   Modal,
   Popover,
-  Row,
   Space,
   Table,
   Tag,
@@ -59,7 +57,6 @@ import DashboardLayout from "@components/layouts/backend-layout";
 import { DeleteConfirmationModal } from "@components/modal/delete-confirmation-modal";
 import StatusModal from "@components/modal/status-modal";
 import { DetailModal } from "@components/timesheet/detail-modal";
-import { WeeklySummary } from "@components/timesheet/weekly-summary";
 
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import {
@@ -85,14 +82,9 @@ import {
   SearchableColumnKey,
   TimesheetEntry,
 } from "./types/timesheet-entry.types";
-import {
-  DAILY_TARGET_HOURS,
-  DATE_FORMAT,
-  getStatusConfig,
-} from "./utils/timesheet-entry.helpers";
+import { DATE_FORMAT, getStatusConfig } from "./utils/timesheet-entry.helpers";
 
 import { CreateModalForm } from "./_components/create-modal-form";
-import { MonthlyRankBoard } from "./_components/monthly-rank-board";
 import { PageHeader } from "./_components/page-header";
 import { StatsGrid } from "./_components/stats-grid";
 
