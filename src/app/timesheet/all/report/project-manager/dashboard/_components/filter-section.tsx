@@ -44,7 +44,7 @@ const FilterSection: React.FC = () => {
 
   return (
     <Card styles={{ body: { padding: 16 } }}>
-      <Flex direction="vertical" gap={16}>
+      <Flex vertical gap={16}>
         <Space size="middle" style={{ marginBottom: 16 }}>
           <FilterOutlined style={{ fontSize: "1rem", fontWeight: 600 }} />
           <Text strong style={{ fontSize: "1rem" }}>

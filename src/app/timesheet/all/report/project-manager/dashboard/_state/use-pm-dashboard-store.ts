@@ -1,9 +1,7 @@
-"use client";
-
-import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 import dayjs from "dayjs";
 import { toast } from "sonner";
 import { create } from "zustand";
+import { requestPMDashboardReport } from "../_api/dashboard-api";
 
 /**
  * Interface สำหรับข้อมูลสรุป (Summary Metrics)
@@ -66,6 +64,9 @@ export const usePMDashboardStore = create<DashboardState>((set, get) => ({
 
   setDateRange: (dates) => set({ dateRange: dates }),
 
+  /**
+   * ดึงข้อมูล Dashboard จาก Service
+   */
   fetchDashboardData: async () => {
     const { dateRange } = get();
     try {
@@ -74,19 +75,21 @@ export const usePMDashboardStore = create<DashboardState>((set, get) => ({
       const start = dateRange[0].format("YYYY-MM-DD");
       const end = dateRange[1].format("YYYY-MM-DD");
 
-      const response = await callApiService.get(
-        `/api/v1/timesheet/report/project-manager/dashboard?start_date=${start}&end_date=${end}`,
+      const responseDashboardReport = await requestPMDashboardReport(
+        start,
+        end,
       );
 
-      if (response.data?.status_code === 200) {
+      if (responseDashboardReport.data?.status_code === 200) {
         set({
-          summary: response.data.data.summary,
-          projectHealth: response.data.data.project_health,
-          workloadData: response.data.data.workload_analysis,
+          summary: responseDashboardReport.data.data.summary,
+          projectHealth: responseDashboardReport.data.data.project_health,
+          workloadData: responseDashboardReport.data.data.workload_analysis,
         });
       } else {
         toast.error(
-          response.data?.message_th || "ไม่สามารถดึงข้อมูลแดชบอร์ดได้",
+          responseDashboardReport.data?.message_th ||
+            "ไม่สามารถดึงข้อมูลแดชบอร์ดได้",
         );
       }
     } catch (error) {
