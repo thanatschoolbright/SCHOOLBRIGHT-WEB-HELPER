@@ -131,11 +131,17 @@ const getModernTheme = (
       Card: {
         paddingLG: 24,
         colorBgContainer: isDark
-          ? "rgba(30, 41, 59, 0.7)" // Brightened glass background
-          : "rgba(255, 255, 255, 0.75)",
+          ? "rgba(30, 41, 59, 0.75)"
+          : "rgba(255, 255, 255, 0.85)",
+        colorBorderSecondary: isDark
+          ? "rgba(71, 85, 105, 0.5)"
+          : "rgba(226, 232, 240, 0.8)",
         boxShadowTertiary: isDark
-          ? "0 4px 24px -2px rgba(0, 0, 0, 0.3)"
-          : "0 4px 24px -2px rgba(0, 0, 0, 0.04)",
+          ? "0 1px 3px rgba(0,0,0,0.2), 0 8px 24px -4px rgba(0,0,0,0.35)"
+          : "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px -4px rgba(0,0,0,0.07)",
+        headerBg: "transparent",
+        headerFontSize: 15,
+        headerFontSizeSM: 13,
       },
       Table: {
         headerBg: isDark ? "#334155" : "#F8FAFC", // Brighter table header
@@ -238,19 +244,101 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 margin: 0;
               }
 
-              /* Modern Glassmorphism Utilities */
-              .ant-card,
+              /* ═══════════════════
+                 Card — Light Mode
+                 ═══════════════════ */
+              .ant-card {
+                background: rgba(255, 255, 255, 0.85) !important;
+                backdrop-filter: blur(12px) saturate(180%) !important;
+                -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+                border: 1px solid rgba(226, 232, 240, 0.8) !important;
+                box-shadow:
+                  0 1px 3px rgba(0, 0, 0, 0.04),
+                  0 8px 24px -4px rgba(0, 0, 0, 0.07) !important;
+                transition:
+                  box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+                  transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+                  border-color 0.3s ease !important;
+              }
+              .ant-card:hover {
+                box-shadow:
+                  0 2px 6px rgba(0, 0, 0, 0.05),
+                  0 16px 40px -8px rgba(0, 0, 0, 0.12) !important;
+                transform: translateY(-2px) !important;
+                border-color: rgba(203, 213, 225, 0.9) !important;
+              }
+
+              /* Card Header — Light */
+              .ant-card .ant-card-head {
+                background: transparent !important;
+                border-bottom: 1px solid rgba(241, 245, 249, 1) !important;
+                padding-inline: 24px !important;
+                min-height: 52px !important;
+              }
+              .ant-card .ant-card-head-title {
+                font-weight: 700 !important;
+                font-size: 15px !important;
+                letter-spacing: -0.01em !important;
+                color: #0f172a !important;
+              }
+              .ant-card .ant-card-extra {
+                color: #64748b !important;
+              }
+
+              /* Card Actions — Light */
+              .ant-card .ant-card-actions {
+                background: rgba(248, 250, 252, 0.8) !important;
+                border-top: 1px solid rgba(241, 245, 249, 1) !important;
+              }
+              .ant-card .ant-card-actions > li > span:hover {
+                color: #ff8c00 !important;
+              }
+
+              /* ══════════════════
+                 Card — Dark Mode
+                 ══════════════════ */
+              .dark .ant-card {
+                background: rgba(30, 41, 59, 0.75) !important;
+                border: 1px solid rgba(71, 85, 105, 0.5) !important;
+                box-shadow:
+                  0 1px 3px rgba(0, 0, 0, 0.2),
+                  0 8px 24px -4px rgba(0, 0, 0, 0.35) !important;
+              }
+              .dark .ant-card:hover {
+                box-shadow:
+                  0 2px 6px rgba(0, 0, 0, 0.25),
+                  0 16px 40px -8px rgba(0, 0, 0, 0.5),
+                  0 0 0 1px rgba(255, 140, 0, 0.08) !important;
+                border-color: rgba(100, 116, 139, 0.6) !important;
+                transform: translateY(-2px) !important;
+              }
+
+              /* Card Header — Dark */
+              .dark .ant-card .ant-card-head {
+                border-bottom-color: rgba(51, 65, 85, 0.8) !important;
+              }
+              .dark .ant-card .ant-card-head-title {
+                color: #f1f5f9 !important;
+              }
+              .dark .ant-card .ant-card-extra {
+                color: #94a3b8 !important;
+              }
+
+              /* Card Actions — Dark */
+              .dark .ant-card .ant-card-actions {
+                background: rgba(15, 23, 42, 0.4) !important;
+                border-top-color: rgba(51, 65, 85, 0.8) !important;
+              }
+              .dark .ant-card .ant-card-actions > li > span:hover {
+                color: #fb923c !important;
+              }
+
+              /* glass-card utility (manual) */
               .glass-card {
                 background: var(--card-glass-bg) !important;
-                backdrop-filter: blur(1rem) saturate(180%) !important;
-                -webkit-backdrop-filter: blur(1rem) saturate(180%) !important;
-                border: 1px solid var(--border);
-                box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.03) !important;
-              }
-              .dark .ant-card,
-              .dark .glass-card {
-                border-color: var(--border) !important;
-                box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.2) !important;
+                backdrop-filter: blur(12px) saturate(180%) !important;
+                -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+                border: 1px solid var(--border) !important;
               }
 
               .glass-header {
