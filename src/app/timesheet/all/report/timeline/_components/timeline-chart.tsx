@@ -22,19 +22,14 @@ import {
   Typography,
 } from "antd";
 import dayjs from "dayjs";
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useTimelineStore } from "../_state/timeline-store";
 
 const { Text } = Typography;
 
 const TimelineChart: React.FC = () => {
   const { token } = theme.useToken();
-  const { timelineData, isLoading, fetchTimeline, setModal } =
-    useTimelineStore();
-
-  useEffect(() => {
-    fetchTimeline();
-  }, [fetchTimeline]);
+  const { timelineData, isFetching, setModal } = useTimelineStore();
 
   // ✨ จัดกลุ่มข้อมูลให้เป็น Timeline Items ตามหลัก Visualized Specification
   const timelineItems = useMemo(() => {
@@ -165,7 +160,7 @@ const TimelineChart: React.FC = () => {
     return items;
   }, [timelineData, token, setModal]);
 
-  if (timelineItems.length === 0 && !isLoading) {
+  if (timelineItems.length === 0 && !isFetching) {
     return (
       <Card
         styles={{ body: { padding: 48, textAlign: "center" } }}
@@ -190,7 +185,7 @@ const TimelineChart: React.FC = () => {
         boxShadow: token.boxShadowTertiary,
         marginBottom: 24,
       }}
-      loading={isLoading}
+      loading={isFetching}
     >
       <div
         style={{

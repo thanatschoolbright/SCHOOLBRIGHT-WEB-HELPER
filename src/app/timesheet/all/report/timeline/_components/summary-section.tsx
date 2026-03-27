@@ -12,38 +12,38 @@ import React from "react";
 import { useTimelineStore } from "../_state/timeline-store";
 
 const SummarySection: React.FC = () => {
-  const { getMetrics, isLoading } = useTimelineStore();
-  const metrics = getMetrics();
+  const { getSummaryMetrics, isFetching } = useTimelineStore();
+  const summaryMetrics = getSummaryMetrics();
 
   return (
     <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
       <Col xs={24} sm={8}>
         <SummaryCard
           title="จำนวนโครงการทั้งหมด"
-          value={metrics.totalProjects}
+          value={summaryMetrics.totalProjects}
           unit="โครงการ"
           icon={<ProjectOutlined />}
-          isLoading={isLoading}
+          isLoading={isFetching}
         />
       </Col>
       <Col xs={24} sm={8}>
         <SummaryCard
           title="โครงการที่เปิดอยู่"
-          value={metrics.activeProjects}
+          value={summaryMetrics.activeProjects}
           unit="โครงการ"
           icon={<RocketOutlined />}
           color="#52c41a"
-          isLoading={isLoading}
+          isLoading={isFetching}
         />
       </Col>
       <Col xs={24} sm={8}>
         <SummaryCard
-          title="จำนวนโครงการย่อยย่อย"
-          value={metrics.totalFeatures}
+          title="จำนวนโครงการย่อย"
+          value={summaryMetrics.totalFeatures}
           unit="โครงการย่อย"
           icon={<PicCenterOutlined />}
           color="#1890ff"
-          isLoading={isLoading}
+          isLoading={isFetching}
         />
       </Col>
     </Row>

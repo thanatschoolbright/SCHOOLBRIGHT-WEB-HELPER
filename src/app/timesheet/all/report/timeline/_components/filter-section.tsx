@@ -15,9 +15,11 @@ const { RangePicker } = DatePicker;
 
 const FilterSection: React.FC = () => {
   const [form] = Form.useForm();
-  const { filters, setFilters, fetchTimeline, resetFilters } =
-    useTimelineStore();
+  const { setFilters, fetchTimelineData, resetFilters } = useTimelineStore();
 
+  /**
+   * ✨ ค้นหาข้อมูลตามตัวกรอง
+   */
   const handleSearch = () => {
     const values = form.getFieldsValue();
     const range = values.dateRange;
@@ -27,13 +29,16 @@ const FilterSection: React.FC = () => {
       end_date: range?.[1]?.toISOString(),
     });
 
-    fetchTimeline();
+    fetchTimelineData();
   };
 
+  /**
+   * ✨ ล้างตัวกรอง
+   */
   const handleReset = () => {
     form.resetFields();
     resetFilters();
-    fetchTimeline();
+    fetchTimelineData();
   };
 
   return (

@@ -6,8 +6,7 @@ import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
 import { useAppSelector } from "@stores/store";
 import { Card, theme } from "antd";
-import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import FilterSection from "./_components/filter-section";
 import { SubProjectFormModal } from "./_components/sub-project-form-modal";
@@ -17,57 +16,37 @@ import { useTimelineStore } from "./_state/timeline-store";
 
 export default function Page() {
   const { token } = theme.useToken();
-  const { modal, setModal, fetchTimeline } = useTimelineStore();
-  const [statuses, setStatuses] = useState<any[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    modal,
+    setModal,
+    projectStatuses,
+    fetchTimelineData,
+    fetchProjectStatusList,
+    submitSubProject,
+    isSubmitting,
+  } = useTimelineStore();
 
   // ดึงข้อมูล Admin ID จาก Store กลาง
   const userAuth = useAppSelector((state) => state.callAdminLogin);
-  const adminId = userAuth?.response?.data?.user_data?.admin_id;
+  const adminId = userAuth?.response?.data?.user_data?.admin_id || 1;
 
-  // โหลดสถานะโครงการสำหรับ Modal
+  // โหลดข้อมูลเริ่มต้น
   useEffect(() => {
-    const loadStatuses = async () => {
-      try {
-        const res = await axios.post("/api/v1/timesheet/project/status/read/");
-        if (res.data?.status === 200) {
-          setStatuses(res.data.data);
-        }
-      } catch (error) {
-        console.error("Load status error:", error);
-      }
-    };
-    loadStatuses();
-  }, []);
+    fetchTimelineData();
+    fetchProjectStatusList();
+  }, [fetchTimelineData, fetchProjectStatusList]);
 
-  const handleSubmit = async (values: any) => {
-    setIsSubmitting(true);
-    try {
-      const payload = {
-        ...values,
-        project_id: values.project_id || modal.data?.project_id,
-        by: adminId || 1, // ใช้ adminId จริงจาก Backend
-      };
-
-      const res = await axios.post(
-        "/api/v1/timesheet/project/sub-project/insert",
-        payload,
-      );
-
-      if (res.data?.status === 200) {
-        toast.success(
-          values.id ? "อัปเดตโครงการย่อยสำเร็จ" : "สร้างใหม่สำเร็จ",
-        );
-        await fetchTimeline();
-        return true;
-      } else {
-        throw new Error(res.data?.message_th || "Operation failed");
-      }
-    } catch (error: any) {
-      toast.error(error.message || "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+  /**
+   * ✨ จัดการการบันทึกข้อมูลจาก Modal
+   */
+  const handleFormSubmit = async (values: any) => {
+    const success = await submitSubProject(values, adminId);
+    if (success) {
+      toast.success(values.id ? "อัปเดตโครงการย่อยสำเร็จ" : "สร้างใหม่สำเร็จ");
+      return true;
+    } else {
+      toast.error("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
       return false;
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -102,9 +81,9 @@ export default function Page() {
           mode={modal.mode}
           data={modal.data}
           loading={isSubmitting}
-          onSubmit={handleSubmit}
+          onSubmit={handleFormSubmit}
           onCancel={() => setModal({ open: false, data: null })}
-          statuses={statuses}
+          statuses={projectStatuses}
         />
       </PermissionLayout>
     </DashboardLayout>
