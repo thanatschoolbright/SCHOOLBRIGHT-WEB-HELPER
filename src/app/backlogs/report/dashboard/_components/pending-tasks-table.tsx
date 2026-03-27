@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ClockCircleOutlined,
   FilterOutlined,
   ReloadOutlined,
   UnorderedListOutlined,
@@ -17,6 +18,7 @@ import {
   Space,
   Table,
   Tag,
+  Tooltip,
   Typography,
 } from "antd";
 import { useBacklogDashboardStore } from "../_state/use-backlog-dashboard-store";
@@ -27,8 +29,14 @@ const { Text } = Typography;
  * ตารางแสดงรายการงานที่ยังทำไม่เสร็จ (Pending Tasks) พร้อมตัวกรองรายพนักงาน
  */
 export const PendingTasksTable = () => {
-  const { analyticsData, loading, selectedAssigneeId, setSelectedAssigneeId } =
-    useBacklogDashboardStore();
+  const {
+    analyticsData,
+    loading,
+    selectedAssigneeId,
+    setSelectedAssigneeId,
+    fetchTimeline,
+    timelineLoading,
+  } = useBacklogDashboardStore();
 
   const currentAssigneeData = selectedAssigneeId
     ? analyticsData.find((a) => a.id === selectedAssigneeId)
@@ -150,6 +158,21 @@ export const PendingTasksTable = () => {
                   >
                     {status}
                   </Tag>
+                ),
+              },
+              {
+                title: "ตัวช่วย",
+                key: "actions",
+                align: "center",
+                render: (_, record: any) => (
+                  <Tooltip title="ดูประวัติการส่งต่องาน (Timeline)">
+                    <Button
+                      type="text"
+                      icon={<ClockCircleOutlined />}
+                      onClick={() => fetchTimeline(record.key)}
+                      loading={timelineLoading}
+                    />
+                  </Tooltip>
                 ),
               },
             ]}

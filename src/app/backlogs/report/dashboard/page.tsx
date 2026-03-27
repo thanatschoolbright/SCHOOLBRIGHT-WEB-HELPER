@@ -5,6 +5,7 @@ import BackendLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
 import { useEffect } from "react";
 import { FilterSection } from "./_components/filter-section";
+import { IssueTimelineModal } from "./_components/issue-timeline-modal";
 import { PendingTasksTable } from "./_components/pending-tasks-table";
 import { RankingSection } from "./_components/ranking-section";
 import { SummarySection } from "./_components/summary-section";
@@ -36,6 +37,8 @@ export default function DashboardPage(): JSX.Element {
         <PendingTasksTable />
         <RankingSection />
       </div>
+
+      <IssueTimelineModal />
     </BackendLayout>
   );
 }
