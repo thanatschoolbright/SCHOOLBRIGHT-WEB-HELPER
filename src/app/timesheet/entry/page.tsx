@@ -94,6 +94,7 @@ import {
 import { CreateModalForm } from "./_components/create-modal-form";
 import { MonthlyRankBoard } from "./_components/monthly-rank-board";
 import { PageHeader } from "./_components/page-header";
+import { StatsGrid } from "./_components/stats-grid";
 
 dayjs.extend(isBetween);
 dayjs.extend(buddhistEra);
@@ -464,59 +465,6 @@ const GuideModal: React.FC<GuideModalProps> = ({ open, onCancel }) => {
 // --- Page Header (Moved to _components/page-header.tsx) ---
 
 // --- Monthly Rank Board Component Imported Above ---
-
-// --- Stats Grid ---
-interface StatsGridProps {
-  admin_id: number | undefined;
-  rank_board_ref: React.RefObject<MonthlyRankBoardRef>;
-  monthly_summary: any[];
-  loading: boolean;
-  monthly_summary_loading?: boolean;
-  monthly_stats?: any;
-  selected_date?: dayjs.Dayjs;
-  on_date_change?: (date: dayjs.Dayjs) => void;
-}
-const StatsGrid: React.FC<StatsGridProps> = ({
-  admin_id,
-  rank_board_ref,
-  monthly_summary,
-  monthly_summary_loading = false,
-  monthly_stats = null,
-  selected_date,
-  on_date_change,
-}) => {
-  const { token } = theme.useToken();
-
-  return (
-    <Row gutter={[24, 24]} style={{ alignItems: "stretch" }}>
-      {/* Rank Board Column */}
-      <Col xs={24} lg={12} style={{ display: "flex", flexDirection: "column" }}>
-        <MonthlyRankBoard
-          ref={rank_board_ref}
-          currentAdminId={admin_id}
-          variant="compact"
-        />
-      </Col>
-
-      {/* Stats Right Column */}
-      <Col xs={24} lg={12}>
-        <Flex vertical gap={24} style={{ height: "100%" }}>
-          {/* Weekly Chart */}
-          <div style={{ height: "100%", display: "flex" }}>
-            <WeeklySummary
-              monthly_summary={monthly_summary}
-              targetHours={DAILY_TARGET_HOURS}
-              loading={monthly_summary_loading}
-              stats={monthly_stats}
-              selected_date={selected_date}
-              on_date_change={on_date_change}
-            />
-          </div>
-        </Flex>
-      </Col>
-    </Row>
-  );
-};
 
 // --- Timesheet Table ---
 interface TimesheetTableProps {

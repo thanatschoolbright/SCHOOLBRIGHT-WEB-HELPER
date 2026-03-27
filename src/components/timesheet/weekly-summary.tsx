@@ -259,6 +259,7 @@ export const WeeklySummary: React.FC<MonthlySummaryProps> = ({
         width: "100%",
         padding: 24,
         background: token.colorBgContainer,
+        borderRadius: 24,
       }}
     >
       {/* Header Section */}
