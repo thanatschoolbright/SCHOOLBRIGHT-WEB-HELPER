@@ -221,7 +221,7 @@ export default function DashboardPage(): JSX.Element {
                     <List.Item.Meta
                       avatar={
                         <Avatar
-                          src={item.avatarUrl}
+                          src={item.avatarUrl || null}
                           icon={<UserOutlined />}
                           size={48}
                         />
@@ -311,7 +311,7 @@ export default function DashboardPage(): JSX.Element {
                                   : "#d9d9d9"
                           }
                         />
-                        <Avatar src={item.avatarUrl} size="large" />
+                        <Avatar src={item.avatarUrl || null} size="large" />
                         <Flex vertical>
                           <Text strong>{item.name}</Text>
                           <Text type="secondary" style={{ fontSize: 12 }}>
