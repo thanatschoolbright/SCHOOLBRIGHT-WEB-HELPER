@@ -1,32 +1,23 @@
 "use client";
 
+import { CalendarOutlined } from "@ant-design/icons";
 import {
-  Collapse,
-  Skeleton,
-  theme,
-  Typography,
-  Tooltip,
-  Badge,
-  Flex,
-  Tag,
-  Progress,
-  Divider,
-  Space,
   DatePicker,
+  Divider,
+  Flex,
+  Progress,
+  Skeleton,
+  Space,
+  Tag,
+  theme,
+  Tooltip,
+  Typography,
 } from "antd";
+import dayjs from "dayjs";
+import "dayjs/locale/th";
+import buddhistEra from "dayjs/plugin/buddhistEra";
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  CheckCircleFilled,
-  ClockCircleFilled,
-  ExclamationCircleFilled,
-  CalendarOutlined,
-  InfoCircleOutlined,
-  DashboardOutlined,
-} from "@ant-design/icons";
-import dayjs from "dayjs";
-import buddhistEra from "dayjs/plugin/buddhistEra";
-import "dayjs/locale/th";
 
 dayjs.extend(buddhistEra);
 dayjs.locale("th");
@@ -231,254 +222,227 @@ export const WeeklySummary: React.FC<MonthlySummaryProps> = ({
 
   if (loading) {
     return (
-      <Collapse
-        style={{ width: "100%", borderRadius: 16, overflow: "hidden" }}
-        items={[
-          {
-            key: "1",
-            label: (
-              <Skeleton.Input active size="small" style={{ width: 200 }} />
-            ),
-            children: (
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(7, 1fr)",
-                  gap: 8,
-                }}
-              >
-                {Array.from({ length: 31 }).map((_, i) => (
-                  <Skeleton.Button
-                    key={i}
-                    active
-                    style={{
-                      width: "100%",
-                      aspectRatio: "1/1",
-                      borderRadius: 12,
-                    }}
-                  />
-                ))}
-              </div>
-            ),
-          },
-        ]}
-      />
+      <div style={{ width: "100%", padding: 24 }}>
+        <Skeleton.Input
+          active
+          size="small"
+          style={{ width: 200, marginBottom: 24 }}
+        />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(7, 1fr)",
+            gap: 8,
+          }}
+        >
+          {Array.from({ length: 31 }).map((_, i) => (
+            <Skeleton.Button
+              key={i}
+              active
+              style={{
+                width: "100%",
+                aspectRatio: "1/1",
+                borderRadius: 12,
+              }}
+            />
+          ))}
+        </div>
+      </div>
     );
   }
 
   if (!monthly_summary?.length) return null;
 
-  const items = [
-    {
-      key: "1",
-      label: (
-        <Flex
-          align="center"
-          justify="space-between"
-          style={{ width: "100%", paddingRight: 12 }}
-        >
-          <Space size="middle">
-            <div
-              style={{
-                padding: "8px",
-                background: token.colorPrimaryBg,
-                borderRadius: "10px",
-                color: token.colorPrimary,
-                display: "flex",
-              }}
-            >
-              <CalendarOutlined style={{ fontSize: 18 }} />
-            </div>
-            <div>
-              <Typography.Text
-                strong
-                style={{ fontSize: 16, display: "block" }}
-              >
-                สรุปเวลาทำงานรายเดือน
-              </Typography.Text>
-              <Space
-                split={
-                  <Divider
-                    type="vertical"
-                    style={{ margin: "0 4px", height: 12 }}
-                  />
-                }
-                align="center"
-              >
-                <DatePicker
-                  picker="month"
-                  value={selected_date}
-                  onChange={(date) => date && on_date_change?.(date)}
-                  format="MMMM BBBB"
-                  allowClear={false}
-                  variant="borderless"
-                  size="small"
-                  style={{
-                    padding: 0,
-                    margin: 0,
-                    height: "auto",
-                    lineHeight: 1,
-                  }}
-                  className="month-picker-summary"
-                />
-                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  เป้าหมาย {targetHours} ชม./วัน
-                </Typography.Text>
-              </Space>
-            </div>
-          </Space>
-
-          {stats && (
-            <Space
-              split={<Divider type="vertical" />}
-              className="hidden sm:flex"
-            >
-              <StatisticItem
-                label="ชั่วโมงทั้งหมด"
-                value={stats.totalHours.toFixed(1)}
-                suffix={`/ ${stats.targetTotal}`}
-                color={token.colorPrimary}
-              />
-              <StatisticItem
-                label="วันที่ครบถ้วน"
-                value={stats.completedDays}
-                suffix={`/ ${stats.workingDays}`}
-                color={token.colorSuccess}
-              />
-            </Space>
-          )}
-        </Flex>
-      ),
-      children: (
-        <div style={{ padding: "4px 8px" }}>
-          {/* Monthly Progress Bar */}
-          {stats && (
-            <div
-              style={{
-                marginBottom: 24,
-                padding: "16px",
-                background: token.colorFillAlter,
-                borderRadius: 16,
-              }}
-            >
-              <Flex
-                justify="space-between"
-                align="end"
-                style={{ marginBottom: 8 }}
-              >
-                <div>
-                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                    ความคืบหน้าของเดือนนี้
-                  </Typography.Text>
-                  <div style={{ fontSize: 20, fontWeight: "bold" }}>
-                    {stats.totalHours.toLocaleString()}{" "}
-                    <span
-                      style={{
-                        fontSize: 14,
-                        fontWeight: "normal",
-                        color: token.colorTextSecondary,
-                      }}
-                    >
-                      ชั่วโมง
-                    </span>
-                  </div>
-                </div>
-                <Tag
-                  color={stats.progress === 100 ? "success" : "processing"}
-                  style={{ borderRadius: 20, margin: 0 }}
-                >
-                  {stats.progress}%
-                </Tag>
-              </Flex>
-              <Progress
-                percent={stats.progress}
-                showInfo={false}
-                strokeColor={{
-                  "0%": token.colorPrimary,
-                  "100%": token.colorSuccess,
-                }}
-                size={{ strokeWidth: 10 }}
-              />
-            </div>
-          )}
-
-          {/* Calendar Header */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(7, 1fr)",
-              gap: 8,
-              marginBottom: 12,
-              textAlign: "center",
-            }}
-          >
-            {["จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส.", "อา."].map((day) => (
-              <Typography.Text
-                key={day}
-                type="secondary"
-                strong
-                style={{ fontSize: 12 }}
-              >
-                {day}
-              </Typography.Text>
-            ))}
-          </div>
-
-          {/* Calendar Grid */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(7, 1fr)",
-              gap: 8,
-            }}
-          >
-            {/* Offset start of month */}
-            {Array.from({
-              length: (selected_date.startOf("month").day() + 6) % 7,
-            }).map((_, i) => (
-              <div key={`empty-${i}`} />
-            ))}
-
-            {monthly_summary.map((item) => (
-              <CompactDay
-                key={item.dateKey}
-                item={item}
-                targetHours={targetHours}
-                isDark={isDark}
-                token={token}
-              />
-            ))}
-          </div>
-
-          {/* Legend */}
-          <Flex
-            gap={16}
-            wrap="wrap"
-            style={{ marginTop: 24, padding: "0 4px" }}
-          >
-            <LegendItem color={token.colorSuccess} label="ครบถ้วน" />
-            <LegendItem color={token.colorWarning} label="ยังไม่ครบ" />
-            <LegendItem color={token.colorError} label="ไม่ได้ลงเวลา" />
-            <LegendItem color={token.colorTextQuaternary} label="เร็วๆ นี้" />
-          </Flex>
-        </div>
-      ),
-    },
-  ];
-
   return (
-    <Collapse
-      defaultActiveKey={["1"]}
+    <div
       style={{
         width: "100%",
-        borderRadius: 20,
-        border: `1px solid ${token.colorBorderSecondary}`,
-        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+        padding: 24,
         background: token.colorBgContainer,
       }}
-      expandIconPosition="end"
-      items={items}
-    />
+    >
+      {/* Header Section */}
+      <Flex
+        align="center"
+        justify="space-between"
+        style={{ width: "100%", marginBottom: 24 }}
+      >
+        <Space size="middle">
+          <div
+            style={{
+              padding: "8px",
+              background: token.colorPrimaryBg,
+              borderRadius: "10px",
+              color: token.colorPrimary,
+              display: "flex",
+            }}
+          >
+            <CalendarOutlined style={{ fontSize: 18 }} />
+          </div>
+          <div>
+            <Typography.Text strong style={{ fontSize: 16, display: "block" }}>
+              สรุปเวลาทำงานรายเดือน
+            </Typography.Text>
+            <Space
+              split={
+                <Divider
+                  type="vertical"
+                  style={{ margin: "0 4px", height: 12 }}
+                />
+              }
+              align="center"
+            >
+              <DatePicker
+                picker="month"
+                value={selected_date}
+                onChange={(date) => date && on_date_change?.(date)}
+                format="MMMM BBBB"
+                allowClear={false}
+                variant="borderless"
+                size="small"
+                style={{
+                  padding: 0,
+                  margin: 0,
+                  height: "auto",
+                  lineHeight: 1,
+                }}
+                className="month-picker-summary"
+              />
+              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                เป้าหมาย {targetHours} ชม./วัน
+              </Typography.Text>
+            </Space>
+          </div>
+        </Space>
+
+        {stats && (
+          <Space split={<Divider type="vertical" />} className="hidden sm:flex">
+            <StatisticItem
+              label="ชั่วโมงทั้งหมด"
+              value={stats.totalHours.toFixed(1)}
+              suffix={`/ ${stats.targetTotal}`}
+              color={token.colorPrimary}
+            />
+            <StatisticItem
+              label="วันที่ครบถ้วน"
+              value={stats.completedDays}
+              suffix={`/ ${stats.workingDays}`}
+              color={token.colorSuccess}
+            />
+          </Space>
+        )}
+      </Flex>
+
+      {/* Content Section */}
+      <div style={{ padding: 0 }}>
+        {/* Monthly Progress Bar */}
+        {stats && (
+          <div
+            style={{
+              marginBottom: 24,
+              padding: "16px",
+              background: token.colorFillAlter,
+              borderRadius: 16,
+            }}
+          >
+            <Flex
+              justify="space-between"
+              align="end"
+              style={{ marginBottom: 8 }}
+            >
+              <div>
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  ความคืบหน้าของเดือนนี้
+                </Typography.Text>
+                <div style={{ fontSize: 20, fontWeight: "bold" }}>
+                  {stats.totalHours.toLocaleString()}{" "}
+                  <span
+                    style={{
+                      fontSize: 14,
+                      fontWeight: "normal",
+                      color: token.colorTextSecondary,
+                    }}
+                  >
+                    ชั่วโมง
+                  </span>
+                </div>
+              </div>
+              <Tag
+                color={stats.progress === 100 ? "success" : "processing"}
+                style={{ borderRadius: 20, margin: 0 }}
+              >
+                {stats.progress}%
+              </Tag>
+            </Flex>
+            <Progress
+              percent={stats.progress}
+              showInfo={false}
+              strokeColor={{
+                "0%": token.colorPrimary,
+                "100%": token.colorSuccess,
+              }}
+              size={{ strokeWidth: 10 }}
+            />
+          </div>
+        )}
+
+        {/* Calendar Header */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(7, 1fr)",
+            gap: 8,
+            marginBottom: 12,
+            textAlign: "center",
+          }}
+        >
+          {["จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส.", "อา."].map((day) => (
+            <Typography.Text
+              key={day}
+              type="secondary"
+              strong
+              style={{ fontSize: 12 }}
+            >
+              {day}
+            </Typography.Text>
+          ))}
+        </div>
+
+        {/* Calendar Grid */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(7, 1fr)",
+            gap: 8,
+          }}
+        >
+          {/* Offset start of month */}
+          {Array.from({
+            length: (selected_date.startOf("month").day() + 6) % 7,
+          }).map((_, i) => (
+            <div key={`empty-${i}`} />
+          ))}
+
+          {monthly_summary.map((item) => (
+            <CompactDay
+              key={item.dateKey}
+              item={item}
+              targetHours={targetHours}
+              isDark={isDark}
+              token={token}
+            />
+          ))}
+        </div>
+
+        {/* Legend */}
+        <Flex gap={16} wrap="wrap" style={{ marginTop: 24, padding: "0 4px" }}>
+          <LegendItem color={token.colorSuccess} label="ครบถ้วน" />
+          <LegendItem color={token.colorWarning} label="ยังไม่ครบ" />
+          <LegendItem color={token.colorError} label="ไม่ได้ลงเวลา" />
+          <LegendItem color={token.colorTextQuaternary} label="เร็วๆ นี้" />
+        </Flex>
+      </div>
+    </div>
   );
 };
 

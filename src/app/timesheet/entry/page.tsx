@@ -1097,14 +1097,9 @@ const StatsGrid: React.FC<StatsGridProps> = ({
   const { token } = theme.useToken();
 
   return (
-    <Row gutter={[32, 32]} style={{ alignItems: "stretch" }}>
+    <Row gutter={[24, 24]} style={{ alignItems: "stretch" }}>
       {/* Rank Board Column */}
-      <Col
-        xs={24}
-        lg={9}
-        xl={7}
-        style={{ display: "flex", flexDirection: "column" }}
-      >
+      <Col xs={24} lg={12} style={{ display: "flex", flexDirection: "column" }}>
         <MonthlyRankBoard
           ref={rank_board_ref}
           currentAdminId={admin_id}
@@ -1113,40 +1108,18 @@ const StatsGrid: React.FC<StatsGridProps> = ({
       </Col>
 
       {/* Stats Right Column */}
-      <Col xs={24} lg={15} xl={17}>
-        <Flex vertical gap={32} style={{ height: "100%" }}>
+      <Col xs={24} lg={12}>
+        <Flex vertical gap={24} style={{ height: "100%" }}>
           {/* Weekly Chart */}
-          <div className="flex-1">
-            <Badge.Ribbon
-              text="ปรับปรุงใหม่"
-              color={token.colorInfo}
-              style={{
-                padding: "0 12px",
-                height: 24,
-                lineHeight: "24px",
-                top: -10,
-                right: -10,
-              }}
-            >
-              <Card
-                style={{
-                  height: "100%",
-                  borderRadius: 24,
-                  border: `1px solid ${token.colorBorderSecondary}`,
-                  overflow: "hidden",
-                }}
-                styles={{ body: { padding: 0 } }}
-              >
-                <WeeklySummary
-                  monthly_summary={monthly_summary}
-                  targetHours={DAILY_TARGET_HOURS}
-                  loading={monthly_summary_loading}
-                  stats={monthly_stats}
-                  selected_date={selected_date}
-                  on_date_change={on_date_change}
-                />
-              </Card>
-            </Badge.Ribbon>
+          <div style={{ height: "100%", display: "flex" }}>
+            <WeeklySummary
+              monthly_summary={monthly_summary}
+              targetHours={DAILY_TARGET_HOURS}
+              loading={monthly_summary_loading}
+              stats={monthly_stats}
+              selected_date={selected_date}
+              on_date_change={on_date_change}
+            />
           </div>
         </Flex>
       </Col>
