@@ -4,18 +4,21 @@
 import {
   BranchesOutlined,
   ClockCircleOutlined,
+  EditOutlined,
   ProjectOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import {
   Avatar,
   Badge,
+  Button,
   Card,
   Empty,
   Space,
   Tag,
   theme,
   Timeline,
+  Tooltip,
   Typography,
 } from "antd";
 import dayjs from "dayjs";
@@ -26,7 +29,8 @@ const { Text } = Typography;
 
 const TimelineChart: React.FC = () => {
   const { token } = theme.useToken();
-  const { timelineData, isLoading, fetchTimeline } = useTimelineStore();
+  const { timelineData, isLoading, fetchTimeline, setModal } =
+    useTimelineStore();
 
   useEffect(() => {
     fetchTimeline();
@@ -106,7 +110,35 @@ const TimelineChart: React.FC = () => {
                             alignItems: "flex-start",
                           }}
                         >
-                          <Text style={{ fontSize: 14 }}>{sub.name}</Text>
+                          <Space>
+                            <Text style={{ fontSize: 14 }}>{sub.name}</Text>
+                            <Tooltip title="แก้ไขโครงการย่อย">
+                              <Button
+                                type="text"
+                                size="small"
+                                icon={
+                                  <EditOutlined
+                                    style={{
+                                      fontSize: 12,
+                                      color: token.colorLink,
+                                    }}
+                                  />
+                                }
+                                onClick={() =>
+                                  setModal({
+                                    open: true,
+                                    mode: "edit",
+                                    data: sub,
+                                  })
+                                }
+                                style={{
+                                  padding: 0,
+                                  height: "auto",
+                                  lineHeight: 1,
+                                }}
+                              />
+                            </Tooltip>
+                          </Space>
                           <Badge
                             status="processing"
                             text={
@@ -131,7 +163,7 @@ const TimelineChart: React.FC = () => {
     });
 
     return items;
-  }, [timelineData, token]);
+  }, [timelineData, token, setModal]);
 
   if (timelineItems.length === 0 && !isLoading) {
     return (

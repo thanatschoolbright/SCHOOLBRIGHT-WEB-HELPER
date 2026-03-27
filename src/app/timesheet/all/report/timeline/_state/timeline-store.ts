@@ -26,6 +26,14 @@ interface TimelineState {
     totalFeatures: number;
     activeProjects: number;
   };
+
+  // Modal State for Edit
+  modal: {
+    open: boolean;
+    mode: "create" | "edit" | "clone";
+    data: any | null;
+  };
+  setModal: (modal: Partial<TimelineState["modal"]>) => void;
 }
 
 export const useTimelineStore = create<TimelineState>((set, get) => ({
@@ -36,6 +44,17 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     start_date: undefined,
     end_date: undefined,
     project_id: undefined,
+  },
+  modal: {
+    open: false,
+    mode: "edit",
+    data: null,
+  },
+
+  setModal: (newModal) => {
+    set((state) => ({
+      modal: { ...state.modal, ...newModal },
+    }));
   },
 
   setFilters: (newFilters) => {
