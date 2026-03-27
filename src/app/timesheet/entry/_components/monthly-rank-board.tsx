@@ -74,7 +74,6 @@ export const MonthlyRankBoard = forwardRef<
     return records[0] || null;
   }, [records]);
 
-  // Handle Loading State for My Rank Card
   if (loading && currentAdminId) {
     return (
       <Card
@@ -84,24 +83,46 @@ export const MonthlyRankBoard = forwardRef<
           borderRadius: 24,
           background: token.colorBgContainer,
           boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
+          border: `1px solid ${token.colorBorderSecondary}`,
         }}
       >
         <Flex vertical gap={24}>
           <Flex align="center" gap={16}>
             <Skeleton.Avatar active size={64} shape="circle" />
-            <Flex vertical gap={8} style={{ flex: 1 }}>
-              <Skeleton.Input active size="small" style={{ width: "40%" }} />
-              <Skeleton.Input active size="small" style={{ width: "60%" }} />
+            <Flex vertical gap={12} style={{ flex: 1 }}>
+              <Skeleton.Button
+                active
+                size="small"
+                style={{ width: "40%", height: 24 }}
+              />
+              <Skeleton.Button
+                active
+                size="small"
+                style={{ width: "60%", height: 20 }}
+              />
             </Flex>
           </Flex>
           <Row gutter={[16, 16]}>
             <Col span={12}>
-              <Skeleton.Button active block style={{ height: 80 }} />
+              <Skeleton.Button
+                active
+                block
+                style={{ height: 80, borderRadius: 16 }}
+              />
             </Col>
             <Col span={12}>
-              <Skeleton.Button active block style={{ height: 80 }} />
+              <Skeleton.Button
+                active
+                block
+                style={{ height: 80, borderRadius: 16 }}
+              />
             </Col>
           </Row>
+          <Skeleton.Button
+            active
+            block
+            style={{ height: 100, borderRadius: 16 }}
+          />
         </Flex>
       </Card>
     );
@@ -117,9 +138,22 @@ export const MonthlyRankBoard = forwardRef<
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          padding: 40,
         }}
       >
-        <Empty description="ไม่พบชื่อของคุณในอันดับเดือนนี้" />
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description={
+            <Flex vertical gap={8} align="center">
+              <Typography.Text strong style={{ fontSize: 16 }}>
+                ไม่พบข้อมูลของคุณในรายการเดือนนี้
+              </Typography.Text>
+              <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+                เริ่มบันทึกเวลาทำงานวันนี้ เพื่อไต่อันดับของคุณ!
+              </Typography.Text>
+            </Flex>
+          }
+        />
       </Card>
     );
   }

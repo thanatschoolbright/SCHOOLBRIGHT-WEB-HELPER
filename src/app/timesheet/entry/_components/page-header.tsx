@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  AlertFilled,
   BookOutlined,
   CloudOutlined,
   MoonOutlined,
@@ -20,6 +21,7 @@ import {
   Dropdown,
   Flex,
   Space,
+  Tag,
   theme,
   Tooltip,
   Typography,
@@ -34,6 +36,7 @@ interface PageHeaderProps {
   on_add_click: () => void;
   on_my_work_click: () => void;
   on_guide_click: () => void;
+  monthly_summary?: any[];
 }
 
 /**
@@ -45,10 +48,38 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   on_add_click,
   on_my_work_click,
   on_guide_click,
+  monthly_summary = [],
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
   const { Text, Title } = Typography;
+
+  // ค้นหาวันที่กรอกไม่ครบใน 7 วันล่าสุด
+  const incompleteDays = useMemo(() => {
+    if (!monthly_summary?.length) return [];
+
+    const last7Days = Array.from({ length: 7 }, (_, i) =>
+      dayjs()
+        .subtract(i + 1, "day")
+        .format("YYYY-MM-DD"),
+    );
+
+    return last7Days
+      .filter((dateKey) => {
+        const record = monthly_summary.find(
+          (s) => dayjs(s.dateKey).format("YYYY-MM-DD") === dateKey,
+        );
+        const isWeekend =
+          dayjs(dateKey).day() === 0 || dayjs(dateKey).day() === 6;
+
+        // ถ้าเป็นวันทำงานแต่ไม่มี record หรือชั่วโมงไม่ครบ 8
+        if (!isWeekend) {
+          return !record || record.totalHours < 8;
+        }
+        return false;
+      })
+      .map((d) => dayjs(d).format("D MMM"));
+  }, [monthly_summary]);
 
   // คำทักทายตามช่วงเวลา
   const greeting = useMemo(() => {
@@ -109,37 +140,58 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
             </Text>
           </Space>
 
-          {admin_id && (
-            <Flex
-              align="center"
-              gap={token.marginSM}
-              style={{
-                width: "fit-content",
-                background: token.colorFillAlter,
-                padding: `${token.paddingXXS}px ${token.paddingSM}px`,
-                borderRadius: token.borderRadiusSM,
-                border: `1px dashed ${token.colorBorder}`,
-                marginTop: token.marginXS,
-              }}
-            >
-              <Space split={<Divider type="vertical" />}>
-                <Space size={token.paddingXXS}>
-                  <SafetyCertificateFilled
-                    style={{ color: token.colorSuccess, fontSize: 14 }}
-                  />
+          <Flex align="center" gap={token.marginSM} wrap="wrap">
+            {admin_id && (
+              <Flex
+                align="center"
+                gap={token.marginSM}
+                style={{
+                  width: "fit-content",
+                  background: token.colorFillAlter,
+                  padding: `${token.paddingXXS}px ${token.paddingSM}px`,
+                  borderRadius: token.borderRadiusSM,
+                  border: `1px dashed ${token.colorBorder}`,
+                }}
+              >
+                <Space split={<Divider type="vertical" />}>
+                  <Space size={token.paddingXXS}>
+                    <SafetyCertificateFilled
+                      style={{ color: token.colorSuccess, fontSize: 14 }}
+                    />
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      admin_id: <Text strong>{admin_id}</Text>
+                    </Text>
+                  </Space>
                   <Text type="secondary" style={{ fontSize: 12 }}>
-                    admin_id: <Text strong>{admin_id}</Text>
+                    {t(
+                      "timesheet_entry_page.connected_from_profile",
+                      "ข้อมูลเชื่อมต่อจาก Profile",
+                    )}
                   </Text>
                 </Space>
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  {t(
-                    "timesheet_entry_page.connected_from_profile",
-                    "ข้อมูลเชื่อมต่อจาก Profile ของคุณ",
-                  )}
-                </Text>
-              </Space>
-            </Flex>
-          )}
+              </Flex>
+            )}
+
+            {incompleteDays.length > 0 && (
+              <Tooltip
+                title={`วันที่ยังกรอกไม่ครบ: ${incompleteDays.join(", ")}`}
+              >
+                <Tag
+                  icon={<AlertFilled />}
+                  color="warning"
+                  style={{
+                    borderRadius: 12,
+                    padding: "0 12px",
+                    cursor: "help",
+                    border: "none",
+                    boxShadow: "0 2px 8px rgba(250, 173, 20, 0.15)",
+                  }}
+                >
+                  กรอกเวลาไม่ครบ {incompleteDays.length} วัน (ใน 7 วันล่าสุด)
+                </Tag>
+              </Tooltip>
+            )}
+          </Flex>
         </Flex>
 
         <Space size={token.marginMD} wrap>

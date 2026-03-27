@@ -268,6 +268,7 @@ export default function TimesheetEntryPage() {
             <PageHeader
               admin_name={admin_name}
               admin_id={admin_id}
+              monthly_summary={monthlySummary as any}
               on_add_click={openCreateForm}
               on_guide_click={() => {
                 setGuideModalOpen(true);

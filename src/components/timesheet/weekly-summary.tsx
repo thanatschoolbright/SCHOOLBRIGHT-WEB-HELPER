@@ -75,8 +75,11 @@ const CompactDay: React.FC<{
   const isFuture = dayDate.isAfter(today, "day");
   const isWeekend = dayDate.day() === 0 || dayDate.day() === 6;
 
+  const isOT = item.totalHours > targetHours;
+
   const color = useMemo(() => {
     if (isFuture) return token.colorTextQuaternary;
+    if (item.totalHours > targetHours) return token.colorSuccessActive; // OT สีเข้มกว่า
     if (item.totalHours >= targetHours) return token.colorSuccess;
     if (item.totalHours > 0) return token.colorWarning;
     if (isWeekend) return token.colorTextTertiary;
@@ -85,21 +88,31 @@ const CompactDay: React.FC<{
 
   const bg = useMemo(() => {
     if (isFuture) return "transparent";
+    if (isOT) return addAlpha(token.colorSuccess, isDark ? 0.25 : 0.15); // OT พื้นหลังเข้มขึ้น
     return addAlpha(color, isDark ? 0.15 : 0.08);
-  }, [color, isFuture, isDark]);
+  }, [color, isFuture, isDark, isOT]);
 
   const border = useMemo(() => {
     if (isToday) return `2px solid ${token.colorPrimary}`;
+    if (isOT) return `2px solid ${token.colorSuccess}`; // OT ขอบชัดขึ้น
     if (isFuture) return `1px dashed ${token.colorBorder}`;
     return `1px solid ${addAlpha(color, 0.3)}`;
-  }, [isToday, isFuture, color, token]);
+  }, [isToday, isFuture, color, token, isOT]);
 
   return (
     <Tooltip
       title={
         <div style={{ padding: "4px" }}>
           <Typography.Text strong style={{ color: "#fff" }}>
-            {dayDate.format("DD MMMM BBBB")}
+            {dayDate.format("DD MMMM BBBB")}{" "}
+            {isOT && (
+              <Tag
+                color="success"
+                style={{ border: "none", fontSize: 10, marginLeft: 4 }}
+              >
+                OT
+              </Tag>
+            )}
           </Typography.Text>
           <Divider
             style={{ margin: "8px 0", background: "rgba(255,255,255,0.2)" }}
@@ -112,7 +125,12 @@ const CompactDay: React.FC<{
             }}
           >
             <span>ชั่วโมงงาน:</span>
-            <span style={{ color: color }}>
+            <span
+              style={{
+                color: isOT ? token.colorSuccess : color,
+                fontWeight: isOT ? 700 : 400,
+              }}
+            >
               {item.totalHours} / {targetHours} ชม.
             </span>
           </div>
@@ -120,6 +138,13 @@ const CompactDay: React.FC<{
             <span>ความคืบหน้า:</span>
             <span>{item.percent}%</span>
           </div>
+          {isOT && (
+            <div
+              style={{ marginTop: 4, fontSize: 11, color: token.colorSuccess }}
+            >
+              * มีการทำ OT เกิน {targetHours} ชม.
+            </div>
+          )}
         </div>
       }
     >
@@ -137,9 +162,27 @@ const CompactDay: React.FC<{
           transition: "all 0.2s ease",
           position: "relative",
           overflow: "hidden",
+          boxShadow: isOT
+            ? `0 4px 12px ${addAlpha(token.colorSuccess, 0.2)}`
+            : "none",
         }}
         className="hover:scale-105"
       >
+        {isOT && (
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              width: 0,
+              height: 0,
+              borderStyle: "solid",
+              borderWidth: "0 16px 16px 0",
+              borderColor: `transparent ${token.colorSuccess} transparent transparent`,
+              zIndex: 1,
+            }}
+          />
+        )}
         <Typography.Text
           strong
           style={{

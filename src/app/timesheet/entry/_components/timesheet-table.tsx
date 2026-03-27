@@ -5,6 +5,7 @@ import {
   CopyOutlined,
   DeleteOutlined,
   EditOutlined,
+  PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
   SettingOutlined,
@@ -17,9 +18,11 @@ import {
   Button,
   Card,
   Checkbox,
+  Empty,
   Flex,
   InputRef,
   Popover,
+  Skeleton,
   Space,
   Table,
   Tag,
@@ -505,8 +508,65 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
   console.log("TimesheetTable entries (Prop):", entries);
   console.log("Filtered Columns Result (Final):", filteredColumns);
 
+  if (loading && entries.length === 0) {
+    return (
+      <Card
+        variant="outlined"
+        styles={{ body: { padding: 0 } }}
+        style={{
+          borderRadius: 24,
+          overflow: "hidden",
+          border: `1px solid ${token.colorBorderSecondary}`,
+          boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
+        }}
+      >
+        <div style={{ padding: 24 }}>
+          <Flex
+            justify="space-between"
+            align="center"
+            style={{ marginBottom: 32 }}
+          >
+            <Flex align="center" gap={20}>
+              <Skeleton.Button
+                active
+                style={{ width: 52, height: 52, borderRadius: 16 }}
+              />
+              <Flex vertical gap={8}>
+                <Skeleton.Button active style={{ width: 150, height: 28 }} />
+                <Skeleton.Button active style={{ width: 220, height: 18 }} />
+              </Flex>
+            </Flex>
+            <Space size={16}>
+              <Skeleton.Button
+                active
+                style={{ width: 40, height: 40, borderRadius: 10 }}
+              />
+              <Skeleton.Button
+                active
+                style={{ width: 40, height: 40, borderRadius: 10 }}
+              />
+              <Skeleton.Button
+                active
+                style={{ width: 140, height: 40, borderRadius: 10 }}
+              />
+            </Space>
+          </Flex>
+          <Skeleton active paragraph={{ rows: 10 }} />
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card
+      variant="outlined"
+      styles={{ body: { padding: 0 } }}
+      style={{
+        borderRadius: 24,
+        overflow: "hidden",
+        border: `1px solid ${token.colorBorderSecondary}`,
+        boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
+      }}
       title={
         <Flex align="center" gap={20} style={{ padding: "12px 0" }}>
           <div
@@ -621,6 +681,42 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
           dataSource={entries}
           loading={loading}
           scroll={{ x: 1000 }}
+          locale={{
+            emptyText: (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={
+                  <Flex
+                    vertical
+                    gap={8}
+                    align="center"
+                    style={{ padding: "32px 0" }}
+                  >
+                    <Typography.Text strong style={{ fontSize: 16 }}>
+                      {t(
+                        "timesheet_entry_page.no_entries",
+                        "ยังไม่มีบันทึกเวลาทำงาน",
+                      )}
+                    </Typography.Text>
+                    <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+                      คลิกปุ่ม "เพิ่มรายการ" เพื่อเริ่มบันทึกงานแรกของคุณ
+                    </Typography.Text>
+                    <Button
+                      type="primary"
+                      onClick={onAdd}
+                      icon={<PlusOutlined />}
+                      style={{ marginTop: 12, borderRadius: 8 }}
+                    >
+                      {t(
+                        "timesheet_entry_page.add_first_entry",
+                        "เพิ่มรายการแรก",
+                      )}
+                    </Button>
+                  </Flex>
+                }
+              />
+            ),
+          }}
           pagination={{
             current: currentPage,
             pageSize,
