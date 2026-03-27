@@ -17,6 +17,7 @@ import {
   Card,
   Col,
   Divider,
+  Empty,
   Flex,
   Modal,
   Progress,
@@ -706,7 +707,15 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                 rowKey="id"
                 pagination={false}
                 size="middle"
-                scroll={{ y: 500 }}
+                scroll={{ y: 560 }}
+                locale={{
+                  emptyText: (
+                    <Empty
+                      image={Empty.PRESENTED_IMAGE_SIMPLE}
+                      description="ยังไม่มีรายการงานที่กําลังดำเนินการ"
+                    />
+                  ),
+                }}
                 style={{
                   borderRadius: 16,
                   overflow: "hidden",
@@ -717,7 +726,11 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                     ? {
                         expandedRowRender: (record) => {
                           const result = processingResults.find(
-                            (r) => String(r.issueKeyOrId) === String(record.id),
+                            (r) =>
+                              String(r.issueKeyOrId) === String(record.id) ||
+                              (record.issueKey &&
+                                String(r.issueKeyOrId) ===
+                                  String(record.issueKey)),
                           );
                           if (!result) return null;
                           return (
@@ -725,9 +738,10 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                               style={{
                                 padding: 24,
                                 borderRadius: 12,
-                                margin: 12,
+                                margin: "16px 24px",
                                 border: `1px solid ${token.colorBorderSecondary}`,
                                 background: token.colorBgLayout,
+                                boxShadow: "inset 0 2px 8px rgba(0,0,0,0.05)",
                               }}
                             >
                               {result.status === "error" && (
@@ -744,6 +758,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                                       padding: "12px 16px",
                                       borderLeft: `4px solid ${token.colorError}`,
                                       fontSize: 13,
+                                      borderRadius: "0 8px 8px 0",
                                       background: token.colorBgContainer,
                                     }}
                                   >
@@ -757,7 +772,18 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                                   size={12}
                                   style={{ width: "100%" }}
                                 >
-                                  <Typography.Text type="secondary" strong>
+                                  <Typography.Text
+                                    style={{
+                                      color: token.colorTextSecondary,
+                                      fontWeight: 600,
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 8,
+                                    }}
+                                  >
+                                    <RobotOutlined
+                                      style={{ color: token.colorPrimary }}
+                                    />
                                     ตัวอย่างคําอธิบายที่สร้างใหม่:
                                   </Typography.Text>
                                   <div
@@ -765,12 +791,13 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                                       padding: 20,
                                       border: `1px solid ${token.colorBorderSecondary}`,
                                       borderRadius: 12,
-                                      maxHeight: 250,
+                                      maxHeight: 400,
                                       overflow: "auto",
                                       fontSize: 14,
-                                      lineHeight: 1.7,
+                                      lineHeight: 1.8,
                                       whiteSpace: "pre-wrap",
                                       background: token.colorBgContainer,
+                                      color: token.colorText,
                                     }}
                                   >
                                     {result.summary}
@@ -782,7 +809,11 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                         },
                         rowExpandable: (record) => {
                           const result = processingResults.find(
-                            (r) => String(r.issueKeyOrId) === String(record.id),
+                            (r) =>
+                              String(r.issueKeyOrId) === String(record.id) ||
+                              (record.issueKey &&
+                                String(r.issueKeyOrId) ===
+                                  String(record.issueKey)),
                           );
                           return (
                             result?.status === "success" ||
@@ -819,7 +850,10 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                           render: (_: any, record: Issue) => {
                             const result = processingResults.find(
                               (r) =>
-                                String(r.issueKeyOrId) === String(record.id),
+                                String(r.issueKeyOrId) === String(record.id) ||
+                                (record.issueKey &&
+                                  String(r.issueKeyOrId) ===
+                                    String(record.issueKey)),
                             );
                             if (!result) return <Tag>รอดำเนินการ</Tag>;
 
@@ -867,7 +901,10 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                           render: (_: any, record: Issue) => {
                             const result = processingResults.find(
                               (r) =>
-                                String(r.issueKeyOrId) === String(record.id),
+                                String(r.issueKeyOrId) === String(record.id) ||
+                                (record.issueKey &&
+                                  String(r.issueKeyOrId) ===
+                                    String(record.issueKey)),
                             );
                             if (!result || result.status === "error")
                               return "-";
