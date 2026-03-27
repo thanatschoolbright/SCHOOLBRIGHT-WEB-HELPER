@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import { Card, Flex, Skeleton, Tooltip, Typography, theme } from "antd";
+import React from "react";
 
 const { Text } = Typography;
 
@@ -15,6 +15,7 @@ export interface SummaryCardProps {
   color?: string;
   tooltip?: string;
   isLoading?: boolean;
+  suffix?: string;
 }
 
 const SummaryCard: React.FC<SummaryCardProps> = ({
@@ -26,6 +27,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
   color,
   tooltip,
   isLoading = false,
+  suffix,
 }) => {
   const { token } = theme.useToken();
   const themeColor = color ?? token.colorPrimary;
@@ -145,12 +147,21 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
                   type="secondary"
                   style={{
                     fontSize: 18, // Increased from 16
-                    fontWeight: 700,
-                    position: "relative",
-                    top: "-6px",
                   }}
                 >
                   {unit}
+                </Text>
+              )}
+              {suffix && (
+                <Text
+                  type="secondary"
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 700,
+                    marginLeft: 2,
+                  }}
+                >
+                  {suffix}
                 </Text>
               )}
             </Flex>

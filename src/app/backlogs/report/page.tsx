@@ -140,6 +140,7 @@ export default function Page(): JSX.Element {
   // โหลดข้อมูลครั้งแรกเมื่อหน้าจอพร้อม
   useEffect(() => {
     handleFetchBacklogProjectList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**
@@ -414,7 +415,6 @@ export default function Page(): JSX.Element {
         title="ระบบรายงานโปรเจ็กต์ (Backlog)"
         subTitle="แดชบอร์ดสรุปภาพรวมและจัดการรายการโปรเจ็กต์ทั้งหมดจากระบบ Backlog"
         icon={<ProjectOutlined />}
-        color="none"
       />
 
       <div className="mt-6 flex w-full flex-col gap-6">
