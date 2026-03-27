@@ -251,7 +251,71 @@ export const WeeklySummary: React.FC<MonthlySummaryProps> = ({
     );
   }
 
-  if (!monthly_summary?.length) return null;
+  if (!monthly_summary?.length && !loading) {
+    return (
+      <div
+        style={{
+          width: "100%",
+          padding: 24,
+          background: token.colorBgContainer,
+          borderRadius: 24,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "stretch",
+          justifyContent: "center",
+        }}
+      >
+        <Flex
+          align="center"
+          justify="space-between"
+          style={{ width: "100%", marginBottom: 24 }}
+        >
+          <Space size="middle">
+            <div
+              style={{
+                padding: "8px",
+                background: token.colorPrimaryBg,
+                borderRadius: "10px",
+                color: token.colorPrimary,
+                display: "flex",
+              }}
+            >
+              <CalendarOutlined style={{ fontSize: 18 }} />
+            </div>
+            <div>
+              <Typography.Text
+                strong
+                style={{ fontSize: 16, display: "block" }}
+              >
+                สรุปเวลาทำงานรายเดือน
+              </Typography.Text>
+            </div>
+          </Space>
+          <DatePicker
+            picker="month"
+            value={selected_date}
+            onChange={(date) => date && on_date_change?.(date)}
+            format="MMMM BBBB"
+            allowClear={false}
+          />
+        </Flex>
+        <Flex
+          vertical
+          align="center"
+          justify="center"
+          style={{
+            minHeight: 180,
+            border: `1px dashed ${token.colorBorder}`,
+            borderRadius: 16,
+          }}
+        >
+          <Typography.Text type="secondary">
+            ไม่พบข้อมูลสรุปสำหรับรอบบิลนี้
+          </Typography.Text>
+        </Flex>
+      </div>
+    );
+  }
 
   return (
     <div

@@ -122,11 +122,8 @@ export default function TimesheetEntryPage() {
   }, [admin_id, fetchEntries, currentPage, pageSize]);
 
   useEffect(() => {
-    fetchWeeklySummary(selected_summary_date);
-  }, [fetchWeeklySummary, selected_summary_date]);
-
-  useEffect(() => {
     if (admin_id) {
+      // ใช้ fetchMonthlySummary เพียงอย่างเดียวเพื่อข้อมูลสรุปรายเดือนที่ถูกต้อง
       fetchMonthlySummary(admin_id, selected_summary_date);
     }
   }, [admin_id, fetchMonthlySummary, selected_summary_date]);
@@ -212,7 +209,6 @@ export default function TimesheetEntryPage() {
         if (success && isMountedRef.current) {
           closeModal();
           fetchEntries(admin_id);
-          fetchWeeklySummary(selected_summary_date);
           fetchMonthlySummary(admin_id, selected_summary_date);
           rankBoardRef.current?.refetch();
         }
@@ -227,7 +223,6 @@ export default function TimesheetEntryPage() {
       closeModal,
       admin_id,
       fetchEntries,
-      fetchWeeklySummary,
       fetchMonthlySummary,
       selected_summary_date,
     ],
@@ -241,7 +236,6 @@ export default function TimesheetEntryPage() {
     if (success && isMountedRef.current) {
       closeModal();
       fetchEntries(admin_id);
-      fetchWeeklySummary(selected_summary_date);
       fetchMonthlySummary(admin_id, selected_summary_date);
       rankBoardRef.current?.refetch();
     }
@@ -251,7 +245,6 @@ export default function TimesheetEntryPage() {
     closeModal,
     admin_id,
     fetchEntries,
-    fetchWeeklySummary,
     fetchMonthlySummary,
     selected_summary_date,
   ]);

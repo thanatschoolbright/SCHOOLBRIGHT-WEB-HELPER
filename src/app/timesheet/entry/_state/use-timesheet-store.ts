@@ -45,7 +45,10 @@ interface TimesheetState {
   ) => Promise<void>;
 
   /** ดึงข้อมูลสรุปรายสัปดาห์ สำหรับ Weekly Summary */
-  fetchWeeklySummary: (date: dayjs.Dayjs) => Promise<void>;
+  fetchWeeklySummary: (
+    admin_id: number | undefined,
+    date: dayjs.Dayjs,
+  ) => Promise<void>;
 
   /** บันทึกหรือแก้ไขข้อมูล Timesheet */
   saveTimesheet: (payload: any) => Promise<boolean>;
@@ -157,37 +160,73 @@ export const useTimesheetStore = create<TimesheetState>((set, get) => ({
     if (!admin_id) return;
     set({ summaryLoading: true });
     try {
-      const response = await timesheetService.requestMonthlySummary(
+      const response = await timesheetService.requestCalculateMonthlySummary(
+        Number(admin_id),
         date.month() + 1,
         date.year(),
       );
-      if (response.status === 200) {
+
+      const apiResponse = response.data || response;
+
+      // ปรับการดึงข้อมูลตามรูปแบบ Response ใหม่ที่ได้รับจาก Curl
+      // response.data.monthlySummary และ response.data.stats
+      if (apiResponse.status === 200 || response.status === 200) {
+        const resultData = apiResponse.data || apiResponse;
         set({
-          monthlySummary: response.data?.summary || [],
-          monthlyStats: response.data?.stats || null,
+          monthlySummary: resultData.monthlySummary || [],
+          monthlyStats: resultData.stats || null,
         });
+      } else {
+        // Fallback หาก API เฉพาะบุคคลไม่มีข้อมูล
+        await get().fetchWeeklySummary(admin_id, date);
       }
     } catch (error) {
       console.error("Fetch monthly summary failed:", error);
+      // ลองเรียก fetchWeeklySummary เป็น fallback ในกรณีที่มีปัญหา
+      await get().fetchWeeklySummary(admin_id, date);
     } finally {
       set({ summaryLoading: false });
     }
   },
 
-  fetchWeeklySummary: async (date) => {
+  fetchWeeklySummary: async (admin_id, date) => {
+    if (!admin_id) return;
     set({ summaryLoading: true });
     try {
       const start = date.startOf("month").format("YYYY-MM-DD");
       const end = date.endOf("month").format("YYYY-MM-DD");
       const response = await timesheetService.requestWeeklySummary(start, end);
-      if (response.status === 200) {
+
+      const apiResponse = response.data || response;
+      const dataList =
+        apiResponse.data?.records ||
+        apiResponse.records ||
+        (Array.isArray(apiResponse) ? apiResponse : apiResponse.data || []);
+
+      // Find the current admin's record in the summary list
+      const userRecord = dataList.find(
+        (r: any) =>
+          Number(r.admin_id) === Number(admin_id) ||
+          Number(r.user_id) === Number(admin_id),
+      );
+
+      if (userRecord) {
         set({
-          monthlySummary: response.data?.summary || [],
-          monthlyStats: response.data?.stats || null,
+          monthlySummary: userRecord.breakdown || [],
+          monthlyStats: {
+            total_hours: userRecord.total_hours,
+            required_hours: userRecord.required_hours,
+            hours_gap: userRecord.hours_gap,
+            completion_rate: userRecord.completion_rate,
+            status_label: userRecord.status_label,
+          },
         });
+      } else {
+        set({ monthlySummary: [], monthlyStats: null });
       }
     } catch (error) {
       console.error("Fetch weekly summary failed:", error);
+      set({ monthlySummary: [], monthlyStats: null });
     } finally {
       set({ summaryLoading: false });
     }

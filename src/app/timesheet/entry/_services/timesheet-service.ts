@@ -85,16 +85,18 @@ export const timesheetService = {
 
   /**
    * ดึงข้อมูลสรุปรายเดือน
-   * @param month เดือนที่ต้องการ (1-12)
-   * @param year ปีที่ต้องการ (ค.ศ.)
    */
-  requestMonthlySummary: async (month: number, year: number) => {
+  requestCalculateMonthlySummary: async (
+    user_id: number,
+    month: number,
+    year: number,
+  ) => {
     const response = await axios.post(
-      `/api/v1/timesheet/entry/check/summary-month/`,
+      `/api/v1/timesheet/calculate-summary-month`,
       {
-        month: String(month),
-        year: String(year),
-        scope: "elapsed",
+        user_id,
+        month,
+        year,
       },
     );
     return response.data;
