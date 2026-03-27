@@ -56,6 +56,8 @@ const nextConfig = {
       "axios",
       "react-icons",
       "@tanstack/react-query",
+      "jspdf",
+      "fflate",
     ],
   },
 

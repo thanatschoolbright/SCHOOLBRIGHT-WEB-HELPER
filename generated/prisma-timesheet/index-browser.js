@@ -152,7 +152,6 @@ exports.Prisma.UserScalarFieldEnum = {
   lastname_th: 'lastname_th',
   firstname_en: 'firstname_en',
   lastname_en: 'lastname_en',
-  gender: 'gender',
   nickname: 'nickname',
   position_id: 'position_id',
   department_id: 'department_id',
@@ -173,7 +172,8 @@ exports.Prisma.UserScalarFieldEnum = {
   updated_at: 'updated_at',
   updated_by: 'updated_by',
   deleted_at: 'deleted_at',
-  birth_date: 'birth_date'
+  birth_date: 'birth_date',
+  gender: 'gender'
 };
 
 exports.Prisma.RoleScalarFieldEnum = {
@@ -284,14 +284,14 @@ exports.Prisma.TimesheetEntryScalarFieldEnum = {
 
 exports.Prisma.OvertimeScalarFieldEnum = {
   id: 'id',
-  requesterId: 'requesterId',
   requestDate: 'requestDate',
   status: 'status',
-  createdBy: 'createdBy',
-  updatedBy: 'updatedBy',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  isDeleted: 'isDeleted'
+  isDeleted: 'isDeleted',
+  requesterId: 'requesterId',
+  createdBy: 'createdBy',
+  updatedBy: 'updatedBy'
 };
 
 exports.Prisma.OvertimeDescriptionScalarFieldEnum = {

@@ -2214,13 +2214,13 @@ export namespace Prisma {
    */
 
   export type UserCountOutputType = {
-    overtime_requests: number
     overtime_created: number
+    overtime_requests: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    overtime_requests?: boolean | UserCountOutputTypeCountOvertime_requestsArgs
     overtime_created?: boolean | UserCountOutputTypeCountOvertime_createdArgs
+    overtime_requests?: boolean | UserCountOutputTypeCountOvertime_requestsArgs
   }
 
   // Custom InputTypes
@@ -2237,14 +2237,14 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountOvertime_requestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type UserCountOutputTypeCountOvertime_createdArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OvertimeWhereInput
   }
 
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountOvertime_createdArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type UserCountOutputTypeCountOvertime_requestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OvertimeWhereInput
   }
 
@@ -4832,7 +4832,6 @@ export namespace Prisma {
     lastname_th: string | null
     firstname_en: string | null
     lastname_en: string | null
-    gender: string | null
     nickname: string | null
     position_id: number | null
     department_id: number | null
@@ -4854,6 +4853,7 @@ export namespace Prisma {
     updated_by: number | null
     deleted_at: Date | null
     birth_date: Date | null
+    gender: string | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -4866,7 +4866,6 @@ export namespace Prisma {
     lastname_th: string | null
     firstname_en: string | null
     lastname_en: string | null
-    gender: string | null
     nickname: string | null
     position_id: number | null
     department_id: number | null
@@ -4888,6 +4887,7 @@ export namespace Prisma {
     updated_by: number | null
     deleted_at: Date | null
     birth_date: Date | null
+    gender: string | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -4900,7 +4900,6 @@ export namespace Prisma {
     lastname_th: number
     firstname_en: number
     lastname_en: number
-    gender: number
     nickname: number
     position_id: number
     department_id: number
@@ -4922,6 +4921,7 @@ export namespace Prisma {
     updated_by: number
     deleted_at: number
     birth_date: number
+    gender: number
     _all: number
   }
 
@@ -4958,7 +4958,6 @@ export namespace Prisma {
     lastname_th?: true
     firstname_en?: true
     lastname_en?: true
-    gender?: true
     nickname?: true
     position_id?: true
     department_id?: true
@@ -4980,6 +4979,7 @@ export namespace Prisma {
     updated_by?: true
     deleted_at?: true
     birth_date?: true
+    gender?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -4992,7 +4992,6 @@ export namespace Prisma {
     lastname_th?: true
     firstname_en?: true
     lastname_en?: true
-    gender?: true
     nickname?: true
     position_id?: true
     department_id?: true
@@ -5014,6 +5013,7 @@ export namespace Prisma {
     updated_by?: true
     deleted_at?: true
     birth_date?: true
+    gender?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -5026,7 +5026,6 @@ export namespace Prisma {
     lastname_th?: true
     firstname_en?: true
     lastname_en?: true
-    gender?: true
     nickname?: true
     position_id?: true
     department_id?: true
@@ -5048,6 +5047,7 @@ export namespace Prisma {
     updated_by?: true
     deleted_at?: true
     birth_date?: true
+    gender?: true
     _all?: true
   }
 
@@ -5147,7 +5147,6 @@ export namespace Prisma {
     lastname_th: string | null
     firstname_en: string | null
     lastname_en: string | null
-    gender: string | null
     nickname: string | null
     position_id: number | null
     department_id: number | null
@@ -5169,6 +5168,7 @@ export namespace Prisma {
     updated_by: number | null
     deleted_at: Date | null
     birth_date: Date | null
+    gender: string | null
     _count: UserCountAggregateOutputType | null
     _avg: UserAvgAggregateOutputType | null
     _sum: UserSumAggregateOutputType | null
@@ -5200,7 +5200,6 @@ export namespace Prisma {
     lastname_th?: boolean
     firstname_en?: boolean
     lastname_en?: boolean
-    gender?: boolean
     nickname?: boolean
     position_id?: boolean
     department_id?: boolean
@@ -5222,11 +5221,12 @@ export namespace Prisma {
     updated_by?: boolean
     deleted_at?: boolean
     birth_date?: boolean
+    gender?: boolean
+    overtime_created?: boolean | User$overtime_createdArgs<ExtArgs>
+    overtime_requests?: boolean | User$overtime_requestsArgs<ExtArgs>
     department?: boolean | User$departmentArgs<ExtArgs>
     position_ref?: boolean | User$position_refArgs<ExtArgs>
     role?: boolean | User$roleArgs<ExtArgs>
-    overtime_requests?: boolean | User$overtime_requestsArgs<ExtArgs>
-    overtime_created?: boolean | User$overtime_createdArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -5240,7 +5240,6 @@ export namespace Prisma {
     lastname_th?: boolean
     firstname_en?: boolean
     lastname_en?: boolean
-    gender?: boolean
     nickname?: boolean
     position_id?: boolean
     department_id?: boolean
@@ -5262,6 +5261,7 @@ export namespace Prisma {
     updated_by?: boolean
     deleted_at?: boolean
     birth_date?: boolean
+    gender?: boolean
     department?: boolean | User$departmentArgs<ExtArgs>
     position_ref?: boolean | User$position_refArgs<ExtArgs>
     role?: boolean | User$roleArgs<ExtArgs>
@@ -5277,7 +5277,6 @@ export namespace Prisma {
     lastname_th?: boolean
     firstname_en?: boolean
     lastname_en?: boolean
-    gender?: boolean
     nickname?: boolean
     position_id?: boolean
     department_id?: boolean
@@ -5299,6 +5298,7 @@ export namespace Prisma {
     updated_by?: boolean
     deleted_at?: boolean
     birth_date?: boolean
+    gender?: boolean
     department?: boolean | User$departmentArgs<ExtArgs>
     position_ref?: boolean | User$position_refArgs<ExtArgs>
     role?: boolean | User$roleArgs<ExtArgs>
@@ -5314,7 +5314,6 @@ export namespace Prisma {
     lastname_th?: boolean
     firstname_en?: boolean
     lastname_en?: boolean
-    gender?: boolean
     nickname?: boolean
     position_id?: boolean
     department_id?: boolean
@@ -5336,15 +5335,16 @@ export namespace Prisma {
     updated_by?: boolean
     deleted_at?: boolean
     birth_date?: boolean
+    gender?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "username" | "password" | "admin_id" | "employee_code" | "firstname_th" | "lastname_th" | "firstname_en" | "lastname_en" | "gender" | "nickname" | "position_id" | "department_id" | "status" | "email" | "phone" | "profile_image_path" | "joined_date" | "resigned_date" | "employment_type" | "last_login" | "failed_login_attempts" | "refresh_token" | "role_id" | "is_deleted" | "created_at" | "created_by" | "updated_at" | "updated_by" | "deleted_at" | "birth_date", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "username" | "password" | "admin_id" | "employee_code" | "firstname_th" | "lastname_th" | "firstname_en" | "lastname_en" | "nickname" | "position_id" | "department_id" | "status" | "email" | "phone" | "profile_image_path" | "joined_date" | "resigned_date" | "employment_type" | "last_login" | "failed_login_attempts" | "refresh_token" | "role_id" | "is_deleted" | "created_at" | "created_by" | "updated_at" | "updated_by" | "deleted_at" | "birth_date" | "gender", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    overtime_created?: boolean | User$overtime_createdArgs<ExtArgs>
+    overtime_requests?: boolean | User$overtime_requestsArgs<ExtArgs>
     department?: boolean | User$departmentArgs<ExtArgs>
     position_ref?: boolean | User$position_refArgs<ExtArgs>
     role?: boolean | User$roleArgs<ExtArgs>
-    overtime_requests?: boolean | User$overtime_requestsArgs<ExtArgs>
-    overtime_created?: boolean | User$overtime_createdArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5361,11 +5361,11 @@ export namespace Prisma {
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
     objects: {
+      overtime_created: Prisma.$OvertimePayload<ExtArgs>[]
+      overtime_requests: Prisma.$OvertimePayload<ExtArgs>[]
       department: Prisma.$DepartmentPayload<ExtArgs> | null
       position_ref: Prisma.$PositionPayload<ExtArgs> | null
       role: Prisma.$RolePayload<ExtArgs> | null
-      overtime_requests: Prisma.$OvertimePayload<ExtArgs>[]
-      overtime_created: Prisma.$OvertimePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -5377,7 +5377,6 @@ export namespace Prisma {
       lastname_th: string | null
       firstname_en: string | null
       lastname_en: string | null
-      gender: string | null
       nickname: string | null
       position_id: number | null
       department_id: number | null
@@ -5399,6 +5398,7 @@ export namespace Prisma {
       updated_by: number | null
       deleted_at: Date | null
       birth_date: Date | null
+      gender: string | null
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -5793,11 +5793,11 @@ export namespace Prisma {
    */
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    overtime_created<T extends User$overtime_createdArgs<ExtArgs> = {}>(args?: Subset<T, User$overtime_createdArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OvertimePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    overtime_requests<T extends User$overtime_requestsArgs<ExtArgs> = {}>(args?: Subset<T, User$overtime_requestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OvertimePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     department<T extends User$departmentArgs<ExtArgs> = {}>(args?: Subset<T, User$departmentArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     position_ref<T extends User$position_refArgs<ExtArgs> = {}>(args?: Subset<T, User$position_refArgs<ExtArgs>>): Prisma__PositionClient<$Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     role<T extends User$roleArgs<ExtArgs> = {}>(args?: Subset<T, User$roleArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    overtime_requests<T extends User$overtime_requestsArgs<ExtArgs> = {}>(args?: Subset<T, User$overtime_requestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OvertimePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    overtime_created<T extends User$overtime_createdArgs<ExtArgs> = {}>(args?: Subset<T, User$overtime_createdArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OvertimePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5836,7 +5836,6 @@ export namespace Prisma {
     readonly lastname_th: FieldRef<"User", 'String'>
     readonly firstname_en: FieldRef<"User", 'String'>
     readonly lastname_en: FieldRef<"User", 'String'>
-    readonly gender: FieldRef<"User", 'String'>
     readonly nickname: FieldRef<"User", 'String'>
     readonly position_id: FieldRef<"User", 'Int'>
     readonly department_id: FieldRef<"User", 'Int'>
@@ -5858,6 +5857,7 @@ export namespace Prisma {
     readonly updated_by: FieldRef<"User", 'Int'>
     readonly deleted_at: FieldRef<"User", 'DateTime'>
     readonly birth_date: FieldRef<"User", 'DateTime'>
+    readonly gender: FieldRef<"User", 'String'>
   }
     
 
@@ -6254,6 +6254,54 @@ export namespace Prisma {
   }
 
   /**
+   * User.overtime_created
+   */
+  export type User$overtime_createdArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Overtime
+     */
+    select?: OvertimeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Overtime
+     */
+    omit?: OvertimeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeInclude<ExtArgs> | null
+    where?: OvertimeWhereInput
+    orderBy?: OvertimeOrderByWithRelationInput | OvertimeOrderByWithRelationInput[]
+    cursor?: OvertimeWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OvertimeScalarFieldEnum | OvertimeScalarFieldEnum[]
+  }
+
+  /**
+   * User.overtime_requests
+   */
+  export type User$overtime_requestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Overtime
+     */
+    select?: OvertimeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Overtime
+     */
+    omit?: OvertimeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OvertimeInclude<ExtArgs> | null
+    where?: OvertimeWhereInput
+    orderBy?: OvertimeOrderByWithRelationInput | OvertimeOrderByWithRelationInput[]
+    cursor?: OvertimeWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OvertimeScalarFieldEnum | OvertimeScalarFieldEnum[]
+  }
+
+  /**
    * User.department
    */
   export type User$departmentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6308,54 +6356,6 @@ export namespace Prisma {
      */
     include?: RoleInclude<ExtArgs> | null
     where?: RoleWhereInput
-  }
-
-  /**
-   * User.overtime_requests
-   */
-  export type User$overtime_requestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Overtime
-     */
-    select?: OvertimeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Overtime
-     */
-    omit?: OvertimeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: OvertimeInclude<ExtArgs> | null
-    where?: OvertimeWhereInput
-    orderBy?: OvertimeOrderByWithRelationInput | OvertimeOrderByWithRelationInput[]
-    cursor?: OvertimeWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: OvertimeScalarFieldEnum | OvertimeScalarFieldEnum[]
-  }
-
-  /**
-   * User.overtime_created
-   */
-  export type User$overtime_createdArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Overtime
-     */
-    select?: OvertimeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Overtime
-     */
-    omit?: OvertimeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: OvertimeInclude<ExtArgs> | null
-    where?: OvertimeWhereInput
-    orderBy?: OvertimeOrderByWithRelationInput | OvertimeOrderByWithRelationInput[]
-    cursor?: OvertimeWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: OvertimeScalarFieldEnum | OvertimeScalarFieldEnum[]
   }
 
   /**
@@ -17119,38 +17119,38 @@ export namespace Prisma {
 
   export type OvertimeMinAggregateOutputType = {
     id: number | null
-    requesterId: number | null
     requestDate: Date | null
     status: string | null
-    createdBy: number | null
-    updatedBy: number | null
     createdAt: Date | null
     updatedAt: Date | null
     isDeleted: boolean | null
+    requesterId: number | null
+    createdBy: number | null
+    updatedBy: number | null
   }
 
   export type OvertimeMaxAggregateOutputType = {
     id: number | null
-    requesterId: number | null
     requestDate: Date | null
     status: string | null
-    createdBy: number | null
-    updatedBy: number | null
     createdAt: Date | null
     updatedAt: Date | null
     isDeleted: boolean | null
+    requesterId: number | null
+    createdBy: number | null
+    updatedBy: number | null
   }
 
   export type OvertimeCountAggregateOutputType = {
     id: number
-    requesterId: number
     requestDate: number
     status: number
-    createdBy: number
-    updatedBy: number
     createdAt: number
     updatedAt: number
     isDeleted: number
+    requesterId: number
+    createdBy: number
+    updatedBy: number
     _all: number
   }
 
@@ -17171,38 +17171,38 @@ export namespace Prisma {
 
   export type OvertimeMinAggregateInputType = {
     id?: true
-    requesterId?: true
     requestDate?: true
     status?: true
-    createdBy?: true
-    updatedBy?: true
     createdAt?: true
     updatedAt?: true
     isDeleted?: true
+    requesterId?: true
+    createdBy?: true
+    updatedBy?: true
   }
 
   export type OvertimeMaxAggregateInputType = {
     id?: true
-    requesterId?: true
     requestDate?: true
     status?: true
-    createdBy?: true
-    updatedBy?: true
     createdAt?: true
     updatedAt?: true
     isDeleted?: true
+    requesterId?: true
+    createdBy?: true
+    updatedBy?: true
   }
 
   export type OvertimeCountAggregateInputType = {
     id?: true
-    requesterId?: true
     requestDate?: true
     status?: true
-    createdBy?: true
-    updatedBy?: true
     createdAt?: true
     updatedAt?: true
     isDeleted?: true
+    requesterId?: true
+    createdBy?: true
+    updatedBy?: true
     _all?: true
   }
 
@@ -17294,14 +17294,14 @@ export namespace Prisma {
 
   export type OvertimeGroupByOutputType = {
     id: number
-    requesterId: number | null
     requestDate: Date
     status: string
-    createdBy: number | null
-    updatedBy: number | null
     createdAt: Date
     updatedAt: Date
     isDeleted: boolean
+    requesterId: number | null
+    createdBy: number | null
+    updatedBy: number | null
     _count: OvertimeCountAggregateOutputType | null
     _avg: OvertimeAvgAggregateOutputType | null
     _sum: OvertimeSumAggregateOutputType | null
@@ -17325,93 +17325,93 @@ export namespace Prisma {
 
   export type OvertimeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    requesterId?: boolean
     requestDate?: boolean
     status?: boolean
-    createdBy?: boolean
-    updatedBy?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     isDeleted?: boolean
+    requesterId?: boolean
+    createdBy?: boolean
+    updatedBy?: boolean
     descriptions?: boolean | Overtime$descriptionsArgs<ExtArgs>
-    requester?: boolean | Overtime$requesterArgs<ExtArgs>
     creator?: boolean | Overtime$creatorArgs<ExtArgs>
+    requester?: boolean | Overtime$requesterArgs<ExtArgs>
     _count?: boolean | OvertimeCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["overtime"]>
 
   export type OvertimeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    requesterId?: boolean
     requestDate?: boolean
     status?: boolean
-    createdBy?: boolean
-    updatedBy?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     isDeleted?: boolean
-    requester?: boolean | Overtime$requesterArgs<ExtArgs>
+    requesterId?: boolean
+    createdBy?: boolean
+    updatedBy?: boolean
     creator?: boolean | Overtime$creatorArgs<ExtArgs>
+    requester?: boolean | Overtime$requesterArgs<ExtArgs>
   }, ExtArgs["result"]["overtime"]>
 
   export type OvertimeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    requesterId?: boolean
     requestDate?: boolean
     status?: boolean
-    createdBy?: boolean
-    updatedBy?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     isDeleted?: boolean
-    requester?: boolean | Overtime$requesterArgs<ExtArgs>
+    requesterId?: boolean
+    createdBy?: boolean
+    updatedBy?: boolean
     creator?: boolean | Overtime$creatorArgs<ExtArgs>
+    requester?: boolean | Overtime$requesterArgs<ExtArgs>
   }, ExtArgs["result"]["overtime"]>
 
   export type OvertimeSelectScalar = {
     id?: boolean
-    requesterId?: boolean
     requestDate?: boolean
     status?: boolean
-    createdBy?: boolean
-    updatedBy?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     isDeleted?: boolean
+    requesterId?: boolean
+    createdBy?: boolean
+    updatedBy?: boolean
   }
 
-  export type OvertimeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "requesterId" | "requestDate" | "status" | "createdBy" | "updatedBy" | "createdAt" | "updatedAt" | "isDeleted", ExtArgs["result"]["overtime"]>
+  export type OvertimeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "requestDate" | "status" | "createdAt" | "updatedAt" | "isDeleted" | "requesterId" | "createdBy" | "updatedBy", ExtArgs["result"]["overtime"]>
   export type OvertimeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     descriptions?: boolean | Overtime$descriptionsArgs<ExtArgs>
-    requester?: boolean | Overtime$requesterArgs<ExtArgs>
     creator?: boolean | Overtime$creatorArgs<ExtArgs>
+    requester?: boolean | Overtime$requesterArgs<ExtArgs>
     _count?: boolean | OvertimeCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OvertimeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    requester?: boolean | Overtime$requesterArgs<ExtArgs>
     creator?: boolean | Overtime$creatorArgs<ExtArgs>
+    requester?: boolean | Overtime$requesterArgs<ExtArgs>
   }
   export type OvertimeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    requester?: boolean | Overtime$requesterArgs<ExtArgs>
     creator?: boolean | Overtime$creatorArgs<ExtArgs>
+    requester?: boolean | Overtime$requesterArgs<ExtArgs>
   }
 
   export type $OvertimePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Overtime"
     objects: {
       descriptions: Prisma.$OvertimeDescriptionPayload<ExtArgs>[]
-      requester: Prisma.$UserPayload<ExtArgs> | null
       creator: Prisma.$UserPayload<ExtArgs> | null
+      requester: Prisma.$UserPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
-      requesterId: number | null
       requestDate: Date
       status: string
-      createdBy: number | null
-      updatedBy: number | null
       createdAt: Date
       updatedAt: Date
       isDeleted: boolean
+      requesterId: number | null
+      createdBy: number | null
+      updatedBy: number | null
     }, ExtArgs["result"]["overtime"]>
     composites: {}
   }
@@ -17807,8 +17807,8 @@ export namespace Prisma {
   export interface Prisma__OvertimeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     descriptions<T extends Overtime$descriptionsArgs<ExtArgs> = {}>(args?: Subset<T, Overtime$descriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OvertimeDescriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    requester<T extends Overtime$requesterArgs<ExtArgs> = {}>(args?: Subset<T, Overtime$requesterArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     creator<T extends Overtime$creatorArgs<ExtArgs> = {}>(args?: Subset<T, Overtime$creatorArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    requester<T extends Overtime$requesterArgs<ExtArgs> = {}>(args?: Subset<T, Overtime$requesterArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -17839,14 +17839,14 @@ export namespace Prisma {
    */
   interface OvertimeFieldRefs {
     readonly id: FieldRef<"Overtime", 'Int'>
-    readonly requesterId: FieldRef<"Overtime", 'Int'>
     readonly requestDate: FieldRef<"Overtime", 'DateTime'>
     readonly status: FieldRef<"Overtime", 'String'>
-    readonly createdBy: FieldRef<"Overtime", 'Int'>
-    readonly updatedBy: FieldRef<"Overtime", 'Int'>
     readonly createdAt: FieldRef<"Overtime", 'DateTime'>
     readonly updatedAt: FieldRef<"Overtime", 'DateTime'>
     readonly isDeleted: FieldRef<"Overtime", 'Boolean'>
+    readonly requesterId: FieldRef<"Overtime", 'Int'>
+    readonly createdBy: FieldRef<"Overtime", 'Int'>
+    readonly updatedBy: FieldRef<"Overtime", 'Int'>
   }
     
 
@@ -18267,9 +18267,9 @@ export namespace Prisma {
   }
 
   /**
-   * Overtime.requester
+   * Overtime.creator
    */
-  export type Overtime$requesterArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Overtime$creatorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the User
      */
@@ -18286,9 +18286,9 @@ export namespace Prisma {
   }
 
   /**
-   * Overtime.creator
+   * Overtime.requester
    */
-  export type Overtime$creatorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Overtime$requesterArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the User
      */
@@ -20742,7 +20742,6 @@ export namespace Prisma {
     lastname_th: 'lastname_th',
     firstname_en: 'firstname_en',
     lastname_en: 'lastname_en',
-    gender: 'gender',
     nickname: 'nickname',
     position_id: 'position_id',
     department_id: 'department_id',
@@ -20763,7 +20762,8 @@ export namespace Prisma {
     updated_at: 'updated_at',
     updated_by: 'updated_by',
     deleted_at: 'deleted_at',
-    birth_date: 'birth_date'
+    birth_date: 'birth_date',
+    gender: 'gender'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -20904,14 +20904,14 @@ export namespace Prisma {
 
   export const OvertimeScalarFieldEnum: {
     id: 'id',
-    requesterId: 'requesterId',
     requestDate: 'requestDate',
     status: 'status',
-    createdBy: 'createdBy',
-    updatedBy: 'updatedBy',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
-    isDeleted: 'isDeleted'
+    isDeleted: 'isDeleted',
+    requesterId: 'requesterId',
+    createdBy: 'createdBy',
+    updatedBy: 'updatedBy'
   };
 
   export type OvertimeScalarFieldEnum = (typeof OvertimeScalarFieldEnum)[keyof typeof OvertimeScalarFieldEnum]
@@ -21278,7 +21278,6 @@ export namespace Prisma {
     lastname_th?: StringNullableFilter<"User"> | string | null
     firstname_en?: StringNullableFilter<"User"> | string | null
     lastname_en?: StringNullableFilter<"User"> | string | null
-    gender?: StringNullableFilter<"User"> | string | null
     nickname?: StringNullableFilter<"User"> | string | null
     position_id?: IntNullableFilter<"User"> | number | null
     department_id?: IntNullableFilter<"User"> | number | null
@@ -21300,11 +21299,12 @@ export namespace Prisma {
     updated_by?: IntNullableFilter<"User"> | number | null
     deleted_at?: DateTimeNullableFilter<"User"> | Date | string | null
     birth_date?: DateTimeNullableFilter<"User"> | Date | string | null
+    gender?: StringNullableFilter<"User"> | string | null
+    overtime_created?: OvertimeListRelationFilter
+    overtime_requests?: OvertimeListRelationFilter
     department?: XOR<DepartmentNullableScalarRelationFilter, DepartmentWhereInput> | null
     position_ref?: XOR<PositionNullableScalarRelationFilter, PositionWhereInput> | null
     role?: XOR<RoleNullableScalarRelationFilter, RoleWhereInput> | null
-    overtime_requests?: OvertimeListRelationFilter
-    overtime_created?: OvertimeListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -21317,7 +21317,6 @@ export namespace Prisma {
     lastname_th?: SortOrderInput | SortOrder
     firstname_en?: SortOrderInput | SortOrder
     lastname_en?: SortOrderInput | SortOrder
-    gender?: SortOrderInput | SortOrder
     nickname?: SortOrderInput | SortOrder
     position_id?: SortOrderInput | SortOrder
     department_id?: SortOrderInput | SortOrder
@@ -21339,11 +21338,12 @@ export namespace Prisma {
     updated_by?: SortOrderInput | SortOrder
     deleted_at?: SortOrderInput | SortOrder
     birth_date?: SortOrderInput | SortOrder
+    gender?: SortOrderInput | SortOrder
+    overtime_created?: OvertimeOrderByRelationAggregateInput
+    overtime_requests?: OvertimeOrderByRelationAggregateInput
     department?: DepartmentOrderByWithRelationInput
     position_ref?: PositionOrderByWithRelationInput
     role?: RoleOrderByWithRelationInput
-    overtime_requests?: OvertimeOrderByRelationAggregateInput
-    overtime_created?: OvertimeOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -21359,7 +21359,6 @@ export namespace Prisma {
     lastname_th?: StringNullableFilter<"User"> | string | null
     firstname_en?: StringNullableFilter<"User"> | string | null
     lastname_en?: StringNullableFilter<"User"> | string | null
-    gender?: StringNullableFilter<"User"> | string | null
     nickname?: StringNullableFilter<"User"> | string | null
     position_id?: IntNullableFilter<"User"> | number | null
     department_id?: IntNullableFilter<"User"> | number | null
@@ -21381,11 +21380,12 @@ export namespace Prisma {
     updated_by?: IntNullableFilter<"User"> | number | null
     deleted_at?: DateTimeNullableFilter<"User"> | Date | string | null
     birth_date?: DateTimeNullableFilter<"User"> | Date | string | null
+    gender?: StringNullableFilter<"User"> | string | null
+    overtime_created?: OvertimeListRelationFilter
+    overtime_requests?: OvertimeListRelationFilter
     department?: XOR<DepartmentNullableScalarRelationFilter, DepartmentWhereInput> | null
     position_ref?: XOR<PositionNullableScalarRelationFilter, PositionWhereInput> | null
     role?: XOR<RoleNullableScalarRelationFilter, RoleWhereInput> | null
-    overtime_requests?: OvertimeListRelationFilter
-    overtime_created?: OvertimeListRelationFilter
   }, "id" | "username" | "admin_id" | "employee_code">
 
   export type UserOrderByWithAggregationInput = {
@@ -21398,7 +21398,6 @@ export namespace Prisma {
     lastname_th?: SortOrderInput | SortOrder
     firstname_en?: SortOrderInput | SortOrder
     lastname_en?: SortOrderInput | SortOrder
-    gender?: SortOrderInput | SortOrder
     nickname?: SortOrderInput | SortOrder
     position_id?: SortOrderInput | SortOrder
     department_id?: SortOrderInput | SortOrder
@@ -21420,6 +21419,7 @@ export namespace Prisma {
     updated_by?: SortOrderInput | SortOrder
     deleted_at?: SortOrderInput | SortOrder
     birth_date?: SortOrderInput | SortOrder
+    gender?: SortOrderInput | SortOrder
     _count?: UserCountOrderByAggregateInput
     _avg?: UserAvgOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
@@ -21440,7 +21440,6 @@ export namespace Prisma {
     lastname_th?: StringNullableWithAggregatesFilter<"User"> | string | null
     firstname_en?: StringNullableWithAggregatesFilter<"User"> | string | null
     lastname_en?: StringNullableWithAggregatesFilter<"User"> | string | null
-    gender?: StringNullableWithAggregatesFilter<"User"> | string | null
     nickname?: StringNullableWithAggregatesFilter<"User"> | string | null
     position_id?: IntNullableWithAggregatesFilter<"User"> | number | null
     department_id?: IntNullableWithAggregatesFilter<"User"> | number | null
@@ -21462,6 +21461,7 @@ export namespace Prisma {
     updated_by?: IntNullableWithAggregatesFilter<"User"> | number | null
     deleted_at?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     birth_date?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    gender?: StringNullableWithAggregatesFilter<"User"> | string | null
   }
 
   export type RoleWhereInput = {
@@ -22189,32 +22189,32 @@ export namespace Prisma {
     OR?: OvertimeWhereInput[]
     NOT?: OvertimeWhereInput | OvertimeWhereInput[]
     id?: IntFilter<"Overtime"> | number
-    requesterId?: IntNullableFilter<"Overtime"> | number | null
     requestDate?: DateTimeFilter<"Overtime"> | Date | string
     status?: StringFilter<"Overtime"> | string
-    createdBy?: IntNullableFilter<"Overtime"> | number | null
-    updatedBy?: IntNullableFilter<"Overtime"> | number | null
     createdAt?: DateTimeFilter<"Overtime"> | Date | string
     updatedAt?: DateTimeFilter<"Overtime"> | Date | string
     isDeleted?: BoolFilter<"Overtime"> | boolean
+    requesterId?: IntNullableFilter<"Overtime"> | number | null
+    createdBy?: IntNullableFilter<"Overtime"> | number | null
+    updatedBy?: IntNullableFilter<"Overtime"> | number | null
     descriptions?: OvertimeDescriptionListRelationFilter
-    requester?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     creator?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    requester?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
 
   export type OvertimeOrderByWithRelationInput = {
     id?: SortOrder
-    requesterId?: SortOrderInput | SortOrder
     requestDate?: SortOrder
     status?: SortOrder
-    createdBy?: SortOrderInput | SortOrder
-    updatedBy?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     isDeleted?: SortOrder
+    requesterId?: SortOrderInput | SortOrder
+    createdBy?: SortOrderInput | SortOrder
+    updatedBy?: SortOrderInput | SortOrder
     descriptions?: OvertimeDescriptionOrderByRelationAggregateInput
-    requester?: UserOrderByWithRelationInput
     creator?: UserOrderByWithRelationInput
+    requester?: UserOrderByWithRelationInput
   }
 
   export type OvertimeWhereUniqueInput = Prisma.AtLeast<{
@@ -22222,29 +22222,29 @@ export namespace Prisma {
     AND?: OvertimeWhereInput | OvertimeWhereInput[]
     OR?: OvertimeWhereInput[]
     NOT?: OvertimeWhereInput | OvertimeWhereInput[]
-    requesterId?: IntNullableFilter<"Overtime"> | number | null
     requestDate?: DateTimeFilter<"Overtime"> | Date | string
     status?: StringFilter<"Overtime"> | string
-    createdBy?: IntNullableFilter<"Overtime"> | number | null
-    updatedBy?: IntNullableFilter<"Overtime"> | number | null
     createdAt?: DateTimeFilter<"Overtime"> | Date | string
     updatedAt?: DateTimeFilter<"Overtime"> | Date | string
     isDeleted?: BoolFilter<"Overtime"> | boolean
+    requesterId?: IntNullableFilter<"Overtime"> | number | null
+    createdBy?: IntNullableFilter<"Overtime"> | number | null
+    updatedBy?: IntNullableFilter<"Overtime"> | number | null
     descriptions?: OvertimeDescriptionListRelationFilter
-    requester?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     creator?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    requester?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }, "id">
 
   export type OvertimeOrderByWithAggregationInput = {
     id?: SortOrder
-    requesterId?: SortOrderInput | SortOrder
     requestDate?: SortOrder
     status?: SortOrder
-    createdBy?: SortOrderInput | SortOrder
-    updatedBy?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     isDeleted?: SortOrder
+    requesterId?: SortOrderInput | SortOrder
+    createdBy?: SortOrderInput | SortOrder
+    updatedBy?: SortOrderInput | SortOrder
     _count?: OvertimeCountOrderByAggregateInput
     _avg?: OvertimeAvgOrderByAggregateInput
     _max?: OvertimeMaxOrderByAggregateInput
@@ -22257,14 +22257,14 @@ export namespace Prisma {
     OR?: OvertimeScalarWhereWithAggregatesInput[]
     NOT?: OvertimeScalarWhereWithAggregatesInput | OvertimeScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"Overtime"> | number
-    requesterId?: IntNullableWithAggregatesFilter<"Overtime"> | number | null
     requestDate?: DateTimeWithAggregatesFilter<"Overtime"> | Date | string
     status?: StringWithAggregatesFilter<"Overtime"> | string
-    createdBy?: IntNullableWithAggregatesFilter<"Overtime"> | number | null
-    updatedBy?: IntNullableWithAggregatesFilter<"Overtime"> | number | null
     createdAt?: DateTimeWithAggregatesFilter<"Overtime"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Overtime"> | Date | string
     isDeleted?: BoolWithAggregatesFilter<"Overtime"> | boolean
+    requesterId?: IntNullableWithAggregatesFilter<"Overtime"> | number | null
+    createdBy?: IntNullableWithAggregatesFilter<"Overtime"> | number | null
+    updatedBy?: IntNullableWithAggregatesFilter<"Overtime"> | number | null
   }
 
   export type OvertimeDescriptionWhereInput = {
@@ -22631,7 +22631,6 @@ export namespace Prisma {
     lastname_th?: string | null
     firstname_en?: string | null
     lastname_en?: string | null
-    gender?: string | null
     nickname?: string | null
     status?: string
     email?: string | null
@@ -22650,11 +22649,12 @@ export namespace Prisma {
     updated_by?: number | null
     deleted_at?: Date | string | null
     birth_date?: Date | string | null
+    gender?: string | null
+    overtime_created?: OvertimeCreateNestedManyWithoutCreatorInput
+    overtime_requests?: OvertimeCreateNestedManyWithoutRequesterInput
     department?: DepartmentCreateNestedOneWithoutUsersInput
     position_ref?: PositionCreateNestedOneWithoutUsersInput
     role?: RoleCreateNestedOneWithoutUsersInput
-    overtime_requests?: OvertimeCreateNestedManyWithoutRequesterInput
-    overtime_created?: OvertimeCreateNestedManyWithoutCreatorInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -22667,7 +22667,6 @@ export namespace Prisma {
     lastname_th?: string | null
     firstname_en?: string | null
     lastname_en?: string | null
-    gender?: string | null
     nickname?: string | null
     position_id?: number | null
     department_id?: number | null
@@ -22689,8 +22688,9 @@ export namespace Prisma {
     updated_by?: number | null
     deleted_at?: Date | string | null
     birth_date?: Date | string | null
-    overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
+    gender?: string | null
     overtime_created?: OvertimeUncheckedCreateNestedManyWithoutCreatorInput
+    overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
   }
 
   export type UserUpdateInput = {
@@ -22702,7 +22702,6 @@ export namespace Prisma {
     lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
     firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
     lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
@@ -22721,11 +22720,12 @@ export namespace Prisma {
     updated_by?: NullableIntFieldUpdateOperationsInput | number | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    overtime_created?: OvertimeUpdateManyWithoutCreatorNestedInput
+    overtime_requests?: OvertimeUpdateManyWithoutRequesterNestedInput
     department?: DepartmentUpdateOneWithoutUsersNestedInput
     position_ref?: PositionUpdateOneWithoutUsersNestedInput
     role?: RoleUpdateOneWithoutUsersNestedInput
-    overtime_requests?: OvertimeUpdateManyWithoutRequesterNestedInput
-    overtime_created?: OvertimeUpdateManyWithoutCreatorNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -22738,7 +22738,6 @@ export namespace Prisma {
     lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
     firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
     lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     position_id?: NullableIntFieldUpdateOperationsInput | number | null
     department_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -22760,8 +22759,9 @@ export namespace Prisma {
     updated_by?: NullableIntFieldUpdateOperationsInput | number | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
     overtime_created?: OvertimeUncheckedUpdateManyWithoutCreatorNestedInput
+    overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -22774,7 +22774,6 @@ export namespace Prisma {
     lastname_th?: string | null
     firstname_en?: string | null
     lastname_en?: string | null
-    gender?: string | null
     nickname?: string | null
     position_id?: number | null
     department_id?: number | null
@@ -22796,6 +22795,7 @@ export namespace Prisma {
     updated_by?: number | null
     deleted_at?: Date | string | null
     birth_date?: Date | string | null
+    gender?: string | null
   }
 
   export type UserUpdateManyMutationInput = {
@@ -22807,7 +22807,6 @@ export namespace Prisma {
     lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
     firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
     lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
@@ -22826,6 +22825,7 @@ export namespace Prisma {
     updated_by?: NullableIntFieldUpdateOperationsInput | number | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -22838,7 +22838,6 @@ export namespace Prisma {
     lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
     firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
     lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     position_id?: NullableIntFieldUpdateOperationsInput | number | null
     department_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -22860,6 +22859,7 @@ export namespace Prisma {
     updated_by?: NullableIntFieldUpdateOperationsInput | number | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type RoleCreateInput = {
@@ -23617,84 +23617,84 @@ export namespace Prisma {
   export type OvertimeCreateInput = {
     requestDate: Date | string
     status: string
-    updatedBy?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     isDeleted?: boolean
+    updatedBy?: number | null
     descriptions?: OvertimeDescriptionCreateNestedManyWithoutOvertimeInput
-    requester?: UserCreateNestedOneWithoutOvertime_requestsInput
     creator?: UserCreateNestedOneWithoutOvertime_createdInput
+    requester?: UserCreateNestedOneWithoutOvertime_requestsInput
   }
 
   export type OvertimeUncheckedCreateInput = {
     id?: number
-    requesterId?: number | null
     requestDate: Date | string
     status: string
-    createdBy?: number | null
-    updatedBy?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     isDeleted?: boolean
+    requesterId?: number | null
+    createdBy?: number | null
+    updatedBy?: number | null
     descriptions?: OvertimeDescriptionUncheckedCreateNestedManyWithoutOvertimeInput
   }
 
   export type OvertimeUpdateInput = {
     requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
-    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     descriptions?: OvertimeDescriptionUpdateManyWithoutOvertimeNestedInput
-    requester?: UserUpdateOneWithoutOvertime_requestsNestedInput
     creator?: UserUpdateOneWithoutOvertime_createdNestedInput
+    requester?: UserUpdateOneWithoutOvertime_requestsNestedInput
   }
 
   export type OvertimeUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
-    requesterId?: NullableIntFieldUpdateOperationsInput | number | null
     requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
-    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
-    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    requesterId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     descriptions?: OvertimeDescriptionUncheckedUpdateManyWithoutOvertimeNestedInput
   }
 
   export type OvertimeCreateManyInput = {
     id?: number
-    requesterId?: number | null
     requestDate: Date | string
     status: string
-    createdBy?: number | null
-    updatedBy?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     isDeleted?: boolean
+    requesterId?: number | null
+    createdBy?: number | null
+    updatedBy?: number | null
   }
 
   export type OvertimeUpdateManyMutationInput = {
     requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
-    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type OvertimeUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
-    requesterId?: NullableIntFieldUpdateOperationsInput | number | null
     requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
-    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
-    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    requesterId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type OvertimeDescriptionCreateInput = {
@@ -24199,6 +24199,12 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
+  export type OvertimeListRelationFilter = {
+    every?: OvertimeWhereInput
+    some?: OvertimeWhereInput
+    none?: OvertimeWhereInput
+  }
+
   export type DepartmentNullableScalarRelationFilter = {
     is?: DepartmentWhereInput | null
     isNot?: DepartmentWhereInput | null
@@ -24212,12 +24218,6 @@ export namespace Prisma {
   export type RoleNullableScalarRelationFilter = {
     is?: RoleWhereInput | null
     isNot?: RoleWhereInput | null
-  }
-
-  export type OvertimeListRelationFilter = {
-    every?: OvertimeWhereInput
-    some?: OvertimeWhereInput
-    none?: OvertimeWhereInput
   }
 
   export type OvertimeOrderByRelationAggregateInput = {
@@ -24234,7 +24234,6 @@ export namespace Prisma {
     lastname_th?: SortOrder
     firstname_en?: SortOrder
     lastname_en?: SortOrder
-    gender?: SortOrder
     nickname?: SortOrder
     position_id?: SortOrder
     department_id?: SortOrder
@@ -24256,6 +24255,7 @@ export namespace Prisma {
     updated_by?: SortOrder
     deleted_at?: SortOrder
     birth_date?: SortOrder
+    gender?: SortOrder
   }
 
   export type UserAvgOrderByAggregateInput = {
@@ -24279,7 +24279,6 @@ export namespace Prisma {
     lastname_th?: SortOrder
     firstname_en?: SortOrder
     lastname_en?: SortOrder
-    gender?: SortOrder
     nickname?: SortOrder
     position_id?: SortOrder
     department_id?: SortOrder
@@ -24301,6 +24300,7 @@ export namespace Prisma {
     updated_by?: SortOrder
     deleted_at?: SortOrder
     birth_date?: SortOrder
+    gender?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -24313,7 +24313,6 @@ export namespace Prisma {
     lastname_th?: SortOrder
     firstname_en?: SortOrder
     lastname_en?: SortOrder
-    gender?: SortOrder
     nickname?: SortOrder
     position_id?: SortOrder
     department_id?: SortOrder
@@ -24335,6 +24334,7 @@ export namespace Prisma {
     updated_by?: SortOrder
     deleted_at?: SortOrder
     birth_date?: SortOrder
+    gender?: SortOrder
   }
 
   export type UserSumOrderByAggregateInput = {
@@ -25021,14 +25021,14 @@ export namespace Prisma {
 
   export type OvertimeCountOrderByAggregateInput = {
     id?: SortOrder
-    requesterId?: SortOrder
     requestDate?: SortOrder
     status?: SortOrder
-    createdBy?: SortOrder
-    updatedBy?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     isDeleted?: SortOrder
+    requesterId?: SortOrder
+    createdBy?: SortOrder
+    updatedBy?: SortOrder
   }
 
   export type OvertimeAvgOrderByAggregateInput = {
@@ -25040,26 +25040,26 @@ export namespace Prisma {
 
   export type OvertimeMaxOrderByAggregateInput = {
     id?: SortOrder
-    requesterId?: SortOrder
     requestDate?: SortOrder
     status?: SortOrder
-    createdBy?: SortOrder
-    updatedBy?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     isDeleted?: SortOrder
+    requesterId?: SortOrder
+    createdBy?: SortOrder
+    updatedBy?: SortOrder
   }
 
   export type OvertimeMinOrderByAggregateInput = {
     id?: SortOrder
-    requesterId?: SortOrder
     requestDate?: SortOrder
     status?: SortOrder
-    createdBy?: SortOrder
-    updatedBy?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     isDeleted?: SortOrder
+    requesterId?: SortOrder
+    createdBy?: SortOrder
+    updatedBy?: SortOrder
   }
 
   export type OvertimeSumOrderByAggregateInput = {
@@ -25334,6 +25334,20 @@ export namespace Prisma {
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
+  export type OvertimeCreateNestedManyWithoutCreatorInput = {
+    create?: XOR<OvertimeCreateWithoutCreatorInput, OvertimeUncheckedCreateWithoutCreatorInput> | OvertimeCreateWithoutCreatorInput[] | OvertimeUncheckedCreateWithoutCreatorInput[]
+    connectOrCreate?: OvertimeCreateOrConnectWithoutCreatorInput | OvertimeCreateOrConnectWithoutCreatorInput[]
+    createMany?: OvertimeCreateManyCreatorInputEnvelope
+    connect?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
+  }
+
+  export type OvertimeCreateNestedManyWithoutRequesterInput = {
+    create?: XOR<OvertimeCreateWithoutRequesterInput, OvertimeUncheckedCreateWithoutRequesterInput> | OvertimeCreateWithoutRequesterInput[] | OvertimeUncheckedCreateWithoutRequesterInput[]
+    connectOrCreate?: OvertimeCreateOrConnectWithoutRequesterInput | OvertimeCreateOrConnectWithoutRequesterInput[]
+    createMany?: OvertimeCreateManyRequesterInputEnvelope
+    connect?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
+  }
+
   export type DepartmentCreateNestedOneWithoutUsersInput = {
     create?: XOR<DepartmentCreateWithoutUsersInput, DepartmentUncheckedCreateWithoutUsersInput>
     connectOrCreate?: DepartmentCreateOrConnectWithoutUsersInput
@@ -25352,14 +25366,7 @@ export namespace Prisma {
     connect?: RoleWhereUniqueInput
   }
 
-  export type OvertimeCreateNestedManyWithoutRequesterInput = {
-    create?: XOR<OvertimeCreateWithoutRequesterInput, OvertimeUncheckedCreateWithoutRequesterInput> | OvertimeCreateWithoutRequesterInput[] | OvertimeUncheckedCreateWithoutRequesterInput[]
-    connectOrCreate?: OvertimeCreateOrConnectWithoutRequesterInput | OvertimeCreateOrConnectWithoutRequesterInput[]
-    createMany?: OvertimeCreateManyRequesterInputEnvelope
-    connect?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
-  }
-
-  export type OvertimeCreateNestedManyWithoutCreatorInput = {
+  export type OvertimeUncheckedCreateNestedManyWithoutCreatorInput = {
     create?: XOR<OvertimeCreateWithoutCreatorInput, OvertimeUncheckedCreateWithoutCreatorInput> | OvertimeCreateWithoutCreatorInput[] | OvertimeUncheckedCreateWithoutCreatorInput[]
     connectOrCreate?: OvertimeCreateOrConnectWithoutCreatorInput | OvertimeCreateOrConnectWithoutCreatorInput[]
     createMany?: OvertimeCreateManyCreatorInputEnvelope
@@ -25373,19 +25380,40 @@ export namespace Prisma {
     connect?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
   }
 
-  export type OvertimeUncheckedCreateNestedManyWithoutCreatorInput = {
-    create?: XOR<OvertimeCreateWithoutCreatorInput, OvertimeUncheckedCreateWithoutCreatorInput> | OvertimeCreateWithoutCreatorInput[] | OvertimeUncheckedCreateWithoutCreatorInput[]
-    connectOrCreate?: OvertimeCreateOrConnectWithoutCreatorInput | OvertimeCreateOrConnectWithoutCreatorInput[]
-    createMany?: OvertimeCreateManyCreatorInputEnvelope
-    connect?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
-  }
-
   export type NullableIntFieldUpdateOperationsInput = {
     set?: number | null
     increment?: number
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type OvertimeUpdateManyWithoutCreatorNestedInput = {
+    create?: XOR<OvertimeCreateWithoutCreatorInput, OvertimeUncheckedCreateWithoutCreatorInput> | OvertimeCreateWithoutCreatorInput[] | OvertimeUncheckedCreateWithoutCreatorInput[]
+    connectOrCreate?: OvertimeCreateOrConnectWithoutCreatorInput | OvertimeCreateOrConnectWithoutCreatorInput[]
+    upsert?: OvertimeUpsertWithWhereUniqueWithoutCreatorInput | OvertimeUpsertWithWhereUniqueWithoutCreatorInput[]
+    createMany?: OvertimeCreateManyCreatorInputEnvelope
+    set?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
+    disconnect?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
+    delete?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
+    connect?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
+    update?: OvertimeUpdateWithWhereUniqueWithoutCreatorInput | OvertimeUpdateWithWhereUniqueWithoutCreatorInput[]
+    updateMany?: OvertimeUpdateManyWithWhereWithoutCreatorInput | OvertimeUpdateManyWithWhereWithoutCreatorInput[]
+    deleteMany?: OvertimeScalarWhereInput | OvertimeScalarWhereInput[]
+  }
+
+  export type OvertimeUpdateManyWithoutRequesterNestedInput = {
+    create?: XOR<OvertimeCreateWithoutRequesterInput, OvertimeUncheckedCreateWithoutRequesterInput> | OvertimeCreateWithoutRequesterInput[] | OvertimeUncheckedCreateWithoutRequesterInput[]
+    connectOrCreate?: OvertimeCreateOrConnectWithoutRequesterInput | OvertimeCreateOrConnectWithoutRequesterInput[]
+    upsert?: OvertimeUpsertWithWhereUniqueWithoutRequesterInput | OvertimeUpsertWithWhereUniqueWithoutRequesterInput[]
+    createMany?: OvertimeCreateManyRequesterInputEnvelope
+    set?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
+    disconnect?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
+    delete?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
+    connect?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
+    update?: OvertimeUpdateWithWhereUniqueWithoutRequesterInput | OvertimeUpdateWithWhereUniqueWithoutRequesterInput[]
+    updateMany?: OvertimeUpdateManyWithWhereWithoutRequesterInput | OvertimeUpdateManyWithWhereWithoutRequesterInput[]
+    deleteMany?: OvertimeScalarWhereInput | OvertimeScalarWhereInput[]
   }
 
   export type DepartmentUpdateOneWithoutUsersNestedInput = {
@@ -25418,21 +25446,7 @@ export namespace Prisma {
     update?: XOR<XOR<RoleUpdateToOneWithWhereWithoutUsersInput, RoleUpdateWithoutUsersInput>, RoleUncheckedUpdateWithoutUsersInput>
   }
 
-  export type OvertimeUpdateManyWithoutRequesterNestedInput = {
-    create?: XOR<OvertimeCreateWithoutRequesterInput, OvertimeUncheckedCreateWithoutRequesterInput> | OvertimeCreateWithoutRequesterInput[] | OvertimeUncheckedCreateWithoutRequesterInput[]
-    connectOrCreate?: OvertimeCreateOrConnectWithoutRequesterInput | OvertimeCreateOrConnectWithoutRequesterInput[]
-    upsert?: OvertimeUpsertWithWhereUniqueWithoutRequesterInput | OvertimeUpsertWithWhereUniqueWithoutRequesterInput[]
-    createMany?: OvertimeCreateManyRequesterInputEnvelope
-    set?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
-    disconnect?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
-    delete?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
-    connect?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
-    update?: OvertimeUpdateWithWhereUniqueWithoutRequesterInput | OvertimeUpdateWithWhereUniqueWithoutRequesterInput[]
-    updateMany?: OvertimeUpdateManyWithWhereWithoutRequesterInput | OvertimeUpdateManyWithWhereWithoutRequesterInput[]
-    deleteMany?: OvertimeScalarWhereInput | OvertimeScalarWhereInput[]
-  }
-
-  export type OvertimeUpdateManyWithoutCreatorNestedInput = {
+  export type OvertimeUncheckedUpdateManyWithoutCreatorNestedInput = {
     create?: XOR<OvertimeCreateWithoutCreatorInput, OvertimeUncheckedCreateWithoutCreatorInput> | OvertimeCreateWithoutCreatorInput[] | OvertimeUncheckedCreateWithoutCreatorInput[]
     connectOrCreate?: OvertimeCreateOrConnectWithoutCreatorInput | OvertimeCreateOrConnectWithoutCreatorInput[]
     upsert?: OvertimeUpsertWithWhereUniqueWithoutCreatorInput | OvertimeUpsertWithWhereUniqueWithoutCreatorInput[]
@@ -25457,20 +25471,6 @@ export namespace Prisma {
     connect?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
     update?: OvertimeUpdateWithWhereUniqueWithoutRequesterInput | OvertimeUpdateWithWhereUniqueWithoutRequesterInput[]
     updateMany?: OvertimeUpdateManyWithWhereWithoutRequesterInput | OvertimeUpdateManyWithWhereWithoutRequesterInput[]
-    deleteMany?: OvertimeScalarWhereInput | OvertimeScalarWhereInput[]
-  }
-
-  export type OvertimeUncheckedUpdateManyWithoutCreatorNestedInput = {
-    create?: XOR<OvertimeCreateWithoutCreatorInput, OvertimeUncheckedCreateWithoutCreatorInput> | OvertimeCreateWithoutCreatorInput[] | OvertimeUncheckedCreateWithoutCreatorInput[]
-    connectOrCreate?: OvertimeCreateOrConnectWithoutCreatorInput | OvertimeCreateOrConnectWithoutCreatorInput[]
-    upsert?: OvertimeUpsertWithWhereUniqueWithoutCreatorInput | OvertimeUpsertWithWhereUniqueWithoutCreatorInput[]
-    createMany?: OvertimeCreateManyCreatorInputEnvelope
-    set?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
-    disconnect?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
-    delete?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
-    connect?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
-    update?: OvertimeUpdateWithWhereUniqueWithoutCreatorInput | OvertimeUpdateWithWhereUniqueWithoutCreatorInput[]
-    updateMany?: OvertimeUpdateManyWithWhereWithoutCreatorInput | OvertimeUpdateManyWithWhereWithoutCreatorInput[]
     deleteMany?: OvertimeScalarWhereInput | OvertimeScalarWhereInput[]
   }
 
@@ -26111,15 +26111,15 @@ export namespace Prisma {
     connect?: OvertimeDescriptionWhereUniqueInput | OvertimeDescriptionWhereUniqueInput[]
   }
 
-  export type UserCreateNestedOneWithoutOvertime_requestsInput = {
-    create?: XOR<UserCreateWithoutOvertime_requestsInput, UserUncheckedCreateWithoutOvertime_requestsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutOvertime_requestsInput
-    connect?: UserWhereUniqueInput
-  }
-
   export type UserCreateNestedOneWithoutOvertime_createdInput = {
     create?: XOR<UserCreateWithoutOvertime_createdInput, UserUncheckedCreateWithoutOvertime_createdInput>
     connectOrCreate?: UserCreateOrConnectWithoutOvertime_createdInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutOvertime_requestsInput = {
+    create?: XOR<UserCreateWithoutOvertime_requestsInput, UserUncheckedCreateWithoutOvertime_requestsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutOvertime_requestsInput
     connect?: UserWhereUniqueInput
   }
 
@@ -26144,16 +26144,6 @@ export namespace Prisma {
     deleteMany?: OvertimeDescriptionScalarWhereInput | OvertimeDescriptionScalarWhereInput[]
   }
 
-  export type UserUpdateOneWithoutOvertime_requestsNestedInput = {
-    create?: XOR<UserCreateWithoutOvertime_requestsInput, UserUncheckedCreateWithoutOvertime_requestsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutOvertime_requestsInput
-    upsert?: UserUpsertWithoutOvertime_requestsInput
-    disconnect?: UserWhereInput | boolean
-    delete?: UserWhereInput | boolean
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutOvertime_requestsInput, UserUpdateWithoutOvertime_requestsInput>, UserUncheckedUpdateWithoutOvertime_requestsInput>
-  }
-
   export type UserUpdateOneWithoutOvertime_createdNestedInput = {
     create?: XOR<UserCreateWithoutOvertime_createdInput, UserUncheckedCreateWithoutOvertime_createdInput>
     connectOrCreate?: UserCreateOrConnectWithoutOvertime_createdInput
@@ -26162,6 +26152,16 @@ export namespace Prisma {
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutOvertime_createdInput, UserUpdateWithoutOvertime_createdInput>, UserUncheckedUpdateWithoutOvertime_createdInput>
+  }
+
+  export type UserUpdateOneWithoutOvertime_requestsNestedInput = {
+    create?: XOR<UserCreateWithoutOvertime_requestsInput, UserUncheckedCreateWithoutOvertime_requestsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutOvertime_requestsInput
+    upsert?: UserUpsertWithoutOvertime_requestsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutOvertime_requestsInput, UserUpdateWithoutOvertime_requestsInput>, UserUncheckedUpdateWithoutOvertime_requestsInput>
   }
 
   export type OvertimeDescriptionUncheckedUpdateManyWithoutOvertimeNestedInput = {
@@ -26531,7 +26531,6 @@ export namespace Prisma {
     lastname_th?: string | null
     firstname_en?: string | null
     lastname_en?: string | null
-    gender?: string | null
     nickname?: string | null
     status?: string
     email?: string | null
@@ -26550,10 +26549,11 @@ export namespace Prisma {
     updated_by?: number | null
     deleted_at?: Date | string | null
     birth_date?: Date | string | null
+    gender?: string | null
+    overtime_created?: OvertimeCreateNestedManyWithoutCreatorInput
+    overtime_requests?: OvertimeCreateNestedManyWithoutRequesterInput
     department?: DepartmentCreateNestedOneWithoutUsersInput
     role?: RoleCreateNestedOneWithoutUsersInput
-    overtime_requests?: OvertimeCreateNestedManyWithoutRequesterInput
-    overtime_created?: OvertimeCreateNestedManyWithoutCreatorInput
   }
 
   export type UserUncheckedCreateWithoutPosition_refInput = {
@@ -26566,7 +26566,6 @@ export namespace Prisma {
     lastname_th?: string | null
     firstname_en?: string | null
     lastname_en?: string | null
-    gender?: string | null
     nickname?: string | null
     department_id?: number | null
     status?: string
@@ -26587,8 +26586,9 @@ export namespace Prisma {
     updated_by?: number | null
     deleted_at?: Date | string | null
     birth_date?: Date | string | null
-    overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
+    gender?: string | null
     overtime_created?: OvertimeUncheckedCreateNestedManyWithoutCreatorInput
+    overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
   }
 
   export type UserCreateOrConnectWithoutPosition_refInput = {
@@ -26630,7 +26630,6 @@ export namespace Prisma {
     lastname_th?: StringNullableFilter<"User"> | string | null
     firstname_en?: StringNullableFilter<"User"> | string | null
     lastname_en?: StringNullableFilter<"User"> | string | null
-    gender?: StringNullableFilter<"User"> | string | null
     nickname?: StringNullableFilter<"User"> | string | null
     position_id?: IntNullableFilter<"User"> | number | null
     department_id?: IntNullableFilter<"User"> | number | null
@@ -26652,6 +26651,7 @@ export namespace Prisma {
     updated_by?: IntNullableFilter<"User"> | number | null
     deleted_at?: DateTimeNullableFilter<"User"> | Date | string | null
     birth_date?: DateTimeNullableFilter<"User"> | Date | string | null
+    gender?: StringNullableFilter<"User"> | string | null
   }
 
   export type UserCreateWithoutDepartmentInput = {
@@ -26663,7 +26663,6 @@ export namespace Prisma {
     lastname_th?: string | null
     firstname_en?: string | null
     lastname_en?: string | null
-    gender?: string | null
     nickname?: string | null
     status?: string
     email?: string | null
@@ -26682,10 +26681,11 @@ export namespace Prisma {
     updated_by?: number | null
     deleted_at?: Date | string | null
     birth_date?: Date | string | null
+    gender?: string | null
+    overtime_created?: OvertimeCreateNestedManyWithoutCreatorInput
+    overtime_requests?: OvertimeCreateNestedManyWithoutRequesterInput
     position_ref?: PositionCreateNestedOneWithoutUsersInput
     role?: RoleCreateNestedOneWithoutUsersInput
-    overtime_requests?: OvertimeCreateNestedManyWithoutRequesterInput
-    overtime_created?: OvertimeCreateNestedManyWithoutCreatorInput
   }
 
   export type UserUncheckedCreateWithoutDepartmentInput = {
@@ -26698,7 +26698,6 @@ export namespace Prisma {
     lastname_th?: string | null
     firstname_en?: string | null
     lastname_en?: string | null
-    gender?: string | null
     nickname?: string | null
     position_id?: number | null
     status?: string
@@ -26719,8 +26718,9 @@ export namespace Prisma {
     updated_by?: number | null
     deleted_at?: Date | string | null
     birth_date?: Date | string | null
-    overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
+    gender?: string | null
     overtime_created?: OvertimeUncheckedCreateNestedManyWithoutCreatorInput
+    overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
   }
 
   export type UserCreateOrConnectWithoutDepartmentInput = {
@@ -26747,6 +26747,72 @@ export namespace Prisma {
   export type UserUpdateManyWithWhereWithoutDepartmentInput = {
     where: UserScalarWhereInput
     data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutDepartmentInput>
+  }
+
+  export type OvertimeCreateWithoutCreatorInput = {
+    requestDate: Date | string
+    status: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    isDeleted?: boolean
+    updatedBy?: number | null
+    descriptions?: OvertimeDescriptionCreateNestedManyWithoutOvertimeInput
+    requester?: UserCreateNestedOneWithoutOvertime_requestsInput
+  }
+
+  export type OvertimeUncheckedCreateWithoutCreatorInput = {
+    id?: number
+    requestDate: Date | string
+    status: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    isDeleted?: boolean
+    requesterId?: number | null
+    updatedBy?: number | null
+    descriptions?: OvertimeDescriptionUncheckedCreateNestedManyWithoutOvertimeInput
+  }
+
+  export type OvertimeCreateOrConnectWithoutCreatorInput = {
+    where: OvertimeWhereUniqueInput
+    create: XOR<OvertimeCreateWithoutCreatorInput, OvertimeUncheckedCreateWithoutCreatorInput>
+  }
+
+  export type OvertimeCreateManyCreatorInputEnvelope = {
+    data: OvertimeCreateManyCreatorInput | OvertimeCreateManyCreatorInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OvertimeCreateWithoutRequesterInput = {
+    requestDate: Date | string
+    status: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    isDeleted?: boolean
+    updatedBy?: number | null
+    descriptions?: OvertimeDescriptionCreateNestedManyWithoutOvertimeInput
+    creator?: UserCreateNestedOneWithoutOvertime_createdInput
+  }
+
+  export type OvertimeUncheckedCreateWithoutRequesterInput = {
+    id?: number
+    requestDate: Date | string
+    status: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    isDeleted?: boolean
+    createdBy?: number | null
+    updatedBy?: number | null
+    descriptions?: OvertimeDescriptionUncheckedCreateNestedManyWithoutOvertimeInput
+  }
+
+  export type OvertimeCreateOrConnectWithoutRequesterInput = {
+    where: OvertimeWhereUniqueInput
+    create: XOR<OvertimeCreateWithoutRequesterInput, OvertimeUncheckedCreateWithoutRequesterInput>
+  }
+
+  export type OvertimeCreateManyRequesterInputEnvelope = {
+    data: OvertimeCreateManyRequesterInput | OvertimeCreateManyRequesterInput[]
+    skipDuplicates?: boolean
   }
 
   export type DepartmentCreateWithoutUsersInput = {
@@ -26825,70 +26891,51 @@ export namespace Prisma {
     create: XOR<RoleCreateWithoutUsersInput, RoleUncheckedCreateWithoutUsersInput>
   }
 
-  export type OvertimeCreateWithoutRequesterInput = {
-    requestDate: Date | string
-    status: string
-    updatedBy?: number | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    isDeleted?: boolean
-    descriptions?: OvertimeDescriptionCreateNestedManyWithoutOvertimeInput
-    creator?: UserCreateNestedOneWithoutOvertime_createdInput
-  }
-
-  export type OvertimeUncheckedCreateWithoutRequesterInput = {
-    id?: number
-    requestDate: Date | string
-    status: string
-    createdBy?: number | null
-    updatedBy?: number | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    isDeleted?: boolean
-    descriptions?: OvertimeDescriptionUncheckedCreateNestedManyWithoutOvertimeInput
-  }
-
-  export type OvertimeCreateOrConnectWithoutRequesterInput = {
+  export type OvertimeUpsertWithWhereUniqueWithoutCreatorInput = {
     where: OvertimeWhereUniqueInput
-    create: XOR<OvertimeCreateWithoutRequesterInput, OvertimeUncheckedCreateWithoutRequesterInput>
-  }
-
-  export type OvertimeCreateManyRequesterInputEnvelope = {
-    data: OvertimeCreateManyRequesterInput | OvertimeCreateManyRequesterInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type OvertimeCreateWithoutCreatorInput = {
-    requestDate: Date | string
-    status: string
-    updatedBy?: number | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    isDeleted?: boolean
-    descriptions?: OvertimeDescriptionCreateNestedManyWithoutOvertimeInput
-    requester?: UserCreateNestedOneWithoutOvertime_requestsInput
-  }
-
-  export type OvertimeUncheckedCreateWithoutCreatorInput = {
-    id?: number
-    requesterId?: number | null
-    requestDate: Date | string
-    status: string
-    updatedBy?: number | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    isDeleted?: boolean
-    descriptions?: OvertimeDescriptionUncheckedCreateNestedManyWithoutOvertimeInput
-  }
-
-  export type OvertimeCreateOrConnectWithoutCreatorInput = {
-    where: OvertimeWhereUniqueInput
+    update: XOR<OvertimeUpdateWithoutCreatorInput, OvertimeUncheckedUpdateWithoutCreatorInput>
     create: XOR<OvertimeCreateWithoutCreatorInput, OvertimeUncheckedCreateWithoutCreatorInput>
   }
 
-  export type OvertimeCreateManyCreatorInputEnvelope = {
-    data: OvertimeCreateManyCreatorInput | OvertimeCreateManyCreatorInput[]
-    skipDuplicates?: boolean
+  export type OvertimeUpdateWithWhereUniqueWithoutCreatorInput = {
+    where: OvertimeWhereUniqueInput
+    data: XOR<OvertimeUpdateWithoutCreatorInput, OvertimeUncheckedUpdateWithoutCreatorInput>
+  }
+
+  export type OvertimeUpdateManyWithWhereWithoutCreatorInput = {
+    where: OvertimeScalarWhereInput
+    data: XOR<OvertimeUpdateManyMutationInput, OvertimeUncheckedUpdateManyWithoutCreatorInput>
+  }
+
+  export type OvertimeScalarWhereInput = {
+    AND?: OvertimeScalarWhereInput | OvertimeScalarWhereInput[]
+    OR?: OvertimeScalarWhereInput[]
+    NOT?: OvertimeScalarWhereInput | OvertimeScalarWhereInput[]
+    id?: IntFilter<"Overtime"> | number
+    requestDate?: DateTimeFilter<"Overtime"> | Date | string
+    status?: StringFilter<"Overtime"> | string
+    createdAt?: DateTimeFilter<"Overtime"> | Date | string
+    updatedAt?: DateTimeFilter<"Overtime"> | Date | string
+    isDeleted?: BoolFilter<"Overtime"> | boolean
+    requesterId?: IntNullableFilter<"Overtime"> | number | null
+    createdBy?: IntNullableFilter<"Overtime"> | number | null
+    updatedBy?: IntNullableFilter<"Overtime"> | number | null
+  }
+
+  export type OvertimeUpsertWithWhereUniqueWithoutRequesterInput = {
+    where: OvertimeWhereUniqueInput
+    update: XOR<OvertimeUpdateWithoutRequesterInput, OvertimeUncheckedUpdateWithoutRequesterInput>
+    create: XOR<OvertimeCreateWithoutRequesterInput, OvertimeUncheckedCreateWithoutRequesterInput>
+  }
+
+  export type OvertimeUpdateWithWhereUniqueWithoutRequesterInput = {
+    where: OvertimeWhereUniqueInput
+    data: XOR<OvertimeUpdateWithoutRequesterInput, OvertimeUncheckedUpdateWithoutRequesterInput>
+  }
+
+  export type OvertimeUpdateManyWithWhereWithoutRequesterInput = {
+    where: OvertimeScalarWhereInput
+    data: XOR<OvertimeUpdateManyMutationInput, OvertimeUncheckedUpdateManyWithoutRequesterInput>
   }
 
   export type DepartmentUpsertWithoutUsersInput = {
@@ -26985,53 +27032,6 @@ export namespace Prisma {
     permissions?: RolePermissionUncheckedUpdateManyWithoutRoleNestedInput
   }
 
-  export type OvertimeUpsertWithWhereUniqueWithoutRequesterInput = {
-    where: OvertimeWhereUniqueInput
-    update: XOR<OvertimeUpdateWithoutRequesterInput, OvertimeUncheckedUpdateWithoutRequesterInput>
-    create: XOR<OvertimeCreateWithoutRequesterInput, OvertimeUncheckedCreateWithoutRequesterInput>
-  }
-
-  export type OvertimeUpdateWithWhereUniqueWithoutRequesterInput = {
-    where: OvertimeWhereUniqueInput
-    data: XOR<OvertimeUpdateWithoutRequesterInput, OvertimeUncheckedUpdateWithoutRequesterInput>
-  }
-
-  export type OvertimeUpdateManyWithWhereWithoutRequesterInput = {
-    where: OvertimeScalarWhereInput
-    data: XOR<OvertimeUpdateManyMutationInput, OvertimeUncheckedUpdateManyWithoutRequesterInput>
-  }
-
-  export type OvertimeScalarWhereInput = {
-    AND?: OvertimeScalarWhereInput | OvertimeScalarWhereInput[]
-    OR?: OvertimeScalarWhereInput[]
-    NOT?: OvertimeScalarWhereInput | OvertimeScalarWhereInput[]
-    id?: IntFilter<"Overtime"> | number
-    requesterId?: IntNullableFilter<"Overtime"> | number | null
-    requestDate?: DateTimeFilter<"Overtime"> | Date | string
-    status?: StringFilter<"Overtime"> | string
-    createdBy?: IntNullableFilter<"Overtime"> | number | null
-    updatedBy?: IntNullableFilter<"Overtime"> | number | null
-    createdAt?: DateTimeFilter<"Overtime"> | Date | string
-    updatedAt?: DateTimeFilter<"Overtime"> | Date | string
-    isDeleted?: BoolFilter<"Overtime"> | boolean
-  }
-
-  export type OvertimeUpsertWithWhereUniqueWithoutCreatorInput = {
-    where: OvertimeWhereUniqueInput
-    update: XOR<OvertimeUpdateWithoutCreatorInput, OvertimeUncheckedUpdateWithoutCreatorInput>
-    create: XOR<OvertimeCreateWithoutCreatorInput, OvertimeUncheckedCreateWithoutCreatorInput>
-  }
-
-  export type OvertimeUpdateWithWhereUniqueWithoutCreatorInput = {
-    where: OvertimeWhereUniqueInput
-    data: XOR<OvertimeUpdateWithoutCreatorInput, OvertimeUncheckedUpdateWithoutCreatorInput>
-  }
-
-  export type OvertimeUpdateManyWithWhereWithoutCreatorInput = {
-    where: OvertimeScalarWhereInput
-    data: XOR<OvertimeUpdateManyMutationInput, OvertimeUncheckedUpdateManyWithoutCreatorInput>
-  }
-
   export type RolePermissionCreateWithoutRoleInput = {
     assigned_at?: Date | string
     assigned_by?: number | null
@@ -27063,7 +27063,6 @@ export namespace Prisma {
     lastname_th?: string | null
     firstname_en?: string | null
     lastname_en?: string | null
-    gender?: string | null
     nickname?: string | null
     status?: string
     email?: string | null
@@ -27082,10 +27081,11 @@ export namespace Prisma {
     updated_by?: number | null
     deleted_at?: Date | string | null
     birth_date?: Date | string | null
+    gender?: string | null
+    overtime_created?: OvertimeCreateNestedManyWithoutCreatorInput
+    overtime_requests?: OvertimeCreateNestedManyWithoutRequesterInput
     department?: DepartmentCreateNestedOneWithoutUsersInput
     position_ref?: PositionCreateNestedOneWithoutUsersInput
-    overtime_requests?: OvertimeCreateNestedManyWithoutRequesterInput
-    overtime_created?: OvertimeCreateNestedManyWithoutCreatorInput
   }
 
   export type UserUncheckedCreateWithoutRoleInput = {
@@ -27098,7 +27098,6 @@ export namespace Prisma {
     lastname_th?: string | null
     firstname_en?: string | null
     lastname_en?: string | null
-    gender?: string | null
     nickname?: string | null
     position_id?: number | null
     department_id?: number | null
@@ -27119,8 +27118,9 @@ export namespace Prisma {
     updated_by?: number | null
     deleted_at?: Date | string | null
     birth_date?: Date | string | null
-    overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
+    gender?: string | null
     overtime_created?: OvertimeUncheckedCreateNestedManyWithoutCreatorInput
+    overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
   }
 
   export type UserCreateOrConnectWithoutRoleInput = {
@@ -28579,80 +28579,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type UserCreateWithoutOvertime_requestsInput = {
-    username: string
-    password: string
-    admin_id: number
-    employee_code?: string | null
-    firstname_th?: string | null
-    lastname_th?: string | null
-    firstname_en?: string | null
-    lastname_en?: string | null
-    gender?: string | null
-    nickname?: string | null
-    status?: string
-    email?: string | null
-    phone?: string | null
-    profile_image_path?: string | null
-    joined_date?: Date | string | null
-    resigned_date?: Date | string | null
-    employment_type?: string | null
-    last_login?: Date | string | null
-    failed_login_attempts?: number
-    refresh_token?: string | null
-    is_deleted?: boolean
-    created_at?: Date | string
-    created_by?: number | null
-    updated_at?: Date | string
-    updated_by?: number | null
-    deleted_at?: Date | string | null
-    birth_date?: Date | string | null
-    department?: DepartmentCreateNestedOneWithoutUsersInput
-    position_ref?: PositionCreateNestedOneWithoutUsersInput
-    role?: RoleCreateNestedOneWithoutUsersInput
-    overtime_created?: OvertimeCreateNestedManyWithoutCreatorInput
-  }
-
-  export type UserUncheckedCreateWithoutOvertime_requestsInput = {
-    id?: number
-    username: string
-    password: string
-    admin_id: number
-    employee_code?: string | null
-    firstname_th?: string | null
-    lastname_th?: string | null
-    firstname_en?: string | null
-    lastname_en?: string | null
-    gender?: string | null
-    nickname?: string | null
-    position_id?: number | null
-    department_id?: number | null
-    status?: string
-    email?: string | null
-    phone?: string | null
-    profile_image_path?: string | null
-    joined_date?: Date | string | null
-    resigned_date?: Date | string | null
-    employment_type?: string | null
-    last_login?: Date | string | null
-    failed_login_attempts?: number
-    refresh_token?: string | null
-    role_id?: number | null
-    is_deleted?: boolean
-    created_at?: Date | string
-    created_by?: number | null
-    updated_at?: Date | string
-    updated_by?: number | null
-    deleted_at?: Date | string | null
-    birth_date?: Date | string | null
-    overtime_created?: OvertimeUncheckedCreateNestedManyWithoutCreatorInput
-  }
-
-  export type UserCreateOrConnectWithoutOvertime_requestsInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutOvertime_requestsInput, UserUncheckedCreateWithoutOvertime_requestsInput>
-  }
-
   export type UserCreateWithoutOvertime_createdInput = {
     username: string
     password: string
@@ -28662,7 +28588,6 @@ export namespace Prisma {
     lastname_th?: string | null
     firstname_en?: string | null
     lastname_en?: string | null
-    gender?: string | null
     nickname?: string | null
     status?: string
     email?: string | null
@@ -28681,10 +28606,11 @@ export namespace Prisma {
     updated_by?: number | null
     deleted_at?: Date | string | null
     birth_date?: Date | string | null
+    gender?: string | null
+    overtime_requests?: OvertimeCreateNestedManyWithoutRequesterInput
     department?: DepartmentCreateNestedOneWithoutUsersInput
     position_ref?: PositionCreateNestedOneWithoutUsersInput
     role?: RoleCreateNestedOneWithoutUsersInput
-    overtime_requests?: OvertimeCreateNestedManyWithoutRequesterInput
   }
 
   export type UserUncheckedCreateWithoutOvertime_createdInput = {
@@ -28697,7 +28623,6 @@ export namespace Prisma {
     lastname_th?: string | null
     firstname_en?: string | null
     lastname_en?: string | null
-    gender?: string | null
     nickname?: string | null
     position_id?: number | null
     department_id?: number | null
@@ -28719,12 +28644,87 @@ export namespace Prisma {
     updated_by?: number | null
     deleted_at?: Date | string | null
     birth_date?: Date | string | null
+    gender?: string | null
     overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
   }
 
   export type UserCreateOrConnectWithoutOvertime_createdInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutOvertime_createdInput, UserUncheckedCreateWithoutOvertime_createdInput>
+  }
+
+  export type UserCreateWithoutOvertime_requestsInput = {
+    username: string
+    password: string
+    admin_id: number
+    employee_code?: string | null
+    firstname_th?: string | null
+    lastname_th?: string | null
+    firstname_en?: string | null
+    lastname_en?: string | null
+    nickname?: string | null
+    status?: string
+    email?: string | null
+    phone?: string | null
+    profile_image_path?: string | null
+    joined_date?: Date | string | null
+    resigned_date?: Date | string | null
+    employment_type?: string | null
+    last_login?: Date | string | null
+    failed_login_attempts?: number
+    refresh_token?: string | null
+    is_deleted?: boolean
+    created_at?: Date | string
+    created_by?: number | null
+    updated_at?: Date | string
+    updated_by?: number | null
+    deleted_at?: Date | string | null
+    birth_date?: Date | string | null
+    gender?: string | null
+    overtime_created?: OvertimeCreateNestedManyWithoutCreatorInput
+    department?: DepartmentCreateNestedOneWithoutUsersInput
+    position_ref?: PositionCreateNestedOneWithoutUsersInput
+    role?: RoleCreateNestedOneWithoutUsersInput
+  }
+
+  export type UserUncheckedCreateWithoutOvertime_requestsInput = {
+    id?: number
+    username: string
+    password: string
+    admin_id: number
+    employee_code?: string | null
+    firstname_th?: string | null
+    lastname_th?: string | null
+    firstname_en?: string | null
+    lastname_en?: string | null
+    nickname?: string | null
+    position_id?: number | null
+    department_id?: number | null
+    status?: string
+    email?: string | null
+    phone?: string | null
+    profile_image_path?: string | null
+    joined_date?: Date | string | null
+    resigned_date?: Date | string | null
+    employment_type?: string | null
+    last_login?: Date | string | null
+    failed_login_attempts?: number
+    refresh_token?: string | null
+    role_id?: number | null
+    is_deleted?: boolean
+    created_at?: Date | string
+    created_by?: number | null
+    updated_at?: Date | string
+    updated_by?: number | null
+    deleted_at?: Date | string | null
+    birth_date?: Date | string | null
+    gender?: string | null
+    overtime_created?: OvertimeUncheckedCreateNestedManyWithoutCreatorInput
+  }
+
+  export type UserCreateOrConnectWithoutOvertime_requestsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutOvertime_requestsInput, UserUncheckedCreateWithoutOvertime_requestsInput>
   }
 
   export type OvertimeDescriptionUpsertWithWhereUniqueWithoutOvertimeInput = {
@@ -28758,86 +28758,6 @@ export namespace Prisma {
     proof?: JsonNullableFilter<"OvertimeDescription">
   }
 
-  export type UserUpsertWithoutOvertime_requestsInput = {
-    update: XOR<UserUpdateWithoutOvertime_requestsInput, UserUncheckedUpdateWithoutOvertime_requestsInput>
-    create: XOR<UserCreateWithoutOvertime_requestsInput, UserUncheckedCreateWithoutOvertime_requestsInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutOvertime_requestsInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutOvertime_requestsInput, UserUncheckedUpdateWithoutOvertime_requestsInput>
-  }
-
-  export type UserUpdateWithoutOvertime_requestsInput = {
-    username?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    admin_id?: IntFieldUpdateOperationsInput | number
-    employee_code?: NullableStringFieldUpdateOperationsInput | string | null
-    firstname_th?: NullableStringFieldUpdateOperationsInput | string | null
-    lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
-    firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
-    lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
-    joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    employment_type?: NullableStringFieldUpdateOperationsInput | string | null
-    last_login?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    failed_login_attempts?: IntFieldUpdateOperationsInput | number
-    refresh_token?: NullableStringFieldUpdateOperationsInput | string | null
-    is_deleted?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_by?: NullableIntFieldUpdateOperationsInput | number | null
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_by?: NullableIntFieldUpdateOperationsInput | number | null
-    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    department?: DepartmentUpdateOneWithoutUsersNestedInput
-    position_ref?: PositionUpdateOneWithoutUsersNestedInput
-    role?: RoleUpdateOneWithoutUsersNestedInput
-    overtime_created?: OvertimeUpdateManyWithoutCreatorNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutOvertime_requestsInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    username?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    admin_id?: IntFieldUpdateOperationsInput | number
-    employee_code?: NullableStringFieldUpdateOperationsInput | string | null
-    firstname_th?: NullableStringFieldUpdateOperationsInput | string | null
-    lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
-    firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
-    lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
-    position_id?: NullableIntFieldUpdateOperationsInput | number | null
-    department_id?: NullableIntFieldUpdateOperationsInput | number | null
-    status?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
-    joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    employment_type?: NullableStringFieldUpdateOperationsInput | string | null
-    last_login?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    failed_login_attempts?: IntFieldUpdateOperationsInput | number
-    refresh_token?: NullableStringFieldUpdateOperationsInput | string | null
-    role_id?: NullableIntFieldUpdateOperationsInput | number | null
-    is_deleted?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_by?: NullableIntFieldUpdateOperationsInput | number | null
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_by?: NullableIntFieldUpdateOperationsInput | number | null
-    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    overtime_created?: OvertimeUncheckedUpdateManyWithoutCreatorNestedInput
-  }
-
   export type UserUpsertWithoutOvertime_createdInput = {
     update: XOR<UserUpdateWithoutOvertime_createdInput, UserUncheckedUpdateWithoutOvertime_createdInput>
     create: XOR<UserCreateWithoutOvertime_createdInput, UserUncheckedCreateWithoutOvertime_createdInput>
@@ -28858,7 +28778,6 @@ export namespace Prisma {
     lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
     firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
     lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
@@ -28877,10 +28796,11 @@ export namespace Prisma {
     updated_by?: NullableIntFieldUpdateOperationsInput | number | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    overtime_requests?: OvertimeUpdateManyWithoutRequesterNestedInput
     department?: DepartmentUpdateOneWithoutUsersNestedInput
     position_ref?: PositionUpdateOneWithoutUsersNestedInput
     role?: RoleUpdateOneWithoutUsersNestedInput
-    overtime_requests?: OvertimeUpdateManyWithoutRequesterNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOvertime_createdInput = {
@@ -28893,7 +28813,6 @@ export namespace Prisma {
     lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
     firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
     lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     position_id?: NullableIntFieldUpdateOperationsInput | number | null
     department_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -28915,30 +28834,111 @@ export namespace Prisma {
     updated_by?: NullableIntFieldUpdateOperationsInput | number | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
     overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
+  }
+
+  export type UserUpsertWithoutOvertime_requestsInput = {
+    update: XOR<UserUpdateWithoutOvertime_requestsInput, UserUncheckedUpdateWithoutOvertime_requestsInput>
+    create: XOR<UserCreateWithoutOvertime_requestsInput, UserUncheckedCreateWithoutOvertime_requestsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutOvertime_requestsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutOvertime_requestsInput, UserUncheckedUpdateWithoutOvertime_requestsInput>
+  }
+
+  export type UserUpdateWithoutOvertime_requestsInput = {
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    admin_id?: IntFieldUpdateOperationsInput | number
+    employee_code?: NullableStringFieldUpdateOperationsInput | string | null
+    firstname_th?: NullableStringFieldUpdateOperationsInput | string | null
+    lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
+    firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
+    lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employment_type?: NullableStringFieldUpdateOperationsInput | string | null
+    last_login?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failed_login_attempts?: IntFieldUpdateOperationsInput | number
+    refresh_token?: NullableStringFieldUpdateOperationsInput | string | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_by?: NullableIntFieldUpdateOperationsInput | number | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    overtime_created?: OvertimeUpdateManyWithoutCreatorNestedInput
+    department?: DepartmentUpdateOneWithoutUsersNestedInput
+    position_ref?: PositionUpdateOneWithoutUsersNestedInput
+    role?: RoleUpdateOneWithoutUsersNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutOvertime_requestsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    admin_id?: IntFieldUpdateOperationsInput | number
+    employee_code?: NullableStringFieldUpdateOperationsInput | string | null
+    firstname_th?: NullableStringFieldUpdateOperationsInput | string | null
+    lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
+    firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
+    lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    position_id?: NullableIntFieldUpdateOperationsInput | number | null
+    department_id?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employment_type?: NullableStringFieldUpdateOperationsInput | string | null
+    last_login?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failed_login_attempts?: IntFieldUpdateOperationsInput | number
+    refresh_token?: NullableStringFieldUpdateOperationsInput | string | null
+    role_id?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_by?: NullableIntFieldUpdateOperationsInput | number | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    overtime_created?: OvertimeUncheckedUpdateManyWithoutCreatorNestedInput
   }
 
   export type OvertimeCreateWithoutDescriptionsInput = {
     requestDate: Date | string
     status: string
-    updatedBy?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     isDeleted?: boolean
-    requester?: UserCreateNestedOneWithoutOvertime_requestsInput
+    updatedBy?: number | null
     creator?: UserCreateNestedOneWithoutOvertime_createdInput
+    requester?: UserCreateNestedOneWithoutOvertime_requestsInput
   }
 
   export type OvertimeUncheckedCreateWithoutDescriptionsInput = {
     id?: number
-    requesterId?: number | null
     requestDate: Date | string
     status: string
-    createdBy?: number | null
-    updatedBy?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     isDeleted?: boolean
+    requesterId?: number | null
+    createdBy?: number | null
+    updatedBy?: number | null
   }
 
   export type OvertimeCreateOrConnectWithoutDescriptionsInput = {
@@ -28960,24 +28960,24 @@ export namespace Prisma {
   export type OvertimeUpdateWithoutDescriptionsInput = {
     requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
-    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
-    requester?: UserUpdateOneWithoutOvertime_requestsNestedInput
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     creator?: UserUpdateOneWithoutOvertime_createdNestedInput
+    requester?: UserUpdateOneWithoutOvertime_requestsNestedInput
   }
 
   export type OvertimeUncheckedUpdateWithoutDescriptionsInput = {
     id?: IntFieldUpdateOperationsInput | number
-    requesterId?: NullableIntFieldUpdateOperationsInput | number | null
     requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
-    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
-    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    requesterId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type UserCreateManyPosition_refInput = {
@@ -28990,7 +28990,6 @@ export namespace Prisma {
     lastname_th?: string | null
     firstname_en?: string | null
     lastname_en?: string | null
-    gender?: string | null
     nickname?: string | null
     department_id?: number | null
     status?: string
@@ -29011,6 +29010,7 @@ export namespace Prisma {
     updated_by?: number | null
     deleted_at?: Date | string | null
     birth_date?: Date | string | null
+    gender?: string | null
   }
 
   export type UserUpdateWithoutPosition_refInput = {
@@ -29022,7 +29022,6 @@ export namespace Prisma {
     lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
     firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
     lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29041,10 +29040,11 @@ export namespace Prisma {
     updated_by?: NullableIntFieldUpdateOperationsInput | number | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    overtime_created?: OvertimeUpdateManyWithoutCreatorNestedInput
+    overtime_requests?: OvertimeUpdateManyWithoutRequesterNestedInput
     department?: DepartmentUpdateOneWithoutUsersNestedInput
     role?: RoleUpdateOneWithoutUsersNestedInput
-    overtime_requests?: OvertimeUpdateManyWithoutRequesterNestedInput
-    overtime_created?: OvertimeUpdateManyWithoutCreatorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPosition_refInput = {
@@ -29057,7 +29057,6 @@ export namespace Prisma {
     lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
     firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
     lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     department_id?: NullableIntFieldUpdateOperationsInput | number | null
     status?: StringFieldUpdateOperationsInput | string
@@ -29078,8 +29077,9 @@ export namespace Prisma {
     updated_by?: NullableIntFieldUpdateOperationsInput | number | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
     overtime_created?: OvertimeUncheckedUpdateManyWithoutCreatorNestedInput
+    overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutPosition_refInput = {
@@ -29092,7 +29092,6 @@ export namespace Prisma {
     lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
     firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
     lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     department_id?: NullableIntFieldUpdateOperationsInput | number | null
     status?: StringFieldUpdateOperationsInput | string
@@ -29113,6 +29112,7 @@ export namespace Prisma {
     updated_by?: NullableIntFieldUpdateOperationsInput | number | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type UserCreateManyDepartmentInput = {
@@ -29125,7 +29125,6 @@ export namespace Prisma {
     lastname_th?: string | null
     firstname_en?: string | null
     lastname_en?: string | null
-    gender?: string | null
     nickname?: string | null
     position_id?: number | null
     status?: string
@@ -29146,6 +29145,7 @@ export namespace Prisma {
     updated_by?: number | null
     deleted_at?: Date | string | null
     birth_date?: Date | string | null
+    gender?: string | null
   }
 
   export type UserUpdateWithoutDepartmentInput = {
@@ -29157,7 +29157,6 @@ export namespace Prisma {
     lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
     firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
     lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29176,10 +29175,11 @@ export namespace Prisma {
     updated_by?: NullableIntFieldUpdateOperationsInput | number | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    overtime_created?: OvertimeUpdateManyWithoutCreatorNestedInput
+    overtime_requests?: OvertimeUpdateManyWithoutRequesterNestedInput
     position_ref?: PositionUpdateOneWithoutUsersNestedInput
     role?: RoleUpdateOneWithoutUsersNestedInput
-    overtime_requests?: OvertimeUpdateManyWithoutRequesterNestedInput
-    overtime_created?: OvertimeUpdateManyWithoutCreatorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDepartmentInput = {
@@ -29192,7 +29192,6 @@ export namespace Prisma {
     lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
     firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
     lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     position_id?: NullableIntFieldUpdateOperationsInput | number | null
     status?: StringFieldUpdateOperationsInput | string
@@ -29213,8 +29212,9 @@ export namespace Prisma {
     updated_by?: NullableIntFieldUpdateOperationsInput | number | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
     overtime_created?: OvertimeUncheckedUpdateManyWithoutCreatorNestedInput
+    overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutDepartmentInput = {
@@ -29227,7 +29227,6 @@ export namespace Prisma {
     lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
     firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
     lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     position_id?: NullableIntFieldUpdateOperationsInput | number | null
     status?: StringFieldUpdateOperationsInput | string
@@ -29248,37 +29247,72 @@ export namespace Prisma {
     updated_by?: NullableIntFieldUpdateOperationsInput | number | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type OvertimeCreateManyCreatorInput = {
+    id?: number
+    requestDate: Date | string
+    status: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    isDeleted?: boolean
+    requesterId?: number | null
+    updatedBy?: number | null
   }
 
   export type OvertimeCreateManyRequesterInput = {
     id?: number
     requestDate: Date | string
     status: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    isDeleted?: boolean
     createdBy?: number | null
     updatedBy?: number | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    isDeleted?: boolean
   }
 
-  export type OvertimeCreateManyCreatorInput = {
-    id?: number
-    requesterId?: number | null
-    requestDate: Date | string
-    status: string
-    updatedBy?: number | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    isDeleted?: boolean
+  export type OvertimeUpdateWithoutCreatorInput = {
+    requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    descriptions?: OvertimeDescriptionUpdateManyWithoutOvertimeNestedInput
+    requester?: UserUpdateOneWithoutOvertime_requestsNestedInput
+  }
+
+  export type OvertimeUncheckedUpdateWithoutCreatorInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    requesterId?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+    descriptions?: OvertimeDescriptionUncheckedUpdateManyWithoutOvertimeNestedInput
+  }
+
+  export type OvertimeUncheckedUpdateManyWithoutCreatorInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    requesterId?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type OvertimeUpdateWithoutRequesterInput = {
     requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
-    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     descriptions?: OvertimeDescriptionUpdateManyWithoutOvertimeNestedInput
     creator?: UserUpdateOneWithoutOvertime_createdNestedInput
   }
@@ -29287,11 +29321,11 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
-    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
-    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    createdBy?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
     descriptions?: OvertimeDescriptionUncheckedUpdateManyWithoutOvertimeNestedInput
   }
 
@@ -29299,45 +29333,11 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    isDeleted?: BoolFieldUpdateOperationsInput | boolean
-  }
-
-  export type OvertimeUpdateWithoutCreatorInput = {
-    requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    status?: StringFieldUpdateOperationsInput | string
-    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    isDeleted?: BoolFieldUpdateOperationsInput | boolean
-    descriptions?: OvertimeDescriptionUpdateManyWithoutOvertimeNestedInput
-    requester?: UserUpdateOneWithoutOvertime_requestsNestedInput
-  }
-
-  export type OvertimeUncheckedUpdateWithoutCreatorInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    requesterId?: NullableIntFieldUpdateOperationsInput | number | null
-    requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    status?: StringFieldUpdateOperationsInput | string
-    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    isDeleted?: BoolFieldUpdateOperationsInput | boolean
-    descriptions?: OvertimeDescriptionUncheckedUpdateManyWithoutOvertimeNestedInput
-  }
-
-  export type OvertimeUncheckedUpdateManyWithoutCreatorInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    requesterId?: NullableIntFieldUpdateOperationsInput | number | null
-    requestDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    status?: StringFieldUpdateOperationsInput | string
-    updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    isDeleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type RolePermissionCreateManyRoleInput = {
@@ -29356,7 +29356,6 @@ export namespace Prisma {
     lastname_th?: string | null
     firstname_en?: string | null
     lastname_en?: string | null
-    gender?: string | null
     nickname?: string | null
     position_id?: number | null
     department_id?: number | null
@@ -29377,6 +29376,7 @@ export namespace Prisma {
     updated_by?: number | null
     deleted_at?: Date | string | null
     birth_date?: Date | string | null
+    gender?: string | null
   }
 
   export type RolePermissionUpdateWithoutRoleInput = {
@@ -29406,7 +29406,6 @@ export namespace Prisma {
     lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
     firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
     lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29425,10 +29424,11 @@ export namespace Prisma {
     updated_by?: NullableIntFieldUpdateOperationsInput | number | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    overtime_created?: OvertimeUpdateManyWithoutCreatorNestedInput
+    overtime_requests?: OvertimeUpdateManyWithoutRequesterNestedInput
     department?: DepartmentUpdateOneWithoutUsersNestedInput
     position_ref?: PositionUpdateOneWithoutUsersNestedInput
-    overtime_requests?: OvertimeUpdateManyWithoutRequesterNestedInput
-    overtime_created?: OvertimeUpdateManyWithoutCreatorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRoleInput = {
@@ -29441,7 +29441,6 @@ export namespace Prisma {
     lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
     firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
     lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     position_id?: NullableIntFieldUpdateOperationsInput | number | null
     department_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -29462,8 +29461,9 @@ export namespace Prisma {
     updated_by?: NullableIntFieldUpdateOperationsInput | number | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
     overtime_created?: OvertimeUncheckedUpdateManyWithoutCreatorNestedInput
+    overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutRoleInput = {
@@ -29476,7 +29476,6 @@ export namespace Prisma {
     lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
     firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
     lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: NullableStringFieldUpdateOperationsInput | string | null
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     position_id?: NullableIntFieldUpdateOperationsInput | number | null
     department_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -29497,6 +29496,7 @@ export namespace Prisma {
     updated_by?: NullableIntFieldUpdateOperationsInput | number | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type RolePermissionCreateManyPermissionInput = {

@@ -26,7 +26,6 @@ import { toast } from "sonner";
 import StatusModalComponent, {
   type StatusModalProps,
 } from "@/components/modal/status-modal";
-import { bulkPdfDownloadService } from "@/helpers/bulk-pdf-download.helper";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
 import ActionBarSection from "./_components/action-bar-section";
@@ -906,11 +905,8 @@ const OvertimeManagementPage = () => {
    * แยกโฟลเดอร์ตามรหัสพนักงาน
    */
   const handleBulkPdfDownloadZip = async () => {
-    if (selectedRowKeys.length === 0) {
-      toast.error("โปรดเลือกรายการที่ต้องการดาวน์โหลด");
-      return;
-    }
-
+    const { bulkPdfDownloadService } =
+      await import("@/helpers/bulk-pdf-download.helper");
     const fetchImageAsBase64 = async (url: string): Promise<string> => {
       try {
         // local paths (public folder) ดึงตรง, external URLs ผ่าน proxy เพื่อแก้ CORS
