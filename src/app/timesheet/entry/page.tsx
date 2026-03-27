@@ -25,6 +25,7 @@ import { useAppSelector } from "@stores/store";
 
 import { STATUS_OPTIONS } from "@constants/timesheet.constants";
 import { CreateModalForm } from "./_components/create-modal-form";
+import { FilterSection } from "./_components/filter-section";
 import { GuideModal } from "./_components/guide-modal";
 import { MonthlyRankBoardRef } from "./_components/monthly-rank-board";
 import { MyWorkModal } from "./_components/my-work-modal";
@@ -80,6 +81,8 @@ export default function TimesheetEntryPage() {
     deleteTimesheet,
     setPagination,
     clearSubProjects,
+    setFilters,
+    resetFilters,
   } = useTimesheetStore();
 
   // Local State
@@ -293,6 +296,19 @@ export default function TimesheetEntryPage() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
             >
+              <FilterSection
+                projects={projects}
+                projectsLoading={loading}
+                onSearch={async (values) => {
+                  setFilters(values);
+                  await fetchEntries(admin_id);
+                }}
+                onReset={async () => {
+                  resetFilters();
+                  await fetchEntries(admin_id);
+                }}
+                loading={loading}
+              />
               <TimesheetTable
                 entries={entries}
                 loading={loading}

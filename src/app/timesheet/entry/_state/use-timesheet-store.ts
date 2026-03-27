@@ -28,9 +28,21 @@ interface TimesheetState {
   // Actions
   actionLoading: boolean;
 
+  // Filters
+  filters: {
+    project_id: number | undefined;
+    status: string | undefined;
+  };
+
   // Methods
   /** ดึงข้อมูลรายการ Timesheet ทั้งหมด */
   fetchEntries: (admin_id: number | undefined) => Promise<void>;
+
+  /** ตั้งค่าตัวกรองข้อมูล */
+  setFilters: (filters: { project_id?: number; status?: string }) => void;
+
+  /** ล้างตัวกรองข้อมูล ทั้งหมด */
+  resetFilters: () => void;
 
   /** ดึงข้อมูลโครงการทั้งหมด */
   fetchProjects: () => Promise<void>;
@@ -85,15 +97,26 @@ export const useTimesheetStore = create<TimesheetState>((set, get) => ({
 
   actionLoading: false,
 
+  filters: {
+    project_id: undefined,
+    status: undefined,
+  },
+
   // Methods
   fetchEntries: async (admin_id) => {
     if (!admin_id) {
       console.warn("fetchEntries: No admin_id provided");
       return;
     }
+    const { filters } = get();
     set({ loading: true });
     try {
-      console.log("fetchEntries: Requesting list for admin_id:", admin_id);
+      console.log(
+        "fetchEntries: Requesting list for admin_id:",
+        admin_id,
+        "with filters:",
+        filters,
+      );
       const response = await timesheetService.requestTimesheetList(admin_id);
 
       // Log response details to debug data flow
@@ -111,7 +134,21 @@ export const useTimesheetStore = create<TimesheetState>((set, get) => ({
 
       if (status === 200 || apiResponse.status_code === 200 || dataIsArray) {
         // According to user's example, records are in "data" property or the array itself
-        const dataList = dataIsArray ? apiResponse : apiResponse.data || [];
+        let dataList = dataIsArray ? apiResponse : apiResponse.data || [];
+
+        // Client-side filtering logic for demo purposes/until backend supports all params
+        if (filters.project_id) {
+          dataList = dataList.filter(
+            (entry: any) =>
+              Number(entry.project_id) === Number(filters.project_id),
+          );
+        }
+        if (filters.status) {
+          dataList = dataList.filter(
+            (entry: any) => entry.status === filters.status,
+          );
+        }
+
         const total = apiResponse.pagination?.total || dataList.length || 0;
 
         console.log("fetchEntries: Extracted data list for store:", dataList);
@@ -129,6 +166,21 @@ export const useTimesheetStore = create<TimesheetState>((set, get) => ({
     } finally {
       set({ loading: false });
     }
+  },
+
+  setFilters: (newFilters) => {
+    set((state) => ({
+      filters: { ...state.filters, ...newFilters },
+    }));
+  },
+
+  resetFilters: () => {
+    set({
+      filters: {
+        project_id: undefined,
+        status: undefined,
+      },
+    });
   },
 
   fetchProjects: async () => {

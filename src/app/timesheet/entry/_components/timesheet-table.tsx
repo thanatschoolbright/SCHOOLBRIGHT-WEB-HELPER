@@ -5,11 +5,13 @@ import {
   CopyOutlined,
   DeleteOutlined,
   EditOutlined,
+  FileExcelOutlined,
+  FilePdfOutlined,
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
   SettingOutlined,
-  ThunderboltOutlined,
+  UnorderedListOutlined,
 } from "@ant-design/icons";
 import { TimesheetActions } from "@components/button/timesheet-actions";
 import { TableSearch } from "@components/input-field/table-search";
@@ -568,36 +570,39 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
       }}
       title={
-        <Flex align="center" gap={20} style={{ padding: "12px 0" }}>
-          <div
-            style={{
-              width: 52,
-              height: 52,
-              borderRadius: 16,
-              background: token.colorPrimary,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxShadow: `0 6px 16px ${token.colorPrimary}40`,
-            }}
-          >
-            <ThunderboltOutlined style={{ fontSize: 28, color: "#fff" }} />
-          </div>
-          <Flex vertical gap={4}>
-            <Typography.Title level={4} style={{ margin: 0 }}>
-              {t("timesheet_entry_page.timesheet_log", "บันทึกเวลาทำงาน")}
-            </Typography.Title>
-            <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-              {t(
-                "timesheet_entry_page.manage_and_check_timesheet",
-                "จัดการและตรวจสอบรายการลงเวลา",
-              )}
-            </Typography.Text>
-          </Flex>
+        <Flex align="center" gap={16}>
+          <UnorderedListOutlined style={{ fontSize: "1rem" }} />
+          <Typography.Title level={5} style={{ margin: 0 }}>
+            {t("timesheet_entry_page.timesheet_log", "รายการลงเวลา")}
+          </Typography.Title>
         </Flex>
       }
+      styles={{ body: { padding: 16 } }}
+      style={{
+        borderRadius: 16,
+        overflow: "hidden",
+        border: `1px solid ${token.colorBorderSecondary}`,
+      }}
       extra={
-        <Space size={24}>
+        <Space size={12}>
+          <Button
+            icon={<FileExcelOutlined />}
+            onClick={() => {
+              /* Logic for Excel Export */
+              console.log("Exporting to Excel...");
+            }}
+          >
+            Excel
+          </Button>
+          <Button
+            icon={<FilePdfOutlined />}
+            onClick={() => {
+              /* Logic for PDF Export */
+              console.log("Exporting to PDF...");
+            }}
+          >
+            PDF
+          </Button>
           <Popover
             content={
               <Flex vertical gap={12} style={{ minWidth: 200, padding: 4 }}>
