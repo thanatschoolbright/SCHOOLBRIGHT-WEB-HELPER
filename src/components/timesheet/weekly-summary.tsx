@@ -1,14 +1,16 @@
 "use client";
 
-import { CalendarOutlined } from "@ant-design/icons";
+import { CalendarOutlined, DownOutlined, UpOutlined } from "@ant-design/icons";
 import {
+  Button,
+  Col,
   DatePicker,
   Divider,
   Flex,
   Progress,
+  Row,
   Skeleton,
   Space,
-  Tag,
   theme,
   Tooltip,
   Typography,
@@ -16,7 +18,7 @@ import {
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 dayjs.extend(buddhistEra);
@@ -196,6 +198,7 @@ export const WeeklySummary: React.FC<MonthlySummaryProps> = ({
   const { t } = useTranslation();
   const { token } = theme.useToken();
   const isDark = token.colorBgBase !== "#ffffff";
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   const stats = useMemo(() => {
     if (externalStats) return externalStats;
@@ -220,6 +223,23 @@ export const WeeklySummary: React.FC<MonthlySummaryProps> = ({
     return { totalHours, completedDays, workingDays, targetTotal, progress };
   }, [monthly_summary, targetHours]);
 
+  const calendarDays = useMemo(() => {
+    if (!monthly_summary?.length) return [];
+    if (!isCollapsed) return monthly_summary;
+
+    // Is Collapsed: Show only current week + next week (total 14 items if possible)
+    const today = dayjs();
+    const currentWeekStart = today.startOf("week");
+    const currentIndex = monthly_summary.findIndex((item) =>
+      dayjs(item.dateKey).isSame(currentWeekStart, "day"),
+    );
+
+    if (currentIndex === -1) return monthly_summary.slice(0, 14);
+
+    const start = Math.max(0, currentIndex);
+    return monthly_summary.slice(start, start + 14);
+  }, [monthly_summary, isCollapsed]);
+
   if (loading) {
     return (
       <div style={{ width: "100%", padding: 24 }}>
@@ -235,7 +255,7 @@ export const WeeklySummary: React.FC<MonthlySummaryProps> = ({
             gap: 8,
           }}
         >
-          {Array.from({ length: 31 }).map((_, i) => (
+          {Array.from({ length: 14 }).map((_, i) => (
             <Skeleton.Button
               key={i}
               active
@@ -251,72 +271,6 @@ export const WeeklySummary: React.FC<MonthlySummaryProps> = ({
     );
   }
 
-  if (!monthly_summary?.length && !loading) {
-    return (
-      <div
-        style={{
-          width: "100%",
-          padding: 24,
-          background: token.colorBgContainer,
-          borderRadius: 24,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "stretch",
-          justifyContent: "center",
-        }}
-      >
-        <Flex
-          align="center"
-          justify="space-between"
-          style={{ width: "100%", marginBottom: 24 }}
-        >
-          <Space size="middle">
-            <div
-              style={{
-                padding: "8px",
-                background: token.colorPrimaryBg,
-                borderRadius: "10px",
-                color: token.colorPrimary,
-                display: "flex",
-              }}
-            >
-              <CalendarOutlined style={{ fontSize: 18 }} />
-            </div>
-            <div>
-              <Typography.Text
-                strong
-                style={{ fontSize: 16, display: "block" }}
-              >
-                สรุปเวลาทำงานรายเดือน
-              </Typography.Text>
-            </div>
-          </Space>
-          <DatePicker
-            picker="month"
-            value={selected_date}
-            onChange={(date) => date && on_date_change?.(date)}
-            format="MMMM BBBB"
-            allowClear={false}
-          />
-        </Flex>
-        <Flex
-          vertical
-          align="center"
-          justify="center"
-          style={{
-            minHeight: 180,
-            border: `1px dashed ${token.colorBorder}`,
-            borderRadius: 16,
-          }}
-        >
-          <Typography.Text type="secondary">
-            ไม่พบข้อมูลสรุปสำหรับรอบบิลนี้
-          </Typography.Text>
-        </Flex>
-      </div>
-    );
-  }
-
   return (
     <div
       style={{
@@ -324,13 +278,16 @@ export const WeeklySummary: React.FC<MonthlySummaryProps> = ({
         padding: 24,
         background: token.colorBgContainer,
         borderRadius: 24,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "stretch",
+        justifyContent: "center",
       }}
     >
-      {/* Header Section */}
       <Flex
         align="center"
         justify="space-between"
-        style={{ width: "100%", marginBottom: 24 }}
+        style={{ width: "100%", marginBottom: 16 }}
       >
         <Space size="middle">
           <div
@@ -348,193 +305,144 @@ export const WeeklySummary: React.FC<MonthlySummaryProps> = ({
             <Typography.Text strong style={{ fontSize: 16, display: "block" }}>
               สรุปเวลาทำงานรายเดือน
             </Typography.Text>
-            <Space
-              split={
-                <Divider
-                  type="vertical"
-                  style={{ margin: "0 4px", height: 12 }}
-                />
-              }
-              align="center"
-            >
-              <DatePicker
-                picker="month"
-                value={selected_date}
-                onChange={(date) => date && on_date_change?.(date)}
-                format="MMMM BBBB"
-                allowClear={false}
-                variant="borderless"
-                size="small"
-                style={{
-                  padding: 0,
-                  margin: 0,
-                  height: "auto",
-                  lineHeight: 1,
-                }}
-                className="month-picker-summary"
-              />
-              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                เป้าหมาย {targetHours} ชม./วัน
-              </Typography.Text>
-            </Space>
           </div>
         </Space>
-
-        {stats && (
-          <Space split={<Divider type="vertical" />} className="hidden sm:flex">
-            <StatisticItem
-              label="ชั่วโมงทั้งหมด"
-              value={stats.totalHours.toFixed(1)}
-              suffix={`/ ${stats.targetTotal}`}
-              color={token.colorPrimary}
-            />
-            <StatisticItem
-              label="วันที่ครบถ้วน"
-              value={stats.completedDays}
-              suffix={`/ ${stats.workingDays}`}
-              color={token.colorSuccess}
-            />
-          </Space>
-        )}
+        <Space>
+          <DatePicker
+            picker="month"
+            value={selected_date}
+            onChange={(date) => date && on_date_change?.(date)}
+            format="MMMM BBBB"
+            allowClear={false}
+            size="small"
+          />
+          <Button
+            type="text"
+            size="small"
+            icon={isCollapsed ? <DownOutlined /> : <UpOutlined />}
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            style={{ borderRadius: 8, color: token.colorTextSecondary }}
+          >
+            {isCollapsed ? "ขยาย" : "หุบ"}
+          </Button>
+        </Space>
       </Flex>
 
-      {/* Content Section */}
-      <div style={{ padding: 0 }}>
-        {/* Monthly Progress Bar */}
-        {stats && (
+      {!monthly_summary?.length ? (
+        <Flex
+          justify="center"
+          align="center"
+          style={{
+            height: 120,
+            background: token.colorFillAlter,
+            borderRadius: 20,
+          }}
+        >
+          <Typography.Text type="secondary">
+            ไม่พบข้อมูลของเดือนนี้
+          </Typography.Text>
+        </Flex>
+      ) : (
+        <>
           <div
             style={{
-              marginBottom: 24,
-              padding: "16px",
-              background: token.colorFillAlter,
-              borderRadius: 16,
+              display: "grid",
+              gridTemplateColumns: "repeat(7, 1fr)",
+              gap: 8,
+              marginBottom: 16,
             }}
           >
-            <Flex
-              justify="space-between"
-              align="end"
-              style={{ marginBottom: 8 }}
-            >
-              <div>
-                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  ความคืบหน้าของเดือนนี้
-                </Typography.Text>
-                <div style={{ fontSize: 20, fontWeight: "bold" }}>
-                  {stats.totalHours.toLocaleString()}{" "}
-                  <span
+            {calendarDays.map((item, i) => (
+              <CompactDay
+                key={i}
+                item={item}
+                targetHours={targetHours}
+                isDark={isDark}
+                token={token}
+              />
+            ))}
+          </div>
+
+          <Divider style={{ margin: "16px 0", opacity: 0.5 }} />
+
+          <Row gutter={[24, 16]}>
+            <Col xs={24} md={12}>
+              <Flex vertical gap={12}>
+                <Flex justify="space-between">
+                  <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+                    ความคืบหน้าชั่วโมงงานทั้งหมด
+                  </Typography.Text>
+                  <Typography.Text strong style={{ fontSize: 13 }}>
+                    {stats?.totalHours || 0} / {stats?.targetTotal || 0} ชม.
+                  </Typography.Text>
+                </Flex>
+                <Progress
+                  percent={stats?.progress || 0}
+                  strokeColor={{
+                    "0%": token.colorPrimary,
+                    "100%": token.colorSuccess,
+                  }}
+                  trailColor={token.colorFillAlter}
+                  size={["100%", 10]}
+                />
+              </Flex>
+            </Col>
+            <Col xs={24} md={12}>
+              <Flex gap={12} justify="space-around">
+                <Flex vertical align="center">
+                  <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                    วันทำงาน
+                  </Typography.Text>
+                  <Typography.Text strong style={{ fontSize: 16 }}>
+                    {stats?.workingDays || 0}
+                  </Typography.Text>
+                </Flex>
+                <Divider
+                  type="vertical"
+                  style={{ height: "100%", margin: 0 }}
+                />
+                <Flex vertical align="center">
+                  <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                    เป้าหมายครบ (วัน)
+                  </Typography.Text>
+                  <Typography.Text
+                    strong
+                    style={{ fontSize: 16, color: token.colorSuccess }}
+                  >
+                    {stats?.completedDays || 0}
+                  </Typography.Text>
+                </Flex>
+                <Divider
+                  type="vertical"
+                  style={{ height: "100%", margin: 0 }}
+                />
+                <Flex vertical align="center">
+                  <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                    ขาด (ชั่วโมง)
+                  </Typography.Text>
+                  <Typography.Text
+                    strong
                     style={{
-                      fontSize: 14,
-                      fontWeight: "normal",
-                      color: token.colorTextSecondary,
+                      fontSize: 16,
+                      color:
+                        (stats?.targetTotal || 0) - (stats?.totalHours || 0) > 0
+                          ? token.colorError
+                          : token.colorSuccess,
                     }}
                   >
-                    ชั่วโมง
-                  </span>
-                </div>
-              </div>
-              <Tag
-                color={stats.progress === 100 ? "success" : "processing"}
-                style={{ borderRadius: 20, margin: 0 }}
-              >
-                {stats.progress}%
-              </Tag>
-            </Flex>
-            <Progress
-              percent={stats.progress}
-              showInfo={false}
-              strokeColor={{
-                "0%": token.colorPrimary,
-                "100%": token.colorSuccess,
-              }}
-              size={{ strokeWidth: 10 }}
-            />
-          </div>
-        )}
-
-        {/* Calendar Header */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(7, 1fr)",
-            gap: 8,
-            marginBottom: 12,
-            textAlign: "center",
-          }}
-        >
-          {["จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส.", "อา."].map((day) => (
-            <Typography.Text
-              key={day}
-              type="secondary"
-              strong
-              style={{ fontSize: 12 }}
-            >
-              {day}
-            </Typography.Text>
-          ))}
-        </div>
-
-        {/* Calendar Grid */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(7, 1fr)",
-            gap: 8,
-          }}
-        >
-          {/* Offset start of month */}
-          {Array.from({
-            length: (selected_date.startOf("month").day() + 6) % 7,
-          }).map((_, i) => (
-            <div key={`empty-${i}`} />
-          ))}
-
-          {monthly_summary.map((item) => (
-            <CompactDay
-              key={item.dateKey}
-              item={item}
-              targetHours={targetHours}
-              isDark={isDark}
-              token={token}
-            />
-          ))}
-        </div>
-
-        {/* Legend */}
-        <Flex gap={16} wrap="wrap" style={{ marginTop: 24, padding: "0 4px" }}>
-          <LegendItem color={token.colorSuccess} label="ครบถ้วน" />
-          <LegendItem color={token.colorWarning} label="ยังไม่ครบ" />
-          <LegendItem color={token.colorError} label="ไม่ได้ลงเวลา" />
-          <LegendItem color={token.colorTextQuaternary} label="เร็วๆ นี้" />
-        </Flex>
-      </div>
+                    {Math.max(
+                      0,
+                      (stats?.targetTotal || 0) - (stats?.totalHours || 0),
+                    )}
+                  </Typography.Text>
+                </Flex>
+              </Flex>
+            </Col>
+          </Row>
+        </>
+      )}
     </div>
   );
 };
 
-const StatisticItem = ({ label, value, suffix, color }: any) => (
-  <div style={{ textAlign: "right" }}>
-    <Typography.Text
-      type="secondary"
-      style={{ fontSize: 11, display: "block" }}
-    >
-      {label}
-    </Typography.Text>
-    <Typography.Text strong style={{ fontSize: 16, color }}>
-      {value}{" "}
-      <span style={{ fontSize: 11, color: "inherit", opacity: 0.7 }}>
-        {suffix}
-      </span>
-    </Typography.Text>
-  </div>
-);
-
-const LegendItem = ({ color, label }: any) => (
-  <Space size={4}>
-    <div
-      style={{ width: 10, height: 10, background: color, borderRadius: 3 }}
-    />
-    <Typography.Text style={{ fontSize: 11 }}>{label}</Typography.Text>
-  </Space>
-);
-
-export type { MonthlySummaryProps as WeeklySummaryProps };
+WeeklySummary.displayName = "WeeklySummary";
