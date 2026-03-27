@@ -16,6 +16,7 @@ import {
   FilterOutlined,
   HistoryOutlined,
   InfoCircleOutlined,
+  LoadingOutlined,
   PushpinOutlined,
   RobotOutlined,
   RocketOutlined,
@@ -39,6 +40,7 @@ import {
   Input,
   Layout,
   Modal,
+  Progress,
   Row,
   Select,
   Space,
@@ -329,8 +331,7 @@ const IssueDetailModal: React.FC<{
 };
 
 /**
- * ส่วนแสดงผลตารางรายการงาน
- * จัดการข้อมูลและการแสดงผลในรูปแบบตาราง พร้อมระบบ AI สรุปงาน
+ * IssuesListTable: แสดงรายการงานแบบตารางพร้อมระบบ AI สรุปงาน
  */
 const IssuesListTable: React.FC<{
   onReload: () => void;
@@ -502,7 +503,7 @@ const IssuesListTable: React.FC<{
       ellipsis: true,
       width: 250,
       sorter: (a, b) => a.summary.localeCompare(b.summary),
-      render: (text: string, record: Issue) => (
+      render: (text: string) => (
         <Tooltip title={text}>
           <Text style={{ fontWeight: 500 }}>{text}</Text>
         </Tooltip>
@@ -1303,7 +1304,7 @@ const BulkUpdateModal: React.FC<{
   onProgress,
 }) => {
   const { token } = theme.useToken();
-  if (minimized) return null;
+
   return (
     <Modal
       title={
@@ -1337,7 +1338,7 @@ const BulkUpdateModal: React.FC<{
           </Flex>
         </Flex>
       }
-      open={open}
+      open={open && !minimized}
       onCancel={onClose}
       footer={null}
       width={1300}
@@ -1390,8 +1391,9 @@ function ProjectIssuesPageContent(): JSX.Element {
   const dispatch = useDispatch<AppDispatch>();
   const [showSummary, setShowSummary] = useState(false);
 
-  const { statusOptions, priorityOptions, issueTypeOptions, assigneeOptions } =
-    useSelector((state: RootState) => state.issues);
+  const { statusOptions, issueTypeOptions, assigneeOptions } = useSelector(
+    (state: RootState) => state.issues,
+  );
 
   // * State สำหรับ Modal ของ Filter และ Bulk Update
   const [showBulk, setShowBulk] = useState(false);
@@ -1490,7 +1492,6 @@ function ProjectIssuesPageContent(): JSX.Element {
                   subtitle="รายการที่ปิดงานแล้ว"
                   icon={<CheckCircleOutlined />}
                   color={token.colorSuccess}
-                  percent={summaryStats.progress}
                   isLoading={state.loading}
                 />
               </Col>
@@ -1501,7 +1502,6 @@ function ProjectIssuesPageContent(): JSX.Element {
                   subtitle="เปอร์เซ็นต์รวม"
                   icon={<TrophyOutlined />}
                   color="#faad14"
-                  percent={summaryStats.progress}
                   isLoading={state.loading}
                 />
               </Col>
@@ -1727,28 +1727,73 @@ function ProjectIssuesPageContent(): JSX.Element {
       />
 
       {/* Floating AI Widget (Pinned) */}
-      {isBulkMinimized && showBulk && (
+      {isBulkMinimized && showBulk && bulkProgress.status !== "idle" && (
         <div
           onClick={() => {
             setIsBulkMinimized(false);
           }}
           style={{
             position: "fixed",
-            bottom: 40,
-            right: 40,
-            zIndex: 1000,
+            bottom: 30,
+            right: 30,
+            zIndex: 1050,
             cursor: "pointer",
-            padding: "12px 24px",
-            borderRadius: 24,
-            boxShadow: "none",
+            padding: "16px 24px",
+            borderRadius: 16,
+            background: token.colorBgElevated,
             border: `1px solid ${token.colorPrimary}`,
+            boxShadow: token.boxShadowSecondary,
+            transition: "all 0.3s ease",
           }}
         >
-          <Flex align="center" gap={12}>
-            <RobotOutlined
-              style={{ color: token.colorPrimary, fontSize: 20 }}
-            />
-            <Text strong>AI กำลังทำงาน ({bulkProgress.percent}%)</Text>
+          <Flex align="center" gap={16}>
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
+                background:
+                  bulkProgress.status === "processing"
+                    ? token.colorPrimaryHover
+                    : token.colorSuccessBg,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {bulkProgress.status === "processing" ? (
+                <LoadingOutlined
+                  style={{ color: token.colorWhite, fontSize: 18 }}
+                />
+              ) : (
+                <RobotOutlined
+                  style={{ color: token.colorPrimary, fontSize: 18 }}
+                />
+              )}
+            </div>
+            <Flex vertical gap={4}>
+              <Text strong style={{ fontSize: 13 }}>
+                {bulkProgress.status === "completed"
+                  ? "AI สรุปงานเสร็จสิ้น"
+                  : "กำลังสรุปงานด้วย AI"}
+              </Text>
+              <Flex align="center" gap={8}>
+                <div style={{ width: 120 }}>
+                  <Progress
+                    percent={bulkProgress.percent}
+                    size="small"
+                    showInfo={false}
+                    strokeColor={{
+                      "0%": token.colorPrimary,
+                      "100%": token.colorSuccess,
+                    }}
+                  />
+                </div>
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                  {bulkProgress.success}/{bulkProgress.total}
+                </Text>
+              </Flex>
+            </Flex>
           </Flex>
         </div>
       )}

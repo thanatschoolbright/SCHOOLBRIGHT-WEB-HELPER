@@ -7,7 +7,6 @@ import {
   EditOutlined,
   InfoCircleOutlined,
   LoadingOutlined,
-  MinusOutlined,
   ReloadOutlined,
   RobotOutlined,
   UnorderedListOutlined,
@@ -66,8 +65,6 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
   space,
   onUpdateComplete,
   onProgressUpdate,
-  onRequestMinimize,
-  minimized = false,
 }) => {
   const { token } = theme.useToken();
   const router = useRouter();
@@ -89,13 +86,11 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
     );
   }, [issues, selectedRowKeys]);
 
-  const [bulkTabKey, setBulkTabKey] = useState<"ai" | "manual">("ai");
   const [autoCategoryEnabled, setAutoCategoryEnabled] = useState(false);
   const [autoGeminiEnabled, setAutoGeminiEnabled] = useState(false);
   const [autoChatGptEnabled, setAutoChatGptEnabled] = useState(false);
   const [autoCategoryLoading, setAutoCategoryLoading] = useState(false);
   const [bulkUpdating, setBulkUpdating] = useState(false);
-  const [resultsModalVisible, setResultsModalVisible] = useState(false);
   const [processingResults, setProcessingResults] = useState<
     Array<{
       issueKeyOrId: string | number;
@@ -126,17 +121,18 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
       onProgressUpdate({ percent: 0, success: 0, total: 0, status: "idle" });
       return;
     }
-    const success = processingResults.filter(
-      (r) => r.status === "success" || r.status === "error", // Count processed
-    ).length;
+    const successList = processingResults.filter(
+      (r) => r.status === "success" || r.status === "error",
+    );
+    const success = successList.length;
     const percent = Math.round((success / total) * 100);
     const hasError = processingResults.some((r) => r.status === "error");
     const isCompleted = success === total;
-    const status = isCompleted
-      ? "completed"
-      : hasError && isCompleted
-        ? "error"
-        : "processing";
+
+    let status: "idle" | "processing" | "completed" | "error" = "processing";
+    if (isCompleted) {
+      status = hasError ? "error" : "completed";
+    }
 
     onProgressUpdate({ percent, success, total, status });
   }, [processingResults, onProgressUpdate]);
@@ -171,6 +167,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
     payload: any,
     selectedIssueMap: Map<string, Issue>,
   ) => {
+    if (!payload) return { success: false, error: "ไม่พบข้อมูลงาน" };
     const issue = selectedIssueMap.get(String(payload.issueKeyOrId));
     try {
       if (!issue) throw new Error("ไม่พบข้อมูลงาน");
@@ -198,7 +195,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
 
       setProcessingResults((prev) =>
         prev.map((r) =>
-          String(r.issueKeyOrId) === String(payload.issueKeyOrId)
+          String(r.issueKeyOrId) === String(payload?.issueKeyOrId)
             ? {
                 ...r,
                 status: "success",
@@ -216,7 +213,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
       const { message, detail, statusCode } = extractErrorMessage(err);
       setProcessingResults((prev) =>
         prev.map((r) =>
-          String(r.issueKeyOrId) === String(payload.issueKeyOrId)
+          String(r.issueKeyOrId) === String(payload?.issueKeyOrId)
             ? {
                 ...r,
                 status: "error",
@@ -267,7 +264,6 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
     setAutoCategoryEnabled(false);
     setAutoGeminiEnabled(false);
     setAutoChatGptEnabled(false);
-    setResultsModalVisible(false); // Close result modal on clear
     setProcessingResults([]); // Clear results
   };
 
@@ -330,40 +326,45 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
           );
         }
 
-        let perIssuePayloads = selectedIssues.map((issue) => ({
+        const perIssuePayloads = selectedIssues.map((issue) => ({
           issueKeyOrId: issue.issueKey || issue.id,
           updates: { ...sharedUpdates },
         }));
 
         if (autoCategoryEnabled) {
+          setAutoCategoryLoading(true);
           toast.message(`กำลังวิเคราะห์หมวดหมู่ด้วย Gemini...`, {
             id: toastId,
           });
-          // Note: auto-category is currently only implemented for Gemini in the backend.
-          const { data: autoCategoryResponse } = await axios.post(
-            "/api/v1/ai/gemini/auto-category",
-            {
-              issues: selectedIssues.map((item) => ({
-                issueKey: item.issueKey || String(item.id),
-                summary: item.summary,
-                description: item.description,
-              })),
-              categories: categoryOptions.map((option) => ({
-                id: option.value,
-                name: option.label,
-              })),
-            },
-          );
-          const suggestions = autoCategoryResponse?.data?.suggestions || [];
-          const suggestionMap = new Map(
-            suggestions.map((s: any) => [s.issueKey, s.categoryIds]),
-          );
-          perIssuePayloads.forEach((p) => {
-            const categoryIds = suggestionMap.get(p.issueKeyOrId);
-            if (Array.isArray(categoryIds) && categoryIds.length > 0) {
-              p.updates.categoryId = categoryIds;
-            }
-          });
+          try {
+            // Note: auto-category is currently only implemented for Gemini in the backend.
+            const { data: autoCategoryResponse } = await axios.post(
+              "/api/v1/ai/gemini/auto-category",
+              {
+                issues: selectedIssues.map((item) => ({
+                  issueKey: item.issueKey || String(item.id),
+                  summary: item.summary,
+                  description: item.description,
+                })),
+                categories: categoryOptions.map((option) => ({
+                  id: option.value,
+                  name: option.label,
+                })),
+              },
+            );
+            const suggestions = autoCategoryResponse?.data?.suggestions || [];
+            const suggestionMap = new Map(
+              suggestions.map((s: any) => [s.issueKey, s.categoryIds]),
+            );
+            perIssuePayloads.forEach((p) => {
+              const categoryIds = suggestionMap.get(p.issueKeyOrId);
+              if (Array.isArray(categoryIds) && categoryIds.length > 0) {
+                p.updates.categoryId = categoryIds;
+              }
+            });
+          } finally {
+            setAutoCategoryLoading(false);
+          }
         }
 
         if (autoGeminiEnabled || autoChatGptEnabled) {
@@ -378,7 +379,6 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
               index: i,
             })),
           );
-          setResultsModalVisible(true);
 
           // Sequential runner with delay
           for (let i = 0; i < perIssuePayloads.length; i++) {
@@ -387,7 +387,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
             // mark pending
             setProcessingResults((prev) =>
               prev.map((r) =>
-                String(r.issueKeyOrId) === String(payload.issueKeyOrId)
+                String(r.issueKeyOrId) === String(payload?.issueKeyOrId)
                   ? {
                       ...r,
                       status: "pending",
@@ -654,85 +654,258 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                   style={{
                     padding: 8,
                     borderRadius: 10,
+                    background:
+                      processingResults.length > 0
+                        ? token.colorPrimaryBg
+                        : "transparent",
                   }}
                 >
-                  <UnorderedListOutlined
-                    style={{ color: token.colorPrimary, fontSize: 18 }}
-                  />
+                  {processingResults.length > 0 ? (
+                    <RobotOutlined
+                      style={{ color: token.colorPrimary, fontSize: 18 }}
+                    />
+                  ) : (
+                    <UnorderedListOutlined
+                      style={{ color: token.colorPrimary, fontSize: 18 }}
+                    />
+                  )}
                 </div>
                 <Typography.Title level={4} style={{ margin: 0, fontSize: 18 }}>
-                  รายการงานที่กำลังดำเนินการ ({selectedRowKeys.length} รายการ)
+                  {processingResults.length > 0
+                    ? `ผลลัพธ์การประมวลผล AI (${
+                        processingResults.filter(
+                          (r) => r.status === "success" || r.status === "error",
+                        ).length
+                      } / ${processingResults.length})`
+                    : `รายการงานที่กำลังดำเนินการ (${selectedRowKeys.length} รายการ)`}
                 </Typography.Title>
               </Flex>
+
+              {processingResults.length > 0 && (
+                <div style={{ padding: "8px 0" }}>
+                  <Progress
+                    percent={Math.round(
+                      (processingResults.filter(
+                        (r) => r.status === "success" || r.status === "error",
+                      ).length /
+                        processingResults.length) *
+                        100,
+                    )}
+                    status="active"
+                    strokeColor={{
+                      "0%": token.colorPrimary,
+                      "100%": token.colorSuccess,
+                    }}
+                    size={{ height: 10 }}
+                  />
+                </div>
+              )}
 
               <Table<Issue>
                 dataSource={selectedIssuesData}
                 rowKey="id"
                 pagination={false}
                 size="middle"
-                scroll={{ y: 300 }}
+                scroll={{ y: 500 }}
                 style={{
                   borderRadius: 16,
                   overflow: "hidden",
                   border: `1px solid ${token.colorBorderSecondary}`,
                 }}
+                expandable={
+                  processingResults.length > 0
+                    ? {
+                        expandedRowRender: (record) => {
+                          const result = processingResults.find(
+                            (r) => String(r.issueKeyOrId) === String(record.id),
+                          );
+                          if (!result) return null;
+                          return (
+                            <div
+                              style={{
+                                padding: 24,
+                                borderRadius: 12,
+                                margin: 12,
+                                border: `1px solid ${token.colorBorderSecondary}`,
+                                background: token.colorBgLayout,
+                              }}
+                            >
+                              {result.status === "error" && (
+                                <Space
+                                  direction="vertical"
+                                  size={12}
+                                  style={{ marginBottom: 20, width: "100%" }}
+                                >
+                                  <Typography.Text type="danger" strong>
+                                    <CloseCircleOutlined /> ข้อผิดพลาดทางเทคนิค:
+                                  </Typography.Text>
+                                  <div
+                                    style={{
+                                      padding: "12px 16px",
+                                      borderLeft: `4px solid ${token.colorError}`,
+                                      fontSize: 13,
+                                      background: token.colorBgContainer,
+                                    }}
+                                  >
+                                    {result.message}
+                                  </div>
+                                </Space>
+                              )}
+                              {result.summary && (
+                                <Space
+                                  direction="vertical"
+                                  size={12}
+                                  style={{ width: "100%" }}
+                                >
+                                  <Typography.Text type="secondary" strong>
+                                    ตัวอย่างคําอธิบายที่สร้างใหม่:
+                                  </Typography.Text>
+                                  <div
+                                    style={{
+                                      padding: 20,
+                                      border: `1px solid ${token.colorBorderSecondary}`,
+                                      borderRadius: 12,
+                                      maxHeight: 250,
+                                      overflow: "auto",
+                                      fontSize: 14,
+                                      lineHeight: 1.7,
+                                      whiteSpace: "pre-wrap",
+                                      background: token.colorBgContainer,
+                                    }}
+                                  >
+                                    {result.summary}
+                                  </div>
+                                </Space>
+                              )}
+                            </div>
+                          );
+                        },
+                        rowExpandable: (record) => {
+                          const result = processingResults.find(
+                            (r) => String(r.issueKeyOrId) === String(record.id),
+                          );
+                          return (
+                            result?.status === "success" ||
+                            result?.status === "error"
+                          );
+                        },
+                      }
+                    : undefined
+                }
                 columns={[
                   {
                     title: "รหัสงาน",
                     dataIndex: "issueKey",
                     key: "issueKey",
-                    width: 140,
+                    width: 120,
                     render: (val) => (
                       <Tag
                         color="blue"
                         style={{
                           borderRadius: 6,
                           fontWeight: 600,
-                          paddingInline: 8,
                         }}
                       >
                         {val}
                       </Tag>
                     ),
                   },
-                  {
-                    title: "หัวข้อนาน",
-                    dataIndex: "summary",
-                    key: "summary",
-                    ellipsis: true,
-                    render: (val) => (
-                      <Typography.Text strong style={{ fontSize: 13 }}>
-                        {val}
-                      </Typography.Text>
-                    ),
-                  },
+                  ...(processingResults.length > 0
+                    ? [
+                        {
+                          title: "สถานะ AI",
+                          key: "aiStatus",
+                          width: 180,
+                          render: (_: any, record: Issue) => {
+                            const result = processingResults.find(
+                              (r) =>
+                                String(r.issueKeyOrId) === String(record.id),
+                            );
+                            if (!result) return <Tag>รอดำเนินการ</Tag>;
+
+                            const config = {
+                              queue: {
+                                color: "default",
+                                icon: <ClockCircleOutlined />,
+                                text: "ในคิว",
+                              },
+                              pending: {
+                                color: "processing",
+                                icon: <LoadingOutlined />,
+                                text: "กำลังสรุป",
+                              },
+                              success: {
+                                color: "success",
+                                icon: <CheckCircleOutlined />,
+                                text: "สำเร็จ",
+                              },
+                              error: {
+                                color: "error",
+                                icon: <CloseCircleOutlined />,
+                                text: "ล้มเหลว",
+                              },
+                            }[result.status as string] || {
+                              color: "default",
+                              icon: null,
+                              text: result.status,
+                            };
+                            return (
+                              <Tag
+                                color={config.color}
+                                icon={config.icon}
+                                style={{ borderRadius: 20, paddingInline: 12 }}
+                              >
+                                {config.text}
+                              </Tag>
+                            );
+                          },
+                        },
+                        {
+                          title: "หัวข้อใหม่",
+                          key: "aiSummary",
+                          width: 250,
+                          render: (_: any, record: Issue) => {
+                            const result = processingResults.find(
+                              (r) =>
+                                String(r.issueKeyOrId) === String(record.id),
+                            );
+                            if (!result || result.status === "error")
+                              return "-";
+                            return (
+                              <Typography.Text
+                                strong
+                                style={{
+                                  fontSize: 13,
+                                  color: token.colorSuccess,
+                                }}
+                              >
+                                {result.aiSummary || "-"}
+                              </Typography.Text>
+                            );
+                          },
+                        },
+                      ]
+                    : [
+                        {
+                          title: "หัวข้อนาน",
+                          dataIndex: "summary",
+                          key: "summary",
+                          ellipsis: true,
+                          render: (val: any) => (
+                            <Typography.Text strong style={{ fontSize: 13 }}>
+                              {val}
+                            </Typography.Text>
+                          ),
+                        },
+                      ]),
                   {
                     title: "สถานะ",
                     dataIndex: ["status", "name"],
                     key: "status",
-                    width: 160,
+                    width: 140,
                     render: (val, record) => (
                       <ColoredBadge text={val} color={record.status?.color} />
                     ),
-                  },
-                  {
-                    title: "ความสำคัญ",
-                    dataIndex: ["priority", "name"],
-                    key: "priority",
-                    width: 120,
-                    render: (val) => {
-                      const color =
-                        val === "High"
-                          ? "volcano"
-                          : val === "Normal"
-                            ? "blue"
-                            : "default";
-                      return (
-                        <Tag color={color} style={{ borderRadius: 4 }}>
-                          {val}
-                        </Tag>
-                      );
-                    },
                   },
                   {
                     title: "",
@@ -743,6 +916,7 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                       <Button
                         type="text"
                         danger
+                        disabled={bulkUpdating}
                         icon={<CloseCircleOutlined />}
                         onClick={() => {
                           dispatch(
@@ -758,369 +932,119 @@ const BulkUpdateSection: React.FC<BulkUpdateSectionProps> = ({
                   },
                 ]}
               />
+
+              {processingResults.length > 0 && (
+                <Flex
+                  justify="space-between"
+                  align="center"
+                  style={{ marginTop: 24 }}
+                >
+                  <Button
+                    size="large"
+                    icon={<ReloadOutlined />}
+                    onClick={async () => {
+                      const failedRows = processingResults.filter(
+                        (r) => r.status === "error",
+                      );
+                      if (!failedRows.length) return;
+
+                      const payloads = perIssuePayloadsRef.current || [];
+                      const targets = failedRows
+                        .map((fr) =>
+                          payloads.find(
+                            (p) =>
+                              String(p.issueKeyOrId) ===
+                              String(fr.issueKeyOrId),
+                          ),
+                        )
+                        .filter(Boolean);
+
+                      if (!targets.length) return;
+
+                      setProcessingResults((prev) =>
+                        prev.map((r) =>
+                          failedRows.some(
+                            (fr) =>
+                              String(fr.issueKeyOrId) ===
+                              String(r.issueKeyOrId),
+                          )
+                            ? { ...r, status: "pending", message: undefined }
+                            : r,
+                        ),
+                      );
+
+                      const retryMap = new Map<string, Issue>();
+                      issues.forEach((i) => {
+                        retryMap.set(String(i.id), i);
+                        if (i.issueKey) retryMap.set(i.issueKey, i);
+                      });
+
+                      for (const payload of targets) {
+                        await processSingle(payload, retryMap);
+                      }
+                      toast.success("ลองใหม่สำเร็จ");
+                    }}
+                    disabled={
+                      bulkUpdating ||
+                      !processingResults.some((r) => r.status === "error")
+                    }
+                  >
+                    ลองใหม่รายการที่ล้มเหลว
+                  </Button>
+
+                  <Space size={16}>
+                    <Button
+                      size="large"
+                      onClick={() => setProcessingResults([])}
+                      disabled={bulkUpdating}
+                    >
+                      ยกเลิกผลการประมวลผล
+                    </Button>
+                    <Button
+                      type="primary"
+                      size="large"
+                      style={{ minWidth: 200, fontWeight: 600 }}
+                      onClick={async () => {
+                        const entries = (
+                          perIssuePayloadsRef.current || []
+                        ).filter((p) => p.updates?.description);
+                        if (!entries.length) return;
+                        setSaving(true);
+                        try {
+                          await axios.post(
+                            "/api/v1/backlog/issues/bulk-update",
+                            {
+                              space,
+                              entries,
+                            },
+                          );
+                          toast.success(
+                            `บันทึก ${entries.length} รายการสำเร็จ`,
+                          );
+                          onUpdateComplete();
+                          clearBulkForm();
+                        } catch (e: any) {
+                          toast.error(e.message || "บันทึกไม่สำเร็จ");
+                        } finally {
+                          setSaving(false);
+                        }
+                      }}
+                      loading={saving}
+                      disabled={
+                        bulkUpdating ||
+                        saving ||
+                        !processingResults.some((r) => r.status === "success")
+                      }
+                    >
+                      ยืนยันและบันทึกข้อมูล AI ทั้งหมด
+                    </Button>
+                  </Space>
+                </Flex>
+              )}
             </Flex>
           </div>
         )}
       </Skeleton>
-
-      {/* Results Modal */}
-      <Modal
-        title={null}
-        open={resultsModalVisible && !minimized}
-        onCancel={() => setResultsModalVisible(false)}
-        footer={null}
-        width={1300}
-        centered
-        styles={{
-          content: {
-            boxShadow: "none",
-          },
-          body: {
-            padding: "48px 64px",
-          },
-        }}
-        maskClosable={false}
-        destroyOnHidden={false}
-      >
-        <Space direction="vertical" size={40} style={{ width: "100%" }}>
-          <Flex justify="space-between" align="center">
-            <Space align="center" size={24}>
-              <div
-                style={{
-                  padding: 12,
-                  borderRadius: 12,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <RobotOutlined
-                  style={{ color: token.colorPrimary, fontSize: 24 }}
-                />
-              </div>
-              <Flex vertical gap={4}>
-                <Typography.Title level={4} style={{ margin: 0 }}>
-                  ผลลัพธ์การประมวลผลด้วย AI
-                </Typography.Title>
-                <Typography.Text type="secondary">
-                  ประมวลผลเสร็จสิ้น{" "}
-                  <Typography.Text strong>
-                    {
-                      processingResults.filter(
-                        (r) => r.status === "success" || r.status === "error",
-                      ).length
-                    }
-                  </Typography.Text>{" "}
-                  / {processingResults.length} รายการ
-                </Typography.Text>
-              </Flex>
-            </Space>
-            {onRequestMinimize && (
-              <Button
-                type="text"
-                shape="circle"
-                icon={<MinusOutlined />}
-                onClick={onRequestMinimize}
-              />
-            )}
-          </Flex>
-
-          <Progress
-            percent={Math.round(
-              (processingResults.filter(
-                (r) => r.status === "success" || r.status === "error",
-              ).length /
-                processingResults.length) *
-                100,
-            )}
-            status="active"
-            strokeColor={{
-              "0%": token.colorPrimary,
-              "100%": token.colorSuccess,
-            }}
-            size={{ strokeWidth: 14 }}
-          />
-
-          <Table
-            dataSource={processingResults}
-            rowKey={(r) => String(r.issueKeyOrId)}
-            pagination={false}
-            scroll={{ y: 550 }}
-            size="middle"
-            style={{
-              borderRadius: 16,
-              overflow: "hidden",
-              border: `1px solid ${token.colorBorderSecondary}`,
-            }}
-            expandable={{
-              expandedRowRender: (record) => (
-                <div
-                  style={{
-                    padding: 24,
-                    borderRadius: 12,
-                    margin: 12,
-                    border: `1px solid ${token.colorBorderSecondary}`,
-                  }}
-                >
-                  {record.status === "error" && (
-                    <Space
-                      direction="vertical"
-                      size={12}
-                      style={{ marginBottom: 20, width: "100%" }}
-                    >
-                      <Typography.Text type="danger" strong>
-                        <CloseCircleOutlined /> ข้อผิดพลาดทางเทคนิค:
-                      </Typography.Text>
-                      <div
-                        style={{
-                          padding: "12px 16px",
-                          borderLeft: `4px solid ${token.colorError}`,
-                          fontSize: 13,
-                        }}
-                      >
-                        {record.message}
-                      </div>
-                    </Space>
-                  )}
-                  {record.summary && (
-                    <Space
-                      direction="vertical"
-                      size={12}
-                      style={{ width: "100%" }}
-                    >
-                      <Typography.Text type="secondary" strong>
-                        ตัวอย่างคําอธิบายที่สร้างใหม่:
-                      </Typography.Text>
-                      <div
-                        style={{
-                          padding: 20,
-                          border: `1px solid ${token.colorBorderSecondary}`,
-                          borderRadius: 12,
-                          maxHeight: 250,
-                          overflow: "auto",
-                          fontSize: 14,
-                          lineHeight: 1.7,
-                          whiteSpace: "pre-wrap",
-                        }}
-                      >
-                        {record.summary}
-                      </div>
-                    </Space>
-                  )}
-                </div>
-              ),
-              rowExpandable: (record) =>
-                record.status === "success" || record.status === "error",
-            }}
-            columns={[
-              {
-                title: "รหัสงาน",
-                dataIndex: "title",
-                key: "title",
-                width: 180,
-                render: (text) => (
-                  <Typography.Text strong style={{ color: token.colorPrimary }}>
-                    {text}
-                  </Typography.Text>
-                ),
-              },
-              {
-                title: "สถานะประมวลผล",
-                dataIndex: "status",
-                key: "status",
-                width: 200,
-                render: (status) => {
-                  const config = {
-                    queue: {
-                      color: "default",
-                      icon: <ClockCircleOutlined />,
-                      text: "ในคิว",
-                    },
-                    pending: {
-                      color: "processing",
-                      icon: <LoadingOutlined />,
-                      text: "กำลังสรุป",
-                    },
-                    success: {
-                      color: "success",
-                      icon: <CheckCircleOutlined />,
-                      text: "สำเร็จ",
-                    },
-                    error: {
-                      color: "error",
-                      icon: <CloseCircleOutlined />,
-                      text: "ล้มเหลว",
-                    },
-                  }[status as string] || {
-                    color: "default",
-                    icon: null,
-                    text: status,
-                  };
-                  return (
-                    <Tag
-                      color={config.color}
-                      icon={config.icon}
-                      style={{ borderRadius: 20, paddingInline: 12 }}
-                    >
-                      {config.text}
-                    </Tag>
-                  );
-                },
-              },
-              {
-                title: "ตัวอย่างหัวข้อใหม่",
-                dataIndex: "aiSummary",
-                key: "aiSummary",
-                width: 300,
-                render: (title, row) => {
-                  if (row.status === "error") return "-";
-                  if (!title && row.status !== "success")
-                    return (
-                      <Typography.Text
-                        type="secondary"
-                        italic
-                        style={{ fontSize: 13 }}
-                      >
-                        -
-                      </Typography.Text>
-                    );
-                  return (
-                    <Typography.Text
-                      strong
-                      style={{ fontSize: 13, color: token.colorSuccess }}
-                    >
-                      {title}
-                    </Typography.Text>
-                  );
-                },
-              },
-              {
-                title: "ตัวอย่างเนื้อหา",
-                dataIndex: "summary",
-                key: "summary",
-                render: (md, row) => {
-                  if (row.status === "error")
-                    return (
-                      <Typography.Text type="danger" style={{ fontSize: 13 }}>
-                        {row.message}
-                      </Typography.Text>
-                    );
-                  if (!md)
-                    return (
-                      <Typography.Text
-                        type="secondary"
-                        italic
-                        style={{ fontSize: 13 }}
-                      >
-                        กําลังวิเคราะห์ข้อมูล...
-                      </Typography.Text>
-                    );
-                  return (
-                    <Typography.Text
-                      type="secondary"
-                      ellipsis
-                      style={{ fontSize: 13, maxWidth: 400 }}
-                    >
-                      {md.replace(/<[^>]*>?/gm, "").slice(0, 100)}...
-                    </Typography.Text>
-                  );
-                },
-              },
-            ]}
-          />
-
-          <Flex justify="space-between" align="center">
-            <Button
-              size="large"
-              icon={<ReloadOutlined />}
-              onClick={async () => {
-                const failedRows = processingResults.filter(
-                  (r) => r.status === "error",
-                );
-                if (!failedRows.length) return;
-
-                const payloads = perIssuePayloadsRef.current || [];
-                const targets = failedRows
-                  .map((fr) =>
-                    payloads.find(
-                      (p) => String(p.issueKeyOrId) === String(fr.issueKeyOrId),
-                    ),
-                  )
-                  .filter(Boolean);
-
-                if (!targets.length) return;
-
-                setProcessingResults((prev) =>
-                  prev.map((r) =>
-                    failedRows.some(
-                      (fr) =>
-                        String(fr.issueKeyOrId) === String(r.issueKeyOrId),
-                    )
-                      ? { ...r, status: "pending", message: undefined }
-                      : r,
-                  ),
-                );
-
-                const retryMap = new Map<string, Issue>();
-                issues.forEach((i) => {
-                  retryMap.set(String(i.id), i);
-                  if (i.issueKey) retryMap.set(i.issueKey, i);
-                });
-
-                for (const payload of targets) {
-                  await processSingle(payload, retryMap);
-                }
-                toast.success("ลองใหม่สำเร็จ");
-              }}
-              disabled={!processingResults.some((r) => r.status === "error")}
-            >
-              ลองใหม่รายการที่ล้มเหลว
-            </Button>
-
-            <Space size={16}>
-              <Button
-                size="large"
-                onClick={() => setResultsModalVisible(false)}
-              >
-                ปิดหน้าต่าง
-              </Button>
-              <Button
-                type="primary"
-                size="large"
-                style={{ minWidth: 200, fontWeight: 600 }}
-                onClick={async () => {
-                  const entries = (perIssuePayloadsRef.current || []).filter(
-                    (p) => p.updates?.description,
-                  );
-                  if (!entries.length) return;
-                  setSaving(true);
-                  try {
-                    await axios.post("/api/v1/backlog/issues/bulk-update", {
-                      space,
-                      entries,
-                    });
-                    toast.success(`บันทึก ${entries.length} รายการสำเร็จ`);
-                    setResultsModalVisible(false);
-                    onUpdateComplete();
-                    clearBulkForm();
-                  } catch (e: any) {
-                    toast.error(e.message || "บันทึกไม่สำเร็จ");
-                  } finally {
-                    setSaving(false);
-                  }
-                }}
-                loading={saving}
-                disabled={
-                  saving ||
-                  !processingResults.some((r) => r.status === "success")
-                }
-              >
-                บันทึกการเปลี่ยนแปลงทั้งหมด
-              </Button>
-            </Space>
-          </Flex>
-        </Space>
-      </Modal>
 
       {/* Error Detail Modal */}
       <Modal
