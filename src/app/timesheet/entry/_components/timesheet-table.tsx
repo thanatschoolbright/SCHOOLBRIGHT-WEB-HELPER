@@ -96,19 +96,34 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
   // กำหนดคอลัมน์ทั้งหมดที่สามารถแสดงผลได้
   const ALL_TIMESHEET_COLUMNS = useMemo(
     () => [
-      { key: "date", label: t("timesheet_entry_page.table_date", "วันที่") },
+      {
+        key: "date",
+        dataIndex: "date",
+        label: t("timesheet_entry_page.table_date", "วันที่"),
+      },
       {
         key: "project_name",
+        dataIndex: "project_name",
         label: t("timesheet_entry_page.project_and_task", "โครงการ / งาน"),
       },
-      { key: "status", label: t("timesheet_entry_page.table_status", "สถานะ") },
+      {
+        key: "status",
+        dataIndex: "status",
+        label: t("timesheet_entry_page.table_status", "สถานะ"),
+      },
       {
         key: "description",
+        dataIndex: "description",
         label: t("timesheet_entry_page.table_description", "รายละเอียด"),
       },
-      { key: "hours", label: t("timesheet_entry_page.table_hours", "เวลา") },
+      {
+        key: "hours",
+        dataIndex: "hours",
+        label: t("timesheet_entry_page.table_hours", "เวลา"),
+      },
       {
         key: "actions",
+        dataIndex: "actions",
         label: t("timesheet_entry_page.table_actions", "จัดการ"),
       },
     ],
@@ -119,9 +134,14 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
   const [visibleColumns, setVisibleColumns] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("timesheet-visible-columns");
-      return saved
-        ? JSON.parse(saved)
-        : ["date", "project_name", "status", "description", "hours", "actions"];
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch (e) {
+          console.error("Failed to parse visible columns", e);
+        }
+      }
     }
     return [
       "date",
@@ -139,6 +159,16 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
       JSON.stringify(visibleColumns),
     );
   }, [visibleColumns]);
+
+  // Handle data mapping and row keys
+  // Log data to verify if it's reaching the table
+  console.log("TimesheetTable: entries length =", entries.length);
+  if (entries.length > 0) {
+    console.log(
+      "TimesheetTable: first entry sample =",
+      JSON.stringify(entries[0]),
+    );
+  }
 
   const searchInputRefs = useRef<
     Partial<Record<SearchableColumnKey, InputRef | null>>
@@ -454,15 +484,26 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
     [onEdit, onCopy, onDeleteSingle, getColumnSearchProps, token, t],
   );
 
-  const filteredColumns = useMemo(
-    () =>
-      columns.filter(
-        (col: any) =>
-          visibleColumns.includes(col.dataIndex as string) ||
-          visibleColumns.includes(col.key as string),
-      ),
-    [columns, visibleColumns],
-  );
+  const filteredColumns = useMemo(() => {
+    const matched = columns.filter((col: any) => {
+      const colKey = col.dataIndex || col.key;
+      return visibleColumns.includes(colKey as string);
+    });
+    console.log("Visible Columns Keys (State):", visibleColumns);
+    console.log(
+      "Columns in Definition:",
+      columns.map((c: any) => c.dataIndex || c.key),
+    );
+    console.log(
+      "Matched Columns Count:",
+      matched.length,
+      matched.map((m: any) => m.dataIndex || m.key),
+    );
+    return matched;
+  }, [columns, visibleColumns]);
+
+  console.log("TimesheetTable entries (Prop):", entries);
+  console.log("Filtered Columns Result (Final):", filteredColumns);
 
   return (
     <Card
@@ -484,10 +525,13 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
           </div>
           <Flex vertical gap={4}>
             <Typography.Title level={4} style={{ margin: 0 }}>
-              {t("timesheet_entry_page.timesheet_log")}
+              {t("timesheet_entry_page.timesheet_log", "บันทึกเวลาทำงาน")}
             </Typography.Title>
             <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-              {t("timesheet_entry_page.manage_and_check_timesheet")}
+              {t(
+                "timesheet_entry_page.manage_and_check_timesheet",
+                "จัดการและตรวจสอบรายการลงเวลา",
+              )}
             </Typography.Text>
           </Flex>
         </Flex>
@@ -572,7 +616,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
     >
       <div style={{ padding: token.paddingLG }}>
         <Table<TimesheetEntry>
-          rowKey={(r) => String(r.id)}
+          rowKey={(r) => String(r.id || Math.random())}
           columns={filteredColumns}
           dataSource={entries}
           loading={loading}
@@ -582,6 +626,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
             pageSize,
             total: totalItems,
             onChange: onPageChange,
+            showTotal: (total) => `ทั้งหมด ${total} รายการ`,
             showSizeChanger: true,
             position: ["bottomCenter"],
           }}

@@ -235,7 +235,7 @@ export const MonthlyRankBoard = forwardRef<
                     <Card
                       key={record.admin_id}
                       size="small"
-                      bordered={false}
+                      variant="borderless"
                       style={{
                         background:
                           record.admin_id === currentAdminId

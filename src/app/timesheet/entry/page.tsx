@@ -19,25 +19,11 @@ import { DetailModal } from "@components/timesheet/detail-modal";
 import {
   setActiveRecord,
   setFormMode,
-  setLoading,
   setModalType,
-  setProjects,
-  setSubProjects,
 } from "@stores/reducers/timesheet/timesheet-reducer";
 import { useAppSelector } from "@stores/store";
 
-import {
-  useMonthlySummaryAPI,
-  useTimesheetEntries,
-} from "@/hooks/use-timesheet-data";
 import { STATUS_OPTIONS } from "@constants/timesheet.constants";
-import {
-  useProjectData,
-  useTimesheetActions,
-} from "./hooks/use-timesheet-actions.data";
-import { TimesheetEntry } from "./types/timesheet-entry.types";
-import { getStatusConfig } from "./utils/timesheet-entry.helpers";
-
 import { CreateModalForm } from "./_components/create-modal-form";
 import { GuideModal } from "./_components/guide-modal";
 import { MonthlyRankBoardRef } from "./_components/monthly-rank-board";
@@ -45,6 +31,7 @@ import { MyWorkModal } from "./_components/my-work-modal";
 import { PageHeader } from "./_components/page-header";
 import { StatsGrid } from "./_components/stats-grid";
 import { TimesheetTable } from "./_components/timesheet-table";
+import { useTimesheetStore } from "./_state/use-timesheet-store";
 
 dayjs.extend(isBetween);
 dayjs.extend(buddhistEra);
@@ -69,11 +56,37 @@ export default function TimesheetEntryPage() {
   const isMountedRef = useRef(true);
   const rankBoardRef = useRef<MonthlyRankBoardRef>(null);
   const authState = useAppSelector((state) => state.callAdminLogin);
-  const timesheetState = useAppSelector((state) => state.timesheet);
+  const timesheetRedux = useAppSelector((state) => state.timesheet);
 
-  // State
+  // Zustand Store
+  const {
+    entries,
+    loading,
+    totalItems,
+    currentPage,
+    pageSize,
+    projects,
+    subProjects,
+    monthlySummary,
+    monthlyStats,
+    summaryLoading,
+    actionLoading,
+    fetchEntries,
+    fetchProjects,
+    fetchSubProjects,
+    fetchMonthlySummary,
+    fetchWeeklySummary,
+    saveTimesheet,
+    deleteTimesheet,
+    setPagination,
+    clearSubProjects,
+  } = useTimesheetStore();
+
+  // Local State
   const [guideModalOpen, setGuideModalOpen] = useState(false);
   const [myWorkModalOpen, setMyWorkModalOpen] = useState(false);
+  const [selected_summary_date, set_selected_summary_date] =
+    useState<dayjs.Dayjs>(dayjs());
 
   const [statusModal, setStatusModal] = useState<{
     open: boolean;
@@ -93,59 +106,30 @@ export default function TimesheetEntryPage() {
   );
   const admin_name = authState?.response?.data?.user_data?.firstname || "User";
 
-  const {
-    entries,
-    loading: table_loading,
-    currentPage,
-    setCurrentPage,
-    pageSize,
-    setPageSize,
-    totalItems,
-    refetch: refetch_entries,
-  } = useTimesheetEntries(admin_id);
-
-  const [selected_summary_date, set_selected_summary_date] =
-    useState<dayjs.Dayjs>(dayjs());
-
-  const {
-    monthlySummary: monthly_summary,
-    stats: monthly_stats,
-    loading: monthly_summary_loading,
-    refetch: refetch_monthly_summary,
-  } = useMonthlySummaryAPI(
-    admin_id,
-    selected_summary_date.month() + 1,
-    selected_summary_date.year(),
-  );
-
-  const { actionLoading, submitTimesheet, deleteTimesheet } =
-    useTimesheetActions(
-      admin_id,
-      isMountedRef,
-      () => {
-        refetch_entries();
-        refetch_monthly_summary();
-      },
-      () => rankBoardRef.current?.refetch(),
-      setStatusModal,
-    );
-  const { fetchProjects, fetchSubProjects } = useProjectData(
-    isMountedRef,
-    dispatch,
-    setProjects,
-    setSubProjects,
-    setLoading,
-  );
-
+  // Initial Data Fetching
   useEffect(() => {
     isMountedRef.current = true;
+    fetchProjects();
     return () => {
       isMountedRef.current = false;
     };
-  }, []);
-  useEffect(() => {
-    fetchProjects();
   }, [fetchProjects]);
+
+  useEffect(() => {
+    if (admin_id) {
+      fetchEntries(admin_id);
+    }
+  }, [admin_id, fetchEntries, currentPage, pageSize]);
+
+  useEffect(() => {
+    fetchWeeklySummary(selected_summary_date);
+  }, [fetchWeeklySummary, selected_summary_date]);
+
+  useEffect(() => {
+    if (admin_id) {
+      fetchMonthlySummary(admin_id, selected_summary_date);
+    }
+  }, [admin_id, fetchMonthlySummary, selected_summary_date]);
 
   const closeModal = useCallback(() => {
     dispatch(setModalType(null));
@@ -154,50 +138,48 @@ export default function TimesheetEntryPage() {
   }, [dispatch]);
 
   const handleAfterClose = useCallback(() => {
-    // No-op: form reset is handled by useEffect in CreateModalForm
+    // No-op
   }, []);
 
   const openCreateForm = useCallback(() => {
     dispatch(setFormMode("create"));
     dispatch(setActiveRecord(null));
-    dispatch(setSubProjects([]));
-    // form.setFieldsValue removed - handled by CreateModalForm useEffect
+    clearSubProjects();
     dispatch(setModalType("form"));
-  }, [dispatch]);
+  }, [dispatch, clearSubProjects]);
 
   const openEditForm = useCallback(
-    async (record: TimesheetEntry) => {
+    async (record: any) => {
       dispatch(setFormMode("edit"));
       dispatch(setActiveRecord(record));
       await fetchSubProjects(Number(record.project_id));
       if (!isMountedRef.current) return;
-
       dispatch(setModalType("form"));
     },
     [dispatch, fetchSubProjects],
   );
 
   const openCopyForm = useCallback(
-    async (record: TimesheetEntry) => {
+    async (record: any) => {
       dispatch(setFormMode("copy"));
       dispatch(setActiveRecord(record));
       await fetchSubProjects(Number(record.project_id));
       if (!isMountedRef.current) return;
-
       dispatch(setModalType("form"));
     },
     [dispatch, fetchSubProjects],
   );
 
   const openDetailModal = useCallback(
-    (record: TimesheetEntry) => {
+    (record: any) => {
       dispatch(setActiveRecord(record));
       dispatch(setModalType("detail"));
     },
     [dispatch],
   );
+
   const openDeleteModal = useCallback(
-    (record: TimesheetEntry) => {
+    (record: any) => {
       dispatch(setActiveRecord(record));
       dispatch(setModalType("delete"));
     },
@@ -207,41 +189,78 @@ export default function TimesheetEntryPage() {
   const handleSubmitTimesheet = useCallback(
     async (values: any) => {
       try {
-        // Use values from onFinish if available, otherwise validate
         const finalValues =
           values && typeof values === "object" && !values.nativeEvent
             ? values
             : await form.validateFields();
 
-        const success = await submitTimesheet(
-          finalValues,
-          timesheetState.formMode,
-          timesheetState.activeRecord?.id,
-        );
-        if (success && isMountedRef.current) closeModal();
+        const payload = {
+          id:
+            timesheetRedux.formMode === "edit"
+              ? timesheetRedux.activeRecord?.id
+              : undefined,
+          project_id: finalValues.project_id,
+          sub_project_id: finalValues.sub_project_id,
+          description: finalValues.description ?? "",
+          work_hour: finalValues.work_hour,
+          status: finalValues.status,
+          date: finalValues.date ? finalValues.date.toDate() : undefined,
+          by: admin_id,
+        };
+
+        const success = await saveTimesheet(payload);
+        if (success && isMountedRef.current) {
+          closeModal();
+          fetchEntries(admin_id);
+          fetchWeeklySummary(selected_summary_date);
+          fetchMonthlySummary(admin_id, selected_summary_date);
+          rankBoardRef.current?.refetch();
+        }
       } catch (error) {
         console.error("Form validation failed:", error);
       }
     },
-    [form, submitTimesheet, timesheetState, closeModal],
+    [
+      form,
+      saveTimesheet,
+      timesheetRedux,
+      closeModal,
+      admin_id,
+      fetchEntries,
+      fetchWeeklySummary,
+      fetchMonthlySummary,
+      selected_summary_date,
+    ],
   );
 
   const handleDeleteTimesheet = useCallback(async () => {
-    if (!timesheetState.activeRecord?.id) return;
+    if (!timesheetRedux.activeRecord?.id) return;
     const success = await deleteTimesheet([
-      String(timesheetState.activeRecord.id),
+      String(timesheetRedux.activeRecord.id),
     ]);
     if (success && isMountedRef.current) {
       closeModal();
+      fetchEntries(admin_id);
+      fetchWeeklySummary(selected_summary_date);
+      fetchMonthlySummary(admin_id, selected_summary_date);
+      rankBoardRef.current?.refetch();
     }
-  }, [deleteTimesheet, timesheetState.activeRecord, closeModal]);
+  }, [
+    deleteTimesheet,
+    timesheetRedux.activeRecord,
+    closeModal,
+    admin_id,
+    fetchEntries,
+    fetchWeeklySummary,
+    fetchMonthlySummary,
+    selected_summary_date,
+  ]);
 
   const handlePageChange = useCallback(
     (page: number, size?: number) => {
-      setCurrentPage(page);
-      if (size && size !== pageSize) setPageSize(size);
+      setPagination(page, size);
     },
-    [pageSize, setCurrentPage, setPageSize],
+    [setPagination],
   );
 
   return (
@@ -267,10 +286,10 @@ export default function TimesheetEntryPage() {
             <StatsGrid
               admin_id={admin_id}
               rank_board_ref={rankBoardRef}
-              monthly_summary={monthly_summary as any}
-              loading={table_loading}
-              monthly_summary_loading={monthly_summary_loading}
-              monthly_stats={monthly_stats}
+              monthly_summary={monthlySummary as any}
+              loading={loading}
+              monthly_summary_loading={summaryLoading}
+              monthly_stats={monthlyStats}
               selected_date={selected_summary_date}
               on_date_change={set_selected_summary_date}
             />
@@ -282,7 +301,7 @@ export default function TimesheetEntryPage() {
             >
               <TimesheetTable
                 entries={entries}
-                loading={table_loading}
+                loading={loading}
                 currentPage={currentPage}
                 pageSize={pageSize}
                 totalItems={totalItems}
@@ -292,30 +311,38 @@ export default function TimesheetEntryPage() {
                 onEdit={openEditForm}
                 onCopy={openCopyForm}
                 onDeleteSingle={openDeleteModal}
-                onRefresh={refetch_entries}
+                onRefresh={() => fetchEntries(admin_id)}
                 onAdd={openCreateForm}
               />
             </motion.div>
           </Space>
 
           <CreateModalForm
-            open={timesheetState?.modalType === "form"}
+            open={timesheetRedux?.modalType === "form"}
             onCancel={closeModal}
             onSubmit={handleSubmitTimesheet}
             form={form}
-            projects={timesheetState.projects}
-            subProject={timesheetState.subProjects}
+            projects={projects}
+            subProject={subProjects}
             fetchSubProjects={(id) => fetchSubProjects(Number(id))}
             i18n={i18n}
             disabled={actionLoading}
-            formMode={timesheetState.formMode}
-            record={timesheetState.activeRecord}
+            formMode={timesheetRedux.formMode}
+            record={timesheetRedux.activeRecord}
             afterClose={handleAfterClose}
             statusOptions={useMemo(
               () =>
                 STATUS_OPTIONS.map((s) => ({
                   label: (
-                    <Tag color={getStatusConfig(s.value).color}>
+                    <Tag
+                      color={
+                        s.value === "S"
+                          ? "success"
+                          : s.value === "P"
+                            ? "processing"
+                            : "default"
+                      }
+                    >
                       {i18n.language === "th" ? s.label_th : s.label_en}
                     </Tag>
                   ),
@@ -326,14 +353,14 @@ export default function TimesheetEntryPage() {
           />
           <DetailModal
             open={
-              timesheetState.modalType === "detail" &&
-              !!timesheetState.activeRecord
+              timesheetRedux.modalType === "detail" &&
+              !!timesheetRedux.activeRecord
             }
             onCancel={closeModal}
-            record={timesheetState.activeRecord}
+            record={timesheetRedux.activeRecord}
           />
           <DeleteConfirmationModal
-            open={timesheetState.modalType === "delete"}
+            open={timesheetRedux.modalType === "delete"}
             onCancel={closeModal}
             onConfirm={handleDeleteTimesheet}
             selectedCount={1}

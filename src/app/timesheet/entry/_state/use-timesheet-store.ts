@@ -1,0 +1,245 @@
+import dayjs from "dayjs";
+import { toast } from "sonner";
+import { create } from "zustand";
+import { timesheetService } from "../_services/timesheet-service";
+import { TimesheetEntry } from "../types/timesheet-entry.types";
+
+/**
+ * Interface สำหรับข้อมูลสถานะ Timesheet
+ */
+interface TimesheetState {
+  // Data
+  entries: TimesheetEntry[];
+  loading: boolean;
+  totalItems: number;
+  currentPage: number;
+  pageSize: number;
+
+  // Projects
+  projects: any[];
+  subProjects: any[];
+  projectsLoading: boolean;
+
+  // Monthly Summary
+  monthlySummary: any[];
+  monthlyStats: any;
+  summaryLoading: boolean;
+
+  // Actions
+  actionLoading: boolean;
+
+  // Methods
+  /** ดึงข้อมูลรายการ Timesheet ทั้งหมด */
+  fetchEntries: (admin_id: number | undefined) => Promise<void>;
+
+  /** ดึงข้อมูลโครงการทั้งหมด */
+  fetchProjects: () => Promise<void>;
+
+  /** ดึงข้อมูลโครงการย่อยของโครงการที่เลือก */
+  fetchSubProjects: (project_id: number) => Promise<void>;
+
+  /** ดึงข้อมูลสรุปรายเดือน */
+  fetchMonthlySummary: (
+    admin_id: number | undefined,
+    date: dayjs.Dayjs,
+  ) => Promise<void>;
+
+  /** ดึงข้อมูลสรุปรายสัปดาห์ สำหรับ Weekly Summary */
+  fetchWeeklySummary: (date: dayjs.Dayjs) => Promise<void>;
+
+  /** บันทึกหรือแก้ไขข้อมูล Timesheet */
+  saveTimesheet: (payload: any) => Promise<boolean>;
+
+  /** ลบรายการ Timesheet */
+  deleteTimesheet: (ids: string[]) => Promise<boolean>;
+
+  /** เปลี่ยนหน้าในตาราง */
+  setPagination: (page: number, size?: number) => void;
+
+  /** ล้างค่าโครงการย่อย */
+  clearSubProjects: () => void;
+}
+
+/**
+ * Zustand Store สำหรับจัดการสถานะของหน้า Timesheet Entry
+ * ตามมาตรฐาน Modular Architecture อย่างเคร่งครัด
+ */
+export const useTimesheetStore = create<TimesheetState>((set, get) => ({
+  // Initial States
+  entries: [],
+  loading: false,
+  totalItems: 0,
+  currentPage: 1,
+  pageSize: 10,
+
+  projects: [],
+  subProjects: [],
+  projectsLoading: false,
+
+  monthlySummary: [],
+  monthlyStats: null,
+  summaryLoading: false,
+
+  actionLoading: false,
+
+  // Methods
+  fetchEntries: async (admin_id) => {
+    if (!admin_id) {
+      console.warn("fetchEntries: No admin_id provided");
+      return;
+    }
+    set({ loading: true });
+    try {
+      console.log("fetchEntries: Requesting list for admin_id:", admin_id);
+      const response = await timesheetService.requestTimesheetList(admin_id);
+
+      // Log response details to debug data flow
+      console.log("fetchEntries: Raw response from API:", response);
+
+      // Extract data correctly based on the response pattern shown by user
+      const apiResponse = response.data || response;
+
+      // Check if apiResponse is directly an array (the case where axios response.data is the array)
+      const dataIsArray = Array.isArray(apiResponse);
+      const status =
+        apiResponse.status ||
+        apiResponse.status_code ||
+        (dataIsArray ? 200 : undefined);
+
+      if (status === 200 || apiResponse.status_code === 200 || dataIsArray) {
+        // According to user's example, records are in "data" property or the array itself
+        const dataList = dataIsArray ? apiResponse : apiResponse.data || [];
+        const total = apiResponse.pagination?.total || dataList.length || 0;
+
+        console.log("fetchEntries: Extracted data list for store:", dataList);
+
+        set({
+          entries: dataList,
+          totalItems: total,
+        });
+      } else {
+        console.error("fetchEntries: API returned non-200 status", apiResponse);
+      }
+    } catch (error: any) {
+      console.error("Fetch entries failed:", error);
+      console.error("Error Detail:", error.response?.data || error.message);
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  fetchProjects: async () => {
+    set({ projectsLoading: true });
+    try {
+      const response = await timesheetService.requestProjectList();
+      if (response.status === 200) {
+        set({ projects: response.data || [] });
+      }
+    } catch (error) {
+      console.error("Fetch projects failed:", error);
+    } finally {
+      set({ projectsLoading: false });
+    }
+  },
+
+  fetchSubProjects: async (project_id) => {
+    try {
+      const response = await timesheetService.requestSubProjectList(project_id);
+      if (response.status === 200) {
+        set({ subProjects: response.data || [] });
+      }
+    } catch (error) {
+      console.error("Fetch sub-projects failed:", error);
+    }
+  },
+
+  fetchMonthlySummary: async (admin_id, date) => {
+    if (!admin_id) return;
+    set({ summaryLoading: true });
+    try {
+      const response = await timesheetService.requestMonthlySummary(
+        date.month() + 1,
+        date.year(),
+      );
+      if (response.status === 200) {
+        set({
+          monthlySummary: response.data?.summary || [],
+          monthlyStats: response.data?.stats || null,
+        });
+      }
+    } catch (error) {
+      console.error("Fetch monthly summary failed:", error);
+    } finally {
+      set({ summaryLoading: false });
+    }
+  },
+
+  fetchWeeklySummary: async (date) => {
+    set({ summaryLoading: true });
+    try {
+      const start = date.startOf("month").format("YYYY-MM-DD");
+      const end = date.endOf("month").format("YYYY-MM-DD");
+      const response = await timesheetService.requestWeeklySummary(start, end);
+      if (response.status === 200) {
+        set({
+          monthlySummary: response.data?.summary || [],
+          monthlyStats: response.data?.stats || null,
+        });
+      }
+    } catch (error) {
+      console.error("Fetch weekly summary failed:", error);
+    } finally {
+      set({ summaryLoading: false });
+    }
+  },
+
+  saveTimesheet: async (payload) => {
+    set({ actionLoading: true });
+    const toast_id = toast.loading("กำลังบันทึกข้อมูล...");
+    try {
+      const response = await timesheetService.requestUpsertTimesheet(payload);
+      if (response.status === 200) {
+        toast.success("บันทึกข้อมูลสำเร็จ", { id: toast_id });
+        return true;
+      } else {
+        throw new Error(response.message_th || "บันทึกข้อมูลล้มเหลว");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "เกิดข้อผิดพลาดในการบันทึกข้อมูล", {
+        id: toast_id,
+      });
+      return false;
+    } finally {
+      set({ actionLoading: false });
+    }
+  },
+
+  deleteTimesheet: async (ids) => {
+    set({ actionLoading: true });
+    const toast_id = toast.loading("กำลังลบข้อมูล...");
+    try {
+      const response = await timesheetService.requestDeleteTimesheet(ids);
+      if (response.status === 200) {
+        toast.success("ลบข้อมูลสำเร็จ", { id: toast_id });
+        return true;
+      } else {
+        throw new Error(response.message_th || "ลบข้อมูลล้มเหลว");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "เกิดข้อผิดพลาดในการลบข้อมูล", {
+        id: toast_id,
+      });
+      return false;
+    } finally {
+      set({ actionLoading: false });
+    }
+  },
+
+  setPagination: (page, size) =>
+    set({
+      currentPage: page,
+      pageSize: size ?? get().pageSize,
+    }),
+
+  clearSubProjects: () => set({ subProjects: [] }),
+}));
