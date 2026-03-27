@@ -8,6 +8,7 @@ import {
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import {
+  Avatar,
   Badge,
   Card,
   Empty,
@@ -16,7 +17,6 @@ import {
   theme,
   Timeline,
   Typography,
-  Avatar,
 } from "antd";
 import dayjs from "dayjs";
 import React, { useEffect, useMemo } from "react";
@@ -88,7 +88,11 @@ const TimelineChart: React.FC = () => {
                 <Timeline
                   items={project.children.map((sub) => ({
                     color: token.colorInfo,
-                    dot: <BranchesOutlined style={{ fontSize: "14px", color: token.colorInfo }} />,
+                    dot: (
+                      <BranchesOutlined
+                        style={{ fontSize: "14px", color: token.colorInfo }}
+                      />
+                    ),
                     children: (
                       <Space
                         direction="vertical"
@@ -105,7 +109,9 @@ const TimelineChart: React.FC = () => {
                           <Text style={{ fontSize: 14 }}>{sub.name}</Text>
                           <Badge
                             status="processing"
-                            text={<Text style={{ fontSize: 12 }}>{sub.status}</Text>}
+                            text={
+                              <Text style={{ fontSize: 12 }}>{sub.status}</Text>
+                            }
                           />
                         </div>
                         <Text type="secondary" style={{ fontSize: 12 }}>
@@ -141,15 +147,16 @@ const TimelineChart: React.FC = () => {
   return (
     <Card
       title={
-        <Space>
+        <Space style={{ padding: "8px 0" }}>
           <UnorderedListOutlined />
           <span>ลำดับเวลาและการดำเนินโครงการ (Project Timeline)</span>
         </Space>
       }
-      styles={{ body: { padding: "24px 24px 0 24px" } }}
+      styles={{ body: { padding: "32px 32px 0 32px" } }}
       style={{
         borderColor: token.colorBorderSecondary,
         boxShadow: token.boxShadowTertiary,
+        marginBottom: 24,
       }}
       loading={isLoading}
     >
@@ -157,10 +164,14 @@ const TimelineChart: React.FC = () => {
         style={{
           maxHeight: 800,
           overflowY: "auto",
-          padding: "12px 0",
+          padding: "24px 0 32px 0",
         }}
       >
-        <Timeline mode="left" items={timelineItems} />
+        <Timeline
+          mode="left"
+          items={timelineItems}
+          style={{ marginLeft: 8 }}
+        />
       </div>
     </Card>
   );
