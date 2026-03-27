@@ -132,7 +132,9 @@ const WorkloadTimeSeries = () => {
             height: 350,
           }}
         >
-          <Spin tip="กำลังประมวลผลข้อมูล..." />
+          <Spin>
+            <div style={{ paddingTop: 40 }}>กำลังประมวลผลข้อมูล...</div>
+          </Spin>
         </div>
       ) : chartData.length > 0 ? (
         <Line {...config} />
