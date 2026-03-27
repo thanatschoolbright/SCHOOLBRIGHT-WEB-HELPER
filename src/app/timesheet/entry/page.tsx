@@ -15,7 +15,6 @@ import {
   EditOutlined,
   ExclamationCircleOutlined,
   FileTextOutlined,
-  FireOutlined,
   InfoCircleOutlined,
   LockOutlined,
   MoonOutlined,
@@ -35,7 +34,6 @@ import {
   TagOutlined,
   TeamOutlined,
   ThunderboltOutlined,
-  TrophyFilled,
   UnlockOutlined,
   UserOutlined,
 } from "@ant-design/icons";
@@ -49,7 +47,6 @@ import {
   DatePicker,
   Divider,
   Dropdown,
-  Empty,
   Flex,
   Form,
   FormInstance,
@@ -62,7 +59,6 @@ import {
   Radio,
   Row,
   Select,
-  Skeleton,
   Space,
   Table,
   Tag,
@@ -75,13 +71,11 @@ import dayjs, { Dayjs } from "dayjs";
 import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
 import isBetween from "dayjs/plugin/isBetween";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import i18next from "i18next";
 import React, {
-  forwardRef,
   useCallback,
   useEffect,
-  useImperativeHandle,
   useMemo,
   useRef,
   useState,
@@ -97,8 +91,6 @@ import DashboardLayout from "@components/layouts/backend-layout";
 import { DeleteConfirmationModal } from "@components/modal/delete-confirmation-modal";
 import StatusModal from "@components/modal/status-modal";
 import { DetailModal } from "@components/timesheet/detail-modal";
-import { RankBoardHeader } from "@components/timesheet/rank-board-header";
-import { RankCard } from "@components/timesheet/rank-card";
 import { WeeklySummary } from "@components/timesheet/weekly-summary";
 
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
@@ -116,7 +108,6 @@ import {
   useMonthlySummaryAPI,
   useTimesheetEntries,
 } from "@/hooks/use-timesheet-data";
-import { ApiResponse, SummaryMetadata, SummaryRecord } from "@/types/timesheet";
 import { STATUS_OPTIONS } from "@constants/timesheet.constants";
 import {
   useProjectData,
@@ -131,6 +122,8 @@ import {
   DATE_FORMAT,
   getStatusConfig,
 } from "./utils/timesheet-entry.helpers";
+
+import { MonthlyRankBoard } from "./_components/monthly-rank-board";
 
 dayjs.extend(isBetween);
 dayjs.extend(buddhistEra);
@@ -736,343 +729,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   );
 };
 
-// --- Monthly Rank Board ---
-const API_RANK_ENDPOINT = "/api/v1/timesheet/entry/check/summary-month";
-const API_FIND_RANK_ENDPOINT = "/api/v1/timesheet/find-ranking";
-const MAX_RANK_ROWS = 8;
-type MonthlyRankVariant = "compact" | "wide";
-
-interface MonthlyRankBoardRef {
-  refetch: () => void;
-}
-interface MonthlyRankBoardProps {
-  currentAdminId?: number;
-  variant?: MonthlyRankVariant;
-  onVariantChange?: (variant: MonthlyRankVariant) => void;
-}
-
-const useMonthlyRankData = (adminId?: number) => {
-  const [records, setRecords] = useState<SummaryRecord[]>([]);
-  const [metadata, setMetadata] = useState<SummaryMetadata | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [selectedMonth, setSelectedMonth] = useState<Dayjs>(dayjs());
-
-  const fetchData = useCallback(
-    async (showToast = false) => {
-      setLoading(true);
-      if (showToast)
-        toast.loading("กำลังอัปเดตข้อมูล...", { id: "monthly-rank-toast" });
-      try {
-        // ใช้ endpoint ใหม่ที่รับ user_id เพื่อลดขนาด response (Optimization)
-        const endpoint = adminId ? API_FIND_RANK_ENDPOINT : API_RANK_ENDPOINT;
-        const payload: any = {
-          month: selectedMonth.format("M"),
-          year: selectedMonth.format("YYYY"),
-        };
-
-        if (adminId) {
-          payload.user_id = adminId;
-        }
-
-        const response = await axios.post<ApiResponse>(endpoint, payload, {
-          headers: { "Content-Type": "application/json" },
-        });
-
-        if (adminId) {
-          // find-ranking API จะตอบกลับมาเป็น { record, metadata }
-          const record = (response.data?.data as any)?.record;
-          setRecords(record ? [record] : []);
-        } else {
-          // summary-month API จะตอบกลับมาเป็น { records, metadata }
-          setRecords(response.data?.data?.records ?? []);
-        }
-
-        setMetadata(response.data?.data?.metadata ?? null);
-
-        if (showToast)
-          toast.success("อัปเดตข้อมูลล่าสุดแล้ว", { id: "monthly-rank-toast" });
-      } catch (error: any) {
-        setRecords([]);
-        if (showToast)
-          toast.error(
-            error?.response?.data?.message_th ||
-              "เกิดข้อผิดพลาดในการโหลดข้อมูล",
-            { id: "monthly-rank-toast" },
-          );
-      } finally {
-        setLoading(false);
-      }
-    },
-    [selectedMonth, adminId],
-  );
-
-  useEffect(() => {
-    void fetchData();
-  }, [fetchData]);
-  return {
-    records,
-    metadata,
-    loading,
-    refetch: () => fetchData(true),
-    selectedMonth,
-    setSelectedMonth,
-  };
-};
-
-const MonthlyRankBoard = forwardRef<MonthlyRankBoardRef, MonthlyRankBoardProps>(
-  ({ currentAdminId, variant = "wide" }, ref) => {
-    const { t } = useTranslation();
-    const { token } = theme.useToken();
-    const {
-      records,
-      metadata,
-      loading,
-      refetch,
-      selectedMonth,
-      setSelectedMonth,
-    } = useMonthlyRankData(currentAdminId);
-    const [viewMode] = useState<MonthlyRankVariant>(variant);
-
-    useImperativeHandle(ref, () => ({ refetch }));
-
-    const visibleRecords = useMemo(() => {
-      if (currentAdminId) {
-        const selfRecord = records.find(
-          (record) => record.admin_id === currentAdminId,
-        );
-        return selfRecord ? [selfRecord] : [];
-      }
-      return records.slice(0, MAX_RANK_ROWS);
-    }, [currentAdminId, records]);
-
-    const isCompact = viewMode === "compact";
-    const monthLabel =
-      metadata?.range?.label_th ?? selectedMonth.format("MMMM BBBB");
-
-    return (
-      <Card
-        hoverable
-        style={{
-          height: "100%",
-          borderRadius: token.borderRadiusLG,
-          border: `1px solid ${token.colorBorderSecondary}`,
-          overflow: "hidden",
-        }}
-        styles={{
-          body: {
-            padding: 0,
-            height: "100%",
-          },
-        }}
-      >
-        <Flex vertical style={{ height: "100%" }}>
-          {/* Header Section */}
-          <Flex vertical gap={16} style={{ padding: 24, paddingBottom: 16 }}>
-            <Flex justify="space-between" align="start" wrap="wrap" gap={16}>
-              <Flex vertical gap={4}>
-                <Typography.Title
-                  level={4}
-                  style={{
-                    margin: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    fontWeight: 800,
-                  }}
-                >
-                  <Flex
-                    align="center"
-                    justify="center"
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 12,
-                      background: token.colorWarningBg,
-                      boxShadow: `0 4px 12px ${token.colorWarning}20`,
-                    }}
-                  >
-                    <TrophyFilled
-                      style={{ color: token.colorWarning, fontSize: 18 }}
-                    />
-                  </Flex>
-                  <span style={{ color: token.colorTextHeading }}>
-                    {currentAdminId
-                      ? t("timesheet_entry_page.your_rank", "อันดับของคุณ")
-                      : t(
-                          "timesheet_entry_page.employee_of_the_month",
-                          "พนักงานดีเด่น",
-                        )}
-                  </span>
-                </Typography.Title>
-                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  <Space size={4}>
-                    <FireOutlined style={{ color: token.colorError }} />
-                    {t(
-                      "timesheet_entry_page.who_is_most_diligent",
-                      "ใครขยันที่สุดในเดือนนี้?",
-                    )}
-                  </Space>
-                </Typography.Text>
-              </Flex>
-            </Flex>
-
-            <RankBoardHeader
-              monthLabel={monthLabel}
-              selectedMonth={selectedMonth}
-              onMonthChange={setSelectedMonth}
-              loading={loading}
-              isCompact={isCompact}
-              generatedAt={null}
-              onRefresh={() => {}}
-            />
-          </Flex>
-
-          {/* Content Section (Scrollable) */}
-          <Flex
-            vertical
-            flex={1}
-            style={{
-              padding: "0 24px 24px",
-              overflowY: "auto",
-              position: "relative",
-            }}
-          >
-            <AnimatePresence mode="wait">
-              {loading ? (
-                <motion.div
-                  key="loading"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <Space
-                    direction="vertical"
-                    size={12}
-                    style={{ width: "100%" }}
-                  >
-                    {Array.from({ length: currentAdminId ? 1 : 4 }).map(
-                      (_, index) => (
-                        <Flex
-                          key={index}
-                          align="center"
-                          gap={16}
-                          style={{
-                            padding: 12,
-                            borderRadius: 16,
-                            background: token.colorFillAlter,
-                          }}
-                        >
-                          <Skeleton.Avatar active size={40} shape="circle" />
-                          <Flex vertical flex={1} gap={4}>
-                            <Skeleton.Input
-                              active
-                              size="small"
-                              style={{ width: "40%", height: 16 }}
-                            />
-                            <Skeleton.Input
-                              active
-                              size="small"
-                              style={{ width: "70%", height: 12 }}
-                            />
-                          </Flex>
-                        </Flex>
-                      ),
-                    )}
-                  </Space>
-                </motion.div>
-              ) : visibleRecords.length === 0 ? (
-                <Flex
-                  flex={1}
-                  vertical
-                  justify="center"
-                  align="center"
-                  style={{ minHeight: 180 }}
-                >
-                  <Empty
-                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                    description={
-                      <Flex vertical gap={4}>
-                        <Typography.Text strong>ไม่พบข้อมูล</Typography.Text>
-                        <Typography.Text
-                          type="secondary"
-                          style={{ fontSize: 12 }}
-                        >
-                          {currentAdminId
-                            ? "คุณไม่มีบันทึกเวลาในเดือนนี้"
-                            : "ยังไม่มีการจัดอันดับในเดือนนี้"}
-                        </Typography.Text>
-                      </Flex>
-                    }
-                  />
-                </Flex>
-              ) : (
-                <motion.div
-                  key="list"
-                  initial="hidden"
-                  animate="visible"
-                  variants={{
-                    hidden: { opacity: 0, y: 10 },
-                    visible: {
-                      opacity: 1,
-                      y: 0,
-                      transition: { staggerChildren: 0.05 },
-                    },
-                  }}
-                >
-                  <Space
-                    direction="vertical"
-                    size={8}
-                    style={{ width: "100%" }}
-                  >
-                    {visibleRecords.map((record, index) => (
-                      <motion.div
-                        key={record.admin_id}
-                        variants={{
-                          hidden: { opacity: 0, x: -10 },
-                          visible: { opacity: 1, x: 0 },
-                        }}
-                      >
-                        <RankCard
-                          record={record}
-                          isCompact={isCompact}
-                          isCurrentUser={record.admin_id === currentAdminId}
-                          rank={String(index + 1)}
-                        />
-                      </motion.div>
-                    ))}
-                  </Space>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </Flex>
-
-          {/* Footer Section */}
-          <Flex
-            justify="center"
-            align="center"
-            style={{
-              padding: "12px 24px",
-              borderTop: `1px solid ${token.colorBorderSecondary}`,
-            }}
-          >
-            <Button
-              type="text"
-              size="small"
-              icon={<ReloadOutlined />}
-              onClick={() => {
-                refetch();
-              }}
-              style={{ color: token.colorTextSecondary }}
-            >
-              {t("timesheet_entry_page.update_data", "อัปเดตข้อมูล")}
-            </Button>
-          </Flex>
-        </Flex>
-      </Card>
-    );
-  },
-);
-MonthlyRankBoard.displayName = "MonthlyRankBoard";
+// --- Monthly Rank Board Component Imported Above ---
 
 // --- Stats Grid ---
 interface StatsGridProps {
