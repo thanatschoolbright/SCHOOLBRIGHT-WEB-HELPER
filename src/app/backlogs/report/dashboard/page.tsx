@@ -33,8 +33,8 @@ export default function DashboardPage(): JSX.Element {
       <div className="mt-6 flex w-full flex-col gap-6">
         <FilterSection />
         <SummarySection />
-        <RankingSection />
         <PendingTasksTable />
+        <RankingSection />
       </div>
     </BackendLayout>
   );

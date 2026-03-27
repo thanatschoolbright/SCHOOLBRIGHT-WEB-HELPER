@@ -43,6 +43,7 @@ export const RankingSection = () => {
           <List
             loading={loading}
             dataSource={analyticsData}
+            pagination={{ pageSize: 5, size: "small", align: "center" }}
             renderItem={(item) => (
               <List.Item
                 actions={[
