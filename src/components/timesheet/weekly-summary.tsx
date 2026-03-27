@@ -11,6 +11,7 @@ import {
   Row,
   Skeleton,
   Space,
+  Tag,
   theme,
   Tooltip,
   Typography,
@@ -77,27 +78,24 @@ const CompactDay: React.FC<{
 
   const isOT = item.totalHours > targetHours;
 
-  const color = useMemo(() => {
-    if (isFuture) return token.colorTextQuaternary;
-    if (item.totalHours > targetHours) return token.colorSuccessActive; // OT สีเข้มกว่า
-    if (item.totalHours >= targetHours) return token.colorSuccess;
-    if (item.totalHours > 0) return token.colorWarning;
-    if (isWeekend) return token.colorTextTertiary;
-    return token.colorError;
-  }, [item.totalHours, targetHours, isFuture, isWeekend, token]);
+  let color: string;
+  if (isFuture) color = token.colorTextQuaternary;
+  else if (item.totalHours > targetHours) color = token.colorSuccessActive; // OT สีเข้มกว่า
+  else if (item.totalHours >= targetHours) color = token.colorSuccess;
+  else if (item.totalHours > 0) color = token.colorWarning;
+  else if (isWeekend) color = token.colorTextTertiary;
+  else color = token.colorError;
 
-  const bg = useMemo(() => {
-    if (isFuture) return "transparent";
-    if (isOT) return addAlpha(token.colorSuccess, isDark ? 0.25 : 0.15); // OT พื้นหลังเข้มขึ้น
-    return addAlpha(color, isDark ? 0.15 : 0.08);
-  }, [color, isFuture, isDark, isOT]);
+  let bg: string;
+  if (isFuture) bg = "transparent";
+  else if (isOT) bg = addAlpha(token.colorSuccess, isDark ? 0.25 : 0.15); // OT พื้นหลังเข้มขึ้น
+  else bg = addAlpha(color, isDark ? 0.15 : 0.08);
 
-  const border = useMemo(() => {
-    if (isToday) return `2px solid ${token.colorPrimary}`;
-    if (isOT) return `2px solid ${token.colorSuccess}`; // OT ขอบชัดขึ้น
-    if (isFuture) return `1px dashed ${token.colorBorder}`;
-    return `1px solid ${addAlpha(color, 0.3)}`;
-  }, [isToday, isFuture, color, token, isOT]);
+  let border: string;
+  if (isToday) border = `2px solid ${token.colorPrimary}`;
+  else if (isOT) border = `2px solid ${token.colorSuccess}`; // OT ขอบชัดขึ้น
+  else if (isFuture) border = `1px dashed ${token.colorBorder}`;
+  else border = `1px solid ${addAlpha(color, 0.3)}`;
 
   return (
     <Tooltip
