@@ -6,7 +6,17 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import { STATUS_OPTIONS } from "@constants/timesheet.constants";
-import { Button, Col, Flex, Form, Row, Select, theme, Typography } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Flex,
+  Form,
+  Row,
+  Select,
+  theme,
+  Typography,
+} from "antd";
 import React from "react";
 import { useTranslation } from "react-i18next";
 
@@ -53,7 +63,15 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
   };
 
   return (
-    <div style={{ marginBottom: 24 }}>
+    <Card
+      variant="outlined"
+      styles={{ body: { padding: 16 } }}
+      style={{
+        marginBottom: 24,
+        borderRadius: 12,
+        border: `1px solid ${token.colorBorderSecondary}`,
+      }}
+    >
       <Flex align="center" gap={8} style={{ marginBottom: 16 }}>
         <FilterOutlined style={{ fontSize: "1rem" }} />
         <Text strong style={{ fontSize: "1rem" }}>
@@ -82,11 +100,22 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
                 optionFilterProp="children"
                 style={{ width: "100%" }}
               >
-                {projects.map((p) => (
-                  <Select.Option key={p.id} value={p.id}>
-                    {p.project_name_th || p.project_name_en || p.project_name}
-                  </Select.Option>
-                ))}
+                {projects.map((p) => {
+                  // ดึงชื่อชื่อโปรเจกต์จากโครงสร้างข้อมูลของ API
+                  const projectName =
+                    p.name ||
+                    p.name_en ||
+                    p.project_name_th ||
+                    p.project_name_en ||
+                    p.project_name ||
+                    `Project #${p.id}`;
+
+                  return (
+                    <Select.Option key={p.id} value={p.id}>
+                      {projectName}
+                    </Select.Option>
+                  );
+                })}
               </Select>
             </Form.Item>
           </Col>
@@ -129,6 +158,6 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
           </Button>
         </Flex>
       </Form>
-    </div>
+    </Card>
   );
 };
