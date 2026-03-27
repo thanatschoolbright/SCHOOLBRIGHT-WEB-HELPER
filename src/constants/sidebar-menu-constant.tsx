@@ -355,8 +355,9 @@ export const useSidebarMenu = (): SidebarItem[] => {
 
           {
             label: t("timesheet_system.children.timeline"),
-            href: "/timesheet/timeline",
+            href: "/timesheet/all/report/timeline",
             icon: <ScheduleOutlined />,
+            news: true,
             permission: PERMISSIONS.MENU_TIMESHEET_TIMELINE,
           },
           {
