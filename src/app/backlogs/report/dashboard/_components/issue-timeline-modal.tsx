@@ -3,12 +3,16 @@
 import { ClockCircleOutlined, UserOutlined } from "@ant-design/icons";
 import {
   Avatar,
+  Card,
   Empty,
+  Flex,
   Modal,
   Skeleton,
   Space,
+  Tag,
   Timeline,
   Typography,
+  theme,
 } from "antd";
 import dayjs from "dayjs";
 import { useBacklogDashboardStore } from "../_state/use-backlog-dashboard-store";
@@ -48,65 +52,132 @@ export const IssueTimelineModal = () => {
       open={isOpen}
       onCancel={handleClose}
       footer={null}
-      width={600}
+      width={700}
       centered
+      styles={{
+        body: { padding: "24px 24px 0 24px" },
+      }}
     >
       {timelineLoading ? (
         <Skeleton active paragraph={{ rows: 6 }} />
       ) : timelineData.length > 0 ? (
-        <Timeline
-          mode="left"
-          items={timelineData.map((event) => ({
-            label: dayjs(event.created_at).format("DD/MM/YYYY HH:mm"),
-            children: (
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <Avatar
-                    size="small"
-                    src={event.updated_by.avatar_url}
-                    icon={<UserOutlined />}
-                  />
-                  <Text strong>{event.updated_by.name}</Text>
-                  <Text type="secondary">ดำเนินการส่งต่อ</Text>
+        <div style={{ maxHeight: "60vh", overflowY: "auto", paddingRight: 8 }}>
+          <Timeline
+            mode="left"
+            items={timelineData.map((event) => ({
+              label: (
+                <div style={{ paddingRight: 12 }}>
+                  <Text
+                    type="secondary"
+                    style={{ fontSize: "0.85rem", display: "block" }}
+                  >
+                    {dayjs(event.created_at).format("DD MMM YYYY")}
+                  </Text>
+                  <Text
+                    type="secondary"
+                    style={{ fontSize: "1.1rem", fontWeight: 500 }}
+                  >
+                    {dayjs(event.created_at).format("HH:mm น.")}
+                  </Text>
                 </div>
-                <div
-                  style={{
-                    marginTop: 8,
-                    padding: "8px 12px",
-                    background: "#f5f5f5",
-                    borderRadius: 8,
-                  }}
-                >
-                  <div style={{ marginBottom: 4 }}>
-                    <Text type="secondary">จาก: </Text>
-                    <Text delete={event.from_user === "ไม่มี"}>
-                      {event.from_user}
-                    </Text>
-                    <Text type="secondary"> → </Text>
-                    <Text strong style={{ color: "#1677ff" }}>
-                      {event.to_user}
-                    </Text>
-                  </div>
-                  {event.content &&
-                    event.content !== "ไม่มีข้อความเพิ่มเติม" && (
+              ),
+              children: (
+                <div style={{ marginBottom: 24, marginLeft: 8 }}>
+                  <Card
+                    size="small"
+                    variant="outlined"
+                    styles={{
+                      body: { padding: "12px 16px" },
+                    }}
+                    style={{
+                      borderRadius: 12,
+                      border: `1px solid ${token.colorBorderSecondary}`,
+                    }}
+                  >
+                    <Flex vertical gap={12}>
+                      <Flex align="center" gap={10}>
+                        <Avatar
+                          size={32}
+                          src={event.updated_by.avatar_url}
+                          icon={<UserOutlined />}
+                          style={{
+                            border: `2px solid ${token.colorPrimaryBg}`,
+                          }}
+                        />
+                        <Flex vertical>
+                          <Text strong style={{ fontSize: "1rem" }}>
+                            {event.updated_by.name}
+                          </Text>
+                          <Text type="secondary" style={{ fontSize: "0.8rem" }}>
+                            ผู้ดำเนินการส่งงาน
+                          </Text>
+                        </Flex>
+                      </Flex>
+
                       <div
                         style={{
-                          borderTop: "1px solid #e8e8e8",
-                          paddingTop: 4,
-                          marginTop: 4,
+                          padding: "10px 14px",
+                          background: token.colorFillAlter,
+                          borderRadius: 8,
+                          borderLeft: `4px solid ${token.colorPrimary}`,
                         }}
                       >
-                        <Text italic>{event.content}</Text>
+                        <Flex vertical gap={6}>
+                          <Flex align="center" gap={8} wrap="wrap">
+                            <Tag color="default" style={{ margin: 0 }}>
+                              {event.from_user === "ไม่มี"
+                                ? "ยังไม่ได้ระบุ"
+                                : event.from_user}
+                            </Tag>
+                            <Text
+                              type="secondary"
+                              style={{ fontSize: "1.2rem", lineHeight: 1 }}
+                            >
+                              →
+                            </Text>
+                            <Tag
+                              color="processing"
+                              style={{ margin: 0, fontWeight: 600 }}
+                            >
+                              {event.to_user}
+                            </Tag>
+                          </Flex>
+                        </Flex>
                       </div>
-                    )}
+
+                      {event.content &&
+                        event.content !== "ไม่มีข้อความเพิ่มเติม" && (
+                          <div
+                            style={{
+                              borderTop: `1px dashed ${token.colorBorderSecondary}`,
+                              paddingTop: 10,
+                            }}
+                          >
+                            <Text
+                              style={{
+                                color: token.colorTextDescription,
+                                fontStyle: "italic",
+                                lineHeight: 1.6,
+                              }}
+                            >
+                              "{event.content}"
+                            </Text>
+                          </div>
+                        )}
+                    </Flex>
+                  </Card>
                 </div>
-              </div>
-            ),
-            color: "blue",
-          }))}
-        />
+              ),
+              color: token.colorPrimary,
+            }))}
+          />
+        </div>
       ) : (
-        <Empty description="ไม่พบประวัติการเปลี่ยนผู้รับผิดชอบ (Assignee) ในรายการนี้" />
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description="ไม่พบประวัติการเปลี่ยนผู้รับผิดชอบ (Assignee) ในรายการนี้"
+          style={{ padding: "40px 0" }}
+        />
       )}
     </Modal>
   );
