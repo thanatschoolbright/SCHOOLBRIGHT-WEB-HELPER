@@ -27,7 +27,7 @@ const SummarySection: React.FC = () => {
     },
     {
       title: "ชั่วโมงทำงานรวม",
-      value: summary?.total_hours || 0,
+      value: summary?.total_hours ? summary.total_hours.toFixed(2) : 0,
       unit: "ชม.",
       icon: <ClockCircleOutlined />,
       color: "#52c41a",

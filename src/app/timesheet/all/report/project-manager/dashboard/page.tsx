@@ -46,25 +46,33 @@ const ProjectManagerDashboardPage = () => {
 
         <Row gutter={[24, 24]}>
           <Col xs={24} lg={16}>
-             {/* ส่วนตารางสุขภาพโครงการ */}
-             <ProjectHealthTable />
+            {/* ส่วนตารางสุขภาพโครงการ */}
+            <ProjectHealthTable />
           </Col>
           <Col xs={24} lg={8}>
-             {/* ส่วนวิเคราะห์ภาระงาน */}
-             <WorkloadAnalysis />
+            {/* ส่วนวิเคราะห์ภาระงาน */}
+            <WorkloadAnalysis />
           </Col>
         </Row>
 
         {/* ส่วนคำแนะนำ / Alert */}
-        <Card bordered={false} style={{ backgroundColor: "#fffbe6", border: "1px solid #ffe58f" }}>
+        <Card
+          variant="borderless"
+          style={{ backgroundColor: "#fffbe6", border: "1px solid #ffe58f" }}
+        >
           <Space align="start">
-            <ExclamationCircleOutlined style={{ color: "#faad14", marginTop: 4 }} />
+            <ExclamationCircleOutlined
+              style={{ color: "#faad14", marginTop: 4 }}
+            />
             <Flex vertical>
-              <Text strong>คำแนะนำสำหรับผู้จัดการโครงการ (PM Instructions)</Text>
+              <Text strong>
+                คำแนะนำสำหรับผู้จัดการโครงการ (PM Instructions)
+              </Text>
               <Text type="secondary">
-                หากพบแถบสีแดงในตารางสุขภาพโครงการ หมายถึงโครงการนั้นใช้ชั่วโมงทำงานเกินจากที่ประเมินไว้
-                ควรตรวจสอบความถูกต้องของงาน และหากภาระงานทีมงาน (Workload) สูงเกิน 90%
-                ควรพิจารณาปรับสมดุลทรัพยากรบุคคล
+                หากพบแถบสีแดงในตารางสุขภาพโครงการ
+                หมายถึงโครงการนั้นใช้ชั่วโมงทำงานเกินจากที่ประเมินไว้
+                ควรตรวจสอบความถูกต้องของงาน และหากภาระงานทีมงาน (Workload)
+                สูงเกิน 90% ควรพิจารณาปรับสมดุลทรัพยากรบุคคล
               </Text>
             </Flex>
           </Space>
@@ -75,4 +83,3 @@ const ProjectManagerDashboardPage = () => {
 };
 
 export default ProjectManagerDashboardPage;
-
