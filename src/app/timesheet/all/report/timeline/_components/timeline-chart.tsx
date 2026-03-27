@@ -167,11 +167,7 @@ const TimelineChart: React.FC = () => {
           padding: "24px 0 32px 0",
         }}
       >
-        <Timeline
-          mode="left"
-          items={timelineItems}
-          style={{ marginLeft: 8 }}
-        />
+        <Timeline mode="left" items={timelineItems} style={{ marginLeft: 8 }} />
       </div>
     </Card>
   );
