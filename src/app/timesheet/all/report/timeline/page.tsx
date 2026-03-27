@@ -78,7 +78,7 @@ export default function Page() {
           <WorkloadTimeSeries />
         </div>
 
-        {/* Modal สำหรับแก้ไขโครงการย่อย */}
+        {/* Sub Project Edit Modal */}
         <SubProjectFormModal
           open={modal.open}
           mode={modal.mode}
