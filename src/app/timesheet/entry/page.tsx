@@ -76,7 +76,6 @@ export default function TimesheetEntryPage() {
     fetchProjects,
     fetchSubProjects,
     fetchMonthlySummary,
-    fetchWeeklySummary,
     saveTimesheet,
     deleteTimesheet,
     setPagination,

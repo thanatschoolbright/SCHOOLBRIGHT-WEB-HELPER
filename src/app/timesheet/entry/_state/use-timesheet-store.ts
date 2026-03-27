@@ -66,7 +66,7 @@ interface TimesheetState {
   saveTimesheet: (payload: any) => Promise<boolean>;
 
   /** ลบรายการ Timesheet */
-  deleteTimesheet: (ids: string[]) => Promise<boolean>;
+  deleteTimesheet: (ids: number[], by: number) => Promise<boolean>;
 
   /** เปลี่ยนหน้าในตาราง */
   setPagination: (page: number, size?: number) => void;
