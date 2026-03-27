@@ -14,7 +14,7 @@ export default function Page() {
 
   return (
     <DashboardLayout>
-      <PermissionLayout permissions={["ADMIN_TIMESHEET_VIEW"]}>
+      <PermissionLayout permission={["ADMIN_TIMESHEET_VIEW"]}>
         <HeaderBar
           title="รายงานภาพรวมโครงการ (Project Timeline)"
           subTitle="แสดงรายละเอียดความคืบหน้าโครงการและโครงการย่อยในรูปแบบ Gantt Chart"
