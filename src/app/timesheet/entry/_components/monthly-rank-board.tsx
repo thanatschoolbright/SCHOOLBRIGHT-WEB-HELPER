@@ -27,11 +27,11 @@ import { useRankingStore } from "../_state/use-ranking-store";
 /**
  * MonthlyRankBoard - ส่วนแสดงผลการจัดอันดับพนักงานประจำเดือน
  */
-interface MonthlyRankBoardProps {
+export interface MonthlyRankBoardProps {
   currentAdminId?: number;
 }
 
-interface MonthlyRankBoardRef {
+export interface MonthlyRankBoardRef {
   refetch: () => void;
 }
 

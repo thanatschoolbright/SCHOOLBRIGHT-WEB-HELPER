@@ -1,6 +1,6 @@
 "use client";
 
-import { Form, Space, Tag, theme } from "antd";
+import { Form, Space, Tag } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
@@ -40,6 +40,7 @@ import { getStatusConfig } from "./utils/timesheet-entry.helpers";
 
 import { CreateModalForm } from "./_components/create-modal-form";
 import { GuideModal } from "./_components/guide-modal";
+import { MonthlyRankBoardRef } from "./_components/monthly-rank-board";
 import { MyWorkModal } from "./_components/my-work-modal";
 import { PageHeader } from "./_components/page-header";
 import { StatsGrid } from "./_components/stats-grid";
@@ -67,7 +68,6 @@ export default function TimesheetEntryPage() {
   const [form] = Form.useForm();
   const isMountedRef = useRef(true);
   const rankBoardRef = useRef<MonthlyRankBoardRef>(null);
-  const { token } = theme.useToken();
   const authState = useAppSelector((state) => state.callAdminLogin);
   const timesheetState = useAppSelector((state) => state.timesheet);
 
@@ -263,7 +263,6 @@ export default function TimesheetEntryPage() {
               on_my_work_click={() => {
                 setMyWorkModalOpen(true);
               }}
-              token={token}
             />
             <StatsGrid
               admin_id={admin_id}
