@@ -1,12 +1,18 @@
 "use client";
 
-import { TeamOutlined, TrophyOutlined, UserOutlined } from "@ant-design/icons";
+import {
+  SearchOutlined,
+  TeamOutlined,
+  TrophyOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import {
   Avatar,
   Badge,
   Card,
   Col,
   Flex,
+  Input,
   List,
   Progress,
   Row,
@@ -25,7 +31,16 @@ const { Text, Title } = Typography;
  */
 export const RankingSection = () => {
   const { token } = theme.useToken();
-  const { analyticsData, loading } = useBacklogDashboardStore();
+  const { analyticsData, loading, searchName, setSearchName } =
+    useBacklogDashboardStore();
+
+  const filteredData = [...analyticsData]
+    .filter((item) => {
+      const name = item.name || "";
+      const search = searchName || "";
+      return name.toLowerCase().includes(search.toLowerCase());
+    })
+    .sort((a, b) => b.pending_tasks - a.pending_tasks);
 
   return (
     <Row gutter={[16, 16]}>
@@ -33,17 +48,31 @@ export const RankingSection = () => {
       <Col xs={24} lg={16}>
         <Card
           title={
-            <Space>
-              <TeamOutlined />
-              <span>ปริมาณงานรายรายพนักงาน (Backlog Load)</span>
-            </Space>
+            <Flex
+              justify="space-between"
+              align="center"
+              style={{ width: "100%" }}
+            >
+              <Space>
+                <TeamOutlined />
+                <span>ปริมาณงานรายรายพนักงาน (Backlog Load)</span>
+              </Space>
+              <Input
+                placeholder="ค้นหาชื่อพนักงาน..."
+                prefix={<SearchOutlined />}
+                style={{ width: 250 }}
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
+                allowClear
+              />
+            </Flex>
           }
           variant="borderless"
           styles={{ body: { padding: 16 } }}
         >
           <List
             loading={loading}
-            dataSource={analyticsData}
+            dataSource={filteredData}
             pagination={{ pageSize: 5, size: "small", align: "center" }}
             renderItem={(item) => (
               <List.Item

@@ -32,13 +32,13 @@ interface BacklogDashboardState {
   space: string;
   dateRange: [dayjs.Dayjs, dayjs.Dayjs] | null;
   selectedAssigneeId: number | null;
+  searchName: string;
 
   // Actions
   setSpace: (space: string) => void;
   setDateRange: (range: [dayjs.Dayjs, dayjs.Dayjs] | null) => void;
   setSelectedAssigneeId: (id: number | null) => void;
-  fetchAnalytics: () => Promise<void>;
-
+  setSearchName: (name: string) => void;
   // Computed (Selectors conceptually)
   getTotalStats: () => { total: number; closed: number; open: number };
 }
@@ -50,10 +50,12 @@ export const useBacklogDashboardStore = create<BacklogDashboardState>(
     space: "jabjai",
     dateRange: [dayjs("2026-03-23"), dayjs("2026-03-27")],
     selectedAssigneeId: null,
+    searchName: "",
 
     setSpace: (space) => set({ space }),
     setDateRange: (dateRange) => set({ dateRange }),
     setSelectedAssigneeId: (selectedAssigneeId) => set({ selectedAssigneeId }),
+    setSearchName: (searchName) => set({ searchName }),
 
     fetchAnalytics: async () => {
       const { space, dateRange } = get();
