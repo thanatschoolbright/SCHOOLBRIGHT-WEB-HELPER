@@ -6,7 +6,6 @@ import {
   AuditOutlined,
   BarChartOutlined,
   BellOutlined,
-  BugOutlined,
   CalendarOutlined,
   CarryOutOutlined,
   CloseCircleOutlined,
@@ -222,9 +221,16 @@ export const useSidebarMenu = (): SidebarItem[] => {
             icon: <IssuesCloseOutlined />,
             children: [
               {
+                label: t("backlogs.children.dashboard"),
+                href: "/backlogs/report/dashboard",
+                icon: <DashboardOutlined />,
+                news: true,
+                permission: PERMISSIONS.MENU_BACKLOGS,
+              },
+              {
                 label: t("backlogs.children.report"),
                 href: "/backlogs/report",
-                icon: <BugOutlined />,
+                icon: <ProjectOutlined />,
                 permission: PERMISSIONS.MENU_BACKLOGS,
               },
             ],

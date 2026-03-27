@@ -80,7 +80,8 @@
   "backlogs": {
     "title": "แบ็คล็อก",
     "children": {
-      "report": "รายงาน"
+      "report": "รายงานโครงการ",
+      "dashboard": "แดชบอร์ดสรุปงาน"
     }
   },
   "logger": {

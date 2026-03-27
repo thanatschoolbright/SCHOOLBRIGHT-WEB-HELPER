@@ -80,7 +80,8 @@
   "backlogs": {
     "title": "Backlog System",
     "children": {
-      "report": "Reports"
+      "report": "Project Reports",
+      "dashboard": "Work Dashboard"
     }
   },
   "logger": {
