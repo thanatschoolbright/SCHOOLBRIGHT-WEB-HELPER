@@ -96,11 +96,29 @@ export async function GET(req: NextRequest) {
 
     // 3. คำนวณประสิทธิภาพ (Efficiency: Closed / Total %)
     const result = Object.values(analytics)
-      .map((item: any) => ({
-        ...item,
-        efficiency:
-          item.total > 0 ? Math.round((item.closed / item.total) * 100) : 0,
-      }))
+      .map((item: any) => {
+        const efficiency =
+          item.total > 0 ? Math.round((item.closed / item.total) * 100) : 0;
+
+        // ประเมินภาระงานรายบุคคล (Workload & Capacity Analysis)
+        // Load Value: (จำนวนงานค้างทั้งหมด / (ประสิทธิภาพ / 100)) เพื่อดูภาระงานจริงที่ต้องเคลียร์
+        // หากประสิทธิภาพเป็น 0 จะถือว่า Load สูงมาก (Infinity หรือใช้ total เป็นเกณฑ์)
+        const pendingCount = item.total - item.closed;
+        const loadValue =
+          efficiency > 0
+            ? Math.round(pendingCount / (efficiency / 100))
+            : pendingCount * 2;
+
+        return {
+          ...item,
+          efficiency: efficiency,
+          active_tasks: item.in_progress,
+          pending_tasks: pendingCount,
+          load_value: loadValue,
+          capacity_status:
+            loadValue > 20 ? "งานล้นมือ" : loadValue > 10 ? "ปกติ" : "งานน้อย",
+        };
+      })
       .sort((a, b) => b.total - a.total); // เรียงตามปริมาณงานเยอะที่สุด
 
     return NextResponse.json(

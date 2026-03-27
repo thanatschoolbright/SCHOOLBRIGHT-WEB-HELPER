@@ -19,6 +19,11 @@ interface AnalyticsItem {
   efficiency: number;
   avatarUrl: string;
   issues?: Issue[];
+  // New KPI Metrics
+  active_tasks: number;
+  pending_tasks: number;
+  load_value: number;
+  capacity_status: string;
 }
 
 interface BacklogDashboardState {

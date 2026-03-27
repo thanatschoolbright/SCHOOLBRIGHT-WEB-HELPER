@@ -12,6 +12,7 @@ import {
   Row,
   Space,
   Statistic,
+  Tag,
   theme,
   Typography,
 } from "antd";
@@ -75,11 +76,24 @@ export const RankingSection = () => {
                       size={2}
                       className="w-full mt-2"
                     >
-                      <Flex justify="space-between">
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                          สถานะ: เสร็จแล้ว {item.closed} / ค้าง{" "}
-                          {item.total - item.closed}
-                        </Text>
+                      <Flex justify="space-between" align="center">
+                        <Space>
+                          <Tag
+                            color={
+                              item.capacity_status === "งานล้นมือ"
+                                ? "error"
+                                : item.capacity_status === "งานน้อย"
+                                  ? "success"
+                                  : "processing"
+                            }
+                          >
+                            {item.capacity_status}
+                          </Tag>
+                          <Text type="secondary" style={{ fontSize: 12 }}>
+                            สถานะ: กำลังทำ {item.active_tasks} / ค้าง{" "}
+                            {item.pending_tasks}
+                          </Text>
+                        </Space>
                         <Text strong style={{ color: token.colorSuccess }}>
                           {item.efficiency}% ประสิทธิภาพ
                         </Text>
@@ -95,6 +109,12 @@ export const RankingSection = () => {
                               : token.colorError
                         }
                       />
+                      <Flex justify="space-between">
+                        <Text type="secondary" style={{ fontSize: 11 }}>
+                          Load Value: {item.load_value}{" "}
+                          (ค่าประมาณการที่ต้องใช้จัดการงานค้าง)
+                        </Text>
+                      </Flex>
                     </Space>
                   }
                 />
