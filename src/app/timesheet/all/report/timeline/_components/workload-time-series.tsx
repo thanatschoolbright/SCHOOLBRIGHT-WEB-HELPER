@@ -87,6 +87,13 @@ const WorkloadTimeSeries = () => {
     },
     tooltip: {
       showMarkers: true,
+      title: (d: any) => d.month,
+      items: [
+        (d: any) => ({
+          name: "จำนวนงาน",
+          value: d.count + " รายการ",
+        }),
+      ],
     },
     lineStyle: {
       stroke: token.colorPrimary,
