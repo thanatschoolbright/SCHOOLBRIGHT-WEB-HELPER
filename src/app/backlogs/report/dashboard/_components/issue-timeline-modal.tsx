@@ -68,37 +68,11 @@ export const IssueTimelineModal = () => {
             maxHeight: "65vh",
             overflowY: "auto",
             paddingRight: 8,
-            paddingLeft: 16,
+            paddingLeft: 8,
           }}
         >
           <Timeline
-            mode="left"
             items={timelineData.map((event) => ({
-              label: (
-                <div
-                  style={{ paddingRight: 4, textAlign: "right", minWidth: 100 }}
-                >
-                  <Text
-                    style={{
-                      fontSize: "0.85rem",
-                      display: "block",
-                      color: token.colorTextSecondary,
-                    }}
-                  >
-                    {dayjs(event.created_at).format("DD/MM/YYYY")}
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: "1rem",
-                      fontWeight: 600,
-                      display: "block",
-                      color: token.colorText,
-                    }}
-                  >
-                    {dayjs(event.created_at).format("HH:mm น.")}
-                  </Text>
-                </div>
-              ),
               children: (
                 <div style={{ marginBottom: 32, marginLeft: 4 }}>
                   <Card
@@ -115,6 +89,34 @@ export const IssueTimelineModal = () => {
                     }}
                   >
                     <Flex vertical gap={16}>
+                      {/* ส่วนหัวแสดงวันที่และเวลา (ย้ายมาไว้ข้างใน Card มุมซ้ายบน) */}
+                      <Flex justify="space-between" align="center">
+                        <Space size={8}>
+                          <ClockCircleOutlined
+                            style={{
+                              color: token.colorPrimary,
+                              fontSize: "0.9rem",
+                            }}
+                          />
+                          <Text
+                            strong
+                            style={{
+                              fontSize: "1rem",
+                              color: token.colorText,
+                            }}
+                          >
+                            {dayjs(event.created_at).format("DD/MM/YYYY")}
+                          </Text>
+                          <Tag
+                            color="blue"
+                            bordered={false}
+                            style={{ margin: 0, fontWeight: 600 }}
+                          >
+                            {dayjs(event.created_at).format("HH:mm น.")}
+                          </Tag>
+                        </Space>
+                      </Flex>
+
                       <Flex align="center" gap={12}>
                         <Avatar
                           size={40}
