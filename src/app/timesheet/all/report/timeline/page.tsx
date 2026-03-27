@@ -12,6 +12,7 @@ import FilterSection from "./_components/filter-section";
 import { SubProjectFormModal } from "./_components/sub-project-form-modal";
 import SummarySection from "./_components/summary-section";
 import TimelineChart from "./_components/timeline-chart";
+import WorkloadTimeSeries from "./_components/workload-time-series";
 import { useTimelineStore } from "./_state/timeline-store";
 
 export default function Page() {
@@ -73,6 +74,8 @@ export default function Page() {
           <SummarySection />
 
           <TimelineChart />
+
+          <WorkloadTimeSeries />
         </div>
 
         {/* Modal สำหรับแก้ไขโครงการย่อย */}
