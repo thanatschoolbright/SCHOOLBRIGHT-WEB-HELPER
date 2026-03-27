@@ -61,6 +61,7 @@ interface BacklogDashboardState {
   setSearchName: (name: string) => void;
   setTimelineData: (data: TimelineEvent[]) => void;
   fetchTimeline: (issueKey: string) => Promise<void>;
+  fetchAnalytics: () => Promise<void>;
 
   // Computed (Selectors conceptually)
   getTotalStats: () => { total: number; closed: number; open: number };

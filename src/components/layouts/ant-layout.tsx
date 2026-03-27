@@ -171,6 +171,12 @@ const getModernTheme = (
         activeBarBorderWidth: 0,
         subMenuItemBg: "transparent",
       },
+
+      Timeline: {
+        tailColor: isDark ? "#475569" : "#CBD5E1",
+        tailWidth: 2,
+        dotBorderWidth: 3,
+      },
     },
   };
 };
@@ -373,6 +379,23 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 background: var(--scroll-thumb-hover);
               }
 
+              /* ═══════════════
+                 Timeline
+                 ═══════════════ */
+              .ant-timeline .ant-timeline-item-tail {
+                border-inline-start: 2px solid #cbd5e1 !important;
+              }
+              .dark .ant-timeline .ant-timeline-item-tail {
+                border-inline-start: 2px solid #475569 !important;
+              }
+              .ant-timeline .ant-timeline-item-head {
+                background-color: transparent !important;
+              }
+              .ant-timeline .ant-timeline-item-head-blue {
+                border-color: #ff8c00 !important;
+                color: #ff8c00 !important;
+              }
+
               /* Global Component Polishing */
               .ant-table-wrapper .ant-table {
                 background: transparent !important;
@@ -421,23 +444,18 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 border-radius: 24px !important;
                 overflow: hidden !important;
                 padding: 0 !important;
-                /* Light mode */
-                background: rgba(255, 255, 255, 0.95) !important;
+                background: #ffffff !important;
                 border: 1px solid #e2e8f0 !important;
                 box-shadow:
-                  0 0 0 1px rgba(255, 255, 255, 0.6),
-                  0 8px 16px -4px rgba(0, 0, 0, 0.06),
-                  0 24px 48px -12px rgba(0, 0, 0, 0.1) !important;
-                backdrop-filter: blur(2px) !important;
-                -webkit-backdrop-filter: blur(2px) !important;
+                  0 8px 16px -4px rgba(0, 0, 0, 0.08),
+                  0 24px 48px -12px rgba(0, 0, 0, 0.12) !important;
               }
               .dark .ant-modal-content {
-                background: rgba(30, 41, 59, 0.96) !important;
-                border: 1px solid rgba(71, 85, 105, 0.6) !important;
+                background: #1e293b !important;
+                border: 1px solid #334155 !important;
                 box-shadow:
-                  0 0 0 1px rgba(255, 255, 255, 0.04),
-                  0 8px 16px -4px rgba(0, 0, 0, 0.3),
-                  0 32px 64px -16px rgba(0, 0, 0, 0.5) !important;
+                  0 8px 16px -4px rgba(0, 0, 0, 0.4),
+                  0 32px 64px -16px rgba(0, 0, 0, 0.6) !important;
               }
 
               /* Header */

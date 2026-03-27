@@ -17,7 +17,7 @@ import {
 import dayjs from "dayjs";
 import { useBacklogDashboardStore } from "../_state/use-backlog-dashboard-store";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 const { useToken } = theme;
 
 /**
@@ -26,12 +26,8 @@ const { useToken } = theme;
  */
 export const IssueTimelineModal = () => {
   const { token } = useToken();
-  const {
-    timelineData,
-    timelineLoading,
-    selectedIssueKey,
-    setSelectedAssigneeId,
-  } = useBacklogDashboardStore();
+  const { timelineData, timelineLoading, selectedIssueKey } =
+    useBacklogDashboardStore();
 
   const isOpen = !!selectedIssueKey;
 
@@ -54,7 +50,7 @@ export const IssueTimelineModal = () => {
       open={isOpen}
       onCancel={handleClose}
       footer={null}
-      width={700}
+      width={1200}
       centered
       styles={{
         body: { padding: "24px 24px 0 24px" },

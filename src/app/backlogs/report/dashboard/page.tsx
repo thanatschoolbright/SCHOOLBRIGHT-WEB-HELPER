@@ -21,6 +21,7 @@ export default function DashboardPage(): JSX.Element {
   useEffect(() => {
     // โหลดข้อมูลเริ่มต้นเมื่อเข้าหน้าจอ
     fetchAnalytics();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
