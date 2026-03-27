@@ -44,21 +44,29 @@ export async function GET(req: NextRequest) {
     });
 
     const comments = response.data || [];
-    console.log(`[Timeline Debug] Total comments found for ${issueIdOrKey}:`, comments.length);
+    console.log(
+      `[Timeline Debug] Total comments found for ${issueIdOrKey}:`,
+      comments.length,
+    );
 
     const timeline_events: any[] = [];
 
     // 2. วนลูปหา Change Log ที่มีการเปลี่ยน Assignee
     comments.forEach((comment: any, index: number) => {
       if (comment.changeLog && comment.changeLog.length > 0) {
-        console.log(`[Timeline Debug] Comment #${index} has ${comment.changeLog.length} changes`);
-        
+        console.log(
+          `[Timeline Debug] Comment #${index} has ${comment.changeLog.length} changes`,
+        );
+
         comment.changeLog.forEach((log: any) => {
-          console.log(`[Timeline Debug] Log field: ${log.field}, from: ${log.originalValue}, to: ${log.newValue}`);
-          
-          // ตรวจสอบว่าเป็นเหตุการณ์เปลี่ยนผู้รับผิดชอบ (assignee)
-          if (log.field === "assignee") {
-            console.log(">>> [Timeline Debug] Found Assignee change!");
+          console.log(
+            `[Timeline Debug] Log field: ${log.field}, from: ${log.originalValue}, to: ${log.newValue}`,
+          );
+
+          // ตรวจสอบว่าเป็นเหตุการณ์เปลี่ยนผู้รับผิดชอบ
+          // รองรับทั้งฟิลด์ 'assignee' และ 'assigner' ตามที่พบใน Log จริง
+          if (log.field === "assignee" || log.field === "assigner") {
+            console.log(">>> [Timeline Debug] Found Assignee/Assigner change!");
             timeline_events.push({
               id: comment.id,
               created_at: comment.created,

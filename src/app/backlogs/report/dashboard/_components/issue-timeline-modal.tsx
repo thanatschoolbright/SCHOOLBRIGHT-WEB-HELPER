@@ -1,7 +1,15 @@
 "use client";
 
 import { ClockCircleOutlined, UserOutlined } from "@ant-design/icons";
-import { Avatar, Empty, Modal, Skeleton, Timeline, Typography } from "antd";
+import {
+  Avatar,
+  Empty,
+  Modal,
+  Skeleton,
+  Space,
+  Timeline,
+  Typography,
+} from "antd";
 import dayjs from "dayjs";
 import { useBacklogDashboardStore } from "../_state/use-backlog-dashboard-store";
 
@@ -75,7 +83,7 @@ export const IssueTimelineModal = () => {
                       {event.from_user}
                     </Text>
                     <Text type="secondary"> → </Text>
-                    <Text strong color="blue">
+                    <Text strong style={{ color: "#1677ff" }}>
                       {event.to_user}
                     </Text>
                   </div>
@@ -103,5 +111,3 @@ export const IssueTimelineModal = () => {
     </Modal>
   );
 };
-
-import { Space } from "antd";
