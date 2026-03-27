@@ -305,11 +305,11 @@ export const useTimesheetStore = create<TimesheetState>((set, get) => ({
     }
   },
 
-  deleteTimesheet: async (ids) => {
+  deleteTimesheet: async (ids: number[], by: number) => {
     set({ actionLoading: true });
     const toast_id = toast.loading("กำลังลบข้อมูล...");
     try {
-      const response = await timesheetService.requestDeleteTimesheet(ids);
+      const response = await timesheetService.requestDeleteTimesheet(ids, by);
       if (response.status === 200) {
         toast.success("ลบข้อมูลสำเร็จ", { id: toast_id });
         return true;

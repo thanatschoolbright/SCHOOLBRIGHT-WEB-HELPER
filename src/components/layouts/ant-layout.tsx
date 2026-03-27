@@ -151,6 +151,15 @@ const getModernTheme = (
         controlOutline: "none",
       },
 
+      Modal: {
+        contentBg: isDark ? "#1E293B" : "#FFFFFF",
+        headerBg: isDark ? "#1E293B" : "#FFFFFF",
+        footerBg: isDark ? "#1E293B" : "#FFFFFF",
+        titleColor: isDark ? "#F8FAFC" : "#0F172A",
+        titleFontSize: 16,
+        borderRadiusLG: 24,
+      },
+
       Menu: {
         itemBorderRadius: 12,
         activeBarBorderWidth: 0,
@@ -286,20 +295,154 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 overflow: hidden;
               }
 
-              /* Premium Modal Glassmorphism & Perfect Centering */
-              .ant-modal {
-                padding-top: 40px !important;
-                padding-bottom: 40px !important;
+              /* ═══════════════════════════════════════
+                 Modal — Premium Styling (Light & Dark)
+                 ═══════════════════════════════════════ */
+
+              /* Blur page content when any modal/drawer is open
+                 (ant-scrolling-effect is added to body by Ant Design)
+                 Modal portal is appended to body OUTSIDE .ant-theme-root,
+                 so only the page wrapper gets blurred — modal stays sharp */
+              .ant-theme-root {
+                transition:
+                  filter 0.35s cubic-bezier(0.25, 0.8, 0.25, 1),
+                  transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+                will-change: filter;
               }
-              .ant-modal-mask {
-                backdrop-filter: blur(1rem) !important;
-                background: var(--modal-mask-bg) !important;
+              body.ant-scrolling-effect .ant-theme-root {
+                filter: blur(6px) brightness(0.9) saturate(0.8);
+                transform: scale(0.99);
+                pointer-events: none;
               }
 
+              /* Overlay — hardcoded colors (CSS variables don't reach portal) */
+              .ant-modal-mask {
+                background: rgba(0, 0, 0, 0.3) !important;
+              }
+              .dark .ant-modal-mask {
+                background: rgba(0, 0, 0, 0.45) !important;
+              }
+
+              /* Wrapper centering */
+              .ant-modal {
+                padding-block: 40px !important;
+              }
+
+              /* Content shell */
+              .ant-modal-content {
+                border-radius: 24px !important;
+                overflow: hidden !important;
+                padding: 0 !important;
+                /* Light mode */
+                background: rgba(255, 255, 255, 0.95) !important;
+                border: 1px solid #e2e8f0 !important;
+                box-shadow:
+                  0 0 0 1px rgba(255, 255, 255, 0.6),
+                  0 8px 16px -4px rgba(0, 0, 0, 0.06),
+                  0 24px 48px -12px rgba(0, 0, 0, 0.1) !important;
+                backdrop-filter: blur(2px) !important;
+                -webkit-backdrop-filter: blur(2px) !important;
+              }
               .dark .ant-modal-content {
-                background: #1e293b !important;
-                border: 1px solid #475569;
-                box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.4) !important;
+                background: rgba(30, 41, 59, 0.96) !important;
+                border: 1px solid rgba(71, 85, 105, 0.6) !important;
+                box-shadow:
+                  0 0 0 1px rgba(255, 255, 255, 0.04),
+                  0 8px 16px -4px rgba(0, 0, 0, 0.3),
+                  0 32px 64px -16px rgba(0, 0, 0, 0.5) !important;
+              }
+
+              /* Header */
+              .ant-modal-header {
+                padding: 24px 28px 16px !important;
+                margin-bottom: 0 !important;
+                background: transparent !important;
+                border-bottom: 1px solid #f1f5f9 !important;
+              }
+              .dark .ant-modal-header {
+                border-bottom-color: #334155 !important;
+              }
+              .ant-modal-title {
+                font-size: 16px !important;
+                font-weight: 700 !important;
+                letter-spacing: -0.01em !important;
+                color: #0f172a !important;
+              }
+              .dark .ant-modal-title {
+                color: #f8fafc !important;
+              }
+
+              /* Body */
+              .ant-modal-body {
+                padding: 20px 28px !important;
+                color: #374151;
+              }
+              .dark .ant-modal-body {
+                color: #cbd5e1 !important;
+              }
+
+              /* Footer */
+              .ant-modal-footer {
+                padding: 16px 28px 24px !important;
+                margin-top: 0 !important;
+                background: transparent !important;
+                border-top: 1px solid #f1f5f9 !important;
+                display: flex !important;
+                justify-content: flex-end !important;
+                gap: 8px !important;
+              }
+              .dark .ant-modal-footer {
+                border-top-color: #334155 !important;
+              }
+
+              /* Close button */
+              .ant-modal-close {
+                top: 18px !important;
+                inset-inline-end: 20px !important;
+                width: 32px !important;
+                height: 32px !important;
+                border-radius: 50% !important;
+                background: #f1f5f9 !important;
+                color: #64748b !important;
+                transition: all 0.2s ease !important;
+              }
+              .ant-modal-close:hover {
+                background: #e2e8f0 !important;
+                color: #0f172a !important;
+                transform: rotate(90deg) !important;
+              }
+              .dark .ant-modal-close {
+                background: rgba(51, 65, 85, 0.8) !important;
+                color: #94a3b8 !important;
+              }
+              .dark .ant-modal-close:hover {
+                background: #475569 !important;
+                color: #f8fafc !important;
+              }
+
+              /* Confirm Modal icon row */
+              .ant-modal-confirm-body-wrapper {
+                padding: 0 !important;
+              }
+              .ant-modal-confirm-body {
+                padding: 24px 28px 16px !important;
+                display: flex !important;
+                gap: 14px !important;
+                align-items: flex-start !important;
+              }
+              .ant-modal-confirm-title {
+                font-weight: 700 !important;
+                font-size: 15px !important;
+              }
+              .ant-modal-confirm-btns {
+                padding: 16px 28px 24px !important;
+                border-top: 1px solid #f1f5f9 !important;
+                display: flex !important;
+                gap: 8px !important;
+                justify-content: flex-end !important;
+              }
+              .dark .ant-modal-confirm-btns {
+                border-top-color: #334155 !important;
               }
 
               /* Fix Body Scroll Lock for Modal and Drawer */

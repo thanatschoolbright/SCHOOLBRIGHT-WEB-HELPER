@@ -32,10 +32,12 @@ export const timesheetService = {
   /**
    * ลบข้อมูลรายการ Timesheet
    * @param ids รายการ ID ที่ต้องการลบ
+   * @param by ID ของผู้ลบ
    */
-  requestDeleteTimesheet: async (ids: string[]) => {
+  requestDeleteTimesheet: async (ids: number[], by?: number) => {
     const response = await axios.post(`/api/v1/timesheet/entry/delete/`, {
       ids,
+      by,
     });
     return response.data;
   },

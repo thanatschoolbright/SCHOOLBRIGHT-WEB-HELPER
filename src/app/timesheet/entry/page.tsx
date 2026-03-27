@@ -232,10 +232,11 @@ export default function TimesheetEntryPage() {
   );
 
   const handleDeleteTimesheet = useCallback(async () => {
-    if (!timesheetRedux.activeRecord?.id) return;
-    const success = await deleteTimesheet([
-      String(timesheetRedux.activeRecord.id),
-    ]);
+    if (!timesheetRedux.activeRecord?.id || !admin_id) return;
+    const success = await deleteTimesheet(
+      [Number(timesheetRedux.activeRecord.id)],
+      Number(admin_id),
+    );
     if (success && isMountedRef.current) {
       closeModal();
       fetchEntries(admin_id);
