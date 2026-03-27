@@ -63,107 +63,172 @@ export const IssueTimelineModal = () => {
       {timelineLoading ? (
         <Skeleton active paragraph={{ rows: 6 }} />
       ) : timelineData.length > 0 ? (
-        <div style={{ maxHeight: "60vh", overflowY: "auto", paddingRight: 8 }}>
+        <div
+          style={{
+            maxHeight: "65vh",
+            overflowY: "auto",
+            paddingRight: 8,
+            paddingLeft: 16,
+          }}
+        >
           <Timeline
             mode="left"
             items={timelineData.map((event) => ({
               label: (
-                <div style={{ paddingRight: 12 }}>
+                <div
+                  style={{ paddingRight: 4, textAlign: "right", minWidth: 100 }}
+                >
                   <Text
-                    type="secondary"
-                    style={{ fontSize: "0.85rem", display: "block" }}
+                    style={{
+                      fontSize: "0.85rem",
+                      display: "block",
+                      color: token.colorTextSecondary,
+                    }}
                   >
-                    {dayjs(event.created_at).format("DD MMM YYYY")}
+                    {dayjs(event.created_at).format("DD/MM/YYYY")}
                   </Text>
                   <Text
-                    type="secondary"
-                    style={{ fontSize: "1.1rem", fontWeight: 500 }}
+                    style={{
+                      fontSize: "1rem",
+                      fontWeight: 600,
+                      display: "block",
+                      color: token.colorText,
+                    }}
                   >
                     {dayjs(event.created_at).format("HH:mm น.")}
                   </Text>
                 </div>
               ),
               children: (
-                <div style={{ marginBottom: 24, marginLeft: 8 }}>
+                <div style={{ marginBottom: 32, marginLeft: 4 }}>
                   <Card
                     size="small"
                     variant="outlined"
                     styles={{
-                      body: { padding: "12px 16px" },
+                      body: { padding: "16px 20px" },
                     }}
                     style={{
                       borderRadius: 12,
                       border: `1px solid ${token.colorBorderSecondary}`,
+                      boxShadow: `0 4px 12px ${token.colorFillTertiary}`,
+                      transition: "all 0.3s ease",
                     }}
                   >
-                    <Flex vertical gap={12}>
-                      <Flex align="center" gap={10}>
+                    <Flex vertical gap={16}>
+                      <Flex align="center" gap={12}>
                         <Avatar
-                          size={32}
+                          size={40}
                           src={event.updated_by.avatar_url}
                           icon={<UserOutlined />}
                           style={{
                             border: `2px solid ${token.colorPrimaryBg}`,
+                            backgroundColor: token.colorFillSecondary,
                           }}
                         />
                         <Flex vertical>
-                          <Text strong style={{ fontSize: "1rem" }}>
+                          <Text strong style={{ fontSize: "1.05rem" }}>
                             {event.updated_by.name}
                           </Text>
-                          <Text type="secondary" style={{ fontSize: "0.8rem" }}>
-                            ผู้ดำเนินการส่งงาน
+                          <Text
+                            type="secondary"
+                            style={{ fontSize: "0.85rem" }}
+                          >
+                            ผู้ดำเนินการเปลี่ยนสถานะ/ส่งงาน
                           </Text>
                         </Flex>
                       </Flex>
 
-                      <div
-                        style={{
-                          padding: "10px 14px",
-                          background: token.colorFillAlter,
-                          borderRadius: 8,
-                          borderLeft: `4px solid ${token.colorPrimary}`,
-                        }}
+                      <Space
+                        direction="vertical"
+                        size={0}
+                        style={{ width: "100%" }}
                       >
-                        <Flex vertical gap={6}>
-                          <Flex align="center" gap={8} wrap="wrap">
-                            <Tag color="default" style={{ margin: 0 }}>
+                        <div
+                          style={{
+                            padding: "16px",
+                            background: token.colorFillQuaternary,
+                            borderRadius: 12,
+                            borderLeft: `5px solid ${token.colorPrimary}`,
+                          }}
+                        >
+                          <Flex align="center" gap={12} wrap="wrap">
+                            <Tag
+                              color="default"
+                              bordered={false}
+                              style={{
+                                margin: 0,
+                                padding: "4px 10px",
+                                borderRadius: 6,
+                                fontSize: "0.9rem",
+                              }}
+                            >
                               {event.from_user === "ไม่มี"
                                 ? "ยังไม่ได้ระบุ"
                                 : event.from_user}
                             </Tag>
                             <Text
-                              type="secondary"
-                              style={{ fontSize: "1.2rem", lineHeight: 1 }}
+                              style={{
+                                fontSize: "1.4rem",
+                                lineHeight: 1,
+                                color: token.colorTextQuaternary,
+                              }}
                             >
                               →
                             </Text>
                             <Tag
-                              color="processing"
-                              style={{ margin: 0, fontWeight: 600 }}
+                              color="blue"
+                              bordered={false}
+                              style={{
+                                margin: 0,
+                                padding: "4px 10px",
+                                borderRadius: 6,
+                                fontWeight: 700,
+                                fontSize: "0.9rem",
+                              }}
                             >
                               {event.to_user}
                             </Tag>
                           </Flex>
-                        </Flex>
-                      </div>
+                        </div>
+                      </Space>
 
                       {event.content &&
                         event.content !== "ไม่มีข้อความเพิ่มเติม" && (
                           <div
                             style={{
                               borderTop: `1px dashed ${token.colorBorderSecondary}`,
-                              paddingTop: 10,
+                              paddingTop: 12,
+                              marginTop: 4,
                             }}
                           >
-                            <Text
+                            <Flex gap={8} style={{ marginBottom: 6 }}>
+                              <Text
+                                type="secondary"
+                                style={{ fontSize: "0.8rem", fontWeight: 500 }}
+                              >
+                                รายการหมายเหตุ/รายละเอียด:
+                              </Text>
+                            </Flex>
+                            <div
                               style={{
-                                color: token.colorTextDescription,
-                                fontStyle: "italic",
-                                lineHeight: 1.6,
+                                padding: "8px 12px",
+                                background: token.colorFillTertiary,
+                                borderRadius: 8,
                               }}
                             >
-                              "{event.content}"
-                            </Text>
+                              <Text
+                                style={{
+                                  color: token.colorTextDescription,
+                                  fontStyle: "italic",
+                                  lineHeight: 1.6,
+                                  fontSize: "0.95rem",
+                                  display: "block",
+                                  whiteSpace: "pre-wrap",
+                                }}
+                              >
+                                "{event.content}"
+                              </Text>
+                            </div>
                           </div>
                         )}
                     </Flex>
