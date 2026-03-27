@@ -5,9 +5,11 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   FileTextOutlined,
+  FilterOutlined,
   ReloadOutlined,
   TeamOutlined,
   TrophyOutlined,
+  UnorderedListOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import SummaryCard from "@components/card/summary-card";
@@ -20,6 +22,7 @@ import {
   Card,
   Col,
   DatePicker,
+  Divider,
   Flex,
   List,
   Progress,
@@ -27,6 +30,8 @@ import {
   Select,
   Space,
   Statistic,
+  Table,
+  Tag,
   theme,
   Typography,
 } from "antd";
@@ -47,6 +52,11 @@ interface AnalyticsItem {
   in_progress: number;
   efficiency: number;
   avatarUrl: string;
+  issues?: {
+    key: string;
+    summary: string;
+    status: string;
+  }[];
 }
 
 export default function DashboardPage(): JSX.Element {
@@ -54,6 +64,7 @@ export default function DashboardPage(): JSX.Element {
   const [loading, setLoading] = useState<boolean>(true);
   const [analyticsData, setAnalyticsData] = useState<AnalyticsItem[]>([]);
   const [space, setSpace] = useState<string>("jabjai");
+  const [selectedAssignee, setSelectedAssignee] = useState<number | null>(null);
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(
     [dayjs("2026-03-23"), dayjs("2026-03-27")],
   );
@@ -330,6 +341,134 @@ export default function DashboardPage(): JSX.Element {
                     </Card>
                   ))}
               </Flex>
+
+              {/* ส่วนที่ 5: ตัวกรองงานค้างรายบุคคล (Pending Tasks Filter) */}
+              <Card
+                title={
+                  <Flex justify="space-between" align="center">
+                    <Space>
+                      <FilterOutlined style={{ fontSize: "1rem" }} />
+                      <span style={{ fontWeight: 600 }}>
+                        ตัวกรองงานค้างรายบุคคล
+                      </span>
+                    </Space>
+                    <Text type="secondary" style={{ fontSize: "0.85rem" }}>
+                      ตรวจสอบรายการ Task ที่ยังไม่เสร็จสิ้น
+                    </Text>
+                  </Flex>
+                }
+                variant="borderless"
+                className="shadow-sm"
+                styles={{ body: { padding: 16 } }}
+              >
+                <Flex vertical gap={24}>
+                  <Row gutter={[16, 16]} align="bottom">
+                    <Col xs={24} md={12}>
+                      <Space direction="vertical" className="w-full" size={4}>
+                        <Text strong style={{ fontSize: "0.85rem" }}>
+                          เลือกพนักงานเพื่อดูงานค้าง
+                        </Text>
+                        <Select
+                          className="w-full"
+                          placeholder="ค้นหาชื่อพนักงาน..."
+                          size="large"
+                          allowClear
+                          showSearch
+                          optionFilterProp="label"
+                          value={selectedAssignee}
+                          onChange={setSelectedAssignee}
+                          options={analyticsData.map((emp) => ({
+                            label: `${emp.name} (ค้าง ${emp.total - emp.closed} งาน)`,
+                            value: emp.id,
+                          }))}
+                        />
+                      </Space>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Flex justify="end">
+                        <Button
+                          icon={<ReloadOutlined />}
+                          onClick={() => setSelectedAssignee(null)}
+                        >
+                          ล้างตัวกรอง
+                        </Button>
+                      </Flex>
+                    </Col>
+                  </Row>
+
+                  <Divider style={{ margin: 0 }} />
+
+                  <div>
+                    <Space style={{ marginBottom: 16 }}>
+                      <UnorderedListOutlined style={{ fontSize: "1rem" }} />
+                      <Text strong>รายการงานค้าง (Pending Tasks)</Text>
+                    </Space>
+
+                    <Table
+                      loading={loading}
+                      dataSource={
+                        selectedAssignee
+                          ? analyticsData.find((a) => a.id === selectedAssignee)
+                              ?.issues || []
+                          : analyticsData.flatMap((a) => a.issues || [])
+                      }
+                      pagination={{ pageSize: 10 }}
+                      rowKey="key"
+                      columns={[
+                        {
+                          title: "เลข Task",
+                          dataIndex: "key",
+                          key: "key",
+                          width: 120,
+                          render: (key) => <Tag color="blue">{key}</Tag>,
+                        },
+                        {
+                          title: "หัวข้องาน",
+                          dataIndex: "summary",
+                          key: "summary",
+                          ellipsis: true,
+                        },
+                        {
+                          title: "พนักงาน",
+                          key: "assignee",
+                          width: 200,
+                          render: (_, record) => {
+                            const assignee = analyticsData.find((a) =>
+                              a.issues?.some((i) => i.key === record.key),
+                            );
+                            return (
+                              <Space>
+                                <Avatar
+                                  size="small"
+                                  src={assignee?.avatarUrl}
+                                />
+                                <Text>{assignee?.name || "-"}</Text>
+                              </Space>
+                            );
+                          },
+                        },
+                        {
+                          title: "สถานะ",
+                          dataIndex: "status",
+                          key: "status",
+                          width: 150,
+                          render: (status) => (
+                            <Tag
+                              color={
+                                status.toLowerCase().includes("progress")
+                                  ? "orange"
+                                  : "default"
+                              }
+                            >
+                              {status}
+                            </Tag>
+                          ),
+                        },
+                      ]}
+                    />
+                  </div>
+                </Flex>
+              </Card>
             </Card>
           </Col>
         </Row>

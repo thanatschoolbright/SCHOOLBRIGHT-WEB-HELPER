@@ -61,25 +61,36 @@ export async function GET(req: NextRequest) {
           in_progress: 0,
           efficiency: 0,
           avatarUrl: issue.assignee?.nulabAccount?.iconUrl || "",
+          issues: [],
         };
       }
 
       analytics[assigneeId].total += 1;
 
       // ตรวจสอบสถานะงาน (Closed/Finished)
-      if (
+      const isClosed =
         statusName.toLowerCase().includes("closed") ||
         statusName.toLowerCase().includes("สำเร็จ") ||
-        statusName.toLowerCase().includes("เสร็จ")
-      ) {
+        statusName.toLowerCase().includes("เสร็จ");
+
+      if (isClosed) {
         analytics[assigneeId].closed += 1;
-      } else if (
-        statusName.toLowerCase().includes("processing") ||
-        statusName.toLowerCase().includes("ดำเนินการ")
-      ) {
-        analytics[assigneeId].in_progress += 1;
       } else {
-        analytics[assigneeId].open += 1;
+        // เก็บเฉพาะงานที่ยังไม่เสร็จ (Pending) ลงใน list เพื่อใช้ในตัวกรอง
+        analytics[assigneeId].issues.push({
+          key: issue.issueKey,
+          summary: issue.summary,
+          status: statusName,
+        });
+
+        if (
+          statusName.toLowerCase().includes("processing") ||
+          statusName.toLowerCase().includes("ดำเนินการ")
+        ) {
+          analytics[assigneeId].in_progress += 1;
+        } else {
+          analytics[assigneeId].open += 1;
+        }
       }
     });
 
