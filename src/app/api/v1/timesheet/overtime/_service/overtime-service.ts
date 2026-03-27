@@ -5,6 +5,136 @@ import Service, {
 } from "@services/overtime/overtime.service";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
+import { OvertimeAnalyticsInput } from "../_validation/analytics-schema";
+
+/**
+ * ✨ ดึงข้อมูล Analytics สำหรับ Dashboard (Trends, Budget, Departments)
+ * @param payload เงื่อนไขการกรองข้อมูล
+ */
+export async function getOvertimeAnalytics(payload: OvertimeAnalyticsInput) {
+  const startDate = payload.start_date
+    ? dayjs(payload.start_date).startOf("day").toDate()
+    : dayjs().subtract(5, "month").startOf("month").toDate();
+  const endDate = payload.end_date
+    ? dayjs(payload.end_date).endOf("day").toDate()
+    : dayjs().endOf("month").toDate();
+
+  // 1. ดึงข้อมูล Overtime ทั้งหมดในช่วงเวลาที่กำหนด
+  const overtimeRecords = await PrismaTimesheet.overtime.findMany({
+    where: {
+      request_date: {
+        gte: startDate,
+        lte: endDate,
+      },
+      ...(payload.department_id && {
+        requester: {
+          department_id: Number(payload.department_id),
+        },
+      }),
+    },
+    include: {
+      descriptions: true,
+      requester: {
+        include: {
+          department: true,
+        },
+      },
+    },
+    orderBy: {
+      request_date: "asc",
+    },
+  });
+
+  // 2. คำนวณ Trend Chart (รายเดือน)
+  const trendsMap = new Map();
+  // สร้างลำดับเดือนทั้งหมดในช่วงที่กำหนดไว้ก่อนเพื่อให้กราฟไม่แหว่ง
+  let currentMonth = dayjs(startDate).startOf("month");
+  while (
+    currentMonth.isBefore(endDate) ||
+    currentMonth.isSame(endDate, "month")
+  ) {
+    const monthKey = currentMonth.format("YYYY-MM");
+    trendsMap.set(monthKey, {
+      month: monthKey,
+      label: currentMonth.locale("th").format("MMM YYYY"),
+      total_hours: 0,
+      request_count: 0,
+    });
+    currentMonth = currentMonth.add(1, "month");
+  }
+
+  // 3. คำนวณ Department Breakdown
+  const deptMap = new Map();
+
+  let totalDuration = 0;
+
+  overtimeRecords.forEach((record) => {
+    const monthKey = dayjs(record.request_date).format("YYYY-MM");
+    const recordHours = record.descriptions.reduce(
+      (sum, desc) => sum + (Number(desc.duration) || 0),
+      0,
+    );
+
+    // Update Trend
+    if (trendsMap.has(monthKey)) {
+      const current = trendsMap.get(monthKey);
+      current.total_hours += recordHours;
+      current.request_count += 1;
+    }
+
+    // Update Department Breakdown
+    const deptName = record.requester?.department?.name_th || "ไม่ระบุแผนก";
+    const deptId = record.requester?.department_id || 0;
+    if (!deptMap.has(deptName)) {
+      deptMap.set(deptName, {
+        id: deptId,
+        department_name: deptName,
+        total_hours: 0,
+        percentage: 0,
+      });
+    }
+    deptMap.get(deptName).total_hours += recordHours;
+    totalDuration += recordHours;
+  });
+
+  // คำนวณ Percentage สำหรับแผนก
+  const departmentBreakdown = Array.from(deptMap.values()).map((dept) => ({
+    ...dept,
+    percentage:
+      totalDuration > 0
+        ? Number(((dept.total_hours / totalDuration) * 100).toFixed(2))
+        : 0,
+  }));
+
+  // 4. Budget Tracking (ตัวอย่าง Logic สมมติ เนื่องจากยังไม่มี Table Budget แยก)
+  // ในที่นี้จะจำลอง Budget 100 ชม. ต่อเดือน หรือคำนวณจากจำนวนพนักงาน
+  const budgetTracking = Array.from(trendsMap.values()).map((trend) => {
+    const monthlyBudget = 150; // สมมติงบประมาณคงที่ 150 ชม./เดือน
+    return {
+      month: trend.month,
+      label: trend.label,
+      actual_hours: trend.total_hours,
+      budget_hours: monthlyBudget,
+      usage_percentage: Number(
+        ((trend.total_hours / monthlyBudget) * 100).toFixed(2),
+      ),
+    };
+  });
+
+  return {
+    trends: Array.from(trendsMap.values()),
+    department_breakdown: departmentBreakdown,
+    budget_tracking: budgetTracking,
+    summary: {
+      total_hours: totalDuration,
+      total_requests: overtimeRecords.length,
+      avg_hours_per_request:
+        overtimeRecords.length > 0
+          ? Number((totalDuration / overtimeRecords.length).toFixed(2))
+          : 0,
+    },
+  };
+}
 
 /**
  * ✨ จัดการ Logic การสร้างรายการ Overtime และการส่ง Email แจ้งเตือน
