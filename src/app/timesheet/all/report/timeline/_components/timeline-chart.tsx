@@ -16,6 +16,7 @@ import {
   theme,
   Timeline,
   Typography,
+  Avatar,
 } from "antd";
 import dayjs from "dayjs";
 import React, { useEffect, useMemo } from "react";
@@ -41,9 +42,15 @@ const TimelineChart: React.FC = () => {
       // 1. ส่วนของโครงการหลัก (Main Project)
       items.push({
         color: token.colorPrimary,
-        dot: <ProjectOutlined style={{ fontSize: "16px" }} />,
+        dot: (
+          <Avatar
+            size={24}
+            icon={<ProjectOutlined />}
+            style={{ backgroundColor: token.colorPrimary }}
+          />
+        ),
         children: (
-          <div style={{ marginBottom: 24 }}>
+          <div style={{ marginBottom: 32 }}>
             <Space direction="vertical" size={4} style={{ width: "100%" }}>
               <div
                 style={{
@@ -60,10 +67,10 @@ const TimelineChart: React.FC = () => {
                 </Tag>
               </div>
               <Space split={<Text type="secondary">|</Text>} size={8}>
-                <Text type="secondary" size="small">
-                  <ClockCircleOutlined style={{ marginRight: 4 }} />
-                  {dayjs(project.start_date).format("DD MMM YYYY")} -{" "}
-                  {dayjs(project.end_date).format("DD MMM YYYY")}
+                <Text type="secondary" style={{ fontSize: 13 }}>
+                  <ClockCircleOutlined style={{ marginRight: 6 }} />
+                  {dayjs(project.start_date).format("DD/MM/YYYY")} -{" "}
+                  {dayjs(project.end_date).format("DD/MM/YYYY")}
                 </Text>
               </Space>
             </Space>
@@ -72,21 +79,21 @@ const TimelineChart: React.FC = () => {
             {project.children && project.children.length > 0 && (
               <div
                 style={{
-                  marginTop: 12,
+                  marginTop: 16,
                   marginLeft: 8,
                   borderLeft: `1px dashed ${token.colorBorder}`,
-                  paddingLeft: 16,
+                  paddingLeft: 20,
                 }}
               >
                 <Timeline
                   items={project.children.map((sub) => ({
                     color: token.colorInfo,
-                    dot: <BranchesOutlined style={{ fontSize: "12px" }} />,
+                    dot: <BranchesOutlined style={{ fontSize: "14px", color: token.colorInfo }} />,
                     children: (
                       <Space
                         direction="vertical"
                         size={2}
-                        style={{ width: "100%" }}
+                        style={{ width: "100%", paddingBottom: 8 }}
                       >
                         <div
                           style={{
@@ -98,11 +105,11 @@ const TimelineChart: React.FC = () => {
                           <Text style={{ fontSize: 14 }}>{sub.name}</Text>
                           <Badge
                             status="processing"
-                            text={sub.status}
-                            style={{ fontSize: 12 }}
+                            text={<Text style={{ fontSize: 12 }}>{sub.status}</Text>}
                           />
                         </div>
                         <Text type="secondary" style={{ fontSize: 12 }}>
+                          <ClockCircleOutlined style={{ marginRight: 4 }} />
                           {dayjs(sub.start_date).format("DD/MM/YYYY")} -{" "}
                           {dayjs(sub.end_date).format("DD/MM/YYYY")}
                         </Text>
