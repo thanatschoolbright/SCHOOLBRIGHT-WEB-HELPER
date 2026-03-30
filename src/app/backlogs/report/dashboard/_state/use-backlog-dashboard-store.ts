@@ -4,12 +4,19 @@ import { create } from "zustand";
 import {
   fetchBacklogAnalytics,
   fetchIssueTimeline,
+  fetchIssueTypes,
+  fetchPriorities,
+  fetchProjects,
+  fetchProjectUsers,
+  fetchStatuses,
 } from "../_api/backlog-analytics-service";
 
 interface Issue {
   key: string;
   summary: string;
   status: string;
+  issueType?: string;
+  priority?: string;
 }
 
 interface TimelineEvent {
@@ -35,11 +42,15 @@ interface AnalyticsItem {
   efficiency: number;
   avatarUrl: string;
   issues?: Issue[];
-  // New KPI Metrics
   active_tasks: number;
   pending_tasks: number;
   load_value: number;
   capacity_status: string;
+}
+
+interface SelectOption {
+  label: string;
+  value: string | number;
 }
 
 interface BacklogDashboardState {
@@ -49,6 +60,22 @@ interface BacklogDashboardState {
   dateRange: [dayjs.Dayjs, dayjs.Dayjs] | null;
   selectedAssigneeId: number | null;
   searchName: string;
+
+  // Filter State
+  selectedProjectIds: string[];
+  selectedIssueTypeIds: string[];
+  selectedPriorityIds: string[];
+  selectedStatusIds: string[];
+  selectedAssigneeIds: string[];
+
+  // Metadata (options สำหรับ dropdowns)
+  metaLoading: boolean;
+  projectOptions: SelectOption[];
+  issueTypeOptions: SelectOption[];
+  priorityOptions: SelectOption[];
+  statusOptions: SelectOption[];
+  assigneeOptions: SelectOption[];
+
   // Timeline State
   timelineLoading: boolean;
   timelineData: TimelineEvent[];
@@ -59,11 +86,24 @@ interface BacklogDashboardState {
   setDateRange: (range: [dayjs.Dayjs, dayjs.Dayjs] | null) => void;
   setSelectedAssigneeId: (id: number | null) => void;
   setSearchName: (name: string) => void;
+  setSelectedProjectIds: (ids: string[]) => void;
+  setSelectedIssueTypeIds: (ids: string[]) => void;
+  setSelectedPriorityIds: (ids: string[]) => void;
+  setSelectedStatusIds: (ids: string[]) => void;
+  setSelectedAssigneeIds: (ids: string[]) => void;
   setTimelineData: (data: TimelineEvent[]) => void;
+  resetFilters: () => void;
+
+  // Async Actions
+  loadProjectOptions: () => Promise<void>;
+  loadIssueTypeOptions: (projectId: string) => Promise<void>;
+  loadPriorityOptions: () => Promise<void>;
+  loadStatusOptions: (projectId?: string) => Promise<void>;
+  loadAssigneeOptions: (projectId: string) => Promise<void>;
   fetchTimeline: (issueKey: string) => Promise<void>;
   fetchAnalytics: () => Promise<void>;
 
-  // Computed (Selectors conceptually)
+  // Computed
   getTotalStats: () => { total: number; closed: number; open: number };
 }
 
@@ -75,6 +115,23 @@ export const useBacklogDashboardStore = create<BacklogDashboardState>(
     dateRange: [dayjs("2026-03-23"), dayjs("2026-03-27")],
     selectedAssigneeId: null,
     searchName: "",
+
+    // Filter State
+    selectedProjectIds: [],
+    selectedIssueTypeIds: [],
+    selectedPriorityIds: [],
+    selectedStatusIds: [],
+    selectedAssigneeIds: [],
+
+    // Metadata
+    metaLoading: false,
+    projectOptions: [],
+    issueTypeOptions: [],
+    priorityOptions: [],
+    statusOptions: [],
+    assigneeOptions: [],
+
+    // Timeline State
     timelineLoading: false,
     timelineData: [],
     selectedIssueKey: null,
@@ -83,15 +140,119 @@ export const useBacklogDashboardStore = create<BacklogDashboardState>(
     setDateRange: (dateRange) => set({ dateRange }),
     setSelectedAssigneeId: (selectedAssigneeId) => set({ selectedAssigneeId }),
     setSearchName: (searchName) => set({ searchName }),
+    setSelectedProjectIds: (selectedProjectIds) => set({ selectedProjectIds }),
+    setSelectedIssueTypeIds: (selectedIssueTypeIds) => set({ selectedIssueTypeIds }),
+    setSelectedPriorityIds: (selectedPriorityIds) => set({ selectedPriorityIds }),
+    setSelectedStatusIds: (selectedStatusIds) => set({ selectedStatusIds }),
+    setSelectedAssigneeIds: (selectedAssigneeIds) => set({ selectedAssigneeIds }),
     setTimelineData: (timelineData) => set({ timelineData }),
+
+    resetFilters: () =>
+      set({
+        selectedProjectIds: [],
+        selectedIssueTypeIds: [],
+        selectedPriorityIds: [],
+        selectedStatusIds: [],
+        selectedAssigneeIds: [],
+        issueTypeOptions: [],
+        assigneeOptions: [],
+        dateRange: null,
+      }),
+
+    loadProjectOptions: async () => {
+      const { space } = get();
+      set({ metaLoading: true });
+      try {
+        const res = await fetchProjects(space);
+        const data = res.data || [];
+        const options = data.map((p: any) => ({
+          label: `[${p.projectKey}] ${p.name}`,
+          value: String(p.id),
+        }));
+        set({
+          projectOptions: options,
+          // select all projects by default
+          selectedProjectIds: options.map((o: SelectOption) => String(o.value)),
+        });
+      } catch {
+        toast.error("ไม่สามารถดึงรายการโปรเจกต์ได้");
+      } finally {
+        set({ metaLoading: false });
+      }
+    },
+
+    loadIssueTypeOptions: async (projectId) => {
+      const { space } = get();
+      try {
+        const res = await fetchIssueTypes(space, projectId);
+        const data = res.data || [];
+        const options = data.map((t: any) => ({
+          label: t.name,
+          value: String(t.id),
+        }));
+        const bugOption = options.find((o: SelectOption) =>
+          String(o.label).toLowerCase() === "bug",
+        );
+        set({
+          issueTypeOptions: options,
+          selectedIssueTypeIds: bugOption ? [String(bugOption.value)] : [],
+        });
+      } catch {
+        toast.error("ไม่สามารถดึงประเภท Issue ได้");
+      }
+    },
+
+    loadPriorityOptions: async () => {
+      const { space } = get();
+      try {
+        const res = await fetchPriorities(space);
+        const data = res.data || [];
+        set({
+          priorityOptions: data.map((p: any) => ({
+            label: p.name,
+            value: String(p.id),
+          })),
+        });
+      } catch {
+        toast.error("ไม่สามารถดึงลำดับความสำคัญได้");
+      }
+    },
+
+    loadStatusOptions: async (projectId) => {
+      const { space } = get();
+      try {
+        const res = await fetchStatuses(space, projectId);
+        const data = res.data || [];
+        set({
+          statusOptions: data.map((s: any) => ({
+            label: s.name,
+            value: String(s.id),
+          })),
+        });
+      } catch {
+        toast.error("ไม่สามารถดึงสถานะงานได้");
+      }
+    },
+
+    loadAssigneeOptions: async (projectId) => {
+      const { space } = get();
+      try {
+        const res = await fetchProjectUsers(space, projectId);
+        const data = res.data || [];
+        set({
+          assigneeOptions: data.map((u: any) => ({
+            label: u.name,
+            value: String(u.id),
+          })),
+        });
+      } catch {
+        toast.error("ไม่สามารถดึงรายชื่อพนักงานได้");
+      }
+    },
 
     fetchTimeline: async (issueKey) => {
       const { space } = get();
-      set({
-        timelineLoading: true,
-        selectedIssueKey: issueKey,
-        timelineData: [],
-      });
+      set({ timelineLoading: true, selectedIssueKey: issueKey, timelineData: [] });
       try {
         const response = await fetchIssueTimeline(issueKey, space);
         set({ timelineData: response.data.timeline || [] });
@@ -104,7 +265,15 @@ export const useBacklogDashboardStore = create<BacklogDashboardState>(
     },
 
     fetchAnalytics: async () => {
-      const { space, dateRange } = get();
+      const {
+        space,
+        dateRange,
+        selectedProjectIds,
+        selectedIssueTypeIds,
+        selectedPriorityIds,
+        selectedStatusIds,
+        selectedAssigneeIds,
+      } = get();
       set({ loading: true });
       try {
         const params: any = { space };
@@ -112,6 +281,12 @@ export const useBacklogDashboardStore = create<BacklogDashboardState>(
           params.createdSince = dateRange[0].format("YYYY-MM-DD");
           params.createdUntil = dateRange[1].format("YYYY-MM-DD");
         }
+        if (selectedProjectIds.length > 0) params["projectId[]"] = selectedProjectIds;
+        if (selectedIssueTypeIds.length > 0) params["issueTypeId[]"] = selectedIssueTypeIds;
+        if (selectedPriorityIds.length > 0) params["priorityId[]"] = selectedPriorityIds;
+        if (selectedStatusIds.length > 0) params["statusId[]"] = selectedStatusIds;
+        if (selectedAssigneeIds.length > 0) params["assigneeId[]"] = selectedAssigneeIds;
+
         const response = await fetchBacklogAnalytics(params);
         set({ analyticsData: response.data || [] });
         toast.success("ดึงข้อมูลการทำงานพนักงานสำเร็จ");

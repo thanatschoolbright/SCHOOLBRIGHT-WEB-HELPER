@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 /**
  * API สำหรับดึงข้อมูลวิเคราะห์งาน (Dashboard Analytics)
  * เป้าหมาย: ติดตามงานตามรายคน (Assignee) ในช่วงเวลาที่กำหนด
+ * รองรับตัวกรอง: projectId, issueTypeId, priorityId, statusId, assigneeId
  */
 
 const BACKLOG_DOMAIN = "backlog.com";
@@ -16,7 +17,13 @@ export async function GET(req: NextRequest) {
     const apiKey = process.env.BACKLOG_API_KEY;
     const createdSince = searchParams.get("createdSince");
     const createdUntil = searchParams.get("createdUntil");
-    const projectId = searchParams.get("projectId");
+
+    // Filter params (รองรับหลายค่าด้วย [] notation)
+    const projectIds = searchParams.getAll("projectId[]");
+    const issueTypeIds = searchParams.getAll("issueTypeId[]");
+    const priorityIds = searchParams.getAll("priorityId[]");
+    const statusIds = searchParams.getAll("statusId[]");
+    const assigneeIds = searchParams.getAll("assigneeId[]");
 
     if (!apiKey) {
       return NextResponse.json(
@@ -29,18 +36,37 @@ export async function GET(req: NextRequest) {
     }
 
     // 1. ดึงรายการงาน (Issues) ทั้งหมดตามเงื่อนไข
-    // หมายเหตุ: Backlog API ดึงได้สูงสุด 100 รายการต่อครั้ง หากต้องการมากกว่านี้ต้องทำ Pagination
     const issuesUrl = `https://${space}.${BACKLOG_DOMAIN}/api/v2/issues`;
-    const params: any = {
+    const params: Record<string, any> = {
       apiKey,
-      count: 100, // ดึงเบื้องต้น 100 รายการ
+      count: 100,
     };
 
     if (createdSince) params.createdSince = createdSince;
     if (createdUntil) params.createdUntil = createdUntil;
-    if (projectId) params["projectId[]"] = projectId;
 
-    const response = await axios.get(issuesUrl, { params });
+    // ส่ง array params ไปยัง Backlog API ในรูปแบบ key[]
+    if (projectIds.length > 0) params["projectId[]"] = projectIds;
+    if (issueTypeIds.length > 0) params["issueTypeId[]"] = issueTypeIds;
+    if (priorityIds.length > 0) params["priorityId[]"] = priorityIds;
+    if (statusIds.length > 0) params["statusId[]"] = statusIds;
+    if (assigneeIds.length > 0) params["assigneeId[]"] = assigneeIds;
+
+    const response = await axios.get(issuesUrl, {
+      params,
+      paramsSerializer: (p) => {
+        // serialize array params correctly for Backlog API
+        const parts: string[] = [];
+        for (const [key, value] of Object.entries(p)) {
+          if (Array.isArray(value)) {
+            value.forEach((v) => parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(v)}`));
+          } else if (value !== undefined && value !== null) {
+            parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+          }
+        }
+        return parts.join("&");
+      },
+    });
     const issues = response.data || [];
 
     // 2. ประมวลผลข้อมูลทางสถิติ (Analytics Logic)
@@ -67,7 +93,6 @@ export async function GET(req: NextRequest) {
 
       analytics[assigneeId].total += 1;
 
-      // ตรวจสอบสถานะงาน (Closed/Finished)
       const isClosed =
         statusName.toLowerCase().includes("closed") ||
         statusName.toLowerCase().includes("สำเร็จ") ||
@@ -76,11 +101,12 @@ export async function GET(req: NextRequest) {
       if (isClosed) {
         analytics[assigneeId].closed += 1;
       } else {
-        // เก็บเฉพาะงานที่ยังไม่เสร็จ (Pending) ลงใน list เพื่อใช้ในตัวกรอง
         analytics[assigneeId].issues.push({
           key: issue.issueKey,
           summary: issue.summary,
           status: statusName,
+          issueType: issue.issueType?.name || "",
+          priority: issue.priority?.name || "",
         });
 
         if (
@@ -100,9 +126,6 @@ export async function GET(req: NextRequest) {
         const efficiency =
           item.total > 0 ? Math.round((item.closed / item.total) * 100) : 0;
 
-        // ประเมินภาระงานรายบุคคล (Workload & Capacity Analysis)
-        // Load Value: (จำนวนงานค้างทั้งหมด / (ประสิทธิภาพ / 100)) เพื่อดูภาระงานจริงที่ต้องเคลียร์
-        // หากประสิทธิภาพเป็น 0 จะถือว่า Load สูงมาก (Infinity หรือใช้ total เป็นเกณฑ์)
         const pendingCount = item.total - item.closed;
         const loadValue =
           efficiency > 0
@@ -111,7 +134,7 @@ export async function GET(req: NextRequest) {
 
         return {
           ...item,
-          efficiency: efficiency,
+          efficiency,
           active_tasks: item.in_progress,
           pending_tasks: pendingCount,
           load_value: loadValue,
@@ -119,7 +142,7 @@ export async function GET(req: NextRequest) {
             loadValue > 20 ? "งานล้นมือ" : loadValue > 10 ? "ปกติ" : "งานน้อย",
         };
       })
-      .sort((a, b) => b.total - a.total); // เรียงตามปริมาณงานเยอะที่สุด
+      .sort((a, b) => b.total - a.total);
 
     return NextResponse.json(
       successResponse({
