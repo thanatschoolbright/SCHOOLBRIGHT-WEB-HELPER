@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowRightOutlined,
   SearchOutlined,
   TeamOutlined,
   TrophyOutlined,
@@ -9,6 +10,7 @@ import {
 import {
   Avatar,
   Badge,
+  Button,
   Card,
   Col,
   Flex,
@@ -20,8 +22,10 @@ import {
   Statistic,
   Tag,
   theme,
+  Tooltip,
   Typography,
 } from "antd";
+import { useRouter } from "next/navigation";
 import { useBacklogDashboardStore } from "../_state/use-backlog-dashboard-store";
 
 const { Text, Title } = Typography;
@@ -31,7 +35,8 @@ const { Text, Title } = Typography;
  */
 export const RankingSection = () => {
   const { token } = theme.useToken();
-  const { analyticsData, loading, searchName, setSearchName } =
+  const router = useRouter();
+  const { analyticsData, loading, searchName, setSearchName, space } =
     useBacklogDashboardStore();
 
   const filteredData = [...analyticsData]
@@ -84,6 +89,20 @@ export const RankingSection = () => {
                     suffix="งาน"
                     valueStyle={{ fontSize: 16, fontWeight: 700 }}
                   />,
+                  <Tooltip key="view" title="ดูรายการงานทั้งหมดของพนักงานคนนี้">
+                    <Button
+                      type="link"
+                      size="small"
+                      icon={<ArrowRightOutlined />}
+                      onClick={() =>
+                        router.push(
+                          `/backlogs/issues?space=${space}&assigneeId=${item.id}`,
+                        )
+                      }
+                    >
+                      ยอดงาน
+                    </Button>
+                  </Tooltip>,
                 ]}
               >
                 <List.Item.Meta

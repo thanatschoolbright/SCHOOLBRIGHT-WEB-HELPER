@@ -22,6 +22,7 @@ import {
   PieChartOutlined,
   ProjectOutlined,
   ReloadOutlined,
+  RocketOutlined,
   SearchOutlined,
   ShareAltOutlined,
   UnorderedListOutlined,
@@ -415,6 +416,19 @@ export default function Page(): JSX.Element {
         title="ระบบรายงานโปรเจ็กต์ (Backlog)"
         subTitle="แดชบอร์ดสรุปภาพรวมและจัดการรายการโปรเจ็กต์ทั้งหมดจากระบบ Backlog"
         icon={<ProjectOutlined />}
+        extra={
+          <Button
+            type="primary"
+            size="large"
+            icon={<RocketOutlined />}
+            style={{ fontWeight: 600 }}
+            onClick={() =>
+              router.push(`/backlogs/issues?space=${encodeURIComponent(space)}`)
+            }
+          >
+            ดูยอดงานทั้งหมด
+          </Button>
+        }
       />
 
       <div className="mt-6 flex w-full flex-col gap-6">
