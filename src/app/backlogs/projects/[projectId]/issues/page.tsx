@@ -37,6 +37,7 @@ import {
   Descriptions,
   Divider,
   Flex,
+  Image,
   Input,
   Layout,
   Modal,
@@ -98,19 +99,6 @@ const { RangePicker } = DatePicker;
 const formatDateThai = (value?: string | null) =>
   value ? dayjs(value).format("DD/MM/YYYY") : "-";
 
-// ! แปลง Markdown เป็น HTML เบื้องต้น (No Emoji) — ใช้เฉพาะที่ยังไม่ได้ migrate
-const markdownToHtmlSimple = (value?: string | null) => {
-  if (!value) return "-";
-  return value
-    .replace(/\r\n/g, "\n")
-    .split("\n")
-    .map((line) => {
-      const trimmed = line.trim();
-      if (!trimmed) return "<br/>";
-      return `<p style="margin:0;">${trimmed}</p>`;
-    })
-    .join("");
-};
 
 // ==========================================
 // * Internal Components (Integrated)
@@ -292,6 +280,7 @@ const IssueDetailModal: React.FC<{
           className="markdown-body"
         >
           {issue.description ? (
+            <Image.PreviewGroup>
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
@@ -403,10 +392,49 @@ const IssueDetailModal: React.FC<{
                   </td>
                 ),
                 hr: () => <Divider style={{ margin: "12px 0" }} />,
+                img: ({ src, alt }) => {
+                  // Backlog inline image URL รูปแบบ:
+                  // https://{space}.backlog.com/api/v2/issues/{key}/attachments/{id}
+                  // หรือ /api/v2/issues/{key}/attachments/{id}
+                  const backlogAttachmentPattern =
+                    /(?:https?:\/\/[^/]+)?\/api\/v2\/issues\/([^/]+)\/attachments\/(\d+)/;
+                  const match = src?.match(backlogAttachmentPattern);
+                  const proxySrc = match
+                    ? `/api/v1/backlog/issues/${match[1]}/attachments/${match[2]}?space=${space}`
+                    : src;
+
+                  return (
+                    <Image
+                      src={proxySrc}
+                      alt={alt || ""}
+                      style={{
+                        maxWidth: "100%",
+                        borderRadius: 8,
+                        border: `1px solid ${token.colorBorderSecondary}`,
+                        marginBlock: 8,
+                        display: "block",
+                      }}
+                      placeholder={
+                        <Flex
+                          align="center"
+                          justify="center"
+                          style={{
+                            minHeight: 120,
+                            background: token.colorFillTertiary,
+                            borderRadius: 8,
+                          }}
+                        >
+                          <Spin size="small" />
+                        </Flex>
+                      }
+                    />
+                  );
+                },
               }}
             >
               {issue.description}
             </ReactMarkdown>
+            </Image.PreviewGroup>
           ) : (
             <Typography.Text type="secondary" italic>
               ไม่มีคำอธิบายงาน
@@ -422,31 +450,61 @@ const IssueDetailModal: React.FC<{
                 <span>ไฟล์แนบ ({issue.attachments.length})</span>
               </Space>
             </Divider>
-            <Space wrap>
-              {issue.attachments.map((file) => (
-                <Card
-                  key={file.id}
-                  size="small"
-                  style={{ width: 200 }}
-                  styles={{ body: { padding: 8 } }}
-                >
-                  <Flex align="center" gap={8}>
-                    <FileTextOutlined
-                      style={{ fontSize: 20, color: token.colorPrimary }}
-                    />
-                    <div style={{ overflow: "hidden" }}>
-                      <Text ellipsis title={file.name}>
+            <Image.PreviewGroup>
+              <Space wrap size={[12, 12]}>
+                {issue.attachments.map((file) => {
+                  const isImage = /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(file.name);
+                  const proxyUrl = `/api/v1/backlog/issues/${issue.issueKey}/attachments/${file.id}?space=${space}`;
+
+                  return isImage ? (
+                    <div key={file.id} style={{ textAlign: "center" }}>
+                      <Image
+                        src={proxyUrl}
+                        alt={file.name}
+                        width={160}
+                        height={120}
+                        style={{ objectFit: "cover", borderRadius: 8, border: `1px solid ${token.colorBorderSecondary}` }}
+                        placeholder={
+                          <Flex align="center" justify="center" style={{ width: 160, height: 120, background: token.colorFillTertiary, borderRadius: 8 }}>
+                            <Spin size="small" />
+                          </Flex>
+                        }
+                      />
+                      <Text
+                        ellipsis
+                        title={file.name}
+                        style={{ display: "block", fontSize: 11, maxWidth: 160, color: token.colorTextSecondary, marginTop: 4 }}
+                      >
                         {file.name}
                       </Text>
-                      <br />
-                      <Text type="secondary" style={{ fontSize: 10 }}>
-                        {Math.round(file.size / 1024)} KB
-                      </Text>
                     </div>
-                  </Flex>
-                </Card>
-              ))}
-            </Space>
+                  ) : (
+                    <Card
+                      key={file.id}
+                      size="small"
+                      style={{ width: 180 }}
+                      styles={{ body: { padding: 10 } }}
+                      hoverable
+                      onClick={() => window.open(proxyUrl, "_blank")}
+                    >
+                      <Flex align="center" gap={10}>
+                        <FileTextOutlined style={{ fontSize: 22, color: token.colorPrimary, flexShrink: 0 }} />
+                        <div style={{ overflow: "hidden", minWidth: 0 }}>
+                          <Text ellipsis title={file.name} style={{ display: "block", fontSize: 13 }}>
+                            {file.name}
+                          </Text>
+                          <Text type="secondary" style={{ fontSize: 11 }}>
+                            {file.size < 1024 * 1024
+                              ? `${Math.round(file.size / 1024)} KB`
+                              : `${(file.size / 1024 / 1024).toFixed(1)} MB`}
+                          </Text>
+                        </div>
+                      </Flex>
+                    </Card>
+                  );
+                })}
+              </Space>
+            </Image.PreviewGroup>
           </>
         )}
       </div>
