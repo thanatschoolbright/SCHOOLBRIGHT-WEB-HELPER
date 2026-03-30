@@ -56,6 +56,8 @@ import type { HookAPI } from "antd/es/modal/useModal";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
@@ -96,7 +98,7 @@ const { RangePicker } = DatePicker;
 const formatDateThai = (value?: string | null) =>
   value ? dayjs(value).format("DD/MM/YYYY") : "-";
 
-// ! แปลง Markdown เป็น HTML เบื้องต้น (No Emoji)
+// ! แปลง Markdown เป็น HTML เบื้องต้น (No Emoji) — ใช้เฉพาะที่ยังไม่ได้ migrate
 const markdownToHtmlSimple = (value?: string | null) => {
   if (!value) return "-";
   return value
@@ -284,11 +286,133 @@ const IssueDetailModal: React.FC<{
             borderRadius: 8,
             border: `1px solid ${token.colorBorderSecondary}`,
             minHeight: 100,
+            fontSize: 14,
+            lineHeight: 1.75,
           }}
-          dangerouslySetInnerHTML={{
-            __html: markdownToHtmlSimple(issue.description),
-          }}
-        />
+          className="markdown-body"
+        >
+          {issue.description ? (
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                h1: ({ children }) => (
+                  <Typography.Title level={3} style={{ marginTop: 8 }}>{children}</Typography.Title>
+                ),
+                h2: ({ children }) => (
+                  <Typography.Title level={4} style={{ marginTop: 8 }}>{children}</Typography.Title>
+                ),
+                h3: ({ children }) => (
+                  <Typography.Title level={5} style={{ marginTop: 8 }}>{children}</Typography.Title>
+                ),
+                p: ({ children }) => (
+                  <Typography.Paragraph style={{ marginBottom: 6 }}>{children}</Typography.Paragraph>
+                ),
+                strong: ({ children }) => (
+                  <Typography.Text strong>{children}</Typography.Text>
+                ),
+                em: ({ children }) => (
+                  <Typography.Text italic>{children}</Typography.Text>
+                ),
+                del: ({ children }) => (
+                  <Typography.Text delete>{children}</Typography.Text>
+                ),
+                code: ({ children, className }) => {
+                  const isBlock = className?.includes("language-");
+                  return isBlock ? (
+                    <pre
+                      style={{
+                        background: token.colorFillTertiary,
+                        border: `1px solid ${token.colorBorderSecondary}`,
+                        borderRadius: 6,
+                        padding: "12px 16px",
+                        overflowX: "auto",
+                        fontSize: 13,
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      <code>{children}</code>
+                    </pre>
+                  ) : (
+                    <Typography.Text
+                      code
+                      style={{ fontSize: 13 }}
+                    >
+                      {children}
+                    </Typography.Text>
+                  );
+                },
+                ul: ({ children }) => (
+                  <ul style={{ paddingLeft: 20, marginBottom: 8 }}>{children}</ul>
+                ),
+                ol: ({ children }) => (
+                  <ol style={{ paddingLeft: 20, marginBottom: 8 }}>{children}</ol>
+                ),
+                li: ({ children }) => (
+                  <li style={{ marginBottom: 4 }}>{children}</li>
+                ),
+                blockquote: ({ children }) => (
+                  <blockquote
+                    style={{
+                      borderLeft: `4px solid ${token.colorPrimary}`,
+                      paddingLeft: 12,
+                      margin: "8px 0",
+                      color: token.colorTextSecondary,
+                    }}
+                  >
+                    {children}
+                  </blockquote>
+                ),
+                a: ({ href, children }) => (
+                  <Typography.Link href={href} target="_blank">
+                    {children}
+                  </Typography.Link>
+                ),
+                table: ({ children }) => (
+                  <div style={{ overflowX: "auto", marginBottom: 8 }}>
+                    <table
+                      style={{
+                        borderCollapse: "collapse",
+                        width: "100%",
+                        fontSize: 13,
+                      }}
+                    >
+                      {children}
+                    </table>
+                  </div>
+                ),
+                th: ({ children }) => (
+                  <th
+                    style={{
+                      border: `1px solid ${token.colorBorderSecondary}`,
+                      padding: "6px 12px",
+                      background: token.colorFillTertiary,
+                      textAlign: "left",
+                    }}
+                  >
+                    {children}
+                  </th>
+                ),
+                td: ({ children }) => (
+                  <td
+                    style={{
+                      border: `1px solid ${token.colorBorderSecondary}`,
+                      padding: "6px 12px",
+                    }}
+                  >
+                    {children}
+                  </td>
+                ),
+                hr: () => <Divider style={{ margin: "12px 0" }} />,
+              }}
+            >
+              {issue.description}
+            </ReactMarkdown>
+          ) : (
+            <Typography.Text type="secondary" italic>
+              ไม่มีคำอธิบายงาน
+            </Typography.Text>
+          )}
+        </div>
 
         {issue.attachments && issue.attachments.length > 0 && (
           <>
