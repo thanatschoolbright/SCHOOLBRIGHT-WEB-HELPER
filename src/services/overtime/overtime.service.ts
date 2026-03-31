@@ -76,7 +76,7 @@ const DEFAULT_STATUS = "pending";
 const DEFAULT_CREATED_BY = 0;
 
 /**
- * Helper to map user names and details to overtime records using admin_id
+ * Helper to map user names and details to overtime records using user.id
  */
 const mapUsersToOvertime = async (overtimeItems: any[]) => {
   const userIds = new Set<number>();
@@ -102,10 +102,14 @@ const mapUsersToOvertime = async (overtimeItems: any[]) => {
       where: { id: { in: Array.from(userIds) } },
       select: {
         id: true,
-        admin_id: true,
         firstname_th: true,
         lastname_th: true,
+        firstname_en: true,
+        lastname_en: true,
+        nickname: true,
         employee_code: true,
+        email: true,
+        department: { select: { name_th: true } },
         position_ref: { select: { name_th: true } },
       },
     });

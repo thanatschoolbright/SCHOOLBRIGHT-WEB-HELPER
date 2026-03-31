@@ -163,7 +163,7 @@ export async function createOvertimeWithNotification(
     // 4. หากมี requesterId ให้ดึงข้อมูลเพิ่มเติมจาก Database (ชื่อไทย, รหัสพนักงาน, แผนก, อีเมล)
     if (payload.requesterId) {
       const user = await PrismaTimesheet.user.findFirst({
-        where: { admin_id: Number(payload.requesterId) },
+        where: { id: Number(payload.requesterId) },
         include: { department: true },
       });
 

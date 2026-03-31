@@ -27,14 +27,17 @@ interface OvertimeDescription {
 
 interface OvertimeData {
   id: number;
-  requesterId?: string;
-  requesterName?: string;
-  employeeCode?: string;
-  department?: string;
-  position?: string;
-  requestDate?: string;
-  approvedDate?: string;
-  approvedBy?: string;
+  // Fields from mapUsersToOvertime (snake_case from DB + enriched)
+  requesterId?: number | null;
+  requester_name?: string | null;
+  requester_employee_code?: string | null;
+  requester_position?: string | null;
+  requester_user?: {
+    department?: { name_th?: string | null } | null;
+  } | null;
+  requestDate?: string | Date;
+  updatedAt?: string | Date;
+  updater_name?: string | null;
   period?: string;
   reason?: string;
   descriptions?: OvertimeDescription[];
@@ -331,24 +334,24 @@ const generateEmailTemplate = (
             <div class="info-item">
               <div class="info-label">ชื่อพนักงาน</div>
               <div class="info-value">${
-                overtime.requesterName || overtime.requesterId || "-"
+                overtime.requester_name || String(overtime.requesterId ?? "-")
               }</div>
             </div>
             <div class="info-item">
               <div class="info-label">รหัสพนักงาน</div>
-              <div class="info-value">${overtime.employeeCode || "-"}</div>
+              <div class="info-value">${overtime.requester_employee_code || "-"}</div>
             </div>
             <div class="info-item">
               <div class="info-label">ตำแหน่ง</div>
-              <div class="info-value">${overtime.position || "-"}</div>
+              <div class="info-value">${overtime.requester_position || "-"}</div>
             </div>
             <div class="info-item">
               <div class="info-label">แผนก</div>
-              <div class="info-value">${overtime.department || "-"}</div>
+              <div class="info-value">${overtime.requester_user?.department?.name_th || "-"}</div>
             </div>
             <div class="info-item">
               <div class="info-label">วันที่ยื่นคำขอ</div>
-              <div class="info-value">${formatDate(overtime.requestDate)}</div>
+              <div class="info-value">${formatDate(overtime.requestDate as string | undefined)}</div>
             </div>
             <div class="info-item">
               <div class="info-label">งวดการจ่ายเงิน</div>
@@ -438,16 +441,12 @@ const generateEmailTemplate = (
           <div class="divider"></div>
 
           ${
-            overtime.approvedBy
+            overtime.updater_name
               ? `
             <div style="background-color: #f0fdf4; padding: 20px; border-radius: 8px; border: 1px solid #86efac; margin: 24px 0;">
               <p style="color: #166534; font-size: 14px; margin: 0; line-height: 1.6;">
-                <strong>ผู้อนุมัติ:</strong> ${sanitizeHtml(
-                  overtime.approvedBy,
-                )}<br>
-                <strong>วันที่อนุมัติ:</strong> ${formatDate(
-                  overtime.approvedDate,
-                )}
+                <strong>ผู้อนุมัติ:</strong> ${sanitizeHtml(overtime.updater_name)}<br>
+                <strong>วันที่อนุมัติ:</strong> ${formatDate(overtime.updatedAt as string | undefined)}
               </p>
             </div>
           `
@@ -505,12 +504,12 @@ const generatePlainTextEmail = (
   lines.push("ข้อมูลพนักงาน");
   lines.push("-----------------------------------------------");
   lines.push(
-    `ชื่อ-สกุล: ${overtime.requesterName || overtime.requesterId || "-"}`,
+    `ชื่อ-สกุล: ${overtime.requester_name || String(overtime.requesterId ?? "-")}`,
   );
-  lines.push(`รหัสพนักงาน: ${overtime.employeeCode || "-"}`);
-  lines.push(`ตำแหน่ง: ${overtime.position || "-"}`);
-  lines.push(`แผนก/ฝ่าย: ${overtime.department || "-"}`);
-  lines.push(`วันที่ยื่นคำขอ: ${formatDate(overtime.requestDate)}`);
+  lines.push(`รหัสพนักงาน: ${overtime.requester_employee_code || "-"}`);
+  lines.push(`ตำแหน่ง: ${overtime.requester_position || "-"}`);
+  lines.push(`แผนก/ฝ่าย: ${overtime.requester_user?.department?.name_th || "-"}`);
+  lines.push(`วันที่ยื่นคำขอ: ${formatDate(overtime.requestDate as string | undefined)}`);
   lines.push(`ประจำเดือน: ${overtime.period || "-"}`);
   lines.push("");
 
@@ -550,9 +549,9 @@ const generatePlainTextEmail = (
   lines.push("-----------------------------------------------");
   lines.push("");
 
-  if (overtime.approvedBy) {
-    lines.push(`ผู้อนุมัติ: ${overtime.approvedBy}`);
-    lines.push(`วันที่อนุมัติ: ${formatDate(overtime.approvedDate)}`);
+  if (overtime.updater_name) {
+    lines.push(`ผู้อนุมัติ: ${overtime.updater_name}`);
+    lines.push(`วันที่อนุมัติ: ${formatDate(overtime.updatedAt as string | undefined)}`);
     lines.push("");
   }
 
@@ -609,7 +608,7 @@ export async function POST(request: NextRequest) {
 
     const previewUrl = `${API_URL.SB_HELPER_URL}/timesheet/overtime/preview/${overtime.id}`;
     const subject = `การอนุมัติ OT #${overtime.id} - ${
-      overtime.requesterName || overtime.requesterId || "พนักงาน"
+      overtime.requester_name || String(overtime.requesterId ?? "พนักงาน")
     }`;
 
     const htmlContent = generateEmailTemplate(
