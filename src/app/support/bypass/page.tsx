@@ -6,6 +6,7 @@ import {
   BankOutlined,
   ClearOutlined,
   CloseCircleOutlined,
+  CopyOutlined,
   CustomerServiceOutlined,
   FilterOutlined,
   LoginOutlined,
@@ -27,11 +28,13 @@ import {
   Divider,
   Flex,
   Input,
+  message,
   Row,
   Select,
   Table,
   Tag,
   theme,
+  Tooltip,
   Typography,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
@@ -60,20 +63,23 @@ const SaleRankingModal = dynamic(
 
 const { Title, Text } = Typography;
 
-const generateAvatarBackgroundColor = (institutionName: string) => {
-  const colors = [
-    "#f5222d",
-    "#fa541c",
-    "#fa8c16",
-    "#faad14",
-    "#fadb14",
-    "#a0d911",
-    "#52c41a",
-    "#13c2c2",
-    "#1890ff",
-    "#2f54eb",
-    "#722ed1",
-    "#eb2f96",
+const generateAvatarBackgroundColor = (
+  institutionName: string,
+  tokenMap: Record<string, string>,
+) => {
+  const colorKeys = [
+    "red6",
+    "volcano6",
+    "orange6",
+    "gold6",
+    "yellow6",
+    "lime6",
+    "green6",
+    "cyan6",
+    "blue6",
+    "geekblue6",
+    "purple6",
+    "magenta6",
   ];
   let calculatedHash = 0;
   for (
@@ -85,7 +91,8 @@ const generateAvatarBackgroundColor = (institutionName: string) => {
       institutionName.charCodeAt(characterIndex) +
       ((calculatedHash << 5) - calculatedHash);
   }
-  return colors[Math.abs(calculatedHash) % colors.length];
+  const key = colorKeys[Math.abs(calculatedHash) % colorKeys.length];
+  return tokenMap[key] ?? "#722ed1";
 };
 
 export default function BypassPage(): JSX.Element {
@@ -158,6 +165,7 @@ export default function BypassPage(): JSX.Element {
               style={{
                 backgroundColor: generateAvatarBackgroundColor(
                   record.company_name ?? "",
+                  token as unknown as Record<string, string>,
                 ),
               }}
               shape="square"
@@ -221,12 +229,12 @@ export default function BypassPage(): JSX.Element {
         render: (_, record) => (
           <Flex vertical gap={4}>
             <Flex align="center" gap={8}>
-              <UserOutlined style={{ color: "#f59e0b", fontSize: 12 }} />
+              <UserOutlined style={{ color: token.colorWarning, fontSize: 12 }} />
               <Text style={{ fontSize: 12 }}>{record.sale_name || "-"}</Text>
             </Flex>
             <Flex align="center" gap={8}>
               <CustomerServiceOutlined
-                style={{ color: "#10b981", fontSize: 12 }}
+                style={{ color: token.colorSuccess, fontSize: 12 }}
               />
               <Text style={{ fontSize: 12 }}>{record.support_name || "-"}</Text>
             </Flex>
@@ -252,12 +260,33 @@ export default function BypassPage(): JSX.Element {
         title: translate("bypass_page.col_launch"),
         dataIndex: "active_date",
         key: "active_date",
-        width: 120,
+        width: 140,
         align: "center",
         sorter: (firstSchool, secondSchool) =>
           (firstSchool.active_date ?? "").localeCompare(
             secondSchool.active_date ?? "",
           ),
+        render: (activeDate: string | undefined) => {
+          if (!activeDate) return <Text type="secondary">-</Text>;
+          const parsedDate = new Date(activeDate);
+          const daysSinceLaunch = Math.floor(
+            (Date.now() - parsedDate.getTime()) / (1000 * 60 * 60 * 24),
+          );
+          const isNew = !Number.isNaN(daysSinceLaunch) && daysSinceLaunch <= 30;
+          return (
+            <Flex vertical align="center" gap={4}>
+              <Text style={{ fontSize: 12 }}>{activeDate}</Text>
+              {isNew && (
+                <Tag
+                  color="green"
+                  style={{ margin: 0, fontSize: 10, fontWeight: 700 }}
+                >
+                  {translate("bypass_page.badge_new_school")}
+                </Tag>
+              )}
+            </Flex>
+          );
+        },
       },
       {
         title: translate("bypass_page.col_grade"),
@@ -286,16 +315,55 @@ export default function BypassPage(): JSX.Element {
         title: translate("bypass_page.col_student_count"),
         dataIndex: "student_count",
         key: "student_count",
-        width: 120,
+        width: 150,
         align: "right",
         sorter: (firstSchool, secondSchool) =>
           Number(firstSchool.student_count || 0) -
           Number(secondSchool.student_count || 0),
-        render: (count) => (
-          <Text style={{ fontFamily: "monospace" }}>
-            {Number(count || 0).toLocaleString()}
-          </Text>
-        ),
+        render: (count) => {
+          const studentCount = Number(count || 0);
+          let tier: string;
+          let tierColor: string;
+          let tierBg: string;
+          if (studentCount >= 2000) {
+            tier = "XL";
+            tierColor = (token as unknown as Record<string, string>)["purple6"] ?? "#722ed1";
+            tierBg = (token as unknown as Record<string, string>)["purple1"] ?? "#f9f0ff";
+          } else if (studentCount >= 1000) {
+            tier = "L";
+            tierColor = token.colorInfo;
+            tierBg = token.colorInfoBg;
+          } else if (studentCount >= 500) {
+            tier = "M";
+            tierColor = token.colorSuccess;
+            tierBg = token.colorSuccessBg;
+          } else {
+            tier = "S";
+            tierColor = token.colorTextTertiary;
+            tierBg = token.colorFillTertiary;
+          }
+          return (
+            <Flex justify="flex-end" align="center" gap={6}>
+              <Text style={{ fontFamily: "monospace" }}>
+                {studentCount.toLocaleString()}
+              </Text>
+              <Tag
+                bordered={false}
+                style={{
+                  margin: 0,
+                  fontWeight: 700,
+                  fontSize: 11,
+                  backgroundColor: tierBg,
+                  color: tierColor,
+                  minWidth: 28,
+                  textAlign: "center",
+                }}
+              >
+                {tier}
+              </Tag>
+            </Flex>
+          );
+        },
       },
       {
         title: translate("bypass_page.col_status"),
@@ -327,6 +395,28 @@ export default function BypassPage(): JSX.Element {
             />
           );
         },
+      },
+      {
+        title: translate("bypass_page.col_copy"),
+        key: "copy",
+        width: 60,
+        fixed: "right",
+        align: "center",
+        render: (_, record) => (
+          <Tooltip title={translate("bypass_page.tooltip_copy")}>
+            <Button
+              icon={<CopyOutlined />}
+              size="small"
+              type="text"
+              onClick={() => {
+                const text = `[${record.school_id}] ${record.company_name ?? ""} · ${record.province ?? ""}`.trim();
+                void navigator.clipboard.writeText(text).then(() => {
+                  void message.success(translate("bypass_page.copy_success"));
+                });
+              }}
+            />
+          </Tooltip>
+        ),
       },
       {
         title: translate("bypass_page.col_actions"),
@@ -390,11 +480,11 @@ export default function BypassPage(): JSX.Element {
           </Col>
           <Col xs={24} sm={12} lg={6}>
             <SummaryCard
-              title={translate("bypass_page.stats_grade_a")}
-              value={overallBypassStatistics.gradeA.toLocaleString()}
-              subtitle={translate("bypass_page.stats_grade_a_desc")}
-              icon={<TrophyOutlined />}
-              color={token.colorWarning}
+              title={translate("bypass_page.stats_total_students")}
+              value={overallBypassStatistics.totalStudents.toLocaleString()}
+              subtitle={translate("bypass_page.stats_total_students_desc")}
+              icon={<TeamOutlined />}
+              color={(token as unknown as Record<string, string>)["purple6"] ?? "#722ed1"}
             />
           </Col>
         </Row>
@@ -586,7 +676,7 @@ export default function BypassPage(): JSX.Element {
                   }}
                   icon={<TrophyOutlined />}
                   type="text"
-                  style={{ color: "#8b5cf6", fontWeight: 600 }}
+                  style={{ color: (token as unknown as Record<string, string>)["purple6"] ?? "#722ed1", fontWeight: 600 }}
                 >
                   {translate("bypass_page.btn_province_ranking")}
                 </Button>
@@ -596,7 +686,7 @@ export default function BypassPage(): JSX.Element {
                   }}
                   icon={<TeamOutlined />}
                   type="text"
-                  style={{ color: "#f59e0b", fontWeight: 600 }}
+                  style={{ color: token.colorWarning, fontWeight: 600 }}
                 >
                   {translate("bypass_page.btn_sale_ranking")}
                 </Button>
@@ -608,6 +698,16 @@ export default function BypassPage(): JSX.Element {
               dataSource={bypassState.filteredSchools}
               loading={bypassState.loading}
               rowKey={(schoolRecord) => String(schoolRecord.school_id)}
+              rowClassName={(record) => {
+                if (!record.active_date) return "";
+                const daysSince = Math.floor(
+                  (Date.now() - new Date(record.active_date).getTime()) /
+                    (1000 * 60 * 60 * 24),
+                );
+                return !Number.isNaN(daysSince) && daysSince <= 30
+                  ? "new-school-row"
+                  : "";
+              }}
               pagination={{
                 pageSize: bypassState.pageSize,
                 showSizeChanger: true,
@@ -619,6 +719,14 @@ export default function BypassPage(): JSX.Element {
               scroll={{ x: 2000 }}
               onChange={bypassHandlers.handleTableChange}
             />
+            <style>{`
+              .new-school-row td {
+                background-color: ${token.colorSuccessBg} !important;
+              }
+              .new-school-row:hover td {
+                background-color: ${token.colorSuccessBgHover} !important;
+              }
+            `}</style>
           </Flex>
         </Card>
 
