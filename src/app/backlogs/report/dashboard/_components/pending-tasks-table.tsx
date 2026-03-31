@@ -145,6 +145,27 @@ export const PendingTasksTable = () => {
                 },
               },
               {
+                title: "ประเภท",
+                dataIndex: "issueType",
+                key: "issueType",
+                render: (issueType: string) =>
+                  issueType ? (
+                    <Tag
+                      color={
+                        issueType.toLowerCase().includes("bug")
+                          ? "red"
+                          : issueType.toLowerCase().includes("task")
+                            ? "blue"
+                            : "default"
+                      }
+                    >
+                      {issueType}
+                    </Tag>
+                  ) : (
+                    <Tag color="default">-</Tag>
+                  ),
+              },
+              {
                 title: "สถานะ",
                 dataIndex: "status",
                 key: "status",
