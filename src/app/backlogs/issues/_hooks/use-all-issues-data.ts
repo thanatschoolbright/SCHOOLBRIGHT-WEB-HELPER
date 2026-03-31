@@ -18,14 +18,14 @@ const DEFAULT_FILTERS: AllIssuesFilters = {
   priorityIds: [],
   assigneeIds: [],
   dateRange: null,
-  aiSummaryFilter: "all",
+  aiSummaryFilter: "without_ai",
 };
 
 export function useAllIssuesData({ space, initialFilters }: UseAllIssuesDataOptions) {
   const [issues, setIssues] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(300);
   const [loading, setLoading] = useState(false);
   const [optionsLoading, setOptionsLoading] = useState(true);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);

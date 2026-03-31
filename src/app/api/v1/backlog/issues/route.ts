@@ -74,8 +74,12 @@ export async function GET(req: NextRequest) {
     const filterParams: Record<string, any> = { apiKey };
 
     // Project filter (Backlog expects projectId[] as array)
-    if (projectId) {
-      filterParams["projectId[]"] = Number(projectId);
+    // Accept both single projectId and projectId[] array from frontend
+    const projectIdArray = searchParams.getAll("projectId[]");
+    const projectIdSingle = searchParams.getAll("projectId");
+    const mergedProjectIds = [...projectIdArray, ...projectIdSingle, ...(projectId ? [projectId] : [])];
+    if (mergedProjectIds.length > 0) {
+      filterParams["projectId[]"] = mergedProjectIds.map((v) => Number(v));
     }
 
     // Search keyword - frontend sends 'q', Backlog API expects 'keyword'
