@@ -38,7 +38,7 @@ export const TimesheetActions: React.FC<TimesheetActionsProps> = ({
         icon={<PlusOutlined />}
         onClick={onAdd}
         disabled={loading}
-        size="large"
+        size="middle"
         hidden
       >
         เพิ่มรายการ
