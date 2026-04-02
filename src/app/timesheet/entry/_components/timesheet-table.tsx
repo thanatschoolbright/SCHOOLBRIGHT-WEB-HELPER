@@ -127,6 +127,16 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         label: t("timesheet_entry_page.table_hours", "เวลา"),
       },
       {
+        key: "created_at",
+        dataIndex: "created_at",
+        label: t("timesheet_entry_page.table_created_at", "วันที่สร้าง"),
+      },
+      {
+        key: "updated_at",
+        dataIndex: "updated_at",
+        label: t("timesheet_entry_page.table_updated_at", "วันที่อัปเดต"),
+      },
+      {
         key: "actions",
         dataIndex: "actions",
         label: t("timesheet_entry_page.table_actions", "จัดการ"),
@@ -394,6 +404,62 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                 {t("timesheet_entry_page.hrs", "ชม.")}
               </Typography.Text>
             </Space>
+          );
+        },
+      },
+      {
+        title: (
+          <Typography.Text strong style={{ fontSize: 13 }}>
+            {t("timesheet_entry_page.table_created_at", "วันที่สร้าง")}
+          </Typography.Text>
+        ),
+        dataIndex: "created_at",
+        width: 160,
+        align: "center",
+        sorter: (a: TimesheetEntry, b: TimesheetEntry) =>
+          dayjs(a.created_at).valueOf() - dayjs(b.created_at).valueOf(),
+        render: (value: string) => (
+          <Flex vertical align="center" gap={2}>
+            <Typography.Text style={{ fontSize: 13 }}>
+              {dayjs(value).format("DD/MM/YYYY")}
+            </Typography.Text>
+            <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+              {dayjs(value).format("HH:mm:ss")}
+            </Typography.Text>
+          </Flex>
+        ),
+      },
+      {
+        title: (
+          <Typography.Text strong style={{ fontSize: 13 }}>
+            {t("timesheet_entry_page.table_updated_at", "วันที่อัปเดต")}
+          </Typography.Text>
+        ),
+        dataIndex: "updated_at",
+        width: 160,
+        align: "center",
+        sorter: (a: TimesheetEntry, b: TimesheetEntry) =>
+          dayjs(a.updated_at).valueOf() - dayjs(b.updated_at).valueOf(),
+        render: (value: string, record: TimesheetEntry) => {
+          const isModified = record.updated_by !== null;
+          return (
+            <Flex vertical align="center" gap={2}>
+              <Typography.Text style={{ fontSize: 13 }}>
+                {dayjs(value).format("DD/MM/YYYY")}
+              </Typography.Text>
+              <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                {dayjs(value).format("HH:mm:ss")}
+              </Typography.Text>
+              {isModified && (
+                <Tag
+                  bordered={false}
+                  color="orange"
+                  style={{ fontSize: 10, margin: 0, borderRadius: 4 }}
+                >
+                  แก้ไขแล้ว
+                </Tag>
+              )}
+            </Flex>
           );
         },
       },
