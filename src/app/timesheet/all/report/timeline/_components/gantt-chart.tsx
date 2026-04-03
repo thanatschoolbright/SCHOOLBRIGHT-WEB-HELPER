@@ -22,7 +22,7 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTimelineStore } from "../_state/timeline-store";
 
 dayjs.extend(isoWeek);
@@ -659,6 +659,25 @@ const GanttChart: React.FC = () => {
     return Math.max(cfg.minWidth, units.length * cfg.colWidth + LABEL_COL_WIDTH);
   }, [units, scale]);
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // ✨ Scroll ไปหา "วันนี้" ทุกครั้งที่ scale หรือข้อมูลเปลี่ยน
+  useEffect(() => {
+    if (!scrollRef.current || chartContentWidth === 0 || totalDays === 0) return;
+    const todayOffset = dayjs().startOf("day").diff(chartStart, "day");
+    if (todayOffset < 0 || todayOffset > totalDays) return;
+
+    // คำนวณ pixel position ของวันนี้ใน chart area
+    const chartAreaWidth = chartContentWidth - LABEL_COL_WIDTH;
+    const todayPx = (todayOffset / totalDays) * chartAreaWidth + LABEL_COL_WIDTH;
+
+    // เลื่อนให้วันนี้อยู่ตรงกลางของ viewport
+    const viewportWidth = scrollRef.current.clientWidth;
+    const scrollLeft = Math.max(0, todayPx - viewportWidth / 2);
+
+    scrollRef.current.scrollTo({ left: scrollLeft, behavior: "smooth" });
+  }, [chartStart, chartContentWidth, totalDays, scale]);
+
   const handleAddSubProject = (project: any) => {
     const numericId = parseInt(String(project.id).replace("p-", ""), 10);
     setModal({
@@ -712,7 +731,7 @@ const GanttChart: React.FC = () => {
       loading={isFetching}
     >
       {/* ── Scroll wrapper ── */}
-      <div style={{ overflowX: "auto", overflowY: "auto", maxHeight: 600 }}>
+      <div ref={scrollRef} style={{ overflowX: "auto", overflowY: "auto", maxHeight: 600 }}>
         <div style={{ width: chartContentWidth, minWidth: chartContentWidth }}>
 
           {/* ── Sticky Header ── */}
