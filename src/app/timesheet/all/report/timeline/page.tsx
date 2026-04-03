@@ -28,6 +28,8 @@ export default function Page() {
     projectStatuses,
     fetchTimelineData,
     fetchProjectStatusList,
+    fetchProjectList,
+    fetchGroupList,
     submitSubProject,
     isSubmitting,
   } = useTimelineStore();
@@ -40,7 +42,9 @@ export default function Page() {
   useEffect(() => {
     fetchTimelineData();
     fetchProjectStatusList();
-  }, [fetchTimelineData, fetchProjectStatusList]);
+    fetchProjectList();
+    fetchGroupList();
+  }, [fetchTimelineData, fetchProjectStatusList, fetchProjectList, fetchGroupList]);
 
   /**
    * ✨ จัดการการบันทึกข้อมูลจาก Modal

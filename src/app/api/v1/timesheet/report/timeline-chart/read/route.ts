@@ -10,6 +10,13 @@ export async function GET(req: NextRequest) {
       start_date: searchParams.get("start_date") || undefined,
       end_date: searchParams.get("end_date") || undefined,
       project_id: searchParams.get("project_id") || undefined,
+      group_id: searchParams.get("group_id") || undefined,
+      status_id: searchParams.get("status_id") || undefined,
+      category_type: searchParams.get("category_type") || undefined,
+      approval: searchParams.get("approval") || undefined,
+      sub_status_id: searchParams.get("sub_status_id") || undefined,
+      has_sub_projects: searchParams.get("has_sub_projects") || undefined,
+      search: searchParams.get("search") || undefined,
     };
 
     // ✨ Validation
@@ -27,9 +34,7 @@ export async function GET(req: NextRequest) {
     }
 
     // ✨ Call Service
-    const data = await timelineChartService.getProjectTimeline(
-      validatedQuery.data,
-    );
+    const data = await timelineChartService.getProjectTimeline(validatedQuery.data);
 
     return NextResponse.json({
       status_code: 200,

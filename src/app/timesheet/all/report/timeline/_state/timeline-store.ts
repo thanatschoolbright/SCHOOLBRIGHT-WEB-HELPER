@@ -1,31 +1,34 @@
 // ✨ Zustand Store สำหรับ Page Project Timeline
 import { create } from "zustand";
 import {
+  requestGroupList,
+  requestProjectList,
   requestProjectStatusList,
   requestTimelineChartData,
   requestUpsertSubProject,
+  TimelineChartParams,
 } from "../_api/timeline-api";
 
 interface TimelineState {
   // Data
   timelineData: any[];
   projectStatuses: any[];
+  projectList: any[];
+  groupList: any[];
   isFetching: boolean;
   isSubmitting: boolean;
   error: string | null;
 
   // Filter
-  filters: {
-    start_date?: string;
-    end_date?: string;
-    project_id?: number | null;
-  };
+  filters: TimelineChartParams;
 
   // Actions
-  setFilters: (filters: Partial<TimelineState["filters"]>) => void;
+  setFilters: (filters: Partial<TimelineChartParams>) => void;
   resetFilters: () => void;
   fetchTimelineData: () => Promise<void>;
   fetchProjectStatusList: () => Promise<void>;
+  fetchProjectList: () => Promise<void>;
+  fetchGroupList: () => Promise<void>;
   submitSubProject: (values: any, adminId: number) => Promise<boolean>;
   getSummaryMetrics: () => {
     totalProjects: number;
@@ -42,17 +45,28 @@ interface TimelineState {
   setModal: (modal: Partial<TimelineState["modal"]>) => void;
 }
 
+const DEFAULT_FILTERS: TimelineChartParams = {
+  start_date: undefined,
+  end_date: undefined,
+  project_id: undefined,
+  group_id: undefined,
+  status_id: undefined,
+  category_type: undefined,
+  approval: undefined,
+  sub_status_id: undefined,
+  has_sub_projects: undefined,
+  search: undefined,
+};
+
 export const useTimelineStore = create<TimelineState>((set, get) => ({
   timelineData: [],
   projectStatuses: [],
+  projectList: [],
+  groupList: [],
   isFetching: false,
   isSubmitting: false,
   error: null,
-  filters: {
-    start_date: undefined,
-    end_date: undefined,
-    project_id: undefined,
-  },
+  filters: { ...DEFAULT_FILTERS },
   modal: {
     open: false,
     mode: "edit",
@@ -72,13 +86,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
   },
 
   resetFilters: () => {
-    set({
-      filters: {
-        start_date: undefined,
-        end_date: undefined,
-        project_id: undefined,
-      },
-    });
+    set({ filters: { ...DEFAULT_FILTERS } });
   },
 
   /**
@@ -109,6 +117,34 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
       }
     } catch (error) {
       console.error("Fetch status error:", error);
+    }
+  },
+
+  /**
+   * ✨ ดึงรายการโครงการ (สำหรับ Dropdown)
+   */
+  fetchProjectList: async () => {
+    try {
+      const response = await requestProjectList();
+      if (response.status_code === 200) {
+        set({ projectList: response.data?.items || response.data || [] });
+      }
+    } catch (error) {
+      console.error("Fetch project list error:", error);
+    }
+  },
+
+  /**
+   * ✨ ดึงรายการกลุ่มโครงการ (สำหรับ Dropdown)
+   */
+  fetchGroupList: async () => {
+    try {
+      const response = await requestGroupList();
+      if (response.status_code === 200) {
+        set({ groupList: response.data || [] });
+      }
+    } catch (error) {
+      console.error("Fetch group list error:", error);
     }
   },
 
