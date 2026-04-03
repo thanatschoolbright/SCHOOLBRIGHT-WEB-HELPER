@@ -1,22 +1,27 @@
 "use client";
 
 import PermissionLayout from "@/components/layouts/permission-layout";
-import { AreaChartOutlined } from "@ant-design/icons";
+import { AreaChartOutlined, BarChartOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
 import { useAppSelector } from "@stores/store";
-import { Card, theme } from "antd";
-import { useEffect } from "react";
+import { Button, Card, Space, theme } from "antd";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import FilterSection from "./_components/filter-section";
+import GanttChart from "./_components/gantt-chart";
 import { SubProjectFormModal } from "./_components/sub-project-form-modal";
 import SummarySection from "./_components/summary-section";
 import TimelineChart from "./_components/timeline-chart";
 import WorkloadTimeSeries from "./_components/workload-time-series";
 import { useTimelineStore } from "./_state/timeline-store";
 
+type ViewMode = "timeline" | "gantt";
+
 export default function Page() {
   const { token } = theme.useToken();
+  const [viewMode, setViewMode] = useState<ViewMode>("timeline");
+
   const {
     modal,
     setModal,
@@ -68,14 +73,49 @@ export default function Page() {
               borderColor: token.colorBorderSecondary,
             }}
           >
-            <FilterSection />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                flexWrap: "wrap",
+                gap: 12,
+              }}
+            >
+              <div style={{ flex: 1 }}>
+                <FilterSection />
+              </div>
+
+              {/* ── View Toggle ── */}
+              <Space>
+                <Button
+                  type={viewMode === "timeline" ? "primary" : "default"}
+                  icon={<UnorderedListOutlined />}
+                  onClick={() => setViewMode("timeline")}
+                >
+                  ดูแบบ Timeline
+                </Button>
+                <Button
+                  type={viewMode === "gantt" ? "primary" : "default"}
+                  icon={<BarChartOutlined />}
+                  onClick={() => setViewMode("gantt")}
+                >
+                  ดูแบบ Gannt Chart
+                </Button>
+              </Space>
+            </div>
           </Card>
 
           <SummarySection />
 
-          <TimelineChart />
-
-          <WorkloadTimeSeries />
+          {viewMode === "timeline" ? (
+            <>
+              <TimelineChart />
+              <WorkloadTimeSeries />
+            </>
+          ) : (
+            <GanttChart />
+          )}
         </div>
 
         {/* Sub Project Edit Modal */}
