@@ -424,12 +424,13 @@ function GanttRow({
           gap: 6,
           borderRight: `1px solid ${token.colorBorderSecondary}`,
           backgroundColor: isSubProject
-            ? token.colorFillQuaternary
+            ? token.colorFillTertiary
             : token.colorBgContainer,
           flexShrink: 0,
           position: "sticky",
           left: 0,
-          zIndex: 3,
+          zIndex: 4,
+          boxShadow: "2px 0 4px rgba(0,0,0,0.06)",
         }}
       >
         {isSubProject ? (
@@ -500,8 +501,9 @@ function GanttRow({
           flex: 1,
           position: "relative",
           overflow: "hidden",
+          isolation: "isolate",
           backgroundColor: isSubProject
-            ? token.colorFillQuaternary
+            ? token.colorFillTertiary
             : token.colorBgContainer,
         }}
       >
