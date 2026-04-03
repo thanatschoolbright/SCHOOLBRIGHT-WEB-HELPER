@@ -501,7 +501,7 @@ function GanttRow({
           position: "relative",
           overflow: "hidden",
           backgroundColor: isSubProject
-            ? `${token.colorFillQuaternary}60`
+            ? token.colorFillQuaternary
             : token.colorBgContainer,
         }}
       >
