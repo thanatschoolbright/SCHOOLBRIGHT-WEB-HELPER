@@ -5,6 +5,7 @@ import {
   BranchesOutlined,
   CalendarOutlined,
   EditOutlined,
+  PlusCircleOutlined,
   ProjectOutlined,
 } from "@ant-design/icons";
 import {
@@ -167,6 +168,7 @@ function GanttBar({
   totalDays,
   isSubProject = false,
   onEdit,
+  onAddSubProject,
   status,
 }: {
   label: string;
@@ -177,6 +179,7 @@ function GanttBar({
   totalDays: number;
   isSubProject?: boolean;
   onEdit?: () => void;
+  onAddSubProject?: () => void;
   status?: string;
 }) {
   const { token } = theme.useToken();
@@ -226,6 +229,17 @@ function GanttBar({
         >
           {label}
         </Text>
+        {onAddSubProject && (
+          <Tooltip title="เพิ่มโครงการย่อย">
+            <Button
+              type="text"
+              size="small"
+              icon={<PlusCircleOutlined style={{ fontSize: 13, color: token.colorSuccess }} />}
+              onClick={onAddSubProject}
+              style={{ padding: 0, height: "auto", lineHeight: 1, flexShrink: 0 }}
+            />
+          </Tooltip>
+        )}
         {onEdit && (
           <Tooltip title="แก้ไขโครงการย่อย">
             <Button
@@ -306,6 +320,16 @@ function GanttBar({
 const GanttChart: React.FC = () => {
   const { token } = theme.useToken();
   const { timelineData, isFetching, setModal } = useTimelineStore();
+
+  const handleAddSubProject = (project: any) => {
+    // ดึง numeric id จาก "p-1" → 1
+    const numericId = parseInt(String(project.id).replace("p-", ""), 10);
+    setModal({
+      open: true,
+      mode: "create",
+      data: { project_id: numericId, project_name: project.name },
+    });
+  };
 
   // ✨ คำนวณช่วงวันที่ของ Chart จากข้อมูลทั้งหมด
   const { chartStart, totalDays } = useMemo(() => {
@@ -424,6 +448,7 @@ const GanttChart: React.FC = () => {
                   chartStart={chartStart}
                   totalDays={totalDays}
                   status={project.status_name || project.status}
+                  onAddSubProject={() => handleAddSubProject(project)}
                 />
 
                 {/* Sub-project rows */}

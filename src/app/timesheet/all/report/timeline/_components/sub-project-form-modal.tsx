@@ -5,6 +5,7 @@ import { axios } from "@/helpers/api/api.log";
 import {
   EditOutlined,
   MinusCircleOutlined,
+  PlusCircleOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
 import {
@@ -177,6 +178,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
       startDate: values.dateRange?.[0]?.toISOString(),
       endDate: values.dateRange?.[1]?.toISOString(),
       project_id: data?.project_id,
+      assetCaptureType: values.asset_capture_type,
       status: statuses.find((s) => s.id === values.projectStatusId)?.nameTh,
     };
 
@@ -193,9 +195,11 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
       onCancel={onCancel}
       title={
         <Space>
-          <EditOutlined />
+          {mode === "create" ? <PlusCircleOutlined /> : <EditOutlined />}
           <Title level={4} style={{ margin: 0 }}>
-            แจ้งแก้ไขโครงการย่อย
+            {mode === "create"
+              ? `เพิ่มโครงการย่อย${data?.project_name ? ` — ${data.project_name}` : ""}`
+              : "แก้ไขโครงการย่อย"}
           </Title>
         </Space>
       }
