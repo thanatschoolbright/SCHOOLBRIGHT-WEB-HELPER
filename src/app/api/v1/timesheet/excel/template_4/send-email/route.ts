@@ -147,6 +147,11 @@ export async function POST(request: NextRequest) {
       <p style="font-size:12px;color:#94a3b8;margin:0;">อีเมลนี้ถูกส่งโดยอัตโนมัติ — กรุณาอย่าตอบกลับ</p>
     </div>
     <div style="padding:16px 36px;background:#f8fafc;text-align:center;border-top:1px solid #e2e8f0;">
+      <div style="display:inline-block;background:linear-gradient(135deg,#1e293b,#0f172a);border:1px solid rgba(99,102,241,0.3);border-radius:10px;padding:14px 24px;margin-bottom:12px;">
+        <div style="color:#a5b4fc;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">System Developed by</div>
+        <div style="color:#ffffff;font-size:15px;font-weight:800;letter-spacing:0.5px;">THANAT PROMPIRIYA</div>
+        <div style="color:#6366f1;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-top:3px;">HEAD OF TECHNOLOGY · SCHOOLBRIGHT</div>
+      </div>
       <p style="font-size:11px;color:#94a3b8;margin:0;">© ${new Date().getFullYear()} SchoolBright Co., Ltd.</p>
     </div>
   </div>
