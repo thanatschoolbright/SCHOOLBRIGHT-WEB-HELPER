@@ -52,7 +52,7 @@ export const useTimesheetAllStore = create<TimesheetAllStore>((set, get) => ({
   loading: false,
   keyword: "",
   dateRange: buildDefaultRange(),
-  departmentIds: [],
+  departmentIds: [7, 9],
   modalFlags: { exportModal4: false, autoFillModal: false },
   statusModal: { open: false, type: "success" },
 
@@ -139,12 +139,12 @@ export const useTimesheetAllStore = create<TimesheetAllStore>((set, get) => ({
       statusModal: { ...state.statusModal, open: false },
     })),
 
-  // รีเซ็ตค่า Filter ทั้งหมดกลับสู่ค่าเริ่มต้น
+  // รีเซ็ตค่า Filter ทั้งหมดกลับสู่ค่าเริ่มต้น (departmentIds คงไว้ที่ 7, 9 ตามค่า default)
   resetFilters: () =>
     set({
       keyword: "",
       dateRange: buildDefaultRange(),
-      departmentIds: [],
+      departmentIds: [7, 9],
     }),
 }));
 

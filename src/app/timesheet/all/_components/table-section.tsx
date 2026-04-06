@@ -5,6 +5,7 @@ import {
   selectTotalSummary,
   useTimesheetAllStore,
 } from "@/app/timesheet/all/_state/timesheet-all-store";
+import { useShallow } from "zustand/react/shallow";
 import {
   InfoCircleOutlined,
   UnorderedListOutlined,
@@ -31,14 +32,20 @@ export const TableSection: React.FC = () => {
   const { t } = useTranslation("translate");
   const { token } = theme.useToken();
 
-  const loading = useTimesheetAllStore((s) => s.loading);
-  const metadata = useTimesheetAllStore((s) => s.metadata);
-  const fetchSummary = useTimesheetAllStore((s) => s.fetchSummary);
-  const closeModal = useTimesheetAllStore((s) => s.closeModal);
-  const autoFillOpen = useTimesheetAllStore((s) => s.modalFlags.autoFillModal);
+  const { loading, metadata, fetchSummary, closeModal, autoFillOpen } =
+    useTimesheetAllStore(
+      useShallow((s) => ({
+        loading: s.loading,
+        metadata: s.metadata,
+        fetchSummary: s.fetchSummary,
+        closeModal: s.closeModal,
+        autoFillOpen: s.modalFlags.autoFillModal,
+      })),
+    );
 
-  const filteredRecords = useTimesheetAllStore(selectFilteredRecords);
-  const totalSummary = useTimesheetAllStore(selectTotalSummary);
+  // ใช้ useShallow เพื่อป้องกัน infinite loop จากการ return array/object ใหม่ทุก render
+  const filteredRecords = useTimesheetAllStore(useShallow(selectFilteredRecords));
+  const { total, required } = useTimesheetAllStore(useShallow(selectTotalSummary));
 
   return (
     <Card
@@ -100,7 +107,7 @@ export const TableSection: React.FC = () => {
                   level={4}
                   style={{ margin: 0, fontWeight: 800, color: token.colorPrimary }}
                 >
-                  {totalSummary.total.toLocaleString()}
+                  {total.toLocaleString()}
                 </Typography.Title>
                 <Text
                   strong
@@ -112,7 +119,7 @@ export const TableSection: React.FC = () => {
                   level={4}
                   style={{ margin: 0, fontWeight: 800, color: token.colorTextDescription }}
                 >
-                  {totalSummary.required.toLocaleString()}
+                  {required.toLocaleString()}
                 </Typography.Title>
                 <Text type="secondary" style={{ marginLeft: 4, fontWeight: 500 }}>
                   ชั่วโมง
