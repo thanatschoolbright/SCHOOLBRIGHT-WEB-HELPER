@@ -82,7 +82,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
   const statusOptions = useMemo(() => {
     return (statuses || []).map((s) => ({
       label: s.nameTh,
-      value: s.id,
+      value: Number(s.id),
     }));
   }, [statuses]);
 
@@ -155,7 +155,9 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
             description: data.description,
             ticket_number: data.ticket_number,
             asset_capture_type: data.assetCaptureType || "CAPTUREABLE",
-            projectStatusId: data.projectStatusId,
+            projectStatusId: data.projectStatusId
+              ? Number(data.projectStatusId)
+              : undefined,
             estimateWorkhours: data.estimateWorkhours,
             color_hex: data.color_hex || "#52c41a",
             dateRange: range,
@@ -182,7 +184,8 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
 
     // data.id จาก store มีรูปแบบ "f-{number}" — ต้องแกะ numeric id ออก
     const rawId = data?.id ? String(data.id).replace(/^f-/, "") : undefined;
-    const numericId = rawId && !isNaN(Number(rawId)) ? Number(rawId) : undefined;
+    const numericId =
+      rawId && !isNaN(Number(rawId)) ? Number(rawId) : undefined;
 
     const payload = {
       ...values,
@@ -211,7 +214,9 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
           {mode === "create" ? <PlusCircleOutlined /> : <EditOutlined />}
           <Title level={4} style={{ margin: 0 }}>
             {mode === "create"
-              ? `เพิ่มโครงการย่อย${data?.project_name ? ` — ${data.project_name}` : ""}`
+              ? `เพิ่มโครงการย่อย${
+                  data?.project_name ? ` — ${data.project_name}` : ""
+                }`
               : "แก้ไขโครงการย่อย"}
           </Title>
         </Space>
