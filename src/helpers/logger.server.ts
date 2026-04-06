@@ -45,7 +45,6 @@ export const logger = {
     };
   },
 };
-};
 
 // Alias for compatibility
 export const serverLogger = logger;
