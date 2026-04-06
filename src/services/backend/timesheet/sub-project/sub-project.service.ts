@@ -220,6 +220,7 @@ export const Service = {
       where: { id },
       data: {
         ...rest,
+        colorHex: rest.colorHex,
         updatedBy: data.updatedBy ?? 0,
       },
       include: { projectAssignees: true, projectStatus: true },
