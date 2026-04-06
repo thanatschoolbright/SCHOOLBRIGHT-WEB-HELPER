@@ -53,8 +53,8 @@ const generateEmailStyles = (): string => `
   .greeting { font-size: 22px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
   .intro { color: #64748b; font-size: 15px; line-height: 1.7; margin-bottom: 32px; }
   /* Summary Bar */
-  .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 40px; }
-  .summary-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 28px 24px; text-align: center; }
+  .summary-grid { display: table; width: 100%; border-collapse: separate; border-spacing: 16px 0; margin-bottom: 40px; }
+  .summary-card { display: table-cell; width: 33.33%; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 28px 24px; text-align: center; vertical-align: middle; }
   .summary-card.green { background: #f0fdf4; border-color: #bbf7d0; }
   .summary-card.red { background: #fff1f2; border-color: #fecdd3; }
   .summary-card.blue { background: #eff6ff; border-color: #bfdbfe; }
@@ -104,6 +104,11 @@ const generateEmailStyles = (): string => `
   .footer-text { color: #475569; font-size: 12px; line-height: 1.6; }
   .footer-divider { border: none; border-top: 1px solid #334155; margin: 16px 0; }
   .footer-copy { color: #334155; font-size: 11px; }
+  .credits-wrap { margin-top: 20px; padding: 16px 24px; background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); border-radius: 10px; text-align: center; }
+  .credits-system { color: #a5b4fc; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .credits-by { color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; }
+  .credits-name { color: #818cf8; font-size: 14px; font-weight: 800; letter-spacing: 0.5px; }
+  .credits-title { color: #475569; font-size: 11px; font-weight: 500; margin-top: 2px; }
 `;
 
 const esc = (s: string): string =>
@@ -197,7 +202,7 @@ export const generateTimesheetEmailHtml = (
 
   <!-- Body -->
   <div class="body">
-    <div class="greeting">เรียน Project Manager &amp; Head of Technology</div>
+    <div class="greeting">เรียนท่านผู้จัดการและผู้บริหาร</div>
     <p class="intro">
       นี่คือรายงานสรุปสถานะการบันทึกเวลาทำงาน (Timesheet) ประจำวันจากทีม SchoolBright
       กรุณาตรวจสอบและติดตามพนักงานที่ยังบันทึกไม่ครบถ้วน เพื่อความถูกต้องของข้อมูลโครงการ
@@ -279,6 +284,13 @@ export const generateTimesheetEmailHtml = (
       อีเมลนี้ถูกส่งโดยอัตโนมัติจากระบบ SchoolBright Web Helper<br/>
       เวลาที่ส่ง: ${esc(now)} (เวลาประเทศไทย)
     </p>
+    <hr class="footer-divider"/>
+    <div class="credits-wrap">
+      <div class="credits-system">SchoolBright Helper System</div>
+      <div class="credits-by">Developed &amp; Maintained by</div>
+      <div class="credits-name">THANAT PROMPIRIYA</div>
+      <div class="credits-title">HEAD OF TECHNOLOGY · SCHOOLBRIGHT CO., LTD.</div>
+    </div>
     <hr class="footer-divider"/>
     <p class="footer-copy">© ${new Date().getFullYear()} SchoolBright Co., Ltd. · All rights reserved.</p>
   </div>
