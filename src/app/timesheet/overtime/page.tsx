@@ -16,6 +16,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
+  BellOutlined,
   CalendarOutlined,
   ClockCircleOutlined,
   FileTextOutlined,
@@ -39,6 +40,7 @@ import ExportModal from "./_components/export-modal";
 import FilterSection from "./_components/filter-section";
 import RulesModal from "./_components/rules-modal";
 import SummarySection from "./_components/summary-section";
+import RemindModal from "./_components/remind-modal";
 import TimelineModal from "./_components/timeline-modal";
 import UserTable from "./_components/user-table";
 
@@ -126,6 +128,7 @@ const OvertimeManagementPage = () => {
   const [isAnalyticsModalVisible, setIsAnalyticsModalVisible] = useState(false);
   const [isRulesModalVisible, setIsRulesModalVisible] = useState(false);
   const [isTimelineModalVisible, setIsTimelineModalVisible] = useState(false);
+  const [isRemindModalVisible, setIsRemindModalVisible] = useState(false);
 
   // --- สถานะการส่งคำขอ OT (Submission Tracking) ---
   const [isSubmissionLoading, setIsSubmissionLoading] = useState(false);
@@ -1457,6 +1460,15 @@ const OvertimeManagementPage = () => {
               >
                 ระเบียบการขอ OT
               </Button>
+              <Badge count={pendingCount} color="red" offset={[-4, 4]}>
+                <Button
+                  icon={<BellOutlined />}
+                  size="large"
+                  onClick={() => setIsRemindModalVisible(true)}
+                >
+                  แจ้งเตือนซ้ำ
+                </Button>
+              </Badge>
               <Badge count={pendingCount} color="gold" offset={[-4, 4]}>
                 <Button
                   icon={<CalendarOutlined />}
@@ -1631,6 +1643,12 @@ const OvertimeManagementPage = () => {
           visible={isTimelineModalVisible}
           onClose={() => setIsTimelineModalVisible(false)}
           dataSource={overtimeDataSource}
+        />
+
+        {/* Modal ส่ง Email แจ้งเตือนซ้ำสำหรับ OT รออนุมัตินาน */}
+        <RemindModal
+          visible={isRemindModalVisible}
+          onClose={() => setIsRemindModalVisible(false)}
         />
       </Flex>
     </DashboardLayout>
