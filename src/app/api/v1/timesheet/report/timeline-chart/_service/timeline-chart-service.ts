@@ -134,10 +134,11 @@ export const timelineChartService = {
         end_date: feature.endDate,
         status: feature.status,
         status_name: feature.projectStatus?.nameTh || feature.status,
+        projectStatusId: feature.projectStatusId,
         type: "feature",
         project_id: project.id,
         // ใช้สีของ feature เองก่อน ถ้าไม่มีให้ fallback ไป colorHexFeature ของ parent
-        color_hex: (feature as any).colorHex ?? project.colorHexFeature ?? "#52c41a",
+        color_hex: feature.colorHex ?? project.colorHexFeature ?? "#52c41a",
       })),
     }));
   },
