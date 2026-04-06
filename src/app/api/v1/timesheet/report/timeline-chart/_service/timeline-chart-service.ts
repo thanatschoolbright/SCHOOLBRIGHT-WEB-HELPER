@@ -124,6 +124,8 @@ export const timelineChartService = {
       approval: project.approval,
       group_name: project.group?.name_th || null,
       type: "project",
+      color_hex: project.colorHex ?? "#1890ff",
+      color_hex_feature: project.colorHexFeature ?? "#52c41a",
       children: project.features.map((feature) => ({
         id: `f-${feature.id}`,
         name: feature.name,
@@ -134,6 +136,7 @@ export const timelineChartService = {
         status_name: feature.projectStatus?.nameTh || feature.status,
         type: "feature",
         project_id: project.id,
+        color_hex: project.colorHexFeature ?? "#52c41a",
       })),
     }));
   },

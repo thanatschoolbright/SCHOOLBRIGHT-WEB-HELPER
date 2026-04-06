@@ -766,7 +766,8 @@ const GanttChart: React.FC = () => {
 
           {/* ── Data Rows ── */}
           {timelineData.map((project) => {
-            const color = getStatusColor(project.status);
+            const color = project.color_hex || getStatusColor(project.status);
+            const featureColor = project.color_hex_feature || "#52c41a";
             const statusName =
               project.status_name ||
               STATUS_LABELS[project.status?.toLowerCase()] ||
@@ -793,7 +794,7 @@ const GanttChart: React.FC = () => {
                     label={sub.name}
                     startDate={sub.start_date}
                     endDate={sub.end_date}
-                    color={getStatusColor(sub.status)}
+                    color={sub.color_hex || featureColor}
                     chartStart={chartStart}
                     totalDays={totalDays}
                     units={units}
@@ -826,23 +827,35 @@ const GanttChart: React.FC = () => {
             }}
           >
             <Text style={{ fontSize: 11, color: token.colorTextTertiary, fontWeight: 600 }}>
-              สถานะ:
+              สี:
             </Text>
-            {Object.entries(STATUS_COLORS).map(([status, color]) => (
-              <Space key={status} size={5}>
-                <div
-                  style={{
-                    width: 10,
-                    height: 10,
-                    borderRadius: 2,
-                    backgroundColor: color,
-                  }}
-                />
-                <Text style={{ fontSize: 11, color: token.colorTextSecondary }}>
-                  {STATUS_LABELS[status] ?? status}
-                </Text>
-              </Space>
-            ))}
+            <Space size={5}>
+              <div
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: 2,
+                  backgroundColor: token.colorPrimary,
+                }}
+              />
+              <Text style={{ fontSize: 11, color: token.colorTextSecondary }}>
+                สีโครงการ (กำหนดจากข้อมูลโครงการ)
+              </Text>
+            </Space>
+            <Space size={5}>
+              <div
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: 2,
+                  backgroundColor: token.colorSuccess,
+                  opacity: 0.65,
+                }}
+              />
+              <Text style={{ fontSize: 11, color: token.colorTextSecondary }}>
+                สีโครงการย่อย (กำหนดจากข้อมูลโครงการ)
+              </Text>
+            </Space>
             <Space size={5}>
               <div
                 style={{ width: 2, height: 12, backgroundColor: token.colorError, opacity: 0.7 }}

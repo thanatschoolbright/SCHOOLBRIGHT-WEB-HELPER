@@ -38,14 +38,17 @@ const TimelineChart: React.FC = () => {
     if (!timelineData || timelineData.length === 0) return [];
 
     timelineData.forEach((project) => {
+      const projectColor = project.color_hex || token.colorPrimary;
+      const featureColor = project.color_hex_feature || token.colorInfo;
+
       // 1. ส่วนของโครงการหลัก (Main Project)
       items.push({
-        color: token.colorPrimary,
+        color: projectColor,
         dot: (
           <Avatar
             size={24}
             icon={<ProjectOutlined />}
-            style={{ backgroundColor: token.colorPrimary }}
+            style={{ backgroundColor: projectColor }}
           />
         ),
         children: (
@@ -86,10 +89,10 @@ const TimelineChart: React.FC = () => {
               >
                 <Timeline
                   items={project.children.map((sub) => ({
-                    color: token.colorInfo,
+                    color: sub.color_hex || featureColor,
                     dot: (
                       <BranchesOutlined
-                        style={{ fontSize: "14px", color: token.colorInfo }}
+                        style={{ fontSize: "14px", color: sub.color_hex || featureColor }}
                       />
                     ),
                     children: (
