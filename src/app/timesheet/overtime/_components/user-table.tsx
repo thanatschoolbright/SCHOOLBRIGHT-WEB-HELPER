@@ -22,7 +22,9 @@ import {
   Card,
   Flex,
   Input,
+  InputNumber,
   Popconfirm,
+  Progress,
   Space,
   Table,
   Tag,
@@ -30,9 +32,27 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import dayjs from "dayjs";
 import { useOvertimeStore } from "../_state/overtime-store";
+
+const QUOTA_STORAGE_KEY = "sb_ot_quota_per_employee";
+const DEFAULT_QUOTA_HOURS = 20;
+
+/** โหลด quota map จาก localStorage: { [requester_id]: hours } */
+const loadQuotaMap = (): Record<string, number> => {
+  try {
+    const raw = localStorage.getItem(QUOTA_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+};
+
+/** บันทึก quota map ลง localStorage */
+const persistQuotaMap = (map: Record<string, number>) => {
+  localStorage.setItem(QUOTA_STORAGE_KEY, JSON.stringify(map));
+};
 
 const { Text } = Typography;
 
@@ -88,6 +108,41 @@ const UserTable: React.FC<UserTableProps> = ({
   // จัดการ state เหตุผลการปฏิเสธแยกตาม record id
   const [rejectReasons, setRejectReasons] = useState<Record<string, string>>({});
   const [rejectOpenMap, setRejectOpenMap] = useState<Record<string, boolean>>({});
+
+  // Quota state — โหลดจาก localStorage
+  const [quotaMap, setQuotaMap] = useState<Record<string, number>>(() => loadQuotaMap());
+  // เก็บ draft quota ขณะ inline edit
+  const [editingQuota, setEditingQuota] = useState<Record<string, number>>({});
+
+  /** คำนวณ hours OT รวมของแต่ละคนเดือนปัจจุบัน (approved/paid เท่านั้น) */
+  const usedHoursByEmployee = useMemo(() => {
+    const currentMonthKey = dayjs().format("YYYY-MM");
+    const map: Record<string, number> = {};
+    overtimeDataSource.forEach((record: any) => {
+      if (!["approved", "paid", "payment_failed"].includes(record.status || "")) return;
+      const dateKey = dayjs(record.request_date).format("YYYY-MM");
+      if (dateKey !== currentMonthKey) return;
+      const id = String(record.requester_id || "");
+      const hrs = (record.descriptions || []).reduce(
+        (s: number, d: any) => s + Number(d.duration || 0), 0,
+      );
+      map[id] = (map[id] || 0) + hrs;
+    });
+    return map;
+  }, [overtimeDataSource]);
+
+  /** อัปเดต quota ของพนักงาน */
+  const handleSaveQuota = (requesterId: string) => {
+    const newVal = editingQuota[requesterId] ?? DEFAULT_QUOTA_HOURS;
+    const updated = { ...quotaMap, [requesterId]: newVal };
+    setQuotaMap(updated);
+    persistQuotaMap(updated);
+    setEditingQuota((prev) => {
+      const next = { ...prev };
+      delete next[requesterId];
+      return next;
+    });
+  };
 
   /**
    * ระบบตรวจสอบความสมบูรณ์ของข้อมูลเบื้องต้น
@@ -172,15 +227,33 @@ const UserTable: React.FC<UserTableProps> = ({
             record.requester_name
           : record.requester_name;
 
+        const empId = String(record.requester_id || "");
+        const quota = quotaMap[empId] ?? DEFAULT_QUOTA_HOURS;
+        const used = usedHoursByEmployee[empId] || 0;
+        const isOverQuota = used > quota;
+
         return (
           <Flex align="center" gap={12}>
-            <Avatar
-              size={40}
-              src={userObj?.profile_image}
-              icon={<UserOutlined />}
-            />
+            <Badge
+              dot
+              status={isOverQuota ? "error" : "default"}
+              offset={[-4, 36]}
+            >
+              <Avatar
+                size={40}
+                src={userObj?.profile_image}
+                icon={<UserOutlined />}
+              />
+            </Badge>
             <Flex vertical>
-              <Text strong>{name}</Text>
+              <Flex align="center" gap={6}>
+                <Text strong>{name}</Text>
+                {isOverQuota && (
+                  <Tooltip title={`เกิน Quota ${(used - quota).toFixed(1)} ชม. เดือนนี้`}>
+                    <WarningOutlined style={{ color: token.colorError, fontSize: 13 }} />
+                  </Tooltip>
+                )}
+              </Flex>
               <Text type="secondary" style={{ fontSize: 12 }}>
                 ID: {record.requester_id}
               </Text>
@@ -196,6 +269,108 @@ const UserTable: React.FC<UserTableProps> = ({
       width: 150,
       sorter: true,
       render: (date: string) => dayjs(date).format("DD/MM/YYYY"),
+    },
+    {
+      title: (
+        <Tooltip title="ชม. OT ที่ approved เดือนนี้ / Quota ที่กำหนด">
+          <span>Quota เดือนนี้</span>
+        </Tooltip>
+      ),
+      key: "quota",
+      width: 200,
+      render: (record: any) => {
+        const id = String(record.requester_id || "");
+        const quota = quotaMap[id] ?? DEFAULT_QUOTA_HOURS;
+        const used = usedHoursByEmployee[id] || 0;
+        const percent = Math.min(Math.round((used / quota) * 100), 100);
+        const isOver = used > quota;
+        const isDrafting = id in editingQuota;
+
+        const progressColor = isOver
+          ? token.colorError
+          : percent >= 80
+            ? token.colorWarning
+            : token.colorSuccess;
+
+        return (
+          <Flex vertical gap={4}>
+            <Flex align="center" justify="space-between">
+              <Typography.Text
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: isOver ? token.colorError : token.colorText,
+                }}
+              >
+                {used.toFixed(1)} / {quota} ชม.
+              </Typography.Text>
+              {/* Inline edit quota */}
+              {isDrafting ? (
+                <Flex gap={4} align="center">
+                  <InputNumber
+                    size="small"
+                    min={1}
+                    max={999}
+                    value={editingQuota[id]}
+                    onChange={(v) =>
+                      setEditingQuota((prev) => ({
+                        ...prev,
+                        [id]: Number(v) || DEFAULT_QUOTA_HOURS,
+                      }))
+                    }
+                    style={{ width: 60 }}
+                  />
+                  <Button
+                    type="primary"
+                    size="small"
+                    onClick={() => handleSaveQuota(id)}
+                    style={{ borderRadius: 4, padding: "0 6px" }}
+                  >
+                    ✓
+                  </Button>
+                  <Button
+                    size="small"
+                    onClick={() =>
+                      setEditingQuota((prev) => {
+                        const next = { ...prev };
+                        delete next[id];
+                        return next;
+                      })
+                    }
+                    style={{ borderRadius: 4, padding: "0 6px" }}
+                  >
+                    ✕
+                  </Button>
+                </Flex>
+              ) : (
+                <Tooltip title="แก้ไข Quota">
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<EditOutlined style={{ fontSize: 11 }} />}
+                    onClick={() =>
+                      setEditingQuota((prev) => ({ ...prev, [id]: quota }))
+                    }
+                  />
+                </Tooltip>
+              )}
+            </Flex>
+            <Progress
+              percent={percent}
+              showInfo={false}
+              strokeColor={progressColor}
+              trailColor={token.colorBorderSecondary}
+              size={["100%", 5] as any}
+              style={{ margin: 0 }}
+            />
+            {isOver && (
+              <Typography.Text style={{ fontSize: 10, color: token.colorError }}>
+                ⚠️ เกิน quota {(used - quota).toFixed(1)} ชม.
+              </Typography.Text>
+            )}
+          </Flex>
+        );
+      },
     },
     {
       title: "สถานะ",
