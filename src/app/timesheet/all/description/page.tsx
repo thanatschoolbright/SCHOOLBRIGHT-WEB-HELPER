@@ -8,6 +8,7 @@ import DashboardLayout from "@/components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { StatusModalComponent } from "@/components/modal/status-modal-component";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
+import { DeliveryTracker } from "./_components/delivery-tracker";
 import { FilterSection } from "./_components/filter-section";
 import { SummaryCards } from "./_components/summary-cards";
 import { TableSection } from "./_components/table-section";
@@ -81,6 +82,9 @@ export default function TimesheetDailyReportPage() {
           type="success"
           onClose={() => {}}
         />
+
+        {/* Delivery Tracking Modal — แสดงเมื่อกำลังส่งการแจ้งเตือน */}
+        <DeliveryTracker />
       </DashboardLayout>
     </PermissionLayout>
   );

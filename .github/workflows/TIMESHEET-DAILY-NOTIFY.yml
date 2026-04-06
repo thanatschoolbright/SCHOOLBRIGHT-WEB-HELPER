@@ -1,0 +1,193 @@
+name: TIMESHEET DAILY NOTIFICATION — EMAIL & DISCORD
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+on:
+  schedule:
+    # รันทุกวันเวลา 11:00 UTC = 18:00 ประเทศไทย (UTC+7)
+    - cron: "0 11 * * 1-5"
+
+  # เปิดให้รัน manual ได้ (สำหรับทดสอบ)
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Notification mode (all / email / discord)"
+        required: false
+        default: "all"
+      date_override:
+        description: "Date range label override (optional, e.g. 'วันที่ 06/04/2026')"
+        required: false
+        default: ""
+
+jobs:
+  notify:
+    name: Send Daily Timesheet Notification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "📋 Step 1 — Initialize & Configuration"
+        run: |
+          echo "======================================================"
+          echo "🚀 TIMESHEET DAILY NOTIFICATION JOB"
+          echo "======================================================"
+          echo "📅 Run at (UTC)   : $(date)"
+          echo "🕕 Run at (Thai)  : $(TZ=Asia/Bangkok date)"
+          echo "🎯 Mode           : ${{ github.event.inputs.mode || 'all' }}"
+          echo "🌐 API Base URL   : ${{ vars.SB_HELPER_URL || 'https://sb-helper.schoolbright.co' }}"
+          echo "======================================================"
+
+      - name: "📡 Step 2 — Fetch Timesheet Summary"
+        id: fetch_summary
+        run: |
+          BASE_URL="${{ vars.SB_HELPER_URL || 'https://sb-helper.schoolbright.co' }}"
+          SUMMARY_URL="$BASE_URL/api/v1/timesheet/entry/check/summary"
+
+          # คำนวณวันที่วันนี้ (Thai timezone)
+          TODAY=$(TZ=Asia/Bangkok date +"%Y-%m-%d")
+          echo "📆 Today (Thai)   : $TODAY"
+
+          PAYLOAD=$(cat <<EOF
+          {
+            "start_date": "$TODAY",
+            "end_date": "$TODAY",
+            "department_ids": [7, 9]
+          }
+          EOF
+          )
+
+          echo ""
+          echo "📦 Payload: $PAYLOAD"
+          echo ""
+          echo "📡 Calling: $SUMMARY_URL"
+
+          HTTP_CODE=$(curl -s -w "%{http_code}" -o summary.json -X POST \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" \
+            "$SUMMARY_URL")
+
+          echo "📊 HTTP Status: $HTTP_CODE"
+          echo ""
+          echo "📄 Response (preview):"
+          cat summary.json | head -c 500
+          echo ""
+
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "❌ Failed to fetch summary. HTTP: $HTTP_CODE"
+            exit 1
+          fi
+
+          echo "✅ Summary fetched successfully."
+          echo "summary_http_code=$HTTP_CODE" >> $GITHUB_OUTPUT
+
+      - name: "📬 Step 3 — Send Notifications (Email + Discord)"
+        id: send_notify
+        run: |
+          BASE_URL="${{ vars.SB_HELPER_URL || 'https://sb-helper.schoolbright.co' }}"
+          NOTIFY_URL="$BASE_URL/api/v1/timesheet/report/daily-notify"
+          MODE="${{ github.event.inputs.mode || 'all' }}"
+          DATE_OVERRIDE="${{ github.event.inputs.date_override }}"
+
+          # ดึง records และ metadata จาก summary response
+          RECORDS=$(cat summary.json | python3 -c "
+          import sys, json
+          body = json.load(sys.stdin)
+          records = body.get('data', {}).get('records', [])
+          print(json.dumps(records))
+          ")
+
+          META_LABEL=$(cat summary.json | python3 -c "
+          import sys, json
+          body = json.load(sys.stdin)
+          label = body.get('data', {}).get('metadata', {}).get('range', {}).get('label_th', '')
+          print(label)
+          " 2>/dev/null || echo "")
+
+          # fallback date label
+          if [ -z "$DATE_OVERRIDE" ]; then
+            if [ -z "$META_LABEL" ]; then
+              DATE_LABEL="วันที่ $(TZ=Asia/Bangkok date +'%d/%m/%Y')"
+            else
+              DATE_LABEL="$META_LABEL"
+            fi
+          else
+            DATE_LABEL="$DATE_OVERRIDE"
+          fi
+
+          echo "🏷️  Date Label: $DATE_LABEL"
+          echo "👥 Records count: $(echo $RECORDS | python3 -c 'import sys,json; print(len(json.load(sys.stdin)))')"
+          echo ""
+
+          NOTIFY_PAYLOAD=$(python3 -c "
+          import json, sys
+
+          with open('summary.json') as f:
+              body = json.load(f)
+
+          records = body.get('data', {}).get('records', [])
+
+          # ส่งเฉพาะ fields ที่ backend ต้องการ
+          slim_records = [
+              {
+                  'admin_id': r.get('admin_id', 0),
+                  'full_name': r.get('full_name', ''),
+                  'nickname': r.get('nickname', ''),
+                  'employee_code': r.get('employee_code', ''),
+                  'position': r.get('position', ''),
+                  'department': r.get('department', ''),
+                  'total_hours': r.get('total_hours', 0),
+                  'required_hours': r.get('required_hours', 0),
+                  'hours_gap': r.get('hours_gap', 0),
+                  'status_label': r.get('status_label', ''),
+                  'completion_rate': r.get('completion_rate', 0),
+                  'progress_text': r.get('progress_text', ''),
+              }
+              for r in records
+          ]
+
+          payload = {
+              'records': slim_records,
+              'date_label': '$DATE_LABEL',
+              'mode': '$MODE',
+              'recipients': ['sa@schoolbright.co', 'thanat.light@schoolbright.co'],
+          }
+          print(json.dumps(payload))
+          ")
+
+          echo "📡 Calling: $NOTIFY_URL"
+          HTTP_CODE=$(curl -s -w "%{http_code}" -o notify_response.json -X POST \
+            -H "Content-Type: application/json" \
+            -d "$NOTIFY_PAYLOAD" \
+            "$NOTIFY_URL")
+
+          echo ""
+          echo "📊 HTTP Status: $HTTP_CODE"
+          echo "📄 Notify Response:"
+          cat notify_response.json
+          echo ""
+
+          echo "notify_http_code=$HTTP_CODE" >> $GITHUB_OUTPUT
+
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "❌ Notification failed. HTTP: $HTTP_CODE"
+            exit 1
+          fi
+
+          echo "✅ Notifications sent successfully."
+
+      - name: "🏁 Step 4 — Job Summary"
+        if: always()
+        run: |
+          echo "======================================================"
+          echo "🏁 JOB SUMMARY"
+          echo "======================================================"
+          echo "📋 Fetch Summary   : ${{ steps.fetch_summary.outputs.summary_http_code || 'N/A' }}"
+          echo "📬 Send Notify     : ${{ steps.send_notify.outputs.notify_http_code || 'N/A' }}"
+          echo "🕕 Finished (Thai) : $(TZ=Asia/Bangkok date)"
+
+          if [ "${{ steps.send_notify.outputs.notify_http_code }}" = "200" ]; then
+            echo "✅ STATUS: SUCCESS — All notifications sent."
+          else
+            echo "❌ STATUS: FAILED — Check logs above."
+          fi
+          echo "======================================================"

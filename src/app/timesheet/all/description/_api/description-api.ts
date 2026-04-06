@@ -18,3 +18,30 @@ export const responseDepartmentList = async (): Promise<any[]> => {
   const { data } = await callApiService.get("/api/v1/timesheet/department/list");
   return data.status === 200 ? data.data : [];
 };
+
+// ส่งอีเมลแจ้งเตือนพนักงานที่ยังไม่กรอก/กรอกไม่ครบโดยตรงจาก DB
+export const postEmployeeNotify = async (payload: {
+  department_ids?: number[];
+  date_label?: string;
+  dry_run?: boolean;
+}): Promise<any> => {
+  const { data } = await callApiService.post(
+    "/api/v1/timesheet/report/employee-notify",
+    payload,
+  );
+  return data;
+};
+
+// ส่งการแจ้งเตือนไทม์ชีทประจำวันผ่าน Email และ Discord
+export const postDailyNotify = async (payload: {
+  records: any[];
+  date_label: string;
+  mode?: "all" | "email" | "discord";
+  recipients?: string[];
+}): Promise<any> => {
+  const { data } = await callApiService.post(
+    "/api/v1/timesheet/report/daily-notify",
+    payload,
+  );
+  return data;
+};
