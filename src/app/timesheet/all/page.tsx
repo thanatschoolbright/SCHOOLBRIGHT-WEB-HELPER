@@ -1,276 +1,53 @@
 "use client";
 
-import {
-  AppstoreOutlined,
-  CalendarOutlined,
-  ClockCircleOutlined,
-  CopyOutlined,
-  DownOutlined,
-  FileExcelOutlined,
-  FileTextOutlined,
-  InfoCircleOutlined,
-  ProjectOutlined,
-  SwapOutlined,
-  TeamOutlined,
-  ThunderboltOutlined,
-  UnorderedListOutlined,
-} from "@ant-design/icons";
-import {
-  Badge,
-  Button,
-  Card,
-  Col,
-  Dropdown,
-  Flex,
-  MenuProps,
-  Row,
-  Space,
-  theme,
-  Typography,
-} from "antd";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { ClockCircleOutlined } from "@ant-design/icons";
+import { Button, Flex } from "antd";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 
 import PermissionLayout from "@/components/layouts/permission-layout";
 import DashboardLayout from "@components/layouts/backend-layout";
-import { getUserData } from "@helpers/local_storage/user.storage";
-import { setUsers } from "@stores/reducers/timesheet.reducer";
-import { useAppSelector } from "@stores/store";
-import { useTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
-import { TimesheetFilters } from "./components/timesheet-filters.component";
-import { TimesheetTable } from "./components/timesheet-table.component";
-import { useExportHandlers } from "./hooks/use-export-handlers.data";
-import { useTimesheetData } from "./hooks/use-timesheet.data";
-import { buildDefaultRange, filterRecords } from "./utils/timesheet.helpers";
-
-import SummaryCard from "@/components/card/summary-card";
 import { StatusModalComponent } from "@/components/modal/status-modal-component";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
 import ExportModalTemplate4 from "@components/modal/timesheet-export-modal-template4";
-import { toast } from "sonner";
-
-const { Text } = Typography;
+import { getUserData } from "@helpers/local_storage/user.storage";
+import { setUsers } from "@stores/reducers/timesheet.reducer";
+import { useAppSelector } from "@stores/store";
+import { useExportHandlers } from "./hooks/use-export-handlers.data";
+import { useTimesheetAllStore } from "./_state/timesheet-all-store";
+import { FilterSection } from "./_components/filter-section";
+import { SummaryCards } from "./_components/summary-cards";
+import { TableSection } from "./_components/table-section";
 
 /**
  * หน้าจอหลักสำหรับจัดการและดูรายงานความคืบหน้าการบันทึกเวลาทำงานของพนักงานทั้งหมด
  */
 export default function TimesheetAllPage() {
-  const { t } = useTranslation("translate");
   const dispatch = useDispatch();
-  const router = useRouter();
-  const { token } = theme.useToken();
 
-  // --- States ---
-  const [keyword, setKeyword] = useState("");
-  const [dateRange, setDateRange] = useState(buildDefaultRange());
-  const [departmentIds, setDepartmentIds] = useState<number[]>([]);
-  const [modalStates, setModalStates] = useState({
-    exportModal4: false,
-    autoFillModal: false,
-  });
+  const fetchSummary = useTimesheetAllStore((s) => s.fetchSummary);
+  const loading = useTimesheetAllStore((s) => s.loading);
+  const metadata = useTimesheetAllStore((s) => s.metadata);
+  const statusModal = useTimesheetAllStore((s) => s.statusModal);
+  const closeStatusModal = useTimesheetAllStore((s) => s.closeStatusModal);
+  const modalFlags = useTimesheetAllStore((s) => s.modalFlags);
+  const closeModal = useTimesheetAllStore((s) => s.closeModal);
 
-  // --- Data & Handlers ---
-  const { records, metadata, loading, refetch } = useTimesheetData(
-    dateRange,
-    departmentIds,
-  );
-  const { users, exportLoading } = useAppSelector(
-    (state) => state.timesheetAll,
-  );
+  const { exportLoading } = useAppSelector((state) => state.timesheetAll);
+  const { requestExportTemplate4 } = useExportHandlers();
 
-  const { requestExportTemplate4, requestExportAll } = useExportHandlers();
-
-  /**
-   * กรองข้อมูลพนักงานตามคำค้นหา (Keyword)
-   */
-  const filteredRecords = useMemo(
-    () => filterRecords(records, keyword),
-    [records, keyword],
-  );
-
-  /**
-   * สรุปผลรวมเวลาทำงานทั้งหมด
-   */
-  const totalSummary = useMemo(() => {
-    return filteredRecords.reduce(
-      (acc, rec) => {
-        acc.total += rec.total_hours || 0;
-        acc.required += rec.required_hours || 0;
-        return acc;
-      },
-      { total: 0, required: 0 },
-    );
-  }, [filteredRecords]);
-
-  /**
-   * เปิด Modal สำหรับการเติมข้อมูลอัตโนมัติ
-   */
-  const requestOpenAutoFillModal = useCallback(() => {
-    setModalStates((prev) => ({ ...prev, autoFillModal: true }));
-  }, []);
-
-  /**
-   * เปิด Modal สำหรับการส่งออกข้อมูลตามประเภทที่ระบุ
-   */
-  const requestOpenExportModal = useCallback(
-    (modalType: keyof typeof modalStates) => {
-      setModalStates((prev) => ({ ...prev, [modalType]: true }));
-    },
-    [],
-  );
-
-  /**
-   * ปิด Modal ต่างๆ ในหน้าจอ
-   */
-  const responseCloseModal = useCallback(
-    (modalType: keyof typeof modalStates) => {
-      setModalStates((prev) => ({ ...prev, [modalType]: false }));
-    },
-    [],
-  );
-
-  /**
-   * คัดลอกสรุปรายงานไปยัง Clipboard เพื่อใช้ใน Discord
-   */
-  const requestCopyReportToDiscord = useCallback(() => {
-    if (filteredRecords.length === 0) {
-      toast.error("ไม่มีข้อมูลในตาราง");
-      return;
-    }
-
-    const title = `รายงานไทม์ชีท ${
-      metadata?.range?.label_th ? `ประจำ${metadata.range.label_th}` : ""
-    }`;
-    const body = filteredRecords
-      .map((rec, index) => {
-        const gapText =
-          rec.hours_gap > 0 ? ` (!) ขาด ${rec.hours_gap} ชม.` : " (v) ครบ";
-        return `${index + 1}. ${rec.full_name} (${rec.nickname || "-"}) | ${
-          rec.total_hours
-        }/${rec.required_hours} ชม.${gapText}`;
-      })
-      .join("\n");
-
-    const fullText = `${title}\n${"=".repeat(30)}\n${body}`;
-
-    navigator.clipboard
-      .writeText(fullText)
-      .then(() => {
-        toast.success("คัดลอกรายงานลง Clipboard สำเร็จ");
-      })
-      .catch((err) => {
-        console.error("Failed to copy text: ", err);
-        toast.error("ไม่สามารถคัดลอกข้อมูลได้");
-      });
-  }, [filteredRecords, metadata]);
-
-  // --- Effects ---
+  // โหลด users จาก local storage เข้า Redux store และดึงข้อมูลครั้งแรก
   useEffect(() => {
     const allUsers = getUserData();
     if (allUsers) dispatch(setUsers(allUsers));
-  }, [dispatch]);
-
-  // --- Menu Items ---
-  const reportMenuItems: MenuProps["items"] = [
-    {
-      key: "capturable",
-      label: <Space>รายงานแคปทรัพย์สิน</Space>,
-      icon: <ProjectOutlined />,
-      onClick: () => router.push("/timesheet/all/report/capturable"),
-    },
-    {
-      key: "daily-description",
-      label: "รายงานการลงเวลาประจำวัน",
-      icon: <FileTextOutlined />,
-      onClick: () => router.push("/timesheet/all/description"),
-    },
-    {
-      key: "migrate-project",
-      label: "รายงานการโอนย้ายเวลา",
-      icon: <SwapOutlined />,
-      onClick: () => router.push("/timesheet/all/report/migrate-project"),
-    },
-  ];
-
-  const exportMenuItems: MenuProps["items"] = [
-    {
-      key: "4",
-      label: "Export Audit Report (Template 4)",
-      icon: <FileExcelOutlined style={{ color: token.colorSuccess }} />,
-      onClick: () => requestOpenExportModal("exportModal4"),
-    },
-    { type: "divider" },
-    {
-      key: "all",
-      label: "Export All Records (CSV/Excel)",
-      icon: <FileTextOutlined style={{ color: token.colorInfo }} />,
-      onClick: requestExportAll,
-      disabled: exportLoading,
-    },
-  ];
-
-  const metrics = [
-    {
-      title: "รายการทั้งหมด",
-      value: records?.length || 0,
-      icon: <AppstoreOutlined />,
-      color: token.colorPrimary,
-      iconBg: token.colorPrimaryBg,
-      subtitle: "รายการที่ถูกบันทึกในหน้าเว็บช่วยสอน (SB Web Helper)",
-      suffix: "รายการ",
-    },
-    {
-      title: "วันทำงานจริง",
-      value: metadata?.working_days || 0,
-      icon: <CalendarOutlined />,
-      color: token.colorSuccess,
-      iconBg: token.colorSuccessBg,
-      subtitle:
-        "จำนวนวันทำงานทั้งหมดในช่วงวันที่เลือก (ไม่รวมวันเสาร์-อาทิตย์)",
-      suffix: "วัน",
-    },
-    {
-      title: "โครงการ",
-      value: new Set(records?.map((r: any) => r.project_id)).size || 0,
-      icon: <ProjectOutlined />,
-      color: token.colorWarning,
-      iconBg: token.colorWarningBg,
-      subtitle: "จำนวนโครงการที่พนักงานเข้าไปกรอกเวลาทำงาน",
-      suffix: "โครงการ",
-    },
-    {
-      title: "พนักงาน",
-      value: new Set(records?.map((r: any) => r.admin_id)).size || 0,
-      icon: <TeamOutlined />,
-      color: token.colorInfo,
-      iconBg: token.colorInfoBg,
-      subtitle: "จำนวนพนักงานทั้งหมดที่มีข้อมูลในรายงานนี้",
-      suffix: "คน",
-    },
-  ];
-
-  // --- Modals State ---
-  const [statusModal, setStatusModal] = useState<{
-    open: boolean;
-    type: "success" | "error" | "confirm" | "delete";
-    title?: string;
-    message?: string;
-    onConfirm?: () => void;
-  }>({
-    open: false,
-    type: "success",
-  });
-
-  const closeStatusModal = useCallback(() => {
-    setStatusModal((prev) => ({ ...prev, open: false }));
-  }, []);
+    fetchSummary();
+  }, [dispatch, fetchSummary]);
 
   return (
     <PermissionLayout role={["ALL"]}>
       <DashboardLayout>
         <Flex vertical gap={24} style={{ padding: 24 }}>
-          {/* ส่วนที่ 1 : Header ของหน้า */}
+          {/* ส่วนที่ 1: Header */}
           <HeaderBar
             icon={<ClockCircleOutlined />}
             title="จัดการบันทึกเวลา"
@@ -282,7 +59,7 @@ export default function TimesheetAllPage() {
             extra={
               <Button
                 icon={<ClockCircleOutlined />}
-                onClick={refetch}
+                onClick={fetchSummary}
                 loading={loading}
                 shape="round"
                 size="large"
@@ -292,199 +69,17 @@ export default function TimesheetAllPage() {
             }
           />
 
-          {/* ส่วนที่ 2 : บัตรสรุปข้อมูล (Summary Cards) */}
-          <Row gutter={[16, 16]}>
-            {metrics.map((metric, index) => (
-              <Col xs={24} sm={12} md={6} key={index}>
-                <SummaryCard
-                  title={metric.title}
-                  value={metric.value}
-                  subtitle={metric.subtitle}
-                  icon={metric.icon}
-                  color={metric.color}
-                  iconBg={metric.iconBg}
-                  suffix={metric.suffix}
-                  isLoading={loading}
-                />
-              </Col>
-            ))}
-          </Row>
+          {/* ส่วนที่ 2: Summary Cards */}
+          <SummaryCards />
 
-          {/* ส่วนที่ 3 : ฟิลเตอร์ข้อมูล (Filter) */}
-          <TimesheetFilters
-            keyword={keyword}
-            onKeywordChange={setKeyword}
-            dateRange={dateRange}
-            onDateRangeChange={setDateRange}
-            departmentIds={departmentIds}
-            onDepartmentsChange={setDepartmentIds}
-            onRefresh={refetch}
-            onClearFilters={() => {
-              setKeyword("");
-              setDateRange(buildDefaultRange());
-              setDepartmentIds([]);
-            }}
-            loading={loading}
-          />
+          {/* ส่วนที่ 3: Filter */}
+          <FilterSection />
 
-          {/* ส่วนที่ 4 : คอนเทนต์ตารางข้อมูล (Table Content) */}
-          <Card
-            styles={{ body: { padding: 16 } }}
-            style={{
-              borderRadius: token.borderRadiusLG,
-              border: `1px solid ${token.colorBorderSecondary}`,
-              boxShadow: token.boxShadowTertiary,
-            }}
-          >
-            <Flex vertical gap={16}>
-              {/* ส่วนบนของตาราง (Table Header & Actions) */}
-              <Flex justify="space-between" align="center">
-                <Space size={12}>
-                  <UnorderedListOutlined
-                    style={{ fontSize: "1rem", color: token.colorPrimary }}
-                  />
-                  <Typography.Title
-                    level={5}
-                    style={{ margin: 0, fontWeight: 600 }}
-                  >
-                    ตารางสรุปบันทึกเวลาทำงาน
-                  </Typography.Title>
-                  {!loading && (
-                    <Badge
-                      count={filteredRecords.length}
-                      style={{ backgroundColor: token.colorInfo }}
-                    />
-                  )}
-                </Space>
-
-                <Flex gap={12}>
-                  <Button
-                    icon={<CopyOutlined />}
-                    onClick={requestCopyReportToDiscord}
-                    shape="round"
-                  >
-                    คัดลอก (Discord)
-                  </Button>
-                  <Button
-                    icon={<ThunderboltOutlined />}
-                    onClick={requestOpenAutoFillModal}
-                    shape="round"
-                  >
-                    Auto-fill
-                  </Button>
-                  <Dropdown menu={{ items: reportMenuItems }}>
-                    <Button icon={<FileTextOutlined />} shape="round">
-                      รายงานตรวจสอบ <DownOutlined style={{ fontSize: 10 }} />
-                    </Button>
-                  </Dropdown>
-
-                  <Dropdown
-                    menu={{ items: exportMenuItems }}
-                    trigger={["click"]}
-                  >
-                    <Button
-                      type="primary"
-                      icon={<FileExcelOutlined />}
-                      loading={exportLoading}
-                      shape="round"
-                    >
-                      ส่งออก Excel <DownOutlined style={{ fontSize: 10 }} />
-                    </Button>
-                  </Dropdown>
-                </Flex>
-              </Flex>
-
-              {/* ส่วนแสดงตาราง */}
-              <TimesheetTable
-                records={filteredRecords}
-                loading={loading}
-                metadata={metadata}
-                onRefetch={refetch}
-                autoFillOpen={modalStates.autoFillModal}
-                onAutoFillClose={() => responseCloseModal("autoFillModal")}
-              />
-
-              {/* ส่วนสรุปผลรวมท้ายตาราง */}
-              {!loading && filteredRecords.length > 0 && (
-                <Flex
-                  justify="flex-end"
-                  align="center"
-                  style={{
-                    padding: "16px 24px",
-                    background: token.colorFillAlter,
-                    borderRadius: token.borderRadiusLG,
-                    border: `1px dashed ${token.colorBorder}`,
-                  }}
-                >
-                  <Space size={16}>
-                    <Text type="secondary" style={{ fontSize: 14 }}>
-                      สรุปผลรวมเวลาทำงาน:
-                    </Text>
-                    <Flex align="baseline" gap={4}>
-                      <Typography.Title
-                        level={4}
-                        style={{
-                          margin: 0,
-                          fontWeight: 800,
-                          color: token.colorPrimary,
-                        }}
-                      >
-                        {totalSummary.total.toLocaleString()}
-                      </Typography.Title>
-                      <Text
-                        strong
-                        style={{
-                          fontSize: 18,
-                          color: token.colorTextDescription,
-                          opacity: 0.5,
-                        }}
-                      >
-                        /
-                      </Text>
-                      <Typography.Title
-                        level={4}
-                        style={{
-                          margin: 0,
-                          fontWeight: 800,
-                          color: token.colorTextDescription,
-                        }}
-                      >
-                        {totalSummary.required.toLocaleString()}
-                      </Typography.Title>
-                      <Text
-                        type="secondary"
-                        style={{ marginLeft: 4, fontWeight: 500 }}
-                      >
-                        ชั่วโมง
-                      </Text>
-                    </Flex>
-                  </Space>
-                </Flex>
-              )}
-
-              {/* ส่วนบันทึกเพิ่มเติม (Footer Notes) */}
-              {metadata?.notes && (
-                <Flex
-                  gap={8}
-                  style={{
-                    padding: "12px 16px",
-                    background: token.colorFillAlter,
-                    borderRadius: token.borderRadius,
-                  }}
-                >
-                  <InfoCircleOutlined
-                    style={{ color: token.colorInfo, marginTop: 4 }}
-                  />
-                  <Text type="secondary" italic style={{ fontSize: 13 }}>
-                    {t("timesheet_page.notes_label")}: {metadata.notes}
-                  </Text>
-                </Flex>
-              )}
-            </Flex>
-          </Card>
+          {/* ส่วนที่ 4: Table + Actions + Footer */}
+          <TableSection />
         </Flex>
 
-        {/* Modals ต่างๆ */}
+        {/* Modals */}
         <StatusModalComponent
           open={statusModal.open}
           type={statusModal.type}
@@ -495,9 +90,9 @@ export default function TimesheetAllPage() {
         />
 
         <ExportModalTemplate4
-          visible={modalStates.exportModal4}
+          visible={modalFlags.exportModal4}
           loading={exportLoading}
-          onClose={() => responseCloseModal("exportModal4")}
+          onClose={() => closeModal("exportModal4")}
           onExport={requestExportTemplate4}
         />
       </DashboardLayout>
