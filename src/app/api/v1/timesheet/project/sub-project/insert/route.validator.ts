@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const Schema = z.object({
-  id: z.union([z.coerce.number().min(1), z.string().min(1).optional()]),
+  id: z.coerce.number().int().positive().optional(),
   name: z.string().min(1),
   name_en: z.string().optional().nullable(),
   ticket_number: z.string().optional().nullable(),
@@ -15,6 +15,7 @@ export const Schema = z.object({
   projectStatusId: z.coerce.number().optional().nullable(),
   completeDate: z.string().optional().nullable(),
   estimateWorkhours: z.coerce.number().optional().nullable(),
+  color_hex: z.string().optional().nullable(),
   assignees: z
     .array(
       z.object({

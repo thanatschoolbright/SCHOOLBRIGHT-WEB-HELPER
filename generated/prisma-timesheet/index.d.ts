@@ -12090,6 +12090,8 @@ export namespace Prisma {
     completeDate: Date | null
     estimateWorkhours: Decimal | null
     assetCaptureType: $Enums.ProjectAssetCaptureType | null
+    colorHex: string | null
+    colorHexFeature: string | null
   }
 
   export type ProjectMaxAggregateOutputType = {
@@ -12113,6 +12115,8 @@ export namespace Prisma {
     completeDate: Date | null
     estimateWorkhours: Decimal | null
     assetCaptureType: $Enums.ProjectAssetCaptureType | null
+    colorHex: string | null
+    colorHexFeature: string | null
   }
 
   export type ProjectCountAggregateOutputType = {
@@ -12136,6 +12140,8 @@ export namespace Prisma {
     completeDate: number
     estimateWorkhours: number
     assetCaptureType: number
+    colorHex: number
+    colorHexFeature: number
     _all: number
   }
 
@@ -12179,6 +12185,8 @@ export namespace Prisma {
     completeDate?: true
     estimateWorkhours?: true
     assetCaptureType?: true
+    colorHex?: true
+    colorHexFeature?: true
   }
 
   export type ProjectMaxAggregateInputType = {
@@ -12202,6 +12210,8 @@ export namespace Prisma {
     completeDate?: true
     estimateWorkhours?: true
     assetCaptureType?: true
+    colorHex?: true
+    colorHexFeature?: true
   }
 
   export type ProjectCountAggregateInputType = {
@@ -12225,6 +12235,8 @@ export namespace Prisma {
     completeDate?: true
     estimateWorkhours?: true
     assetCaptureType?: true
+    colorHex?: true
+    colorHexFeature?: true
     _all?: true
   }
 
@@ -12335,6 +12347,8 @@ export namespace Prisma {
     completeDate: Date | null
     estimateWorkhours: Decimal | null
     assetCaptureType: $Enums.ProjectAssetCaptureType
+    colorHex: string | null
+    colorHexFeature: string | null
     _count: ProjectCountAggregateOutputType | null
     _avg: ProjectAvgAggregateOutputType | null
     _sum: ProjectSumAggregateOutputType | null
@@ -12377,6 +12391,8 @@ export namespace Prisma {
     completeDate?: boolean
     estimateWorkhours?: boolean
     assetCaptureType?: boolean
+    colorHex?: boolean
+    colorHexFeature?: boolean
     features?: boolean | Project$featuresArgs<ExtArgs>
     group?: boolean | Project$groupArgs<ExtArgs>
     projectStatus?: boolean | Project$projectStatusArgs<ExtArgs>
@@ -12406,6 +12422,8 @@ export namespace Prisma {
     completeDate?: boolean
     estimateWorkhours?: boolean
     assetCaptureType?: boolean
+    colorHex?: boolean
+    colorHexFeature?: boolean
     group?: boolean | Project$groupArgs<ExtArgs>
     projectStatus?: boolean | Project$projectStatusArgs<ExtArgs>
   }, ExtArgs["result"]["project"]>
@@ -12431,6 +12449,8 @@ export namespace Prisma {
     completeDate?: boolean
     estimateWorkhours?: boolean
     assetCaptureType?: boolean
+    colorHex?: boolean
+    colorHexFeature?: boolean
     group?: boolean | Project$groupArgs<ExtArgs>
     projectStatus?: boolean | Project$projectStatusArgs<ExtArgs>
   }, ExtArgs["result"]["project"]>
@@ -12456,9 +12476,11 @@ export namespace Prisma {
     completeDate?: boolean
     estimateWorkhours?: boolean
     assetCaptureType?: boolean
+    colorHex?: boolean
+    colorHexFeature?: boolean
   }
 
-  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "createdAt" | "updatedAt" | "createdBy" | "updatedBy" | "is_deleted" | "categoryType" | "status" | "approval" | "approval_status" | "end_date" | "group_id" | "name_en" | "start_date" | "projectStatusId" | "completeDate" | "estimateWorkhours" | "assetCaptureType", ExtArgs["result"]["project"]>
+  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "createdAt" | "updatedAt" | "createdBy" | "updatedBy" | "is_deleted" | "categoryType" | "status" | "approval" | "approval_status" | "end_date" | "group_id" | "name_en" | "start_date" | "projectStatusId" | "completeDate" | "estimateWorkhours" | "assetCaptureType" | "colorHex" | "colorHexFeature", ExtArgs["result"]["project"]>
   export type ProjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     features?: boolean | Project$featuresArgs<ExtArgs>
     group?: boolean | Project$groupArgs<ExtArgs>
@@ -12506,6 +12528,8 @@ export namespace Prisma {
       completeDate: Date | null
       estimateWorkhours: Prisma.Decimal | null
       assetCaptureType: $Enums.ProjectAssetCaptureType
+      colorHex: string | null
+      colorHexFeature: string | null
     }, ExtArgs["result"]["project"]>
     composites: {}
   }
@@ -12954,6 +12978,8 @@ export namespace Prisma {
     readonly completeDate: FieldRef<"Project", 'DateTime'>
     readonly estimateWorkhours: FieldRef<"Project", 'Decimal'>
     readonly assetCaptureType: FieldRef<"Project", 'ProjectAssetCaptureType'>
+    readonly colorHex: FieldRef<"Project", 'String'>
+    readonly colorHexFeature: FieldRef<"Project", 'String'>
   }
     
 
@@ -13526,6 +13552,7 @@ export namespace Prisma {
     completeDate: Date | null
     estimateWorkhours: Decimal | null
     ticket_number: string | null
+    colorHex: string | null
   }
 
   export type FeatureMaxAggregateOutputType = {
@@ -13546,6 +13573,7 @@ export namespace Prisma {
     completeDate: Date | null
     estimateWorkhours: Decimal | null
     ticket_number: string | null
+    colorHex: string | null
   }
 
   export type FeatureCountAggregateOutputType = {
@@ -13567,6 +13595,7 @@ export namespace Prisma {
     completeDate: number
     estimateWorkhours: number
     ticket_number: number
+    colorHex: number
     _all: number
   }
 
@@ -13607,6 +13636,7 @@ export namespace Prisma {
     completeDate?: true
     estimateWorkhours?: true
     ticket_number?: true
+    colorHex?: true
   }
 
   export type FeatureMaxAggregateInputType = {
@@ -13627,6 +13657,7 @@ export namespace Prisma {
     completeDate?: true
     estimateWorkhours?: true
     ticket_number?: true
+    colorHex?: true
   }
 
   export type FeatureCountAggregateInputType = {
@@ -13648,6 +13679,7 @@ export namespace Prisma {
     completeDate?: true
     estimateWorkhours?: true
     ticket_number?: true
+    colorHex?: true
     _all?: true
   }
 
@@ -13756,6 +13788,7 @@ export namespace Prisma {
     completeDate: Date | null
     estimateWorkhours: Decimal | null
     ticket_number: string | null
+    colorHex: string | null
     _count: FeatureCountAggregateOutputType | null
     _avg: FeatureAvgAggregateOutputType | null
     _sum: FeatureSumAggregateOutputType | null
@@ -13796,6 +13829,7 @@ export namespace Prisma {
     completeDate?: boolean
     estimateWorkhours?: boolean
     ticket_number?: boolean
+    colorHex?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     projectStatus?: boolean | Feature$projectStatusArgs<ExtArgs>
     projectAssignees?: boolean | Feature$projectAssigneesArgs<ExtArgs>
@@ -13822,6 +13856,7 @@ export namespace Prisma {
     completeDate?: boolean
     estimateWorkhours?: boolean
     ticket_number?: boolean
+    colorHex?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     projectStatus?: boolean | Feature$projectStatusArgs<ExtArgs>
   }, ExtArgs["result"]["feature"]>
@@ -13845,6 +13880,7 @@ export namespace Prisma {
     completeDate?: boolean
     estimateWorkhours?: boolean
     ticket_number?: boolean
+    colorHex?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     projectStatus?: boolean | Feature$projectStatusArgs<ExtArgs>
   }, ExtArgs["result"]["feature"]>
@@ -13868,9 +13904,10 @@ export namespace Prisma {
     completeDate?: boolean
     estimateWorkhours?: boolean
     ticket_number?: boolean
+    colorHex?: boolean
   }
 
-  export type FeatureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "name" | "createdAt" | "updatedAt" | "createdBy" | "updatedBy" | "is_deleted" | "endDate" | "startDate" | "backlogDescription" | "assetCaptureType" | "status" | "name_en" | "projectStatusId" | "completeDate" | "estimateWorkhours" | "ticket_number", ExtArgs["result"]["feature"]>
+  export type FeatureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "name" | "createdAt" | "updatedAt" | "createdBy" | "updatedBy" | "is_deleted" | "endDate" | "startDate" | "backlogDescription" | "assetCaptureType" | "status" | "name_en" | "projectStatusId" | "completeDate" | "estimateWorkhours" | "ticket_number" | "colorHex", ExtArgs["result"]["feature"]>
   export type FeatureInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     projectStatus?: boolean | Feature$projectStatusArgs<ExtArgs>
@@ -13914,6 +13951,7 @@ export namespace Prisma {
       completeDate: Date | null
       estimateWorkhours: Prisma.Decimal | null
       ticket_number: string | null
+      colorHex: string | null
     }, ExtArgs["result"]["feature"]>
     composites: {}
   }
@@ -14359,6 +14397,7 @@ export namespace Prisma {
     readonly completeDate: FieldRef<"Feature", 'DateTime'>
     readonly estimateWorkhours: FieldRef<"Feature", 'Decimal'>
     readonly ticket_number: FieldRef<"Feature", 'String'>
+    readonly colorHex: FieldRef<"Feature", 'String'>
   }
     
 
@@ -21997,7 +22036,9 @@ export namespace Prisma {
     projectStatusId: 'projectStatusId',
     completeDate: 'completeDate',
     estimateWorkhours: 'estimateWorkhours',
-    assetCaptureType: 'assetCaptureType'
+    assetCaptureType: 'assetCaptureType',
+    colorHex: 'colorHex',
+    colorHexFeature: 'colorHexFeature'
   };
 
   export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
@@ -22021,7 +22062,8 @@ export namespace Prisma {
     projectStatusId: 'projectStatusId',
     completeDate: 'completeDate',
     estimateWorkhours: 'estimateWorkhours',
-    ticket_number: 'ticket_number'
+    ticket_number: 'ticket_number',
+    colorHex: 'colorHex'
   };
 
   export type FeatureScalarFieldEnum = (typeof FeatureScalarFieldEnum)[keyof typeof FeatureScalarFieldEnum]
@@ -22945,6 +22987,8 @@ export namespace Prisma {
     completeDate?: DateTimeNullableFilter<"Project"> | Date | string | null
     estimateWorkhours?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFilter<"Project"> | $Enums.ProjectAssetCaptureType
+    colorHex?: StringNullableFilter<"Project"> | string | null
+    colorHexFeature?: StringNullableFilter<"Project"> | string | null
     features?: FeatureListRelationFilter
     group?: XOR<GroupNullableScalarRelationFilter, GroupWhereInput> | null
     projectStatus?: XOR<ProjectStatusNullableScalarRelationFilter, ProjectStatusWhereInput> | null
@@ -22973,6 +23017,8 @@ export namespace Prisma {
     completeDate?: SortOrderInput | SortOrder
     estimateWorkhours?: SortOrderInput | SortOrder
     assetCaptureType?: SortOrder
+    colorHex?: SortOrderInput | SortOrder
+    colorHexFeature?: SortOrderInput | SortOrder
     features?: FeatureOrderByRelationAggregateInput
     group?: GroupOrderByWithRelationInput
     projectStatus?: ProjectStatusOrderByWithRelationInput
@@ -23004,6 +23050,8 @@ export namespace Prisma {
     completeDate?: DateTimeNullableFilter<"Project"> | Date | string | null
     estimateWorkhours?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFilter<"Project"> | $Enums.ProjectAssetCaptureType
+    colorHex?: StringNullableFilter<"Project"> | string | null
+    colorHexFeature?: StringNullableFilter<"Project"> | string | null
     features?: FeatureListRelationFilter
     group?: XOR<GroupNullableScalarRelationFilter, GroupWhereInput> | null
     projectStatus?: XOR<ProjectStatusNullableScalarRelationFilter, ProjectStatusWhereInput> | null
@@ -23032,6 +23080,8 @@ export namespace Prisma {
     completeDate?: SortOrderInput | SortOrder
     estimateWorkhours?: SortOrderInput | SortOrder
     assetCaptureType?: SortOrder
+    colorHex?: SortOrderInput | SortOrder
+    colorHexFeature?: SortOrderInput | SortOrder
     _count?: ProjectCountOrderByAggregateInput
     _avg?: ProjectAvgOrderByAggregateInput
     _max?: ProjectMaxOrderByAggregateInput
@@ -23063,6 +23113,8 @@ export namespace Prisma {
     completeDate?: DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
     estimateWorkhours?: DecimalNullableWithAggregatesFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeWithAggregatesFilter<"Project"> | $Enums.ProjectAssetCaptureType
+    colorHex?: StringNullableWithAggregatesFilter<"Project"> | string | null
+    colorHexFeature?: StringNullableWithAggregatesFilter<"Project"> | string | null
   }
 
   export type FeatureWhereInput = {
@@ -23087,6 +23139,7 @@ export namespace Prisma {
     completeDate?: DateTimeNullableFilter<"Feature"> | Date | string | null
     estimateWorkhours?: DecimalNullableFilter<"Feature"> | Decimal | DecimalJsLike | number | string | null
     ticket_number?: StringNullableFilter<"Feature"> | string | null
+    colorHex?: StringNullableFilter<"Feature"> | string | null
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
     projectStatus?: XOR<ProjectStatusNullableScalarRelationFilter, ProjectStatusWhereInput> | null
     projectAssignees?: ProjectAssigneeListRelationFilter
@@ -23112,6 +23165,7 @@ export namespace Prisma {
     completeDate?: SortOrderInput | SortOrder
     estimateWorkhours?: SortOrderInput | SortOrder
     ticket_number?: SortOrderInput | SortOrder
+    colorHex?: SortOrderInput | SortOrder
     project?: ProjectOrderByWithRelationInput
     projectStatus?: ProjectStatusOrderByWithRelationInput
     projectAssignees?: ProjectAssigneeOrderByRelationAggregateInput
@@ -23140,6 +23194,7 @@ export namespace Prisma {
     completeDate?: DateTimeNullableFilter<"Feature"> | Date | string | null
     estimateWorkhours?: DecimalNullableFilter<"Feature"> | Decimal | DecimalJsLike | number | string | null
     ticket_number?: StringNullableFilter<"Feature"> | string | null
+    colorHex?: StringNullableFilter<"Feature"> | string | null
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
     projectStatus?: XOR<ProjectStatusNullableScalarRelationFilter, ProjectStatusWhereInput> | null
     projectAssignees?: ProjectAssigneeListRelationFilter
@@ -23165,6 +23220,7 @@ export namespace Prisma {
     completeDate?: SortOrderInput | SortOrder
     estimateWorkhours?: SortOrderInput | SortOrder
     ticket_number?: SortOrderInput | SortOrder
+    colorHex?: SortOrderInput | SortOrder
     _count?: FeatureCountOrderByAggregateInput
     _avg?: FeatureAvgOrderByAggregateInput
     _max?: FeatureMaxOrderByAggregateInput
@@ -23194,6 +23250,7 @@ export namespace Prisma {
     completeDate?: DateTimeNullableWithAggregatesFilter<"Feature"> | Date | string | null
     estimateWorkhours?: DecimalNullableWithAggregatesFilter<"Feature"> | Decimal | DecimalJsLike | number | string | null
     ticket_number?: StringNullableWithAggregatesFilter<"Feature"> | string | null
+    colorHex?: StringNullableWithAggregatesFilter<"Feature"> | string | null
   }
 
   export type ProjectAssigneeWhereInput = {
@@ -24394,6 +24451,8 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
+    colorHex?: string | null
+    colorHexFeature?: string | null
     features?: FeatureCreateNestedManyWithoutProjectInput
     group?: GroupCreateNestedOneWithoutProjectsInput
     projectStatus?: ProjectStatusCreateNestedOneWithoutProjectsInput
@@ -24422,6 +24481,8 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
+    colorHex?: string | null
+    colorHexFeature?: string | null
     features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
@@ -24445,6 +24506,8 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUpdateManyWithoutProjectNestedInput
     group?: GroupUpdateOneWithoutProjectsNestedInput
     projectStatus?: ProjectStatusUpdateOneWithoutProjectsNestedInput
@@ -24473,6 +24536,8 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
@@ -24499,6 +24564,8 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
+    colorHex?: string | null
+    colorHexFeature?: string | null
   }
 
   export type ProjectUpdateManyMutationInput = {
@@ -24519,6 +24586,8 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ProjectUncheckedUpdateManyInput = {
@@ -24542,6 +24611,8 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type FeatureCreateInput = {
@@ -24560,6 +24631,7 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     ticket_number?: string | null
+    colorHex?: string | null
     project: ProjectCreateNestedOneWithoutFeaturesInput
     projectStatus?: ProjectStatusCreateNestedOneWithoutFeaturesInput
     projectAssignees?: ProjectAssigneeCreateNestedManyWithoutFeatureInput
@@ -24585,6 +24657,7 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     ticket_number?: string | null
+    colorHex?: string | null
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutFeatureInput
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutFeatureInput
   }
@@ -24605,6 +24678,7 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
     project?: ProjectUpdateOneRequiredWithoutFeaturesNestedInput
     projectStatus?: ProjectStatusUpdateOneWithoutFeaturesNestedInput
     projectAssignees?: ProjectAssigneeUpdateManyWithoutFeatureNestedInput
@@ -24630,6 +24704,7 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutFeatureNestedInput
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutFeatureNestedInput
   }
@@ -24653,6 +24728,7 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     ticket_number?: string | null
+    colorHex?: string | null
   }
 
   export type FeatureUpdateManyMutationInput = {
@@ -24671,6 +24747,7 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type FeatureUncheckedUpdateManyInput = {
@@ -24692,6 +24769,7 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ProjectAssigneeCreateInput = {
@@ -25939,6 +26017,8 @@ export namespace Prisma {
     completeDate?: SortOrder
     estimateWorkhours?: SortOrder
     assetCaptureType?: SortOrder
+    colorHex?: SortOrder
+    colorHexFeature?: SortOrder
   }
 
   export type ProjectAvgOrderByAggregateInput = {
@@ -25971,6 +26051,8 @@ export namespace Prisma {
     completeDate?: SortOrder
     estimateWorkhours?: SortOrder
     assetCaptureType?: SortOrder
+    colorHex?: SortOrder
+    colorHexFeature?: SortOrder
   }
 
   export type ProjectMinOrderByAggregateInput = {
@@ -25994,6 +26076,8 @@ export namespace Prisma {
     completeDate?: SortOrder
     estimateWorkhours?: SortOrder
     assetCaptureType?: SortOrder
+    colorHex?: SortOrder
+    colorHexFeature?: SortOrder
   }
 
   export type ProjectSumOrderByAggregateInput = {
@@ -26078,6 +26162,7 @@ export namespace Prisma {
     completeDate?: SortOrder
     estimateWorkhours?: SortOrder
     ticket_number?: SortOrder
+    colorHex?: SortOrder
   }
 
   export type FeatureAvgOrderByAggregateInput = {
@@ -26107,6 +26192,7 @@ export namespace Prisma {
     completeDate?: SortOrder
     estimateWorkhours?: SortOrder
     ticket_number?: SortOrder
+    colorHex?: SortOrder
   }
 
   export type FeatureMinOrderByAggregateInput = {
@@ -26127,6 +26213,7 @@ export namespace Prisma {
     completeDate?: SortOrder
     estimateWorkhours?: SortOrder
     ticket_number?: SortOrder
+    colorHex?: SortOrder
   }
 
   export type FeatureSumOrderByAggregateInput = {
@@ -28679,6 +28766,8 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
+    colorHex?: string | null
+    colorHexFeature?: string | null
     features?: FeatureCreateNestedManyWithoutProjectInput
     projectStatus?: ProjectStatusCreateNestedOneWithoutProjectsInput
     projectAssignees?: ProjectAssigneeCreateNestedManyWithoutProjectInput
@@ -28705,6 +28794,8 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
+    colorHex?: string | null
+    colorHexFeature?: string | null
     features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
@@ -28760,6 +28851,8 @@ export namespace Prisma {
     completeDate?: DateTimeNullableFilter<"Project"> | Date | string | null
     estimateWorkhours?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFilter<"Project"> | $Enums.ProjectAssetCaptureType
+    colorHex?: StringNullableFilter<"Project"> | string | null
+    colorHexFeature?: StringNullableFilter<"Project"> | string | null
   }
 
   export type FeatureCreateWithoutProjectStatusInput = {
@@ -28778,6 +28871,7 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     ticket_number?: string | null
+    colorHex?: string | null
     project: ProjectCreateNestedOneWithoutFeaturesInput
     projectAssignees?: ProjectAssigneeCreateNestedManyWithoutFeatureInput
     timesheets?: TimesheetEntryCreateNestedManyWithoutFeatureInput
@@ -28801,6 +28895,7 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     ticket_number?: string | null
+    colorHex?: string | null
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutFeatureInput
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutFeatureInput
   }
@@ -28833,6 +28928,8 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
+    colorHex?: string | null
+    colorHexFeature?: string | null
     features?: FeatureCreateNestedManyWithoutProjectInput
     group?: GroupCreateNestedOneWithoutProjectsInput
     projectAssignees?: ProjectAssigneeCreateNestedManyWithoutProjectInput
@@ -28859,6 +28956,8 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
+    colorHex?: string | null
+    colorHexFeature?: string | null
     features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
@@ -28912,6 +29011,7 @@ export namespace Prisma {
     completeDate?: DateTimeNullableFilter<"Feature"> | Date | string | null
     estimateWorkhours?: DecimalNullableFilter<"Feature"> | Decimal | DecimalJsLike | number | string | null
     ticket_number?: StringNullableFilter<"Feature"> | string | null
+    colorHex?: StringNullableFilter<"Feature"> | string | null
   }
 
   export type ProjectUpsertWithWhereUniqueWithoutProjectStatusInput = {
@@ -28946,6 +29046,7 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     ticket_number?: string | null
+    colorHex?: string | null
     projectStatus?: ProjectStatusCreateNestedOneWithoutFeaturesInput
     projectAssignees?: ProjectAssigneeCreateNestedManyWithoutFeatureInput
     timesheets?: TimesheetEntryCreateNestedManyWithoutFeatureInput
@@ -28969,6 +29070,7 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     ticket_number?: string | null
+    colorHex?: string | null
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutFeatureInput
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutFeatureInput
   }
@@ -29222,6 +29324,8 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
+    colorHex?: string | null
+    colorHexFeature?: string | null
     group?: GroupCreateNestedOneWithoutProjectsInput
     projectStatus?: ProjectStatusCreateNestedOneWithoutProjectsInput
     projectAssignees?: ProjectAssigneeCreateNestedManyWithoutProjectInput
@@ -29249,6 +29353,8 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
+    colorHex?: string | null
+    colorHexFeature?: string | null
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
   }
@@ -29367,6 +29473,8 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     group?: GroupUpdateOneWithoutProjectsNestedInput
     projectStatus?: ProjectStatusUpdateOneWithoutProjectsNestedInput
     projectAssignees?: ProjectAssigneeUpdateManyWithoutProjectNestedInput
@@ -29394,6 +29502,8 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
   }
@@ -29474,6 +29584,8 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
+    colorHex?: string | null
+    colorHexFeature?: string | null
     features?: FeatureCreateNestedManyWithoutProjectInput
     group?: GroupCreateNestedOneWithoutProjectsInput
     projectStatus?: ProjectStatusCreateNestedOneWithoutProjectsInput
@@ -29501,6 +29613,8 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
+    colorHex?: string | null
+    colorHexFeature?: string | null
     features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
   }
@@ -29526,6 +29640,7 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     ticket_number?: string | null
+    colorHex?: string | null
     project: ProjectCreateNestedOneWithoutFeaturesInput
     projectStatus?: ProjectStatusCreateNestedOneWithoutFeaturesInput
     timesheets?: TimesheetEntryCreateNestedManyWithoutFeatureInput
@@ -29550,6 +29665,7 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     ticket_number?: string | null
+    colorHex?: string | null
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutFeatureInput
   }
 
@@ -29587,6 +29703,8 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUpdateManyWithoutProjectNestedInput
     group?: GroupUpdateOneWithoutProjectsNestedInput
     projectStatus?: ProjectStatusUpdateOneWithoutProjectsNestedInput
@@ -29614,6 +29732,8 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
   }
@@ -29645,6 +29765,7 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
     project?: ProjectUpdateOneRequiredWithoutFeaturesNestedInput
     projectStatus?: ProjectStatusUpdateOneWithoutFeaturesNestedInput
     timesheets?: TimesheetEntryUpdateManyWithoutFeatureNestedInput
@@ -29669,6 +29790,7 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutFeatureNestedInput
   }
 
@@ -29688,6 +29810,7 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     ticket_number?: string | null
+    colorHex?: string | null
     project: ProjectCreateNestedOneWithoutFeaturesInput
     projectStatus?: ProjectStatusCreateNestedOneWithoutFeaturesInput
     projectAssignees?: ProjectAssigneeCreateNestedManyWithoutFeatureInput
@@ -29712,6 +29835,7 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     ticket_number?: string | null
+    colorHex?: string | null
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutFeatureInput
   }
 
@@ -29738,6 +29862,8 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
+    colorHex?: string | null
+    colorHexFeature?: string | null
     features?: FeatureCreateNestedManyWithoutProjectInput
     group?: GroupCreateNestedOneWithoutProjectsInput
     projectStatus?: ProjectStatusCreateNestedOneWithoutProjectsInput
@@ -29765,6 +29891,8 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
+    colorHex?: string | null
+    colorHexFeature?: string | null
     features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput
   }
@@ -29801,6 +29929,7 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
     project?: ProjectUpdateOneRequiredWithoutFeaturesNestedInput
     projectStatus?: ProjectStatusUpdateOneWithoutFeaturesNestedInput
     projectAssignees?: ProjectAssigneeUpdateManyWithoutFeatureNestedInput
@@ -29825,6 +29954,7 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutFeatureNestedInput
   }
 
@@ -29857,6 +29987,8 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUpdateManyWithoutProjectNestedInput
     group?: GroupUpdateOneWithoutProjectsNestedInput
     projectStatus?: ProjectStatusUpdateOneWithoutProjectsNestedInput
@@ -29884,6 +30016,8 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   }
@@ -30883,6 +31017,8 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
+    colorHex?: string | null
+    colorHexFeature?: string | null
   }
 
   export type ProjectUpdateWithoutGroupInput = {
@@ -30903,6 +31039,8 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUpdateManyWithoutProjectNestedInput
     projectStatus?: ProjectStatusUpdateOneWithoutProjectsNestedInput
     projectAssignees?: ProjectAssigneeUpdateManyWithoutProjectNestedInput
@@ -30929,6 +31067,8 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
@@ -30954,6 +31094,8 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type FeatureCreateManyProjectStatusInput = {
@@ -30974,6 +31116,7 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     ticket_number?: string | null
+    colorHex?: string | null
   }
 
   export type ProjectCreateManyProjectStatusInput = {
@@ -30996,6 +31139,8 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
+    colorHex?: string | null
+    colorHexFeature?: string | null
   }
 
   export type FeatureUpdateWithoutProjectStatusInput = {
@@ -31014,6 +31159,7 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
     project?: ProjectUpdateOneRequiredWithoutFeaturesNestedInput
     projectAssignees?: ProjectAssigneeUpdateManyWithoutFeatureNestedInput
     timesheets?: TimesheetEntryUpdateManyWithoutFeatureNestedInput
@@ -31037,6 +31183,7 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutFeatureNestedInput
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutFeatureNestedInput
   }
@@ -31059,6 +31206,7 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ProjectUpdateWithoutProjectStatusInput = {
@@ -31079,6 +31227,8 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUpdateManyWithoutProjectNestedInput
     group?: GroupUpdateOneWithoutProjectsNestedInput
     projectAssignees?: ProjectAssigneeUpdateManyWithoutProjectNestedInput
@@ -31105,6 +31255,8 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
@@ -31130,6 +31282,8 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type FeatureCreateManyProjectInput = {
@@ -31150,6 +31304,7 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     ticket_number?: string | null
+    colorHex?: string | null
   }
 
   export type ProjectAssigneeCreateManyProjectInput = {
@@ -31189,6 +31344,7 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
     projectStatus?: ProjectStatusUpdateOneWithoutFeaturesNestedInput
     projectAssignees?: ProjectAssigneeUpdateManyWithoutFeatureNestedInput
     timesheets?: TimesheetEntryUpdateManyWithoutFeatureNestedInput
@@ -31212,6 +31368,7 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutFeatureNestedInput
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutFeatureNestedInput
   }
@@ -31234,6 +31391,7 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ticket_number?: NullableStringFieldUpdateOperationsInput | string | null
+    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ProjectAssigneeUpdateWithoutProjectInput = {

@@ -160,6 +160,8 @@ model Project {
   completeDate      DateTime?               @map("complete_date")
   estimateWorkhours Decimal?                @map("estimate_workhours")
   assetCaptureType  ProjectAssetCaptureType @default(CAPTUREABLE) @map("asset_capture_type")
+  colorHex          String?                 @default("#1890ff") @map("color_hex")
+  colorHexFeature   String?                 @default("#52c41a") @map("color_hex_feature")
   features          Feature[]
   group             Group?                  @relation(fields: [group_id], references: [id])
   projectStatus     ProjectStatus?          @relation(fields: [projectStatusId], references: [id])
@@ -188,6 +190,7 @@ model Feature {
   completeDate       DateTime?               @map("complete_date")
   estimateWorkhours  Decimal?                @map("estimate_workhours")
   ticket_number      String?                 @map("ticket_number")
+  colorHex           String?                 @map("color_hex")
   project            Project                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectStatus      ProjectStatus?          @relation(fields: [projectStatusId], references: [id])
   projectAssignees   ProjectAssignee[]

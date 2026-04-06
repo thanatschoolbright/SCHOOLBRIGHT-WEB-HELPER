@@ -136,7 +136,8 @@ export const timelineChartService = {
         status_name: feature.projectStatus?.nameTh || feature.status,
         type: "feature",
         project_id: project.id,
-        color_hex: project.colorHexFeature ?? "#52c41a",
+        // ใช้สีของ feature เองก่อน ถ้าไม่มีให้ fallback ไป colorHexFeature ของ parent
+        color_hex: (feature as any).colorHex ?? project.colorHexFeature ?? "#52c41a",
       })),
     }));
   },

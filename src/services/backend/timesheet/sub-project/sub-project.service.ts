@@ -56,6 +56,7 @@ interface CreateFeatureDto {
   projectStatusId?: number | null;
   completeDate?: Date | string | null;
   estimateWorkhours?: number | null;
+  colorHex?: string | null;
   assignees?: { userId: number; position?: string | null }[];
 }
 
@@ -72,6 +73,7 @@ interface UpdateFeatureDto {
   projectStatusId?: number | null;
   completeDate?: Date | string | null;
   estimateWorkhours?: number | null;
+  colorHex?: string | null;
   projectId?: number;
   assignees?: { userId: number; position?: string | null }[];
 }

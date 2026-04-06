@@ -180,9 +180,13 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
         ? values.color_hex
         : values.color_hex?.toHexString?.() ?? "#52c41a";
 
+    // data.id จาก store มีรูปแบบ "f-{number}" — ต้องแกะ numeric id ออก
+    const rawId = data?.id ? String(data.id).replace(/^f-/, "") : undefined;
+    const numericId = rawId && !isNaN(Number(rawId)) ? Number(rawId) : undefined;
+
     const payload = {
       ...values,
-      id: mode === "clone" ? undefined : data?.id,
+      id: mode === "clone" ? undefined : numericId,
       startDate: values.dateRange?.[0]?.toISOString(),
       endDate: values.dateRange?.[1]?.toISOString(),
       project_id: data?.project_id,

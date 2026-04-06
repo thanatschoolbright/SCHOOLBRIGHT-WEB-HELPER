@@ -235,7 +235,9 @@ exports.Prisma.ProjectScalarFieldEnum = {
   projectStatusId: 'projectStatusId',
   completeDate: 'completeDate',
   estimateWorkhours: 'estimateWorkhours',
-  assetCaptureType: 'assetCaptureType'
+  assetCaptureType: 'assetCaptureType',
+  colorHex: 'colorHex',
+  colorHexFeature: 'colorHexFeature'
 };
 
 exports.Prisma.FeatureScalarFieldEnum = {
@@ -256,7 +258,8 @@ exports.Prisma.FeatureScalarFieldEnum = {
   projectStatusId: 'projectStatusId',
   completeDate: 'completeDate',
   estimateWorkhours: 'estimateWorkhours',
-  ticket_number: 'ticket_number'
+  ticket_number: 'ticket_number',
+  colorHex: 'colorHex'
 };
 
 exports.Prisma.ProjectAssigneeScalarFieldEnum = {

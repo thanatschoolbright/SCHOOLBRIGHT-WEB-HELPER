@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
     status,
     projectStatusId,
     assignees,
+    color_hex,
   } = data;
 
   const projectId = Number(project_id);
@@ -45,6 +46,7 @@ export async function POST(request: NextRequest) {
       status,
       projectStatusId,
       assignees,
+      colorHex: color_hex ?? undefined,
     };
 
     if (id) {
