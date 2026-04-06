@@ -18,6 +18,9 @@ import {
   theme,
   Tag,
   Upload,
+  Popconfirm,
+  Tooltip,
+  message,
 } from "antd";
 import {
   PlusOutlined,
@@ -27,11 +30,44 @@ import {
   EditOutlined,
   DeleteOutlined,
   UploadOutlined,
+  SaveOutlined,
+  ThunderboltOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { useOvertimeStore } from "../_state/overtime-store";
 import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 import { BYPASS_USER_ID } from "@/constants/overtime-status";
+
+const OT_TEMPLATE_STORAGE_KEY = "sb_ot_form_templates";
+
+interface OtTemplate {
+  id: string;
+  name: string;
+  overtime_type: string;
+  descriptions: Array<{
+    description: string;
+    duration: number;
+    /** เก็บเฉพาะ offset ชั่วโมงจากเที่ยงคืน (HH:mm) สำหรับ startDate/endDate */
+    startHour: number;
+    startMinute: number;
+    endHour: number;
+    endMinute: number;
+  }>;
+}
+
+/** โหลด templates จาก localStorage */
+const loadTemplates = (): OtTemplate[] => {
+  try {
+    const raw = localStorage.getItem(OT_TEMPLATE_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
+/** บันทึก templates ลง localStorage */
+const saveTemplates = (templates: OtTemplate[]) => {
+  localStorage.setItem(OT_TEMPLATE_STORAGE_KEY, JSON.stringify(templates));
+};
 
 interface CreateModalProps {
   visible: boolean;
@@ -164,7 +200,6 @@ const TaskDescriptionCard = ({ fieldProps, remove, token }: any) => {
  * คอมโพเนนต์ย่อยสำหรับฟิลด์อัปโหลดรูปภาพ
  */
 const UploadFieldItem = ({ name, label, required, form }: any) => {
-  const { token } = theme.useToken();
   const [fileList, setFileList] = useState<any[]>([]);
 
   const handleChange = ({ fileList: newFileList }: any) => {
@@ -222,6 +257,74 @@ const CreateModal: React.FC<CreateModalProps> = ({
 }) => {
   const { token } = theme.useToken();
   const [requesterName, setRequesterName] = useState<string>("กำลังโหลด...");
+  const [messageApi, contextHolder] = message.useMessage();
+
+  // Template state
+  const [templates, setTemplates] = useState<OtTemplate[]>([]);
+  const [templateName, setTemplateName] = useState<string>("");
+
+  // โหลด templates จาก localStorage เมื่อ modal เปิด
+  useEffect(() => {
+    if (visible) setTemplates(loadTemplates());
+  }, [visible]);
+
+  /** บันทึก template จาก form ปัจจุบัน */
+  const handleSaveTemplate = () => {
+    const name = templateName.trim();
+    if (!name) {
+      messageApi.warning("โปรดระบุชื่อ Template");
+      return;
+    }
+    const descriptions = form.getFieldValue("descriptions") || [];
+    const overtime_type = form.getFieldValue("overtime_type") || "weekday";
+
+    const templateDescriptions = descriptions.map((d: any) => ({
+      description: d.description || "",
+      duration: Number(d.duration || 0),
+      startHour: d.startDate ? dayjs(d.startDate).hour() : 18,
+      startMinute: d.startDate ? dayjs(d.startDate).minute() : 0,
+      endHour: d.endDate ? dayjs(d.endDate).hour() : 19,
+      endMinute: d.endDate ? dayjs(d.endDate).minute() : 0,
+    }));
+
+    const newTemplate: OtTemplate = {
+      id: Date.now().toString(),
+      name,
+      overtime_type,
+      descriptions: templateDescriptions,
+    };
+
+    const updated = [...templates, newTemplate];
+    saveTemplates(updated);
+    setTemplates(updated);
+    setTemplateName("");
+    messageApi.success(`บันทึก Template "${name}" แล้ว`);
+  };
+
+  /** Apply template ลง form */
+  const handleApplyTemplate = (templateId: string) => {
+    const tpl = templates.find((t) => t.id === templateId);
+    if (!tpl) return;
+
+    const today = dayjs();
+    const descriptions = tpl.descriptions.map((d) => ({
+      description: d.description,
+      duration: d.duration,
+      startDate: today.hour(d.startHour).minute(d.startMinute).second(0),
+      endDate: today.hour(d.endHour).minute(d.endMinute).second(0),
+    }));
+
+    form.setFieldsValue({ overtime_type: tpl.overtime_type, descriptions });
+    messageApi.success(`Apply Template "${tpl.name}" แล้ว`);
+  };
+
+  /** ลบ template */
+  const handleDeleteTemplate = (templateId: string) => {
+    const updated = templates.filter((t) => t.id !== templateId);
+    saveTemplates(updated);
+    setTemplates(updated);
+    messageApi.success("ลบ Template แล้ว");
+  };
 
   // ดึงชื่อผู้ขอทำงานล่วงเวลา
   useEffect(() => {
@@ -332,6 +435,7 @@ const CreateModal: React.FC<CreateModalProps> = ({
       centered
       style={{ borderRadius: 20, overflow: "hidden" }}
     >
+      {contextHolder}
       <Form
         form={form}
         layout="vertical"
@@ -339,6 +443,89 @@ const CreateModal: React.FC<CreateModalProps> = ({
         style={{ paddingTop: 32 }}
         onValuesChange={calculateAutoDuration}
       >
+        {/* === Template Section === */}
+        <Card
+          size="small"
+          style={{
+            borderRadius: 16,
+            marginBottom: 24,
+            background: token.colorFillQuaternary,
+            border: `1px solid ${token.colorBorderSecondary}`,
+          }}
+          styles={{ body: { padding: "14px 20px" } }}
+        >
+          <Flex align="center" gap={12} wrap="wrap">
+            <Flex align="center" gap={6}>
+              <ThunderboltOutlined style={{ color: token.colorWarning, fontSize: 16 }} />
+              <Typography.Text strong style={{ fontSize: 13 }}>
+                เทมเพลต OT
+              </Typography.Text>
+            </Flex>
+
+            {/* Dropdown เลือก Template */}
+            {templates.length > 0 && (
+              <Select
+                placeholder="เลือก Template ที่บันทึกไว้..."
+                style={{ minWidth: 220, flex: 1 }}
+                onChange={handleApplyTemplate}
+                value={null}
+                options={templates.map((t) => ({
+                  label: (
+                    <Flex justify="space-between" align="center">
+                      <Typography.Text style={{ fontSize: 13 }}>{t.name}</Typography.Text>
+                      <Popconfirm
+                        title="ลบ Template นี้?"
+                        onConfirm={(e) => {
+                          e?.stopPropagation();
+                          handleDeleteTemplate(t.id);
+                        }}
+                        onCancel={(e) => e?.stopPropagation()}
+                        okText="ลบ"
+                        cancelText="ยกเลิก"
+                        okButtonProps={{ danger: true }}
+                      >
+                        <Tooltip title="ลบ Template">
+                          <DeleteOutlined
+                            style={{ color: token.colorError, fontSize: 12, marginLeft: 8 }}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </Tooltip>
+                      </Popconfirm>
+                    </Flex>
+                  ),
+                  value: t.id,
+                }))}
+              />
+            )}
+
+            {templates.length === 0 && (
+              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                ยังไม่มี Template — กรอกข้อมูลแล้วบันทึกเป็น Template ด้านล่าง
+              </Typography.Text>
+            )}
+
+            {/* บันทึก Template ใหม่ */}
+            <Flex align="center" gap={8} style={{ marginLeft: "auto" }}>
+              <Input
+                placeholder="ชื่อ Template..."
+                value={templateName}
+                onChange={(e) => setTemplateName(e.target.value)}
+                style={{ width: 160, borderRadius: 8 }}
+                size="small"
+                onPressEnter={handleSaveTemplate}
+              />
+              <Button
+                size="small"
+                icon={<SaveOutlined />}
+                onClick={handleSaveTemplate}
+                style={{ borderRadius: 8 }}
+              >
+                บันทึก Template
+              </Button>
+            </Flex>
+          </Flex>
+        </Card>
+
         <Row gutter={24}>
           <Col xs={24} md={12}>
             <Form.Item
