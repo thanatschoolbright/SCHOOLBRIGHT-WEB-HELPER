@@ -15,6 +15,7 @@ import {
 } from "@ant-design/icons";
 import { useAppSelector } from "@stores/store";
 import { Button, Dropdown, Flex, MenuProps, Space, theme } from "antd";
+import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { toast } from "sonner";
@@ -33,6 +34,58 @@ export const TableActions: React.FC = () => {
 
   const { exportLoading } = useAppSelector((state) => state.timesheetAll);
   const { requestExportAll } = useExportHandlers();
+
+  // ส่งออกข้อมูลที่กรองแล้วเป็น CSV โดยไม่ต้องผ่าน API
+  const requestExportCSV = useCallback(() => {
+    if (filteredRecords.length === 0) {
+      toast.error("ไม่มีข้อมูลในตาราง");
+      return;
+    }
+    const headers = [
+      "ลำดับ",
+      "ชื่อ-นามสกุล",
+      "ชื่อเล่น",
+      "รหัสพนักงาน",
+      "ตำแหน่ง",
+      "แผนก",
+      "อีเมล",
+      "ชั่วโมงที่บันทึก",
+      "ชั่วโมงที่ต้องการ",
+      "ชั่วโมงที่ขาด",
+      "เปอร์เซ็นต์",
+      "สถานะ",
+    ];
+    const rows = filteredRecords.map((rec, idx) => [
+      idx + 1,
+      rec.full_name,
+      rec.nickname ?? "",
+      rec.employee_code ?? "",
+      rec.position,
+      rec.department,
+      rec.email ?? "",
+      rec.total_hours,
+      rec.required_hours,
+      rec.hours_gap,
+      `${rec.completion_rate}%`,
+      rec.status_label,
+    ]);
+    const csvContent = [headers, ...rows]
+      .map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+      )
+      .join("\n");
+    const bom = "\uFEFF";
+    const blob = new Blob([bom + csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `timesheet_${dayjs().format("YYYY-MM-DD_HH-mm")}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success(`ส่งออก CSV สำเร็จ (${filteredRecords.length} รายการ)`);
+  }, [filteredRecords]);
 
   // คัดลอกสรุปรายงานไปยัง Clipboard สำหรับวาง Discord
   const requestCopyReportToDiscord = useCallback(() => {
@@ -87,6 +140,13 @@ export const TableActions: React.FC = () => {
       label: "Export Audit Report (Template 4)",
       icon: <FileExcelOutlined style={{ color: token.colorSuccess }} />,
       onClick: () => openModal("exportModal4"),
+    },
+    { type: "divider" },
+    {
+      key: "csv",
+      label: "ส่งออก CSV (ตารางปัจจุบัน)",
+      icon: <FileTextOutlined style={{ color: token.colorWarning }} />,
+      onClick: requestExportCSV,
     },
     { type: "divider" },
     {

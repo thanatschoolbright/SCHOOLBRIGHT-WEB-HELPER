@@ -3,6 +3,7 @@
 import { responseDepartmentList } from "@/app/timesheet/all/_api/timesheet-all-api";
 import { useTimesheetAllStore } from "@/app/timesheet/all/_stores/timesheet-all-store";
 import {
+  CalendarOutlined,
   ClearOutlined,
   ClusterOutlined,
   FilterOutlined,
@@ -21,7 +22,7 @@ import {
   theme,
   Typography,
 } from "antd";
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -161,6 +162,54 @@ export const FilterSection: React.FC = () => {
               <Text type="secondary" style={{ fontSize: 13, fontWeight: 500 }}>
                 ช่วงวันที่
               </Text>
+              {/* Quick Date Preset Buttons */}
+              <Space size={8} wrap>
+                {(
+                  [
+                    {
+                      label: "วันนี้",
+                      icon: <CalendarOutlined />,
+                      fn: () => {
+                        const d = dayjs();
+                        setDateRange([d, d]);
+                      },
+                    },
+                    {
+                      label: "สัปดาห์นี้",
+                      icon: <CalendarOutlined />,
+                      fn: () =>
+                        setDateRange([
+                          dayjs().startOf("week"),
+                          dayjs().endOf("week"),
+                        ]),
+                    },
+                    {
+                      label: "เดือนนี้",
+                      icon: <CalendarOutlined />,
+                      fn: () =>
+                        setDateRange([
+                          dayjs().startOf("month"),
+                          dayjs().endOf("month"),
+                        ]),
+                    },
+                  ] as {
+                    label: string;
+                    icon: React.ReactNode;
+                    fn: () => void;
+                  }[]
+                ).map((preset) => (
+                  <Button
+                    key={preset.label}
+                    size="small"
+                    shape="round"
+                    icon={preset.icon}
+                    onClick={preset.fn}
+                    style={{ fontSize: 12 }}
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </Space>
               <RangePicker
                 allowClear={false}
                 value={dateRange}

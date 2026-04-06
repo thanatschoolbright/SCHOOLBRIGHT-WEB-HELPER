@@ -64,6 +64,8 @@ type TimesheetTableProps = {
   onRefetch?: () => void;
   autoFillOpen?: boolean;
   onAutoFillClose?: () => void;
+  selectedRowKeys?: React.Key[];
+  onSelectionChange?: (keys: React.Key[]) => void;
 };
 
 export const TimesheetTable: React.FC<TimesheetTableProps> = ({
@@ -73,6 +75,8 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
   onRefetch,
   autoFillOpen,
   onAutoFillClose,
+  selectedRowKeys,
+  onSelectionChange,
 }) => {
   const { t } = useTranslation("translate");
   const { token } = theme.useToken();
@@ -711,6 +715,16 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         loading={loading}
         onChange={handleTableChange}
         scroll={{ x: 1200, y: 500 }}
+        rowSelection={
+          onSelectionChange
+            ? {
+                type: "checkbox",
+                selectedRowKeys: selectedRowKeys ?? [],
+                onChange: onSelectionChange,
+                preserveSelectedRowKeys: true,
+              }
+            : undefined
+        }
         expandable={{
           expandedRowRender: (record) => (
             <div className="p-4 mx-4 mb-4 rounded-xl border border-dashed border-gray-500 border-opacity-20 bg-gray-500 bg-opacity-5">

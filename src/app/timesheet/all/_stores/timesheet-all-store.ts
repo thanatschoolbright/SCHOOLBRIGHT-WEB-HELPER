@@ -37,6 +37,7 @@ interface TimesheetAllStore {
   statusModal: StatusModalState;
   lastUpdated: Date | null;
   autoRefresh: boolean;
+  selectedAdminIds: number[];
 
   // Actions
   fetchSummary: () => Promise<void>;
@@ -44,6 +45,8 @@ interface TimesheetAllStore {
   setAutoRefresh: (enabled: boolean) => void;
   setDateRange: (range: [Dayjs, Dayjs]) => void;
   setDepartmentIds: (ids: number[]) => void;
+  setSelectedAdminIds: (ids: number[]) => void;
+  clearSelection: () => void;
   openModal: (key: keyof ModalFlags) => void;
   closeModal: (key: keyof ModalFlags) => void;
   openStatusModal: (state: Omit<StatusModalState, "open">) => void;
@@ -63,6 +66,7 @@ export const useTimesheetAllStore = create<TimesheetAllStore>((set, get) => ({
   statusModal: { open: false, type: "success" },
   lastUpdated: null,
   autoRefresh: false,
+  selectedAdminIds: [],
 
   // ดึงข้อมูลสรุปการบันทึกเวลาจาก API
   fetchSummary: async () => {
@@ -129,6 +133,8 @@ export const useTimesheetAllStore = create<TimesheetAllStore>((set, get) => ({
 
   setKeyword: (keyword) => set({ keyword }),
   setAutoRefresh: (enabled) => set({ autoRefresh: enabled }),
+  setSelectedAdminIds: (ids) => set({ selectedAdminIds: ids }),
+  clearSelection: () => set({ selectedAdminIds: [] }),
   setDateRange: (dateRange) => set({ dateRange }),
   setDepartmentIds: (departmentIds) => set({ departmentIds }),
 
