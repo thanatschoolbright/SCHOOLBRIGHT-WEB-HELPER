@@ -12,6 +12,7 @@ import {
   Badge,
   Button,
   Card,
+  ColorPicker,
   Empty,
   Radio,
   Space,
@@ -390,7 +391,8 @@ function GanttRow({
   isSubProject = false,
   onEdit,
   onAddSubProject,
-  status,
+  onColorChange,
+  status: _status,
   statusName,
 }: {
   label: string;
@@ -403,6 +405,8 @@ function GanttRow({
   isSubProject?: boolean;
   onEdit?: () => void;
   onAddSubProject?: () => void;
+  /** เรียกเมื่อผู้ใช้เลือกสีใหม่จาก ColorPicker (เฉพาะ parent row) */
+  onColorChange?: (hex: string) => void;
   status?: string;
   statusName?: string;
 }) {
@@ -455,15 +459,16 @@ function GanttRow({
             }}
           />
         ) : (
-          <div
-            style={{
-              width: 10,
-              height: 10,
-              borderRadius: "50%",
-              backgroundColor: color,
-              flexShrink: 0,
-            }}
-          />
+          <Tooltip title="คลิกเพื่อเปลี่ยนสีโครงการ">
+            <ColorPicker
+              value={color}
+              size="small"
+              onChange={(_, hex) => onColorChange?.(hex)}
+              styles={{ popupOverlayInner: { zIndex: 1050 } }}
+              style={{ flexShrink: 0, cursor: "pointer" }}
+              disabledAlpha
+            />
+          </Tooltip>
         )}
 
         <Text
@@ -623,7 +628,7 @@ function GanttRow({
 // ─── Main Component ──────────────────────────────────────────────────────────
 const GanttChart: React.FC = () => {
   const { token } = theme.useToken();
-  const { timelineData, isFetching, setModal } = useTimelineStore();
+  const { timelineData, isFetching, setModal, fetchTimelineData } = useTimelineStore();
   const [scale, setScale] = useState<ViewScale>("month");
 
   // ✨ คำนวณช่วงวันที่จากข้อมูลทั้งหมด
@@ -723,6 +728,22 @@ const GanttChart: React.FC = () => {
       mode: "create",
       data: { project_id: numericId, project_name: project.name },
     });
+  };
+
+  /** อัปเดตสีโครงการหลักผ่าน API แล้ว refresh ข้อมูล */
+  const handleProjectColorChange = async (projectId: string, hex: string) => {
+    const numericId = parseInt(projectId.replace("p-", ""), 10);
+    try {
+      await import("axios").then(({ default: axios }) =>
+        axios.patch(`/api/v1/timesheet/project/color`, {
+          project_id: numericId,
+          color_hex: hex,
+        }),
+      );
+      await fetchTimelineData();
+    } catch (err) {
+      console.error("Failed to update project color:", err);
+    }
   };
 
   if (!timelineData || timelineData.length === 0) {
@@ -831,6 +852,7 @@ const GanttChart: React.FC = () => {
                   status={project.status}
                   statusName={statusName}
                   onAddSubProject={() => handleAddSubProject(project)}
+                  onColorChange={(hex) => handleProjectColorChange(project.id, hex)}
                 />
 
                 {(project.children || []).map((sub: any) => (

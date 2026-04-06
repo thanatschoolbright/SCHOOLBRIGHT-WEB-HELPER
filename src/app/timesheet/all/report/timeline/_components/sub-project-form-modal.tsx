@@ -12,6 +12,7 @@ import {
   AutoComplete,
   Button,
   Col,
+  ColorPicker,
   DatePicker,
   Divider,
   Flex,
@@ -156,6 +157,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
             asset_capture_type: data.assetCaptureType || "CAPTUREABLE",
             projectStatusId: data.projectStatusId,
             estimateWorkhours: data.estimateWorkhours,
+            color_hex: data.color_hex || "#52c41a",
             dateRange: range,
             assignees:
               data.projectAssignees?.map((a: any) => ({
@@ -172,6 +174,12 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
   }, [open, mode, data, form, handleUserSearch]);
 
   const handleFinish = async (values: any) => {
+    // ColorPicker ใน Ant Design ส่งค่าเป็น object — แปลงเป็น hex string
+    const colorHex =
+      typeof values.color_hex === "string"
+        ? values.color_hex
+        : values.color_hex?.toHexString?.() ?? "#52c41a";
+
     const payload = {
       ...values,
       id: mode === "clone" ? undefined : data?.id,
@@ -179,6 +187,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
       endDate: values.dateRange?.[1]?.toISOString(),
       project_id: data?.project_id,
       assetCaptureType: values.asset_capture_type,
+      color_hex: colorHex,
       status: statuses.find((s) => s.id === values.projectStatusId)?.nameTh,
     };
 
@@ -282,7 +291,7 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
         </Row>
 
         <Row gutter={24}>
-          <Col span={18}>
+          <Col span={14}>
             <Form.Item name="description" label="รายละเอียดเพิ่มเติม">
               <Input.TextArea
                 rows={2}
@@ -290,13 +299,27 @@ export const SubProjectFormModal: React.FC<SubProjectFormModalProps> = ({
               />
             </Form.Item>
           </Col>
-          <Col span={6}>
+          <Col span={5}>
             <Form.Item
               name="asset_capture_type"
               label="Asset Type"
               rules={[{ required: true }]}
             >
               <Select options={ASSET_OPTIONS} />
+            </Form.Item>
+          </Col>
+          <Col span={5}>
+            <Form.Item
+              name="color_hex"
+              label="สีโครงการย่อย"
+              initialValue="#52c41a"
+            >
+              <ColorPicker
+                disabledAlpha
+                showText
+                style={{ width: "100%" }}
+                format="hex"
+              />
             </Form.Item>
           </Col>
         </Row>
