@@ -22,6 +22,9 @@ type ModalFlags = {
   autoFillModal: boolean;
 };
 
+// ช่วงเวลา Auto-refresh (วินาที)
+export const AUTO_REFRESH_INTERVAL_SEC = 300;
+
 interface TimesheetAllStore {
   // State
   records: SummaryRecord[];
@@ -32,10 +35,13 @@ interface TimesheetAllStore {
   departmentIds: number[];
   modalFlags: ModalFlags;
   statusModal: StatusModalState;
+  lastUpdated: Date | null;
+  autoRefresh: boolean;
 
   // Actions
   fetchSummary: () => Promise<void>;
   setKeyword: (keyword: string) => void;
+  setAutoRefresh: (enabled: boolean) => void;
   setDateRange: (range: [Dayjs, Dayjs]) => void;
   setDepartmentIds: (ids: number[]) => void;
   openModal: (key: keyof ModalFlags) => void;
@@ -55,6 +61,8 @@ export const useTimesheetAllStore = create<TimesheetAllStore>((set, get) => ({
   departmentIds: [7, 9],
   modalFlags: { exportModal4: false, autoFillModal: false },
   statusModal: { open: false, type: "success" },
+  lastUpdated: null,
+  autoRefresh: false,
 
   // ดึงข้อมูลสรุปการบันทึกเวลาจาก API
   fetchSummary: async () => {
@@ -72,6 +80,7 @@ export const useTimesheetAllStore = create<TimesheetAllStore>((set, get) => ({
       set({
         records: body.data?.records ?? [],
         metadata: body.data?.metadata ?? null,
+        lastUpdated: new Date(),
       });
     } catch (error: any) {
       const errorMessage =
@@ -119,6 +128,7 @@ export const useTimesheetAllStore = create<TimesheetAllStore>((set, get) => ({
   },
 
   setKeyword: (keyword) => set({ keyword }),
+  setAutoRefresh: (enabled) => set({ autoRefresh: enabled }),
   setDateRange: (dateRange) => set({ dateRange }),
   setDepartmentIds: (departmentIds) => set({ departmentIds }),
 

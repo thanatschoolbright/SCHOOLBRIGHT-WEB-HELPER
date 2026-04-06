@@ -710,7 +710,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         dataSource={records}
         loading={loading}
         onChange={handleTableChange}
-        scroll={{ x: 1200 }}
+        scroll={{ x: 1200, y: 500 }}
         expandable={{
           expandedRowRender: (record) => (
             <div className="p-4 mx-4 mb-4 rounded-xl border border-dashed border-gray-500 border-opacity-20 bg-gray-500 bg-opacity-5">
@@ -1156,8 +1156,8 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                               item.status === "process"
                                 ? token.colorPrimary
                                 : item.status === "finish"
-                                  ? token.colorSuccess
-                                  : "inherit",
+                                ? token.colorSuccess
+                                : "inherit",
                           }}
                         >
                           รายการวัน
@@ -1349,7 +1349,10 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                     justifyContent: "center",
                     color: "#fff",
                     fontSize: 24,
-                    boxShadow: `0 4px 12px ${addAlpha(token.colorSuccess, 0.4)}`,
+                    boxShadow: `0 4px 12px ${addAlpha(
+                      token.colorSuccess,
+                      0.4,
+                    )}`,
                   }}
                 >
                   <CheckCircleOutlined />

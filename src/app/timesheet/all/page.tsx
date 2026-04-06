@@ -1,8 +1,9 @@
 "use client";
 
-import { ClockCircleOutlined } from "@ant-design/icons";
-import { Button, Flex } from "antd";
-import { useEffect } from "react";
+import { ClockCircleOutlined, SyncOutlined } from "@ant-design/icons";
+import { Button, Flex, Switch, Tag, Typography } from "antd";
+import dayjs from "dayjs";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import PermissionLayout from "@/components/layouts/permission-layout";
@@ -12,12 +13,13 @@ import DashboardLayout from "@components/layouts/backend-layout";
 import ExportModalTemplate4 from "@components/modal/timesheet-export-modal-template4";
 import { getUserData } from "@helpers/local_storage/user.storage";
 import { setUsers } from "@stores/reducers/timesheet.reducer";
-import { useAppSelector } from "@stores/store";
 import { FilterSection } from "./_components/filter-section";
 import { SummaryCards } from "./_components/summary-cards";
 import { TableSection } from "./_components/table-section";
-import { useTimesheetAllStore } from "./_stores/timesheet-all-store";
-import { useExportHandlers } from "./hooks/use-export-handlers.data";
+import {
+  AUTO_REFRESH_INTERVAL_SEC,
+  useTimesheetAllStore,
+} from "./_stores/timesheet-all-store";
 
 /**
  * หน้าจอหลักสำหรับจัดการและดูรายงานความคืบหน้าการบันทึกเวลาทำงานของพนักงานทั้งหมด
@@ -32,9 +34,35 @@ export default function TimesheetAllPage() {
   const closeStatusModal = useTimesheetAllStore((s) => s.closeStatusModal);
   const modalFlags = useTimesheetAllStore((s) => s.modalFlags);
   const closeModal = useTimesheetAllStore((s) => s.closeModal);
+  const lastUpdated = useTimesheetAllStore((s) => s.lastUpdated);
+  const autoRefresh = useTimesheetAllStore((s) => s.autoRefresh);
+  const setAutoRefresh = useTimesheetAllStore((s) => s.setAutoRefresh);
 
-  const { exportLoading } = useAppSelector((state) => state.timesheetAll);
-  const { requestExportTemplate4 } = useExportHandlers();
+  // นับถอยหลังสำหรับ auto-refresh (วินาที)
+  const [countdown, setCountdown] = useState(AUTO_REFRESH_INTERVAL_SEC);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // จัดการ auto-refresh และ countdown
+  useEffect(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (!autoRefresh) {
+      setCountdown(AUTO_REFRESH_INTERVAL_SEC);
+      return;
+    }
+    setCountdown(AUTO_REFRESH_INTERVAL_SEC);
+    intervalRef.current = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          fetchSummary();
+          return AUTO_REFRESH_INTERVAL_SEC;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [autoRefresh, fetchSummary]);
 
   // โหลด users จาก local storage เข้า Redux store และดึงข้อมูลครั้งแรก
   useEffect(() => {
@@ -42,6 +70,12 @@ export default function TimesheetAllPage() {
     if (allUsers) dispatch(setUsers(allUsers));
     fetchSummary();
   }, [dispatch, fetchSummary]);
+
+  // แปลง countdown เป็น mm:ss
+  const countdownLabel = `${String(Math.floor(countdown / 60)).padStart(
+    2,
+    "0",
+  )}:${String(countdown % 60).padStart(2, "0")}`;
 
   return (
     <PermissionLayout role={["ALL"]}>
@@ -57,15 +91,49 @@ export default function TimesheetAllPage() {
                 : "ระบบบริหารจัดการข้อมูลการลงเวลาทำงาน"
             }
             extra={
-              <Button
-                icon={<ClockCircleOutlined />}
-                onClick={fetchSummary}
-                loading={loading}
-                shape="round"
-                size="large"
-              >
-                รีเฟรชข้อมูล
-              </Button>
+              <Flex align="center" gap={16}>
+                {/* Last updated timestamp */}
+                {lastUpdated && (
+                  <Flex vertical align="flex-end" gap={2}>
+                    <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                      อัปเดตล่าสุด
+                    </Typography.Text>
+                    <Typography.Text style={{ fontSize: 12, fontWeight: 600 }}>
+                      {dayjs(lastUpdated).format("HH:mm:ss")}
+                    </Typography.Text>
+                  </Flex>
+                )}
+
+                {/* Auto-refresh toggle + countdown */}
+                <Flex vertical align="center" gap={4}>
+                  <Switch
+                    checked={autoRefresh}
+                    onChange={setAutoRefresh}
+                    checkedChildren={<SyncOutlined spin />}
+                    unCheckedChildren={<SyncOutlined />}
+                    size="small"
+                  />
+                  {autoRefresh && (
+                    <Tag
+                      color="processing"
+                      style={{ fontSize: 10, margin: 0, lineHeight: "16px" }}
+                    >
+                      {countdownLabel}
+                    </Tag>
+                  )}
+                </Flex>
+
+                {/* Refresh button */}
+                <Button
+                  icon={<ClockCircleOutlined />}
+                  onClick={fetchSummary}
+                  loading={loading}
+                  shape="round"
+                  size="large"
+                >
+                  รีเฟรชข้อมูล
+                </Button>
+              </Flex>
             }
           />
 
