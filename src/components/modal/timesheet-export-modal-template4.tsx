@@ -248,7 +248,7 @@ export default function ExportModalTemplate4({
     setEmailInput("");
   }, [emailInput, recipients]);
 
-  // ส่ง Audit Report ผ่านอีเมลทีละเดือน
+  // ส่ง Audit Report ทุกเดือนใน 1 email พร้อมกันทุกไฟล์
   const requestSendEmail = useCallback(async () => {
     if (selectedMonths.length === 0) {
       toast.error("โปรดเลือกอย่างน้อย 1 เดือน");
@@ -259,7 +259,7 @@ export default function ExportModalTemplate4({
       return;
     }
 
-    const payloads = selectedMonths
+    const ranges = selectedMonths
       .sort((a, b) => a - b)
       .map((month) => ({
         start_date: dayjs()
@@ -279,59 +279,36 @@ export default function ExportModalTemplate4({
     setSteps(IDLE_STEPS);
 
     try {
-      for (let i = 0; i < payloads.length; i++) {
-        const payload = payloads[i];
-        const monthLabel =
-          MONTH_OPTIONS[selectedMonths.sort((a, b) => a - b)[i] ?? 0]?.label ??
-          "";
+      // ขั้น 1: เตรียมข้อมูล
+      setStep("prepare", "active");
+      await new Promise((r) => setTimeout(r, 300));
+      setStep("prepare", "done");
 
-        if (!payload) continue;
+      // ขั้น 2: สร้าง Excel (API จัดการทุกไฟล์พร้อมกัน)
+      setStep("excel", "active");
+      await new Promise((r) => setTimeout(r, 200));
+      setStep("excel", "done");
 
-        // ขั้น 1: เตรียมข้อมูล
-        setStep("prepare", "active");
-        await new Promise((r) => setTimeout(r, 300));
-        setStep("prepare", "done");
+      // ขั้น 3: ส่งอีเมล 1 ฉบับพร้อมไฟล์แนบทั้งหมด
+      setStep("send", "active");
 
-        // ขั้น 2: สร้าง Excel + ส่งอีเมล (เรียก API)
-        setStep("excel", "active");
-        await new Promise((r) => setTimeout(r, 200));
-        setStep("excel", "done");
-        setStep("send", "active");
+      const response = await axios.post(
+        "/api/v1/timesheet/excel/template_4/send-email",
+        { ranges, recipients },
+      );
 
-        const response = await axios.post(
-          "/api/v1/timesheet/excel/template_4/send-email",
-          {
-            start_date: payload.start_date,
-            end_date: payload.end_date,
-            recipients,
-          },
-        );
+      setStep("send", "done");
 
-        setStep("send", "done");
-
-        if (payloads.length > 1) {
-          toast.info(
-            `ส่งเดือน ${monthLabel} สำเร็จ (${i + 1}/${payloads.length})`,
-            {
-              duration: 1500,
-            },
-          );
-          // reset สำหรับ loop ถัดไป
-          if (i < payloads.length - 1) {
-            setSteps(IDLE_STEPS);
-            await new Promise((r) => setTimeout(r, 600));
-          }
-        }
-
-        if (response.data?.data?.failed > 0) {
-          toast.warning(`ส่งไม่สำเร็จ ${response.data.data.failed} ที่อยู่`);
-        }
+      if (response.data?.data?.failed > 0) {
+        toast.warning(`ส่งไม่สำเร็จ ${response.data.data.failed} ที่อยู่`);
       }
 
       // ขั้นสุดท้าย: Done
       setStep("done", "done");
       setIsDone(true);
-      toast.success(`ส่ง Audit Report สำเร็จ ${selectedMonths.length} เดือน`);
+      toast.success(
+        `ส่ง Audit Report สำเร็จ — ${ranges.length} ไฟล์ใน 1 อีเมล`,
+      );
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "เกิดข้อผิดพลาด";
       setStep("send", "error");
