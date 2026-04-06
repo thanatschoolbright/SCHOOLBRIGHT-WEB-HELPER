@@ -84,6 +84,11 @@ export type Overtime = $Result.DefaultSelection<Prisma.$OvertimePayload>
  */
 export type OvertimeDescription = $Result.DefaultSelection<Prisma.$OvertimeDescriptionPayload>
 /**
+ * Model OvertimeStatusLog
+ * 
+ */
+export type OvertimeStatusLog = $Result.DefaultSelection<Prisma.$OvertimeStatusLogPayload>
+/**
  * Model ApiLog
  * 
  */
@@ -363,6 +368,16 @@ export class PrismaClient<
     * ```
     */
   get overtimeDescription(): Prisma.OvertimeDescriptionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.overtimeStatusLog`: Exposes CRUD operations for the **OvertimeStatusLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OvertimeStatusLogs
+    * const overtimeStatusLogs = await prisma.overtimeStatusLog.findMany()
+    * ```
+    */
+  get overtimeStatusLog(): Prisma.OvertimeStatusLogDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.apiLog`: Exposes CRUD operations for the **ApiLog** model.
@@ -828,6 +843,7 @@ export namespace Prisma {
     TimesheetEntry: 'TimesheetEntry',
     Overtime: 'Overtime',
     OvertimeDescription: 'OvertimeDescription',
+    OvertimeStatusLog: 'OvertimeStatusLog',
     ApiLog: 'ApiLog'
   };
 
@@ -847,7 +863,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "position" | "department" | "user" | "role" | "permission" | "rolePermission" | "group" | "projectStatus" | "project" | "feature" | "projectAssignee" | "timesheetEntry" | "overtime" | "overtimeDescription" | "apiLog"
+      modelProps: "position" | "department" | "user" | "role" | "permission" | "rolePermission" | "group" | "projectStatus" | "project" | "feature" | "projectAssignee" | "timesheetEntry" | "overtime" | "overtimeDescription" | "overtimeStatusLog" | "apiLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1887,6 +1903,80 @@ export namespace Prisma {
           }
         }
       }
+      OvertimeStatusLog: {
+        payload: Prisma.$OvertimeStatusLogPayload<ExtArgs>
+        fields: Prisma.OvertimeStatusLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OvertimeStatusLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeStatusLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OvertimeStatusLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeStatusLogPayload>
+          }
+          findFirst: {
+            args: Prisma.OvertimeStatusLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeStatusLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OvertimeStatusLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeStatusLogPayload>
+          }
+          findMany: {
+            args: Prisma.OvertimeStatusLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeStatusLogPayload>[]
+          }
+          create: {
+            args: Prisma.OvertimeStatusLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeStatusLogPayload>
+          }
+          createMany: {
+            args: Prisma.OvertimeStatusLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OvertimeStatusLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeStatusLogPayload>[]
+          }
+          delete: {
+            args: Prisma.OvertimeStatusLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeStatusLogPayload>
+          }
+          update: {
+            args: Prisma.OvertimeStatusLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeStatusLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.OvertimeStatusLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OvertimeStatusLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OvertimeStatusLogUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeStatusLogPayload>[]
+          }
+          upsert: {
+            args: Prisma.OvertimeStatusLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OvertimeStatusLogPayload>
+          }
+          aggregate: {
+            args: Prisma.OvertimeStatusLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOvertimeStatusLog>
+          }
+          groupBy: {
+            args: Prisma.OvertimeStatusLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OvertimeStatusLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OvertimeStatusLogCountArgs<ExtArgs>
+            result: $Utils.Optional<OvertimeStatusLogCountAggregateOutputType> | number
+          }
+        }
+      }
       ApiLog: {
         payload: Prisma.$ApiLogPayload<ExtArgs>
         fields: Prisma.ApiLogFieldRefs
@@ -2071,6 +2161,7 @@ export namespace Prisma {
     timesheetEntry?: TimesheetEntryOmit
     overtime?: OvertimeOmit
     overtimeDescription?: OvertimeDescriptionOmit
+    overtimeStatusLog?: OvertimeStatusLogOmit
     apiLog?: ApiLogOmit
   }
 
@@ -11999,8 +12090,6 @@ export namespace Prisma {
     completeDate: Date | null
     estimateWorkhours: Decimal | null
     assetCaptureType: $Enums.ProjectAssetCaptureType | null
-    colorHex: string | null
-    colorHexFeature: string | null
   }
 
   export type ProjectMaxAggregateOutputType = {
@@ -12024,8 +12113,6 @@ export namespace Prisma {
     completeDate: Date | null
     estimateWorkhours: Decimal | null
     assetCaptureType: $Enums.ProjectAssetCaptureType | null
-    colorHex: string | null
-    colorHexFeature: string | null
   }
 
   export type ProjectCountAggregateOutputType = {
@@ -12049,8 +12136,6 @@ export namespace Prisma {
     completeDate: number
     estimateWorkhours: number
     assetCaptureType: number
-    colorHex: number
-    colorHexFeature: number
     _all: number
   }
 
@@ -12094,8 +12179,6 @@ export namespace Prisma {
     completeDate?: true
     estimateWorkhours?: true
     assetCaptureType?: true
-    colorHex?: true
-    colorHexFeature?: true
   }
 
   export type ProjectMaxAggregateInputType = {
@@ -12119,8 +12202,6 @@ export namespace Prisma {
     completeDate?: true
     estimateWorkhours?: true
     assetCaptureType?: true
-    colorHex?: true
-    colorHexFeature?: true
   }
 
   export type ProjectCountAggregateInputType = {
@@ -12144,8 +12225,6 @@ export namespace Prisma {
     completeDate?: true
     estimateWorkhours?: true
     assetCaptureType?: true
-    colorHex?: true
-    colorHexFeature?: true
     _all?: true
   }
 
@@ -12256,8 +12335,6 @@ export namespace Prisma {
     completeDate: Date | null
     estimateWorkhours: Decimal | null
     assetCaptureType: $Enums.ProjectAssetCaptureType
-    colorHex: string | null
-    colorHexFeature: string | null
     _count: ProjectCountAggregateOutputType | null
     _avg: ProjectAvgAggregateOutputType | null
     _sum: ProjectSumAggregateOutputType | null
@@ -12300,8 +12377,6 @@ export namespace Prisma {
     completeDate?: boolean
     estimateWorkhours?: boolean
     assetCaptureType?: boolean
-    colorHex?: boolean
-    colorHexFeature?: boolean
     features?: boolean | Project$featuresArgs<ExtArgs>
     group?: boolean | Project$groupArgs<ExtArgs>
     projectStatus?: boolean | Project$projectStatusArgs<ExtArgs>
@@ -12331,8 +12406,6 @@ export namespace Prisma {
     completeDate?: boolean
     estimateWorkhours?: boolean
     assetCaptureType?: boolean
-    colorHex?: boolean
-    colorHexFeature?: boolean
     group?: boolean | Project$groupArgs<ExtArgs>
     projectStatus?: boolean | Project$projectStatusArgs<ExtArgs>
   }, ExtArgs["result"]["project"]>
@@ -12358,8 +12431,6 @@ export namespace Prisma {
     completeDate?: boolean
     estimateWorkhours?: boolean
     assetCaptureType?: boolean
-    colorHex?: boolean
-    colorHexFeature?: boolean
     group?: boolean | Project$groupArgs<ExtArgs>
     projectStatus?: boolean | Project$projectStatusArgs<ExtArgs>
   }, ExtArgs["result"]["project"]>
@@ -12385,11 +12456,9 @@ export namespace Prisma {
     completeDate?: boolean
     estimateWorkhours?: boolean
     assetCaptureType?: boolean
-    colorHex?: boolean
-    colorHexFeature?: boolean
   }
 
-  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "createdAt" | "updatedAt" | "createdBy" | "updatedBy" | "is_deleted" | "categoryType" | "status" | "approval" | "approval_status" | "end_date" | "group_id" | "name_en" | "start_date" | "projectStatusId" | "completeDate" | "estimateWorkhours" | "assetCaptureType" | "colorHex" | "colorHexFeature", ExtArgs["result"]["project"]>
+  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "createdAt" | "updatedAt" | "createdBy" | "updatedBy" | "is_deleted" | "categoryType" | "status" | "approval" | "approval_status" | "end_date" | "group_id" | "name_en" | "start_date" | "projectStatusId" | "completeDate" | "estimateWorkhours" | "assetCaptureType", ExtArgs["result"]["project"]>
   export type ProjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     features?: boolean | Project$featuresArgs<ExtArgs>
     group?: boolean | Project$groupArgs<ExtArgs>
@@ -12437,8 +12506,6 @@ export namespace Prisma {
       completeDate: Date | null
       estimateWorkhours: Prisma.Decimal | null
       assetCaptureType: $Enums.ProjectAssetCaptureType
-      colorHex: string | null
-      colorHexFeature: string | null
     }, ExtArgs["result"]["project"]>
     composites: {}
   }
@@ -12887,8 +12954,6 @@ export namespace Prisma {
     readonly completeDate: FieldRef<"Project", 'DateTime'>
     readonly estimateWorkhours: FieldRef<"Project", 'Decimal'>
     readonly assetCaptureType: FieldRef<"Project", 'ProjectAssetCaptureType'>
-    readonly colorHex: FieldRef<"Project", 'String'>
-    readonly colorHexFeature: FieldRef<"Project", 'String'>
   }
     
 
@@ -19498,6 +19563,1069 @@ export namespace Prisma {
 
 
   /**
+   * Model OvertimeStatusLog
+   */
+
+  export type AggregateOvertimeStatusLog = {
+    _count: OvertimeStatusLogCountAggregateOutputType | null
+    _avg: OvertimeStatusLogAvgAggregateOutputType | null
+    _sum: OvertimeStatusLogSumAggregateOutputType | null
+    _min: OvertimeStatusLogMinAggregateOutputType | null
+    _max: OvertimeStatusLogMaxAggregateOutputType | null
+  }
+
+  export type OvertimeStatusLogAvgAggregateOutputType = {
+    id: number | null
+    overtime_id: number | null
+    changed_by: number | null
+  }
+
+  export type OvertimeStatusLogSumAggregateOutputType = {
+    id: number | null
+    overtime_id: number | null
+    changed_by: number | null
+  }
+
+  export type OvertimeStatusLogMinAggregateOutputType = {
+    id: number | null
+    overtime_id: number | null
+    changed_by: number | null
+    from_status: string | null
+    to_status: string | null
+    note: string | null
+    created_at: Date | null
+  }
+
+  export type OvertimeStatusLogMaxAggregateOutputType = {
+    id: number | null
+    overtime_id: number | null
+    changed_by: number | null
+    from_status: string | null
+    to_status: string | null
+    note: string | null
+    created_at: Date | null
+  }
+
+  export type OvertimeStatusLogCountAggregateOutputType = {
+    id: number
+    overtime_id: number
+    changed_by: number
+    from_status: number
+    to_status: number
+    note: number
+    created_at: number
+    _all: number
+  }
+
+
+  export type OvertimeStatusLogAvgAggregateInputType = {
+    id?: true
+    overtime_id?: true
+    changed_by?: true
+  }
+
+  export type OvertimeStatusLogSumAggregateInputType = {
+    id?: true
+    overtime_id?: true
+    changed_by?: true
+  }
+
+  export type OvertimeStatusLogMinAggregateInputType = {
+    id?: true
+    overtime_id?: true
+    changed_by?: true
+    from_status?: true
+    to_status?: true
+    note?: true
+    created_at?: true
+  }
+
+  export type OvertimeStatusLogMaxAggregateInputType = {
+    id?: true
+    overtime_id?: true
+    changed_by?: true
+    from_status?: true
+    to_status?: true
+    note?: true
+    created_at?: true
+  }
+
+  export type OvertimeStatusLogCountAggregateInputType = {
+    id?: true
+    overtime_id?: true
+    changed_by?: true
+    from_status?: true
+    to_status?: true
+    note?: true
+    created_at?: true
+    _all?: true
+  }
+
+  export type OvertimeStatusLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OvertimeStatusLog to aggregate.
+     */
+    where?: OvertimeStatusLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OvertimeStatusLogs to fetch.
+     */
+    orderBy?: OvertimeStatusLogOrderByWithRelationInput | OvertimeStatusLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OvertimeStatusLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OvertimeStatusLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OvertimeStatusLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OvertimeStatusLogs
+    **/
+    _count?: true | OvertimeStatusLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: OvertimeStatusLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OvertimeStatusLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OvertimeStatusLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OvertimeStatusLogMaxAggregateInputType
+  }
+
+  export type GetOvertimeStatusLogAggregateType<T extends OvertimeStatusLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateOvertimeStatusLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOvertimeStatusLog[P]>
+      : GetScalarType<T[P], AggregateOvertimeStatusLog[P]>
+  }
+
+
+
+
+  export type OvertimeStatusLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OvertimeStatusLogWhereInput
+    orderBy?: OvertimeStatusLogOrderByWithAggregationInput | OvertimeStatusLogOrderByWithAggregationInput[]
+    by: OvertimeStatusLogScalarFieldEnum[] | OvertimeStatusLogScalarFieldEnum
+    having?: OvertimeStatusLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OvertimeStatusLogCountAggregateInputType | true
+    _avg?: OvertimeStatusLogAvgAggregateInputType
+    _sum?: OvertimeStatusLogSumAggregateInputType
+    _min?: OvertimeStatusLogMinAggregateInputType
+    _max?: OvertimeStatusLogMaxAggregateInputType
+  }
+
+  export type OvertimeStatusLogGroupByOutputType = {
+    id: number
+    overtime_id: number
+    changed_by: number | null
+    from_status: string | null
+    to_status: string
+    note: string | null
+    created_at: Date
+    _count: OvertimeStatusLogCountAggregateOutputType | null
+    _avg: OvertimeStatusLogAvgAggregateOutputType | null
+    _sum: OvertimeStatusLogSumAggregateOutputType | null
+    _min: OvertimeStatusLogMinAggregateOutputType | null
+    _max: OvertimeStatusLogMaxAggregateOutputType | null
+  }
+
+  type GetOvertimeStatusLogGroupByPayload<T extends OvertimeStatusLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OvertimeStatusLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OvertimeStatusLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OvertimeStatusLogGroupByOutputType[P]>
+            : GetScalarType<T[P], OvertimeStatusLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OvertimeStatusLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    overtime_id?: boolean
+    changed_by?: boolean
+    from_status?: boolean
+    to_status?: boolean
+    note?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["overtimeStatusLog"]>
+
+  export type OvertimeStatusLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    overtime_id?: boolean
+    changed_by?: boolean
+    from_status?: boolean
+    to_status?: boolean
+    note?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["overtimeStatusLog"]>
+
+  export type OvertimeStatusLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    overtime_id?: boolean
+    changed_by?: boolean
+    from_status?: boolean
+    to_status?: boolean
+    note?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["overtimeStatusLog"]>
+
+  export type OvertimeStatusLogSelectScalar = {
+    id?: boolean
+    overtime_id?: boolean
+    changed_by?: boolean
+    from_status?: boolean
+    to_status?: boolean
+    note?: boolean
+    created_at?: boolean
+  }
+
+  export type OvertimeStatusLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "overtime_id" | "changed_by" | "from_status" | "to_status" | "note" | "created_at", ExtArgs["result"]["overtimeStatusLog"]>
+
+  export type $OvertimeStatusLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OvertimeStatusLog"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      overtime_id: number
+      changed_by: number | null
+      from_status: string | null
+      to_status: string
+      note: string | null
+      created_at: Date
+    }, ExtArgs["result"]["overtimeStatusLog"]>
+    composites: {}
+  }
+
+  type OvertimeStatusLogGetPayload<S extends boolean | null | undefined | OvertimeStatusLogDefaultArgs> = $Result.GetResult<Prisma.$OvertimeStatusLogPayload, S>
+
+  type OvertimeStatusLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OvertimeStatusLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OvertimeStatusLogCountAggregateInputType | true
+    }
+
+  export interface OvertimeStatusLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OvertimeStatusLog'], meta: { name: 'OvertimeStatusLog' } }
+    /**
+     * Find zero or one OvertimeStatusLog that matches the filter.
+     * @param {OvertimeStatusLogFindUniqueArgs} args - Arguments to find a OvertimeStatusLog
+     * @example
+     * // Get one OvertimeStatusLog
+     * const overtimeStatusLog = await prisma.overtimeStatusLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OvertimeStatusLogFindUniqueArgs>(args: SelectSubset<T, OvertimeStatusLogFindUniqueArgs<ExtArgs>>): Prisma__OvertimeStatusLogClient<$Result.GetResult<Prisma.$OvertimeStatusLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OvertimeStatusLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OvertimeStatusLogFindUniqueOrThrowArgs} args - Arguments to find a OvertimeStatusLog
+     * @example
+     * // Get one OvertimeStatusLog
+     * const overtimeStatusLog = await prisma.overtimeStatusLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OvertimeStatusLogFindUniqueOrThrowArgs>(args: SelectSubset<T, OvertimeStatusLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OvertimeStatusLogClient<$Result.GetResult<Prisma.$OvertimeStatusLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OvertimeStatusLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeStatusLogFindFirstArgs} args - Arguments to find a OvertimeStatusLog
+     * @example
+     * // Get one OvertimeStatusLog
+     * const overtimeStatusLog = await prisma.overtimeStatusLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OvertimeStatusLogFindFirstArgs>(args?: SelectSubset<T, OvertimeStatusLogFindFirstArgs<ExtArgs>>): Prisma__OvertimeStatusLogClient<$Result.GetResult<Prisma.$OvertimeStatusLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OvertimeStatusLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeStatusLogFindFirstOrThrowArgs} args - Arguments to find a OvertimeStatusLog
+     * @example
+     * // Get one OvertimeStatusLog
+     * const overtimeStatusLog = await prisma.overtimeStatusLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OvertimeStatusLogFindFirstOrThrowArgs>(args?: SelectSubset<T, OvertimeStatusLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__OvertimeStatusLogClient<$Result.GetResult<Prisma.$OvertimeStatusLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OvertimeStatusLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeStatusLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OvertimeStatusLogs
+     * const overtimeStatusLogs = await prisma.overtimeStatusLog.findMany()
+     * 
+     * // Get first 10 OvertimeStatusLogs
+     * const overtimeStatusLogs = await prisma.overtimeStatusLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const overtimeStatusLogWithIdOnly = await prisma.overtimeStatusLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OvertimeStatusLogFindManyArgs>(args?: SelectSubset<T, OvertimeStatusLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OvertimeStatusLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OvertimeStatusLog.
+     * @param {OvertimeStatusLogCreateArgs} args - Arguments to create a OvertimeStatusLog.
+     * @example
+     * // Create one OvertimeStatusLog
+     * const OvertimeStatusLog = await prisma.overtimeStatusLog.create({
+     *   data: {
+     *     // ... data to create a OvertimeStatusLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends OvertimeStatusLogCreateArgs>(args: SelectSubset<T, OvertimeStatusLogCreateArgs<ExtArgs>>): Prisma__OvertimeStatusLogClient<$Result.GetResult<Prisma.$OvertimeStatusLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OvertimeStatusLogs.
+     * @param {OvertimeStatusLogCreateManyArgs} args - Arguments to create many OvertimeStatusLogs.
+     * @example
+     * // Create many OvertimeStatusLogs
+     * const overtimeStatusLog = await prisma.overtimeStatusLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OvertimeStatusLogCreateManyArgs>(args?: SelectSubset<T, OvertimeStatusLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OvertimeStatusLogs and returns the data saved in the database.
+     * @param {OvertimeStatusLogCreateManyAndReturnArgs} args - Arguments to create many OvertimeStatusLogs.
+     * @example
+     * // Create many OvertimeStatusLogs
+     * const overtimeStatusLog = await prisma.overtimeStatusLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OvertimeStatusLogs and only return the `id`
+     * const overtimeStatusLogWithIdOnly = await prisma.overtimeStatusLog.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OvertimeStatusLogCreateManyAndReturnArgs>(args?: SelectSubset<T, OvertimeStatusLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OvertimeStatusLogPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OvertimeStatusLog.
+     * @param {OvertimeStatusLogDeleteArgs} args - Arguments to delete one OvertimeStatusLog.
+     * @example
+     * // Delete one OvertimeStatusLog
+     * const OvertimeStatusLog = await prisma.overtimeStatusLog.delete({
+     *   where: {
+     *     // ... filter to delete one OvertimeStatusLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OvertimeStatusLogDeleteArgs>(args: SelectSubset<T, OvertimeStatusLogDeleteArgs<ExtArgs>>): Prisma__OvertimeStatusLogClient<$Result.GetResult<Prisma.$OvertimeStatusLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OvertimeStatusLog.
+     * @param {OvertimeStatusLogUpdateArgs} args - Arguments to update one OvertimeStatusLog.
+     * @example
+     * // Update one OvertimeStatusLog
+     * const overtimeStatusLog = await prisma.overtimeStatusLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OvertimeStatusLogUpdateArgs>(args: SelectSubset<T, OvertimeStatusLogUpdateArgs<ExtArgs>>): Prisma__OvertimeStatusLogClient<$Result.GetResult<Prisma.$OvertimeStatusLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OvertimeStatusLogs.
+     * @param {OvertimeStatusLogDeleteManyArgs} args - Arguments to filter OvertimeStatusLogs to delete.
+     * @example
+     * // Delete a few OvertimeStatusLogs
+     * const { count } = await prisma.overtimeStatusLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OvertimeStatusLogDeleteManyArgs>(args?: SelectSubset<T, OvertimeStatusLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OvertimeStatusLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeStatusLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OvertimeStatusLogs
+     * const overtimeStatusLog = await prisma.overtimeStatusLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OvertimeStatusLogUpdateManyArgs>(args: SelectSubset<T, OvertimeStatusLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OvertimeStatusLogs and returns the data updated in the database.
+     * @param {OvertimeStatusLogUpdateManyAndReturnArgs} args - Arguments to update many OvertimeStatusLogs.
+     * @example
+     * // Update many OvertimeStatusLogs
+     * const overtimeStatusLog = await prisma.overtimeStatusLog.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OvertimeStatusLogs and only return the `id`
+     * const overtimeStatusLogWithIdOnly = await prisma.overtimeStatusLog.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OvertimeStatusLogUpdateManyAndReturnArgs>(args: SelectSubset<T, OvertimeStatusLogUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OvertimeStatusLogPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OvertimeStatusLog.
+     * @param {OvertimeStatusLogUpsertArgs} args - Arguments to update or create a OvertimeStatusLog.
+     * @example
+     * // Update or create a OvertimeStatusLog
+     * const overtimeStatusLog = await prisma.overtimeStatusLog.upsert({
+     *   create: {
+     *     // ... data to create a OvertimeStatusLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OvertimeStatusLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OvertimeStatusLogUpsertArgs>(args: SelectSubset<T, OvertimeStatusLogUpsertArgs<ExtArgs>>): Prisma__OvertimeStatusLogClient<$Result.GetResult<Prisma.$OvertimeStatusLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OvertimeStatusLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeStatusLogCountArgs} args - Arguments to filter OvertimeStatusLogs to count.
+     * @example
+     * // Count the number of OvertimeStatusLogs
+     * const count = await prisma.overtimeStatusLog.count({
+     *   where: {
+     *     // ... the filter for the OvertimeStatusLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends OvertimeStatusLogCountArgs>(
+      args?: Subset<T, OvertimeStatusLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OvertimeStatusLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OvertimeStatusLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeStatusLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OvertimeStatusLogAggregateArgs>(args: Subset<T, OvertimeStatusLogAggregateArgs>): Prisma.PrismaPromise<GetOvertimeStatusLogAggregateType<T>>
+
+    /**
+     * Group by OvertimeStatusLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OvertimeStatusLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OvertimeStatusLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OvertimeStatusLogGroupByArgs['orderBy'] }
+        : { orderBy?: OvertimeStatusLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OvertimeStatusLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOvertimeStatusLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OvertimeStatusLog model
+   */
+  readonly fields: OvertimeStatusLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OvertimeStatusLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OvertimeStatusLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OvertimeStatusLog model
+   */
+  interface OvertimeStatusLogFieldRefs {
+    readonly id: FieldRef<"OvertimeStatusLog", 'Int'>
+    readonly overtime_id: FieldRef<"OvertimeStatusLog", 'Int'>
+    readonly changed_by: FieldRef<"OvertimeStatusLog", 'Int'>
+    readonly from_status: FieldRef<"OvertimeStatusLog", 'String'>
+    readonly to_status: FieldRef<"OvertimeStatusLog", 'String'>
+    readonly note: FieldRef<"OvertimeStatusLog", 'String'>
+    readonly created_at: FieldRef<"OvertimeStatusLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OvertimeStatusLog findUnique
+   */
+  export type OvertimeStatusLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeStatusLog
+     */
+    select?: OvertimeStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeStatusLog
+     */
+    omit?: OvertimeStatusLogOmit<ExtArgs> | null
+    /**
+     * Filter, which OvertimeStatusLog to fetch.
+     */
+    where: OvertimeStatusLogWhereUniqueInput
+  }
+
+  /**
+   * OvertimeStatusLog findUniqueOrThrow
+   */
+  export type OvertimeStatusLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeStatusLog
+     */
+    select?: OvertimeStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeStatusLog
+     */
+    omit?: OvertimeStatusLogOmit<ExtArgs> | null
+    /**
+     * Filter, which OvertimeStatusLog to fetch.
+     */
+    where: OvertimeStatusLogWhereUniqueInput
+  }
+
+  /**
+   * OvertimeStatusLog findFirst
+   */
+  export type OvertimeStatusLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeStatusLog
+     */
+    select?: OvertimeStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeStatusLog
+     */
+    omit?: OvertimeStatusLogOmit<ExtArgs> | null
+    /**
+     * Filter, which OvertimeStatusLog to fetch.
+     */
+    where?: OvertimeStatusLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OvertimeStatusLogs to fetch.
+     */
+    orderBy?: OvertimeStatusLogOrderByWithRelationInput | OvertimeStatusLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OvertimeStatusLogs.
+     */
+    cursor?: OvertimeStatusLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OvertimeStatusLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OvertimeStatusLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OvertimeStatusLogs.
+     */
+    distinct?: OvertimeStatusLogScalarFieldEnum | OvertimeStatusLogScalarFieldEnum[]
+  }
+
+  /**
+   * OvertimeStatusLog findFirstOrThrow
+   */
+  export type OvertimeStatusLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeStatusLog
+     */
+    select?: OvertimeStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeStatusLog
+     */
+    omit?: OvertimeStatusLogOmit<ExtArgs> | null
+    /**
+     * Filter, which OvertimeStatusLog to fetch.
+     */
+    where?: OvertimeStatusLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OvertimeStatusLogs to fetch.
+     */
+    orderBy?: OvertimeStatusLogOrderByWithRelationInput | OvertimeStatusLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OvertimeStatusLogs.
+     */
+    cursor?: OvertimeStatusLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OvertimeStatusLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OvertimeStatusLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OvertimeStatusLogs.
+     */
+    distinct?: OvertimeStatusLogScalarFieldEnum | OvertimeStatusLogScalarFieldEnum[]
+  }
+
+  /**
+   * OvertimeStatusLog findMany
+   */
+  export type OvertimeStatusLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeStatusLog
+     */
+    select?: OvertimeStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeStatusLog
+     */
+    omit?: OvertimeStatusLogOmit<ExtArgs> | null
+    /**
+     * Filter, which OvertimeStatusLogs to fetch.
+     */
+    where?: OvertimeStatusLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OvertimeStatusLogs to fetch.
+     */
+    orderBy?: OvertimeStatusLogOrderByWithRelationInput | OvertimeStatusLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OvertimeStatusLogs.
+     */
+    cursor?: OvertimeStatusLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OvertimeStatusLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OvertimeStatusLogs.
+     */
+    skip?: number
+    distinct?: OvertimeStatusLogScalarFieldEnum | OvertimeStatusLogScalarFieldEnum[]
+  }
+
+  /**
+   * OvertimeStatusLog create
+   */
+  export type OvertimeStatusLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeStatusLog
+     */
+    select?: OvertimeStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeStatusLog
+     */
+    omit?: OvertimeStatusLogOmit<ExtArgs> | null
+    /**
+     * The data needed to create a OvertimeStatusLog.
+     */
+    data: XOR<OvertimeStatusLogCreateInput, OvertimeStatusLogUncheckedCreateInput>
+  }
+
+  /**
+   * OvertimeStatusLog createMany
+   */
+  export type OvertimeStatusLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OvertimeStatusLogs.
+     */
+    data: OvertimeStatusLogCreateManyInput | OvertimeStatusLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OvertimeStatusLog createManyAndReturn
+   */
+  export type OvertimeStatusLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeStatusLog
+     */
+    select?: OvertimeStatusLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeStatusLog
+     */
+    omit?: OvertimeStatusLogOmit<ExtArgs> | null
+    /**
+     * The data used to create many OvertimeStatusLogs.
+     */
+    data: OvertimeStatusLogCreateManyInput | OvertimeStatusLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OvertimeStatusLog update
+   */
+  export type OvertimeStatusLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeStatusLog
+     */
+    select?: OvertimeStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeStatusLog
+     */
+    omit?: OvertimeStatusLogOmit<ExtArgs> | null
+    /**
+     * The data needed to update a OvertimeStatusLog.
+     */
+    data: XOR<OvertimeStatusLogUpdateInput, OvertimeStatusLogUncheckedUpdateInput>
+    /**
+     * Choose, which OvertimeStatusLog to update.
+     */
+    where: OvertimeStatusLogWhereUniqueInput
+  }
+
+  /**
+   * OvertimeStatusLog updateMany
+   */
+  export type OvertimeStatusLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OvertimeStatusLogs.
+     */
+    data: XOR<OvertimeStatusLogUpdateManyMutationInput, OvertimeStatusLogUncheckedUpdateManyInput>
+    /**
+     * Filter which OvertimeStatusLogs to update
+     */
+    where?: OvertimeStatusLogWhereInput
+    /**
+     * Limit how many OvertimeStatusLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OvertimeStatusLog updateManyAndReturn
+   */
+  export type OvertimeStatusLogUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeStatusLog
+     */
+    select?: OvertimeStatusLogSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeStatusLog
+     */
+    omit?: OvertimeStatusLogOmit<ExtArgs> | null
+    /**
+     * The data used to update OvertimeStatusLogs.
+     */
+    data: XOR<OvertimeStatusLogUpdateManyMutationInput, OvertimeStatusLogUncheckedUpdateManyInput>
+    /**
+     * Filter which OvertimeStatusLogs to update
+     */
+    where?: OvertimeStatusLogWhereInput
+    /**
+     * Limit how many OvertimeStatusLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OvertimeStatusLog upsert
+   */
+  export type OvertimeStatusLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeStatusLog
+     */
+    select?: OvertimeStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeStatusLog
+     */
+    omit?: OvertimeStatusLogOmit<ExtArgs> | null
+    /**
+     * The filter to search for the OvertimeStatusLog to update in case it exists.
+     */
+    where: OvertimeStatusLogWhereUniqueInput
+    /**
+     * In case the OvertimeStatusLog found by the `where` argument doesn't exist, create a new OvertimeStatusLog with this data.
+     */
+    create: XOR<OvertimeStatusLogCreateInput, OvertimeStatusLogUncheckedCreateInput>
+    /**
+     * In case the OvertimeStatusLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OvertimeStatusLogUpdateInput, OvertimeStatusLogUncheckedUpdateInput>
+  }
+
+  /**
+   * OvertimeStatusLog delete
+   */
+  export type OvertimeStatusLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeStatusLog
+     */
+    select?: OvertimeStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeStatusLog
+     */
+    omit?: OvertimeStatusLogOmit<ExtArgs> | null
+    /**
+     * Filter which OvertimeStatusLog to delete.
+     */
+    where: OvertimeStatusLogWhereUniqueInput
+  }
+
+  /**
+   * OvertimeStatusLog deleteMany
+   */
+  export type OvertimeStatusLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OvertimeStatusLogs to delete
+     */
+    where?: OvertimeStatusLogWhereInput
+    /**
+     * Limit how many OvertimeStatusLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OvertimeStatusLog without action
+   */
+  export type OvertimeStatusLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OvertimeStatusLog
+     */
+    select?: OvertimeStatusLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OvertimeStatusLog
+     */
+    omit?: OvertimeStatusLogOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model ApiLog
    */
 
@@ -20869,9 +21997,7 @@ export namespace Prisma {
     projectStatusId: 'projectStatusId',
     completeDate: 'completeDate',
     estimateWorkhours: 'estimateWorkhours',
-    assetCaptureType: 'assetCaptureType',
-    colorHex: 'colorHex',
-    colorHexFeature: 'colorHexFeature'
+    assetCaptureType: 'assetCaptureType'
   };
 
   export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
@@ -20958,6 +22084,19 @@ export namespace Prisma {
   };
 
   export type OvertimeDescriptionScalarFieldEnum = (typeof OvertimeDescriptionScalarFieldEnum)[keyof typeof OvertimeDescriptionScalarFieldEnum]
+
+
+  export const OvertimeStatusLogScalarFieldEnum: {
+    id: 'id',
+    overtime_id: 'overtime_id',
+    changed_by: 'changed_by',
+    from_status: 'from_status',
+    to_status: 'to_status',
+    note: 'note',
+    created_at: 'created_at'
+  };
+
+  export type OvertimeStatusLogScalarFieldEnum = (typeof OvertimeStatusLogScalarFieldEnum)[keyof typeof OvertimeStatusLogScalarFieldEnum]
 
 
   export const ApiLogScalarFieldEnum: {
@@ -21806,8 +22945,6 @@ export namespace Prisma {
     completeDate?: DateTimeNullableFilter<"Project"> | Date | string | null
     estimateWorkhours?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFilter<"Project"> | $Enums.ProjectAssetCaptureType
-    colorHex?: StringNullableFilter<"Project"> | string | null
-    colorHexFeature?: StringNullableFilter<"Project"> | string | null
     features?: FeatureListRelationFilter
     group?: XOR<GroupNullableScalarRelationFilter, GroupWhereInput> | null
     projectStatus?: XOR<ProjectStatusNullableScalarRelationFilter, ProjectStatusWhereInput> | null
@@ -21836,8 +22973,6 @@ export namespace Prisma {
     completeDate?: SortOrderInput | SortOrder
     estimateWorkhours?: SortOrderInput | SortOrder
     assetCaptureType?: SortOrder
-    colorHex?: SortOrderInput | SortOrder
-    colorHexFeature?: SortOrderInput | SortOrder
     features?: FeatureOrderByRelationAggregateInput
     group?: GroupOrderByWithRelationInput
     projectStatus?: ProjectStatusOrderByWithRelationInput
@@ -21869,8 +23004,6 @@ export namespace Prisma {
     completeDate?: DateTimeNullableFilter<"Project"> | Date | string | null
     estimateWorkhours?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFilter<"Project"> | $Enums.ProjectAssetCaptureType
-    colorHex?: StringNullableFilter<"Project"> | string | null
-    colorHexFeature?: StringNullableFilter<"Project"> | string | null
     features?: FeatureListRelationFilter
     group?: XOR<GroupNullableScalarRelationFilter, GroupWhereInput> | null
     projectStatus?: XOR<ProjectStatusNullableScalarRelationFilter, ProjectStatusWhereInput> | null
@@ -21899,8 +23032,6 @@ export namespace Prisma {
     completeDate?: SortOrderInput | SortOrder
     estimateWorkhours?: SortOrderInput | SortOrder
     assetCaptureType?: SortOrder
-    colorHex?: SortOrderInput | SortOrder
-    colorHexFeature?: SortOrderInput | SortOrder
     _count?: ProjectCountOrderByAggregateInput
     _avg?: ProjectAvgOrderByAggregateInput
     _max?: ProjectMaxOrderByAggregateInput
@@ -21932,8 +23063,6 @@ export namespace Prisma {
     completeDate?: DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
     estimateWorkhours?: DecimalNullableWithAggregatesFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeWithAggregatesFilter<"Project"> | $Enums.ProjectAssetCaptureType
-    colorHex?: StringNullableWithAggregatesFilter<"Project"> | string | null
-    colorHexFeature?: StringNullableWithAggregatesFilter<"Project"> | string | null
   }
 
   export type FeatureWhereInput = {
@@ -22380,6 +23509,70 @@ export namespace Prisma {
     endDate?: DateTimeNullableWithAggregatesFilter<"OvertimeDescription"> | Date | string | null
     startDate?: DateTimeNullableWithAggregatesFilter<"OvertimeDescription"> | Date | string | null
     proof?: JsonNullableWithAggregatesFilter<"OvertimeDescription">
+  }
+
+  export type OvertimeStatusLogWhereInput = {
+    AND?: OvertimeStatusLogWhereInput | OvertimeStatusLogWhereInput[]
+    OR?: OvertimeStatusLogWhereInput[]
+    NOT?: OvertimeStatusLogWhereInput | OvertimeStatusLogWhereInput[]
+    id?: IntFilter<"OvertimeStatusLog"> | number
+    overtime_id?: IntFilter<"OvertimeStatusLog"> | number
+    changed_by?: IntNullableFilter<"OvertimeStatusLog"> | number | null
+    from_status?: StringNullableFilter<"OvertimeStatusLog"> | string | null
+    to_status?: StringFilter<"OvertimeStatusLog"> | string
+    note?: StringNullableFilter<"OvertimeStatusLog"> | string | null
+    created_at?: DateTimeFilter<"OvertimeStatusLog"> | Date | string
+  }
+
+  export type OvertimeStatusLogOrderByWithRelationInput = {
+    id?: SortOrder
+    overtime_id?: SortOrder
+    changed_by?: SortOrderInput | SortOrder
+    from_status?: SortOrderInput | SortOrder
+    to_status?: SortOrder
+    note?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+  }
+
+  export type OvertimeStatusLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: OvertimeStatusLogWhereInput | OvertimeStatusLogWhereInput[]
+    OR?: OvertimeStatusLogWhereInput[]
+    NOT?: OvertimeStatusLogWhereInput | OvertimeStatusLogWhereInput[]
+    overtime_id?: IntFilter<"OvertimeStatusLog"> | number
+    changed_by?: IntNullableFilter<"OvertimeStatusLog"> | number | null
+    from_status?: StringNullableFilter<"OvertimeStatusLog"> | string | null
+    to_status?: StringFilter<"OvertimeStatusLog"> | string
+    note?: StringNullableFilter<"OvertimeStatusLog"> | string | null
+    created_at?: DateTimeFilter<"OvertimeStatusLog"> | Date | string
+  }, "id">
+
+  export type OvertimeStatusLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    overtime_id?: SortOrder
+    changed_by?: SortOrderInput | SortOrder
+    from_status?: SortOrderInput | SortOrder
+    to_status?: SortOrder
+    note?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    _count?: OvertimeStatusLogCountOrderByAggregateInput
+    _avg?: OvertimeStatusLogAvgOrderByAggregateInput
+    _max?: OvertimeStatusLogMaxOrderByAggregateInput
+    _min?: OvertimeStatusLogMinOrderByAggregateInput
+    _sum?: OvertimeStatusLogSumOrderByAggregateInput
+  }
+
+  export type OvertimeStatusLogScalarWhereWithAggregatesInput = {
+    AND?: OvertimeStatusLogScalarWhereWithAggregatesInput | OvertimeStatusLogScalarWhereWithAggregatesInput[]
+    OR?: OvertimeStatusLogScalarWhereWithAggregatesInput[]
+    NOT?: OvertimeStatusLogScalarWhereWithAggregatesInput | OvertimeStatusLogScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"OvertimeStatusLog"> | number
+    overtime_id?: IntWithAggregatesFilter<"OvertimeStatusLog"> | number
+    changed_by?: IntNullableWithAggregatesFilter<"OvertimeStatusLog"> | number | null
+    from_status?: StringNullableWithAggregatesFilter<"OvertimeStatusLog"> | string | null
+    to_status?: StringWithAggregatesFilter<"OvertimeStatusLog"> | string
+    note?: StringNullableWithAggregatesFilter<"OvertimeStatusLog"> | string | null
+    created_at?: DateTimeWithAggregatesFilter<"OvertimeStatusLog"> | Date | string
   }
 
   export type ApiLogWhereInput = {
@@ -23201,8 +24394,6 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
-    colorHex?: string | null
-    colorHexFeature?: string | null
     features?: FeatureCreateNestedManyWithoutProjectInput
     group?: GroupCreateNestedOneWithoutProjectsInput
     projectStatus?: ProjectStatusCreateNestedOneWithoutProjectsInput
@@ -23231,8 +24422,6 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
-    colorHex?: string | null
-    colorHexFeature?: string | null
     features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
@@ -23256,8 +24445,6 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
-    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
-    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUpdateManyWithoutProjectNestedInput
     group?: GroupUpdateOneWithoutProjectsNestedInput
     projectStatus?: ProjectStatusUpdateOneWithoutProjectsNestedInput
@@ -23286,8 +24473,6 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
-    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
-    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
@@ -23314,8 +24499,6 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
-    colorHex?: string | null
-    colorHexFeature?: string | null
   }
 
   export type ProjectUpdateManyMutationInput = {
@@ -23336,8 +24519,6 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
-    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
-    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ProjectUncheckedUpdateManyInput = {
@@ -23361,8 +24542,6 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
-    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
-    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type FeatureCreateInput = {
@@ -23827,6 +25006,73 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     proof?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type OvertimeStatusLogCreateInput = {
+    overtime_id: number
+    changed_by?: number | null
+    from_status?: string | null
+    to_status: string
+    note?: string | null
+    created_at?: Date | string
+  }
+
+  export type OvertimeStatusLogUncheckedCreateInput = {
+    id?: number
+    overtime_id: number
+    changed_by?: number | null
+    from_status?: string | null
+    to_status: string
+    note?: string | null
+    created_at?: Date | string
+  }
+
+  export type OvertimeStatusLogUpdateInput = {
+    overtime_id?: IntFieldUpdateOperationsInput | number
+    changed_by?: NullableIntFieldUpdateOperationsInput | number | null
+    from_status?: NullableStringFieldUpdateOperationsInput | string | null
+    to_status?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OvertimeStatusLogUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    overtime_id?: IntFieldUpdateOperationsInput | number
+    changed_by?: NullableIntFieldUpdateOperationsInput | number | null
+    from_status?: NullableStringFieldUpdateOperationsInput | string | null
+    to_status?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OvertimeStatusLogCreateManyInput = {
+    id?: number
+    overtime_id: number
+    changed_by?: number | null
+    from_status?: string | null
+    to_status: string
+    note?: string | null
+    created_at?: Date | string
+  }
+
+  export type OvertimeStatusLogUpdateManyMutationInput = {
+    overtime_id?: IntFieldUpdateOperationsInput | number
+    changed_by?: NullableIntFieldUpdateOperationsInput | number | null
+    from_status?: NullableStringFieldUpdateOperationsInput | string | null
+    to_status?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OvertimeStatusLogUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    overtime_id?: IntFieldUpdateOperationsInput | number
+    changed_by?: NullableIntFieldUpdateOperationsInput | number | null
+    from_status?: NullableStringFieldUpdateOperationsInput | string | null
+    to_status?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ApiLogCreateInput = {
@@ -24693,8 +25939,6 @@ export namespace Prisma {
     completeDate?: SortOrder
     estimateWorkhours?: SortOrder
     assetCaptureType?: SortOrder
-    colorHex?: SortOrder
-    colorHexFeature?: SortOrder
   }
 
   export type ProjectAvgOrderByAggregateInput = {
@@ -24727,8 +25971,6 @@ export namespace Prisma {
     completeDate?: SortOrder
     estimateWorkhours?: SortOrder
     assetCaptureType?: SortOrder
-    colorHex?: SortOrder
-    colorHexFeature?: SortOrder
   }
 
   export type ProjectMinOrderByAggregateInput = {
@@ -24752,8 +25994,6 @@ export namespace Prisma {
     completeDate?: SortOrder
     estimateWorkhours?: SortOrder
     assetCaptureType?: SortOrder
-    colorHex?: SortOrder
-    colorHexFeature?: SortOrder
   }
 
   export type ProjectSumOrderByAggregateInput = {
@@ -25176,6 +26416,48 @@ export namespace Prisma {
     id?: SortOrder
     overtimeId?: SortOrder
     duration?: SortOrder
+  }
+
+  export type OvertimeStatusLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    overtime_id?: SortOrder
+    changed_by?: SortOrder
+    from_status?: SortOrder
+    to_status?: SortOrder
+    note?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type OvertimeStatusLogAvgOrderByAggregateInput = {
+    id?: SortOrder
+    overtime_id?: SortOrder
+    changed_by?: SortOrder
+  }
+
+  export type OvertimeStatusLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    overtime_id?: SortOrder
+    changed_by?: SortOrder
+    from_status?: SortOrder
+    to_status?: SortOrder
+    note?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type OvertimeStatusLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    overtime_id?: SortOrder
+    changed_by?: SortOrder
+    from_status?: SortOrder
+    to_status?: SortOrder
+    note?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type OvertimeStatusLogSumOrderByAggregateInput = {
+    id?: SortOrder
+    overtime_id?: SortOrder
+    changed_by?: SortOrder
   }
 
   export type BigIntFilter<$PrismaModel = never> = {
@@ -27397,8 +28679,6 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
-    colorHex?: string | null
-    colorHexFeature?: string | null
     features?: FeatureCreateNestedManyWithoutProjectInput
     projectStatus?: ProjectStatusCreateNestedOneWithoutProjectsInput
     projectAssignees?: ProjectAssigneeCreateNestedManyWithoutProjectInput
@@ -27425,8 +28705,6 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
-    colorHex?: string | null
-    colorHexFeature?: string | null
     features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
@@ -27482,8 +28760,6 @@ export namespace Prisma {
     completeDate?: DateTimeNullableFilter<"Project"> | Date | string | null
     estimateWorkhours?: DecimalNullableFilter<"Project"> | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFilter<"Project"> | $Enums.ProjectAssetCaptureType
-    colorHex?: StringNullableFilter<"Project"> | string | null
-    colorHexFeature?: StringNullableFilter<"Project"> | string | null
   }
 
   export type FeatureCreateWithoutProjectStatusInput = {
@@ -27557,8 +28833,6 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
-    colorHex?: string | null
-    colorHexFeature?: string | null
     features?: FeatureCreateNestedManyWithoutProjectInput
     group?: GroupCreateNestedOneWithoutProjectsInput
     projectAssignees?: ProjectAssigneeCreateNestedManyWithoutProjectInput
@@ -27585,8 +28859,6 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
-    colorHex?: string | null
-    colorHexFeature?: string | null
     features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
@@ -27950,8 +29222,6 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
-    colorHex?: string | null
-    colorHexFeature?: string | null
     group?: GroupCreateNestedOneWithoutProjectsInput
     projectStatus?: ProjectStatusCreateNestedOneWithoutProjectsInput
     projectAssignees?: ProjectAssigneeCreateNestedManyWithoutProjectInput
@@ -27979,8 +29249,6 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
-    colorHex?: string | null
-    colorHexFeature?: string | null
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
   }
@@ -28099,8 +29367,6 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
-    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
-    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     group?: GroupUpdateOneWithoutProjectsNestedInput
     projectStatus?: ProjectStatusUpdateOneWithoutProjectsNestedInput
     projectAssignees?: ProjectAssigneeUpdateManyWithoutProjectNestedInput
@@ -28128,8 +29394,6 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
-    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
-    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
   }
@@ -28210,8 +29474,6 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
-    colorHex?: string | null
-    colorHexFeature?: string | null
     features?: FeatureCreateNestedManyWithoutProjectInput
     group?: GroupCreateNestedOneWithoutProjectsInput
     projectStatus?: ProjectStatusCreateNestedOneWithoutProjectsInput
@@ -28239,8 +29501,6 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
-    colorHex?: string | null
-    colorHexFeature?: string | null
     features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
     timesheets?: TimesheetEntryUncheckedCreateNestedManyWithoutProjectInput
   }
@@ -28327,8 +29587,6 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
-    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
-    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUpdateManyWithoutProjectNestedInput
     group?: GroupUpdateOneWithoutProjectsNestedInput
     projectStatus?: ProjectStatusUpdateOneWithoutProjectsNestedInput
@@ -28356,8 +29614,6 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
-    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
-    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
   }
@@ -28482,8 +29738,6 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
-    colorHex?: string | null
-    colorHexFeature?: string | null
     features?: FeatureCreateNestedManyWithoutProjectInput
     group?: GroupCreateNestedOneWithoutProjectsInput
     projectStatus?: ProjectStatusCreateNestedOneWithoutProjectsInput
@@ -28511,8 +29765,6 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
-    colorHex?: string | null
-    colorHexFeature?: string | null
     features?: FeatureUncheckedCreateNestedManyWithoutProjectInput
     projectAssignees?: ProjectAssigneeUncheckedCreateNestedManyWithoutProjectInput
   }
@@ -28605,8 +29857,6 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
-    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
-    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUpdateManyWithoutProjectNestedInput
     group?: GroupUpdateOneWithoutProjectsNestedInput
     projectStatus?: ProjectStatusUpdateOneWithoutProjectsNestedInput
@@ -28634,8 +29884,6 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
-    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
-    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput
   }
@@ -29635,8 +30883,6 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
-    colorHex?: string | null
-    colorHexFeature?: string | null
   }
 
   export type ProjectUpdateWithoutGroupInput = {
@@ -29657,8 +30903,6 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
-    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
-    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUpdateManyWithoutProjectNestedInput
     projectStatus?: ProjectStatusUpdateOneWithoutProjectsNestedInput
     projectAssignees?: ProjectAssigneeUpdateManyWithoutProjectNestedInput
@@ -29685,8 +30929,6 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
-    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
-    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
@@ -29712,8 +30954,6 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
-    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
-    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type FeatureCreateManyProjectStatusInput = {
@@ -29756,8 +30996,6 @@ export namespace Prisma {
     completeDate?: Date | string | null
     estimateWorkhours?: Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: $Enums.ProjectAssetCaptureType
-    colorHex?: string | null
-    colorHexFeature?: string | null
   }
 
   export type FeatureUpdateWithoutProjectStatusInput = {
@@ -29841,8 +31079,6 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
-    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
-    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUpdateManyWithoutProjectNestedInput
     group?: GroupUpdateOneWithoutProjectsNestedInput
     projectAssignees?: ProjectAssigneeUpdateManyWithoutProjectNestedInput
@@ -29869,8 +31105,6 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
-    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
-    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
     features?: FeatureUncheckedUpdateManyWithoutProjectNestedInput
     projectAssignees?: ProjectAssigneeUncheckedUpdateManyWithoutProjectNestedInput
     timesheets?: TimesheetEntryUncheckedUpdateManyWithoutProjectNestedInput
@@ -29896,8 +31130,6 @@ export namespace Prisma {
     completeDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estimateWorkhours?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     assetCaptureType?: EnumProjectAssetCaptureTypeFieldUpdateOperationsInput | $Enums.ProjectAssetCaptureType
-    colorHex?: NullableStringFieldUpdateOperationsInput | string | null
-    colorHexFeature?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type FeatureCreateManyProjectInput = {

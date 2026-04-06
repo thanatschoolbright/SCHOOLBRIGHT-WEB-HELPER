@@ -1,7 +1,5 @@
 "use client";
 
-"use client";
-
 import { OT_STATUS } from "@/constants/overtime-status";
 import {
   CameraOutlined,
@@ -28,12 +26,14 @@ import {
   Modal,
   Row,
   Space,
+  Spin,
   Table,
   Tag,
   theme,
   Timeline,
   Typography,
 } from "antd";
+import axios from "axios";
 import dayjs from "dayjs";
 import React from "react";
 
@@ -56,6 +56,26 @@ const DetailModal: React.FC<DetailModalProps> = ({
 }) => {
   const { token } = theme.useToken();
 
+  // ประวัติจาก Database (real logs)
+  const [statusLogs, setStatusLogs] = React.useState<any[]>([]);
+  const [isLoadingLogs, setIsLoadingLogs] = React.useState(false);
+
+  // ดึง status logs จาก API ทุกครั้งที่เปิด modal และมีข้อมูล
+  React.useEffect(() => {
+    if (!visible || !selectedDetail?.id) {
+      setStatusLogs([]);
+      return;
+    }
+    setIsLoadingLogs(true);
+    axios
+      .get(`/api/v1/timesheet/overtime/status-log?overtime_id=${selectedDetail.id}`)
+      .then((res) => {
+        if (res.data?.data) setStatusLogs(res.data.data);
+      })
+      .catch(() => setStatusLogs([]))
+      .finally(() => setIsLoadingLogs(false));
+  }, [visible, selectedDetail?.id]);
+
   // คำนวณสรุปจำนวนชั่วโมงทำงานโดยรวมในคำขอที่ถูกเลือก
   const totalDurationSummaryValue = React.useMemo(() => {
     return (
@@ -66,25 +86,31 @@ const DetailModal: React.FC<DetailModalProps> = ({
     );
   }, [selectedDetail]);
 
-  // สร้าง Timeline items จาก status_history (ถ้ามี) หรือ derive จากข้อมูลที่มี
+  // Map icon และสีตาม status (ใช้ร่วมกัน)
+  const statusIconMap: Record<string, { icon: React.ReactNode; color: string }> = {
+    pending:        { icon: <ClockCircleOutlined />,       color: "gold"    },
+    approved:       { icon: <CheckCircleOutlined />,       color: "green"   },
+    rejected:       { icon: <CloseCircleOutlined />,       color: "red"     },
+    paid:           { icon: <DollarOutlined />,            color: "cyan"    },
+    payment_failed: { icon: <ExclamationCircleOutlined />, color: "volcano" },
+    created:        { icon: <PlusCircleOutlined />,        color: "blue"    },
+  };
+
+  // สร้าง Timeline items จาก statusLogs (Database) หรือ derive จากข้อมูลที่มี (fallback)
   const approvalTimelineItems = React.useMemo(() => {
     if (!selectedDetail) return [];
 
-    // Map icon และสีตาม status
-    const statusIconMap: Record<string, { icon: React.ReactNode; color: string }> = {
-      pending:       { icon: <ClockCircleOutlined />,       color: "gold"    },
-      approved:      { icon: <CheckCircleOutlined />,       color: "green"   },
-      rejected:      { icon: <CloseCircleOutlined />,       color: "red"     },
-      paid:          { icon: <DollarOutlined />,            color: "cyan"    },
-      payment_failed:{ icon: <ExclamationCircleOutlined />, color: "volcano" },
-      created:       { icon: <PlusCircleOutlined />,        color: "blue"    },
-    };
+    // ใช้ real logs จาก Database ถ้ามี
+    if (statusLogs.length > 0) {
+      return statusLogs.map((log: any) => {
+        // log ที่มี from_status = null คือการสร้าง
+        const isCreation = !log.from_status;
+        const statusKey = isCreation ? "created" : log.to_status;
+        const cfg = statusIconMap[statusKey] || { icon: <HistoryOutlined />, color: "gray" };
+        const statusLabel = isCreation
+          ? "สร้างคำขอ OT"
+          : (OT_STATUS.find((s) => s.value === log.to_status)?.text || log.to_status);
 
-    // ใช้ status_history ถ้า API ส่งมา
-    if (Array.isArray(selectedDetail.status_history) && selectedDetail.status_history.length > 0) {
-      return selectedDetail.status_history.map((h: any) => {
-        const cfg = statusIconMap[h.status] || { icon: <HistoryOutlined />, color: "gray" };
-        const statusLabel = OT_STATUS.find((s) => s.value === h.status)?.text || h.status;
         return {
           dot: cfg.icon,
           color: cfg.color,
@@ -93,14 +119,14 @@ const DetailModal: React.FC<DetailModalProps> = ({
               <Tag color={cfg.color} style={{ margin: 0, width: "fit-content", fontSize: 12 }}>
                 {statusLabel}
               </Tag>
-              {h.note && (
+              {log.note && log.note !== "สร้างคำขอ OT" && (
                 <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  📝 {h.note}
+                  📝 {log.note}
                 </Typography.Text>
               )}
               <Typography.Text type="secondary" style={{ fontSize: 11 }}>
-                {h.changed_by_name || h.changed_by || ""}{" "}
-                {h.changed_at ? `• ${dayjs(h.changed_at).format("DD/MM/YYYY HH:mm")}` : ""}
+                {log.changed_by_name ?? ""}{" "}
+                {log.changed_at ? `• ${dayjs(log.changed_at).format("DD/MM/YYYY HH:mm")}` : ""}
               </Typography.Text>
             </Flex>
           ),
@@ -108,10 +134,9 @@ const DetailModal: React.FC<DetailModalProps> = ({
       });
     }
 
-    // Derive timeline จาก fields ที่มี (fallback)
+    // Derive timeline จาก fields ที่มี (fallback เมื่อยังไม่มี log)
     const items: any[] = [];
 
-    // 1. สร้างคำขอ
     if (selectedDetail.created_at) {
       items.push({
         dot: <PlusCircleOutlined />,
@@ -130,7 +155,6 @@ const DetailModal: React.FC<DetailModalProps> = ({
       });
     }
 
-    // 2. สถานะปัจจุบัน (ถ้าไม่ใช่ pending แสดงว่ามีการเปลี่ยนแปลง)
     if (selectedDetail.status && selectedDetail.status !== "pending") {
       const cfg = statusIconMap[selectedDetail.status] || { icon: <HistoryOutlined />, color: "gray" };
       const statusLabel = OT_STATUS.find((s) => s.value === selectedDetail.status)?.text || selectedDetail.status;
@@ -157,7 +181,6 @@ const DetailModal: React.FC<DetailModalProps> = ({
       });
     }
 
-    // 3. สถานะ pending (รออนุมัติ) เป็น item ล่าสุด
     if (selectedDetail.status === "pending") {
       items.push({
         dot: <ClockCircleOutlined />,
@@ -176,7 +199,7 @@ const DetailModal: React.FC<DetailModalProps> = ({
     }
 
     return items;
-  }, [selectedDetail]);
+  }, [selectedDetail, statusLogs]);
 
   // รวบรวมรูปภาพหลักฐานทั้งหมดจากทุกรายการภาระงาน
   const proofImages = React.useMemo(() => {
@@ -392,29 +415,34 @@ const DetailModal: React.FC<DetailModalProps> = ({
         </Flex>
 
         {/* ส่วนที่ 3: ประวัติการเปลี่ยนแปลงสถานะ (Approval History Log) */}
-        {approvalTimelineItems.length > 0 && (
-          <Flex vertical gap={12}>
-            <Divider orientation="left" style={{ margin: "8px 0" }}>
-              <Space>
-                <HistoryOutlined style={{ color: token.colorPrimary }} />
-                <Typography.Text strong>ประวัติการดำเนินการ</Typography.Text>
-              </Space>
-            </Divider>
-            <Card
-              variant="borderless"
-              style={{
-                background: token.colorFillQuaternary,
-                borderRadius: 16,
-              }}
-              styles={{ body: { padding: "20px 24px" } }}
-            >
-              <Timeline
-                mode="left"
-                items={approvalTimelineItems}
-              />
-            </Card>
-          </Flex>
-        )}
+        <Flex vertical gap={12}>
+          <Divider orientation="left" style={{ margin: "8px 0" }}>
+            <Space>
+              <HistoryOutlined style={{ color: token.colorPrimary }} />
+              <Typography.Text strong>ประวัติการดำเนินการ</Typography.Text>
+            </Space>
+          </Divider>
+          <Card
+            variant="borderless"
+            style={{
+              background: token.colorFillQuaternary,
+              borderRadius: 16,
+            }}
+            styles={{ body: { padding: "20px 24px" } }}
+          >
+            {isLoadingLogs ? (
+              <Flex justify="center" style={{ padding: "16px 0" }}>
+                <Spin size="small" />
+              </Flex>
+            ) : approvalTimelineItems.length > 0 ? (
+              <Timeline mode="left" items={approvalTimelineItems} />
+            ) : (
+              <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+                ไม่พบประวัติการดำเนินการ
+              </Typography.Text>
+            )}
+          </Card>
+        </Flex>
 
         {/* ส่วนที่ 4: หลักฐานรูปภาพและลายเซ็น */}
         <Flex vertical gap={16}>

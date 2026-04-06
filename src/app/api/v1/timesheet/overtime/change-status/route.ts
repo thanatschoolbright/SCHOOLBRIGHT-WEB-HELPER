@@ -1,6 +1,7 @@
 import { errorResponse, successResponse } from "@/helpers/api/response";
 import { validateRequest } from "@helpers/api/validate.request";
 import { handleError } from "@helpers/controller/handle-error.params";
+import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { updateOvertimeStatusWithNotification } from "../_service/overtime-service";
@@ -50,11 +51,36 @@ export async function POST(request: NextRequest) {
     const status = bodyData.status as string;
     const updatedBy = bodyData.updated_by;
 
+    // ดึงสถานะก่อนหน้า เพื่อบันทึก from_status ใน log
+    let fromStatus: string | null = null;
+    try {
+      const current = await (PrismaTimesheet as any).overtime.findUnique({
+        where: { id },
+        select: { status: true },
+      });
+      fromStatus = current?.status ?? null;
+    } catch (_) {}
+
     const updated = await updateOvertimeStatusWithNotification(
       id,
       status,
       updatedBy !== undefined ? Number(updatedBy) : undefined,
     );
+
+    // บันทึก log การเปลี่ยนแปลงสถานะ
+    try {
+      await (PrismaTimesheet as any).overtimeStatusLog.create({
+        data: {
+          overtime_id: id,
+          changed_by: updatedBy ? Number(updatedBy) : null,
+          from_status: fromStatus,
+          to_status: status,
+          note: null,
+        },
+      });
+    } catch (logErr) {
+      console.error("Failed to write overtime_status_log:", logErr);
+    }
 
     return NextResponse.json(
       successResponse({

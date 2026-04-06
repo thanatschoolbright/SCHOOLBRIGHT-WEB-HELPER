@@ -235,9 +235,7 @@ exports.Prisma.ProjectScalarFieldEnum = {
   projectStatusId: 'projectStatusId',
   completeDate: 'completeDate',
   estimateWorkhours: 'estimateWorkhours',
-  assetCaptureType: 'assetCaptureType',
-  colorHex: 'colorHex',
-  colorHexFeature: 'colorHexFeature'
+  assetCaptureType: 'assetCaptureType'
 };
 
 exports.Prisma.FeatureScalarFieldEnum = {
@@ -308,6 +306,16 @@ exports.Prisma.OvertimeDescriptionScalarFieldEnum = {
   proof: 'proof'
 };
 
+exports.Prisma.OvertimeStatusLogScalarFieldEnum = {
+  id: 'id',
+  overtime_id: 'overtime_id',
+  changed_by: 'changed_by',
+  from_status: 'from_status',
+  to_status: 'to_status',
+  note: 'note',
+  created_at: 'created_at'
+};
+
 exports.Prisma.ApiLogScalarFieldEnum = {
   id: 'id',
   request_time: 'request_time',
@@ -376,6 +384,7 @@ exports.Prisma.ModelName = {
   TimesheetEntry: 'TimesheetEntry',
   Overtime: 'Overtime',
   OvertimeDescription: 'OvertimeDescription',
+  OvertimeStatusLog: 'OvertimeStatusLog',
   ApiLog: 'ApiLog'
 };
 

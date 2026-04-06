@@ -268,6 +268,20 @@ model OvertimeDescription {
   @@map("timesheet_overtime_descriptions")
 }
 
+model OvertimeStatusLog {
+  id          Int      @id @default(autoincrement()) @map("id")
+  overtime_id Int      @map("overtime_id")
+  changed_by  Int?     @map("changed_by")
+  from_status String?  @map("from_status")
+  to_status   String   @map("to_status")
+  note        String?  @map("note")
+  created_at  DateTime @default(now()) @map("created_at")
+
+  @@index([overtime_id])
+  @@index([created_at])
+  @@map("overtime_status_log")
+}
+
 model ApiLog {
   id             BigInt    @id @default(autoincrement()) @map("id")
   request_time   DateTime  @map("request_time")

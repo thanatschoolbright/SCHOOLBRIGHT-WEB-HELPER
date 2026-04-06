@@ -1,6 +1,7 @@
 import { successResponse } from "@/helpers/api/response";
 import { validateRequest } from "@/helpers/api/validate.request";
 import { handleError } from "@helpers/controller/handle-error.params";
+import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import { CreateOvertimeInput } from "@services/overtime/overtime.service";
 import { NextRequest, NextResponse } from "next/server";
 import { createOvertimeWithNotification } from "../_service/overtime-service";
@@ -35,7 +36,24 @@ export async function POST(request: NextRequest) {
       createdBy: d.created_by,
     };
 
-    const created = await createOvertimeWithNotification(payload);
+    const created = await createOvertimeWithNotification(payload) as { id?: number };
+
+    // บันทึก log การสร้างคำขอ OT (to_status = pending หรือ status จาก payload)
+    if (created?.id) {
+      try {
+        await (PrismaTimesheet as any).overtimeStatusLog.create({
+          data: {
+            overtime_id: Number(created.id),
+            changed_by: d.created_by ? Number(d.created_by) : null,
+            from_status: null,
+            to_status: d.status ?? "pending",
+            note: "สร้างคำขอ OT",
+          },
+        });
+      } catch (logErr) {
+        console.error("Failed to write overtime_status_log on create:", logErr);
+      }
+    }
 
     return NextResponse.json(
       successResponse({
