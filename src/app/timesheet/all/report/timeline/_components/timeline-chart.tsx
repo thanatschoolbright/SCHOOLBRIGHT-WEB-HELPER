@@ -23,7 +23,7 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import React, { useMemo } from "react";
-import { useTimelineStore } from "../_state/timeline-store";
+import { useTimelineStore } from "../_stores/timeline-store";
 
 const { Text } = Typography;
 
@@ -92,7 +92,10 @@ const TimelineChart: React.FC = () => {
                     color: sub.color_hex || featureColor,
                     dot: (
                       <BranchesOutlined
-                        style={{ fontSize: "14px", color: sub.color_hex || featureColor }}
+                        style={{
+                          fontSize: "14px",
+                          color: sub.color_hex || featureColor,
+                        }}
                       />
                     ),
                     children: (

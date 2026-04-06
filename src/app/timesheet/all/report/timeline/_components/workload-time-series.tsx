@@ -5,7 +5,7 @@ import { Line } from "@ant-design/plots";
 import { Card, Empty, Spin, theme } from "antd";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
-import { useTimelineStore } from "../_state/timeline-store";
+import { useTimelineStore } from "../_stores/timeline-store";
 
 dayjs.extend(isBetween);
 

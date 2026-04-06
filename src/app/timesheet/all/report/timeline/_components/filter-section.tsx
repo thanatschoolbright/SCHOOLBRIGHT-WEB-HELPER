@@ -18,9 +18,8 @@ import {
   Space,
   Typography,
 } from "antd";
-import dayjs from "dayjs";
 import React, { useEffect } from "react";
-import { useTimelineStore } from "../_state/timeline-store";
+import { useTimelineStore } from "../_stores/timeline-store";
 
 const { Text } = Typography;
 const { RangePicker } = DatePicker;

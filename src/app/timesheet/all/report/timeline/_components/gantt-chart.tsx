@@ -7,7 +7,6 @@ import {
   CalendarOutlined,
   EditOutlined,
   PlusCircleOutlined,
-  ProjectOutlined,
 } from "@ant-design/icons";
 import {
   Badge,
@@ -23,7 +22,7 @@ import {
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useTimelineStore } from "../_state/timeline-store";
+import { useTimelineStore } from "../_stores/timeline-store";
 
 dayjs.extend(isoWeek);
 
@@ -37,8 +36,8 @@ const SCALE_CONFIG: Record<
   ViewScale,
   { colWidth: number; minWidth: number; label: string }
 > = {
-  day:   { colWidth: 32, minWidth: 900, label: "รายวัน" },
-  week:  { colWidth: 80, minWidth: 900, label: "รายสัปดาห์" },
+  day: { colWidth: 32, minWidth: 900, label: "รายวัน" },
+  week: { colWidth: 80, minWidth: 900, label: "รายสัปดาห์" },
   month: { colWidth: 100, minWidth: 900, label: "รายเดือน" },
 };
 
@@ -46,19 +45,19 @@ const LABEL_COL_WIDTH = 260;
 
 // ─── สีตามสถานะโครงการ ───────────────────────────────────────────────────────
 const STATUS_COLORS: Record<string, string> = {
-  open:      "#1677ff",
-  active:    "#1677ff",
-  closed:    "#8c8c8c",
-  on_hold:   "#faad14",
+  open: "#1677ff",
+  active: "#1677ff",
+  closed: "#8c8c8c",
+  on_hold: "#faad14",
   completed: "#52c41a",
   cancelled: "#ff4d4f",
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  open:      "กำลังดำเนินการ",
-  active:    "กำลังดำเนินการ",
-  closed:    "ปิดแล้ว",
-  on_hold:   "หยุดชั่วคราว",
+  open: "กำลังดำเนินการ",
+  active: "กำลังดำเนินการ",
+  closed: "ปิดแล้ว",
+  on_hold: "หยุดชั่วคราว",
   completed: "เสร็จสิ้น",
   cancelled: "ยกเลิก",
 };
@@ -69,14 +68,14 @@ function getStatusColor(status: string): string {
 
 // ─── คำนวณ "หน่วย" ของแต่ละ scale ───────────────────────────────────────────
 interface ScaleUnit {
-  key: string;         // unique key
-  label: string;       // label บน header แถวที่ 2
-  groupLabel: string;  // label บน header แถวที่ 1 (ปี/เดือน)
-  groupKey: string;    // key สำหรับ group
-  startDay: number;    // offset จาก chartStart (หน่วย = วัน)
-  spanDays: number;    // กว้างกี่วัน
+  key: string; // unique key
+  label: string; // label บน header แถวที่ 2
+  groupLabel: string; // label บน header แถวที่ 1 (ปี/เดือน)
+  groupKey: string; // key สำหรับ group
+  startDay: number; // offset จาก chartStart (หน่วย = วัน)
+  spanDays: number; // กว้างกี่วัน
   isWeekend?: boolean; // สำหรับ day scale
-  isToday?: boolean;   // สำหรับ day scale
+  isToday?: boolean; // สำหรับ day scale
 }
 
 function buildUnits(
@@ -186,7 +185,12 @@ function GanttHeader({
   const { token } = theme.useToken();
 
   // สร้าง group จาก units
-  const groups: { key: string; label: string; startDay: number; spanDays: number }[] = [];
+  const groups: {
+    key: string;
+    label: string;
+    startDay: number;
+    spanDays: number;
+  }[] = [];
   units.forEach((u) => {
     const last = groups[groups.length - 1];
     if (last && last.key === u.groupKey) {
@@ -211,7 +215,13 @@ function GanttHeader({
       }}
     >
       {/* แถวที่ 1 — Group (ปี / เดือน) */}
-      <div style={{ position: "relative", height: 28, borderBottom: `1px solid ${token.colorBorderSecondary}` }}>
+      <div
+        style={{
+          position: "relative",
+          height: 28,
+          borderBottom: `1px solid ${token.colorBorderSecondary}`,
+        }}
+      >
         {groups.map((g) => (
           <div
             key={g.key}
@@ -400,9 +410,10 @@ function GanttRow({
   const bar = calcBar(startDate, endDate, chartStart, totalDays);
   const ROW_HEIGHT = isSubProject ? 34 : 42;
 
-  const durationDays = startDate && endDate
-    ? dayjs(endDate).diff(dayjs(startDate), "day") + 1
-    : null;
+  const durationDays =
+    startDate && endDate
+      ? dayjs(endDate).diff(dayjs(startDate), "day") + 1
+      : null;
 
   return (
     <div
@@ -435,7 +446,11 @@ function GanttRow({
       >
         {isSubProject ? (
           <BranchesOutlined
-            style={{ fontSize: 11, color: token.colorTextQuaternary, flexShrink: 0 }}
+            style={{
+              fontSize: 11,
+              color: token.colorTextQuaternary,
+              flexShrink: 0,
+            }}
           />
         ) : (
           <div
@@ -476,7 +491,12 @@ function GanttRow({
                 />
               }
               onClick={onAddSubProject}
-              style={{ padding: 0, height: "auto", lineHeight: 1, flexShrink: 0 }}
+              style={{
+                padding: 0,
+                height: "auto",
+                lineHeight: 1,
+                flexShrink: 0,
+              }}
             />
           </Tooltip>
         )}
@@ -486,10 +506,17 @@ function GanttRow({
               type="text"
               size="small"
               icon={
-                <EditOutlined style={{ fontSize: 11, color: token.colorLink }} />
+                <EditOutlined
+                  style={{ fontSize: 11, color: token.colorLink }}
+                />
               }
               onClick={onEdit}
-              style={{ padding: 0, height: "auto", lineHeight: 1, flexShrink: 0 }}
+              style={{
+                padding: 0,
+                height: "auto",
+                lineHeight: 1,
+                flexShrink: 0,
+              }}
             />
           </Tooltip>
         )}
@@ -523,7 +550,9 @@ function GanttRow({
                   {dayjs(endDate!).format("DD MMM YYYY")}
                 </Text>
                 {durationDays !== null && (
-                  <Text style={{ color: "rgba(255,255,255,0.65)", fontSize: 11 }}>
+                  <Text
+                    style={{ color: "rgba(255,255,255,0.65)", fontSize: 11 }}
+                  >
                     ระยะเวลา {durationDays} วัน
                   </Text>
                 )}
@@ -532,7 +561,10 @@ function GanttRow({
                     color={color}
                     text={
                       <Text
-                        style={{ color: "rgba(255,255,255,0.75)", fontSize: 11 }}
+                        style={{
+                          color: "rgba(255,255,255,0.75)",
+                          fontSize: 11,
+                        }}
                       >
                         {statusName}
                       </Text>
@@ -630,13 +662,13 @@ const GanttChart: React.FC = () => {
 
     if (scale === "day") {
       paddingBefore = minDate.subtract(7, "day").startOf("day");
-      paddingAfter  = maxDate.add(7, "day").endOf("day");
+      paddingAfter = maxDate.add(7, "day").endOf("day");
     } else if (scale === "week") {
       paddingBefore = minDate.subtract(2, "week").startOf("isoWeek");
-      paddingAfter  = maxDate.add(2, "week").endOf("isoWeek");
+      paddingAfter = maxDate.add(2, "week").endOf("isoWeek");
     } else {
       paddingBefore = minDate.subtract(1, "month").startOf("month");
-      paddingAfter  = maxDate.add(1, "month").endOf("month");
+      paddingAfter = maxDate.add(1, "month").endOf("month");
     }
 
     const days = Math.max(
@@ -656,20 +688,25 @@ const GanttChart: React.FC = () => {
   // ✨ คำนวณความกว้างของ chart area
   const chartContentWidth = useMemo(() => {
     const cfg = SCALE_CONFIG[scale];
-    return Math.max(cfg.minWidth, units.length * cfg.colWidth + LABEL_COL_WIDTH);
+    return Math.max(
+      cfg.minWidth,
+      units.length * cfg.colWidth + LABEL_COL_WIDTH,
+    );
   }, [units, scale]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // ✨ Scroll ไปหา "วันนี้" ทุกครั้งที่ scale หรือข้อมูลเปลี่ยน
   useEffect(() => {
-    if (!scrollRef.current || chartContentWidth === 0 || totalDays === 0) return;
+    if (!scrollRef.current || chartContentWidth === 0 || totalDays === 0)
+      return;
     const todayOffset = dayjs().startOf("day").diff(chartStart, "day");
     if (todayOffset < 0 || todayOffset > totalDays) return;
 
     // คำนวณ pixel position ของวันนี้ใน chart area
     const chartAreaWidth = chartContentWidth - LABEL_COL_WIDTH;
-    const todayPx = (todayOffset / totalDays) * chartAreaWidth + LABEL_COL_WIDTH;
+    const todayPx =
+      (todayOffset / totalDays) * chartAreaWidth + LABEL_COL_WIDTH;
 
     // เลื่อนให้วันนี้อยู่ตรงกลางของ viewport
     const viewportWidth = scrollRef.current.clientWidth;
@@ -731,11 +768,15 @@ const GanttChart: React.FC = () => {
       loading={isFetching}
     >
       {/* ── Scroll wrapper ── */}
-      <div ref={scrollRef} style={{ overflowX: "auto", overflowY: "auto", maxHeight: 600 }}>
+      <div
+        ref={scrollRef}
+        style={{ overflowX: "auto", overflowY: "auto", maxHeight: 600 }}
+      >
         <div style={{ width: chartContentWidth, minWidth: chartContentWidth }}>
-
           {/* ── Sticky Header ── */}
-          <div style={{ display: "flex", position: "sticky", top: 0, zIndex: 10 }}>
+          <div
+            style={{ display: "flex", position: "sticky", top: 0, zIndex: 10 }}
+          >
             {/* Label column header */}
             <div
               style={{
@@ -753,7 +794,10 @@ const GanttChart: React.FC = () => {
                 zIndex: 11,
               }}
             >
-              <Text strong style={{ fontSize: 11, color: token.colorTextSecondary }}>
+              <Text
+                strong
+                style={{ fontSize: 11, color: token.colorTextSecondary }}
+              >
                 โครงการ / โครงการย่อย
               </Text>
             </div>
@@ -826,7 +870,13 @@ const GanttChart: React.FC = () => {
               backgroundColor: token.colorFillAlter,
             }}
           >
-            <Text style={{ fontSize: 11, color: token.colorTextTertiary, fontWeight: 600 }}>
+            <Text
+              style={{
+                fontSize: 11,
+                color: token.colorTextTertiary,
+                fontWeight: 600,
+              }}
+            >
               สี:
             </Text>
             <Space size={5}>
@@ -858,7 +908,12 @@ const GanttChart: React.FC = () => {
             </Space>
             <Space size={5}>
               <div
-                style={{ width: 2, height: 12, backgroundColor: token.colorError, opacity: 0.7 }}
+                style={{
+                  width: 2,
+                  height: 12,
+                  backgroundColor: token.colorError,
+                  opacity: 0.7,
+                }}
               />
               <Text style={{ fontSize: 11, color: token.colorTextSecondary }}>
                 วันนี้

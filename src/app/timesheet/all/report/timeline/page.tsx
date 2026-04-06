@@ -14,7 +14,7 @@ import { SubProjectFormModal } from "./_components/sub-project-form-modal";
 import SummarySection from "./_components/summary-section";
 import TimelineChart from "./_components/timeline-chart";
 import WorkloadTimeSeries from "./_components/workload-time-series";
-import { useTimelineStore } from "./_state/timeline-store";
+import { useTimelineStore } from "./_stores/timeline-store";
 
 type ViewMode = "timeline" | "gantt";
 

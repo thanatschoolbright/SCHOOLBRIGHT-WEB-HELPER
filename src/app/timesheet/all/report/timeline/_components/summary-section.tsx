@@ -9,7 +9,7 @@ import {
 } from "@ant-design/icons";
 import { Col, Row } from "antd";
 import React from "react";
-import { useTimelineStore } from "../_state/timeline-store";
+import { useTimelineStore } from "../_stores/timeline-store";
 
 const SummarySection: React.FC = () => {
   const { getSummaryMetrics, isFetching } = useTimelineStore();
