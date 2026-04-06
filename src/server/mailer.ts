@@ -43,4 +43,28 @@ export async function sendOvertimeEmail(
   return await sendMail(to, subject, text, html);
 }
 
+export async function sendMailWithAttachment(params: {
+  to: string | string[];
+  subject: string;
+  html: string;
+  attachments: {
+    filename: string;
+    content: Buffer | Uint8Array;
+    contentType: string;
+  }[];
+}) {
+  const info = await transporter.sendMail({
+    from: process.env.MAILER_USER || process.env.NEXT_PUBLIC_MAILER_USER,
+    to: Array.isArray(params.to) ? params.to.join(", ") : params.to,
+    subject: params.subject,
+    html: params.html,
+    attachments: params.attachments.map((a) => ({
+      filename: a.filename,
+      content: Buffer.from(a.content),
+      contentType: a.contentType,
+    })),
+  });
+  return info;
+}
+
 export default transporter;

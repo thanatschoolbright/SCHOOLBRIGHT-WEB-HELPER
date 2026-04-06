@@ -91,9 +91,7 @@ export default function TimesheetAllPage() {
 
         <ExportModalTemplate4
           visible={modalFlags.exportModal4}
-          loading={exportLoading}
           onClose={() => closeModal("exportModal4")}
-          onExport={requestExportTemplate4}
         />
       </DashboardLayout>
     </PermissionLayout>
