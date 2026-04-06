@@ -218,7 +218,7 @@ function GanttHeader({
       <div
         style={{
           position: "relative",
-          height: 28,
+          height: 32,
           borderBottom: `1px solid ${token.colorBorderSecondary}`,
         }}
       >
@@ -233,7 +233,7 @@ function GanttHeader({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 11,
+              fontSize: 13,
               fontWeight: 700,
               color: token.colorText,
               borderRight: `1px solid ${token.colorBorderSecondary}`,
@@ -248,7 +248,7 @@ function GanttHeader({
       </div>
 
       {/* แถวที่ 2 — Unit (วัน / สัปดาห์ / เดือน) */}
-      <div style={{ position: "relative", height: 26 }}>
+      <div style={{ position: "relative", height: 30 }}>
         {units.map((u) => (
           <div
             key={u.key}
@@ -260,8 +260,8 @@ function GanttHeader({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: scale === "day" ? 10 : 11,
-              fontWeight: u.isToday ? 700 : 400,
+              fontSize: scale === "day" ? 12 : 13,
+              fontWeight: u.isToday ? 700 : 500,
               color: u.isToday
                 ? token.colorPrimary
                 : u.isWeekend
@@ -434,29 +434,31 @@ function GanttRow({
           alignItems: "center",
           gap: 6,
           borderRight: `1px solid ${token.colorBorderSecondary}`,
-          backgroundColor: isSubProject
-            ? token.colorFillTertiary
-            : token.colorBgContainer,
+          // พื้นหลังทึบเสมอ — ป้องกัน timeline bar ด้านขวาโชว์ผ่านเมื่อ scroll
+          backgroundColor: token.colorBgContainer,
+          // sub-project: เพิ่ม border ซ้ายสีเข้มเพื่อแยกจาก parent row
+          borderLeft: isSubProject ? `3px solid ${token.colorBorderSecondary}` : undefined,
           flexShrink: 0,
           position: "sticky",
           left: 0,
           zIndex: 4,
-          boxShadow: "2px 0 4px rgba(0,0,0,0.06)",
+          boxShadow: "2px 0 6px rgba(0,0,0,0.10)",
         }}
       >
         {isSubProject ? (
           <BranchesOutlined
             style={{
-              fontSize: 11,
-              color: token.colorTextQuaternary,
+              fontSize: 13,
+              color: token.colorTextTertiary,
               flexShrink: 0,
+              marginLeft: 8,
             }}
           />
         ) : (
           <div
             style={{
-              width: 8,
-              height: 8,
+              width: 10,
+              height: 10,
               borderRadius: "50%",
               backgroundColor: color,
               flexShrink: 0,
@@ -466,7 +468,7 @@ function GanttRow({
 
         <Text
           style={{
-            fontSize: isSubProject ? 12 : 13,
+            fontSize: isSubProject ? 13 : 14,
             fontWeight: isSubProject ? 400 : 600,
             color: isSubProject ? token.colorTextSecondary : token.colorText,
             whiteSpace: "nowrap",
@@ -529,9 +531,8 @@ function GanttRow({
           position: "relative",
           overflow: "hidden",
           isolation: "isolate",
-          backgroundColor: isSubProject
-            ? token.colorFillTertiary
-            : token.colorBgContainer,
+          // พื้นหลังทึบเสมอ, sub-project ใช้โทนเทาอ่อนทึบ (ไม่ใช่ transparent fill)
+          backgroundColor: isSubProject ? token.colorFillAlter : token.colorBgContainer,
         }}
       >
         <GanttGridLines units={units} totalDays={totalDays} />
@@ -600,12 +601,12 @@ function GanttRow({
               <Text
                 style={{
                   color: "#fff",
-                  fontSize: 10,
+                  fontSize: 12,
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   lineHeight: 1,
-                  fontWeight: 500,
+                  fontWeight: 600,
                   pointerEvents: "none",
                 }}
               >
@@ -796,7 +797,7 @@ const GanttChart: React.FC = () => {
             >
               <Text
                 strong
-                style={{ fontSize: 11, color: token.colorTextSecondary }}
+                style={{ fontSize: 13, color: token.colorTextSecondary }}
               >
                 โครงการ / โครงการย่อย
               </Text>
@@ -872,7 +873,7 @@ const GanttChart: React.FC = () => {
           >
             <Text
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 color: token.colorTextTertiary,
                 fontWeight: 600,
               }}
@@ -882,27 +883,27 @@ const GanttChart: React.FC = () => {
             <Space size={5}>
               <div
                 style={{
-                  width: 10,
-                  height: 10,
+                  width: 12,
+                  height: 12,
                   borderRadius: 2,
                   backgroundColor: token.colorPrimary,
                 }}
               />
-              <Text style={{ fontSize: 11, color: token.colorTextSecondary }}>
+              <Text style={{ fontSize: 13, color: token.colorTextSecondary }}>
                 สีโครงการ (กำหนดจากข้อมูลโครงการ)
               </Text>
             </Space>
             <Space size={5}>
               <div
                 style={{
-                  width: 10,
-                  height: 10,
+                  width: 12,
+                  height: 12,
                   borderRadius: 2,
                   backgroundColor: token.colorSuccess,
                   opacity: 0.65,
                 }}
               />
-              <Text style={{ fontSize: 11, color: token.colorTextSecondary }}>
+              <Text style={{ fontSize: 13, color: token.colorTextSecondary }}>
                 สีโครงการย่อย (กำหนดจากข้อมูลโครงการ)
               </Text>
             </Space>
@@ -910,12 +911,12 @@ const GanttChart: React.FC = () => {
               <div
                 style={{
                   width: 2,
-                  height: 12,
+                  height: 14,
                   backgroundColor: token.colorError,
                   opacity: 0.7,
                 }}
               />
-              <Text style={{ fontSize: 11, color: token.colorTextSecondary }}>
+              <Text style={{ fontSize: 13, color: token.colorTextSecondary }}>
                 วันนี้
               </Text>
             </Space>
