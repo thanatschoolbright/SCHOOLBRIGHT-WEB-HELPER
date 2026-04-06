@@ -424,6 +424,14 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
                     ยังไม่เริ่มงาน
                   </Tag>
                 )}
+                {record.total_hours === 0 && (
+                  <Tag
+                    color="error"
+                    style={{ fontSize: 10, borderRadius: 4, margin: 0 }}
+                  >
+                    ไม่มีข้อมูล
+                  </Tag>
+                )}
               </Flex>
               <Text
                 type="secondary"
