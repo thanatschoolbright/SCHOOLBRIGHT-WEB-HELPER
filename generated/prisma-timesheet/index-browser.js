@@ -235,7 +235,9 @@ exports.Prisma.ProjectScalarFieldEnum = {
   projectStatusId: 'projectStatusId',
   completeDate: 'completeDate',
   estimateWorkhours: 'estimateWorkhours',
-  assetCaptureType: 'assetCaptureType'
+  assetCaptureType: 'assetCaptureType',
+  colorHex: 'colorHex',
+  colorHexFeature: 'colorHexFeature'
 };
 
 exports.Prisma.FeatureScalarFieldEnum = {

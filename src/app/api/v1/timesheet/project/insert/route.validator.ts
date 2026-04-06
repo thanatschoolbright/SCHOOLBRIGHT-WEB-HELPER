@@ -14,6 +14,8 @@ export const Schema = z.object({
   completeDate: z.string().optional().nullable(),
   estimateWorkhours: z.coerce.number().optional().nullable(),
   assetCaptureType: z.enum(["CAPTUREABLE", "UN_CAPTUREABLE"]).optional(),
+  colorHex: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "รูปแบบ hex color ไม่ถูกต้อง").optional(),
+  colorHexFeature: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "รูปแบบ hex color ไม่ถูกต้อง").optional(),
   assignees: z
     .array(z.object({ userId: z.number(), position: z.string().optional() }))
     .optional(),

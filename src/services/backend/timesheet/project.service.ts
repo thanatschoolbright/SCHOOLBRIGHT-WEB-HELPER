@@ -105,6 +105,8 @@ export const Service = {
     completeDate?: string | null;
     estimateWorkhours?: number | null;
     assetCaptureType?: any;
+    colorHex?: string;
+    colorHexFeature?: string;
     assignees?: { userId: number; position?: string }[];
   }) {
     return await PrismaTimesheet.project.create({
@@ -129,6 +131,8 @@ export const Service = {
         completeDate: data.completeDate,
         estimateWorkhours: data.estimateWorkhours,
         assetCaptureType: data.assetCaptureType,
+        colorHex: data.colorHex ?? "#1890ff",
+        colorHexFeature: data.colorHexFeature ?? "#52c41a",
       },
     });
   },
@@ -150,6 +154,8 @@ export const Service = {
       completeDate?: string | null;
       estimateWorkhours?: number | null;
       assetCaptureType?: string;
+      colorHex?: string;
+      colorHexFeature?: string;
       assignees?: { userId: number; position?: string }[];
     },
   ) {
@@ -168,6 +174,8 @@ export const Service = {
         completeDate: data.completeDate,
         estimateWorkhours: data.estimateWorkhours,
         assetCaptureType: data.assetCaptureType as any,
+        colorHex: data.colorHex,
+        colorHexFeature: data.colorHexFeature,
         updatedBy: data.updatedBy ?? 0,
         projectAssignees: assignees
           ? {

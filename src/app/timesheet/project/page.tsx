@@ -12,6 +12,7 @@ import {
   ExclamationCircleOutlined,
   FileExcelOutlined,
   FilterOutlined,
+  BgColorsOutlined,
   InfoCircleOutlined,
   MinusCircleOutlined,
   PieChartOutlined,
@@ -30,6 +31,7 @@ import {
   Button,
   Card,
   Col,
+  ColorPicker,
   DatePicker,
   Divider,
   Empty,
@@ -134,10 +136,17 @@ export default function ProjectManagementPage() {
         completeDate: modalState.data.completeDate ? dayjs(modalState.data.completeDate) : undefined,
         estimateWorkhours: modalState.data.estimateWorkhours ?? undefined,
         assetCaptureType: modalState.data.assetCaptureType,
+        colorHex: modalState.data.colorHex ?? "#1890ff",
+        colorHexFeature: modalState.data.colorHexFeature ?? "#52c41a",
         assignees: modalState.data.projectAssignees?.map((a) => ({ userId: a.userId, position: a.position })),
       });
     } else if (modalState.type === "create") {
-      form.setFieldsValue({ assetCaptureType: "CAPTUREABLE", status: "open" });
+      form.setFieldsValue({
+        assetCaptureType: "CAPTUREABLE",
+        status: "open",
+        colorHex: "#1890ff",
+        colorHexFeature: "#52c41a",
+      });
     }
   }, [modalState.type, modalState.data, form]);
 
@@ -638,6 +647,43 @@ export default function ProjectManagementPage() {
                     { label: "ไม่สามารถบันทึกทรัพย์สินได้", value: "UN_CAPTUREABLE" },
                   ]}
                 />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* Section: สีประจำโครงการ */}
+          <Divider orientation="left" plain style={{ marginTop: 8 }}>
+            <Text type="secondary" style={{ fontSize: 12, fontWeight: 500 }}>สีประจำโครงการ (Timeline Colors)</Text>
+          </Divider>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item
+                name="colorHex"
+                label={
+                  <Space size={4}>
+                    <BgColorsOutlined />
+                    <Text style={{ fontWeight: 500 }}>สีโครงการหลัก</Text>
+                    <Text type="secondary" style={{ fontSize: 11 }}>ใช้แสดงใน Timeline</Text>
+                  </Space>
+                }
+                getValueFromEvent={(color) => color.toHexString()}
+              >
+                <ColorPicker format="hex" showText className="w-full" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="colorHexFeature"
+                label={
+                  <Space size={4}>
+                    <BgColorsOutlined />
+                    <Text style={{ fontWeight: 500 }}>สีโครงการย่อย</Text>
+                    <Text type="secondary" style={{ fontSize: 11 }}>ใช้แสดงใน Timeline</Text>
+                  </Space>
+                }
+                getValueFromEvent={(color) => color.toHexString()}
+              >
+                <ColorPicker format="hex" showText className="w-full" />
               </Form.Item>
             </Col>
           </Row>

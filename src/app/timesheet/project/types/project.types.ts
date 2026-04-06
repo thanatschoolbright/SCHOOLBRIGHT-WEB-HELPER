@@ -31,6 +31,8 @@ export interface Project {
   estimate_hour?: number;
   is_deleted?: boolean;
   projectStatusId?: number | null;
+  colorHex?: string | null;
+  colorHexFeature?: string | null;
 }
 
 export interface ModalState {
@@ -57,6 +59,8 @@ export interface FormValues {
   completeDate?: any;
   estimateWorkhours?: number;
   assetCaptureType?: "CAPTUREABLE" | "UN_CAPTUREABLE";
+  colorHex?: string;
+  colorHexFeature?: string;
   assignees?: { userId: number; position?: string }[];
 }
 
