@@ -1,7 +1,7 @@
 "use client";
 
+import { useTimesheetAllStore } from "@/app/timesheet/all/_stores/timesheet-all-store";
 import SummaryCard from "@/components/card/summary-card";
-import { useTimesheetAllStore } from "@/app/timesheet/all/_state/timesheet-all-store";
 import {
   AppstoreOutlined,
   CalendarOutlined,
@@ -36,7 +36,8 @@ export const SummaryCards: React.FC = () => {
       value: metadata?.working_days || 0,
       icon: <CalendarOutlined />,
       color: token.colorSuccess,
-      subtitle: "จำนวนวันทำงานทั้งหมดในช่วงวันที่เลือก (ไม่รวมวันเสาร์-อาทิตย์)",
+      subtitle:
+        "จำนวนวันทำงานทั้งหมดในช่วงวันที่เลือก (ไม่รวมวันเสาร์-อาทิตย์)",
       suffix: "วัน",
     },
     {

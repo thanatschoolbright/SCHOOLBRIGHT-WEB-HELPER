@@ -4,21 +4,11 @@ import {
   selectFilteredRecords,
   selectTotalSummary,
   useTimesheetAllStore,
-} from "@/app/timesheet/all/_state/timesheet-all-store";
-import { useShallow } from "zustand/react/shallow";
-import {
-  InfoCircleOutlined,
-  UnorderedListOutlined,
-} from "@ant-design/icons";
-import {
-  Badge,
-  Card,
-  Flex,
-  Space,
-  theme,
-  Typography,
-} from "antd";
+} from "@/app/timesheet/all/_stores/timesheet-all-store";
+import { InfoCircleOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import { Badge, Card, Flex, Space, theme, Typography } from "antd";
 import { useTranslation } from "react-i18next";
+import { useShallow } from "zustand/react/shallow";
 import { TimesheetTable } from "../components/timesheet-table.component";
 import { TableActions } from "./table-actions";
 
@@ -44,8 +34,12 @@ export const TableSection: React.FC = () => {
     );
 
   // ใช้ useShallow เพื่อป้องกัน infinite loop จากการ return array/object ใหม่ทุก render
-  const filteredRecords = useTimesheetAllStore(useShallow(selectFilteredRecords));
-  const { total, required } = useTimesheetAllStore(useShallow(selectTotalSummary));
+  const filteredRecords = useTimesheetAllStore(
+    useShallow(selectFilteredRecords),
+  );
+  const { total, required } = useTimesheetAllStore(
+    useShallow(selectTotalSummary),
+  );
 
   return (
     <Card
@@ -105,23 +99,38 @@ export const TableSection: React.FC = () => {
               <Flex align="baseline" gap={4}>
                 <Typography.Title
                   level={4}
-                  style={{ margin: 0, fontWeight: 800, color: token.colorPrimary }}
+                  style={{
+                    margin: 0,
+                    fontWeight: 800,
+                    color: token.colorPrimary,
+                  }}
                 >
                   {total.toLocaleString()}
                 </Typography.Title>
                 <Text
                   strong
-                  style={{ fontSize: 18, color: token.colorTextDescription, opacity: 0.5 }}
+                  style={{
+                    fontSize: 18,
+                    color: token.colorTextDescription,
+                    opacity: 0.5,
+                  }}
                 >
                   /
                 </Text>
                 <Typography.Title
                   level={4}
-                  style={{ margin: 0, fontWeight: 800, color: token.colorTextDescription }}
+                  style={{
+                    margin: 0,
+                    fontWeight: 800,
+                    color: token.colorTextDescription,
+                  }}
                 >
                   {required.toLocaleString()}
                 </Typography.Title>
-                <Text type="secondary" style={{ marginLeft: 4, fontWeight: 500 }}>
+                <Text
+                  type="secondary"
+                  style={{ marginLeft: 4, fontWeight: 500 }}
+                >
                   ชั่วโมง
                 </Text>
               </Flex>
@@ -139,7 +148,9 @@ export const TableSection: React.FC = () => {
               borderRadius: token.borderRadius,
             }}
           >
-            <InfoCircleOutlined style={{ color: token.colorInfo, marginTop: 4 }} />
+            <InfoCircleOutlined
+              style={{ color: token.colorInfo, marginTop: 4 }}
+            />
             <Text type="secondary" italic style={{ fontSize: 13 }}>
               {t("timesheet_page.notes_label")}: {metadata.notes}
             </Text>

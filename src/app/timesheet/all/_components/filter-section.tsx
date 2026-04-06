@@ -1,9 +1,7 @@
 "use client";
 
 import { responseDepartmentList } from "@/app/timesheet/all/_api/timesheet-all-api";
-import {
-  useTimesheetAllStore,
-} from "@/app/timesheet/all/_state/timesheet-all-store";
+import { useTimesheetAllStore } from "@/app/timesheet/all/_stores/timesheet-all-store";
 import {
   ClearOutlined,
   ClusterOutlined,
@@ -68,7 +66,11 @@ export const FilterSection: React.FC = () => {
   }, [requestDepartments]);
 
   const responseDateRangeChange = useCallback(
-    (range: Parameters<NonNullable<React.ComponentProps<typeof RangePicker>["onChange"]>>[0]) => {
+    (
+      range: Parameters<
+        NonNullable<React.ComponentProps<typeof RangePicker>["onChange"]>
+      >[0],
+    ) => {
       if (range && range[0] && range[1]) {
         setDateRange([range[0] as Dayjs, range[1] as Dayjs]);
       }
@@ -97,7 +99,9 @@ export const FilterSection: React.FC = () => {
     >
       <Flex vertical gap={16}>
         <Space size={8} style={{ marginBottom: 16 }}>
-          <FilterOutlined style={{ color: token.colorPrimary, fontSize: "1rem" }} />
+          <FilterOutlined
+            style={{ color: token.colorPrimary, fontSize: "1rem" }}
+          />
           <Text style={{ fontSize: "1rem", fontWeight: 600 }}>ตัวกรอง</Text>
         </Space>
 
@@ -109,7 +113,11 @@ export const FilterSection: React.FC = () => {
               </Text>
               <Input
                 placeholder={t("timesheet_page.search_placeholder")}
-                prefix={<SearchOutlined style={{ color: token.colorTextDescription }} />}
+                prefix={
+                  <SearchOutlined
+                    style={{ color: token.colorTextDescription }}
+                  />
+                }
                 allowClear
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
@@ -135,7 +143,11 @@ export const FilterSection: React.FC = () => {
                 size="large"
                 style={{ width: "100%", borderRadius: 8 }}
                 maxTagCount="responsive"
-                suffixIcon={<ClusterOutlined style={{ color: token.colorTextDescription }} />}
+                suffixIcon={
+                  <ClusterOutlined
+                    style={{ color: token.colorTextDescription }}
+                  />
+                }
                 options={departments.map((dept) => ({
                   label: dept.name_th || dept.name_en,
                   value: dept.id,
@@ -165,7 +177,11 @@ export const FilterSection: React.FC = () => {
           </Col>
 
           <Col xs={24} md={12}>
-            <Flex justify="flex-end" align="flex-end" style={{ height: "100%" }}>
+            <Flex
+              justify="flex-end"
+              align="flex-end"
+              style={{ height: "100%" }}
+            >
               <Space size={12}>
                 <Button
                   icon={<ClearOutlined />}
