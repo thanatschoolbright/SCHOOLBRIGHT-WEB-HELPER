@@ -237,6 +237,7 @@ function GanttHeader({
               fontSize: 13,
               fontWeight: 700,
               color: token.colorText,
+              backgroundColor: token.colorFillAlter,
               borderRight: `1px solid ${token.colorBorderSecondary}`,
               overflow: "hidden",
               whiteSpace: "nowrap",
@@ -258,6 +259,11 @@ function GanttHeader({
               left: `${(u.startDay / totalDays) * 100}%`,
               width: `${(u.spanDays / totalDays) * 100}%`,
               height: "100%",
+              backgroundColor: u.isToday
+                ? `${token.colorPrimary}14`
+                : u.isWeekend
+                ? token.colorFillQuaternary
+                : token.colorFillAlter,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -266,13 +272,8 @@ function GanttHeader({
               color: u.isToday
                 ? token.colorPrimary
                 : u.isWeekend
-                  ? token.colorTextQuaternary
-                  : token.colorTextSecondary,
-              backgroundColor: u.isToday
-                ? `${token.colorPrimary}14`
-                : u.isWeekend
-                  ? token.colorFillQuaternary
-                  : "transparent",
+                ? token.colorTextQuaternary
+                : token.colorTextSecondary,
               borderRight: `1px solid ${token.colorBorderSecondary}`,
               overflow: "hidden",
               whiteSpace: "nowrap",
@@ -441,7 +442,9 @@ function GanttRow({
           // พื้นหลังทึบเสมอ — ป้องกัน timeline bar ด้านขวาโชว์ผ่านเมื่อ scroll
           backgroundColor: token.colorBgContainer,
           // sub-project: เพิ่ม border ซ้ายสีเข้มเพื่อแยกจาก parent row
-          borderLeft: isSubProject ? `3px solid ${token.colorBorderSecondary}` : undefined,
+          borderLeft: isSubProject
+            ? `3px solid ${token.colorBorderSecondary}`
+            : undefined,
           flexShrink: 0,
           position: "sticky",
           left: 0,
@@ -537,7 +540,9 @@ function GanttRow({
           overflow: "hidden",
           isolation: "isolate",
           // พื้นหลังทึบเสมอ, sub-project ใช้โทนเทาอ่อนทึบ (ไม่ใช่ transparent fill)
-          backgroundColor: isSubProject ? token.colorFillAlter : token.colorBgContainer,
+          backgroundColor: isSubProject
+            ? token.colorFillAlter
+            : token.colorBgContainer,
         }}
       >
         <GanttGridLines units={units} totalDays={totalDays} />
@@ -628,7 +633,8 @@ function GanttRow({
 // ─── Main Component ──────────────────────────────────────────────────────────
 const GanttChart: React.FC = () => {
   const { token } = theme.useToken();
-  const { timelineData, isFetching, setModal, fetchTimelineData } = useTimelineStore();
+  const { timelineData, isFetching, setModal, fetchTimelineData } =
+    useTimelineStore();
   const [scale, setScale] = useState<ViewScale>("month");
 
   // ✨ คำนวณช่วงวันที่จากข้อมูลทั้งหมด
@@ -852,7 +858,9 @@ const GanttChart: React.FC = () => {
                   status={project.status}
                   statusName={statusName}
                   onAddSubProject={() => handleAddSubProject(project)}
-                  onColorChange={(hex) => handleProjectColorChange(project.id, hex)}
+                  onColorChange={(hex) =>
+                    handleProjectColorChange(project.id, hex)
+                  }
                 />
 
                 {(project.children || []).map((sub: any) => (
