@@ -88,8 +88,8 @@ const OvertimeManagementPage = () => {
   const navigationRouter = useRouter();
   const { t: translate } = useTranslation();
 
-  const { message: antMessage, modal: antModal } = App.useApp();
-  const { data: userSession } = useSession();
+  App.useApp();
+  useSession();
   const { user_id: parameterUserId } = useParams();
 
   // จัดการสถานะแบบฟอร์ม (Form Instances)
@@ -141,7 +141,7 @@ const OvertimeManagementPage = () => {
   const [userSelectionOptions, setUserSelectionOptions] = useState<
     SelectOption[]
   >([]);
-  const [descriptionSelectionOptions, setDescriptionSelectionOptions] =
+  const [_descriptionSelectionOptions, setDescriptionSelectionOptions] =
     useState<SelectOption[]>([]);
 
   // --- สถานะการกรองและแบ่งหน้า (Pagination & Filters) ---
@@ -150,12 +150,8 @@ const OvertimeManagementPage = () => {
     pageSize: 20,
     total: 0,
   });
-  const [filterSearchTextValue, setFilterSearchTextValue] = useState("");
-  const [filterSelectedMonthValue, setFilterSelectedMonthValue] =
+  const [filterSelectedMonthValue, _setFilterSelectedMonthValue] =
     useState<dayjs.Dayjs | null>(null);
-  const [filterStatusValue, setFilterStatusValue] = useState<string | null>(
-    null,
-  );
 
   // --- สถานะการทำงานแบบกลุ่ม (Batch Processing State) ---
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -188,9 +184,9 @@ const OvertimeManagementPage = () => {
       const userId = authenticationState?.response?.data?.user_data?.id;
       if (userId) return String(userId);
 
-      const users = (await getUserData()) as UserProfile[] | null;
+      const users = (getUserData()) as UserProfile[] | null;
       if (Array.isArray(users) && users.length > 0) {
-        return String(users[0].id ?? "system");
+        return String(users[0]?.id ?? "system");
       }
     } catch (error) {
       console.error(error);
@@ -707,13 +703,14 @@ const OvertimeManagementPage = () => {
 
   // อนุมัติสถานะคำขอ OT จำนวนมากพร้อมกันในครั้งเดียว (Batch Update)
   const requestBatchApproveOvertimeSubmissions = async (
-    targetStatusString: string = "approved",
-  ) => {
-    if (selectedRowKeys.length === 0) return toast.error("กรุณาเลือกรายการ");
+    targetStatusString: string | null = "approved",
+  ): Promise<void> => {
+    if (selectedRowKeys.length === 0) { toast.error("กรุณาเลือกรายการ"); return; }
 
     const currentUserTokenIdentifier = await requestCurrentLocalUserID();
-    if (currentUserTokenIdentifier !== BYPASS_USER_ID)
-      return toast.error("คุณไม่มีสิทธิ์ปรับสถานะ");
+    if (currentUserTokenIdentifier !== BYPASS_USER_ID) {
+      toast.error("คุณไม่มีสิทธิ์ปรับสถานะ"); return;
+    }
 
     setIsBatchProcessing(true);
     // เริ่มต้นสถานะเป็น waiting สำหรับทุกรายการ
@@ -735,9 +732,9 @@ const OvertimeManagementPage = () => {
 
         const operatingApproverToken = await requestCurrentLocalUserID();
         const apiResponseResultObject = await callApiService.post(
-          `/api/v1/timesheet/overtime/change-status?id=${recordIdentifier}`,
+          `/api/v1/timesheet/overtime/change-status?id=${String(recordIdentifier)}`,
           {
-            status: targetStatusString,
+            status: targetStatusString ?? "approved",
             updated_by: Number(operatingApproverToken),
           },
         );
@@ -774,12 +771,13 @@ const OvertimeManagementPage = () => {
   };
 
   // ส่งอีเมลแจ้งเตือน HR สำหรับคำขอ OT หลายรายการพร้อมกัน (Batch Email)
-  const requestBatchSendOvertimeMailToHR = async () => {
-    if (selectedRowKeys.length === 0) return toast.error("กรุณาเลือกรายการ");
+  const requestBatchSendOvertimeMailToHR = async (): Promise<void> => {
+    if (selectedRowKeys.length === 0) { toast.error("กรุณาเลือกรายการ"); return; }
 
     const currentUserTokenIdentifier = await requestCurrentLocalUserID();
-    if (currentUserTokenIdentifier !== BYPASS_USER_ID)
-      return toast.error("คุณไม่มีสิทธิ์ส่งอีเมล");
+    if (currentUserTokenIdentifier !== BYPASS_USER_ID) {
+      toast.error("คุณไม่มีสิทธิ์ส่งอีเมล"); return;
+    }
 
     setIsBatchProcessing(true);
     setProcessedRecordItems(new Map());
@@ -787,7 +785,7 @@ const OvertimeManagementPage = () => {
 
     for (const recordIdentifier of selectedRowKeys) {
       try {
-        const documentPreviewURL = `${window.location.origin}/timesheet/overtime/preview/${recordIdentifier}`;
+        const documentPreviewURL = `${window.location.origin}/timesheet/overtime/preview/${String(recordIdentifier)}`;
         const emailBodyPayload = {
           id: String(recordIdentifier),
           link: documentPreviewURL,
@@ -896,7 +894,7 @@ const OvertimeManagementPage = () => {
   // จัดการการส่งข้อมูลจากฟอร์มสร้างรายการคำขอ OT ใหม่และรีเซ็ตค่าสถานะ
   const requestHandleCreateOvertimeFormSubmission = async (
     formSubmissionValues: any,
-  ) => {
+  ): Promise<boolean> => {
     try {
       const responseContentData =
         await requestCreateOvertimeSubmission(formSubmissionValues);
@@ -904,10 +902,12 @@ const OvertimeManagementPage = () => {
         setIsCreateModalVisible(false);
         overtimeForm.resetFields();
         await requestOvertimeRequestListData();
+        return true;
       }
     } catch (error) {
       console.error(error);
     }
+    return false;
   };
 
   /**
@@ -959,7 +959,7 @@ const OvertimeManagementPage = () => {
             dataItems.push(response.data.data[0]);
           }
         } catch (err) {
-          console.error(`Failed to fetch OT ${id}:`, err);
+          console.error(`Failed to fetch OT ${String(id)}:`, err);
         }
       }
 
@@ -1099,12 +1099,6 @@ const OvertimeManagementPage = () => {
             );
             return acc + (diff > 0 ? diff : 0);
           }, 0) || 0;
-        const h = Math.floor(totalActualMinutes / 60);
-        const m = totalActualMinutes % 60;
-        const actualDisplay =
-          totalActualMinutes > 0
-            ? `${h}:${m.toString().padStart(2, "0")}`
-            : "-";
 
         // ดึงข้อมูลหลักฐานจาก descriptions รายการแรก (มี id 87 ตามตัวอย่าง)
         const firstDescription = data.descriptions?.[0] || {};
