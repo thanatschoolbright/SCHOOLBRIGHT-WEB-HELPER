@@ -9,6 +9,7 @@ import PermissionLayout from "@/components/layouts/permission-layout";
 import { StatusModalComponent } from "@/components/modal/status-modal-component";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
 import { DeliveryTracker } from "./_components/delivery-tracker";
+import { EmployeeNotifyDrawer } from "./_components/employee-notify-drawer";
 import { FilterSection } from "./_components/filter-section";
 import { SummaryCards } from "./_components/summary-cards";
 import { TableSection } from "./_components/table-section";
@@ -46,7 +47,8 @@ export default function TimesheetDailyReportPage() {
                       ? departmentIds
                           .map(
                             (id) =>
-                              departments.find((d) => d.id === id)?.name_th || id,
+                              departments.find((d) => d.id === id)?.name_th ||
+                              id,
                           )
                           .join(", ")
                       : "ทั้งหมด"
@@ -77,14 +79,13 @@ export default function TimesheetDailyReportPage() {
           <TableSection />
         </Flex>
 
-        <StatusModalComponent
-          open={false}
-          type="success"
-          onClose={() => {}}
-        />
+        <StatusModalComponent open={false} type="success" onClose={() => {}} />
 
         {/* Delivery Tracking Modal — แสดงเมื่อกำลังส่งการแจ้งเตือน */}
         <DeliveryTracker />
+
+        {/* Employee Notify Drawer — แสดง progress การส่งอีเมลพนักงานทีละคน */}
+        <EmployeeNotifyDrawer />
       </DashboardLayout>
     </PermissionLayout>
   );

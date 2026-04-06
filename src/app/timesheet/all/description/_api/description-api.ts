@@ -15,7 +15,9 @@ export const responseTimesheetDailyReport = async (payload: {
 
 // ดึงรายชื่อแผนกทั้งหมด
 export const responseDepartmentList = async (): Promise<any[]> => {
-  const { data } = await callApiService.get("/api/v1/timesheet/department/list");
+  const { data } = await callApiService.get(
+    "/api/v1/timesheet/department/list",
+  );
   return data.status === 200 ? data.data : [];
 };
 
@@ -27,6 +29,18 @@ export const postEmployeeNotify = async (payload: {
 }): Promise<any> => {
   const { data } = await callApiService.post(
     "/api/v1/timesheet/report/employee-notify",
+    payload,
+  );
+  return data;
+};
+
+// ส่งอีเมลแจ้งเตือนพนักงาน 1 คน ใช้กับ one-by-one flow
+export const postEmployeeNotifyOne = async (payload: {
+  admin_id: number;
+  date_label?: string;
+}): Promise<any> => {
+  const { data } = await callApiService.post(
+    "/api/v1/timesheet/report/employee-notify-one",
     payload,
   );
   return data;

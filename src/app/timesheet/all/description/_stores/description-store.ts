@@ -4,9 +4,28 @@ import { create } from "zustand";
 import {
   postDailyNotify,
   postEmployeeNotify,
+  postEmployeeNotifyOne,
   responseDepartmentList,
   responseTimesheetDailyReport,
 } from "../_api/description-api";
+
+// สถานะของพนักงานแต่ละคนใน one-by-one notify flow
+export type NotifyOneStatus =
+  | "pending"
+  | "sending"
+  | "success"
+  | "skipped"
+  | "error";
+
+export interface NotifyOneTarget {
+  admin_id: number;
+  full_name: string;
+  email: string | null;
+  department: string | null;
+  total_hours: number;
+  status: NotifyOneStatus;
+  error?: string;
+}
 
 export interface TimesheetEntry {
   date: string;
@@ -60,11 +79,20 @@ interface DescriptionStore {
   dateRange: [Dayjs, Dayjs];
   departmentIds: number[];
 
+  // One-by-one employee notify state
+  notifyOneOpen: boolean;
+  notifyOneTargets: NotifyOneTarget[];
+  notifyOneRunning: boolean;
+  notifyOneFetching: boolean;
+
   // Actions
   fetchDailyReport: () => Promise<void>;
   fetchDepartments: () => Promise<void>;
   sendNotify: (mode?: "all" | "email" | "discord") => Promise<void>;
   sendEmployeeNotify: (dryRun?: boolean) => Promise<void>;
+  openEmployeeNotifyDrawer: () => Promise<void>;
+  runEmployeeNotifyOneByOne: () => Promise<void>;
+  closeEmployeeNotifyDrawer: () => void;
   setKeyword: (keyword: string) => void;
   setDateRange: (range: [Dayjs, Dayjs]) => void;
   setDepartmentIds: (ids: number[]) => void;
@@ -83,6 +111,10 @@ export const useDescriptionStore = create<DescriptionStore>((set, get) => ({
   keyword: "",
   dateRange: [dayjs(), dayjs()],
   departmentIds: [7, 9],
+  notifyOneOpen: false,
+  notifyOneTargets: [],
+  notifyOneRunning: false,
+  notifyOneFetching: false,
 
   // ดึงข้อมูลรายงานการลงเวลาประจำวัน
   fetchDailyReport: async () => {
@@ -129,7 +161,8 @@ export const useDescriptionStore = create<DescriptionStore>((set, get) => ({
     try {
       await new Promise((r) => setTimeout(r, 600)); // pause เล็กน้อยให้ UI แสดง step 1
 
-      if (mode === "all" || mode === "email") set({ notifyStep: 2 }); // sending email
+      if (mode === "all" || mode === "email")
+        set({ notifyStep: 2 }); // sending email
       else set({ notifyStep: 3 }); // sending discord
 
       const result = await postDailyNotify({
@@ -171,11 +204,15 @@ export const useDescriptionStore = create<DescriptionStore>((set, get) => ({
       if (result.status === 200) {
         const d = result.data;
         if (dryRun) {
-          toast.info(`[Dry Run] พบพนักงานที่ต้องแจ้งเตือน ${d.total_targets} คน`);
+          toast.info(
+            `[Dry Run] พบพนักงานที่ต้องแจ้งเตือน ${d.total_targets} คน`,
+          );
         } else {
           toast.success(
             `ส่งอีเมลแจ้งเตือนพนักงานสำเร็จ ${d.sent}/${d.total_targets} คน` +
-              (d.skipped_no_email > 0 ? ` (ข้าม ${d.skipped_no_email} คน — ไม่มีอีเมล)` : "") +
+              (d.skipped_no_email > 0
+                ? ` (ข้าม ${d.skipped_no_email} คน — ไม่มีอีเมล)`
+                : "") +
               (d.failed > 0 ? ` (ล้มเหลว ${d.failed} คน)` : ""),
           );
         }
@@ -188,6 +225,115 @@ export const useDescriptionStore = create<DescriptionStore>((set, get) => ({
       set({ employeeNotifyLoading: false });
     }
   },
+
+  // เปิด Drawer และดึงรายชื่อพนักงานที่ต้องแจ้งเตือน (dry run)
+  openEmployeeNotifyDrawer: async () => {
+    const { departmentIds, metadata } = get();
+    set({ notifyOneFetching: true, notifyOneOpen: true, notifyOneTargets: [] });
+    try {
+      const result = await postEmployeeNotify({
+        department_ids: departmentIds.length > 0 ? departmentIds : [],
+        date_label: metadata?.range?.label_th ?? dayjs().format("D MMMM YYYY"),
+        dry_run: true,
+      });
+      if (result.status === 200) {
+        const targets: NotifyOneTarget[] = (result.data.targets ?? []).map(
+          (t: {
+            admin_id: number;
+            full_name: string;
+            email: string | null;
+            department?: string | null;
+            total_hours: number;
+          }) => ({
+            admin_id: t.admin_id,
+            full_name: t.full_name,
+            email: t.email,
+            department: t.department ?? null,
+            total_hours: t.total_hours,
+            status: "pending" as NotifyOneStatus,
+          }),
+        );
+        set({ notifyOneTargets: targets });
+      } else {
+        toast.error(result.message_th || "ดึงรายชื่อไม่สำเร็จ");
+      }
+    } catch {
+      toast.error("เกิดข้อผิดพลาดในการดึงรายชื่อพนักงาน");
+    } finally {
+      set({ notifyOneFetching: false });
+    }
+  },
+
+  // ส่งอีเมลแจ้งเตือนพนักงานทีละ 1 คน
+  runEmployeeNotifyOneByOne: async () => {
+    const { notifyOneTargets, metadata } = get();
+    if (notifyOneTargets.length === 0) return;
+
+    const dateLabel =
+      metadata?.range?.label_th ?? dayjs().format("D MMMM YYYY");
+    set({ notifyOneRunning: true });
+
+    for (let i = 0; i < notifyOneTargets.length; i++) {
+      const target = notifyOneTargets[i];
+      if (!target || target.status !== "pending") continue;
+
+      // อัปเดต status เป็น sending
+      set((s) => ({
+        notifyOneTargets: s.notifyOneTargets.map((t, idx) =>
+          idx === i ? { ...t, status: "sending" as NotifyOneStatus } : t,
+        ),
+      }));
+
+      try {
+        const res = await postEmployeeNotifyOne({
+          admin_id: target.admin_id,
+          date_label: dateLabel,
+        });
+
+        const newStatus: NotifyOneStatus =
+          res.status === 200
+            ? res.data?.skipped
+              ? "skipped"
+              : "success"
+            : "error";
+
+        set((s) => ({
+          notifyOneTargets: s.notifyOneTargets.map((t, idx) =>
+            idx === i
+              ? {
+                  ...t,
+                  status: newStatus,
+                  error:
+                    newStatus === "error"
+                      ? res.message_th ?? "ไม่ทราบสาเหตุ"
+                      : undefined,
+                }
+              : t,
+          ),
+        }));
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "server error";
+        set((s) => ({
+          notifyOneTargets: s.notifyOneTargets.map((t, idx) =>
+            idx === i
+              ? { ...t, status: "error" as NotifyOneStatus, error: message }
+              : t,
+          ),
+        }));
+      }
+    }
+
+    set({ notifyOneRunning: false });
+    toast.success("ส่งอีเมลแจ้งเตือนพนักงานเสร็จสิ้น");
+  },
+
+  // ปิด Drawer และรีเซ็ต state
+  closeEmployeeNotifyDrawer: () =>
+    set({
+      notifyOneOpen: false,
+      notifyOneTargets: [],
+      notifyOneRunning: false,
+    }),
 
   setKeyword: (keyword) => set({ keyword }),
   setDateRange: (dateRange) => set({ dateRange }),

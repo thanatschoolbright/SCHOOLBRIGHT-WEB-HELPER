@@ -61,7 +61,9 @@ export const queryNotEntryUsersToday = async (
     where: {
       is_deleted: false,
       status: "ACTIVE",
-      ...(departmentIds?.length ? { department_id: { in: departmentIds } } : {}),
+      ...(departmentIds?.length
+        ? { department_id: { in: departmentIds } }
+        : {}),
     },
     select: {
       id: true,
@@ -83,7 +85,8 @@ export const queryNotEntryUsersToday = async (
     if (totalHours >= 8) continue; // กรอกครบแล้ว — ข้าม
 
     const fullName =
-      `${user.firstname_th ?? ""} ${user.lastname_th ?? ""}`.trim() || "ไม่ระบุชื่อ";
+      `${user.firstname_th ?? ""} ${user.lastname_th ?? ""}`.trim() ||
+      "ไม่ระบุชื่อ";
 
     targets.push({
       admin_id: user.admin_id,
@@ -105,16 +108,20 @@ export const queryNotEntryUsersToday = async (
 // Email Template สำหรับพนักงาน — Personal reminder
 // ====================================================================
 
-const buildEmployeeEmailHtml = (
+export const buildEmployeeEmailHtml = (
   target: EmployeeNotifyTarget,
   dateLabel: string,
 ): string => {
   const remaining = Math.max(0, 8 - target.total_hours);
-  const filledPercent = Math.min(Math.round((target.total_hours / 8) * 100), 100);
+  const filledPercent = Math.min(
+    Math.round((target.total_hours / 8) * 100),
+    100,
+  );
   const progressColor = target.total_hours === 0 ? "#ef4444" : "#f59e0b";
   const isZero = target.total_hours === 0;
   const helperUrl =
-    process.env.NEXT_PUBLIC_SB_HELPER_URL ?? "https://sb-helper.schoolbright.co";
+    process.env.NEXT_PUBLIC_SB_HELPER_URL ??
+    "https://sb-helper.schoolbright.co";
 
   return `<!DOCTYPE html>
 <html lang="th">
@@ -139,9 +146,15 @@ const buildEmployeeEmailHtml = (
     .greeting { font-size:20px; font-weight:700; color:#0f172a; margin-bottom:6px; }
     .greeting-sub { color:#64748b; font-size:14px; line-height:1.6; margin-bottom:28px; }
     /* Status Card */
-    .status-card { border-radius:14px; padding:24px; margin-bottom:28px; ${isZero ? "background:linear-gradient(135deg,#fef2f2,#fff1f2);border:1px solid #fecdd3;border-left:4px solid #ef4444;" : "background:linear-gradient(135deg,#fffbeb,#fef9c3);border:1px solid #fde68a;border-left:4px solid #f59e0b;"} }
+    .status-card { border-radius:14px; padding:24px; margin-bottom:28px; ${
+      isZero
+        ? "background:linear-gradient(135deg,#fef2f2,#fff1f2);border:1px solid #fecdd3;border-left:4px solid #ef4444;"
+        : "background:linear-gradient(135deg,#fffbeb,#fef9c3);border:1px solid #fde68a;border-left:4px solid #f59e0b;"
+    } }
     .status-icon { font-size:32px; margin-bottom:10px; }
-    .status-title { font-size:16px; font-weight:700; color:${isZero ? "#b91c1c" : "#92400e"}; margin-bottom:4px; }
+    .status-title { font-size:16px; font-weight:700; color:${
+      isZero ? "#b91c1c" : "#92400e"
+    }; margin-bottom:4px; }
     .status-desc { font-size:13px; color:${isZero ? "#7f1d1d" : "#78350f"}; }
     /* Progress */
     .progress-section { margin-bottom:28px; }
@@ -173,15 +186,21 @@ const buildEmployeeEmailHtml = (
 <div class="wrapper"><div class="container">
 
   <div class="header">
-    <div class="header-badge">${isZero ? "⚠️ ยังไม่บันทึกเลย" : "⏳ บันทึกไม่ครบ"}</div>
+    <div class="header-badge">${
+      isZero ? "⚠️ ยังไม่บันทึกเลย" : "⏳ บันทึกไม่ครบ"
+    }</div>
     <div class="header-logo">SchoolBright <span>Helper</span></div>
     <div class="header-sub">แจ้งเตือนการบันทึกเวลาทำงานประจำวัน</div>
   </div>
 
   <div class="body">
-    <div class="greeting">สวัสดี คุณ${target.full_name}${target.nickname ? ` (${target.nickname})` : ""}</div>
+    <div class="greeting">สวัสดี คุณ${target.full_name}${
+    target.nickname ? ` (${target.nickname})` : ""
+  }</div>
     <div class="greeting-sub">
-      ระบบตรวจพบว่าท่านยัง<strong>${isZero ? "ไม่ได้บันทึกเวลาทำงานเลย" : "บันทึกเวลาทำงานไม่ครบ"}</strong>
+      ระบบตรวจพบว่าท่านยัง<strong>${
+        isZero ? "ไม่ได้บันทึกเวลาทำงานเลย" : "บันทึกเวลาทำงานไม่ครบ"
+      }</strong>
       สำหรับวันที่ <strong>${dateLabel}</strong>
       กรุณาบันทึกให้ครบถ้วนก่อนสิ้นวันทำงาน
     </div>
@@ -189,15 +208,25 @@ const buildEmployeeEmailHtml = (
     <!-- Status Card -->
     <div class="status-card">
       <div class="status-icon">${isZero ? "🚨" : "⚠️"}</div>
-      <div class="status-title">${isZero ? "ยังไม่ได้บันทึกเวลาทำงานวันนี้เลย" : `บันทึกแล้ว ${target.total_hours} ชั่วโมง จากเป้า 8 ชั่วโมง`}</div>
-      <div class="status-desc">${isZero ? "กรุณาเข้าระบบและบันทึกเวลาทำงานโดยเร็วที่สุด" : `ยังขาดอีก ${remaining} ชั่วโมง — กรุณาบันทึกเพิ่มก่อนสิ้นวัน`}</div>
+      <div class="status-title">${
+        isZero
+          ? "ยังไม่ได้บันทึกเวลาทำงานวันนี้เลย"
+          : `บันทึกแล้ว ${target.total_hours} ชั่วโมง จากเป้า 8 ชั่วโมง`
+      }</div>
+      <div class="status-desc">${
+        isZero
+          ? "กรุณาเข้าระบบและบันทึกเวลาทำงานโดยเร็วที่สุด"
+          : `ยังขาดอีก ${remaining} ชั่วโมง — กรุณาบันทึกเพิ่มก่อนสิ้นวัน`
+      }</div>
     </div>
 
     <!-- Progress -->
     <div class="progress-section">
       <div class="progress-header">
         <span class="progress-label">ความคืบหน้าวันนี้</span>
-        <span class="progress-value">${target.total_hours} / 8 ชั่วโมง (${filledPercent}%)</span>
+        <span class="progress-value">${
+          target.total_hours
+        } / 8 ชั่วโมง (${filledPercent}%)</span>
       </div>
       <div class="progress-track"><div class="progress-fill"></div></div>
       <div class="progress-hint">ต้องการอีก ${remaining} ชั่วโมงเพื่อครบเป้า</div>
@@ -251,7 +280,9 @@ const buildEmployeeEmailHtml = (
 
 export const EmployeeNotifyService = {
   // ดึงรายชื่อพนักงานที่ยังไม่กรอก/กรอกไม่ครบวันนี้
-  async queryTargets(departmentIds?: number[]): Promise<EmployeeNotifyTarget[]> {
+  async queryTargets(
+    departmentIds?: number[],
+  ): Promise<EmployeeNotifyTarget[]> {
     return queryNotEntryUsersToday(departmentIds);
   },
 

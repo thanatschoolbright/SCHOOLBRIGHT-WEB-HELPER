@@ -50,7 +50,9 @@ const { Text, Title } = Typography;
 // ====================================================================
 // Expandable row: แสดงรายละเอียดงานแต่ละ entry
 // ====================================================================
-const EntryDetailRow: React.FC<{ entries: TimesheetEntry[] }> = ({ entries }) => {
+const EntryDetailRow: React.FC<{ entries: TimesheetEntry[] }> = ({
+  entries,
+}) => {
   const { token } = theme.useToken();
 
   if (entries.length === 0) {
@@ -64,7 +66,12 @@ const EntryDetailRow: React.FC<{ entries: TimesheetEntry[] }> = ({ entries }) =>
   }
 
   return (
-    <div style={{ padding: "12px 16px", backgroundColor: token.colorFillQuaternary }}>
+    <div
+      style={{
+        padding: "12px 16px",
+        backgroundColor: token.colorFillQuaternary,
+      }}
+    >
       <Row gutter={[12, 12]}>
         {entries.map((entry, idx) => (
           <Col key={idx} xs={24} sm={12} lg={8} xl={6}>
@@ -81,7 +88,9 @@ const EntryDetailRow: React.FC<{ entries: TimesheetEntry[] }> = ({ entries }) =>
                 {/* Project + hours */}
                 <Flex justify="space-between" align="center">
                   <Space size={4}>
-                    <ProjectOutlined style={{ color: token.colorPrimary, fontSize: 12 }} />
+                    <ProjectOutlined
+                      style={{ color: token.colorPrimary, fontSize: 12 }}
+                    />
                     <Text strong style={{ fontSize: 12 }}>
                       {entry.project_name}
                     </Text>
@@ -136,7 +145,12 @@ export const TableSection: React.FC = () => {
   const notifyLoading = useDescriptionStore((s) => s.notifyLoading);
   const sendNotify = useDescriptionStore((s) => s.sendNotify);
   const sendEmployeeNotify = useDescriptionStore((s) => s.sendEmployeeNotify);
-  const filteredRecords = useDescriptionStore(useShallow(selectFilteredRecords));
+  const openEmployeeNotifyDrawer = useDescriptionStore(
+    (s) => s.openEmployeeNotifyDrawer,
+  );
+  const filteredRecords = useDescriptionStore(
+    useShallow(selectFilteredRecords),
+  );
 
   const notifyMenuItems: MenuProps["items"] = [
     {
@@ -160,8 +174,8 @@ export const TableSection: React.FC = () => {
     {
       key: "employee-notify",
       icon: <TeamOutlined />,
-      label: "แจ้งเตือนอีเมลพนักงานไม่ลงเวลาทำงาน",
-      onClick: () => sendEmployeeNotify(false),
+      label: "แจ้งเตือนอีเมลพนักงานไม่ลงเวลา (ทีละคน)",
+      onClick: () => openEmployeeNotifyDrawer(),
     },
     {
       key: "employee-notify-dry",
@@ -182,7 +196,13 @@ export const TableSection: React.FC = () => {
     const body = incompleteList
       .map(
         (rec, index) =>
-          `ลำดับที่ ${index + 1}\nรหัสพนักงาน ${rec.employee_code}\n${rec.full_name}${rec.nickname ? ` (${rec.nickname})` : ""}\nจำนวนชั่วโมงที่ลงวันนี้ : ${rec.progress_text} (ขาด ${rec.hours_gap} ชั่วโมง)`,
+          `ลำดับที่ ${index + 1}\nรหัสพนักงาน ${rec.employee_code}\n${
+            rec.full_name
+          }${
+            rec.nickname ? ` (${rec.nickname})` : ""
+          }\nจำนวนชั่วโมงที่ลงวันนี้ : ${rec.progress_text} (ขาด ${
+            rec.hours_gap
+          } ชั่วโมง)`,
       )
       .join("\n\n");
 
@@ -212,7 +232,9 @@ export const TableSection: React.FC = () => {
             </Text>
             <Text type="secondary" style={{ fontSize: 11 }}>
               {record.nickname ? `${record.nickname} · ` : ""}
-              <span style={{ fontFamily: "monospace" }}>{record.employee_code}</span>
+              <span style={{ fontFamily: "monospace" }}>
+                {record.employee_code}
+              </span>
             </Text>
           </Flex>
         </Space>
@@ -272,8 +294,8 @@ export const TableSection: React.FC = () => {
         const progressColor = isOT
           ? token.colorWarning
           : isComplete
-            ? token.colorSuccess
-            : token.colorError;
+          ? token.colorSuccess
+          : token.colorError;
         const percent = Math.min(record.completion_rate, 100);
 
         return (
@@ -313,7 +335,8 @@ export const TableSection: React.FC = () => {
         // สรุปโปรเจคพร้อมชั่วโมงรวมต่อโปรเจค
         const projectMap: Record<string, number> = {};
         record.entries.forEach((e) => {
-          projectMap[e.project_name] = (projectMap[e.project_name] ?? 0) + e.hours;
+          projectMap[e.project_name] =
+            (projectMap[e.project_name] ?? 0) + e.hours;
         });
 
         return (
@@ -359,13 +382,17 @@ export const TableSection: React.FC = () => {
       align: "center",
       render: (_, record) =>
         record.hours_gap <= 0 ? (
-          <CheckCircleFilled style={{ color: token.colorSuccess, fontSize: 16 }} />
+          <CheckCircleFilled
+            style={{ color: token.colorSuccess, fontSize: 16 }}
+          />
         ) : null,
     },
   ];
 
   const expandable: ExpandableConfig<TimesheetRecord> = {
-    expandedRowRender: (record: TimesheetRecord) => <EntryDetailRow entries={record.entries} />,
+    expandedRowRender: (record: TimesheetRecord) => (
+      <EntryDetailRow entries={record.entries} />
+    ),
     rowExpandable: (record: TimesheetRecord) => record.entries.length > 0,
     expandRowByClick: false,
   };
