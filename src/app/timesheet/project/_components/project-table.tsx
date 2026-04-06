@@ -38,6 +38,7 @@ import { useTranslation } from "react-i18next";
 
 import type { Project, ProjectStatus } from "../types/project.types";
 
+
 const { Text } = Typography;
 
 interface ProjectTableProps {
