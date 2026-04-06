@@ -4,7 +4,7 @@ import {
   DeliveryLoadingModal,
   overtimeSubmissionSteps,
 } from "@/components/modal/delivery-loading-modal";
-import { App, Button, Flex, Form, Space } from "antd";
+import { App, Badge, Button, Flex, Form, Space } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
@@ -16,6 +16,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
+  CalendarOutlined,
   ClockCircleOutlined,
   FileTextOutlined,
   TeamOutlined,
@@ -38,6 +39,7 @@ import ExportModal from "./_components/export-modal";
 import FilterSection from "./_components/filter-section";
 import RulesModal from "./_components/rules-modal";
 import SummarySection from "./_components/summary-section";
+import TimelineModal from "./_components/timeline-modal";
 import UserTable from "./_components/user-table";
 
 import { callApiService } from "@/services/axios-instance/sb-helper.axios";
@@ -106,7 +108,14 @@ const OvertimeManagementPage = () => {
     setIsLoadingOvertimeData: setStoreIsLoadingOvertimeData,
     setOvertimeDataSource: setStoreOvertimeDataSource,
     setTotalRecords,
+    overtimeDataSource: storeOvertimeDataSource,
   } = useOvertimeStore();
+
+  // นับ pending requests สำหรับแสดง Badge ใน HeaderBar
+  const pendingCount = React.useMemo(
+    () => storeOvertimeDataSource.filter((r) => r.status === "pending").length,
+    [storeOvertimeDataSource],
+  );
 
   // --- สถานะการแสดงผล UI (Visibility State) ---
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
@@ -116,6 +125,7 @@ const OvertimeManagementPage = () => {
   const [isExportModalVisible, setIsExportModalVisible] = useState(false);
   const [isAnalyticsModalVisible, setIsAnalyticsModalVisible] = useState(false);
   const [isRulesModalVisible, setIsRulesModalVisible] = useState(false);
+  const [isTimelineModalVisible, setIsTimelineModalVisible] = useState(false);
 
   // --- สถานะการส่งคำขอ OT (Submission Tracking) ---
   const [isSubmissionLoading, setIsSubmissionLoading] = useState(false);
@@ -1453,6 +1463,15 @@ const OvertimeManagementPage = () => {
               >
                 ระเบียบการขอ OT
               </Button>
+              <Badge count={pendingCount} color="gold" offset={[-4, 4]}>
+                <Button
+                  icon={<CalendarOutlined />}
+                  size="large"
+                  onClick={() => setIsTimelineModalVisible(true)}
+                >
+                  Timeline
+                </Button>
+              </Badge>
               <Button
                 type="primary"
                 icon={<ClockCircleOutlined />}
@@ -1610,6 +1629,13 @@ const OvertimeManagementPage = () => {
           open={isSubmissionLoading}
           currentStep={currentSubmissionStep}
           steps={overtimeSubmissionSteps}
+        />
+
+        {/* Modal แสดง Timeline OT รายคนในรูปแบบ Gantt */}
+        <TimelineModal
+          visible={isTimelineModalVisible}
+          onClose={() => setIsTimelineModalVisible(false)}
+          dataSource={overtimeDataSource}
         />
       </Flex>
     </DashboardLayout>

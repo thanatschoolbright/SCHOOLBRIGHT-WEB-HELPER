@@ -2,6 +2,7 @@
 
 import {
   ApartmentOutlined,
+  CalendarOutlined,
   CopyOutlined,
   DeleteOutlined,
   EditOutlined,
@@ -24,6 +25,7 @@ import {
   Flex,
   InputRef,
   Popover,
+  Segmented,
   Skeleton,
   Space,
   Table,
@@ -47,6 +49,7 @@ import {
   TimesheetEntry,
 } from "../types/timesheet-entry.types";
 import { DATE_FORMAT } from "../utils/timesheet-entry.helpers";
+import { CalendarView } from "./calendar-view";
 
 interface TimesheetTableProps {
   /** ข้อมูล Timesheet ทั้งหมด */
@@ -97,6 +100,9 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
 }) => {
   const { t } = useTranslation();
   const { token } = theme.useToken();
+
+  // สลับระหว่าง Table View และ Calendar View
+  const [viewMode, setViewMode] = useState<"table" | "calendar">("table");
 
   // กำหนดคอลัมน์ทั้งหมดที่สามารถแสดงผลได้
   const ALL_TIMESHEET_COLUMNS = useMemo(
@@ -630,20 +636,38 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
       variant="outlined"
       title={
         <Flex align="center" gap={16}>
-          <UnorderedListOutlined style={{ fontSize: "1rem" }} />
+          {viewMode === "table" ? (
+            <UnorderedListOutlined style={{ fontSize: "1rem" }} />
+          ) : (
+            <CalendarOutlined style={{ fontSize: "1rem" }} />
+          )}
           <Typography.Title level={5} style={{ margin: 0 }}>
-            {t("timesheet_entry_page.timesheet_log", "รายการลงเวลา")}
+            {viewMode === "table"
+              ? t("timesheet_entry_page.timesheet_log", "รายการลงเวลา")
+              : t("timesheet_entry_page.calendar_view", "มุมมองปฏิทิน")}
           </Typography.Title>
         </Flex>
       }
       styles={{ body: { padding: 16 } }}
-      style={{
-        borderRadius: 16,
-        overflow: "hidden",
-        border: `1px solid ${token.colorBorderSecondary}`,
-      }}
       extra={
         <Space size={12}>
+          {/* Toggle Table / Calendar View */}
+          <Segmented
+            value={viewMode}
+            onChange={(v) => setViewMode(v as "table" | "calendar")}
+            options={[
+              {
+                value: "table",
+                icon: <UnorderedListOutlined />,
+                label: t("timesheet_entry_page.table_view", "ตาราง"),
+              },
+              {
+                value: "calendar",
+                icon: <CalendarOutlined />,
+                label: t("timesheet_entry_page.calendar_view_btn", "ปฏิทิน"),
+              },
+            ]}
+          />
           <Button
             icon={<FileExcelOutlined />}
             onClick={() => {
@@ -738,7 +762,13 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
         background: token.colorBgContainer,
       }}
     >
-      <div style={{ padding: token.paddingLG }}>
+      {/* Calendar View */}
+      {viewMode === "calendar" && (
+        <CalendarView entries={entries} onEntryClick={onRowClick} />
+      )}
+
+      {/* Table View */}
+      {viewMode === "table" && <div style={{ padding: token.paddingLG }}>
         <Table<TimesheetEntry>
           rowKey={(r) => String(r.id || Math.random())}
           columns={filteredColumns}
@@ -797,7 +827,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
             style: { cursor: "pointer" },
           })}
         />
-      </div>
+      </div>}
     </Card>
   );
 };
