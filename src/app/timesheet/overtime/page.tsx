@@ -1526,6 +1526,7 @@ const OvertimeManagementPage = () => {
           }}
           onDelete={requestDeleteOvertimeSubmission}
           onApprove={requestApproveOvertimeSubmission}
+          onReject={(id) => requestApproveOvertimeSubmission(id, "rejected")}
           onSendMail={requestSendOvertimeMailToHR}
           onShowAnalytics={() => setIsAnalyticsModalVisible(true)}
           onShowExport={() => {

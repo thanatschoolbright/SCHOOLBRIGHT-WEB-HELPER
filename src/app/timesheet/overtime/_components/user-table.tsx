@@ -3,6 +3,7 @@
 import {
   BarChartOutlined,
   CheckCircleOutlined,
+  CloseCircleOutlined,
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
@@ -20,6 +21,7 @@ import {
   Button,
   Card,
   Flex,
+  Input,
   Popconfirm,
   Space,
   Table,
@@ -28,8 +30,8 @@ import {
   Tooltip,
   Typography,
 } from "antd";
+import React, { useState } from "react";
 import dayjs from "dayjs";
-import React from "react";
 import { useOvertimeStore } from "../_state/overtime-store";
 
 const { Text } = Typography;
@@ -48,6 +50,8 @@ interface UserTableProps {
   onEdit: (record: any) => void;
   onDelete: (id: string | number) => void;
   onApprove: (id: string | number) => void;
+  /** ปฏิเสธคำขอ OT พร้อมเหตุผล */
+  onReject: (id: string | number, reason: string) => void;
   onSendMail: (record: any) => void;
   onShowAnalytics: () => void;
   onShowExport: () => void;
@@ -70,6 +74,7 @@ const UserTable: React.FC<UserTableProps> = ({
   onEdit,
   onDelete,
   onApprove,
+  onReject,
   onSendMail,
   onShowAnalytics,
   onShowExport,
@@ -79,6 +84,10 @@ const UserTable: React.FC<UserTableProps> = ({
 }) => {
   const { token } = theme.useToken();
   const { overtimeDataSource, isLoadingOvertimeData } = useOvertimeStore();
+
+  // จัดการ state เหตุผลการปฏิเสธแยกตาม record id
+  const [rejectReasons, setRejectReasons] = useState<Record<string, string>>({});
+  const [rejectOpenMap, setRejectOpenMap] = useState<Record<string, boolean>>({});
 
   /**
    * ระบบตรวจสอบความสมบูรณ์ของข้อมูลเบื้องต้น
@@ -224,18 +233,90 @@ const UserTable: React.FC<UserTableProps> = ({
                   onClick={() => onEdit(record)}
                 />
               </Tooltip>
+
+              {/* Quick Approve พร้อม Popconfirm แสดงรายละเอียด */}
               <Popconfirm
-                title="ยืนยันการอนุมัติคำขอ?"
+                title={
+                  <Flex vertical gap={4}>
+                    <Text strong style={{ fontSize: 13 }}>
+                      ยืนยันการอนุมัติคำขอ OT?
+                    </Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      OT-{String(record.id).padStart(4, "0")} •{" "}
+                      {dayjs(record.request_date).format("DD/MM/YYYY")}
+                    </Text>
+                  </Flex>
+                }
+                okText="อนุมัติ"
+                cancelText="ยกเลิก"
+                okButtonProps={{ style: { background: token.colorSuccess, borderColor: token.colorSuccess } }}
+                icon={<CheckCircleOutlined style={{ color: token.colorSuccess }} />}
                 onConfirm={() => onApprove(record.id)}
               >
                 <Tooltip title="อนุมัติทันที">
                   <Button
                     type="text"
                     icon={
-                      <CheckCircleOutlined
-                        style={{ color: token.colorSuccess }}
-                      />
+                      <CheckCircleOutlined style={{ color: token.colorSuccess }} />
                     }
+                  />
+                </Tooltip>
+              </Popconfirm>
+
+              {/* Quick Reject พร้อม Input เหตุผล */}
+              <Popconfirm
+                open={rejectOpenMap[String(record.id)] ?? false}
+                title={
+                  <Flex vertical gap={8} style={{ minWidth: 260 }}>
+                    <Text strong style={{ fontSize: 13 }}>
+                      ปฏิเสธคำขอ OT?
+                    </Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      OT-{String(record.id).padStart(4, "0")} •{" "}
+                      {dayjs(record.request_date).format("DD/MM/YYYY")}
+                    </Text>
+                    <Input.TextArea
+                      placeholder="ระบุเหตุผลการปฏิเสธ (ถ้ามี)"
+                      autoSize={{ minRows: 2, maxRows: 4 }}
+                      value={rejectReasons[String(record.id)] ?? ""}
+                      onChange={(e) =>
+                        setRejectReasons((prev) => ({
+                          ...prev,
+                          [String(record.id)]: e.target.value,
+                        }))
+                      }
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </Flex>
+                }
+                okText="ปฏิเสธ"
+                cancelText="ยกเลิก"
+                okButtonProps={{ danger: true }}
+                icon={<CloseCircleOutlined style={{ color: token.colorError }} />}
+                onConfirm={() => {
+                  onReject(record.id, rejectReasons[String(record.id)] ?? "");
+                  setRejectReasons((prev) => {
+                    const next = { ...prev };
+                    delete next[String(record.id)];
+                    return next;
+                  });
+                  setRejectOpenMap((prev) => ({ ...prev, [String(record.id)]: false }));
+                }}
+                onCancel={() =>
+                  setRejectOpenMap((prev) => ({ ...prev, [String(record.id)]: false }))
+                }
+              >
+                <Tooltip title="ปฏิเสธคำขอ">
+                  <Button
+                    type="text"
+                    icon={<CloseCircleOutlined style={{ color: token.colorError }} />}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setRejectOpenMap((prev) => ({
+                        ...prev,
+                        [String(record.id)]: true,
+                      }));
+                    }}
                   />
                 </Tooltip>
               </Popconfirm>
