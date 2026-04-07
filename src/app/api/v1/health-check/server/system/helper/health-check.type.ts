@@ -1,3 +1,11 @@
+export interface HealthCheckRequest {
+  url: string;
+  method: string;
+  params?: Record<string, string>;
+  headers?: Record<string, string>;
+  body?: Record<string, unknown>;
+}
+
 export interface HealthCheckResult {
   module: string;
   name_th: string;
@@ -5,7 +13,7 @@ export interface HealthCheckResult {
   status: string;
   service: string;
   curl: string;
-  request: any;
-  response: any;
-  group: any;
+  request: HealthCheckRequest;
+  response: Record<string, unknown> | null;
+  group: string;
 }
