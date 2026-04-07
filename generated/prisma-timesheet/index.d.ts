@@ -94,6 +94,11 @@ export type OvertimeStatusLog = $Result.DefaultSelection<Prisma.$OvertimeStatusL
  */
 export type ApiLog = $Result.DefaultSelection<Prisma.$ApiLogPayload>
 /**
+ * Model CrmSupportAuthentication
+ * 
+ */
+export type CrmSupportAuthentication = $Result.DefaultSelection<Prisma.$CrmSupportAuthenticationPayload>
+/**
  * Model CrmSupport
  * 
  */
@@ -393,6 +398,16 @@ export class PrismaClient<
     * ```
     */
   get apiLog(): Prisma.ApiLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.crmSupportAuthentication`: Exposes CRUD operations for the **CrmSupportAuthentication** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CrmSupportAuthentications
+    * const crmSupportAuthentications = await prisma.crmSupportAuthentication.findMany()
+    * ```
+    */
+  get crmSupportAuthentication(): Prisma.CrmSupportAuthenticationDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.crmSupport`: Exposes CRUD operations for the **CrmSupport** model.
@@ -860,6 +875,7 @@ export namespace Prisma {
     OvertimeDescription: 'OvertimeDescription',
     OvertimeStatusLog: 'OvertimeStatusLog',
     ApiLog: 'ApiLog',
+    CrmSupportAuthentication: 'CrmSupportAuthentication',
     CrmSupport: 'CrmSupport'
   };
 
@@ -879,7 +895,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "position" | "department" | "user" | "role" | "permission" | "rolePermission" | "group" | "projectStatus" | "project" | "feature" | "projectAssignee" | "timesheetEntry" | "overtime" | "overtimeDescription" | "overtimeStatusLog" | "apiLog" | "crmSupport"
+      modelProps: "position" | "department" | "user" | "role" | "permission" | "rolePermission" | "group" | "projectStatus" | "project" | "feature" | "projectAssignee" | "timesheetEntry" | "overtime" | "overtimeDescription" | "overtimeStatusLog" | "apiLog" | "crmSupportAuthentication" | "crmSupport"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2067,6 +2083,80 @@ export namespace Prisma {
           }
         }
       }
+      CrmSupportAuthentication: {
+        payload: Prisma.$CrmSupportAuthenticationPayload<ExtArgs>
+        fields: Prisma.CrmSupportAuthenticationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CrmSupportAuthenticationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportAuthenticationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CrmSupportAuthenticationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportAuthenticationPayload>
+          }
+          findFirst: {
+            args: Prisma.CrmSupportAuthenticationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportAuthenticationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CrmSupportAuthenticationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportAuthenticationPayload>
+          }
+          findMany: {
+            args: Prisma.CrmSupportAuthenticationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportAuthenticationPayload>[]
+          }
+          create: {
+            args: Prisma.CrmSupportAuthenticationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportAuthenticationPayload>
+          }
+          createMany: {
+            args: Prisma.CrmSupportAuthenticationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CrmSupportAuthenticationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportAuthenticationPayload>[]
+          }
+          delete: {
+            args: Prisma.CrmSupportAuthenticationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportAuthenticationPayload>
+          }
+          update: {
+            args: Prisma.CrmSupportAuthenticationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportAuthenticationPayload>
+          }
+          deleteMany: {
+            args: Prisma.CrmSupportAuthenticationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CrmSupportAuthenticationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CrmSupportAuthenticationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportAuthenticationPayload>[]
+          }
+          upsert: {
+            args: Prisma.CrmSupportAuthenticationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportAuthenticationPayload>
+          }
+          aggregate: {
+            args: Prisma.CrmSupportAuthenticationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCrmSupportAuthentication>
+          }
+          groupBy: {
+            args: Prisma.CrmSupportAuthenticationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CrmSupportAuthenticationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CrmSupportAuthenticationCountArgs<ExtArgs>
+            result: $Utils.Optional<CrmSupportAuthenticationCountAggregateOutputType> | number
+          }
+        }
+      }
       CrmSupport: {
         payload: Prisma.$CrmSupportPayload<ExtArgs>
         fields: Prisma.CrmSupportFieldRefs
@@ -2253,6 +2343,7 @@ export namespace Prisma {
     overtimeDescription?: OvertimeDescriptionOmit
     overtimeStatusLog?: OvertimeStatusLogOmit
     apiLog?: ApiLogOmit
+    crmSupportAuthentication?: CrmSupportAuthenticationOmit
     crmSupport?: CrmSupportOmit
   }
 
@@ -2400,6 +2491,7 @@ export namespace Prisma {
     overtime_requests: number
     crm_created: number
     crm_updated: number
+    crmSupportAuthentications: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2407,6 +2499,7 @@ export namespace Prisma {
     overtime_requests?: boolean | UserCountOutputTypeCountOvertime_requestsArgs
     crm_created?: boolean | UserCountOutputTypeCountCrm_createdArgs
     crm_updated?: boolean | UserCountOutputTypeCountCrm_updatedArgs
+    crmSupportAuthentications?: boolean | UserCountOutputTypeCountCrmSupportAuthenticationsArgs
   }
 
   // Custom InputTypes
@@ -2446,6 +2539,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountCrm_updatedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: CrmSupportWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountCrmSupportAuthenticationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CrmSupportAuthenticationWhereInput
   }
 
 
@@ -5037,6 +5137,7 @@ export namespace Prisma {
     department_id: number | null
     status: string | null
     email: string | null
+    backlog_email: string | null
     phone: string | null
     profile_image_path: string | null
     joined_date: Date | null
@@ -5071,6 +5172,7 @@ export namespace Prisma {
     department_id: number | null
     status: string | null
     email: string | null
+    backlog_email: string | null
     phone: string | null
     profile_image_path: string | null
     joined_date: Date | null
@@ -5105,6 +5207,7 @@ export namespace Prisma {
     department_id: number
     status: number
     email: number
+    backlog_email: number
     phone: number
     profile_image_path: number
     joined_date: number
@@ -5163,6 +5266,7 @@ export namespace Prisma {
     department_id?: true
     status?: true
     email?: true
+    backlog_email?: true
     phone?: true
     profile_image_path?: true
     joined_date?: true
@@ -5197,6 +5301,7 @@ export namespace Prisma {
     department_id?: true
     status?: true
     email?: true
+    backlog_email?: true
     phone?: true
     profile_image_path?: true
     joined_date?: true
@@ -5231,6 +5336,7 @@ export namespace Prisma {
     department_id?: true
     status?: true
     email?: true
+    backlog_email?: true
     phone?: true
     profile_image_path?: true
     joined_date?: true
@@ -5352,6 +5458,7 @@ export namespace Prisma {
     department_id: number | null
     status: string
     email: string | null
+    backlog_email: string | null
     phone: string | null
     profile_image_path: string | null
     joined_date: Date | null
@@ -5405,6 +5512,7 @@ export namespace Prisma {
     department_id?: boolean
     status?: boolean
     email?: boolean
+    backlog_email?: boolean
     phone?: boolean
     profile_image_path?: boolean
     joined_date?: boolean
@@ -5429,6 +5537,7 @@ export namespace Prisma {
     department?: boolean | User$departmentArgs<ExtArgs>
     position_ref?: boolean | User$position_refArgs<ExtArgs>
     role?: boolean | User$roleArgs<ExtArgs>
+    crmSupportAuthentications?: boolean | User$crmSupportAuthenticationsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -5447,6 +5556,7 @@ export namespace Prisma {
     department_id?: boolean
     status?: boolean
     email?: boolean
+    backlog_email?: boolean
     phone?: boolean
     profile_image_path?: boolean
     joined_date?: boolean
@@ -5484,6 +5594,7 @@ export namespace Prisma {
     department_id?: boolean
     status?: boolean
     email?: boolean
+    backlog_email?: boolean
     phone?: boolean
     profile_image_path?: boolean
     joined_date?: boolean
@@ -5521,6 +5632,7 @@ export namespace Prisma {
     department_id?: boolean
     status?: boolean
     email?: boolean
+    backlog_email?: boolean
     phone?: boolean
     profile_image_path?: boolean
     joined_date?: boolean
@@ -5540,7 +5652,7 @@ export namespace Prisma {
     gender?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "username" | "password" | "admin_id" | "employee_code" | "firstname_th" | "lastname_th" | "firstname_en" | "lastname_en" | "nickname" | "position_id" | "department_id" | "status" | "email" | "phone" | "profile_image_path" | "joined_date" | "resigned_date" | "employment_type" | "last_login" | "failed_login_attempts" | "refresh_token" | "role_id" | "is_deleted" | "created_at" | "created_by" | "updated_at" | "updated_by" | "deleted_at" | "birth_date" | "gender", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "username" | "password" | "admin_id" | "employee_code" | "firstname_th" | "lastname_th" | "firstname_en" | "lastname_en" | "nickname" | "position_id" | "department_id" | "status" | "email" | "backlog_email" | "phone" | "profile_image_path" | "joined_date" | "resigned_date" | "employment_type" | "last_login" | "failed_login_attempts" | "refresh_token" | "role_id" | "is_deleted" | "created_at" | "created_by" | "updated_at" | "updated_by" | "deleted_at" | "birth_date" | "gender", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     overtime_created?: boolean | User$overtime_createdArgs<ExtArgs>
     overtime_requests?: boolean | User$overtime_requestsArgs<ExtArgs>
@@ -5549,6 +5661,7 @@ export namespace Prisma {
     department?: boolean | User$departmentArgs<ExtArgs>
     position_ref?: boolean | User$position_refArgs<ExtArgs>
     role?: boolean | User$roleArgs<ExtArgs>
+    crmSupportAuthentications?: boolean | User$crmSupportAuthenticationsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5572,6 +5685,7 @@ export namespace Prisma {
       department: Prisma.$DepartmentPayload<ExtArgs> | null
       position_ref: Prisma.$PositionPayload<ExtArgs> | null
       role: Prisma.$RolePayload<ExtArgs> | null
+      crmSupportAuthentications: Prisma.$CrmSupportAuthenticationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -5588,6 +5702,7 @@ export namespace Prisma {
       department_id: number | null
       status: string
       email: string | null
+      backlog_email: string | null
       phone: string | null
       profile_image_path: string | null
       joined_date: Date | null
@@ -6006,6 +6121,7 @@ export namespace Prisma {
     department<T extends User$departmentArgs<ExtArgs> = {}>(args?: Subset<T, User$departmentArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     position_ref<T extends User$position_refArgs<ExtArgs> = {}>(args?: Subset<T, User$position_refArgs<ExtArgs>>): Prisma__PositionClient<$Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     role<T extends User$roleArgs<ExtArgs> = {}>(args?: Subset<T, User$roleArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    crmSupportAuthentications<T extends User$crmSupportAuthenticationsArgs<ExtArgs> = {}>(args?: Subset<T, User$crmSupportAuthenticationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CrmSupportAuthenticationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6049,6 +6165,7 @@ export namespace Prisma {
     readonly department_id: FieldRef<"User", 'Int'>
     readonly status: FieldRef<"User", 'String'>
     readonly email: FieldRef<"User", 'String'>
+    readonly backlog_email: FieldRef<"User", 'String'>
     readonly phone: FieldRef<"User", 'String'>
     readonly profile_image_path: FieldRef<"User", 'String'>
     readonly joined_date: FieldRef<"User", 'DateTime'>
@@ -6612,6 +6729,30 @@ export namespace Prisma {
      */
     include?: RoleInclude<ExtArgs> | null
     where?: RoleWhereInput
+  }
+
+  /**
+   * User.crmSupportAuthentications
+   */
+  export type User$crmSupportAuthenticationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupportAuthentication
+     */
+    select?: CrmSupportAuthenticationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupportAuthentication
+     */
+    omit?: CrmSupportAuthenticationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportAuthenticationInclude<ExtArgs> | null
+    where?: CrmSupportAuthenticationWhereInput
+    orderBy?: CrmSupportAuthenticationOrderByWithRelationInput | CrmSupportAuthenticationOrderByWithRelationInput[]
+    cursor?: CrmSupportAuthenticationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CrmSupportAuthenticationScalarFieldEnum | CrmSupportAuthenticationScalarFieldEnum[]
   }
 
   /**
@@ -22050,6 +22191,1128 @@ export namespace Prisma {
 
 
   /**
+   * Model CrmSupportAuthentication
+   */
+
+  export type AggregateCrmSupportAuthentication = {
+    _count: CrmSupportAuthenticationCountAggregateOutputType | null
+    _avg: CrmSupportAuthenticationAvgAggregateOutputType | null
+    _sum: CrmSupportAuthenticationSumAggregateOutputType | null
+    _min: CrmSupportAuthenticationMinAggregateOutputType | null
+    _max: CrmSupportAuthenticationMaxAggregateOutputType | null
+  }
+
+  export type CrmSupportAuthenticationAvgAggregateOutputType = {
+    id: number | null
+    user_id: number | null
+  }
+
+  export type CrmSupportAuthenticationSumAggregateOutputType = {
+    id: number | null
+    user_id: number | null
+  }
+
+  export type CrmSupportAuthenticationMinAggregateOutputType = {
+    id: number | null
+    user_id: number | null
+    access_token: string | null
+    refresh_token: string | null
+    expires_at: Date | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type CrmSupportAuthenticationMaxAggregateOutputType = {
+    id: number | null
+    user_id: number | null
+    access_token: string | null
+    refresh_token: string | null
+    expires_at: Date | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type CrmSupportAuthenticationCountAggregateOutputType = {
+    id: number
+    user_id: number
+    access_token: number
+    refresh_token: number
+    expires_at: number
+    created_at: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type CrmSupportAuthenticationAvgAggregateInputType = {
+    id?: true
+    user_id?: true
+  }
+
+  export type CrmSupportAuthenticationSumAggregateInputType = {
+    id?: true
+    user_id?: true
+  }
+
+  export type CrmSupportAuthenticationMinAggregateInputType = {
+    id?: true
+    user_id?: true
+    access_token?: true
+    refresh_token?: true
+    expires_at?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type CrmSupportAuthenticationMaxAggregateInputType = {
+    id?: true
+    user_id?: true
+    access_token?: true
+    refresh_token?: true
+    expires_at?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type CrmSupportAuthenticationCountAggregateInputType = {
+    id?: true
+    user_id?: true
+    access_token?: true
+    refresh_token?: true
+    expires_at?: true
+    created_at?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type CrmSupportAuthenticationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CrmSupportAuthentication to aggregate.
+     */
+    where?: CrmSupportAuthenticationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CrmSupportAuthentications to fetch.
+     */
+    orderBy?: CrmSupportAuthenticationOrderByWithRelationInput | CrmSupportAuthenticationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CrmSupportAuthenticationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CrmSupportAuthentications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CrmSupportAuthentications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CrmSupportAuthentications
+    **/
+    _count?: true | CrmSupportAuthenticationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CrmSupportAuthenticationAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CrmSupportAuthenticationSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CrmSupportAuthenticationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CrmSupportAuthenticationMaxAggregateInputType
+  }
+
+  export type GetCrmSupportAuthenticationAggregateType<T extends CrmSupportAuthenticationAggregateArgs> = {
+        [P in keyof T & keyof AggregateCrmSupportAuthentication]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCrmSupportAuthentication[P]>
+      : GetScalarType<T[P], AggregateCrmSupportAuthentication[P]>
+  }
+
+
+
+
+  export type CrmSupportAuthenticationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CrmSupportAuthenticationWhereInput
+    orderBy?: CrmSupportAuthenticationOrderByWithAggregationInput | CrmSupportAuthenticationOrderByWithAggregationInput[]
+    by: CrmSupportAuthenticationScalarFieldEnum[] | CrmSupportAuthenticationScalarFieldEnum
+    having?: CrmSupportAuthenticationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CrmSupportAuthenticationCountAggregateInputType | true
+    _avg?: CrmSupportAuthenticationAvgAggregateInputType
+    _sum?: CrmSupportAuthenticationSumAggregateInputType
+    _min?: CrmSupportAuthenticationMinAggregateInputType
+    _max?: CrmSupportAuthenticationMaxAggregateInputType
+  }
+
+  export type CrmSupportAuthenticationGroupByOutputType = {
+    id: number
+    user_id: number
+    access_token: string
+    refresh_token: string
+    expires_at: Date
+    created_at: Date
+    updated_at: Date | null
+    _count: CrmSupportAuthenticationCountAggregateOutputType | null
+    _avg: CrmSupportAuthenticationAvgAggregateOutputType | null
+    _sum: CrmSupportAuthenticationSumAggregateOutputType | null
+    _min: CrmSupportAuthenticationMinAggregateOutputType | null
+    _max: CrmSupportAuthenticationMaxAggregateOutputType | null
+  }
+
+  type GetCrmSupportAuthenticationGroupByPayload<T extends CrmSupportAuthenticationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CrmSupportAuthenticationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CrmSupportAuthenticationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CrmSupportAuthenticationGroupByOutputType[P]>
+            : GetScalarType<T[P], CrmSupportAuthenticationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CrmSupportAuthenticationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    user_id?: boolean
+    access_token?: boolean
+    refresh_token?: boolean
+    expires_at?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["crmSupportAuthentication"]>
+
+  export type CrmSupportAuthenticationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    user_id?: boolean
+    access_token?: boolean
+    refresh_token?: boolean
+    expires_at?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["crmSupportAuthentication"]>
+
+  export type CrmSupportAuthenticationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    user_id?: boolean
+    access_token?: boolean
+    refresh_token?: boolean
+    expires_at?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["crmSupportAuthentication"]>
+
+  export type CrmSupportAuthenticationSelectScalar = {
+    id?: boolean
+    user_id?: boolean
+    access_token?: boolean
+    refresh_token?: boolean
+    expires_at?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }
+
+  export type CrmSupportAuthenticationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "user_id" | "access_token" | "refresh_token" | "expires_at" | "created_at" | "updated_at", ExtArgs["result"]["crmSupportAuthentication"]>
+  export type CrmSupportAuthenticationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type CrmSupportAuthenticationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type CrmSupportAuthenticationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $CrmSupportAuthenticationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CrmSupportAuthentication"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      user_id: number
+      access_token: string
+      refresh_token: string
+      expires_at: Date
+      created_at: Date
+      updated_at: Date | null
+    }, ExtArgs["result"]["crmSupportAuthentication"]>
+    composites: {}
+  }
+
+  type CrmSupportAuthenticationGetPayload<S extends boolean | null | undefined | CrmSupportAuthenticationDefaultArgs> = $Result.GetResult<Prisma.$CrmSupportAuthenticationPayload, S>
+
+  type CrmSupportAuthenticationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CrmSupportAuthenticationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CrmSupportAuthenticationCountAggregateInputType | true
+    }
+
+  export interface CrmSupportAuthenticationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CrmSupportAuthentication'], meta: { name: 'CrmSupportAuthentication' } }
+    /**
+     * Find zero or one CrmSupportAuthentication that matches the filter.
+     * @param {CrmSupportAuthenticationFindUniqueArgs} args - Arguments to find a CrmSupportAuthentication
+     * @example
+     * // Get one CrmSupportAuthentication
+     * const crmSupportAuthentication = await prisma.crmSupportAuthentication.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CrmSupportAuthenticationFindUniqueArgs>(args: SelectSubset<T, CrmSupportAuthenticationFindUniqueArgs<ExtArgs>>): Prisma__CrmSupportAuthenticationClient<$Result.GetResult<Prisma.$CrmSupportAuthenticationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CrmSupportAuthentication that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CrmSupportAuthenticationFindUniqueOrThrowArgs} args - Arguments to find a CrmSupportAuthentication
+     * @example
+     * // Get one CrmSupportAuthentication
+     * const crmSupportAuthentication = await prisma.crmSupportAuthentication.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CrmSupportAuthenticationFindUniqueOrThrowArgs>(args: SelectSubset<T, CrmSupportAuthenticationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CrmSupportAuthenticationClient<$Result.GetResult<Prisma.$CrmSupportAuthenticationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CrmSupportAuthentication that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CrmSupportAuthenticationFindFirstArgs} args - Arguments to find a CrmSupportAuthentication
+     * @example
+     * // Get one CrmSupportAuthentication
+     * const crmSupportAuthentication = await prisma.crmSupportAuthentication.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CrmSupportAuthenticationFindFirstArgs>(args?: SelectSubset<T, CrmSupportAuthenticationFindFirstArgs<ExtArgs>>): Prisma__CrmSupportAuthenticationClient<$Result.GetResult<Prisma.$CrmSupportAuthenticationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CrmSupportAuthentication that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CrmSupportAuthenticationFindFirstOrThrowArgs} args - Arguments to find a CrmSupportAuthentication
+     * @example
+     * // Get one CrmSupportAuthentication
+     * const crmSupportAuthentication = await prisma.crmSupportAuthentication.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CrmSupportAuthenticationFindFirstOrThrowArgs>(args?: SelectSubset<T, CrmSupportAuthenticationFindFirstOrThrowArgs<ExtArgs>>): Prisma__CrmSupportAuthenticationClient<$Result.GetResult<Prisma.$CrmSupportAuthenticationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CrmSupportAuthentications that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CrmSupportAuthenticationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CrmSupportAuthentications
+     * const crmSupportAuthentications = await prisma.crmSupportAuthentication.findMany()
+     * 
+     * // Get first 10 CrmSupportAuthentications
+     * const crmSupportAuthentications = await prisma.crmSupportAuthentication.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const crmSupportAuthenticationWithIdOnly = await prisma.crmSupportAuthentication.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CrmSupportAuthenticationFindManyArgs>(args?: SelectSubset<T, CrmSupportAuthenticationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CrmSupportAuthenticationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CrmSupportAuthentication.
+     * @param {CrmSupportAuthenticationCreateArgs} args - Arguments to create a CrmSupportAuthentication.
+     * @example
+     * // Create one CrmSupportAuthentication
+     * const CrmSupportAuthentication = await prisma.crmSupportAuthentication.create({
+     *   data: {
+     *     // ... data to create a CrmSupportAuthentication
+     *   }
+     * })
+     * 
+     */
+    create<T extends CrmSupportAuthenticationCreateArgs>(args: SelectSubset<T, CrmSupportAuthenticationCreateArgs<ExtArgs>>): Prisma__CrmSupportAuthenticationClient<$Result.GetResult<Prisma.$CrmSupportAuthenticationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CrmSupportAuthentications.
+     * @param {CrmSupportAuthenticationCreateManyArgs} args - Arguments to create many CrmSupportAuthentications.
+     * @example
+     * // Create many CrmSupportAuthentications
+     * const crmSupportAuthentication = await prisma.crmSupportAuthentication.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CrmSupportAuthenticationCreateManyArgs>(args?: SelectSubset<T, CrmSupportAuthenticationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CrmSupportAuthentications and returns the data saved in the database.
+     * @param {CrmSupportAuthenticationCreateManyAndReturnArgs} args - Arguments to create many CrmSupportAuthentications.
+     * @example
+     * // Create many CrmSupportAuthentications
+     * const crmSupportAuthentication = await prisma.crmSupportAuthentication.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CrmSupportAuthentications and only return the `id`
+     * const crmSupportAuthenticationWithIdOnly = await prisma.crmSupportAuthentication.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CrmSupportAuthenticationCreateManyAndReturnArgs>(args?: SelectSubset<T, CrmSupportAuthenticationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CrmSupportAuthenticationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CrmSupportAuthentication.
+     * @param {CrmSupportAuthenticationDeleteArgs} args - Arguments to delete one CrmSupportAuthentication.
+     * @example
+     * // Delete one CrmSupportAuthentication
+     * const CrmSupportAuthentication = await prisma.crmSupportAuthentication.delete({
+     *   where: {
+     *     // ... filter to delete one CrmSupportAuthentication
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CrmSupportAuthenticationDeleteArgs>(args: SelectSubset<T, CrmSupportAuthenticationDeleteArgs<ExtArgs>>): Prisma__CrmSupportAuthenticationClient<$Result.GetResult<Prisma.$CrmSupportAuthenticationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CrmSupportAuthentication.
+     * @param {CrmSupportAuthenticationUpdateArgs} args - Arguments to update one CrmSupportAuthentication.
+     * @example
+     * // Update one CrmSupportAuthentication
+     * const crmSupportAuthentication = await prisma.crmSupportAuthentication.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CrmSupportAuthenticationUpdateArgs>(args: SelectSubset<T, CrmSupportAuthenticationUpdateArgs<ExtArgs>>): Prisma__CrmSupportAuthenticationClient<$Result.GetResult<Prisma.$CrmSupportAuthenticationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CrmSupportAuthentications.
+     * @param {CrmSupportAuthenticationDeleteManyArgs} args - Arguments to filter CrmSupportAuthentications to delete.
+     * @example
+     * // Delete a few CrmSupportAuthentications
+     * const { count } = await prisma.crmSupportAuthentication.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CrmSupportAuthenticationDeleteManyArgs>(args?: SelectSubset<T, CrmSupportAuthenticationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CrmSupportAuthentications.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CrmSupportAuthenticationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CrmSupportAuthentications
+     * const crmSupportAuthentication = await prisma.crmSupportAuthentication.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CrmSupportAuthenticationUpdateManyArgs>(args: SelectSubset<T, CrmSupportAuthenticationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CrmSupportAuthentications and returns the data updated in the database.
+     * @param {CrmSupportAuthenticationUpdateManyAndReturnArgs} args - Arguments to update many CrmSupportAuthentications.
+     * @example
+     * // Update many CrmSupportAuthentications
+     * const crmSupportAuthentication = await prisma.crmSupportAuthentication.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CrmSupportAuthentications and only return the `id`
+     * const crmSupportAuthenticationWithIdOnly = await prisma.crmSupportAuthentication.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CrmSupportAuthenticationUpdateManyAndReturnArgs>(args: SelectSubset<T, CrmSupportAuthenticationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CrmSupportAuthenticationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CrmSupportAuthentication.
+     * @param {CrmSupportAuthenticationUpsertArgs} args - Arguments to update or create a CrmSupportAuthentication.
+     * @example
+     * // Update or create a CrmSupportAuthentication
+     * const crmSupportAuthentication = await prisma.crmSupportAuthentication.upsert({
+     *   create: {
+     *     // ... data to create a CrmSupportAuthentication
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CrmSupportAuthentication we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CrmSupportAuthenticationUpsertArgs>(args: SelectSubset<T, CrmSupportAuthenticationUpsertArgs<ExtArgs>>): Prisma__CrmSupportAuthenticationClient<$Result.GetResult<Prisma.$CrmSupportAuthenticationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CrmSupportAuthentications.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CrmSupportAuthenticationCountArgs} args - Arguments to filter CrmSupportAuthentications to count.
+     * @example
+     * // Count the number of CrmSupportAuthentications
+     * const count = await prisma.crmSupportAuthentication.count({
+     *   where: {
+     *     // ... the filter for the CrmSupportAuthentications we want to count
+     *   }
+     * })
+    **/
+    count<T extends CrmSupportAuthenticationCountArgs>(
+      args?: Subset<T, CrmSupportAuthenticationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CrmSupportAuthenticationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CrmSupportAuthentication.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CrmSupportAuthenticationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CrmSupportAuthenticationAggregateArgs>(args: Subset<T, CrmSupportAuthenticationAggregateArgs>): Prisma.PrismaPromise<GetCrmSupportAuthenticationAggregateType<T>>
+
+    /**
+     * Group by CrmSupportAuthentication.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CrmSupportAuthenticationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CrmSupportAuthenticationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CrmSupportAuthenticationGroupByArgs['orderBy'] }
+        : { orderBy?: CrmSupportAuthenticationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CrmSupportAuthenticationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCrmSupportAuthenticationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CrmSupportAuthentication model
+   */
+  readonly fields: CrmSupportAuthenticationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CrmSupportAuthentication.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CrmSupportAuthenticationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CrmSupportAuthentication model
+   */
+  interface CrmSupportAuthenticationFieldRefs {
+    readonly id: FieldRef<"CrmSupportAuthentication", 'Int'>
+    readonly user_id: FieldRef<"CrmSupportAuthentication", 'Int'>
+    readonly access_token: FieldRef<"CrmSupportAuthentication", 'String'>
+    readonly refresh_token: FieldRef<"CrmSupportAuthentication", 'String'>
+    readonly expires_at: FieldRef<"CrmSupportAuthentication", 'DateTime'>
+    readonly created_at: FieldRef<"CrmSupportAuthentication", 'DateTime'>
+    readonly updated_at: FieldRef<"CrmSupportAuthentication", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CrmSupportAuthentication findUnique
+   */
+  export type CrmSupportAuthenticationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupportAuthentication
+     */
+    select?: CrmSupportAuthenticationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupportAuthentication
+     */
+    omit?: CrmSupportAuthenticationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportAuthenticationInclude<ExtArgs> | null
+    /**
+     * Filter, which CrmSupportAuthentication to fetch.
+     */
+    where: CrmSupportAuthenticationWhereUniqueInput
+  }
+
+  /**
+   * CrmSupportAuthentication findUniqueOrThrow
+   */
+  export type CrmSupportAuthenticationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupportAuthentication
+     */
+    select?: CrmSupportAuthenticationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupportAuthentication
+     */
+    omit?: CrmSupportAuthenticationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportAuthenticationInclude<ExtArgs> | null
+    /**
+     * Filter, which CrmSupportAuthentication to fetch.
+     */
+    where: CrmSupportAuthenticationWhereUniqueInput
+  }
+
+  /**
+   * CrmSupportAuthentication findFirst
+   */
+  export type CrmSupportAuthenticationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupportAuthentication
+     */
+    select?: CrmSupportAuthenticationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupportAuthentication
+     */
+    omit?: CrmSupportAuthenticationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportAuthenticationInclude<ExtArgs> | null
+    /**
+     * Filter, which CrmSupportAuthentication to fetch.
+     */
+    where?: CrmSupportAuthenticationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CrmSupportAuthentications to fetch.
+     */
+    orderBy?: CrmSupportAuthenticationOrderByWithRelationInput | CrmSupportAuthenticationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CrmSupportAuthentications.
+     */
+    cursor?: CrmSupportAuthenticationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CrmSupportAuthentications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CrmSupportAuthentications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CrmSupportAuthentications.
+     */
+    distinct?: CrmSupportAuthenticationScalarFieldEnum | CrmSupportAuthenticationScalarFieldEnum[]
+  }
+
+  /**
+   * CrmSupportAuthentication findFirstOrThrow
+   */
+  export type CrmSupportAuthenticationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupportAuthentication
+     */
+    select?: CrmSupportAuthenticationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupportAuthentication
+     */
+    omit?: CrmSupportAuthenticationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportAuthenticationInclude<ExtArgs> | null
+    /**
+     * Filter, which CrmSupportAuthentication to fetch.
+     */
+    where?: CrmSupportAuthenticationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CrmSupportAuthentications to fetch.
+     */
+    orderBy?: CrmSupportAuthenticationOrderByWithRelationInput | CrmSupportAuthenticationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CrmSupportAuthentications.
+     */
+    cursor?: CrmSupportAuthenticationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CrmSupportAuthentications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CrmSupportAuthentications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CrmSupportAuthentications.
+     */
+    distinct?: CrmSupportAuthenticationScalarFieldEnum | CrmSupportAuthenticationScalarFieldEnum[]
+  }
+
+  /**
+   * CrmSupportAuthentication findMany
+   */
+  export type CrmSupportAuthenticationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupportAuthentication
+     */
+    select?: CrmSupportAuthenticationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupportAuthentication
+     */
+    omit?: CrmSupportAuthenticationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportAuthenticationInclude<ExtArgs> | null
+    /**
+     * Filter, which CrmSupportAuthentications to fetch.
+     */
+    where?: CrmSupportAuthenticationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CrmSupportAuthentications to fetch.
+     */
+    orderBy?: CrmSupportAuthenticationOrderByWithRelationInput | CrmSupportAuthenticationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CrmSupportAuthentications.
+     */
+    cursor?: CrmSupportAuthenticationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CrmSupportAuthentications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CrmSupportAuthentications.
+     */
+    skip?: number
+    distinct?: CrmSupportAuthenticationScalarFieldEnum | CrmSupportAuthenticationScalarFieldEnum[]
+  }
+
+  /**
+   * CrmSupportAuthentication create
+   */
+  export type CrmSupportAuthenticationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupportAuthentication
+     */
+    select?: CrmSupportAuthenticationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupportAuthentication
+     */
+    omit?: CrmSupportAuthenticationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportAuthenticationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CrmSupportAuthentication.
+     */
+    data: XOR<CrmSupportAuthenticationCreateInput, CrmSupportAuthenticationUncheckedCreateInput>
+  }
+
+  /**
+   * CrmSupportAuthentication createMany
+   */
+  export type CrmSupportAuthenticationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CrmSupportAuthentications.
+     */
+    data: CrmSupportAuthenticationCreateManyInput | CrmSupportAuthenticationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CrmSupportAuthentication createManyAndReturn
+   */
+  export type CrmSupportAuthenticationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupportAuthentication
+     */
+    select?: CrmSupportAuthenticationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupportAuthentication
+     */
+    omit?: CrmSupportAuthenticationOmit<ExtArgs> | null
+    /**
+     * The data used to create many CrmSupportAuthentications.
+     */
+    data: CrmSupportAuthenticationCreateManyInput | CrmSupportAuthenticationCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportAuthenticationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CrmSupportAuthentication update
+   */
+  export type CrmSupportAuthenticationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupportAuthentication
+     */
+    select?: CrmSupportAuthenticationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupportAuthentication
+     */
+    omit?: CrmSupportAuthenticationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportAuthenticationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CrmSupportAuthentication.
+     */
+    data: XOR<CrmSupportAuthenticationUpdateInput, CrmSupportAuthenticationUncheckedUpdateInput>
+    /**
+     * Choose, which CrmSupportAuthentication to update.
+     */
+    where: CrmSupportAuthenticationWhereUniqueInput
+  }
+
+  /**
+   * CrmSupportAuthentication updateMany
+   */
+  export type CrmSupportAuthenticationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CrmSupportAuthentications.
+     */
+    data: XOR<CrmSupportAuthenticationUpdateManyMutationInput, CrmSupportAuthenticationUncheckedUpdateManyInput>
+    /**
+     * Filter which CrmSupportAuthentications to update
+     */
+    where?: CrmSupportAuthenticationWhereInput
+    /**
+     * Limit how many CrmSupportAuthentications to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CrmSupportAuthentication updateManyAndReturn
+   */
+  export type CrmSupportAuthenticationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupportAuthentication
+     */
+    select?: CrmSupportAuthenticationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupportAuthentication
+     */
+    omit?: CrmSupportAuthenticationOmit<ExtArgs> | null
+    /**
+     * The data used to update CrmSupportAuthentications.
+     */
+    data: XOR<CrmSupportAuthenticationUpdateManyMutationInput, CrmSupportAuthenticationUncheckedUpdateManyInput>
+    /**
+     * Filter which CrmSupportAuthentications to update
+     */
+    where?: CrmSupportAuthenticationWhereInput
+    /**
+     * Limit how many CrmSupportAuthentications to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportAuthenticationIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CrmSupportAuthentication upsert
+   */
+  export type CrmSupportAuthenticationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupportAuthentication
+     */
+    select?: CrmSupportAuthenticationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupportAuthentication
+     */
+    omit?: CrmSupportAuthenticationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportAuthenticationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CrmSupportAuthentication to update in case it exists.
+     */
+    where: CrmSupportAuthenticationWhereUniqueInput
+    /**
+     * In case the CrmSupportAuthentication found by the `where` argument doesn't exist, create a new CrmSupportAuthentication with this data.
+     */
+    create: XOR<CrmSupportAuthenticationCreateInput, CrmSupportAuthenticationUncheckedCreateInput>
+    /**
+     * In case the CrmSupportAuthentication was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CrmSupportAuthenticationUpdateInput, CrmSupportAuthenticationUncheckedUpdateInput>
+  }
+
+  /**
+   * CrmSupportAuthentication delete
+   */
+  export type CrmSupportAuthenticationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupportAuthentication
+     */
+    select?: CrmSupportAuthenticationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupportAuthentication
+     */
+    omit?: CrmSupportAuthenticationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportAuthenticationInclude<ExtArgs> | null
+    /**
+     * Filter which CrmSupportAuthentication to delete.
+     */
+    where: CrmSupportAuthenticationWhereUniqueInput
+  }
+
+  /**
+   * CrmSupportAuthentication deleteMany
+   */
+  export type CrmSupportAuthenticationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CrmSupportAuthentications to delete
+     */
+    where?: CrmSupportAuthenticationWhereInput
+    /**
+     * Limit how many CrmSupportAuthentications to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CrmSupportAuthentication without action
+   */
+  export type CrmSupportAuthenticationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupportAuthentication
+     */
+    select?: CrmSupportAuthenticationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupportAuthentication
+     */
+    omit?: CrmSupportAuthenticationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportAuthenticationInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model CrmSupport
    */
 
@@ -23748,6 +25011,7 @@ export namespace Prisma {
     department_id: 'department_id',
     status: 'status',
     email: 'email',
+    backlog_email: 'backlog_email',
     phone: 'phone',
     profile_image_path: 'profile_image_path',
     joined_date: 'joined_date',
@@ -23973,6 +25237,19 @@ export namespace Prisma {
   };
 
   export type ApiLogScalarFieldEnum = (typeof ApiLogScalarFieldEnum)[keyof typeof ApiLogScalarFieldEnum]
+
+
+  export const CrmSupportAuthenticationScalarFieldEnum: {
+    id: 'id',
+    user_id: 'user_id',
+    access_token: 'access_token',
+    refresh_token: 'refresh_token',
+    expires_at: 'expires_at',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+  };
+
+  export type CrmSupportAuthenticationScalarFieldEnum = (typeof CrmSupportAuthenticationScalarFieldEnum)[keyof typeof CrmSupportAuthenticationScalarFieldEnum]
 
 
   export const CrmSupportScalarFieldEnum: {
@@ -24348,6 +25625,7 @@ export namespace Prisma {
     department_id?: IntNullableFilter<"User"> | number | null
     status?: StringFilter<"User"> | string
     email?: StringNullableFilter<"User"> | string | null
+    backlog_email?: StringNullableFilter<"User"> | string | null
     phone?: StringNullableFilter<"User"> | string | null
     profile_image_path?: StringNullableFilter<"User"> | string | null
     joined_date?: DateTimeNullableFilter<"User"> | Date | string | null
@@ -24372,6 +25650,7 @@ export namespace Prisma {
     department?: XOR<DepartmentNullableScalarRelationFilter, DepartmentWhereInput> | null
     position_ref?: XOR<PositionNullableScalarRelationFilter, PositionWhereInput> | null
     role?: XOR<RoleNullableScalarRelationFilter, RoleWhereInput> | null
+    crmSupportAuthentications?: CrmSupportAuthenticationListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -24389,6 +25668,7 @@ export namespace Prisma {
     department_id?: SortOrderInput | SortOrder
     status?: SortOrder
     email?: SortOrderInput | SortOrder
+    backlog_email?: SortOrderInput | SortOrder
     phone?: SortOrderInput | SortOrder
     profile_image_path?: SortOrderInput | SortOrder
     joined_date?: SortOrderInput | SortOrder
@@ -24413,6 +25693,7 @@ export namespace Prisma {
     department?: DepartmentOrderByWithRelationInput
     position_ref?: PositionOrderByWithRelationInput
     role?: RoleOrderByWithRelationInput
+    crmSupportAuthentications?: CrmSupportAuthenticationOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -24433,6 +25714,7 @@ export namespace Prisma {
     department_id?: IntNullableFilter<"User"> | number | null
     status?: StringFilter<"User"> | string
     email?: StringNullableFilter<"User"> | string | null
+    backlog_email?: StringNullableFilter<"User"> | string | null
     phone?: StringNullableFilter<"User"> | string | null
     profile_image_path?: StringNullableFilter<"User"> | string | null
     joined_date?: DateTimeNullableFilter<"User"> | Date | string | null
@@ -24457,6 +25739,7 @@ export namespace Prisma {
     department?: XOR<DepartmentNullableScalarRelationFilter, DepartmentWhereInput> | null
     position_ref?: XOR<PositionNullableScalarRelationFilter, PositionWhereInput> | null
     role?: XOR<RoleNullableScalarRelationFilter, RoleWhereInput> | null
+    crmSupportAuthentications?: CrmSupportAuthenticationListRelationFilter
   }, "id" | "username" | "admin_id" | "employee_code">
 
   export type UserOrderByWithAggregationInput = {
@@ -24474,6 +25757,7 @@ export namespace Prisma {
     department_id?: SortOrderInput | SortOrder
     status?: SortOrder
     email?: SortOrderInput | SortOrder
+    backlog_email?: SortOrderInput | SortOrder
     phone?: SortOrderInput | SortOrder
     profile_image_path?: SortOrderInput | SortOrder
     joined_date?: SortOrderInput | SortOrder
@@ -24516,6 +25800,7 @@ export namespace Prisma {
     department_id?: IntNullableWithAggregatesFilter<"User"> | number | null
     status?: StringWithAggregatesFilter<"User"> | string
     email?: StringNullableWithAggregatesFilter<"User"> | string | null
+    backlog_email?: StringNullableWithAggregatesFilter<"User"> | string | null
     phone?: StringNullableWithAggregatesFilter<"User"> | string | null
     profile_image_path?: StringNullableWithAggregatesFilter<"User"> | string | null
     joined_date?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
@@ -25623,6 +26908,73 @@ export namespace Prisma {
     is_archived?: BoolWithAggregatesFilter<"ApiLog"> | boolean
   }
 
+  export type CrmSupportAuthenticationWhereInput = {
+    AND?: CrmSupportAuthenticationWhereInput | CrmSupportAuthenticationWhereInput[]
+    OR?: CrmSupportAuthenticationWhereInput[]
+    NOT?: CrmSupportAuthenticationWhereInput | CrmSupportAuthenticationWhereInput[]
+    id?: IntFilter<"CrmSupportAuthentication"> | number
+    user_id?: IntFilter<"CrmSupportAuthentication"> | number
+    access_token?: StringFilter<"CrmSupportAuthentication"> | string
+    refresh_token?: StringFilter<"CrmSupportAuthentication"> | string
+    expires_at?: DateTimeFilter<"CrmSupportAuthentication"> | Date | string
+    created_at?: DateTimeFilter<"CrmSupportAuthentication"> | Date | string
+    updated_at?: DateTimeNullableFilter<"CrmSupportAuthentication"> | Date | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type CrmSupportAuthenticationOrderByWithRelationInput = {
+    id?: SortOrder
+    user_id?: SortOrder
+    access_token?: SortOrder
+    refresh_token?: SortOrder
+    expires_at?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrderInput | SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type CrmSupportAuthenticationWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: CrmSupportAuthenticationWhereInput | CrmSupportAuthenticationWhereInput[]
+    OR?: CrmSupportAuthenticationWhereInput[]
+    NOT?: CrmSupportAuthenticationWhereInput | CrmSupportAuthenticationWhereInput[]
+    user_id?: IntFilter<"CrmSupportAuthentication"> | number
+    access_token?: StringFilter<"CrmSupportAuthentication"> | string
+    refresh_token?: StringFilter<"CrmSupportAuthentication"> | string
+    expires_at?: DateTimeFilter<"CrmSupportAuthentication"> | Date | string
+    created_at?: DateTimeFilter<"CrmSupportAuthentication"> | Date | string
+    updated_at?: DateTimeNullableFilter<"CrmSupportAuthentication"> | Date | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type CrmSupportAuthenticationOrderByWithAggregationInput = {
+    id?: SortOrder
+    user_id?: SortOrder
+    access_token?: SortOrder
+    refresh_token?: SortOrder
+    expires_at?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrderInput | SortOrder
+    _count?: CrmSupportAuthenticationCountOrderByAggregateInput
+    _avg?: CrmSupportAuthenticationAvgOrderByAggregateInput
+    _max?: CrmSupportAuthenticationMaxOrderByAggregateInput
+    _min?: CrmSupportAuthenticationMinOrderByAggregateInput
+    _sum?: CrmSupportAuthenticationSumOrderByAggregateInput
+  }
+
+  export type CrmSupportAuthenticationScalarWhereWithAggregatesInput = {
+    AND?: CrmSupportAuthenticationScalarWhereWithAggregatesInput | CrmSupportAuthenticationScalarWhereWithAggregatesInput[]
+    OR?: CrmSupportAuthenticationScalarWhereWithAggregatesInput[]
+    NOT?: CrmSupportAuthenticationScalarWhereWithAggregatesInput | CrmSupportAuthenticationScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"CrmSupportAuthentication"> | number
+    user_id?: IntWithAggregatesFilter<"CrmSupportAuthentication"> | number
+    access_token?: StringWithAggregatesFilter<"CrmSupportAuthentication"> | string
+    refresh_token?: StringWithAggregatesFilter<"CrmSupportAuthentication"> | string
+    expires_at?: DateTimeWithAggregatesFilter<"CrmSupportAuthentication"> | Date | string
+    created_at?: DateTimeWithAggregatesFilter<"CrmSupportAuthentication"> | Date | string
+    updated_at?: DateTimeNullableWithAggregatesFilter<"CrmSupportAuthentication"> | Date | string | null
+  }
+
   export type CrmSupportWhereInput = {
     AND?: CrmSupportWhereInput | CrmSupportWhereInput[]
     OR?: CrmSupportWhereInput[]
@@ -26029,6 +27381,7 @@ export namespace Prisma {
     nickname?: string | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -26052,6 +27405,7 @@ export namespace Prisma {
     department?: DepartmentCreateNestedOneWithoutUsersInput
     position_ref?: PositionCreateNestedOneWithoutUsersInput
     role?: RoleCreateNestedOneWithoutUsersInput
+    crmSupportAuthentications?: CrmSupportAuthenticationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -26069,6 +27423,7 @@ export namespace Prisma {
     department_id?: number | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -26090,6 +27445,7 @@ export namespace Prisma {
     overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
     crm_created?: CrmSupportUncheckedCreateNestedManyWithoutCreatorInput
     crm_updated?: CrmSupportUncheckedCreateNestedManyWithoutUpdaterInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -26104,6 +27460,7 @@ export namespace Prisma {
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -26127,6 +27484,7 @@ export namespace Prisma {
     department?: DepartmentUpdateOneWithoutUsersNestedInput
     position_ref?: PositionUpdateOneWithoutUsersNestedInput
     role?: RoleUpdateOneWithoutUsersNestedInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -26144,6 +27502,7 @@ export namespace Prisma {
     department_id?: NullableIntFieldUpdateOperationsInput | number | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -26165,6 +27524,7 @@ export namespace Prisma {
     overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
     crm_created?: CrmSupportUncheckedUpdateManyWithoutCreatorNestedInput
     crm_updated?: CrmSupportUncheckedUpdateManyWithoutUpdaterNestedInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -26182,6 +27542,7 @@ export namespace Prisma {
     department_id?: number | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -26213,6 +27574,7 @@ export namespace Prisma {
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -26246,6 +27608,7 @@ export namespace Prisma {
     department_id?: NullableIntFieldUpdateOperationsInput | number | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -27429,6 +28792,72 @@ export namespace Prisma {
     is_archived?: BoolFieldUpdateOperationsInput | boolean
   }
 
+  export type CrmSupportAuthenticationCreateInput = {
+    access_token: string
+    refresh_token: string
+    expires_at: Date | string
+    created_at?: Date | string
+    updated_at?: Date | string | null
+    user: UserCreateNestedOneWithoutCrmSupportAuthenticationsInput
+  }
+
+  export type CrmSupportAuthenticationUncheckedCreateInput = {
+    id?: number
+    user_id: number
+    access_token: string
+    refresh_token: string
+    expires_at: Date | string
+    created_at?: Date | string
+    updated_at?: Date | string | null
+  }
+
+  export type CrmSupportAuthenticationUpdateInput = {
+    access_token?: StringFieldUpdateOperationsInput | string
+    refresh_token?: StringFieldUpdateOperationsInput | string
+    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneRequiredWithoutCrmSupportAuthenticationsNestedInput
+  }
+
+  export type CrmSupportAuthenticationUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    user_id?: IntFieldUpdateOperationsInput | number
+    access_token?: StringFieldUpdateOperationsInput | string
+    refresh_token?: StringFieldUpdateOperationsInput | string
+    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type CrmSupportAuthenticationCreateManyInput = {
+    id?: number
+    user_id: number
+    access_token: string
+    refresh_token: string
+    expires_at: Date | string
+    created_at?: Date | string
+    updated_at?: Date | string | null
+  }
+
+  export type CrmSupportAuthenticationUpdateManyMutationInput = {
+    access_token?: StringFieldUpdateOperationsInput | string
+    refresh_token?: StringFieldUpdateOperationsInput | string
+    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type CrmSupportAuthenticationUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    user_id?: IntFieldUpdateOperationsInput | number
+    access_token?: StringFieldUpdateOperationsInput | string
+    refresh_token?: StringFieldUpdateOperationsInput | string
+    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type CrmSupportCreateInput = {
     issue_date: Date | string
     school_id: number
@@ -28027,11 +29456,21 @@ export namespace Prisma {
     isNot?: RoleWhereInput | null
   }
 
+  export type CrmSupportAuthenticationListRelationFilter = {
+    every?: CrmSupportAuthenticationWhereInput
+    some?: CrmSupportAuthenticationWhereInput
+    none?: CrmSupportAuthenticationWhereInput
+  }
+
   export type OvertimeOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type CrmSupportOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CrmSupportAuthenticationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -28050,6 +29489,7 @@ export namespace Prisma {
     department_id?: SortOrder
     status?: SortOrder
     email?: SortOrder
+    backlog_email?: SortOrder
     phone?: SortOrder
     profile_image_path?: SortOrder
     joined_date?: SortOrder
@@ -28095,6 +29535,7 @@ export namespace Prisma {
     department_id?: SortOrder
     status?: SortOrder
     email?: SortOrder
+    backlog_email?: SortOrder
     phone?: SortOrder
     profile_image_path?: SortOrder
     joined_date?: SortOrder
@@ -28129,6 +29570,7 @@ export namespace Prisma {
     department_id?: SortOrder
     status?: SortOrder
     email?: SortOrder
+    backlog_email?: SortOrder
     phone?: SortOrder
     profile_image_path?: SortOrder
     joined_date?: SortOrder
@@ -29084,6 +30526,51 @@ export namespace Prisma {
     _max?: NestedBigIntFilter<$PrismaModel>
   }
 
+  export type UserScalarRelationFilter = {
+    is?: UserWhereInput
+    isNot?: UserWhereInput
+  }
+
+  export type CrmSupportAuthenticationCountOrderByAggregateInput = {
+    id?: SortOrder
+    user_id?: SortOrder
+    access_token?: SortOrder
+    refresh_token?: SortOrder
+    expires_at?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type CrmSupportAuthenticationAvgOrderByAggregateInput = {
+    id?: SortOrder
+    user_id?: SortOrder
+  }
+
+  export type CrmSupportAuthenticationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    user_id?: SortOrder
+    access_token?: SortOrder
+    refresh_token?: SortOrder
+    expires_at?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type CrmSupportAuthenticationMinOrderByAggregateInput = {
+    id?: SortOrder
+    user_id?: SortOrder
+    access_token?: SortOrder
+    refresh_token?: SortOrder
+    expires_at?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type CrmSupportAuthenticationSumOrderByAggregateInput = {
+    id?: SortOrder
+    user_id?: SortOrder
+  }
+
   export type CrmSupportCountOrderByAggregateInput = {
     id?: SortOrder
     issue_date?: SortOrder
@@ -29397,6 +30884,13 @@ export namespace Prisma {
     connect?: RoleWhereUniqueInput
   }
 
+  export type CrmSupportAuthenticationCreateNestedManyWithoutUserInput = {
+    create?: XOR<CrmSupportAuthenticationCreateWithoutUserInput, CrmSupportAuthenticationUncheckedCreateWithoutUserInput> | CrmSupportAuthenticationCreateWithoutUserInput[] | CrmSupportAuthenticationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CrmSupportAuthenticationCreateOrConnectWithoutUserInput | CrmSupportAuthenticationCreateOrConnectWithoutUserInput[]
+    createMany?: CrmSupportAuthenticationCreateManyUserInputEnvelope
+    connect?: CrmSupportAuthenticationWhereUniqueInput | CrmSupportAuthenticationWhereUniqueInput[]
+  }
+
   export type OvertimeUncheckedCreateNestedManyWithoutCreatorInput = {
     create?: XOR<OvertimeCreateWithoutCreatorInput, OvertimeUncheckedCreateWithoutCreatorInput> | OvertimeCreateWithoutCreatorInput[] | OvertimeUncheckedCreateWithoutCreatorInput[]
     connectOrCreate?: OvertimeCreateOrConnectWithoutCreatorInput | OvertimeCreateOrConnectWithoutCreatorInput[]
@@ -29423,6 +30917,13 @@ export namespace Prisma {
     connectOrCreate?: CrmSupportCreateOrConnectWithoutUpdaterInput | CrmSupportCreateOrConnectWithoutUpdaterInput[]
     createMany?: CrmSupportCreateManyUpdaterInputEnvelope
     connect?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+  }
+
+  export type CrmSupportAuthenticationUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<CrmSupportAuthenticationCreateWithoutUserInput, CrmSupportAuthenticationUncheckedCreateWithoutUserInput> | CrmSupportAuthenticationCreateWithoutUserInput[] | CrmSupportAuthenticationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CrmSupportAuthenticationCreateOrConnectWithoutUserInput | CrmSupportAuthenticationCreateOrConnectWithoutUserInput[]
+    createMany?: CrmSupportAuthenticationCreateManyUserInputEnvelope
+    connect?: CrmSupportAuthenticationWhereUniqueInput | CrmSupportAuthenticationWhereUniqueInput[]
   }
 
   export type NullableIntFieldUpdateOperationsInput = {
@@ -29519,6 +31020,20 @@ export namespace Prisma {
     update?: XOR<XOR<RoleUpdateToOneWithWhereWithoutUsersInput, RoleUpdateWithoutUsersInput>, RoleUncheckedUpdateWithoutUsersInput>
   }
 
+  export type CrmSupportAuthenticationUpdateManyWithoutUserNestedInput = {
+    create?: XOR<CrmSupportAuthenticationCreateWithoutUserInput, CrmSupportAuthenticationUncheckedCreateWithoutUserInput> | CrmSupportAuthenticationCreateWithoutUserInput[] | CrmSupportAuthenticationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CrmSupportAuthenticationCreateOrConnectWithoutUserInput | CrmSupportAuthenticationCreateOrConnectWithoutUserInput[]
+    upsert?: CrmSupportAuthenticationUpsertWithWhereUniqueWithoutUserInput | CrmSupportAuthenticationUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: CrmSupportAuthenticationCreateManyUserInputEnvelope
+    set?: CrmSupportAuthenticationWhereUniqueInput | CrmSupportAuthenticationWhereUniqueInput[]
+    disconnect?: CrmSupportAuthenticationWhereUniqueInput | CrmSupportAuthenticationWhereUniqueInput[]
+    delete?: CrmSupportAuthenticationWhereUniqueInput | CrmSupportAuthenticationWhereUniqueInput[]
+    connect?: CrmSupportAuthenticationWhereUniqueInput | CrmSupportAuthenticationWhereUniqueInput[]
+    update?: CrmSupportAuthenticationUpdateWithWhereUniqueWithoutUserInput | CrmSupportAuthenticationUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: CrmSupportAuthenticationUpdateManyWithWhereWithoutUserInput | CrmSupportAuthenticationUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: CrmSupportAuthenticationScalarWhereInput | CrmSupportAuthenticationScalarWhereInput[]
+  }
+
   export type OvertimeUncheckedUpdateManyWithoutCreatorNestedInput = {
     create?: XOR<OvertimeCreateWithoutCreatorInput, OvertimeUncheckedCreateWithoutCreatorInput> | OvertimeCreateWithoutCreatorInput[] | OvertimeUncheckedCreateWithoutCreatorInput[]
     connectOrCreate?: OvertimeCreateOrConnectWithoutCreatorInput | OvertimeCreateOrConnectWithoutCreatorInput[]
@@ -29573,6 +31088,20 @@ export namespace Prisma {
     update?: CrmSupportUpdateWithWhereUniqueWithoutUpdaterInput | CrmSupportUpdateWithWhereUniqueWithoutUpdaterInput[]
     updateMany?: CrmSupportUpdateManyWithWhereWithoutUpdaterInput | CrmSupportUpdateManyWithWhereWithoutUpdaterInput[]
     deleteMany?: CrmSupportScalarWhereInput | CrmSupportScalarWhereInput[]
+  }
+
+  export type CrmSupportAuthenticationUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<CrmSupportAuthenticationCreateWithoutUserInput, CrmSupportAuthenticationUncheckedCreateWithoutUserInput> | CrmSupportAuthenticationCreateWithoutUserInput[] | CrmSupportAuthenticationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CrmSupportAuthenticationCreateOrConnectWithoutUserInput | CrmSupportAuthenticationCreateOrConnectWithoutUserInput[]
+    upsert?: CrmSupportAuthenticationUpsertWithWhereUniqueWithoutUserInput | CrmSupportAuthenticationUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: CrmSupportAuthenticationCreateManyUserInputEnvelope
+    set?: CrmSupportAuthenticationWhereUniqueInput | CrmSupportAuthenticationWhereUniqueInput[]
+    disconnect?: CrmSupportAuthenticationWhereUniqueInput | CrmSupportAuthenticationWhereUniqueInput[]
+    delete?: CrmSupportAuthenticationWhereUniqueInput | CrmSupportAuthenticationWhereUniqueInput[]
+    connect?: CrmSupportAuthenticationWhereUniqueInput | CrmSupportAuthenticationWhereUniqueInput[]
+    update?: CrmSupportAuthenticationUpdateWithWhereUniqueWithoutUserInput | CrmSupportAuthenticationUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: CrmSupportAuthenticationUpdateManyWithWhereWithoutUserInput | CrmSupportAuthenticationUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: CrmSupportAuthenticationScalarWhereInput | CrmSupportAuthenticationScalarWhereInput[]
   }
 
   export type RolePermissionCreateNestedManyWithoutRoleInput = {
@@ -30301,6 +31830,20 @@ export namespace Prisma {
     divide?: bigint | number
   }
 
+  export type UserCreateNestedOneWithoutCrmSupportAuthenticationsInput = {
+    create?: XOR<UserCreateWithoutCrmSupportAuthenticationsInput, UserUncheckedCreateWithoutCrmSupportAuthenticationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCrmSupportAuthenticationsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutCrmSupportAuthenticationsNestedInput = {
+    create?: XOR<UserCreateWithoutCrmSupportAuthenticationsInput, UserUncheckedCreateWithoutCrmSupportAuthenticationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCrmSupportAuthenticationsInput
+    upsert?: UserUpsertWithoutCrmSupportAuthenticationsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCrmSupportAuthenticationsInput, UserUpdateWithoutCrmSupportAuthenticationsInput>, UserUncheckedUpdateWithoutCrmSupportAuthenticationsInput>
+  }
+
   export type UserCreateNestedOneWithoutCrm_createdInput = {
     create?: XOR<UserCreateWithoutCrm_createdInput, UserUncheckedCreateWithoutCrm_createdInput>
     connectOrCreate?: UserCreateOrConnectWithoutCrm_createdInput
@@ -30667,6 +32210,7 @@ export namespace Prisma {
     nickname?: string | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -30689,6 +32233,7 @@ export namespace Prisma {
     crm_updated?: CrmSupportCreateNestedManyWithoutUpdaterInput
     department?: DepartmentCreateNestedOneWithoutUsersInput
     role?: RoleCreateNestedOneWithoutUsersInput
+    crmSupportAuthentications?: CrmSupportAuthenticationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPosition_refInput = {
@@ -30705,6 +32250,7 @@ export namespace Prisma {
     department_id?: number | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -30726,6 +32272,7 @@ export namespace Prisma {
     overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
     crm_created?: CrmSupportUncheckedCreateNestedManyWithoutCreatorInput
     crm_updated?: CrmSupportUncheckedCreateNestedManyWithoutUpdaterInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPosition_refInput = {
@@ -30772,6 +32319,7 @@ export namespace Prisma {
     department_id?: IntNullableFilter<"User"> | number | null
     status?: StringFilter<"User"> | string
     email?: StringNullableFilter<"User"> | string | null
+    backlog_email?: StringNullableFilter<"User"> | string | null
     phone?: StringNullableFilter<"User"> | string | null
     profile_image_path?: StringNullableFilter<"User"> | string | null
     joined_date?: DateTimeNullableFilter<"User"> | Date | string | null
@@ -30803,6 +32351,7 @@ export namespace Prisma {
     nickname?: string | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -30825,6 +32374,7 @@ export namespace Prisma {
     crm_updated?: CrmSupportCreateNestedManyWithoutUpdaterInput
     position_ref?: PositionCreateNestedOneWithoutUsersInput
     role?: RoleCreateNestedOneWithoutUsersInput
+    crmSupportAuthentications?: CrmSupportAuthenticationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDepartmentInput = {
@@ -30841,6 +32391,7 @@ export namespace Prisma {
     position_id?: number | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -30862,6 +32413,7 @@ export namespace Prisma {
     overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
     crm_created?: CrmSupportUncheckedCreateNestedManyWithoutCreatorInput
     crm_updated?: CrmSupportUncheckedCreateNestedManyWithoutUpdaterInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDepartmentInput = {
@@ -31226,6 +32778,33 @@ export namespace Prisma {
     create: XOR<RoleCreateWithoutUsersInput, RoleUncheckedCreateWithoutUsersInput>
   }
 
+  export type CrmSupportAuthenticationCreateWithoutUserInput = {
+    access_token: string
+    refresh_token: string
+    expires_at: Date | string
+    created_at?: Date | string
+    updated_at?: Date | string | null
+  }
+
+  export type CrmSupportAuthenticationUncheckedCreateWithoutUserInput = {
+    id?: number
+    access_token: string
+    refresh_token: string
+    expires_at: Date | string
+    created_at?: Date | string
+    updated_at?: Date | string | null
+  }
+
+  export type CrmSupportAuthenticationCreateOrConnectWithoutUserInput = {
+    where: CrmSupportAuthenticationWhereUniqueInput
+    create: XOR<CrmSupportAuthenticationCreateWithoutUserInput, CrmSupportAuthenticationUncheckedCreateWithoutUserInput>
+  }
+
+  export type CrmSupportAuthenticationCreateManyUserInputEnvelope = {
+    data: CrmSupportAuthenticationCreateManyUserInput | CrmSupportAuthenticationCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type OvertimeUpsertWithWhereUniqueWithoutCreatorInput = {
     where: OvertimeWhereUniqueInput
     update: XOR<OvertimeUpdateWithoutCreatorInput, OvertimeUncheckedUpdateWithoutCreatorInput>
@@ -31447,6 +33026,35 @@ export namespace Prisma {
     permissions?: RolePermissionUncheckedUpdateManyWithoutRoleNestedInput
   }
 
+  export type CrmSupportAuthenticationUpsertWithWhereUniqueWithoutUserInput = {
+    where: CrmSupportAuthenticationWhereUniqueInput
+    update: XOR<CrmSupportAuthenticationUpdateWithoutUserInput, CrmSupportAuthenticationUncheckedUpdateWithoutUserInput>
+    create: XOR<CrmSupportAuthenticationCreateWithoutUserInput, CrmSupportAuthenticationUncheckedCreateWithoutUserInput>
+  }
+
+  export type CrmSupportAuthenticationUpdateWithWhereUniqueWithoutUserInput = {
+    where: CrmSupportAuthenticationWhereUniqueInput
+    data: XOR<CrmSupportAuthenticationUpdateWithoutUserInput, CrmSupportAuthenticationUncheckedUpdateWithoutUserInput>
+  }
+
+  export type CrmSupportAuthenticationUpdateManyWithWhereWithoutUserInput = {
+    where: CrmSupportAuthenticationScalarWhereInput
+    data: XOR<CrmSupportAuthenticationUpdateManyMutationInput, CrmSupportAuthenticationUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type CrmSupportAuthenticationScalarWhereInput = {
+    AND?: CrmSupportAuthenticationScalarWhereInput | CrmSupportAuthenticationScalarWhereInput[]
+    OR?: CrmSupportAuthenticationScalarWhereInput[]
+    NOT?: CrmSupportAuthenticationScalarWhereInput | CrmSupportAuthenticationScalarWhereInput[]
+    id?: IntFilter<"CrmSupportAuthentication"> | number
+    user_id?: IntFilter<"CrmSupportAuthentication"> | number
+    access_token?: StringFilter<"CrmSupportAuthentication"> | string
+    refresh_token?: StringFilter<"CrmSupportAuthentication"> | string
+    expires_at?: DateTimeFilter<"CrmSupportAuthentication"> | Date | string
+    created_at?: DateTimeFilter<"CrmSupportAuthentication"> | Date | string
+    updated_at?: DateTimeNullableFilter<"CrmSupportAuthentication"> | Date | string | null
+  }
+
   export type RolePermissionCreateWithoutRoleInput = {
     assigned_at?: Date | string
     assigned_by?: number | null
@@ -31481,6 +33089,7 @@ export namespace Prisma {
     nickname?: string | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -31503,6 +33112,7 @@ export namespace Prisma {
     crm_updated?: CrmSupportCreateNestedManyWithoutUpdaterInput
     department?: DepartmentCreateNestedOneWithoutUsersInput
     position_ref?: PositionCreateNestedOneWithoutUsersInput
+    crmSupportAuthentications?: CrmSupportAuthenticationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRoleInput = {
@@ -31520,6 +33130,7 @@ export namespace Prisma {
     department_id?: number | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -31540,6 +33151,7 @@ export namespace Prisma {
     overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
     crm_created?: CrmSupportUncheckedCreateNestedManyWithoutCreatorInput
     crm_updated?: CrmSupportUncheckedCreateNestedManyWithoutUpdaterInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRoleInput = {
@@ -33057,6 +34669,7 @@ export namespace Prisma {
     nickname?: string | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -33079,6 +34692,7 @@ export namespace Prisma {
     department?: DepartmentCreateNestedOneWithoutUsersInput
     position_ref?: PositionCreateNestedOneWithoutUsersInput
     role?: RoleCreateNestedOneWithoutUsersInput
+    crmSupportAuthentications?: CrmSupportAuthenticationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOvertime_createdInput = {
@@ -33096,6 +34710,7 @@ export namespace Prisma {
     department_id?: number | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -33116,6 +34731,7 @@ export namespace Prisma {
     overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
     crm_created?: CrmSupportUncheckedCreateNestedManyWithoutCreatorInput
     crm_updated?: CrmSupportUncheckedCreateNestedManyWithoutUpdaterInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOvertime_createdInput = {
@@ -33135,6 +34751,7 @@ export namespace Prisma {
     nickname?: string | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -33157,6 +34774,7 @@ export namespace Prisma {
     department?: DepartmentCreateNestedOneWithoutUsersInput
     position_ref?: PositionCreateNestedOneWithoutUsersInput
     role?: RoleCreateNestedOneWithoutUsersInput
+    crmSupportAuthentications?: CrmSupportAuthenticationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOvertime_requestsInput = {
@@ -33174,6 +34792,7 @@ export namespace Prisma {
     department_id?: number | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -33194,6 +34813,7 @@ export namespace Prisma {
     overtime_created?: OvertimeUncheckedCreateNestedManyWithoutCreatorInput
     crm_created?: CrmSupportUncheckedCreateNestedManyWithoutCreatorInput
     crm_updated?: CrmSupportUncheckedCreateNestedManyWithoutUpdaterInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOvertime_requestsInput = {
@@ -33255,6 +34875,7 @@ export namespace Prisma {
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -33277,6 +34898,7 @@ export namespace Prisma {
     department?: DepartmentUpdateOneWithoutUsersNestedInput
     position_ref?: PositionUpdateOneWithoutUsersNestedInput
     role?: RoleUpdateOneWithoutUsersNestedInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOvertime_createdInput = {
@@ -33294,6 +34916,7 @@ export namespace Prisma {
     department_id?: NullableIntFieldUpdateOperationsInput | number | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -33314,6 +34937,7 @@ export namespace Prisma {
     overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
     crm_created?: CrmSupportUncheckedUpdateManyWithoutCreatorNestedInput
     crm_updated?: CrmSupportUncheckedUpdateManyWithoutUpdaterNestedInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutOvertime_requestsInput = {
@@ -33339,6 +34963,7 @@ export namespace Prisma {
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -33361,6 +34986,7 @@ export namespace Prisma {
     department?: DepartmentUpdateOneWithoutUsersNestedInput
     position_ref?: PositionUpdateOneWithoutUsersNestedInput
     role?: RoleUpdateOneWithoutUsersNestedInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOvertime_requestsInput = {
@@ -33378,6 +35004,7 @@ export namespace Prisma {
     department_id?: NullableIntFieldUpdateOperationsInput | number | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -33398,6 +35025,7 @@ export namespace Prisma {
     overtime_created?: OvertimeUncheckedUpdateManyWithoutCreatorNestedInput
     crm_created?: CrmSupportUncheckedUpdateManyWithoutCreatorNestedInput
     crm_updated?: CrmSupportUncheckedUpdateManyWithoutUpdaterNestedInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type OvertimeCreateWithoutDescriptionsInput = {
@@ -33462,6 +35090,176 @@ export namespace Prisma {
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
+  export type UserCreateWithoutCrmSupportAuthenticationsInput = {
+    username: string
+    password: string
+    admin_id: number
+    employee_code?: string | null
+    firstname_th?: string | null
+    lastname_th?: string | null
+    firstname_en?: string | null
+    lastname_en?: string | null
+    nickname?: string | null
+    status?: string
+    email?: string | null
+    backlog_email?: string | null
+    phone?: string | null
+    profile_image_path?: string | null
+    joined_date?: Date | string | null
+    resigned_date?: Date | string | null
+    employment_type?: string | null
+    last_login?: Date | string | null
+    failed_login_attempts?: number
+    refresh_token?: string | null
+    is_deleted?: boolean
+    created_at?: Date | string
+    created_by?: number | null
+    updated_at?: Date | string
+    updated_by?: number | null
+    deleted_at?: Date | string | null
+    birth_date?: Date | string | null
+    gender?: string | null
+    overtime_created?: OvertimeCreateNestedManyWithoutCreatorInput
+    overtime_requests?: OvertimeCreateNestedManyWithoutRequesterInput
+    crm_created?: CrmSupportCreateNestedManyWithoutCreatorInput
+    crm_updated?: CrmSupportCreateNestedManyWithoutUpdaterInput
+    department?: DepartmentCreateNestedOneWithoutUsersInput
+    position_ref?: PositionCreateNestedOneWithoutUsersInput
+    role?: RoleCreateNestedOneWithoutUsersInput
+  }
+
+  export type UserUncheckedCreateWithoutCrmSupportAuthenticationsInput = {
+    id?: number
+    username: string
+    password: string
+    admin_id: number
+    employee_code?: string | null
+    firstname_th?: string | null
+    lastname_th?: string | null
+    firstname_en?: string | null
+    lastname_en?: string | null
+    nickname?: string | null
+    position_id?: number | null
+    department_id?: number | null
+    status?: string
+    email?: string | null
+    backlog_email?: string | null
+    phone?: string | null
+    profile_image_path?: string | null
+    joined_date?: Date | string | null
+    resigned_date?: Date | string | null
+    employment_type?: string | null
+    last_login?: Date | string | null
+    failed_login_attempts?: number
+    refresh_token?: string | null
+    role_id?: number | null
+    is_deleted?: boolean
+    created_at?: Date | string
+    created_by?: number | null
+    updated_at?: Date | string
+    updated_by?: number | null
+    deleted_at?: Date | string | null
+    birth_date?: Date | string | null
+    gender?: string | null
+    overtime_created?: OvertimeUncheckedCreateNestedManyWithoutCreatorInput
+    overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
+    crm_created?: CrmSupportUncheckedCreateNestedManyWithoutCreatorInput
+    crm_updated?: CrmSupportUncheckedCreateNestedManyWithoutUpdaterInput
+  }
+
+  export type UserCreateOrConnectWithoutCrmSupportAuthenticationsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutCrmSupportAuthenticationsInput, UserUncheckedCreateWithoutCrmSupportAuthenticationsInput>
+  }
+
+  export type UserUpsertWithoutCrmSupportAuthenticationsInput = {
+    update: XOR<UserUpdateWithoutCrmSupportAuthenticationsInput, UserUncheckedUpdateWithoutCrmSupportAuthenticationsInput>
+    create: XOR<UserCreateWithoutCrmSupportAuthenticationsInput, UserUncheckedCreateWithoutCrmSupportAuthenticationsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutCrmSupportAuthenticationsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutCrmSupportAuthenticationsInput, UserUncheckedUpdateWithoutCrmSupportAuthenticationsInput>
+  }
+
+  export type UserUpdateWithoutCrmSupportAuthenticationsInput = {
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    admin_id?: IntFieldUpdateOperationsInput | number
+    employee_code?: NullableStringFieldUpdateOperationsInput | string | null
+    firstname_th?: NullableStringFieldUpdateOperationsInput | string | null
+    lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
+    firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
+    lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employment_type?: NullableStringFieldUpdateOperationsInput | string | null
+    last_login?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failed_login_attempts?: IntFieldUpdateOperationsInput | number
+    refresh_token?: NullableStringFieldUpdateOperationsInput | string | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_by?: NullableIntFieldUpdateOperationsInput | number | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    overtime_created?: OvertimeUpdateManyWithoutCreatorNestedInput
+    overtime_requests?: OvertimeUpdateManyWithoutRequesterNestedInput
+    crm_created?: CrmSupportUpdateManyWithoutCreatorNestedInput
+    crm_updated?: CrmSupportUpdateManyWithoutUpdaterNestedInput
+    department?: DepartmentUpdateOneWithoutUsersNestedInput
+    position_ref?: PositionUpdateOneWithoutUsersNestedInput
+    role?: RoleUpdateOneWithoutUsersNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutCrmSupportAuthenticationsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    admin_id?: IntFieldUpdateOperationsInput | number
+    employee_code?: NullableStringFieldUpdateOperationsInput | string | null
+    firstname_th?: NullableStringFieldUpdateOperationsInput | string | null
+    lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
+    firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
+    lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    position_id?: NullableIntFieldUpdateOperationsInput | number | null
+    department_id?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employment_type?: NullableStringFieldUpdateOperationsInput | string | null
+    last_login?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failed_login_attempts?: IntFieldUpdateOperationsInput | number
+    refresh_token?: NullableStringFieldUpdateOperationsInput | string | null
+    role_id?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_by?: NullableIntFieldUpdateOperationsInput | number | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    overtime_created?: OvertimeUncheckedUpdateManyWithoutCreatorNestedInput
+    overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
+    crm_created?: CrmSupportUncheckedUpdateManyWithoutCreatorNestedInput
+    crm_updated?: CrmSupportUncheckedUpdateManyWithoutUpdaterNestedInput
+  }
+
   export type UserCreateWithoutCrm_createdInput = {
     username: string
     password: string
@@ -33474,6 +35272,7 @@ export namespace Prisma {
     nickname?: string | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -33496,6 +35295,7 @@ export namespace Prisma {
     department?: DepartmentCreateNestedOneWithoutUsersInput
     position_ref?: PositionCreateNestedOneWithoutUsersInput
     role?: RoleCreateNestedOneWithoutUsersInput
+    crmSupportAuthentications?: CrmSupportAuthenticationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCrm_createdInput = {
@@ -33513,6 +35313,7 @@ export namespace Prisma {
     department_id?: number | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -33533,6 +35334,7 @@ export namespace Prisma {
     overtime_created?: OvertimeUncheckedCreateNestedManyWithoutCreatorInput
     overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
     crm_updated?: CrmSupportUncheckedCreateNestedManyWithoutUpdaterInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCrm_createdInput = {
@@ -33552,6 +35354,7 @@ export namespace Prisma {
     nickname?: string | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -33574,6 +35377,7 @@ export namespace Prisma {
     department?: DepartmentCreateNestedOneWithoutUsersInput
     position_ref?: PositionCreateNestedOneWithoutUsersInput
     role?: RoleCreateNestedOneWithoutUsersInput
+    crmSupportAuthentications?: CrmSupportAuthenticationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCrm_updatedInput = {
@@ -33591,6 +35395,7 @@ export namespace Prisma {
     department_id?: number | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -33611,6 +35416,7 @@ export namespace Prisma {
     overtime_created?: OvertimeUncheckedCreateNestedManyWithoutCreatorInput
     overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
     crm_created?: CrmSupportUncheckedCreateNestedManyWithoutCreatorInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCrm_updatedInput = {
@@ -33641,6 +35447,7 @@ export namespace Prisma {
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -33663,6 +35470,7 @@ export namespace Prisma {
     department?: DepartmentUpdateOneWithoutUsersNestedInput
     position_ref?: PositionUpdateOneWithoutUsersNestedInput
     role?: RoleUpdateOneWithoutUsersNestedInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCrm_createdInput = {
@@ -33680,6 +35488,7 @@ export namespace Prisma {
     department_id?: NullableIntFieldUpdateOperationsInput | number | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -33700,6 +35509,7 @@ export namespace Prisma {
     overtime_created?: OvertimeUncheckedUpdateManyWithoutCreatorNestedInput
     overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
     crm_updated?: CrmSupportUncheckedUpdateManyWithoutUpdaterNestedInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutCrm_updatedInput = {
@@ -33725,6 +35535,7 @@ export namespace Prisma {
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -33747,6 +35558,7 @@ export namespace Prisma {
     department?: DepartmentUpdateOneWithoutUsersNestedInput
     position_ref?: PositionUpdateOneWithoutUsersNestedInput
     role?: RoleUpdateOneWithoutUsersNestedInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCrm_updatedInput = {
@@ -33764,6 +35576,7 @@ export namespace Prisma {
     department_id?: NullableIntFieldUpdateOperationsInput | number | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -33784,6 +35597,7 @@ export namespace Prisma {
     overtime_created?: OvertimeUncheckedUpdateManyWithoutCreatorNestedInput
     overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
     crm_created?: CrmSupportUncheckedUpdateManyWithoutCreatorNestedInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyPosition_refInput = {
@@ -33800,6 +35614,7 @@ export namespace Prisma {
     department_id?: number | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -33831,6 +35646,7 @@ export namespace Prisma {
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -33853,6 +35669,7 @@ export namespace Prisma {
     crm_updated?: CrmSupportUpdateManyWithoutUpdaterNestedInput
     department?: DepartmentUpdateOneWithoutUsersNestedInput
     role?: RoleUpdateOneWithoutUsersNestedInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPosition_refInput = {
@@ -33869,6 +35686,7 @@ export namespace Prisma {
     department_id?: NullableIntFieldUpdateOperationsInput | number | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -33890,6 +35708,7 @@ export namespace Prisma {
     overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
     crm_created?: CrmSupportUncheckedUpdateManyWithoutCreatorNestedInput
     crm_updated?: CrmSupportUncheckedUpdateManyWithoutUpdaterNestedInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutPosition_refInput = {
@@ -33906,6 +35725,7 @@ export namespace Prisma {
     department_id?: NullableIntFieldUpdateOperationsInput | number | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -33939,6 +35759,7 @@ export namespace Prisma {
     position_id?: number | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -33970,6 +35791,7 @@ export namespace Prisma {
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -33992,6 +35814,7 @@ export namespace Prisma {
     crm_updated?: CrmSupportUpdateManyWithoutUpdaterNestedInput
     position_ref?: PositionUpdateOneWithoutUsersNestedInput
     role?: RoleUpdateOneWithoutUsersNestedInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDepartmentInput = {
@@ -34008,6 +35831,7 @@ export namespace Prisma {
     position_id?: NullableIntFieldUpdateOperationsInput | number | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -34029,6 +35853,7 @@ export namespace Prisma {
     overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
     crm_created?: CrmSupportUncheckedUpdateManyWithoutCreatorNestedInput
     crm_updated?: CrmSupportUncheckedUpdateManyWithoutUpdaterNestedInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutDepartmentInput = {
@@ -34045,6 +35870,7 @@ export namespace Prisma {
     position_id?: NullableIntFieldUpdateOperationsInput | number | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -34172,6 +35998,15 @@ export namespace Prisma {
     start_date?: Date | string | null
     due_date?: Date | string | null
     is_deleted?: boolean
+  }
+
+  export type CrmSupportAuthenticationCreateManyUserInput = {
+    id?: number
+    access_token: string
+    refresh_token: string
+    expires_at: Date | string
+    created_at?: Date | string
+    updated_at?: Date | string | null
   }
 
   export type OvertimeUpdateWithoutCreatorInput = {
@@ -34504,6 +36339,32 @@ export namespace Prisma {
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
+  export type CrmSupportAuthenticationUpdateWithoutUserInput = {
+    access_token?: StringFieldUpdateOperationsInput | string
+    refresh_token?: StringFieldUpdateOperationsInput | string
+    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type CrmSupportAuthenticationUncheckedUpdateWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    access_token?: StringFieldUpdateOperationsInput | string
+    refresh_token?: StringFieldUpdateOperationsInput | string
+    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type CrmSupportAuthenticationUncheckedUpdateManyWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    access_token?: StringFieldUpdateOperationsInput | string
+    refresh_token?: StringFieldUpdateOperationsInput | string
+    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type RolePermissionCreateManyRoleInput = {
     permission_id: number
     assigned_at?: Date | string
@@ -34525,6 +36386,7 @@ export namespace Prisma {
     department_id?: number | null
     status?: string
     email?: string | null
+    backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
     joined_date?: Date | string | null
@@ -34573,6 +36435,7 @@ export namespace Prisma {
     nickname?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -34595,6 +36458,7 @@ export namespace Prisma {
     crm_updated?: CrmSupportUpdateManyWithoutUpdaterNestedInput
     department?: DepartmentUpdateOneWithoutUsersNestedInput
     position_ref?: PositionUpdateOneWithoutUsersNestedInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRoleInput = {
@@ -34612,6 +36476,7 @@ export namespace Prisma {
     department_id?: NullableIntFieldUpdateOperationsInput | number | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -34632,6 +36497,7 @@ export namespace Prisma {
     overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
     crm_created?: CrmSupportUncheckedUpdateManyWithoutCreatorNestedInput
     crm_updated?: CrmSupportUncheckedUpdateManyWithoutUpdaterNestedInput
+    crmSupportAuthentications?: CrmSupportAuthenticationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutRoleInput = {
@@ -34649,6 +36515,7 @@ export namespace Prisma {
     department_id?: NullableIntFieldUpdateOperationsInput | number | null
     status?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null

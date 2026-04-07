@@ -157,6 +157,7 @@ exports.Prisma.UserScalarFieldEnum = {
   department_id: 'department_id',
   status: 'status',
   email: 'email',
+  backlog_email: 'backlog_email',
   phone: 'phone',
   profile_image_path: 'profile_image_path',
   joined_date: 'joined_date',
@@ -342,6 +343,16 @@ exports.Prisma.ApiLogScalarFieldEnum = {
   is_archived: 'is_archived'
 };
 
+exports.Prisma.CrmSupportAuthenticationScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  access_token: 'access_token',
+  refresh_token: 'refresh_token',
+  expires_at: 'expires_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
 exports.Prisma.CrmSupportScalarFieldEnum = {
   id: 'id',
   issue_date: 'issue_date',
@@ -434,6 +445,7 @@ exports.Prisma.ModelName = {
   OvertimeDescription: 'OvertimeDescription',
   OvertimeStatusLog: 'OvertimeStatusLog',
   ApiLog: 'ApiLog',
+  CrmSupportAuthentication: 'CrmSupportAuthentication',
   CrmSupport: 'CrmSupport'
 };
 
