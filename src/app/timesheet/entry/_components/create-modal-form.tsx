@@ -35,7 +35,7 @@ import {
 } from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TimesheetEntry } from "../types";
 
@@ -97,6 +97,88 @@ export const CreateModalForm: React.FC<CreateModalProps> = ({
   );
   const [searching, setSearching] = useState(false);
   const searchRef = useRef<any>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [confirmCloseOpen, setConfirmCloseOpen] = useState(false);
+  const [recentOpen, setRecentOpen] = useState(false);
+  const [aiPreviewOpen, setAiPreviewOpen] = useState(false);
+  const [aiPreviewResult, setAiPreviewResult] = useState<{
+    original: string;
+    suggested: string;
+  } | null>(null);
+
+  // ── Recent Descriptions (localStorage) ──
+  const RECENT_KEY = "timesheet_recent_descriptions";
+  const MAX_RECENT = 5;
+
+  const getRecentDescriptions = useCallback((): string[] => {
+    try {
+      return JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]");
+    } catch {
+      return [];
+    }
+  }, []);
+
+  const saveRecentDescription = useCallback((text: string) => {
+    if (!text.trim()) return;
+    const prev = getRecentDescriptions();
+    // ตัดซ้ำ + เอาอันใหม่ไว้หน้าสุด
+    const updated = [
+      text.trim(),
+      ...prev.filter((d) => d !== text.trim()),
+    ].slice(0, MAX_RECENT);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(updated));
+  }, [getRecentDescriptions]);
+
+  const recentDescriptions = getRecentDescriptions();
+
+  // ตรวจสอบว่ามีข้อมูลที่กรอกค้างอยู่ไหม
+  const hasUnsavedData = useCallback((): boolean => {
+    if (formMode === "edit") return false; // edit mode ไม่ต้อง confirm
+    const values = form.getFieldsValue();
+    return !!(
+      values.description?.trim() ||
+      values.project_id ||
+      values.sub_project_id ||
+      values.sub_project_search
+    );
+  }, [form, formMode]);
+
+  // handler แทน onCancel — เช็คก่อนปิด
+  const handleCancel = useCallback(() => {
+    if (hasUnsavedData()) {
+      setConfirmCloseOpen(true);
+    } else {
+      onCancel();
+    }
+  }, [hasUnsavedData, onCancel]);
+
+  // ✨ เรียก AI ช่วยขยายความรายละเอียดการทำงาน
+  const handleAiExpand = useCallback(async () => {
+    const draft: string = form.getFieldValue("description") ?? "";
+    if (!draft.trim()) return;
+
+    const projectId: number | undefined = form.getFieldValue("project_id");
+    const projectName = projects.find((p) => Number(p.id) === projectId)?.name;
+    const subProjectId: number | undefined = form.getFieldValue("sub_project_id");
+    const featureName = subProject.find((s) => Number(s.id) === subProjectId)?.name;
+
+    setAiLoading(true);
+    try {
+      const response = await axios.post("/api/v1/timesheet/ai-description", {
+        draft,
+        project_name: projectName,
+        feature_name: featureName,
+      });
+      const result: string = response.data?.data?.description ?? "";
+      if (result) {
+        form.setFieldsValue({ description: result });
+      }
+    } catch {
+      // ไม่ขัดจังหวะผู้ใช้ — ปล่อยให้ข้อความเดิมอยู่ครบ
+    } finally {
+      setAiLoading(false);
+    }
+  }, [form, projects, subProject]);
 
   // ฟังก์ชันค้นหา Sub-project แบบ Direct Search
   const handleSearchSubProject = (value: string) => {
@@ -243,7 +325,7 @@ export const CreateModalForm: React.FC<CreateModalProps> = ({
           </div>
         </Space>
       }
-      onCancel={onCancel}
+      onCancel={handleCancel}
       width={1200}
       centered
       footer={null}
@@ -253,7 +335,14 @@ export const CreateModalForm: React.FC<CreateModalProps> = ({
         body: { padding: "8px 0" },
       }}
     >
-      <Form form={form} layout="vertical" onFinish={onSubmit}>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={(values) => {
+          saveRecentDescription(values.description ?? "");
+          onSubmit(values);
+        }}
+      >
         <Flex vertical gap={24}>
           <Card
             variant="borderless"
@@ -543,42 +632,251 @@ export const CreateModalForm: React.FC<CreateModalProps> = ({
                 </Col>
               </Row>
 
-              <Form.Item
-                label={
-                  <span style={{ fontWeight: 500 }}>
-                    <FileTextOutlined />{" "}
-                    {t("workDescription", "รายละเอียดการทำงาน")}
-                  </span>
-                }
-                name="description"
-                style={{ marginBottom: 0 }}
-                rules={[
-                  {
-                    required: true,
-                    message: t(
-                      "timesheet_entry_page.description_required",
-                      "กรุณาระบุรายละเอียดการทำงาน",
-                    ),
-                  },
-                ]}
+              {/* ── รายละเอียดการทำงาน ── */}
+              <div
+                style={{
+                  borderRadius: token.borderRadiusLG,
+                  border: `1.5px solid ${token.colorBorderSecondary}`,
+                  background: token.colorBgContainer,
+                  overflow: "hidden",
+                  transition: "border-color 0.2s",
+                }}
               >
-                <Input.TextArea
-                  rows={5}
-                  showCount
-                  maxLength={500}
-                  style={{ borderRadius: 12 }}
-                  placeholder={t(
-                    "timesheet_entry_page.description_placeholder",
-                    "อธิบายรายละเอียดตัวอย่างงาน เช่น SBAPP-1927 Grade (A+) 215 โรงเรียนเทศบาล ๒ (บ้านมลายูบางกอก) ลิงค์ยืนยันอุปกรณ์ของคุณครูไม่สามารถกดได้",
+                {/* Header bar */}
+                <Flex
+                  align="center"
+                  justify="space-between"
+                  style={{
+                    padding: "12px 16px",
+                    borderBottom: `1px solid ${token.colorBorderSecondary}`,
+                    background: token.colorFillAlter,
+                  }}
+                >
+                  <Flex align="center" gap={8}>
+                    <Flex
+                      align="center"
+                      justify="center"
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: token.borderRadius,
+                        background: token.colorPrimaryBg,
+                      }}
+                    >
+                      <FileTextOutlined
+                        style={{ fontSize: 14, color: token.colorPrimary }}
+                      />
+                    </Flex>
+                    <Flex vertical gap={0}>
+                      <Text strong style={{ fontSize: 13, lineHeight: 1.3 }}>
+                        {t("workDescription", "รายละเอียดการทำงาน")}
+                      </Text>
+                      <Text type="secondary" style={{ fontSize: 11 }}>
+                        อธิบายสิ่งที่ทำในวันนี้ หรือพิมพ์สั้นๆ แล้วให้ AI ช่วยขยาย
+                      </Text>
+                    </Flex>
+                  </Flex>
+
+                  {/* Recent + AI Buttons */}
+                  <Flex align="center" gap={8}>
+                  {recentDescriptions.length > 0 && (
+                    <Tooltip
+                      open={recentOpen}
+                      onOpenChange={setRecentOpen}
+                      trigger="click"
+                      placement="bottomRight"
+                      color={token.colorBgElevated}
+                      title={
+                        <Flex vertical gap={0} style={{ minWidth: 280 }}>
+                          <Text
+                            type="secondary"
+                            style={{
+                              fontSize: 11,
+                              padding: "8px 12px 6px",
+                              borderBottom: `1px solid ${token.colorBorderSecondary}`,
+                              display: "block",
+                            }}
+                          >
+                            ประวัติล่าสุด (กดเพื่อใช้)
+                          </Text>
+                          {recentDescriptions.map((desc, i) => (
+                            <Flex
+                              key={i}
+                              align="flex-start"
+                              gap={8}
+                              onClick={() => {
+                                form.setFieldsValue({ description: desc });
+                                setRecentOpen(false);
+                              }}
+                              style={{
+                                padding: "8px 12px",
+                                cursor: "pointer",
+                                borderBottom:
+                                  i < recentDescriptions.length - 1
+                                    ? `1px solid ${token.colorBorderSecondary}`
+                                    : "none",
+                                transition: "background 0.15s",
+                              }}
+                              onMouseEnter={(e) => {
+                                (e.currentTarget as HTMLElement).style.background =
+                                  token.colorFillAlter;
+                              }}
+                              onMouseLeave={(e) => {
+                                (e.currentTarget as HTMLElement).style.background =
+                                  "transparent";
+                              }}
+                            >
+                              <Text
+                                style={{
+                                  fontSize: 12,
+                                  color: token.colorText,
+                                  lineHeight: 1.5,
+                                  flex: 1,
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: "vertical",
+                                  overflow: "hidden",
+                                }}
+                              >
+                                {desc}
+                              </Text>
+                            </Flex>
+                          ))}
+                        </Flex>
+                      }
+                    >
+                      <Button
+                        size="small"
+                        style={{
+                          borderRadius: 99,
+                          fontSize: 12,
+                          height: 32,
+                          padding: "0 12px",
+                          border: `1px solid ${token.colorBorderSecondary}`,
+                          color: token.colorTextSecondary,
+                          background: token.colorBgContainer,
+                        }}
+                      >
+                        🕐 ล่าสุด ({recentDescriptions.length})
+                      </Button>
+                    </Tooltip>
                   )}
-                />
-              </Form.Item>
+                  <Tooltip title="พิมพ์ข้อความสั้นๆ ก่อน แล้วกด AI จะขยายความให้สมบูรณ์">
+                    <Button
+                      loading={aiLoading}
+                      disabled={aiLoading}
+                      onClick={handleAiExpand}
+                      style={{
+                        borderRadius: 99,
+                        fontSize: 12,
+                        height: 32,
+                        padding: "0 14px",
+                        background: aiLoading
+                          ? token.colorFillSecondary
+                          : `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorPrimaryActive} 100%)`,
+                        border: "none",
+                        color: aiLoading ? token.colorTextSecondary : "#fff",
+                        fontWeight: 600,
+                        boxShadow: aiLoading
+                          ? "none"
+                          : `0 3px 10px ${token.colorPrimaryBorder}`,
+                        letterSpacing: "0.3px",
+                      }}
+                    >
+                      {aiLoading ? "✦ กำลังคิด..." : "✦ AI ช่วยเขียน"}
+                    </Button>
+                  </Tooltip>
+                  </Flex>
+                </Flex>
+
+                {/* Quick Preset Buttons */}
+                <Flex
+                  wrap="wrap"
+                  gap={6}
+                  style={{
+                    padding: "10px 16px",
+                    borderBottom: `1px solid ${token.colorBorderSecondary}`,
+                    background: token.colorBgContainer,
+                  }}
+                >
+                  {[
+                    { label: "🐛 แก้ไขบัค", text: "แก้ไขบัคระบบ" },
+                    { label: "✨ พัฒนาฟีเจอร์", text: "พัฒนาฟีเจอร์" },
+                    { label: "🧪 ทดสอบระบบ", text: "ทดสอบระบบ" },
+                    { label: "📋 ประชุม", text: "เข้าร่วมประชุม" },
+                    { label: "📝 เขียน Spec", text: "เขียน Spec / เอกสาร" },
+                    { label: "🔍 Code Review", text: "ตรวจสอบ Code Review" },
+                    { label: "🚀 Deploy", text: "Deploy ระบบขึ้น Production" },
+                    { label: "🔧 ปรับปรุง UI", text: "ปรับปรุง UI/UX" },
+                  ].map((preset) => (
+                    <Tag
+                      key={preset.label}
+                      style={{
+                        cursor: "pointer",
+                        borderRadius: 99,
+                        padding: "2px 10px",
+                        fontSize: 12,
+                        border: `1px solid ${token.colorBorderSecondary}`,
+                        background: token.colorFillAlter,
+                        color: token.colorText,
+                        userSelect: "none",
+                        transition: "all 0.15s",
+                      }}
+                      onClick={() => {
+                        const current: string =
+                          form.getFieldValue("description") ?? "";
+                        const separator =
+                          current && !current.endsWith(" ") ? " " : "";
+                        form.setFieldsValue({
+                          description: current + separator + preset.text,
+                        });
+                      }}
+                    >
+                      {preset.label}
+                    </Tag>
+                  ))}
+                </Flex>
+
+                {/* Textarea area — ไม่มี label ซ้ำ ใช้ Form.Item แบบ noLabel */}
+                <Form.Item
+                  name="description"
+                  style={{ margin: "12px 16px 0" }}
+                  rules={[
+                    {
+                      required: true,
+                      message: t(
+                        "timesheet_entry_page.description_required",
+                        "กรุณาระบุรายละเอียดการทำงาน",
+                      ),
+                    },
+                  ]}
+                >
+                  <Input.TextArea
+                    rows={5}
+                    showCount
+                    maxLength={500}
+                    style={{
+                      borderRadius: token.borderRadius,
+                      resize: "vertical",
+                      fontSize: 14,
+                      lineHeight: 1.7,
+                      border: `1.5px solid ${token.colorBorder}`,
+                      background: token.colorBgLayout,
+                      marginBottom: 12,
+                    }}
+                    placeholder={t(
+                      "timesheet_entry_page.description_placeholder",
+                      "เช่น  แก้บัค login SBAPP  หรือ  พัฒนาหน้า dashboard ระบบการเงิน  แล้วกด ✦ AI ช่วยเขียน",
+                    )}
+                  />
+                </Form.Item>
+              </div>
             </Flex>
           </Card>
 
           <Flex justify="end" gap={12} style={{ padding: "8px 0" }}>
             <Button
-              onClick={onCancel}
+              onClick={handleCancel}
               disabled={disabled}
               size="large"
               style={{ minWidth: 100, borderRadius: 10 }}
@@ -598,6 +896,60 @@ export const CreateModalForm: React.FC<CreateModalProps> = ({
           </Flex>
         </Flex>
       </Form>
+
+      {/* ── Confirm ก่อนปิด Modal ── */}
+      <Modal
+        open={confirmCloseOpen}
+        onCancel={() => setConfirmCloseOpen(false)}
+        onOk={() => {
+          setConfirmCloseOpen(false);
+          onCancel();
+        }}
+        title={
+          <Flex align="center" gap={10}>
+            <Flex
+              align="center"
+              justify="center"
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: token.borderRadiusLG,
+                background: token.colorWarningBg,
+                flexShrink: 0,
+              }}
+            >
+              <ExclamationCircleOutlined
+                style={{ fontSize: 18, color: token.colorWarning }}
+              />
+            </Flex>
+            <Text strong style={{ fontSize: 15 }}>
+              มีข้อมูลที่ยังไม่ได้บันทึก
+            </Text>
+          </Flex>
+        }
+        okText="ออกโดยไม่บันทึก"
+        cancelText="ยังอยู่ที่นี่"
+        okButtonProps={{
+          danger: true,
+          size: "middle",
+          style: { borderRadius: token.borderRadius },
+        }}
+        cancelButtonProps={{
+          size: "middle",
+          style: { borderRadius: token.borderRadius },
+        }}
+        width={420}
+        centered
+        styles={{
+          body: { padding: "12px 0 4px" },
+        }}
+      >
+        <Text type="secondary" style={{ fontSize: 13 }}>
+          คุณกรอกข้อมูลไว้แล้วแต่ยังไม่ได้กด <Text strong>"บันทึกข้อมูล"</Text>
+          <br />
+          ถ้าออกตอนนี้ ข้อมูลที่กรอกไว้จะหายทั้งหมด
+        </Text>
+      </Modal>
     </Modal>
   );
 };
