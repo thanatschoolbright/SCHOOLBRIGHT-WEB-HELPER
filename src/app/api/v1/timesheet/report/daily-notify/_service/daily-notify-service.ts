@@ -18,6 +18,26 @@ export interface TimesheetNotifyRecord {
   status_label: string;
   completion_rate: number;
   progress_text: string;
+  // ชั่วโมงสะสมรายสัปดาห์ (5 วันทำงาน) — optional, default 0
+  weekly_hours?: number;
+}
+
+const WEEKLY_REQUIRED = 40; // 5 วันทำงาน × 8 ชม.
+
+// ── คำนวณระดับพนักงานจากชั่วโมงสะสมรายสัปดาห์ ──
+function getWeeklyLevel(weeklyHours: number): {
+  label: string;
+  color: string;
+  bg: string;
+  border: string;
+} {
+  if (weeklyHours >= WEEKLY_REQUIRED)
+    return { label: "⭐ ดีเยี่ยม", color: "#166534", bg: "#dcfce7", border: "#86efac" };
+  if (weeklyHours >= 32)
+    return { label: "✅ ดี", color: "#1d4ed8", bg: "#dbeafe", border: "#93c5fd" };
+  if (weeklyHours >= 20)
+    return { label: "⚠️ ปานกลาง", color: "#92400e", bg: "#fef3c7", border: "#fcd34d" };
+  return { label: "❌ ต้องปรับปรุง", color: "#991b1b", bg: "#fee2e2", border: "#fca5a5" };
 }
 
 export interface NotifyResult {
@@ -121,8 +141,10 @@ export const generateTimesheetEmailHtml = (
   records: TimesheetNotifyRecord[],
   dateLabel: string,
 ): string => {
-  const incomplete = records.filter((r) => r.hours_gap > 0);
-  const completed = records.filter((r) => r.hours_gap <= 0);
+  // เรียงจากชั่วโมงมากสุด → น้อยสุด
+  const sortedRecords = [...records].sort((a, b) => b.total_hours - a.total_hours);
+  const incomplete = sortedRecords.filter((r) => r.hours_gap > 0);
+  const completed = sortedRecords.filter((r) => r.hours_gap <= 0);
   const now = new Date().toLocaleString("th-TH", {
     timeZone: "Asia/Bangkok",
     dateStyle: "full",
@@ -130,15 +152,22 @@ export const generateTimesheetEmailHtml = (
   });
 
   const incompleteRows = incomplete
-    .map((r) => {
+    .map((r, idx) => {
       const rate = Math.min(r.completion_rate, 100);
       const barColor = r.total_hours > 8 ? "progress-ok" : "progress-fail";
       const badge =
         r.total_hours > 8
           ? `<span class="badge badge-ot">OT</span>`
           : `<span class="badge badge-fail">ไม่ครบ</span>`;
+      const weeklyHours = r.weekly_hours ?? 0;
+      const weeklyRate = Math.min(Math.round((weeklyHours / WEEKLY_REQUIRED) * 100), 100);
+      const weeklyBarColor = weeklyHours >= WEEKLY_REQUIRED ? "progress-ok" : weeklyHours >= 32 ? "progress-ok" : "progress-fail";
+      const level = getWeeklyLevel(weeklyHours);
       return `
         <tr>
+          <td style="text-align:center;">
+            <span style="display:inline-block;width:26px;height:26px;line-height:26px;border-radius:50%;background:#1e293b;color:#e2e8f0;font-size:11px;font-weight:700;">${idx + 1}</span>
+          </td>
           <td>
             <div class="name-cell">${esc(r.full_name)}</div>
             <div class="name-sub">${esc(r.nickname || "-")}</div>
@@ -150,22 +179,28 @@ export const generateTimesheetEmailHtml = (
           </td>
           <td><span style="font-size:13px;color:#334155;">${esc(
             r.department,
-          )}</span><br/><span style="font-size:11px;color:#94a3b8;">${esc(
-        r.position,
-      )}</span></td>
+          )}</span><br/><span style="font-size:11px;color:#94a3b8;">${esc(r.position)}</span></td>
           <td>
-            <span class="hours-text" style="color:${
-              r.hours_gap > 0 ? "#ef4444" : "#16a34a"
-            };">${r.total_hours}/${r.required_hours} ชม.</span>
-            ${
-              r.hours_gap > 0
-                ? `<div class="gap-text">ขาด ${r.hours_gap} ชม.</div>`
-                : ""
-            }
-            <div class="progress-bar-wrap"><div class="progress-bar ${barColor}" style="width:${rate}%"></div></div>
-            <div style="font-size:10px;color:#94a3b8;">${rate}%</div>
+            <div style="margin-bottom:6px;">
+              <span style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">วันนี้</span><br/>
+              <span class="hours-text" style="color:${
+                r.hours_gap > 0 ? "#ef4444" : "#16a34a"
+              };">${r.total_hours}/${r.required_hours} ชม.</span>
+              ${r.hours_gap > 0 ? `<div class="gap-text">ขาด ${r.hours_gap} ชม.</div>` : ""}
+              <div class="progress-bar-wrap"><div class="progress-bar ${barColor}" style="width:${rate}%"></div></div>
+              <div style="font-size:10px;color:#94a3b8;">${rate}%</div>
+            </div>
+            <div style="border-top:1px solid #f1f5f9;padding-top:6px;">
+              <span style="font-size:10px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">สัปดาห์นี้</span><br/>
+              <span style="font-weight:700;font-size:13px;color:${weeklyHours >= WEEKLY_REQUIRED ? "#16a34a" : "#ef4444"};">${weeklyHours}/${WEEKLY_REQUIRED} ชม.</span>
+              <div class="progress-bar-wrap"><div class="progress-bar ${weeklyBarColor}" style="width:${weeklyRate}%"></div></div>
+              <div style="font-size:10px;color:#94a3b8;">${weeklyRate}%</div>
+            </div>
           </td>
-          <td>${badge}</td>
+          <td>
+            <div style="margin-bottom:6px;">${badge}</div>
+            <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${level.bg};color:${level.color};border:1px solid ${level.border};">${level.label}</span>
+          </td>
         </tr>`;
     })
     .join("");
@@ -240,11 +275,12 @@ export const generateTimesheetEmailHtml = (
       <table>
         <thead>
           <tr>
-            <th style="width:22%;">ชื่อ-นามสกุล</th>
-            <th style="width:13%;">รหัสพนักงาน</th>
-            <th style="width:25%;">แผนก / ตำแหน่ง</th>
-            <th style="width:25%;">เวลาที่บันทึก</th>
-            <th style="width:15%;">สถานะ</th>
+            <th style="width:5%;text-align:center;">ลำดับ</th>
+            <th style="width:20%;">ชื่อ-นามสกุล</th>
+            <th style="width:11%;">รหัสพนักงาน</th>
+            <th style="width:20%;">แผนก / ตำแหน่ง</th>
+            <th style="width:28%;">เวลาที่บันทึก / สัปดาห์</th>
+            <th style="width:16%;">สถานะ / ระดับ</th>
           </tr>
         </thead>
         <tbody>${incompleteRows}</tbody>

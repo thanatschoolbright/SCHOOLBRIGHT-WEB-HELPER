@@ -5,12 +5,13 @@ import {
   CloseCircleFilled,
   CloudServerOutlined,
   DiscordOutlined,
+  EyeOutlined,
   LoadingOutlined,
   MailOutlined,
   RocketOutlined,
   SendOutlined,
 } from "@ant-design/icons";
-import { Flex, Modal, theme, Typography } from "antd";
+import { Button, Flex, Modal, theme, Typography } from "antd";
 import React from "react";
 import { useDescriptionStore } from "../_stores/description-store";
 
@@ -25,6 +26,7 @@ interface StepDef {
   icon: React.ReactNode;
   label: string;
   sublabel: string;
+  description: string;
 }
 
 const STEPS: StepDef[] = [
@@ -33,24 +35,28 @@ const STEPS: StepDef[] = [
     icon: <CloudServerOutlined />,
     label: "เตรียมข้อมูล",
     sublabel: "รวบรวมรายงานไทม์ชีท",
+    description: "กำลังดึงรายการพนักงานทั้งหมด คำนวณชั่วโมงรวม และจัดเตรียม payload สำหรับการแจ้งเตือน",
   },
   {
     key: 2,
     icon: <MailOutlined />,
     label: "ส่ง Email",
-    sublabel: "sa@ · thanat.light@",
+    sublabel: "ผู้รับหลายท่าน",
+    description: "กำลังสร้าง HTML Email Template และส่งผ่าน SMTP ไปยังผู้รับที่กำหนดไว้ทั้งหมด",
   },
   {
     key: 3,
     icon: <DiscordOutlined />,
     label: "ส่ง Discord",
     sublabel: "Timesheet System Channel",
+    description: "กำลังส่ง Webhook Embed ไปยัง Discord Channel พร้อมสรุปสถานะทีม",
   },
   {
     key: 4,
     icon: <SendOutlined />,
     label: "สำเร็จ",
     sublabel: "ส่งแจ้งเตือนครบทุกช่องทาง",
+    description: "การแจ้งเตือนถูกส่งเรียบร้อยแล้ว ตรวจสอบรายละเอียดการส่งได้ที่ปุ่มด้านล่าง",
   },
 ];
 
@@ -112,7 +118,12 @@ const StepNode: React.FC<{
             backgroundColor: bg,
             border: `2px solid ${color}`,
             transition: "all 0.4s ease",
-            boxShadow: status === "active" ? `0 0 0 4px ${token.colorPrimaryBg}` : "none",
+            boxShadow:
+              status === "active"
+                ? `0 0 0 6px ${token.colorPrimaryBg}, 0 0 12px ${token.colorPrimary}40`
+                : status === "done"
+                  ? `0 0 8px ${token.colorSuccess}30`
+                  : "none",
           }}
         >
           {iconNode}
@@ -163,7 +174,6 @@ const StepNode: React.FC<{
             overflow: "hidden",
           }}
         >
-          {/* Animated shimmer เมื่อ active */}
           {status === "active" && (
             <div
               style={{
@@ -184,21 +194,17 @@ const StepNode: React.FC<{
 // Delivery Tracker Modal
 // ====================================================================
 
-/**
- * แสดง Delivery Tracking Modal เมื่อกำลังส่งการแจ้งเตือน
- * อ่าน notifyStep จาก useDescriptionStore โดยตรง
- */
 export const DeliveryTracker: React.FC = () => {
   const { token } = theme.useToken();
 
   const notifyStep = useDescriptionStore((s) => s.notifyStep);
   const notifyLoading = useDescriptionStore((s) => s.notifyLoading);
+  const openNotifyResultDrawer = useDescriptionStore((s) => s.openNotifyResultDrawer);
 
   const isVisible = notifyLoading || notifyStep === 4 || notifyStep === 5;
 
   const getStepStatus = (stepKey: number): StepStatus => {
     if (notifyStep === 5) {
-      // error state — ทุก step ที่ผ่านแล้ว = done, step ปัจจุบัน = error
       if (stepKey < notifyStep) return "done";
       if (stepKey === notifyStep) return "error";
       return "idle";
@@ -207,6 +213,14 @@ export const DeliveryTracker: React.FC = () => {
     if (stepKey === notifyStep) return "active";
     return "idle";
   };
+
+  const activeStep = STEPS.find((s) => getStepStatus(s.key) === "active");
+  const currentDescription =
+    notifyStep === 4
+      ? "การแจ้งเตือนถูกส่งเรียบร้อยแล้ว กดปุ่มด้านล่างเพื่อดูรายละเอียดการส่ง"
+      : notifyStep === 5
+        ? "เกิดข้อผิดพลาดระหว่างการส่งแจ้งเตือน กรุณาตรวจสอบการเชื่อมต่อและลองใหม่"
+        : activeStep?.description ?? "";
 
   const titleText =
     notifyStep === 4
@@ -231,13 +245,19 @@ export const DeliveryTracker: React.FC = () => {
       <RocketOutlined style={{ color: token.colorPrimary }} />
     );
 
+  // Progress percentage
+  const progressPct = notifyStep === 0 ? 0 : notifyStep >= 4 ? 100 : Math.round(((notifyStep - 1) / (STEPS.length - 1)) * 100);
+
   return (
     <>
-      {/* CSS animation สำหรับ shimmer */}
       <style>{`
         @keyframes shimmer {
           0%   { transform: translateX(-100%); }
           100% { transform: translateX(200%); }
+        }
+        @keyframes pulseGlow {
+          0%, 100% { opacity: 0.6; }
+          50%       { opacity: 1; }
         }
       `}</style>
 
@@ -246,7 +266,7 @@ export const DeliveryTracker: React.FC = () => {
         footer={null}
         closable={false}
         centered
-        width={560}
+        width={600}
         styles={{
           content: {
             borderRadius: token.borderRadiusLG,
@@ -282,33 +302,57 @@ export const DeliveryTracker: React.FC = () => {
               background: token.colorBgContainer,
               border: `1.5px solid ${titleColor}`,
               flexShrink: 0,
+              boxShadow: `0 0 10px ${titleColor}30`,
             }}
           >
             {React.cloneElement(titleIcon, {
               style: { fontSize: 20, color: titleColor },
             } as React.HTMLAttributes<HTMLElement>)}
           </Flex>
-          <Flex vertical gap={2}>
-            <Text
-              style={{
-                fontSize: 16,
-                fontWeight: 700,
-                color: titleColor,
-                transition: "color 0.3s",
-              }}
-            >
+          <Flex vertical gap={2} style={{ flex: 1 }}>
+            <Text style={{ fontSize: 16, fontWeight: 700, color: titleColor, transition: "color 0.3s" }}>
               {titleText}
             </Text>
             <Text style={{ fontSize: 12, color: token.colorTextDescription }}>
-              SchoolBright Timesheet · Daily Notification
+              SchoolBright Timesheet · Daily Notification System
+            </Text>
+          </Flex>
+          {/* Step badge */}
+          <Flex
+            align="center"
+            justify="center"
+            style={{
+              padding: "4px 12px",
+              borderRadius: 20,
+              background: notifyStep >= 4 ? token.colorSuccessBg : token.colorPrimaryBg,
+              border: `1px solid ${notifyStep >= 4 ? token.colorSuccessBorder : token.colorPrimaryBorder}`,
+            }}
+          >
+            <Text style={{ fontSize: 11, fontWeight: 700, color: notifyStep >= 4 ? token.colorSuccess : token.colorPrimary }}>
+              {notifyStep >= 4 ? "เสร็จสิ้น" : `ขั้นตอน ${notifyStep} / ${STEPS.length}`}
             </Text>
           </Flex>
         </Flex>
 
+        {/* Overall progress bar */}
+        <div style={{ height: 3, background: token.colorBgLayout }}>
+          <div
+            style={{
+              height: "100%",
+              width: `${progressPct}%`,
+              background: notifyStep === 4
+                ? `linear-gradient(90deg, ${token.colorSuccess}, ${token.colorSuccessActive})`
+                : `linear-gradient(90deg, ${token.colorPrimary}, ${token.colorPrimaryActive})`,
+              transition: "width 0.6s ease",
+              borderRadius: "0 2px 2px 0",
+            }}
+          />
+        </div>
+
         {/* Tracker */}
         <Flex
           style={{
-            padding: "36px 32px 32px",
+            padding: "36px 32px 8px",
             background: token.colorBgContainer,
           }}
         >
@@ -322,27 +366,73 @@ export const DeliveryTracker: React.FC = () => {
           ))}
         </Flex>
 
-        {/* Footer status text */}
+        {/* Description box */}
         <Flex
-          justify="center"
           style={{
-            padding: "0 32px 24px",
+            padding: "16px 32px 24px",
             background: token.colorBgContainer,
           }}
+          vertical
+          gap={16}
         >
-          <Text
+          <Flex
+            align="flex-start"
+            gap={10}
             style={{
-              fontSize: 12,
-              color: token.colorTextDescription,
-              textAlign: "center",
+              padding: "14px 18px",
+              borderRadius: token.borderRadius,
+              background: notifyStep === 4
+                ? token.colorSuccessBg
+                : notifyStep === 5
+                  ? token.colorErrorBg
+                  : token.colorFillQuaternary,
+              border: `1px solid ${notifyStep === 4 ? token.colorSuccessBorder : notifyStep === 5 ? token.colorErrorBorder : token.colorBorderSecondary}`,
+              minHeight: 48,
             }}
           >
-            {notifyStep === 1 && "กำลังรวบรวมข้อมูลพนักงานและรายงานไทม์ชีท..."}
-            {notifyStep === 2 && "กำลังส่งอีเมลไปยัง sa@schoolbright.co และ thanat.light@schoolbright.co"}
-            {notifyStep === 3 && "กำลังส่ง Webhook ไปยัง Discord Timesheet Channel..."}
-            {notifyStep === 4 && "ส่งการแจ้งเตือนครบทุกช่องทางเรียบร้อยแล้ว"}
-            {notifyStep === 5 && "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง"}
-          </Text>
+            {notifyStep > 0 && notifyStep < 4 && (
+              <LoadingOutlined style={{ color: token.colorPrimary, marginTop: 2, flexShrink: 0 }} />
+            )}
+            {notifyStep === 4 && (
+              <CheckCircleFilled style={{ color: token.colorSuccess, marginTop: 2, flexShrink: 0 }} />
+            )}
+            {notifyStep === 5 && (
+              <CloseCircleFilled style={{ color: token.colorError, marginTop: 2, flexShrink: 0 }} />
+            )}
+            <Text
+              style={{
+                fontSize: 12,
+                color: notifyStep === 4
+                  ? token.colorSuccess
+                  : notifyStep === 5
+                    ? token.colorError
+                    : token.colorTextSecondary,
+                lineHeight: 1.6,
+              }}
+            >
+              {currentDescription}
+            </Text>
+          </Flex>
+
+          {/* ปุ่มดูผลลัพธ์ — แสดงเฉพาะเมื่อ done */}
+          {notifyStep === 4 && (
+            <Button
+              type="primary"
+              icon={<EyeOutlined />}
+              size="large"
+              block
+              onClick={openNotifyResultDrawer}
+              style={{
+                background: `linear-gradient(135deg, ${token.colorSuccess}, ${token.colorSuccessActive})`,
+                border: "none",
+                fontWeight: 600,
+                borderRadius: token.borderRadius,
+                boxShadow: `0 4px 12px ${token.colorSuccess}40`,
+              }}
+            >
+              ดูรายละเอียดผลการส่ง
+            </Button>
+          )}
         </Flex>
       </Modal>
     </>

@@ -26,6 +26,7 @@ const NotifySchema = z.object({
       status_label: z.string().default(""),
       completion_rate: z.number(),
       progress_text: z.string().default(""),
+      weekly_hours: z.number().default(0),
     }),
   ),
   date_label: z.string().min(1),

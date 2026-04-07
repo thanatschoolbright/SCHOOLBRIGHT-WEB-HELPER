@@ -65,6 +65,24 @@ export interface TimesheetMetadata {
   total_expected_hours_all_members: number;
 }
 
+export interface NotifyResult {
+  email: {
+    success: boolean;
+    accepted?: string[];
+    error?: string;
+  };
+  discord: {
+    success: boolean;
+    error?: string;
+  };
+  summary: {
+    total: number;
+    completed: number;
+    incomplete: number;
+    date_range: string;
+  };
+}
+
 interface DescriptionStore {
   // State
   records: TimesheetRecord[];
@@ -75,6 +93,8 @@ interface DescriptionStore {
   employeeNotifyLoading: boolean;
   // 0=idle 1=preparing 2=sending_email 3=sending_discord 4=done 5=error
   notifyStep: 0 | 1 | 2 | 3 | 4 | 5;
+  notifyResult: NotifyResult | null;
+  notifyResultDrawerOpen: boolean;
   keyword: string;
   dateRange: [Dayjs, Dayjs];
   departmentIds: number[];
@@ -89,6 +109,8 @@ interface DescriptionStore {
   fetchDailyReport: () => Promise<void>;
   fetchDepartments: () => Promise<void>;
   sendNotify: (mode?: "all" | "email" | "discord") => Promise<void>;
+  openNotifyResultDrawer: () => void;
+  closeNotifyResultDrawer: () => void;
   sendEmployeeNotify: (dryRun?: boolean) => Promise<void>;
   openEmployeeNotifyDrawer: () => Promise<void>;
   runEmployeeNotifyOneByOne: () => Promise<void>;
@@ -108,6 +130,8 @@ export const useDescriptionStore = create<DescriptionStore>((set, get) => ({
   notifyLoading: false,
   employeeNotifyLoading: false,
   notifyStep: 0,
+  notifyResult: null,
+  notifyResultDrawerOpen: false,
   keyword: "",
   dateRange: [dayjs(), dayjs()],
   departmentIds: [7, 9],
@@ -176,8 +200,8 @@ export const useDescriptionStore = create<DescriptionStore>((set, get) => ({
       await new Promise((r) => setTimeout(r, 400));
 
       if (result.status === 200) {
-        set({ notifyStep: 4 }); // done
-        setTimeout(() => set({ notifyStep: 0, notifyLoading: false }), 3000);
+        set({ notifyStep: 4, notifyResult: result.data ?? null }); // done
+        setTimeout(() => set({ notifyStep: 0, notifyLoading: false, notifyResultDrawerOpen: true }), 1200);
       } else {
         set({ notifyStep: 5 }); // error
         toast.error(result.message_th || "ส่งแจ้งเตือนไม่สำเร็จ");
@@ -189,6 +213,9 @@ export const useDescriptionStore = create<DescriptionStore>((set, get) => ({
       setTimeout(() => set({ notifyStep: 0, notifyLoading: false }), 3000);
     }
   },
+
+  openNotifyResultDrawer: () => set({ notifyResultDrawerOpen: true }),
+  closeNotifyResultDrawer: () => set({ notifyResultDrawerOpen: false }),
 
   // ส่งอีเมลแจ้งเตือนพนักงานที่ยังไม่กรอก/กรอกไม่ครบโดยดึงจาก DB โดยตรง
   sendEmployeeNotify: async (dryRun = false) => {

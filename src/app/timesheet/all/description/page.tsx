@@ -40,6 +40,7 @@ export default function TimesheetDailyReportPage() {
           <HeaderBar
             icon={<ClockCircleOutlined />}
             title="รายงานการลงเวลาประจำวัน"
+            showBackButton={true}
             subTitle={
               metadata
                 ? `ช่วงวันที่: ${metadata.range.label_th} | แผนก: ${
