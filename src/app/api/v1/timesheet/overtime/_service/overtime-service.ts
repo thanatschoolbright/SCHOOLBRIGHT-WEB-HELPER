@@ -204,111 +204,163 @@ export async function createOvertimeWithNotification(
     // 5. สร้างเนื้อหา Email (HTML Template)
     const emailSubject = `[Overtime Request] มีการขออนุมัติ OT ใหม่จาก ${requesterInfo.fullName}`;
 
-    const descriptionsHtml = payload.descriptions
-      ?.map(
-        (desc) => `
-      <div style="margin-bottom: 20px; padding: 20px; background-color: #ffffff; border: 1px solid #f0f0f0; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid #f9fafb; padding-bottom: 12px;">
-          <span style="color: #6b7280; font-size: 13px;">วันที่</span>
-          <span style="color: #111827; font-weight: 600; font-size: 13px;">${dayjs(desc.date).format("DD/MM/YYYY")}</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-          <span style="color: #6b7280; font-size: 13px;">ช่วงเวลา</span>
-          <span style="color: #111827; font-size: 13px;">${dayjs(desc.startDate).format("HH:mm")} - ${dayjs(desc.endDate).format("HH:mm")}</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-          <span style="color: #6b7280; font-size: 13px;">จำนวนชั่วโมง</span>
-          <span style="color: #f97316; font-weight: 600; font-size: 13px;">${String(desc.duration)} ชม.</span>
-        </div>
-        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #f3f4f6;">
-          <div style="color: #6b7280; font-size: 12px; margin-bottom: 6px;">รายละเอียดงาน:</div>
-          <div style="color: #111827; font-size: 13px; line-height: 1.6;">${desc.description ?? "-"}</div>
-        </div>
-        ${
-          desc.assignee
-            ? `
-        <div style="margin-top: 12px; font-size: 12px; color: #6b7280;">
-          ผู้เกี่ยวข้อง: <span style="color: #374151; font-weight: 500;">${String(desc.assignee)}</span>
-        </div>
-        `
-            : ""
-        }
-      </div>
-    `,
+    // ── สร้าง rows ของตารางรายการงาน ──
+    const totalHours = (payload.descriptions ?? []).reduce(
+      (sum, d) => sum + (Number(d.duration) || 0),
+      0,
+    );
+
+    const descriptionRows = (payload.descriptions ?? [])
+      .map(
+        (desc, idx) => `
+        <tr style="background-color: ${idx % 2 === 0 ? "#ffffff" : "#fafafa"};">
+          <td style="padding: 14px 16px; font-size: 13px; color: #374151; border-bottom: 1px solid #f1f5f9; white-space: nowrap;">
+            ${dayjs(desc.date).format("DD/MM/YYYY")}
+          </td>
+          <td style="padding: 14px 16px; font-size: 13px; color: #374151; border-bottom: 1px solid #f1f5f9; white-space: nowrap;">
+            ${dayjs(desc.startDate).format("HH:mm")} — ${dayjs(desc.endDate).format("HH:mm")}
+          </td>
+          <td style="padding: 14px 16px; font-size: 13px; font-weight: 700; color: #ea580c; border-bottom: 1px solid #f1f5f9; text-align: center; white-space: nowrap;">
+            ${String(desc.duration)} ชม.
+          </td>
+          <td style="padding: 14px 16px; font-size: 13px; color: #374151; border-bottom: 1px solid #f1f5f9; line-height: 1.6;">
+            ${desc.description ?? "-"}
+          </td>
+          <td style="padding: 14px 16px; font-size: 12px; color: #6b7280; border-bottom: 1px solid #f1f5f9; white-space: nowrap;">
+            ${desc.assignee ? String(desc.assignee) : "—"}
+          </td>
+        </tr>`,
       )
       .join("");
 
+    const descriptionsTable =
+      (payload.descriptions ?? []).length > 0
+        ? `
+        <table style="width: 100%; border-collapse: collapse; border-radius: 10px; overflow: hidden; border: 1px solid #e5e7eb;">
+          <thead>
+            <tr style="background-color: #fff7ed;">
+              <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #7c2d12; text-align: left; border-bottom: 2px solid #fed7aa; white-space: nowrap;">วันที่</th>
+              <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #7c2d12; text-align: left; border-bottom: 2px solid #fed7aa; white-space: nowrap;">ช่วงเวลา</th>
+              <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #7c2d12; text-align: center; border-bottom: 2px solid #fed7aa; white-space: nowrap;">ชั่วโมง</th>
+              <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #7c2d12; text-align: left; border-bottom: 2px solid #fed7aa;">รายละเอียดงาน</th>
+              <th style="padding: 12px 16px; font-size: 12px; font-weight: 700; color: #7c2d12; text-align: left; border-bottom: 2px solid #fed7aa; white-space: nowrap;">ผู้เกี่ยวข้อง</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${descriptionRows}
+            <tr style="background-color: #fff7ed;">
+              <td colspan="2" style="padding: 12px 16px; font-size: 13px; font-weight: 700; color: #7c2d12; text-align: right; border-top: 2px solid #fed7aa;">รวมทั้งหมด</td>
+              <td style="padding: 12px 16px; font-size: 14px; font-weight: 800; color: #ea580c; text-align: center; border-top: 2px solid #fed7aa;">${totalHours.toFixed(1)} ชม.</td>
+              <td colspan="2" style="border-top: 2px solid #fed7aa;"></td>
+            </tr>
+          </tbody>
+        </table>`
+        : `<p style="text-align:center;color:#6b7280;font-size:14px;padding:32px 0;">ไม่มีรายละเอียดรายการงาน</p>`;
+
     const emailHtml = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <style>
-          body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        </style>
-      </head>
-      <body style="background-color: #f8fafc; padding: 40px 20px; margin: 0;">
-        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
-          <div style="background-color: #f97316; padding: 48px 32px; text-align: center;">
-            <h2 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: -0.025em;">Request for Overtime Approval</h2>
-            <p style="margin: 12px 0 0; color: rgba(255, 255, 255, 0.9); font-size: 15px;">รายการขออนุมัติทำงานล่วงเวลา</p>
-          </div>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="background-color:#f1f5f9;padding:40px 20px;margin:0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,sans-serif;">
+  <div style="max-width:720px;margin:0 auto;">
 
-          <div style="padding: 40px 32px;">
-            <div style="margin-bottom: 32px;">
-              <p style="margin: 0 0 18px; color: #111827; font-size: 16px; font-weight: 600;">เรียน ผู้จัดการ,</p>
-              <p style="margin: 0; color: #4b5563; font-size: 14px; line-height: 1.7;">มีพนักงานส่งคำขออนุมัติทำงานล่วงเวลา (OT) ผ่านระบบ SB Web Helper โดยมีความประสงค์ขออนุมัติตามข้อมูลที่ปรากฏด้านล่างนี้:</p>
-            </div>
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#c2410c 0%,#ea580c 60%,#fb923c 100%);border-radius:16px 16px 0 0;padding:48px 40px 40px;text-align:center;">
+      <div style="display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:6px 16px;margin-bottom:20px;">
+        <span style="color:rgba(255,255,255,0.9);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">OVERTIME REQUEST</span>
+      </div>
+      <h1 style="margin:0 0 10px;color:#ffffff;font-size:26px;font-weight:800;letter-spacing:-0.5px;">Request for Overtime Approval</h1>
+      <p style="margin:0;color:rgba(255,255,255,0.85);font-size:14px;">รายการขออนุมัติทำงานล่วงเวลา · ระบบ SB Web Helper</p>
+    </div>
 
-            <div style="background-color: #fffaf0; border: 1px solid #ffedd5; border-radius: 12px; padding: 28px; margin-bottom: 40px;">
-              <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                  <td style="padding: 10px 0; color: #7c2d12; font-size: 13px; width: 35%; vertical-align: top;"><strong>ชื่อ-นามสกุล</strong></td>
-                  <td style="padding: 10px 0; color: #111827; font-size: 14px; font-weight: 500;">: ${requesterInfo.fullName}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 10px 0; color: #7c2d12; font-size: 13px; vertical-align: top;"><strong>รหัสพนักงาน</strong></td>
-                  <td style="padding: 10px 0; color: #111827; font-size: 14px;">: ${requesterInfo.employeeCode}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 10px 0; color: #7c2d12; font-size: 13px; vertical-align: top;"><strong>แผนก</strong></td>
-                  <td style="padding: 10px 0; color: #111827; font-size: 14px;">: ${requesterInfo.department}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 10px 0; color: #7c2d12; font-size: 13px; vertical-align: top;"><strong>วันที่ขออนุมัติ</strong></td>
-                  <td style="padding: 10px 0; color: #111827; font-size: 14px;">: ${formattedRequestDate}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 10px 0; color: #7c2d12; font-size: 13px; vertical-align: top;"><strong>ประเภท OT</strong></td>
-                  <td style="padding: 10px 0; color: #f97316; font-size: 15px; font-weight: 700;">: ${overtimeType}</td>
-                </tr>
-              </table>
-            </div>
+    <!-- Body -->
+    <div style="background:#ffffff;padding:40px 40px 36px;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;">
 
-            <h3 style="margin: 0 0 20px; color: #111827; font-size: 16px; font-weight: 700; border-left: 4px solid #f97316; padding-left: 12px;">รายการงานที่ปฏิบัติ</h3>
+      <!-- Greeting -->
+      <p style="margin:0 0 8px;color:#111827;font-size:16px;font-weight:600;">เรียน ผู้จัดการ,</p>
+      <p style="margin:0 0 36px;color:#4b5563;font-size:14px;line-height:1.8;">
+        มีพนักงานส่งคำขออนุมัติทำงานล่วงเวลา (OT) ผ่านระบบ SB Web Helper
+        โดยมีความประสงค์ขออนุมัติตามข้อมูลที่ปรากฏด้านล่างนี้:
+      </p>
 
-            <div style="background-color: #f9fafb; border-radius: 12px; padding: 16px; border: 1px solid #f1f5f9;">
-              ${descriptionsHtml ?? '<p style="text-align: center; color: #6b7280; font-size: 14px; padding: 32px;">ไม่มีรายละเอียดรายการงาน</p>'}
-            </div>
-
-            <div style="margin-top: 48px; text-align: center;">
-              <a href="${baseUrl}/timesheet/overtime"
-                 style="background-color: #f97316; color: #ffffff; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 15px; display: inline-block; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.2);">
-                ตรวจสอบและอนุมัติในระบบ
-              </a>
-            </div>
-          </div>
-
-          <div style="background-color: #f8fafc; border-top: 1px solid #f1f5f9; padding: 32px; text-align: center;">
-            <p style="margin: 0; color: #94a3b8; font-size: 12px; line-height: 1.6;">
-              นี่คือการแจ้งเตือนอัตโนมัติจากระบบ SB Web Helper<br>
-              © 2026 SCHOOLBRIGHT. All rights reserved.
-            </p>
-          </div>
+      <!-- Employee Info Card -->
+      <div style="background:#fffaf7;border:1px solid #fed7aa;border-radius:12px;padding:28px 32px;margin-bottom:36px;">
+        <div style="font-size:11px;font-weight:700;color:#c2410c;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #ffedd5;">
+          ข้อมูลพนักงานผู้ขออนุมัติ
         </div>
-      </body>
-      </html>
-    `;
+        <table style="width:100%;border-collapse:collapse;">
+          <tr>
+            <td style="padding:9px 0;color:#9a3412;font-size:12px;font-weight:600;width:38%;vertical-align:middle;">ชื่อ-นามสกุล</td>
+            <td style="padding:9px 0;color:#111827;font-size:14px;font-weight:600;">: ${requesterInfo.fullName}</td>
+          </tr>
+          <tr>
+            <td style="padding:9px 0;color:#9a3412;font-size:12px;font-weight:600;vertical-align:middle;border-top:1px solid #fff7ed;">รหัสพนักงาน</td>
+            <td style="padding:9px 0;color:#374151;font-size:13px;border-top:1px solid #fff7ed;">: ${requesterInfo.employeeCode}</td>
+          </tr>
+          <tr>
+            <td style="padding:9px 0;color:#9a3412;font-size:12px;font-weight:600;vertical-align:middle;border-top:1px solid #fff7ed;">แผนก</td>
+            <td style="padding:9px 0;color:#374151;font-size:13px;border-top:1px solid #fff7ed;">: ${requesterInfo.department}</td>
+          </tr>
+          <tr>
+            <td style="padding:9px 0;color:#9a3412;font-size:12px;font-weight:600;vertical-align:middle;border-top:1px solid #fff7ed;">วันที่ขออนุมัติ</td>
+            <td style="padding:9px 0;color:#374151;font-size:13px;border-top:1px solid #fff7ed;">: ${formattedRequestDate}</td>
+          </tr>
+          <tr>
+            <td style="padding:9px 0;color:#9a3412;font-size:12px;font-weight:600;vertical-align:middle;border-top:1px solid #fff7ed;">ประเภท OT</td>
+            <td style="padding:9px 0;border-top:1px solid #fff7ed;">
+              <span style="display:inline-block;padding:4px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:999px;color:#ea580c;font-size:13px;font-weight:700;">
+                ${overtimeType}
+              </span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Work Descriptions Table -->
+      <div style="margin-bottom:36px;">
+        <div style="display:flex;align-items:center;margin-bottom:16px;">
+          <div style="width:4px;height:20px;background:linear-gradient(180deg,#f97316,#ea580c);border-radius:2px;margin-right:10px;flex-shrink:0;"></div>
+          <span style="color:#111827;font-size:15px;font-weight:700;">รายการงานที่ปฏิบัติ</span>
+          <span style="margin-left:10px;padding:2px 10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:999px;font-size:11px;font-weight:600;color:#ea580c;">
+            ${(payload.descriptions ?? []).length} รายการ · ${totalHours.toFixed(1)} ชม.
+          </span>
+        </div>
+        <div style="border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+          ${descriptionsTable}
+        </div>
+      </div>
+
+      <!-- CTA Button -->
+      <div style="text-align:center;margin-top:12px;">
+        <a href="${baseUrl}/timesheet/overtime"
+           style="display:inline-block;background:linear-gradient(135deg,#ea580c,#f97316);color:#ffffff;padding:16px 44px;text-decoration:none;border-radius:10px;font-weight:700;font-size:15px;box-shadow:0 4px 14px rgba(249,115,22,0.35);letter-spacing:0.3px;">
+          ตรวจสอบและอนุมัติในระบบ →
+        </a>
+        <p style="margin:14px 0 0;color:#9ca3af;font-size:12px;">คลิกปุ่มด้านบนเพื่อเข้าสู่ระบบและดำเนินการอนุมัติ</p>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 16px 16px;padding:28px 40px;text-align:center;">
+      <p style="margin:0 0 16px;color:#94a3b8;font-size:12px;line-height:1.8;">
+        นี่คือการแจ้งเตือนอัตโนมัติจากระบบ SB Web Helper — กรุณาอย่าตอบกลับอีเมลนี้
+      </p>
+      <!-- Credit -->
+      <div style="display:inline-block;border-top:1px solid #e2e8f0;padding-top:16px;margin-top:4px;">
+        <p style="margin:0 0 3px;color:#cbd5e1;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;">System Developed by</p>
+        <p style="margin:0 0 2px;color:#64748b;font-size:12px;font-weight:700;letter-spacing:0.5px;">THANAT PROMPIRIYA</p>
+        <p style="margin:0 0 12px;color:#94a3b8;font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;">Head of Technology · SchoolBright</p>
+        <p style="margin:0;color:#cbd5e1;font-size:11px;">© ${new Date().getFullYear()} SchoolBright Co., Ltd. All rights reserved.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>`;
 
     try {
       // 6. ส่ง Email หา Manager
