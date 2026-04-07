@@ -42,7 +42,7 @@ const SYSTEM_PALETTE = {
   },
   dark: {
     bgLayout: "#0F172A", // Slate 900 (Brighter than previous Slate 950)
-    bgContainer: "#1E293B", // Slate 800 
+    bgContainer: "#1E293B", // Slate 800
     bgElevated: "#334155", // Slate 700
     textMain: "#FFFFFF", // Max contrast pure white
     textSub: "#CBD5E1", // Brighter secondary text (Slate 300)
@@ -217,6 +217,9 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                   "--primary": BRAND_COLORS.primary,
                   "--bg-layout": palette.bgLayout,
                   "--border": palette.border,
+                  "--table-border": isDark
+                    ? "rgba(71, 85, 105, 0.42)"
+                    : "rgba(226, 232, 240, 0.85)",
                   "--text-main": palette.textMain,
                   "--glass-bg": isDark
                     ? "rgba(30, 41, 59, 0.75)"
@@ -244,9 +247,7 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 color: var(--text-main);
                 font-family: var(--font-family);
                 -webkit-font-smoothing: antialiased;
-                transition:
-                  background-color 0.4s ease,
-                  color 0.4s ease;
+                transition: background-color 0.4s ease, color 0.4s ease;
                 margin: 0;
               }
 
@@ -258,17 +259,14 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 backdrop-filter: blur(12px) saturate(180%) !important;
                 -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
                 border: 1px solid rgba(226, 232, 240, 0.8) !important;
-                box-shadow:
-                  0 1px 3px rgba(0, 0, 0, 0.04),
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04),
                   0 8px 24px -4px rgba(0, 0, 0, 0.07) !important;
-                transition:
-                  box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+                transition: box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
                   transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
                   border-color 0.3s ease !important;
               }
               .ant-card:hover {
-                box-shadow:
-                  0 2px 6px rgba(0, 0, 0, 0.05),
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05),
                   0 16px 40px -8px rgba(0, 0, 0, 0.12) !important;
                 transform: translateY(-2px) !important;
                 border-color: rgba(203, 213, 225, 0.9) !important;
@@ -306,13 +304,11 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
               .dark .ant-card {
                 background: rgba(30, 41, 59, 0.75) !important;
                 border: 1px solid rgba(71, 85, 105, 0.5) !important;
-                box-shadow:
-                  0 1px 3px rgba(0, 0, 0, 0.2),
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2),
                   0 8px 24px -4px rgba(0, 0, 0, 0.35) !important;
               }
               .dark .ant-card:hover {
-                box-shadow:
-                  0 2px 6px rgba(0, 0, 0, 0.25),
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25),
                   0 16px 40px -8px rgba(0, 0, 0, 0.5),
                   0 0 0 1px rgba(255, 140, 0, 0.08) !important;
                 border-color: rgba(100, 116, 139, 0.6) !important;
@@ -401,7 +397,7 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 background: transparent !important;
               }
               .ant-table-wrapper .ant-table-container {
-                border: 1px solid var(--border) !important;
+                border: 1px solid var(--table-border) !important;
                 border-radius: 16px !important;
                 overflow: hidden;
               }
@@ -415,8 +411,7 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                  Modal portal is appended to body OUTSIDE .ant-theme-root,
                  so only the page wrapper gets blurred — modal stays sharp */
               .ant-theme-root {
-                transition:
-                  filter 0.35s cubic-bezier(0.25, 0.8, 0.25, 1),
+                transition: filter 0.35s cubic-bezier(0.25, 0.8, 0.25, 1),
                   transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
                 will-change: filter;
               }
@@ -446,15 +441,13 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 padding: 0 !important;
                 background: #ffffff !important;
                 border: 1px solid #e2e8f0 !important;
-                box-shadow:
-                  0 8px 16px -4px rgba(0, 0, 0, 0.08),
+                box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.08),
                   0 24px 48px -12px rgba(0, 0, 0, 0.12) !important;
               }
               .dark .ant-modal-content {
                 background: #1e293b !important;
                 border: 1px solid #334155 !important;
-                box-shadow:
-                  0 8px 16px -4px rgba(0, 0, 0, 0.4),
+                box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.4),
                   0 32px 64px -16px rgba(0, 0, 0, 0.6) !important;
               }
 
