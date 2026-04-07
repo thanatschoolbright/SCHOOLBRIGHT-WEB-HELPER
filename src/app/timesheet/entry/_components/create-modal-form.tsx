@@ -37,7 +37,7 @@ import axios from "axios";
 import dayjs from "dayjs";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { TimesheetEntry } from "../types";
+import { TimesheetEntry } from "../types/timesheet-entry.types";
 
 // Note: Ensure dayjs is configured for Buddhist Era if needed in a global config or helper.
 
@@ -79,7 +79,6 @@ export const CreateModalForm: React.FC<CreateModalProps> = ({
   projects,
   subProject,
   fetchSubProjects,
-  i18n,
   disabled,
   formMode = "create",
   record,
@@ -152,7 +151,7 @@ export const CreateModalForm: React.FC<CreateModalProps> = ({
     }
   }, [hasUnsavedData, onCancel]);
 
-  // ✨ เรียก AI ช่วยขยายความรายละเอียดการทำงาน
+  // ✨ เรียก AI ช่วยขยายความ — แสดง Preview ก่อนใช้งาน
   const handleAiExpand = useCallback(async () => {
     const draft: string = form.getFieldValue("description") ?? "";
     if (!draft.trim()) return;
@@ -171,7 +170,9 @@ export const CreateModalForm: React.FC<CreateModalProps> = ({
       });
       const result: string = response.data?.data?.description ?? "";
       if (result) {
-        form.setFieldsValue({ description: result });
+        // แสดง Preview แทนการ apply ทันที
+        setAiPreviewResult({ original: draft, suggested: result });
+        setAiPreviewOpen(true);
       }
     } catch {
       // ไม่ขัดจังหวะผู้ใช้ — ปล่อยให้ข้อความเดิมอยู่ครบ
@@ -181,7 +182,7 @@ export const CreateModalForm: React.FC<CreateModalProps> = ({
   }, [form, projects, subProject]);
 
   // ฟังก์ชันค้นหา Sub-project แบบ Direct Search
-  const handleSearchSubProject = (value: string) => {
+  const handleSearchSubProject = (value: string): void => {
     if (searchRef.current) clearTimeout(searchRef.current);
     if (!value) {
       setSubProjectOptionsSearch([]);
@@ -237,6 +238,7 @@ export const CreateModalForm: React.FC<CreateModalProps> = ({
       }, 100);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [open, formMode, form, record]);
 
   useEffect(() => {
@@ -497,7 +499,7 @@ export const CreateModalForm: React.FC<CreateModalProps> = ({
                     ),
                   },
                   {
-                    validator: async (_, value) => {
+                    validator: async (_) => {
                       const projectId = form.getFieldValue("project_id");
                       const subProjectId = form.getFieldValue("sub_project_id");
                       if (!projectId || !subProjectId) {
@@ -528,7 +530,7 @@ export const CreateModalForm: React.FC<CreateModalProps> = ({
                       ? t("searching", "กำลังค้นหา...")
                       : t("notFound", "ไม่พบข้อมูล")
                   }
-                  onChange={(value, option: any) => {
+                  onChange={(_value, option: any) => {
                     if (option?.item) {
                       form.setFieldsValue({
                         project_id: option.item.main_project_id,
@@ -896,6 +898,146 @@ export const CreateModalForm: React.FC<CreateModalProps> = ({
           </Flex>
         </Flex>
       </Form>
+
+      {/* ── AI Diff Preview Modal ── */}
+      <Modal
+        open={aiPreviewOpen}
+        onCancel={() => setAiPreviewOpen(false)}
+        width={700}
+        centered
+        footer={null}
+        title={
+          <Flex align="center" gap={10}>
+            <Flex
+              align="center"
+              justify="center"
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: token.borderRadiusLG,
+                background: token.colorPrimaryBg,
+                flexShrink: 0,
+              }}
+            >
+              <FileTextOutlined style={{ fontSize: 18, color: token.colorPrimary }} />
+            </Flex>
+            <Flex vertical gap={1}>
+              <Text strong style={{ fontSize: 15 }}>
+                AI ช่วยเขียน — ตรวจสอบก่อนใช้งาน
+              </Text>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                เปรียบเทียบข้อความเดิมกับข้อเสนอจาก AI แล้วเลือกใช้
+              </Text>
+            </Flex>
+          </Flex>
+        }
+        styles={{
+          body: { padding: "16px 0 4px" },
+        }}
+      >
+        <Flex vertical gap={12} style={{ padding: "0 24px 16px" }}>
+          {/* เดิม */}
+          <Flex vertical gap={6}>
+            <Flex align="center" gap={6}>
+              <div
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: token.colorTextQuaternary,
+                  flexShrink: 0,
+                }}
+              />
+              <Text type="secondary" style={{ fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                ข้อความเดิม
+              </Text>
+            </Flex>
+            <div
+              style={{
+                padding: "12px 14px",
+                borderRadius: token.borderRadius,
+                background: token.colorFillAlter,
+                border: `1.5px solid ${token.colorBorderSecondary}`,
+                fontSize: 13,
+                lineHeight: 1.7,
+                color: token.colorTextSecondary,
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
+              }}
+            >
+              {aiPreviewResult?.original || "—"}
+            </div>
+          </Flex>
+
+          {/* ลูกศร */}
+          <Flex justify="center">
+            <Text style={{ fontSize: 18, color: token.colorPrimary, lineHeight: 1 }}>↓</Text>
+          </Flex>
+
+          {/* ใหม่ */}
+          <Flex vertical gap={6}>
+            <Flex align="center" gap={6}>
+              <div
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: token.colorPrimary,
+                  flexShrink: 0,
+                }}
+              />
+              <Text style={{ fontSize: 12, fontWeight: 600, color: token.colorPrimary, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                ✦ AI แนะนำ
+              </Text>
+            </Flex>
+            <div
+              style={{
+                padding: "12px 14px",
+                borderRadius: token.borderRadius,
+                background: token.colorPrimaryBg,
+                border: `1.5px solid ${token.colorPrimaryBorder}`,
+                fontSize: 13,
+                lineHeight: 1.7,
+                color: token.colorText,
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
+              }}
+            >
+              {aiPreviewResult?.suggested || "—"}
+            </div>
+          </Flex>
+
+          {/* Action Buttons */}
+          <Flex justify="flex-end" gap={8} style={{ marginTop: 4 }}>
+            <Button
+              size="middle"
+              style={{ borderRadius: token.borderRadius }}
+              onClick={() => setAiPreviewOpen(false)}
+            >
+              ยกเลิก — คงข้อความเดิม
+            </Button>
+            <Button
+              type="primary"
+              size="middle"
+              style={{
+                borderRadius: token.borderRadius,
+                fontWeight: 600,
+                background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorPrimaryActive} 100%)`,
+                border: "none",
+              }}
+              onClick={() => {
+                if (aiPreviewResult?.suggested) {
+                  form.setFieldsValue({ description: aiPreviewResult.suggested });
+                }
+                setAiPreviewOpen(false);
+                setAiPreviewResult(null);
+              }}
+            >
+              ✦ ใช้ข้อความนี้
+            </Button>
+          </Flex>
+        </Flex>
+      </Modal>
 
       {/* ── Confirm ก่อนปิด Modal ── */}
       <Modal
