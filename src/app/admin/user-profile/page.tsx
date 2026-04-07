@@ -33,9 +33,9 @@ import { BulkUpdateModal } from "./_components/bulk-update-modal";
 import { DetailModal } from "./_components/detail-modal";
 import { FilterSection } from "./_components/filter-section";
 import { ResetPasswordModal } from "./_components/reset-password-modal";
-import { UserTable } from "./_components/user-table";
-import { useUserProfileStore } from "./_state/user-profile-store";
 import { SyncModal } from "./_components/sync-modal";
+import { UserTable } from "./_components/user-table";
+import { useUserProfileStore } from "./_stores/user-profile-store";
 
 export default function UserManagementPage() {
   const { token } = theme.useToken();
@@ -109,13 +109,26 @@ export default function UserManagementPage() {
           subTitle="ระบบจัดการพนักงานและสิทธิ์การเข้าใช้งาน"
           extra={
             <Space>
-              <Button onClick={fetchInitialData} icon={<ReloadOutlined />} shape="round">
+              <Button
+                onClick={fetchInitialData}
+                icon={<ReloadOutlined />}
+                shape="round"
+              >
                 รีเฟรช
               </Button>
-              <Button type="primary" icon={<CloudSyncOutlined />} onClick={() => setSyncModalOpen(true)} shape="round">
+              <Button
+                type="primary"
+                icon={<CloudSyncOutlined />}
+                onClick={() => setSyncModalOpen(true)}
+                shape="round"
+              >
                 ซิงค์ข้อมูลชุดเก่า
               </Button>
-              <Button icon={<SolutionOutlined />} onClick={() => setRoleDrawerOpen(true)} shape="round">
+              <Button
+                icon={<SolutionOutlined />}
+                onClick={() => setRoleDrawerOpen(true)}
+                shape="round"
+              >
                 จัดการบทบาท
               </Button>
             </Space>
@@ -135,10 +148,18 @@ export default function UserManagementPage() {
         <UserTable />
 
         {/* Role Management Drawer */}
-        <Drawer title="จัดการบทบาทและสิทธิ์" open={roleDrawerOpen} onClose={() => setRoleDrawerOpen(false)} width={600}>
+        <Drawer
+          title="จัดการบทบาทและสิทธิ์"
+          open={roleDrawerOpen}
+          onClose={() => setRoleDrawerOpen(false)}
+          width={600}
+        >
           <div className="text-center p-10">
             <Typography.Text type="secondary">
-              <SafetyCertificateOutlined className="mb-4" style={{ fontSize: 40 }} />
+              <SafetyCertificateOutlined
+                className="mb-4"
+                style={{ fontSize: 40 }}
+              />
               <p>ระบบจัดการบทบาทและสิทธิ์การใช้งาน อยู่ระหว่างการพัฒนา</p>
               <Typography.Text type="secondary" style={{ fontSize: "12px" }}>
                 สามารถจัดการได้ผ่านตารางฐานข้อมูล: Role, RolePermission
@@ -149,7 +170,11 @@ export default function UserManagementPage() {
 
         {/* Delete Confirmation Modal */}
         <Modal
-          title={<Space style={{ color: token.colorError }}><ExclamationCircleOutlined /> ยืนยันการลบ</Space>}
+          title={
+            <Space style={{ color: token.colorError }}>
+              <ExclamationCircleOutlined /> ยืนยันการลบ
+            </Space>
+          }
           open={deleteModalOpen}
           onCancel={closeDeleteModal}
           onOk={() => deleteUser(adminId)}
@@ -157,9 +182,14 @@ export default function UserManagementPage() {
         >
           <p>
             คุณแน่ใจหรือไม่ที่จะลบพนักงาน:{" "}
-            <span style={{ fontWeight: 600 }}>{selectedUser?.firstname_th} {selectedUser?.lastname_th}</span>
+            <span style={{ fontWeight: 600 }}>
+              {selectedUser?.firstname_th} {selectedUser?.lastname_th}
+            </span>
           </p>
-          <Typography.Text type="danger" style={{ fontSize: "12px", display: "block" }}>
+          <Typography.Text
+            type="danger"
+            style={{ fontSize: "12px", display: "block" }}
+          >
             *ข้อมูลพนักงานจะยังคงอยู่ในระบบแต่จะไม่ถูกนำมาแสดงผลเพื่อให้สามารถเรียกดูประวัติย้อนหลังได้
           </Typography.Text>
         </Modal>

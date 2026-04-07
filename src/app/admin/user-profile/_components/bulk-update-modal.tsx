@@ -3,32 +3,54 @@
 import { Modal, Select, Typography } from "antd";
 
 import { useAppSelector } from "@stores/store";
-import { useUserProfileStore } from "../_state/user-profile-store";
+import { useUserProfileStore } from "../_stores/user-profile-store";
 
 export const BulkUpdateModal = () => {
-  const { bulkMode, bulkValue, bulkLoading, positions, departments, roles, setBulkMode, setBulkValue, bulkUpdateStaffData } = useUserProfileStore();
+  const {
+    bulkMode,
+    bulkValue,
+    bulkLoading,
+    positions,
+    departments,
+    roles,
+    setBulkMode,
+    setBulkValue,
+    bulkUpdateStaffData,
+  } = useUserProfileStore();
   const authState = useAppSelector((state) => state.callAdminLogin);
   const adminId = authState?.response?.data?.user_data?.admin_id;
 
   const modeLabel =
-    bulkMode === "position" ? "ตำแหน่ง"
-    : bulkMode === "department" ? "แผนก"
-    : bulkMode === "role" ? "สิทธิ์การใช้งาน"
-    : "ประเภทการจ้างงาน";
+    bulkMode === "position"
+      ? "ตำแหน่ง"
+      : bulkMode === "department"
+      ? "แผนก"
+      : bulkMode === "role"
+      ? "สิทธิ์การใช้งาน"
+      : "ประเภทการจ้างงาน";
 
   const options =
     bulkMode === "position"
-      ? (positions as { id: number; name_th: string }[]).map((p) => ({ label: p.name_th, value: p.id }))
+      ? (positions as { id: number; name_th: string }[]).map((p) => ({
+          label: p.name_th,
+          value: p.id,
+        }))
       : bulkMode === "department"
-        ? (departments as { id: number; name_th: string }[]).map((d) => ({ label: d.name_th, value: d.id }))
-        : bulkMode === "role"
-          ? (roles as { id: number; role_name: string }[]).map((r) => ({ label: r.role_name, value: r.id }))
-          : [
-              { label: "พนักงานประจำ", value: "FULL_TIME" },
-              { label: "พนักงานชั่วคราว", value: "PART_TIME" },
-              { label: "สัญญาจ้าง", value: "CONTRACT" },
-              { label: "นักศึกษาฝึกงาน", value: "INTERN" },
-            ];
+      ? (departments as { id: number; name_th: string }[]).map((d) => ({
+          label: d.name_th,
+          value: d.id,
+        }))
+      : bulkMode === "role"
+      ? (roles as { id: number; role_name: string }[]).map((r) => ({
+          label: r.role_name,
+          value: r.id,
+        }))
+      : [
+          { label: "พนักงานประจำ", value: "FULL_TIME" },
+          { label: "พนักงานชั่วคราว", value: "PART_TIME" },
+          { label: "สัญญาจ้าง", value: "CONTRACT" },
+          { label: "นักศึกษาฝึกงาน", value: "INTERN" },
+        ];
 
   return (
     <Modal
@@ -52,7 +74,9 @@ export const BulkUpdateModal = () => {
           options={options as { label: string; value: number | string }[]}
           showSearch
           filterOption={(input, option) =>
-            String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            String(option?.label ?? "")
+              .toLowerCase()
+              .includes(input.toLowerCase())
           }
         />
       </div>
