@@ -8,6 +8,7 @@ import DashboardLayout from "@/components/layouts/backend-layout";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { StatusModalComponent } from "@/components/modal/status-modal-component";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
+import { DeliveryResultDrawer } from "./_components/delivery-result-drawer";
 import { DeliveryTracker } from "./_components/delivery-tracker";
 import { EmployeeNotifyDrawer } from "./_components/employee-notify-drawer";
 import { FilterSection } from "./_components/filter-section";
@@ -87,6 +88,9 @@ export default function TimesheetDailyReportPage() {
 
         {/* Employee Notify Drawer — แสดง progress การส่งอีเมลพนักงานทีละคน */}
         <EmployeeNotifyDrawer />
+
+        {/* Delivery Result Drawer — แสดงผลการส่งอีเมลและ Discord */}
+        <DeliveryResultDrawer />
       </DashboardLayout>
     </PermissionLayout>
   );
