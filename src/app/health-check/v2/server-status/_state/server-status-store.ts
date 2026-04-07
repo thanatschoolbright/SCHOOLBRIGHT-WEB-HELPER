@@ -92,9 +92,9 @@ export const useServerStatusStore = create<ServerStatusState>((set, get) => ({
 
     try {
       const response = await requestServerStatus(mode);
-      if (response.data && Array.isArray(response.data.data)) {
+      if (response.data && Array.isArray(response.data)) {
         set({
-          serverHealthData: response.data.data,
+          serverHealthData: response.data,
           lastFetchTimestamp: new Date(),
         });
 

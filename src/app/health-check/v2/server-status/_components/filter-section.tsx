@@ -5,7 +5,7 @@ import {
   FilterOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import { Button, Col, Input, Row, Select, Space, Typography } from "antd";
+import { Button, Col, Flex, Input, Row, Select, Space, Typography } from "antd";
 import React, { useMemo } from "react";
 import { useServerStatusStore } from "../_state/server-status-store";
 
@@ -29,13 +29,15 @@ const FilterSection: React.FC = () => {
   } = useServerStatusStore();
 
   const groupOptions = useMemo(() => {
-    const groups = Array.from(
-      new Set(serverHealthData.map((item) => item.group || "other")),
-    );
+    const rawGroups = serverHealthData
+      .map((item) => item.group)
+      .filter((g): g is string => !!g);
+    const uniqueGroups = Array.from(new Set(rawGroups));
+
     return [
       { label: "ทุกกลุ่ม", value: "ALL" },
-      ...groups.map((g) => ({
-        label: g.toUpperCase().replace("-", " "),
+      ...uniqueGroups.map((g) => ({
+        label: g.toUpperCase().replace(/-/g, " "),
         value: g,
       })),
     ];
