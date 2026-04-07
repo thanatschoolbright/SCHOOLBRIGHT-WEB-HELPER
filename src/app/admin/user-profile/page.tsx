@@ -10,10 +10,10 @@ import {
   SolutionOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
+
 import {
   Button,
   Col,
-  Drawer,
   Modal,
   Row,
   Space,
@@ -33,6 +33,7 @@ import { BulkUpdateModal } from "./_components/bulk-update-modal";
 import { DetailModal } from "./_components/detail-modal";
 import { FilterSection } from "./_components/filter-section";
 import { ResetPasswordModal } from "./_components/reset-password-modal";
+import { RolePermissionDrawer } from "./_components/role-permission-drawer";
 import { SyncModal } from "./_components/sync-modal";
 import { UserTable } from "./_components/user-table";
 import { useUserProfileStore } from "./_stores/user-profile-store";
@@ -147,26 +148,10 @@ export default function UserManagementPage() {
 
         <UserTable />
 
-        {/* Role Management Drawer */}
-        <Drawer
-          title="จัดการบทบาทและสิทธิ์"
+        <RolePermissionDrawer
           open={roleDrawerOpen}
           onClose={() => setRoleDrawerOpen(false)}
-          width={600}
-        >
-          <div className="text-center p-10">
-            <Typography.Text type="secondary">
-              <SafetyCertificateOutlined
-                className="mb-4"
-                style={{ fontSize: 40 }}
-              />
-              <p>ระบบจัดการบทบาทและสิทธิ์การใช้งาน อยู่ระหว่างการพัฒนา</p>
-              <Typography.Text type="secondary" style={{ fontSize: "12px" }}>
-                สามารถจัดการได้ผ่านตารางฐานข้อมูล: Role, RolePermission
-              </Typography.Text>
-            </Typography.Text>
-          </div>
-        </Drawer>
+        />
 
         {/* Delete Confirmation Modal */}
         <Modal
