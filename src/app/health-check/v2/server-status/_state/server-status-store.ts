@@ -23,6 +23,9 @@ interface ServerStatusState {
   isExporting: boolean;
   exportStep: number;
   isExportSuccess: boolean;
+  isExportModalOpen: boolean;
+  isDetailModalOpen: boolean;
+  selectedItem: ServerStatusData | null;
 
   // Filter States
   searchQuery: string;
@@ -36,6 +39,10 @@ interface ServerStatusState {
   setGroupFilter: (group: string) => void;
   setMethodFilter: (method: string) => void;
   setExportSuccess: (success: boolean) => void;
+  openExportModal: () => void;
+  closeExportModal: () => void;
+  openDetailModal: (item: ServerStatusData) => void;
+  closeDetailModal: () => void;
 
   // Logic Actions
   fetchServerStatus: (mode?: "normal" | "discord") => Promise<void>;
@@ -55,6 +62,9 @@ export const useServerStatusStore = create<ServerStatusState>((set, get) => ({
   isExporting: false,
   exportStep: 0,
   isExportSuccess: false,
+  isExportModalOpen: false,
+  isDetailModalOpen: false,
+  selectedItem: null,
   searchQuery: "",
   statusFilter: "ALL",
   groupFilter: "ALL",
@@ -66,6 +76,11 @@ export const useServerStatusStore = create<ServerStatusState>((set, get) => ({
   setGroupFilter: (group) => set({ groupFilter: group }),
   setMethodFilter: (method) => set({ methodFilter: method }),
   setExportSuccess: (success) => set({ isExportSuccess: success }),
+  openExportModal: () => set({ isExportModalOpen: true }),
+  closeExportModal: () => set({ isExportModalOpen: false }),
+  openDetailModal: (item) =>
+    set({ selectedItem: item, isDetailModalOpen: true }),
+  closeDetailModal: () => set({ isDetailModalOpen: false, selectedItem: null }),
 
   /**
    * ดึงข้อมูลสถานะเซิร์ฟเวอร์
@@ -121,7 +136,9 @@ export const useServerStatusStore = create<ServerStatusState>((set, get) => ({
       const url = window.URL.createObjectURL(new Blob([blob]));
       const link = document.createElement("a");
       link.href = url;
-      const fileName = `Server_Health_Report_${dayjs().format("DD_MM_BBBB")}.xlsx`;
+      const fileName = `Server_Health_Report_${dayjs().format(
+        "DD_MM_BBBB",
+      )}.xlsx`;
       link.setAttribute("download", fileName);
       document.body.appendChild(link);
       link.click();

@@ -37,10 +37,7 @@ const { Text } = Typography;
 /**
  * คอมโพเนนต์แสดงตารางข้อมูลสถานะเซิร์ฟเวอร์
  */
-const ServerStatusTable: React.FC<{
-  onDetailClick: (item: ServerStatusData) => void;
-  onExportClick: () => void;
-}> = ({ onDetailClick, onExportClick }) => {
+const ServerStatusTable: React.FC = () => {
   const { token } = theme.useToken();
   const {
     serverHealthData,
@@ -51,6 +48,8 @@ const ServerStatusTable: React.FC<{
     isFetchingStatus,
     fetchServerStatus,
     isSendingDiscord,
+    openDetailModal,
+    openExportModal,
   } = useServerStatusStore();
 
   /**
@@ -202,7 +201,7 @@ const ServerStatusTable: React.FC<{
         <Button
           type="text"
           icon={<EyeOutlined />}
-          onClick={() => onDetailClick(record)}
+          onClick={() => openDetailModal(record)}
           style={{ borderRadius: 8 }}
         >
           รายละเอียด
@@ -240,7 +239,7 @@ const ServerStatusTable: React.FC<{
           </Button>
           <Button
             icon={<FileExcelOutlined />}
-            onClick={onExportClick}
+            onClick={openExportModal}
             style={{ borderRadius: 8, height: 36 }}
           >
             ดาวน์โหลด Excel
