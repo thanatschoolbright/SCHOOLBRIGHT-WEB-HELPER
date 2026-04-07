@@ -22,7 +22,7 @@ export async function getOvertimeAnalytics(payload: OvertimeAnalyticsInput) {
   // 1. ดึงข้อมูล Overtime ทั้งหมดในช่วงเวลาที่กำหนด
   const overtimeRecords = await PrismaTimesheet.overtime.findMany({
     where: {
-      request_date: {
+      requestDate: {
         gte: startDate,
         lte: endDate,
       },
@@ -41,7 +41,7 @@ export async function getOvertimeAnalytics(payload: OvertimeAnalyticsInput) {
       },
     },
     orderBy: {
-      request_date: "asc",
+      requestDate: "asc",
     },
   });
 
@@ -69,7 +69,7 @@ export async function getOvertimeAnalytics(payload: OvertimeAnalyticsInput) {
   let totalDuration = 0;
 
   overtimeRecords.forEach((record) => {
-    const monthKey = dayjs(record.request_date).format("YYYY-MM");
+    const monthKey = dayjs(record.requestDate).format("YYYY-MM");
     const recordHours = record.descriptions.reduce(
       (sum, desc) => sum + (Number(desc.duration) || 0),
       0,
