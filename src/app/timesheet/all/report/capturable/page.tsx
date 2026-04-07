@@ -15,6 +15,7 @@ import DashboardLayout from "@components/layouts/backend-layout";
 
 import { CapturableTable } from "./_components/capturable-table";
 import { DetailModal } from "./_components/detail-modal";
+import { EmailExportModal } from "./_components/email-export-modal";
 import { ExportModal } from "./_components/export-modal";
 import { FilterSection } from "./_components/filter-section";
 import { useCapturableStore } from "./_state/use-capturable-store";
@@ -98,6 +99,7 @@ export default function CapturableReportPage() {
         {/* Modals */}
         <DetailModal />
         <ExportModal />
+        <EmailExportModal />
       </DashboardLayout>
     </PermissionLayout>
   );

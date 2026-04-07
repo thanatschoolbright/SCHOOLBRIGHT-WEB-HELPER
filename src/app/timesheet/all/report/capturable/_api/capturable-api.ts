@@ -67,6 +67,26 @@ export const requestTrackingDetails = async (
   return response.data.data;
 };
 
+export interface SendEmailResult {
+  sent: number;
+  failed: number;
+  total_files: number;
+  results: { email: string; success: boolean; error?: string }[];
+}
+
+// ส่ง Excel Capturable Report ทางอีเมล
+export const requestSendCapturableEmail = async (
+  startDate: string,
+  endDate: string,
+  recipients: string[],
+): Promise<SendEmailResult> => {
+  const response = await axios.post(
+    "/api/v1/timesheet/report/capturable-report/send-email",
+    { start_date: startDate, end_date: endDate, recipients },
+  );
+  return response.data.data;
+};
+
 // ส่งออกไฟล์ Excel รายงาน Capturable
 export const requestExportExcel = async (
   startDate: string,

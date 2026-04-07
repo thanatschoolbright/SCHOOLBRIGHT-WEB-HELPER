@@ -8,6 +8,7 @@ import {
   requestCapturableReport,
   requestCapturableSummary,
   requestExportExcel,
+  requestSendCapturableEmail,
   requestTrackingDetails,
 } from "../_api/capturable-api";
 
@@ -33,6 +34,10 @@ interface CapturableStore {
   countdown: number;
   isCounting: boolean;
 
+  // Email Export Modal
+  emailModalVisible: boolean;
+  emailLoading: boolean;
+
   // ── Actions ──
   setSearchText: (text: string) => void;
   setDateRange: (range: [Dayjs, Dayjs]) => void;
@@ -40,10 +45,12 @@ interface CapturableStore {
   setCountdown: (n: number) => void;
   setIsCounting: (v: boolean) => void;
   closeDetailModal: () => void;
+  setEmailModalVisible: (open: boolean) => void;
 
   fetchReport: () => Promise<void>;
   openDetails: (record: CapturableData) => Promise<void>;
   exportExcel: () => Promise<void>;
+  sendEmail: (recipients: string[]) => Promise<boolean>;
   clearFilters: () => void;
 }
 
@@ -66,6 +73,8 @@ export const useCapturableStore = create<CapturableStore>((set, get) => ({
   exportModalVisible: false,
   countdown: 3,
   isCounting: false,
+  emailModalVisible: false,
+  emailLoading: false,
 
   setSearchText: (text) => set({ searchText: text }),
   setDateRange: (range) => set({ dateRange: range }),
@@ -74,6 +83,7 @@ export const useCapturableStore = create<CapturableStore>((set, get) => ({
   setIsCounting: (v) => set({ isCounting: v }),
   closeDetailModal: () =>
     set({ detailModalOpen: false, selectedProject: null }),
+  setEmailModalVisible: (open) => set({ emailModalVisible: open }),
 
   // ✨ ดึงข้อมูลรายงาน Summary + รายโครงการ
   fetchReport: async () => {
@@ -144,6 +154,31 @@ export const useCapturableStore = create<CapturableStore>((set, get) => ({
       toast.error("เกิดข้อผิดพลาดในการส่งออกไฟล์", { id: toastId });
     } finally {
       set({ exportLoading: false });
+    }
+  },
+
+  // ✨ ส่ง Excel ทางอีเมล — คืนค่า true เมื่อสำเร็จ
+  sendEmail: async (recipients) => {
+    const { dateRange } = get();
+    set({ emailLoading: true });
+    try {
+      const result = await requestSendCapturableEmail(
+        dateRange[0].format("YYYY-MM-DD"),
+        dateRange[1].format("YYYY-MM-DD"),
+        recipients,
+      );
+      if (result.failed > 0) {
+        toast.warning(`ส่งไม่สำเร็จ ${result.failed} ที่อยู่`);
+      }
+      toast.success(
+        `ส่ง Capitalization Report สำเร็จ ${result.sent}/${recipients.length} ที่อยู่`,
+      );
+      return true;
+    } catch {
+      toast.error("ส่งอีเมลไม่สำเร็จ กรุณาลองใหม่");
+      return false;
+    } finally {
+      set({ emailLoading: false });
     }
   },
 

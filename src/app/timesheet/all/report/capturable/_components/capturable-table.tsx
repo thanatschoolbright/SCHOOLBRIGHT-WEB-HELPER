@@ -3,6 +3,7 @@
 import {
   FileExcelOutlined,
   InfoCircleOutlined,
+  MailOutlined,
   SettingOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
@@ -53,8 +54,17 @@ const columnOptions = [
 
 export const CapturableTable: React.FC = () => {
   const { token } = theme.useToken();
-  const { data, searchText, loading, openDetails, exportLoading, setExportModalVisible, setCountdown, setIsCounting } =
-    useCapturableStore();
+  const {
+    data,
+    searchText,
+    loading,
+    openDetails,
+    exportLoading,
+    setExportModalVisible,
+    setCountdown,
+    setIsCounting,
+    setEmailModalVisible,
+  } = useCapturableStore();
   const [visibleColumns, setVisibleColumns] = useState<any[]>(defaultCheckedList);
 
   const filteredTableData = useMemo(() => {
@@ -305,28 +315,45 @@ export const CapturableTable: React.FC = () => {
           </Popover>
         </Space>
 
-        <Badge count="ใหม่" color="red" offset={[5, -5]}>
+        <Flex gap={8} align="center">
           <Button
-            icon={<FileExcelOutlined />}
-            onClick={() => {
-              setExportModalVisible(true);
-              setCountdown(3);
-              setIsCounting(false);
-            }}
-            loading={exportLoading}
+            icon={<MailOutlined />}
+            onClick={() => setEmailModalVisible(true)}
             disabled={data.length === 0}
             style={{
               fontWeight: 600,
               ...(data.length > 0 && {
-                color: token.colorSuccess,
-                borderColor: token.colorSuccessBorder,
-                background: token.colorSuccessBg,
+                color: token.colorPrimary,
+                borderColor: token.colorPrimaryBorder,
+                background: token.colorPrimaryBg,
               }),
             }}
           >
-            ดาวน์โหลด Excel
+            ส่งทางอีเมล
           </Button>
-        </Badge>
+          <Badge count="ใหม่" color="red" offset={[5, -5]}>
+            <Button
+              icon={<FileExcelOutlined />}
+              onClick={() => {
+                setExportModalVisible(true);
+                setCountdown(3);
+                setIsCounting(false);
+              }}
+              loading={exportLoading}
+              disabled={data.length === 0}
+              style={{
+                fontWeight: 600,
+                ...(data.length > 0 && {
+                  color: token.colorSuccess,
+                  borderColor: token.colorSuccessBorder,
+                  background: token.colorSuccessBg,
+                }),
+              }}
+            >
+              ดาวน์โหลด Excel
+            </Button>
+          </Badge>
+        </Flex>
       </Flex>
 
       <Table<CapturableData>
