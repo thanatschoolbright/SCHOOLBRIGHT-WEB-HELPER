@@ -93,6 +93,11 @@ export type OvertimeStatusLog = $Result.DefaultSelection<Prisma.$OvertimeStatusL
  * 
  */
 export type ApiLog = $Result.DefaultSelection<Prisma.$ApiLogPayload>
+/**
+ * Model CrmSupport
+ * 
+ */
+export type CrmSupport = $Result.DefaultSelection<Prisma.$CrmSupportPayload>
 
 /**
  * Enums
@@ -388,6 +393,16 @@ export class PrismaClient<
     * ```
     */
   get apiLog(): Prisma.ApiLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.crmSupport`: Exposes CRUD operations for the **CrmSupport** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CrmSupports
+    * const crmSupports = await prisma.crmSupport.findMany()
+    * ```
+    */
+  get crmSupport(): Prisma.CrmSupportDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -844,7 +859,8 @@ export namespace Prisma {
     Overtime: 'Overtime',
     OvertimeDescription: 'OvertimeDescription',
     OvertimeStatusLog: 'OvertimeStatusLog',
-    ApiLog: 'ApiLog'
+    ApiLog: 'ApiLog',
+    CrmSupport: 'CrmSupport'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -863,7 +879,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "position" | "department" | "user" | "role" | "permission" | "rolePermission" | "group" | "projectStatus" | "project" | "feature" | "projectAssignee" | "timesheetEntry" | "overtime" | "overtimeDescription" | "overtimeStatusLog" | "apiLog"
+      modelProps: "position" | "department" | "user" | "role" | "permission" | "rolePermission" | "group" | "projectStatus" | "project" | "feature" | "projectAssignee" | "timesheetEntry" | "overtime" | "overtimeDescription" | "overtimeStatusLog" | "apiLog" | "crmSupport"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2051,6 +2067,80 @@ export namespace Prisma {
           }
         }
       }
+      CrmSupport: {
+        payload: Prisma.$CrmSupportPayload<ExtArgs>
+        fields: Prisma.CrmSupportFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CrmSupportFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CrmSupportFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportPayload>
+          }
+          findFirst: {
+            args: Prisma.CrmSupportFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CrmSupportFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportPayload>
+          }
+          findMany: {
+            args: Prisma.CrmSupportFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportPayload>[]
+          }
+          create: {
+            args: Prisma.CrmSupportCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportPayload>
+          }
+          createMany: {
+            args: Prisma.CrmSupportCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CrmSupportCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportPayload>[]
+          }
+          delete: {
+            args: Prisma.CrmSupportDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportPayload>
+          }
+          update: {
+            args: Prisma.CrmSupportUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportPayload>
+          }
+          deleteMany: {
+            args: Prisma.CrmSupportDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CrmSupportUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CrmSupportUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportPayload>[]
+          }
+          upsert: {
+            args: Prisma.CrmSupportUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CrmSupportPayload>
+          }
+          aggregate: {
+            args: Prisma.CrmSupportAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCrmSupport>
+          }
+          groupBy: {
+            args: Prisma.CrmSupportGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CrmSupportGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CrmSupportCountArgs<ExtArgs>
+            result: $Utils.Optional<CrmSupportCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2163,6 +2253,7 @@ export namespace Prisma {
     overtimeDescription?: OvertimeDescriptionOmit
     overtimeStatusLog?: OvertimeStatusLogOmit
     apiLog?: ApiLogOmit
+    crmSupport?: CrmSupportOmit
   }
 
   /* Types for Logging */
@@ -2307,11 +2398,15 @@ export namespace Prisma {
   export type UserCountOutputType = {
     overtime_created: number
     overtime_requests: number
+    crm_created: number
+    crm_updated: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     overtime_created?: boolean | UserCountOutputTypeCountOvertime_createdArgs
     overtime_requests?: boolean | UserCountOutputTypeCountOvertime_requestsArgs
+    crm_created?: boolean | UserCountOutputTypeCountCrm_createdArgs
+    crm_updated?: boolean | UserCountOutputTypeCountCrm_updatedArgs
   }
 
   // Custom InputTypes
@@ -2337,6 +2432,20 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountOvertime_requestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OvertimeWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountCrm_createdArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CrmSupportWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountCrm_updatedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CrmSupportWhereInput
   }
 
 
@@ -5315,6 +5424,8 @@ export namespace Prisma {
     gender?: boolean
     overtime_created?: boolean | User$overtime_createdArgs<ExtArgs>
     overtime_requests?: boolean | User$overtime_requestsArgs<ExtArgs>
+    crm_created?: boolean | User$crm_createdArgs<ExtArgs>
+    crm_updated?: boolean | User$crm_updatedArgs<ExtArgs>
     department?: boolean | User$departmentArgs<ExtArgs>
     position_ref?: boolean | User$position_refArgs<ExtArgs>
     role?: boolean | User$roleArgs<ExtArgs>
@@ -5433,6 +5544,8 @@ export namespace Prisma {
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     overtime_created?: boolean | User$overtime_createdArgs<ExtArgs>
     overtime_requests?: boolean | User$overtime_requestsArgs<ExtArgs>
+    crm_created?: boolean | User$crm_createdArgs<ExtArgs>
+    crm_updated?: boolean | User$crm_updatedArgs<ExtArgs>
     department?: boolean | User$departmentArgs<ExtArgs>
     position_ref?: boolean | User$position_refArgs<ExtArgs>
     role?: boolean | User$roleArgs<ExtArgs>
@@ -5454,6 +5567,8 @@ export namespace Prisma {
     objects: {
       overtime_created: Prisma.$OvertimePayload<ExtArgs>[]
       overtime_requests: Prisma.$OvertimePayload<ExtArgs>[]
+      crm_created: Prisma.$CrmSupportPayload<ExtArgs>[]
+      crm_updated: Prisma.$CrmSupportPayload<ExtArgs>[]
       department: Prisma.$DepartmentPayload<ExtArgs> | null
       position_ref: Prisma.$PositionPayload<ExtArgs> | null
       role: Prisma.$RolePayload<ExtArgs> | null
@@ -5886,6 +6001,8 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     overtime_created<T extends User$overtime_createdArgs<ExtArgs> = {}>(args?: Subset<T, User$overtime_createdArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OvertimePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     overtime_requests<T extends User$overtime_requestsArgs<ExtArgs> = {}>(args?: Subset<T, User$overtime_requestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OvertimePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    crm_created<T extends User$crm_createdArgs<ExtArgs> = {}>(args?: Subset<T, User$crm_createdArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CrmSupportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    crm_updated<T extends User$crm_updatedArgs<ExtArgs> = {}>(args?: Subset<T, User$crm_updatedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CrmSupportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     department<T extends User$departmentArgs<ExtArgs> = {}>(args?: Subset<T, User$departmentArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     position_ref<T extends User$position_refArgs<ExtArgs> = {}>(args?: Subset<T, User$position_refArgs<ExtArgs>>): Prisma__PositionClient<$Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     role<T extends User$roleArgs<ExtArgs> = {}>(args?: Subset<T, User$roleArgs<ExtArgs>>): Prisma__RoleClient<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -6390,6 +6507,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: OvertimeScalarFieldEnum | OvertimeScalarFieldEnum[]
+  }
+
+  /**
+   * User.crm_created
+   */
+  export type User$crm_createdArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupport
+     */
+    select?: CrmSupportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupport
+     */
+    omit?: CrmSupportOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportInclude<ExtArgs> | null
+    where?: CrmSupportWhereInput
+    orderBy?: CrmSupportOrderByWithRelationInput | CrmSupportOrderByWithRelationInput[]
+    cursor?: CrmSupportWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CrmSupportScalarFieldEnum | CrmSupportScalarFieldEnum[]
+  }
+
+  /**
+   * User.crm_updated
+   */
+  export type User$crm_updatedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupport
+     */
+    select?: CrmSupportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupport
+     */
+    omit?: CrmSupportOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportInclude<ExtArgs> | null
+    where?: CrmSupportWhereInput
+    orderBy?: CrmSupportOrderByWithRelationInput | CrmSupportOrderByWithRelationInput[]
+    cursor?: CrmSupportWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CrmSupportScalarFieldEnum | CrmSupportScalarFieldEnum[]
   }
 
   /**
@@ -21885,6 +22050,1649 @@ export namespace Prisma {
 
 
   /**
+   * Model CrmSupport
+   */
+
+  export type AggregateCrmSupport = {
+    _count: CrmSupportCountAggregateOutputType | null
+    _avg: CrmSupportAvgAggregateOutputType | null
+    _sum: CrmSupportSumAggregateOutputType | null
+    _min: CrmSupportMinAggregateOutputType | null
+    _max: CrmSupportMaxAggregateOutputType | null
+  }
+
+  export type CrmSupportAvgAggregateOutputType = {
+    id: number | null
+    school_id: number | null
+    backlog_project_id: number | null
+    backlog_issue_id: number | null
+    created_by: number | null
+    updated_by: number | null
+    deleted_by: number | null
+    assign_staff_id: number | null
+  }
+
+  export type CrmSupportSumAggregateOutputType = {
+    id: number | null
+    school_id: number | null
+    backlog_project_id: number | null
+    backlog_issue_id: number | null
+    created_by: number | null
+    updated_by: number | null
+    deleted_by: number | null
+    assign_staff_id: number | null
+  }
+
+  export type CrmSupportMinAggregateOutputType = {
+    id: number | null
+    issue_date: Date | null
+    school_id: number | null
+    channel: string | null
+    contact_id: string | null
+    type: string | null
+    sub_type: string | null
+    ref_code: string | null
+    support_detail: string | null
+    subject: string | null
+    question: string | null
+    answer: string | null
+    is_follow_up: boolean | null
+    follow_up_date: Date | null
+    status: string | null
+    priority: string | null
+    backlog_project_id: number | null
+    backlog_issue_id: number | null
+    created_at: Date | null
+    created_by: number | null
+    updated_at: Date | null
+    updated_by: number | null
+    deleted_at: Date | null
+    deleted_by: number | null
+    session: string | null
+    has_remind_follow_up: boolean | null
+    follow_up_end_date: Date | null
+    follow_up_frequency: string | null
+    customer_follow_up_date: Date | null
+    customer_follow_up_end_date: Date | null
+    customer_follow_up_frequency: string | null
+    customer_notify_message: boolean | null
+    assign_staff_id: number | null
+    note: string | null
+    onboarding: boolean | null
+    reference_key: string | null
+    reference_value: string | null
+    backlog_model: string | null
+    start_date: Date | null
+    due_date: Date | null
+    is_deleted: boolean | null
+  }
+
+  export type CrmSupportMaxAggregateOutputType = {
+    id: number | null
+    issue_date: Date | null
+    school_id: number | null
+    channel: string | null
+    contact_id: string | null
+    type: string | null
+    sub_type: string | null
+    ref_code: string | null
+    support_detail: string | null
+    subject: string | null
+    question: string | null
+    answer: string | null
+    is_follow_up: boolean | null
+    follow_up_date: Date | null
+    status: string | null
+    priority: string | null
+    backlog_project_id: number | null
+    backlog_issue_id: number | null
+    created_at: Date | null
+    created_by: number | null
+    updated_at: Date | null
+    updated_by: number | null
+    deleted_at: Date | null
+    deleted_by: number | null
+    session: string | null
+    has_remind_follow_up: boolean | null
+    follow_up_end_date: Date | null
+    follow_up_frequency: string | null
+    customer_follow_up_date: Date | null
+    customer_follow_up_end_date: Date | null
+    customer_follow_up_frequency: string | null
+    customer_notify_message: boolean | null
+    assign_staff_id: number | null
+    note: string | null
+    onboarding: boolean | null
+    reference_key: string | null
+    reference_value: string | null
+    backlog_model: string | null
+    start_date: Date | null
+    due_date: Date | null
+    is_deleted: boolean | null
+  }
+
+  export type CrmSupportCountAggregateOutputType = {
+    id: number
+    issue_date: number
+    school_id: number
+    channel: number
+    contact_id: number
+    type: number
+    sub_type: number
+    ref_code: number
+    support_detail: number
+    subject: number
+    question: number
+    answer: number
+    is_follow_up: number
+    follow_up_date: number
+    status: number
+    priority: number
+    backlog_project_id: number
+    backlog_issue_id: number
+    created_at: number
+    created_by: number
+    updated_at: number
+    updated_by: number
+    deleted_at: number
+    deleted_by: number
+    line_info: number
+    session: number
+    has_remind_follow_up: number
+    follow_up_end_date: number
+    follow_up_frequency: number
+    customer_follow_up_date: number
+    customer_follow_up_end_date: number
+    customer_follow_up_frequency: number
+    customer_notify_message: number
+    assign_staff_id: number
+    note: number
+    onboarding: number
+    reference_key: number
+    reference_value: number
+    backlog_model: number
+    start_date: number
+    due_date: number
+    is_deleted: number
+    _all: number
+  }
+
+
+  export type CrmSupportAvgAggregateInputType = {
+    id?: true
+    school_id?: true
+    backlog_project_id?: true
+    backlog_issue_id?: true
+    created_by?: true
+    updated_by?: true
+    deleted_by?: true
+    assign_staff_id?: true
+  }
+
+  export type CrmSupportSumAggregateInputType = {
+    id?: true
+    school_id?: true
+    backlog_project_id?: true
+    backlog_issue_id?: true
+    created_by?: true
+    updated_by?: true
+    deleted_by?: true
+    assign_staff_id?: true
+  }
+
+  export type CrmSupportMinAggregateInputType = {
+    id?: true
+    issue_date?: true
+    school_id?: true
+    channel?: true
+    contact_id?: true
+    type?: true
+    sub_type?: true
+    ref_code?: true
+    support_detail?: true
+    subject?: true
+    question?: true
+    answer?: true
+    is_follow_up?: true
+    follow_up_date?: true
+    status?: true
+    priority?: true
+    backlog_project_id?: true
+    backlog_issue_id?: true
+    created_at?: true
+    created_by?: true
+    updated_at?: true
+    updated_by?: true
+    deleted_at?: true
+    deleted_by?: true
+    session?: true
+    has_remind_follow_up?: true
+    follow_up_end_date?: true
+    follow_up_frequency?: true
+    customer_follow_up_date?: true
+    customer_follow_up_end_date?: true
+    customer_follow_up_frequency?: true
+    customer_notify_message?: true
+    assign_staff_id?: true
+    note?: true
+    onboarding?: true
+    reference_key?: true
+    reference_value?: true
+    backlog_model?: true
+    start_date?: true
+    due_date?: true
+    is_deleted?: true
+  }
+
+  export type CrmSupportMaxAggregateInputType = {
+    id?: true
+    issue_date?: true
+    school_id?: true
+    channel?: true
+    contact_id?: true
+    type?: true
+    sub_type?: true
+    ref_code?: true
+    support_detail?: true
+    subject?: true
+    question?: true
+    answer?: true
+    is_follow_up?: true
+    follow_up_date?: true
+    status?: true
+    priority?: true
+    backlog_project_id?: true
+    backlog_issue_id?: true
+    created_at?: true
+    created_by?: true
+    updated_at?: true
+    updated_by?: true
+    deleted_at?: true
+    deleted_by?: true
+    session?: true
+    has_remind_follow_up?: true
+    follow_up_end_date?: true
+    follow_up_frequency?: true
+    customer_follow_up_date?: true
+    customer_follow_up_end_date?: true
+    customer_follow_up_frequency?: true
+    customer_notify_message?: true
+    assign_staff_id?: true
+    note?: true
+    onboarding?: true
+    reference_key?: true
+    reference_value?: true
+    backlog_model?: true
+    start_date?: true
+    due_date?: true
+    is_deleted?: true
+  }
+
+  export type CrmSupportCountAggregateInputType = {
+    id?: true
+    issue_date?: true
+    school_id?: true
+    channel?: true
+    contact_id?: true
+    type?: true
+    sub_type?: true
+    ref_code?: true
+    support_detail?: true
+    subject?: true
+    question?: true
+    answer?: true
+    is_follow_up?: true
+    follow_up_date?: true
+    status?: true
+    priority?: true
+    backlog_project_id?: true
+    backlog_issue_id?: true
+    created_at?: true
+    created_by?: true
+    updated_at?: true
+    updated_by?: true
+    deleted_at?: true
+    deleted_by?: true
+    line_info?: true
+    session?: true
+    has_remind_follow_up?: true
+    follow_up_end_date?: true
+    follow_up_frequency?: true
+    customer_follow_up_date?: true
+    customer_follow_up_end_date?: true
+    customer_follow_up_frequency?: true
+    customer_notify_message?: true
+    assign_staff_id?: true
+    note?: true
+    onboarding?: true
+    reference_key?: true
+    reference_value?: true
+    backlog_model?: true
+    start_date?: true
+    due_date?: true
+    is_deleted?: true
+    _all?: true
+  }
+
+  export type CrmSupportAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CrmSupport to aggregate.
+     */
+    where?: CrmSupportWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CrmSupports to fetch.
+     */
+    orderBy?: CrmSupportOrderByWithRelationInput | CrmSupportOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CrmSupportWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CrmSupports from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CrmSupports.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CrmSupports
+    **/
+    _count?: true | CrmSupportCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CrmSupportAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CrmSupportSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CrmSupportMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CrmSupportMaxAggregateInputType
+  }
+
+  export type GetCrmSupportAggregateType<T extends CrmSupportAggregateArgs> = {
+        [P in keyof T & keyof AggregateCrmSupport]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCrmSupport[P]>
+      : GetScalarType<T[P], AggregateCrmSupport[P]>
+  }
+
+
+
+
+  export type CrmSupportGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CrmSupportWhereInput
+    orderBy?: CrmSupportOrderByWithAggregationInput | CrmSupportOrderByWithAggregationInput[]
+    by: CrmSupportScalarFieldEnum[] | CrmSupportScalarFieldEnum
+    having?: CrmSupportScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CrmSupportCountAggregateInputType | true
+    _avg?: CrmSupportAvgAggregateInputType
+    _sum?: CrmSupportSumAggregateInputType
+    _min?: CrmSupportMinAggregateInputType
+    _max?: CrmSupportMaxAggregateInputType
+  }
+
+  export type CrmSupportGroupByOutputType = {
+    id: number
+    issue_date: Date
+    school_id: number
+    channel: string | null
+    contact_id: string | null
+    type: string | null
+    sub_type: string | null
+    ref_code: string | null
+    support_detail: string | null
+    subject: string | null
+    question: string | null
+    answer: string | null
+    is_follow_up: boolean
+    follow_up_date: Date | null
+    status: string | null
+    priority: string | null
+    backlog_project_id: number | null
+    backlog_issue_id: number | null
+    created_at: Date
+    created_by: number | null
+    updated_at: Date | null
+    updated_by: number | null
+    deleted_at: Date | null
+    deleted_by: number | null
+    line_info: JsonValue | null
+    session: string | null
+    has_remind_follow_up: boolean
+    follow_up_end_date: Date | null
+    follow_up_frequency: string | null
+    customer_follow_up_date: Date | null
+    customer_follow_up_end_date: Date | null
+    customer_follow_up_frequency: string | null
+    customer_notify_message: boolean
+    assign_staff_id: number | null
+    note: string | null
+    onboarding: boolean
+    reference_key: string | null
+    reference_value: string | null
+    backlog_model: string | null
+    start_date: Date | null
+    due_date: Date | null
+    is_deleted: boolean
+    _count: CrmSupportCountAggregateOutputType | null
+    _avg: CrmSupportAvgAggregateOutputType | null
+    _sum: CrmSupportSumAggregateOutputType | null
+    _min: CrmSupportMinAggregateOutputType | null
+    _max: CrmSupportMaxAggregateOutputType | null
+  }
+
+  type GetCrmSupportGroupByPayload<T extends CrmSupportGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CrmSupportGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CrmSupportGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CrmSupportGroupByOutputType[P]>
+            : GetScalarType<T[P], CrmSupportGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CrmSupportSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    issue_date?: boolean
+    school_id?: boolean
+    channel?: boolean
+    contact_id?: boolean
+    type?: boolean
+    sub_type?: boolean
+    ref_code?: boolean
+    support_detail?: boolean
+    subject?: boolean
+    question?: boolean
+    answer?: boolean
+    is_follow_up?: boolean
+    follow_up_date?: boolean
+    status?: boolean
+    priority?: boolean
+    backlog_project_id?: boolean
+    backlog_issue_id?: boolean
+    created_at?: boolean
+    created_by?: boolean
+    updated_at?: boolean
+    updated_by?: boolean
+    deleted_at?: boolean
+    deleted_by?: boolean
+    line_info?: boolean
+    session?: boolean
+    has_remind_follow_up?: boolean
+    follow_up_end_date?: boolean
+    follow_up_frequency?: boolean
+    customer_follow_up_date?: boolean
+    customer_follow_up_end_date?: boolean
+    customer_follow_up_frequency?: boolean
+    customer_notify_message?: boolean
+    assign_staff_id?: boolean
+    note?: boolean
+    onboarding?: boolean
+    reference_key?: boolean
+    reference_value?: boolean
+    backlog_model?: boolean
+    start_date?: boolean
+    due_date?: boolean
+    is_deleted?: boolean
+    creator?: boolean | CrmSupport$creatorArgs<ExtArgs>
+    updater?: boolean | CrmSupport$updaterArgs<ExtArgs>
+  }, ExtArgs["result"]["crmSupport"]>
+
+  export type CrmSupportSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    issue_date?: boolean
+    school_id?: boolean
+    channel?: boolean
+    contact_id?: boolean
+    type?: boolean
+    sub_type?: boolean
+    ref_code?: boolean
+    support_detail?: boolean
+    subject?: boolean
+    question?: boolean
+    answer?: boolean
+    is_follow_up?: boolean
+    follow_up_date?: boolean
+    status?: boolean
+    priority?: boolean
+    backlog_project_id?: boolean
+    backlog_issue_id?: boolean
+    created_at?: boolean
+    created_by?: boolean
+    updated_at?: boolean
+    updated_by?: boolean
+    deleted_at?: boolean
+    deleted_by?: boolean
+    line_info?: boolean
+    session?: boolean
+    has_remind_follow_up?: boolean
+    follow_up_end_date?: boolean
+    follow_up_frequency?: boolean
+    customer_follow_up_date?: boolean
+    customer_follow_up_end_date?: boolean
+    customer_follow_up_frequency?: boolean
+    customer_notify_message?: boolean
+    assign_staff_id?: boolean
+    note?: boolean
+    onboarding?: boolean
+    reference_key?: boolean
+    reference_value?: boolean
+    backlog_model?: boolean
+    start_date?: boolean
+    due_date?: boolean
+    is_deleted?: boolean
+    creator?: boolean | CrmSupport$creatorArgs<ExtArgs>
+    updater?: boolean | CrmSupport$updaterArgs<ExtArgs>
+  }, ExtArgs["result"]["crmSupport"]>
+
+  export type CrmSupportSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    issue_date?: boolean
+    school_id?: boolean
+    channel?: boolean
+    contact_id?: boolean
+    type?: boolean
+    sub_type?: boolean
+    ref_code?: boolean
+    support_detail?: boolean
+    subject?: boolean
+    question?: boolean
+    answer?: boolean
+    is_follow_up?: boolean
+    follow_up_date?: boolean
+    status?: boolean
+    priority?: boolean
+    backlog_project_id?: boolean
+    backlog_issue_id?: boolean
+    created_at?: boolean
+    created_by?: boolean
+    updated_at?: boolean
+    updated_by?: boolean
+    deleted_at?: boolean
+    deleted_by?: boolean
+    line_info?: boolean
+    session?: boolean
+    has_remind_follow_up?: boolean
+    follow_up_end_date?: boolean
+    follow_up_frequency?: boolean
+    customer_follow_up_date?: boolean
+    customer_follow_up_end_date?: boolean
+    customer_follow_up_frequency?: boolean
+    customer_notify_message?: boolean
+    assign_staff_id?: boolean
+    note?: boolean
+    onboarding?: boolean
+    reference_key?: boolean
+    reference_value?: boolean
+    backlog_model?: boolean
+    start_date?: boolean
+    due_date?: boolean
+    is_deleted?: boolean
+    creator?: boolean | CrmSupport$creatorArgs<ExtArgs>
+    updater?: boolean | CrmSupport$updaterArgs<ExtArgs>
+  }, ExtArgs["result"]["crmSupport"]>
+
+  export type CrmSupportSelectScalar = {
+    id?: boolean
+    issue_date?: boolean
+    school_id?: boolean
+    channel?: boolean
+    contact_id?: boolean
+    type?: boolean
+    sub_type?: boolean
+    ref_code?: boolean
+    support_detail?: boolean
+    subject?: boolean
+    question?: boolean
+    answer?: boolean
+    is_follow_up?: boolean
+    follow_up_date?: boolean
+    status?: boolean
+    priority?: boolean
+    backlog_project_id?: boolean
+    backlog_issue_id?: boolean
+    created_at?: boolean
+    created_by?: boolean
+    updated_at?: boolean
+    updated_by?: boolean
+    deleted_at?: boolean
+    deleted_by?: boolean
+    line_info?: boolean
+    session?: boolean
+    has_remind_follow_up?: boolean
+    follow_up_end_date?: boolean
+    follow_up_frequency?: boolean
+    customer_follow_up_date?: boolean
+    customer_follow_up_end_date?: boolean
+    customer_follow_up_frequency?: boolean
+    customer_notify_message?: boolean
+    assign_staff_id?: boolean
+    note?: boolean
+    onboarding?: boolean
+    reference_key?: boolean
+    reference_value?: boolean
+    backlog_model?: boolean
+    start_date?: boolean
+    due_date?: boolean
+    is_deleted?: boolean
+  }
+
+  export type CrmSupportOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "issue_date" | "school_id" | "channel" | "contact_id" | "type" | "sub_type" | "ref_code" | "support_detail" | "subject" | "question" | "answer" | "is_follow_up" | "follow_up_date" | "status" | "priority" | "backlog_project_id" | "backlog_issue_id" | "created_at" | "created_by" | "updated_at" | "updated_by" | "deleted_at" | "deleted_by" | "line_info" | "session" | "has_remind_follow_up" | "follow_up_end_date" | "follow_up_frequency" | "customer_follow_up_date" | "customer_follow_up_end_date" | "customer_follow_up_frequency" | "customer_notify_message" | "assign_staff_id" | "note" | "onboarding" | "reference_key" | "reference_value" | "backlog_model" | "start_date" | "due_date" | "is_deleted", ExtArgs["result"]["crmSupport"]>
+  export type CrmSupportInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    creator?: boolean | CrmSupport$creatorArgs<ExtArgs>
+    updater?: boolean | CrmSupport$updaterArgs<ExtArgs>
+  }
+  export type CrmSupportIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    creator?: boolean | CrmSupport$creatorArgs<ExtArgs>
+    updater?: boolean | CrmSupport$updaterArgs<ExtArgs>
+  }
+  export type CrmSupportIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    creator?: boolean | CrmSupport$creatorArgs<ExtArgs>
+    updater?: boolean | CrmSupport$updaterArgs<ExtArgs>
+  }
+
+  export type $CrmSupportPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CrmSupport"
+    objects: {
+      creator: Prisma.$UserPayload<ExtArgs> | null
+      updater: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      issue_date: Date
+      school_id: number
+      channel: string | null
+      contact_id: string | null
+      type: string | null
+      sub_type: string | null
+      ref_code: string | null
+      support_detail: string | null
+      subject: string | null
+      question: string | null
+      answer: string | null
+      is_follow_up: boolean
+      follow_up_date: Date | null
+      status: string | null
+      priority: string | null
+      backlog_project_id: number | null
+      backlog_issue_id: number | null
+      created_at: Date
+      created_by: number | null
+      updated_at: Date | null
+      updated_by: number | null
+      deleted_at: Date | null
+      deleted_by: number | null
+      line_info: Prisma.JsonValue | null
+      session: string | null
+      has_remind_follow_up: boolean
+      follow_up_end_date: Date | null
+      follow_up_frequency: string | null
+      customer_follow_up_date: Date | null
+      customer_follow_up_end_date: Date | null
+      customer_follow_up_frequency: string | null
+      customer_notify_message: boolean
+      assign_staff_id: number | null
+      note: string | null
+      onboarding: boolean
+      reference_key: string | null
+      reference_value: string | null
+      backlog_model: string | null
+      start_date: Date | null
+      due_date: Date | null
+      is_deleted: boolean
+    }, ExtArgs["result"]["crmSupport"]>
+    composites: {}
+  }
+
+  type CrmSupportGetPayload<S extends boolean | null | undefined | CrmSupportDefaultArgs> = $Result.GetResult<Prisma.$CrmSupportPayload, S>
+
+  type CrmSupportCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CrmSupportFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CrmSupportCountAggregateInputType | true
+    }
+
+  export interface CrmSupportDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CrmSupport'], meta: { name: 'CrmSupport' } }
+    /**
+     * Find zero or one CrmSupport that matches the filter.
+     * @param {CrmSupportFindUniqueArgs} args - Arguments to find a CrmSupport
+     * @example
+     * // Get one CrmSupport
+     * const crmSupport = await prisma.crmSupport.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CrmSupportFindUniqueArgs>(args: SelectSubset<T, CrmSupportFindUniqueArgs<ExtArgs>>): Prisma__CrmSupportClient<$Result.GetResult<Prisma.$CrmSupportPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CrmSupport that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CrmSupportFindUniqueOrThrowArgs} args - Arguments to find a CrmSupport
+     * @example
+     * // Get one CrmSupport
+     * const crmSupport = await prisma.crmSupport.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CrmSupportFindUniqueOrThrowArgs>(args: SelectSubset<T, CrmSupportFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CrmSupportClient<$Result.GetResult<Prisma.$CrmSupportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CrmSupport that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CrmSupportFindFirstArgs} args - Arguments to find a CrmSupport
+     * @example
+     * // Get one CrmSupport
+     * const crmSupport = await prisma.crmSupport.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CrmSupportFindFirstArgs>(args?: SelectSubset<T, CrmSupportFindFirstArgs<ExtArgs>>): Prisma__CrmSupportClient<$Result.GetResult<Prisma.$CrmSupportPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CrmSupport that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CrmSupportFindFirstOrThrowArgs} args - Arguments to find a CrmSupport
+     * @example
+     * // Get one CrmSupport
+     * const crmSupport = await prisma.crmSupport.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CrmSupportFindFirstOrThrowArgs>(args?: SelectSubset<T, CrmSupportFindFirstOrThrowArgs<ExtArgs>>): Prisma__CrmSupportClient<$Result.GetResult<Prisma.$CrmSupportPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CrmSupports that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CrmSupportFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CrmSupports
+     * const crmSupports = await prisma.crmSupport.findMany()
+     * 
+     * // Get first 10 CrmSupports
+     * const crmSupports = await prisma.crmSupport.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const crmSupportWithIdOnly = await prisma.crmSupport.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CrmSupportFindManyArgs>(args?: SelectSubset<T, CrmSupportFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CrmSupportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CrmSupport.
+     * @param {CrmSupportCreateArgs} args - Arguments to create a CrmSupport.
+     * @example
+     * // Create one CrmSupport
+     * const CrmSupport = await prisma.crmSupport.create({
+     *   data: {
+     *     // ... data to create a CrmSupport
+     *   }
+     * })
+     * 
+     */
+    create<T extends CrmSupportCreateArgs>(args: SelectSubset<T, CrmSupportCreateArgs<ExtArgs>>): Prisma__CrmSupportClient<$Result.GetResult<Prisma.$CrmSupportPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CrmSupports.
+     * @param {CrmSupportCreateManyArgs} args - Arguments to create many CrmSupports.
+     * @example
+     * // Create many CrmSupports
+     * const crmSupport = await prisma.crmSupport.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CrmSupportCreateManyArgs>(args?: SelectSubset<T, CrmSupportCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CrmSupports and returns the data saved in the database.
+     * @param {CrmSupportCreateManyAndReturnArgs} args - Arguments to create many CrmSupports.
+     * @example
+     * // Create many CrmSupports
+     * const crmSupport = await prisma.crmSupport.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CrmSupports and only return the `id`
+     * const crmSupportWithIdOnly = await prisma.crmSupport.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CrmSupportCreateManyAndReturnArgs>(args?: SelectSubset<T, CrmSupportCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CrmSupportPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CrmSupport.
+     * @param {CrmSupportDeleteArgs} args - Arguments to delete one CrmSupport.
+     * @example
+     * // Delete one CrmSupport
+     * const CrmSupport = await prisma.crmSupport.delete({
+     *   where: {
+     *     // ... filter to delete one CrmSupport
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CrmSupportDeleteArgs>(args: SelectSubset<T, CrmSupportDeleteArgs<ExtArgs>>): Prisma__CrmSupportClient<$Result.GetResult<Prisma.$CrmSupportPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CrmSupport.
+     * @param {CrmSupportUpdateArgs} args - Arguments to update one CrmSupport.
+     * @example
+     * // Update one CrmSupport
+     * const crmSupport = await prisma.crmSupport.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CrmSupportUpdateArgs>(args: SelectSubset<T, CrmSupportUpdateArgs<ExtArgs>>): Prisma__CrmSupportClient<$Result.GetResult<Prisma.$CrmSupportPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CrmSupports.
+     * @param {CrmSupportDeleteManyArgs} args - Arguments to filter CrmSupports to delete.
+     * @example
+     * // Delete a few CrmSupports
+     * const { count } = await prisma.crmSupport.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CrmSupportDeleteManyArgs>(args?: SelectSubset<T, CrmSupportDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CrmSupports.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CrmSupportUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CrmSupports
+     * const crmSupport = await prisma.crmSupport.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CrmSupportUpdateManyArgs>(args: SelectSubset<T, CrmSupportUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CrmSupports and returns the data updated in the database.
+     * @param {CrmSupportUpdateManyAndReturnArgs} args - Arguments to update many CrmSupports.
+     * @example
+     * // Update many CrmSupports
+     * const crmSupport = await prisma.crmSupport.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CrmSupports and only return the `id`
+     * const crmSupportWithIdOnly = await prisma.crmSupport.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CrmSupportUpdateManyAndReturnArgs>(args: SelectSubset<T, CrmSupportUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CrmSupportPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CrmSupport.
+     * @param {CrmSupportUpsertArgs} args - Arguments to update or create a CrmSupport.
+     * @example
+     * // Update or create a CrmSupport
+     * const crmSupport = await prisma.crmSupport.upsert({
+     *   create: {
+     *     // ... data to create a CrmSupport
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CrmSupport we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CrmSupportUpsertArgs>(args: SelectSubset<T, CrmSupportUpsertArgs<ExtArgs>>): Prisma__CrmSupportClient<$Result.GetResult<Prisma.$CrmSupportPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CrmSupports.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CrmSupportCountArgs} args - Arguments to filter CrmSupports to count.
+     * @example
+     * // Count the number of CrmSupports
+     * const count = await prisma.crmSupport.count({
+     *   where: {
+     *     // ... the filter for the CrmSupports we want to count
+     *   }
+     * })
+    **/
+    count<T extends CrmSupportCountArgs>(
+      args?: Subset<T, CrmSupportCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CrmSupportCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CrmSupport.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CrmSupportAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CrmSupportAggregateArgs>(args: Subset<T, CrmSupportAggregateArgs>): Prisma.PrismaPromise<GetCrmSupportAggregateType<T>>
+
+    /**
+     * Group by CrmSupport.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CrmSupportGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CrmSupportGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CrmSupportGroupByArgs['orderBy'] }
+        : { orderBy?: CrmSupportGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CrmSupportGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCrmSupportGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CrmSupport model
+   */
+  readonly fields: CrmSupportFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CrmSupport.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CrmSupportClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    creator<T extends CrmSupport$creatorArgs<ExtArgs> = {}>(args?: Subset<T, CrmSupport$creatorArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    updater<T extends CrmSupport$updaterArgs<ExtArgs> = {}>(args?: Subset<T, CrmSupport$updaterArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CrmSupport model
+   */
+  interface CrmSupportFieldRefs {
+    readonly id: FieldRef<"CrmSupport", 'Int'>
+    readonly issue_date: FieldRef<"CrmSupport", 'DateTime'>
+    readonly school_id: FieldRef<"CrmSupport", 'Int'>
+    readonly channel: FieldRef<"CrmSupport", 'String'>
+    readonly contact_id: FieldRef<"CrmSupport", 'String'>
+    readonly type: FieldRef<"CrmSupport", 'String'>
+    readonly sub_type: FieldRef<"CrmSupport", 'String'>
+    readonly ref_code: FieldRef<"CrmSupport", 'String'>
+    readonly support_detail: FieldRef<"CrmSupport", 'String'>
+    readonly subject: FieldRef<"CrmSupport", 'String'>
+    readonly question: FieldRef<"CrmSupport", 'String'>
+    readonly answer: FieldRef<"CrmSupport", 'String'>
+    readonly is_follow_up: FieldRef<"CrmSupport", 'Boolean'>
+    readonly follow_up_date: FieldRef<"CrmSupport", 'DateTime'>
+    readonly status: FieldRef<"CrmSupport", 'String'>
+    readonly priority: FieldRef<"CrmSupport", 'String'>
+    readonly backlog_project_id: FieldRef<"CrmSupport", 'Int'>
+    readonly backlog_issue_id: FieldRef<"CrmSupport", 'Int'>
+    readonly created_at: FieldRef<"CrmSupport", 'DateTime'>
+    readonly created_by: FieldRef<"CrmSupport", 'Int'>
+    readonly updated_at: FieldRef<"CrmSupport", 'DateTime'>
+    readonly updated_by: FieldRef<"CrmSupport", 'Int'>
+    readonly deleted_at: FieldRef<"CrmSupport", 'DateTime'>
+    readonly deleted_by: FieldRef<"CrmSupport", 'Int'>
+    readonly line_info: FieldRef<"CrmSupport", 'Json'>
+    readonly session: FieldRef<"CrmSupport", 'String'>
+    readonly has_remind_follow_up: FieldRef<"CrmSupport", 'Boolean'>
+    readonly follow_up_end_date: FieldRef<"CrmSupport", 'DateTime'>
+    readonly follow_up_frequency: FieldRef<"CrmSupport", 'String'>
+    readonly customer_follow_up_date: FieldRef<"CrmSupport", 'DateTime'>
+    readonly customer_follow_up_end_date: FieldRef<"CrmSupport", 'DateTime'>
+    readonly customer_follow_up_frequency: FieldRef<"CrmSupport", 'String'>
+    readonly customer_notify_message: FieldRef<"CrmSupport", 'Boolean'>
+    readonly assign_staff_id: FieldRef<"CrmSupport", 'Int'>
+    readonly note: FieldRef<"CrmSupport", 'String'>
+    readonly onboarding: FieldRef<"CrmSupport", 'Boolean'>
+    readonly reference_key: FieldRef<"CrmSupport", 'String'>
+    readonly reference_value: FieldRef<"CrmSupport", 'String'>
+    readonly backlog_model: FieldRef<"CrmSupport", 'String'>
+    readonly start_date: FieldRef<"CrmSupport", 'DateTime'>
+    readonly due_date: FieldRef<"CrmSupport", 'DateTime'>
+    readonly is_deleted: FieldRef<"CrmSupport", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CrmSupport findUnique
+   */
+  export type CrmSupportFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupport
+     */
+    select?: CrmSupportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupport
+     */
+    omit?: CrmSupportOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportInclude<ExtArgs> | null
+    /**
+     * Filter, which CrmSupport to fetch.
+     */
+    where: CrmSupportWhereUniqueInput
+  }
+
+  /**
+   * CrmSupport findUniqueOrThrow
+   */
+  export type CrmSupportFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupport
+     */
+    select?: CrmSupportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupport
+     */
+    omit?: CrmSupportOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportInclude<ExtArgs> | null
+    /**
+     * Filter, which CrmSupport to fetch.
+     */
+    where: CrmSupportWhereUniqueInput
+  }
+
+  /**
+   * CrmSupport findFirst
+   */
+  export type CrmSupportFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupport
+     */
+    select?: CrmSupportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupport
+     */
+    omit?: CrmSupportOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportInclude<ExtArgs> | null
+    /**
+     * Filter, which CrmSupport to fetch.
+     */
+    where?: CrmSupportWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CrmSupports to fetch.
+     */
+    orderBy?: CrmSupportOrderByWithRelationInput | CrmSupportOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CrmSupports.
+     */
+    cursor?: CrmSupportWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CrmSupports from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CrmSupports.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CrmSupports.
+     */
+    distinct?: CrmSupportScalarFieldEnum | CrmSupportScalarFieldEnum[]
+  }
+
+  /**
+   * CrmSupport findFirstOrThrow
+   */
+  export type CrmSupportFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupport
+     */
+    select?: CrmSupportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupport
+     */
+    omit?: CrmSupportOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportInclude<ExtArgs> | null
+    /**
+     * Filter, which CrmSupport to fetch.
+     */
+    where?: CrmSupportWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CrmSupports to fetch.
+     */
+    orderBy?: CrmSupportOrderByWithRelationInput | CrmSupportOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CrmSupports.
+     */
+    cursor?: CrmSupportWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CrmSupports from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CrmSupports.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CrmSupports.
+     */
+    distinct?: CrmSupportScalarFieldEnum | CrmSupportScalarFieldEnum[]
+  }
+
+  /**
+   * CrmSupport findMany
+   */
+  export type CrmSupportFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupport
+     */
+    select?: CrmSupportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupport
+     */
+    omit?: CrmSupportOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportInclude<ExtArgs> | null
+    /**
+     * Filter, which CrmSupports to fetch.
+     */
+    where?: CrmSupportWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CrmSupports to fetch.
+     */
+    orderBy?: CrmSupportOrderByWithRelationInput | CrmSupportOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CrmSupports.
+     */
+    cursor?: CrmSupportWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CrmSupports from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CrmSupports.
+     */
+    skip?: number
+    distinct?: CrmSupportScalarFieldEnum | CrmSupportScalarFieldEnum[]
+  }
+
+  /**
+   * CrmSupport create
+   */
+  export type CrmSupportCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupport
+     */
+    select?: CrmSupportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupport
+     */
+    omit?: CrmSupportOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CrmSupport.
+     */
+    data: XOR<CrmSupportCreateInput, CrmSupportUncheckedCreateInput>
+  }
+
+  /**
+   * CrmSupport createMany
+   */
+  export type CrmSupportCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CrmSupports.
+     */
+    data: CrmSupportCreateManyInput | CrmSupportCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CrmSupport createManyAndReturn
+   */
+  export type CrmSupportCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupport
+     */
+    select?: CrmSupportSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupport
+     */
+    omit?: CrmSupportOmit<ExtArgs> | null
+    /**
+     * The data used to create many CrmSupports.
+     */
+    data: CrmSupportCreateManyInput | CrmSupportCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CrmSupport update
+   */
+  export type CrmSupportUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupport
+     */
+    select?: CrmSupportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupport
+     */
+    omit?: CrmSupportOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CrmSupport.
+     */
+    data: XOR<CrmSupportUpdateInput, CrmSupportUncheckedUpdateInput>
+    /**
+     * Choose, which CrmSupport to update.
+     */
+    where: CrmSupportWhereUniqueInput
+  }
+
+  /**
+   * CrmSupport updateMany
+   */
+  export type CrmSupportUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CrmSupports.
+     */
+    data: XOR<CrmSupportUpdateManyMutationInput, CrmSupportUncheckedUpdateManyInput>
+    /**
+     * Filter which CrmSupports to update
+     */
+    where?: CrmSupportWhereInput
+    /**
+     * Limit how many CrmSupports to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CrmSupport updateManyAndReturn
+   */
+  export type CrmSupportUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupport
+     */
+    select?: CrmSupportSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupport
+     */
+    omit?: CrmSupportOmit<ExtArgs> | null
+    /**
+     * The data used to update CrmSupports.
+     */
+    data: XOR<CrmSupportUpdateManyMutationInput, CrmSupportUncheckedUpdateManyInput>
+    /**
+     * Filter which CrmSupports to update
+     */
+    where?: CrmSupportWhereInput
+    /**
+     * Limit how many CrmSupports to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CrmSupport upsert
+   */
+  export type CrmSupportUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupport
+     */
+    select?: CrmSupportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupport
+     */
+    omit?: CrmSupportOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CrmSupport to update in case it exists.
+     */
+    where: CrmSupportWhereUniqueInput
+    /**
+     * In case the CrmSupport found by the `where` argument doesn't exist, create a new CrmSupport with this data.
+     */
+    create: XOR<CrmSupportCreateInput, CrmSupportUncheckedCreateInput>
+    /**
+     * In case the CrmSupport was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CrmSupportUpdateInput, CrmSupportUncheckedUpdateInput>
+  }
+
+  /**
+   * CrmSupport delete
+   */
+  export type CrmSupportDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupport
+     */
+    select?: CrmSupportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupport
+     */
+    omit?: CrmSupportOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportInclude<ExtArgs> | null
+    /**
+     * Filter which CrmSupport to delete.
+     */
+    where: CrmSupportWhereUniqueInput
+  }
+
+  /**
+   * CrmSupport deleteMany
+   */
+  export type CrmSupportDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CrmSupports to delete
+     */
+    where?: CrmSupportWhereInput
+    /**
+     * Limit how many CrmSupports to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CrmSupport.creator
+   */
+  export type CrmSupport$creatorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * CrmSupport.updater
+   */
+  export type CrmSupport$updaterArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * CrmSupport without action
+   */
+  export type CrmSupportDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CrmSupport
+     */
+    select?: CrmSupportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CrmSupport
+     */
+    omit?: CrmSupportOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CrmSupportInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -22165,6 +23973,54 @@ export namespace Prisma {
   };
 
   export type ApiLogScalarFieldEnum = (typeof ApiLogScalarFieldEnum)[keyof typeof ApiLogScalarFieldEnum]
+
+
+  export const CrmSupportScalarFieldEnum: {
+    id: 'id',
+    issue_date: 'issue_date',
+    school_id: 'school_id',
+    channel: 'channel',
+    contact_id: 'contact_id',
+    type: 'type',
+    sub_type: 'sub_type',
+    ref_code: 'ref_code',
+    support_detail: 'support_detail',
+    subject: 'subject',
+    question: 'question',
+    answer: 'answer',
+    is_follow_up: 'is_follow_up',
+    follow_up_date: 'follow_up_date',
+    status: 'status',
+    priority: 'priority',
+    backlog_project_id: 'backlog_project_id',
+    backlog_issue_id: 'backlog_issue_id',
+    created_at: 'created_at',
+    created_by: 'created_by',
+    updated_at: 'updated_at',
+    updated_by: 'updated_by',
+    deleted_at: 'deleted_at',
+    deleted_by: 'deleted_by',
+    line_info: 'line_info',
+    session: 'session',
+    has_remind_follow_up: 'has_remind_follow_up',
+    follow_up_end_date: 'follow_up_end_date',
+    follow_up_frequency: 'follow_up_frequency',
+    customer_follow_up_date: 'customer_follow_up_date',
+    customer_follow_up_end_date: 'customer_follow_up_end_date',
+    customer_follow_up_frequency: 'customer_follow_up_frequency',
+    customer_notify_message: 'customer_notify_message',
+    assign_staff_id: 'assign_staff_id',
+    note: 'note',
+    onboarding: 'onboarding',
+    reference_key: 'reference_key',
+    reference_value: 'reference_value',
+    backlog_model: 'backlog_model',
+    start_date: 'start_date',
+    due_date: 'due_date',
+    is_deleted: 'is_deleted'
+  };
+
+  export type CrmSupportScalarFieldEnum = (typeof CrmSupportScalarFieldEnum)[keyof typeof CrmSupportScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -22511,6 +24367,8 @@ export namespace Prisma {
     gender?: StringNullableFilter<"User"> | string | null
     overtime_created?: OvertimeListRelationFilter
     overtime_requests?: OvertimeListRelationFilter
+    crm_created?: CrmSupportListRelationFilter
+    crm_updated?: CrmSupportListRelationFilter
     department?: XOR<DepartmentNullableScalarRelationFilter, DepartmentWhereInput> | null
     position_ref?: XOR<PositionNullableScalarRelationFilter, PositionWhereInput> | null
     role?: XOR<RoleNullableScalarRelationFilter, RoleWhereInput> | null
@@ -22550,6 +24408,8 @@ export namespace Prisma {
     gender?: SortOrderInput | SortOrder
     overtime_created?: OvertimeOrderByRelationAggregateInput
     overtime_requests?: OvertimeOrderByRelationAggregateInput
+    crm_created?: CrmSupportOrderByRelationAggregateInput
+    crm_updated?: CrmSupportOrderByRelationAggregateInput
     department?: DepartmentOrderByWithRelationInput
     position_ref?: PositionOrderByWithRelationInput
     role?: RoleOrderByWithRelationInput
@@ -22592,6 +24452,8 @@ export namespace Prisma {
     gender?: StringNullableFilter<"User"> | string | null
     overtime_created?: OvertimeListRelationFilter
     overtime_requests?: OvertimeListRelationFilter
+    crm_created?: CrmSupportListRelationFilter
+    crm_updated?: CrmSupportListRelationFilter
     department?: XOR<DepartmentNullableScalarRelationFilter, DepartmentWhereInput> | null
     position_ref?: XOR<PositionNullableScalarRelationFilter, PositionWhereInput> | null
     role?: XOR<RoleNullableScalarRelationFilter, RoleWhereInput> | null
@@ -23761,6 +25623,251 @@ export namespace Prisma {
     is_archived?: BoolWithAggregatesFilter<"ApiLog"> | boolean
   }
 
+  export type CrmSupportWhereInput = {
+    AND?: CrmSupportWhereInput | CrmSupportWhereInput[]
+    OR?: CrmSupportWhereInput[]
+    NOT?: CrmSupportWhereInput | CrmSupportWhereInput[]
+    id?: IntFilter<"CrmSupport"> | number
+    issue_date?: DateTimeFilter<"CrmSupport"> | Date | string
+    school_id?: IntFilter<"CrmSupport"> | number
+    channel?: StringNullableFilter<"CrmSupport"> | string | null
+    contact_id?: StringNullableFilter<"CrmSupport"> | string | null
+    type?: StringNullableFilter<"CrmSupport"> | string | null
+    sub_type?: StringNullableFilter<"CrmSupport"> | string | null
+    ref_code?: StringNullableFilter<"CrmSupport"> | string | null
+    support_detail?: StringNullableFilter<"CrmSupport"> | string | null
+    subject?: StringNullableFilter<"CrmSupport"> | string | null
+    question?: StringNullableFilter<"CrmSupport"> | string | null
+    answer?: StringNullableFilter<"CrmSupport"> | string | null
+    is_follow_up?: BoolFilter<"CrmSupport"> | boolean
+    follow_up_date?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    status?: StringNullableFilter<"CrmSupport"> | string | null
+    priority?: StringNullableFilter<"CrmSupport"> | string | null
+    backlog_project_id?: IntNullableFilter<"CrmSupport"> | number | null
+    backlog_issue_id?: IntNullableFilter<"CrmSupport"> | number | null
+    created_at?: DateTimeFilter<"CrmSupport"> | Date | string
+    created_by?: IntNullableFilter<"CrmSupport"> | number | null
+    updated_at?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    updated_by?: IntNullableFilter<"CrmSupport"> | number | null
+    deleted_at?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    deleted_by?: IntNullableFilter<"CrmSupport"> | number | null
+    line_info?: JsonNullableFilter<"CrmSupport">
+    session?: StringNullableFilter<"CrmSupport"> | string | null
+    has_remind_follow_up?: BoolFilter<"CrmSupport"> | boolean
+    follow_up_end_date?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    follow_up_frequency?: StringNullableFilter<"CrmSupport"> | string | null
+    customer_follow_up_date?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    customer_follow_up_end_date?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    customer_follow_up_frequency?: StringNullableFilter<"CrmSupport"> | string | null
+    customer_notify_message?: BoolFilter<"CrmSupport"> | boolean
+    assign_staff_id?: IntNullableFilter<"CrmSupport"> | number | null
+    note?: StringNullableFilter<"CrmSupport"> | string | null
+    onboarding?: BoolFilter<"CrmSupport"> | boolean
+    reference_key?: StringNullableFilter<"CrmSupport"> | string | null
+    reference_value?: StringNullableFilter<"CrmSupport"> | string | null
+    backlog_model?: StringNullableFilter<"CrmSupport"> | string | null
+    start_date?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    due_date?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    is_deleted?: BoolFilter<"CrmSupport"> | boolean
+    creator?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    updater?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type CrmSupportOrderByWithRelationInput = {
+    id?: SortOrder
+    issue_date?: SortOrder
+    school_id?: SortOrder
+    channel?: SortOrderInput | SortOrder
+    contact_id?: SortOrderInput | SortOrder
+    type?: SortOrderInput | SortOrder
+    sub_type?: SortOrderInput | SortOrder
+    ref_code?: SortOrderInput | SortOrder
+    support_detail?: SortOrderInput | SortOrder
+    subject?: SortOrderInput | SortOrder
+    question?: SortOrderInput | SortOrder
+    answer?: SortOrderInput | SortOrder
+    is_follow_up?: SortOrder
+    follow_up_date?: SortOrderInput | SortOrder
+    status?: SortOrderInput | SortOrder
+    priority?: SortOrderInput | SortOrder
+    backlog_project_id?: SortOrderInput | SortOrder
+    backlog_issue_id?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    created_by?: SortOrderInput | SortOrder
+    updated_at?: SortOrderInput | SortOrder
+    updated_by?: SortOrderInput | SortOrder
+    deleted_at?: SortOrderInput | SortOrder
+    deleted_by?: SortOrderInput | SortOrder
+    line_info?: SortOrderInput | SortOrder
+    session?: SortOrderInput | SortOrder
+    has_remind_follow_up?: SortOrder
+    follow_up_end_date?: SortOrderInput | SortOrder
+    follow_up_frequency?: SortOrderInput | SortOrder
+    customer_follow_up_date?: SortOrderInput | SortOrder
+    customer_follow_up_end_date?: SortOrderInput | SortOrder
+    customer_follow_up_frequency?: SortOrderInput | SortOrder
+    customer_notify_message?: SortOrder
+    assign_staff_id?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    onboarding?: SortOrder
+    reference_key?: SortOrderInput | SortOrder
+    reference_value?: SortOrderInput | SortOrder
+    backlog_model?: SortOrderInput | SortOrder
+    start_date?: SortOrderInput | SortOrder
+    due_date?: SortOrderInput | SortOrder
+    is_deleted?: SortOrder
+    creator?: UserOrderByWithRelationInput
+    updater?: UserOrderByWithRelationInput
+  }
+
+  export type CrmSupportWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: CrmSupportWhereInput | CrmSupportWhereInput[]
+    OR?: CrmSupportWhereInput[]
+    NOT?: CrmSupportWhereInput | CrmSupportWhereInput[]
+    issue_date?: DateTimeFilter<"CrmSupport"> | Date | string
+    school_id?: IntFilter<"CrmSupport"> | number
+    channel?: StringNullableFilter<"CrmSupport"> | string | null
+    contact_id?: StringNullableFilter<"CrmSupport"> | string | null
+    type?: StringNullableFilter<"CrmSupport"> | string | null
+    sub_type?: StringNullableFilter<"CrmSupport"> | string | null
+    ref_code?: StringNullableFilter<"CrmSupport"> | string | null
+    support_detail?: StringNullableFilter<"CrmSupport"> | string | null
+    subject?: StringNullableFilter<"CrmSupport"> | string | null
+    question?: StringNullableFilter<"CrmSupport"> | string | null
+    answer?: StringNullableFilter<"CrmSupport"> | string | null
+    is_follow_up?: BoolFilter<"CrmSupport"> | boolean
+    follow_up_date?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    status?: StringNullableFilter<"CrmSupport"> | string | null
+    priority?: StringNullableFilter<"CrmSupport"> | string | null
+    backlog_project_id?: IntNullableFilter<"CrmSupport"> | number | null
+    backlog_issue_id?: IntNullableFilter<"CrmSupport"> | number | null
+    created_at?: DateTimeFilter<"CrmSupport"> | Date | string
+    created_by?: IntNullableFilter<"CrmSupport"> | number | null
+    updated_at?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    updated_by?: IntNullableFilter<"CrmSupport"> | number | null
+    deleted_at?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    deleted_by?: IntNullableFilter<"CrmSupport"> | number | null
+    line_info?: JsonNullableFilter<"CrmSupport">
+    session?: StringNullableFilter<"CrmSupport"> | string | null
+    has_remind_follow_up?: BoolFilter<"CrmSupport"> | boolean
+    follow_up_end_date?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    follow_up_frequency?: StringNullableFilter<"CrmSupport"> | string | null
+    customer_follow_up_date?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    customer_follow_up_end_date?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    customer_follow_up_frequency?: StringNullableFilter<"CrmSupport"> | string | null
+    customer_notify_message?: BoolFilter<"CrmSupport"> | boolean
+    assign_staff_id?: IntNullableFilter<"CrmSupport"> | number | null
+    note?: StringNullableFilter<"CrmSupport"> | string | null
+    onboarding?: BoolFilter<"CrmSupport"> | boolean
+    reference_key?: StringNullableFilter<"CrmSupport"> | string | null
+    reference_value?: StringNullableFilter<"CrmSupport"> | string | null
+    backlog_model?: StringNullableFilter<"CrmSupport"> | string | null
+    start_date?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    due_date?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    is_deleted?: BoolFilter<"CrmSupport"> | boolean
+    creator?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    updater?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id">
+
+  export type CrmSupportOrderByWithAggregationInput = {
+    id?: SortOrder
+    issue_date?: SortOrder
+    school_id?: SortOrder
+    channel?: SortOrderInput | SortOrder
+    contact_id?: SortOrderInput | SortOrder
+    type?: SortOrderInput | SortOrder
+    sub_type?: SortOrderInput | SortOrder
+    ref_code?: SortOrderInput | SortOrder
+    support_detail?: SortOrderInput | SortOrder
+    subject?: SortOrderInput | SortOrder
+    question?: SortOrderInput | SortOrder
+    answer?: SortOrderInput | SortOrder
+    is_follow_up?: SortOrder
+    follow_up_date?: SortOrderInput | SortOrder
+    status?: SortOrderInput | SortOrder
+    priority?: SortOrderInput | SortOrder
+    backlog_project_id?: SortOrderInput | SortOrder
+    backlog_issue_id?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    created_by?: SortOrderInput | SortOrder
+    updated_at?: SortOrderInput | SortOrder
+    updated_by?: SortOrderInput | SortOrder
+    deleted_at?: SortOrderInput | SortOrder
+    deleted_by?: SortOrderInput | SortOrder
+    line_info?: SortOrderInput | SortOrder
+    session?: SortOrderInput | SortOrder
+    has_remind_follow_up?: SortOrder
+    follow_up_end_date?: SortOrderInput | SortOrder
+    follow_up_frequency?: SortOrderInput | SortOrder
+    customer_follow_up_date?: SortOrderInput | SortOrder
+    customer_follow_up_end_date?: SortOrderInput | SortOrder
+    customer_follow_up_frequency?: SortOrderInput | SortOrder
+    customer_notify_message?: SortOrder
+    assign_staff_id?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    onboarding?: SortOrder
+    reference_key?: SortOrderInput | SortOrder
+    reference_value?: SortOrderInput | SortOrder
+    backlog_model?: SortOrderInput | SortOrder
+    start_date?: SortOrderInput | SortOrder
+    due_date?: SortOrderInput | SortOrder
+    is_deleted?: SortOrder
+    _count?: CrmSupportCountOrderByAggregateInput
+    _avg?: CrmSupportAvgOrderByAggregateInput
+    _max?: CrmSupportMaxOrderByAggregateInput
+    _min?: CrmSupportMinOrderByAggregateInput
+    _sum?: CrmSupportSumOrderByAggregateInput
+  }
+
+  export type CrmSupportScalarWhereWithAggregatesInput = {
+    AND?: CrmSupportScalarWhereWithAggregatesInput | CrmSupportScalarWhereWithAggregatesInput[]
+    OR?: CrmSupportScalarWhereWithAggregatesInput[]
+    NOT?: CrmSupportScalarWhereWithAggregatesInput | CrmSupportScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"CrmSupport"> | number
+    issue_date?: DateTimeWithAggregatesFilter<"CrmSupport"> | Date | string
+    school_id?: IntWithAggregatesFilter<"CrmSupport"> | number
+    channel?: StringNullableWithAggregatesFilter<"CrmSupport"> | string | null
+    contact_id?: StringNullableWithAggregatesFilter<"CrmSupport"> | string | null
+    type?: StringNullableWithAggregatesFilter<"CrmSupport"> | string | null
+    sub_type?: StringNullableWithAggregatesFilter<"CrmSupport"> | string | null
+    ref_code?: StringNullableWithAggregatesFilter<"CrmSupport"> | string | null
+    support_detail?: StringNullableWithAggregatesFilter<"CrmSupport"> | string | null
+    subject?: StringNullableWithAggregatesFilter<"CrmSupport"> | string | null
+    question?: StringNullableWithAggregatesFilter<"CrmSupport"> | string | null
+    answer?: StringNullableWithAggregatesFilter<"CrmSupport"> | string | null
+    is_follow_up?: BoolWithAggregatesFilter<"CrmSupport"> | boolean
+    follow_up_date?: DateTimeNullableWithAggregatesFilter<"CrmSupport"> | Date | string | null
+    status?: StringNullableWithAggregatesFilter<"CrmSupport"> | string | null
+    priority?: StringNullableWithAggregatesFilter<"CrmSupport"> | string | null
+    backlog_project_id?: IntNullableWithAggregatesFilter<"CrmSupport"> | number | null
+    backlog_issue_id?: IntNullableWithAggregatesFilter<"CrmSupport"> | number | null
+    created_at?: DateTimeWithAggregatesFilter<"CrmSupport"> | Date | string
+    created_by?: IntNullableWithAggregatesFilter<"CrmSupport"> | number | null
+    updated_at?: DateTimeNullableWithAggregatesFilter<"CrmSupport"> | Date | string | null
+    updated_by?: IntNullableWithAggregatesFilter<"CrmSupport"> | number | null
+    deleted_at?: DateTimeNullableWithAggregatesFilter<"CrmSupport"> | Date | string | null
+    deleted_by?: IntNullableWithAggregatesFilter<"CrmSupport"> | number | null
+    line_info?: JsonNullableWithAggregatesFilter<"CrmSupport">
+    session?: StringNullableWithAggregatesFilter<"CrmSupport"> | string | null
+    has_remind_follow_up?: BoolWithAggregatesFilter<"CrmSupport"> | boolean
+    follow_up_end_date?: DateTimeNullableWithAggregatesFilter<"CrmSupport"> | Date | string | null
+    follow_up_frequency?: StringNullableWithAggregatesFilter<"CrmSupport"> | string | null
+    customer_follow_up_date?: DateTimeNullableWithAggregatesFilter<"CrmSupport"> | Date | string | null
+    customer_follow_up_end_date?: DateTimeNullableWithAggregatesFilter<"CrmSupport"> | Date | string | null
+    customer_follow_up_frequency?: StringNullableWithAggregatesFilter<"CrmSupport"> | string | null
+    customer_notify_message?: BoolWithAggregatesFilter<"CrmSupport"> | boolean
+    assign_staff_id?: IntNullableWithAggregatesFilter<"CrmSupport"> | number | null
+    note?: StringNullableWithAggregatesFilter<"CrmSupport"> | string | null
+    onboarding?: BoolWithAggregatesFilter<"CrmSupport"> | boolean
+    reference_key?: StringNullableWithAggregatesFilter<"CrmSupport"> | string | null
+    reference_value?: StringNullableWithAggregatesFilter<"CrmSupport"> | string | null
+    backlog_model?: StringNullableWithAggregatesFilter<"CrmSupport"> | string | null
+    start_date?: DateTimeNullableWithAggregatesFilter<"CrmSupport"> | Date | string | null
+    due_date?: DateTimeNullableWithAggregatesFilter<"CrmSupport"> | Date | string | null
+    is_deleted?: BoolWithAggregatesFilter<"CrmSupport"> | boolean
+  }
+
   export type PositionCreateInput = {
     name_th: string
     name_en?: string | null
@@ -23940,6 +26047,8 @@ export namespace Prisma {
     gender?: string | null
     overtime_created?: OvertimeCreateNestedManyWithoutCreatorInput
     overtime_requests?: OvertimeCreateNestedManyWithoutRequesterInput
+    crm_created?: CrmSupportCreateNestedManyWithoutCreatorInput
+    crm_updated?: CrmSupportCreateNestedManyWithoutUpdaterInput
     department?: DepartmentCreateNestedOneWithoutUsersInput
     position_ref?: PositionCreateNestedOneWithoutUsersInput
     role?: RoleCreateNestedOneWithoutUsersInput
@@ -23979,6 +26088,8 @@ export namespace Prisma {
     gender?: string | null
     overtime_created?: OvertimeUncheckedCreateNestedManyWithoutCreatorInput
     overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
+    crm_created?: CrmSupportUncheckedCreateNestedManyWithoutCreatorInput
+    crm_updated?: CrmSupportUncheckedCreateNestedManyWithoutUpdaterInput
   }
 
   export type UserUpdateInput = {
@@ -24011,6 +26122,8 @@ export namespace Prisma {
     gender?: NullableStringFieldUpdateOperationsInput | string | null
     overtime_created?: OvertimeUpdateManyWithoutCreatorNestedInput
     overtime_requests?: OvertimeUpdateManyWithoutRequesterNestedInput
+    crm_created?: CrmSupportUpdateManyWithoutCreatorNestedInput
+    crm_updated?: CrmSupportUpdateManyWithoutUpdaterNestedInput
     department?: DepartmentUpdateOneWithoutUsersNestedInput
     position_ref?: PositionUpdateOneWithoutUsersNestedInput
     role?: RoleUpdateOneWithoutUsersNestedInput
@@ -24050,6 +26163,8 @@ export namespace Prisma {
     gender?: NullableStringFieldUpdateOperationsInput | string | null
     overtime_created?: OvertimeUncheckedUpdateManyWithoutCreatorNestedInput
     overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
+    crm_created?: CrmSupportUncheckedUpdateManyWithoutCreatorNestedInput
+    crm_updated?: CrmSupportUncheckedUpdateManyWithoutUpdaterNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -25314,6 +27429,316 @@ export namespace Prisma {
     is_archived?: BoolFieldUpdateOperationsInput | boolean
   }
 
+  export type CrmSupportCreateInput = {
+    issue_date: Date | string
+    school_id: number
+    channel?: string | null
+    contact_id?: string | null
+    type?: string | null
+    sub_type?: string | null
+    ref_code?: string | null
+    support_detail?: string | null
+    subject?: string | null
+    question?: string | null
+    answer?: string | null
+    is_follow_up?: boolean
+    follow_up_date?: Date | string | null
+    status?: string | null
+    priority?: string | null
+    backlog_project_id?: number | null
+    backlog_issue_id?: number | null
+    created_at?: Date | string
+    updated_at?: Date | string | null
+    deleted_at?: Date | string | null
+    deleted_by?: number | null
+    line_info?: NullableJsonNullValueInput | InputJsonValue
+    session?: string | null
+    has_remind_follow_up?: boolean
+    follow_up_end_date?: Date | string | null
+    follow_up_frequency?: string | null
+    customer_follow_up_date?: Date | string | null
+    customer_follow_up_end_date?: Date | string | null
+    customer_follow_up_frequency?: string | null
+    customer_notify_message?: boolean
+    assign_staff_id?: number | null
+    note?: string | null
+    onboarding?: boolean
+    reference_key?: string | null
+    reference_value?: string | null
+    backlog_model?: string | null
+    start_date?: Date | string | null
+    due_date?: Date | string | null
+    is_deleted?: boolean
+    creator?: UserCreateNestedOneWithoutCrm_createdInput
+    updater?: UserCreateNestedOneWithoutCrm_updatedInput
+  }
+
+  export type CrmSupportUncheckedCreateInput = {
+    id?: number
+    issue_date: Date | string
+    school_id: number
+    channel?: string | null
+    contact_id?: string | null
+    type?: string | null
+    sub_type?: string | null
+    ref_code?: string | null
+    support_detail?: string | null
+    subject?: string | null
+    question?: string | null
+    answer?: string | null
+    is_follow_up?: boolean
+    follow_up_date?: Date | string | null
+    status?: string | null
+    priority?: string | null
+    backlog_project_id?: number | null
+    backlog_issue_id?: number | null
+    created_at?: Date | string
+    created_by?: number | null
+    updated_at?: Date | string | null
+    updated_by?: number | null
+    deleted_at?: Date | string | null
+    deleted_by?: number | null
+    line_info?: NullableJsonNullValueInput | InputJsonValue
+    session?: string | null
+    has_remind_follow_up?: boolean
+    follow_up_end_date?: Date | string | null
+    follow_up_frequency?: string | null
+    customer_follow_up_date?: Date | string | null
+    customer_follow_up_end_date?: Date | string | null
+    customer_follow_up_frequency?: string | null
+    customer_notify_message?: boolean
+    assign_staff_id?: number | null
+    note?: string | null
+    onboarding?: boolean
+    reference_key?: string | null
+    reference_value?: string | null
+    backlog_model?: string | null
+    start_date?: Date | string | null
+    due_date?: Date | string | null
+    is_deleted?: boolean
+  }
+
+  export type CrmSupportUpdateInput = {
+    issue_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    school_id?: IntFieldUpdateOperationsInput | number
+    channel?: NullableStringFieldUpdateOperationsInput | string | null
+    contact_id?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
+    sub_type?: NullableStringFieldUpdateOperationsInput | string | null
+    ref_code?: NullableStringFieldUpdateOperationsInput | string | null
+    support_detail?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    question?: NullableStringFieldUpdateOperationsInput | string | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
+    is_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    priority?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_project_id?: NullableIntFieldUpdateOperationsInput | number | null
+    backlog_issue_id?: NullableIntFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_by?: NullableIntFieldUpdateOperationsInput | number | null
+    line_info?: NullableJsonNullValueInput | InputJsonValue
+    session?: NullableStringFieldUpdateOperationsInput | string | null
+    has_remind_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_notify_message?: BoolFieldUpdateOperationsInput | boolean
+    assign_staff_id?: NullableIntFieldUpdateOperationsInput | number | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    onboarding?: BoolFieldUpdateOperationsInput | boolean
+    reference_key?: NullableStringFieldUpdateOperationsInput | string | null
+    reference_value?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_model?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    due_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    creator?: UserUpdateOneWithoutCrm_createdNestedInput
+    updater?: UserUpdateOneWithoutCrm_updatedNestedInput
+  }
+
+  export type CrmSupportUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    issue_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    school_id?: IntFieldUpdateOperationsInput | number
+    channel?: NullableStringFieldUpdateOperationsInput | string | null
+    contact_id?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
+    sub_type?: NullableStringFieldUpdateOperationsInput | string | null
+    ref_code?: NullableStringFieldUpdateOperationsInput | string | null
+    support_detail?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    question?: NullableStringFieldUpdateOperationsInput | string | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
+    is_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    priority?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_project_id?: NullableIntFieldUpdateOperationsInput | number | null
+    backlog_issue_id?: NullableIntFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_by?: NullableIntFieldUpdateOperationsInput | number | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_by?: NullableIntFieldUpdateOperationsInput | number | null
+    line_info?: NullableJsonNullValueInput | InputJsonValue
+    session?: NullableStringFieldUpdateOperationsInput | string | null
+    has_remind_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_notify_message?: BoolFieldUpdateOperationsInput | boolean
+    assign_staff_id?: NullableIntFieldUpdateOperationsInput | number | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    onboarding?: BoolFieldUpdateOperationsInput | boolean
+    reference_key?: NullableStringFieldUpdateOperationsInput | string | null
+    reference_value?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_model?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    due_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type CrmSupportCreateManyInput = {
+    id?: number
+    issue_date: Date | string
+    school_id: number
+    channel?: string | null
+    contact_id?: string | null
+    type?: string | null
+    sub_type?: string | null
+    ref_code?: string | null
+    support_detail?: string | null
+    subject?: string | null
+    question?: string | null
+    answer?: string | null
+    is_follow_up?: boolean
+    follow_up_date?: Date | string | null
+    status?: string | null
+    priority?: string | null
+    backlog_project_id?: number | null
+    backlog_issue_id?: number | null
+    created_at?: Date | string
+    created_by?: number | null
+    updated_at?: Date | string | null
+    updated_by?: number | null
+    deleted_at?: Date | string | null
+    deleted_by?: number | null
+    line_info?: NullableJsonNullValueInput | InputJsonValue
+    session?: string | null
+    has_remind_follow_up?: boolean
+    follow_up_end_date?: Date | string | null
+    follow_up_frequency?: string | null
+    customer_follow_up_date?: Date | string | null
+    customer_follow_up_end_date?: Date | string | null
+    customer_follow_up_frequency?: string | null
+    customer_notify_message?: boolean
+    assign_staff_id?: number | null
+    note?: string | null
+    onboarding?: boolean
+    reference_key?: string | null
+    reference_value?: string | null
+    backlog_model?: string | null
+    start_date?: Date | string | null
+    due_date?: Date | string | null
+    is_deleted?: boolean
+  }
+
+  export type CrmSupportUpdateManyMutationInput = {
+    issue_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    school_id?: IntFieldUpdateOperationsInput | number
+    channel?: NullableStringFieldUpdateOperationsInput | string | null
+    contact_id?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
+    sub_type?: NullableStringFieldUpdateOperationsInput | string | null
+    ref_code?: NullableStringFieldUpdateOperationsInput | string | null
+    support_detail?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    question?: NullableStringFieldUpdateOperationsInput | string | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
+    is_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    priority?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_project_id?: NullableIntFieldUpdateOperationsInput | number | null
+    backlog_issue_id?: NullableIntFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_by?: NullableIntFieldUpdateOperationsInput | number | null
+    line_info?: NullableJsonNullValueInput | InputJsonValue
+    session?: NullableStringFieldUpdateOperationsInput | string | null
+    has_remind_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_notify_message?: BoolFieldUpdateOperationsInput | boolean
+    assign_staff_id?: NullableIntFieldUpdateOperationsInput | number | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    onboarding?: BoolFieldUpdateOperationsInput | boolean
+    reference_key?: NullableStringFieldUpdateOperationsInput | string | null
+    reference_value?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_model?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    due_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type CrmSupportUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    issue_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    school_id?: IntFieldUpdateOperationsInput | number
+    channel?: NullableStringFieldUpdateOperationsInput | string | null
+    contact_id?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
+    sub_type?: NullableStringFieldUpdateOperationsInput | string | null
+    ref_code?: NullableStringFieldUpdateOperationsInput | string | null
+    support_detail?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    question?: NullableStringFieldUpdateOperationsInput | string | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
+    is_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    priority?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_project_id?: NullableIntFieldUpdateOperationsInput | number | null
+    backlog_issue_id?: NullableIntFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_by?: NullableIntFieldUpdateOperationsInput | number | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_by?: NullableIntFieldUpdateOperationsInput | number | null
+    line_info?: NullableJsonNullValueInput | InputJsonValue
+    session?: NullableStringFieldUpdateOperationsInput | string | null
+    has_remind_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_notify_message?: BoolFieldUpdateOperationsInput | boolean
+    assign_staff_id?: NullableIntFieldUpdateOperationsInput | number | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    onboarding?: BoolFieldUpdateOperationsInput | boolean
+    reference_key?: NullableStringFieldUpdateOperationsInput | string | null
+    reference_value?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_model?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    due_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -25581,6 +28006,12 @@ export namespace Prisma {
     none?: OvertimeWhereInput
   }
 
+  export type CrmSupportListRelationFilter = {
+    every?: CrmSupportWhereInput
+    some?: CrmSupportWhereInput
+    none?: CrmSupportWhereInput
+  }
+
   export type DepartmentNullableScalarRelationFilter = {
     is?: DepartmentWhereInput | null
     isNot?: DepartmentWhereInput | null
@@ -25597,6 +28028,10 @@ export namespace Prisma {
   }
 
   export type OvertimeOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CrmSupportOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -26649,6 +29084,161 @@ export namespace Prisma {
     _max?: NestedBigIntFilter<$PrismaModel>
   }
 
+  export type CrmSupportCountOrderByAggregateInput = {
+    id?: SortOrder
+    issue_date?: SortOrder
+    school_id?: SortOrder
+    channel?: SortOrder
+    contact_id?: SortOrder
+    type?: SortOrder
+    sub_type?: SortOrder
+    ref_code?: SortOrder
+    support_detail?: SortOrder
+    subject?: SortOrder
+    question?: SortOrder
+    answer?: SortOrder
+    is_follow_up?: SortOrder
+    follow_up_date?: SortOrder
+    status?: SortOrder
+    priority?: SortOrder
+    backlog_project_id?: SortOrder
+    backlog_issue_id?: SortOrder
+    created_at?: SortOrder
+    created_by?: SortOrder
+    updated_at?: SortOrder
+    updated_by?: SortOrder
+    deleted_at?: SortOrder
+    deleted_by?: SortOrder
+    line_info?: SortOrder
+    session?: SortOrder
+    has_remind_follow_up?: SortOrder
+    follow_up_end_date?: SortOrder
+    follow_up_frequency?: SortOrder
+    customer_follow_up_date?: SortOrder
+    customer_follow_up_end_date?: SortOrder
+    customer_follow_up_frequency?: SortOrder
+    customer_notify_message?: SortOrder
+    assign_staff_id?: SortOrder
+    note?: SortOrder
+    onboarding?: SortOrder
+    reference_key?: SortOrder
+    reference_value?: SortOrder
+    backlog_model?: SortOrder
+    start_date?: SortOrder
+    due_date?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type CrmSupportAvgOrderByAggregateInput = {
+    id?: SortOrder
+    school_id?: SortOrder
+    backlog_project_id?: SortOrder
+    backlog_issue_id?: SortOrder
+    created_by?: SortOrder
+    updated_by?: SortOrder
+    deleted_by?: SortOrder
+    assign_staff_id?: SortOrder
+  }
+
+  export type CrmSupportMaxOrderByAggregateInput = {
+    id?: SortOrder
+    issue_date?: SortOrder
+    school_id?: SortOrder
+    channel?: SortOrder
+    contact_id?: SortOrder
+    type?: SortOrder
+    sub_type?: SortOrder
+    ref_code?: SortOrder
+    support_detail?: SortOrder
+    subject?: SortOrder
+    question?: SortOrder
+    answer?: SortOrder
+    is_follow_up?: SortOrder
+    follow_up_date?: SortOrder
+    status?: SortOrder
+    priority?: SortOrder
+    backlog_project_id?: SortOrder
+    backlog_issue_id?: SortOrder
+    created_at?: SortOrder
+    created_by?: SortOrder
+    updated_at?: SortOrder
+    updated_by?: SortOrder
+    deleted_at?: SortOrder
+    deleted_by?: SortOrder
+    session?: SortOrder
+    has_remind_follow_up?: SortOrder
+    follow_up_end_date?: SortOrder
+    follow_up_frequency?: SortOrder
+    customer_follow_up_date?: SortOrder
+    customer_follow_up_end_date?: SortOrder
+    customer_follow_up_frequency?: SortOrder
+    customer_notify_message?: SortOrder
+    assign_staff_id?: SortOrder
+    note?: SortOrder
+    onboarding?: SortOrder
+    reference_key?: SortOrder
+    reference_value?: SortOrder
+    backlog_model?: SortOrder
+    start_date?: SortOrder
+    due_date?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type CrmSupportMinOrderByAggregateInput = {
+    id?: SortOrder
+    issue_date?: SortOrder
+    school_id?: SortOrder
+    channel?: SortOrder
+    contact_id?: SortOrder
+    type?: SortOrder
+    sub_type?: SortOrder
+    ref_code?: SortOrder
+    support_detail?: SortOrder
+    subject?: SortOrder
+    question?: SortOrder
+    answer?: SortOrder
+    is_follow_up?: SortOrder
+    follow_up_date?: SortOrder
+    status?: SortOrder
+    priority?: SortOrder
+    backlog_project_id?: SortOrder
+    backlog_issue_id?: SortOrder
+    created_at?: SortOrder
+    created_by?: SortOrder
+    updated_at?: SortOrder
+    updated_by?: SortOrder
+    deleted_at?: SortOrder
+    deleted_by?: SortOrder
+    session?: SortOrder
+    has_remind_follow_up?: SortOrder
+    follow_up_end_date?: SortOrder
+    follow_up_frequency?: SortOrder
+    customer_follow_up_date?: SortOrder
+    customer_follow_up_end_date?: SortOrder
+    customer_follow_up_frequency?: SortOrder
+    customer_notify_message?: SortOrder
+    assign_staff_id?: SortOrder
+    note?: SortOrder
+    onboarding?: SortOrder
+    reference_key?: SortOrder
+    reference_value?: SortOrder
+    backlog_model?: SortOrder
+    start_date?: SortOrder
+    due_date?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type CrmSupportSumOrderByAggregateInput = {
+    id?: SortOrder
+    school_id?: SortOrder
+    backlog_project_id?: SortOrder
+    backlog_issue_id?: SortOrder
+    created_by?: SortOrder
+    updated_by?: SortOrder
+    deleted_by?: SortOrder
+    assign_staff_id?: SortOrder
+  }
+
   export type UserCreateNestedManyWithoutPosition_refInput = {
     create?: XOR<UserCreateWithoutPosition_refInput, UserUncheckedCreateWithoutPosition_refInput> | UserCreateWithoutPosition_refInput[] | UserUncheckedCreateWithoutPosition_refInput[]
     connectOrCreate?: UserCreateOrConnectWithoutPosition_refInput | UserCreateOrConnectWithoutPosition_refInput[]
@@ -26775,6 +29365,20 @@ export namespace Prisma {
     connect?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
   }
 
+  export type CrmSupportCreateNestedManyWithoutCreatorInput = {
+    create?: XOR<CrmSupportCreateWithoutCreatorInput, CrmSupportUncheckedCreateWithoutCreatorInput> | CrmSupportCreateWithoutCreatorInput[] | CrmSupportUncheckedCreateWithoutCreatorInput[]
+    connectOrCreate?: CrmSupportCreateOrConnectWithoutCreatorInput | CrmSupportCreateOrConnectWithoutCreatorInput[]
+    createMany?: CrmSupportCreateManyCreatorInputEnvelope
+    connect?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+  }
+
+  export type CrmSupportCreateNestedManyWithoutUpdaterInput = {
+    create?: XOR<CrmSupportCreateWithoutUpdaterInput, CrmSupportUncheckedCreateWithoutUpdaterInput> | CrmSupportCreateWithoutUpdaterInput[] | CrmSupportUncheckedCreateWithoutUpdaterInput[]
+    connectOrCreate?: CrmSupportCreateOrConnectWithoutUpdaterInput | CrmSupportCreateOrConnectWithoutUpdaterInput[]
+    createMany?: CrmSupportCreateManyUpdaterInputEnvelope
+    connect?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+  }
+
   export type DepartmentCreateNestedOneWithoutUsersInput = {
     create?: XOR<DepartmentCreateWithoutUsersInput, DepartmentUncheckedCreateWithoutUsersInput>
     connectOrCreate?: DepartmentCreateOrConnectWithoutUsersInput
@@ -26805,6 +29409,20 @@ export namespace Prisma {
     connectOrCreate?: OvertimeCreateOrConnectWithoutRequesterInput | OvertimeCreateOrConnectWithoutRequesterInput[]
     createMany?: OvertimeCreateManyRequesterInputEnvelope
     connect?: OvertimeWhereUniqueInput | OvertimeWhereUniqueInput[]
+  }
+
+  export type CrmSupportUncheckedCreateNestedManyWithoutCreatorInput = {
+    create?: XOR<CrmSupportCreateWithoutCreatorInput, CrmSupportUncheckedCreateWithoutCreatorInput> | CrmSupportCreateWithoutCreatorInput[] | CrmSupportUncheckedCreateWithoutCreatorInput[]
+    connectOrCreate?: CrmSupportCreateOrConnectWithoutCreatorInput | CrmSupportCreateOrConnectWithoutCreatorInput[]
+    createMany?: CrmSupportCreateManyCreatorInputEnvelope
+    connect?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+  }
+
+  export type CrmSupportUncheckedCreateNestedManyWithoutUpdaterInput = {
+    create?: XOR<CrmSupportCreateWithoutUpdaterInput, CrmSupportUncheckedCreateWithoutUpdaterInput> | CrmSupportCreateWithoutUpdaterInput[] | CrmSupportUncheckedCreateWithoutUpdaterInput[]
+    connectOrCreate?: CrmSupportCreateOrConnectWithoutUpdaterInput | CrmSupportCreateOrConnectWithoutUpdaterInput[]
+    createMany?: CrmSupportCreateManyUpdaterInputEnvelope
+    connect?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
   }
 
   export type NullableIntFieldUpdateOperationsInput = {
@@ -26841,6 +29459,34 @@ export namespace Prisma {
     update?: OvertimeUpdateWithWhereUniqueWithoutRequesterInput | OvertimeUpdateWithWhereUniqueWithoutRequesterInput[]
     updateMany?: OvertimeUpdateManyWithWhereWithoutRequesterInput | OvertimeUpdateManyWithWhereWithoutRequesterInput[]
     deleteMany?: OvertimeScalarWhereInput | OvertimeScalarWhereInput[]
+  }
+
+  export type CrmSupportUpdateManyWithoutCreatorNestedInput = {
+    create?: XOR<CrmSupportCreateWithoutCreatorInput, CrmSupportUncheckedCreateWithoutCreatorInput> | CrmSupportCreateWithoutCreatorInput[] | CrmSupportUncheckedCreateWithoutCreatorInput[]
+    connectOrCreate?: CrmSupportCreateOrConnectWithoutCreatorInput | CrmSupportCreateOrConnectWithoutCreatorInput[]
+    upsert?: CrmSupportUpsertWithWhereUniqueWithoutCreatorInput | CrmSupportUpsertWithWhereUniqueWithoutCreatorInput[]
+    createMany?: CrmSupportCreateManyCreatorInputEnvelope
+    set?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+    disconnect?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+    delete?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+    connect?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+    update?: CrmSupportUpdateWithWhereUniqueWithoutCreatorInput | CrmSupportUpdateWithWhereUniqueWithoutCreatorInput[]
+    updateMany?: CrmSupportUpdateManyWithWhereWithoutCreatorInput | CrmSupportUpdateManyWithWhereWithoutCreatorInput[]
+    deleteMany?: CrmSupportScalarWhereInput | CrmSupportScalarWhereInput[]
+  }
+
+  export type CrmSupportUpdateManyWithoutUpdaterNestedInput = {
+    create?: XOR<CrmSupportCreateWithoutUpdaterInput, CrmSupportUncheckedCreateWithoutUpdaterInput> | CrmSupportCreateWithoutUpdaterInput[] | CrmSupportUncheckedCreateWithoutUpdaterInput[]
+    connectOrCreate?: CrmSupportCreateOrConnectWithoutUpdaterInput | CrmSupportCreateOrConnectWithoutUpdaterInput[]
+    upsert?: CrmSupportUpsertWithWhereUniqueWithoutUpdaterInput | CrmSupportUpsertWithWhereUniqueWithoutUpdaterInput[]
+    createMany?: CrmSupportCreateManyUpdaterInputEnvelope
+    set?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+    disconnect?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+    delete?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+    connect?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+    update?: CrmSupportUpdateWithWhereUniqueWithoutUpdaterInput | CrmSupportUpdateWithWhereUniqueWithoutUpdaterInput[]
+    updateMany?: CrmSupportUpdateManyWithWhereWithoutUpdaterInput | CrmSupportUpdateManyWithWhereWithoutUpdaterInput[]
+    deleteMany?: CrmSupportScalarWhereInput | CrmSupportScalarWhereInput[]
   }
 
   export type DepartmentUpdateOneWithoutUsersNestedInput = {
@@ -26899,6 +29545,34 @@ export namespace Prisma {
     update?: OvertimeUpdateWithWhereUniqueWithoutRequesterInput | OvertimeUpdateWithWhereUniqueWithoutRequesterInput[]
     updateMany?: OvertimeUpdateManyWithWhereWithoutRequesterInput | OvertimeUpdateManyWithWhereWithoutRequesterInput[]
     deleteMany?: OvertimeScalarWhereInput | OvertimeScalarWhereInput[]
+  }
+
+  export type CrmSupportUncheckedUpdateManyWithoutCreatorNestedInput = {
+    create?: XOR<CrmSupportCreateWithoutCreatorInput, CrmSupportUncheckedCreateWithoutCreatorInput> | CrmSupportCreateWithoutCreatorInput[] | CrmSupportUncheckedCreateWithoutCreatorInput[]
+    connectOrCreate?: CrmSupportCreateOrConnectWithoutCreatorInput | CrmSupportCreateOrConnectWithoutCreatorInput[]
+    upsert?: CrmSupportUpsertWithWhereUniqueWithoutCreatorInput | CrmSupportUpsertWithWhereUniqueWithoutCreatorInput[]
+    createMany?: CrmSupportCreateManyCreatorInputEnvelope
+    set?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+    disconnect?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+    delete?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+    connect?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+    update?: CrmSupportUpdateWithWhereUniqueWithoutCreatorInput | CrmSupportUpdateWithWhereUniqueWithoutCreatorInput[]
+    updateMany?: CrmSupportUpdateManyWithWhereWithoutCreatorInput | CrmSupportUpdateManyWithWhereWithoutCreatorInput[]
+    deleteMany?: CrmSupportScalarWhereInput | CrmSupportScalarWhereInput[]
+  }
+
+  export type CrmSupportUncheckedUpdateManyWithoutUpdaterNestedInput = {
+    create?: XOR<CrmSupportCreateWithoutUpdaterInput, CrmSupportUncheckedCreateWithoutUpdaterInput> | CrmSupportCreateWithoutUpdaterInput[] | CrmSupportUncheckedCreateWithoutUpdaterInput[]
+    connectOrCreate?: CrmSupportCreateOrConnectWithoutUpdaterInput | CrmSupportCreateOrConnectWithoutUpdaterInput[]
+    upsert?: CrmSupportUpsertWithWhereUniqueWithoutUpdaterInput | CrmSupportUpsertWithWhereUniqueWithoutUpdaterInput[]
+    createMany?: CrmSupportCreateManyUpdaterInputEnvelope
+    set?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+    disconnect?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+    delete?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+    connect?: CrmSupportWhereUniqueInput | CrmSupportWhereUniqueInput[]
+    update?: CrmSupportUpdateWithWhereUniqueWithoutUpdaterInput | CrmSupportUpdateWithWhereUniqueWithoutUpdaterInput[]
+    updateMany?: CrmSupportUpdateManyWithWhereWithoutUpdaterInput | CrmSupportUpdateManyWithWhereWithoutUpdaterInput[]
+    deleteMany?: CrmSupportScalarWhereInput | CrmSupportScalarWhereInput[]
   }
 
   export type RolePermissionCreateNestedManyWithoutRoleInput = {
@@ -27627,6 +30301,38 @@ export namespace Prisma {
     divide?: bigint | number
   }
 
+  export type UserCreateNestedOneWithoutCrm_createdInput = {
+    create?: XOR<UserCreateWithoutCrm_createdInput, UserUncheckedCreateWithoutCrm_createdInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCrm_createdInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutCrm_updatedInput = {
+    create?: XOR<UserCreateWithoutCrm_updatedInput, UserUncheckedCreateWithoutCrm_updatedInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCrm_updatedInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneWithoutCrm_createdNestedInput = {
+    create?: XOR<UserCreateWithoutCrm_createdInput, UserUncheckedCreateWithoutCrm_createdInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCrm_createdInput
+    upsert?: UserUpsertWithoutCrm_createdInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCrm_createdInput, UserUpdateWithoutCrm_createdInput>, UserUncheckedUpdateWithoutCrm_createdInput>
+  }
+
+  export type UserUpdateOneWithoutCrm_updatedNestedInput = {
+    create?: XOR<UserCreateWithoutCrm_updatedInput, UserUncheckedCreateWithoutCrm_updatedInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCrm_updatedInput
+    upsert?: UserUpsertWithoutCrm_updatedInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCrm_updatedInput, UserUpdateWithoutCrm_updatedInput>, UserUncheckedUpdateWithoutCrm_updatedInput>
+  }
+
   export type NestedIntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -27979,6 +30685,8 @@ export namespace Prisma {
     gender?: string | null
     overtime_created?: OvertimeCreateNestedManyWithoutCreatorInput
     overtime_requests?: OvertimeCreateNestedManyWithoutRequesterInput
+    crm_created?: CrmSupportCreateNestedManyWithoutCreatorInput
+    crm_updated?: CrmSupportCreateNestedManyWithoutUpdaterInput
     department?: DepartmentCreateNestedOneWithoutUsersInput
     role?: RoleCreateNestedOneWithoutUsersInput
   }
@@ -28016,6 +30724,8 @@ export namespace Prisma {
     gender?: string | null
     overtime_created?: OvertimeUncheckedCreateNestedManyWithoutCreatorInput
     overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
+    crm_created?: CrmSupportUncheckedCreateNestedManyWithoutCreatorInput
+    crm_updated?: CrmSupportUncheckedCreateNestedManyWithoutUpdaterInput
   }
 
   export type UserCreateOrConnectWithoutPosition_refInput = {
@@ -28111,6 +30821,8 @@ export namespace Prisma {
     gender?: string | null
     overtime_created?: OvertimeCreateNestedManyWithoutCreatorInput
     overtime_requests?: OvertimeCreateNestedManyWithoutRequesterInput
+    crm_created?: CrmSupportCreateNestedManyWithoutCreatorInput
+    crm_updated?: CrmSupportCreateNestedManyWithoutUpdaterInput
     position_ref?: PositionCreateNestedOneWithoutUsersInput
     role?: RoleCreateNestedOneWithoutUsersInput
   }
@@ -28148,6 +30860,8 @@ export namespace Prisma {
     gender?: string | null
     overtime_created?: OvertimeUncheckedCreateNestedManyWithoutCreatorInput
     overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
+    crm_created?: CrmSupportUncheckedCreateNestedManyWithoutCreatorInput
+    crm_updated?: CrmSupportUncheckedCreateNestedManyWithoutUpdaterInput
   }
 
   export type UserCreateOrConnectWithoutDepartmentInput = {
@@ -28239,6 +30953,200 @@ export namespace Prisma {
 
   export type OvertimeCreateManyRequesterInputEnvelope = {
     data: OvertimeCreateManyRequesterInput | OvertimeCreateManyRequesterInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CrmSupportCreateWithoutCreatorInput = {
+    issue_date: Date | string
+    school_id: number
+    channel?: string | null
+    contact_id?: string | null
+    type?: string | null
+    sub_type?: string | null
+    ref_code?: string | null
+    support_detail?: string | null
+    subject?: string | null
+    question?: string | null
+    answer?: string | null
+    is_follow_up?: boolean
+    follow_up_date?: Date | string | null
+    status?: string | null
+    priority?: string | null
+    backlog_project_id?: number | null
+    backlog_issue_id?: number | null
+    created_at?: Date | string
+    updated_at?: Date | string | null
+    deleted_at?: Date | string | null
+    deleted_by?: number | null
+    line_info?: NullableJsonNullValueInput | InputJsonValue
+    session?: string | null
+    has_remind_follow_up?: boolean
+    follow_up_end_date?: Date | string | null
+    follow_up_frequency?: string | null
+    customer_follow_up_date?: Date | string | null
+    customer_follow_up_end_date?: Date | string | null
+    customer_follow_up_frequency?: string | null
+    customer_notify_message?: boolean
+    assign_staff_id?: number | null
+    note?: string | null
+    onboarding?: boolean
+    reference_key?: string | null
+    reference_value?: string | null
+    backlog_model?: string | null
+    start_date?: Date | string | null
+    due_date?: Date | string | null
+    is_deleted?: boolean
+    updater?: UserCreateNestedOneWithoutCrm_updatedInput
+  }
+
+  export type CrmSupportUncheckedCreateWithoutCreatorInput = {
+    id?: number
+    issue_date: Date | string
+    school_id: number
+    channel?: string | null
+    contact_id?: string | null
+    type?: string | null
+    sub_type?: string | null
+    ref_code?: string | null
+    support_detail?: string | null
+    subject?: string | null
+    question?: string | null
+    answer?: string | null
+    is_follow_up?: boolean
+    follow_up_date?: Date | string | null
+    status?: string | null
+    priority?: string | null
+    backlog_project_id?: number | null
+    backlog_issue_id?: number | null
+    created_at?: Date | string
+    updated_at?: Date | string | null
+    updated_by?: number | null
+    deleted_at?: Date | string | null
+    deleted_by?: number | null
+    line_info?: NullableJsonNullValueInput | InputJsonValue
+    session?: string | null
+    has_remind_follow_up?: boolean
+    follow_up_end_date?: Date | string | null
+    follow_up_frequency?: string | null
+    customer_follow_up_date?: Date | string | null
+    customer_follow_up_end_date?: Date | string | null
+    customer_follow_up_frequency?: string | null
+    customer_notify_message?: boolean
+    assign_staff_id?: number | null
+    note?: string | null
+    onboarding?: boolean
+    reference_key?: string | null
+    reference_value?: string | null
+    backlog_model?: string | null
+    start_date?: Date | string | null
+    due_date?: Date | string | null
+    is_deleted?: boolean
+  }
+
+  export type CrmSupportCreateOrConnectWithoutCreatorInput = {
+    where: CrmSupportWhereUniqueInput
+    create: XOR<CrmSupportCreateWithoutCreatorInput, CrmSupportUncheckedCreateWithoutCreatorInput>
+  }
+
+  export type CrmSupportCreateManyCreatorInputEnvelope = {
+    data: CrmSupportCreateManyCreatorInput | CrmSupportCreateManyCreatorInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CrmSupportCreateWithoutUpdaterInput = {
+    issue_date: Date | string
+    school_id: number
+    channel?: string | null
+    contact_id?: string | null
+    type?: string | null
+    sub_type?: string | null
+    ref_code?: string | null
+    support_detail?: string | null
+    subject?: string | null
+    question?: string | null
+    answer?: string | null
+    is_follow_up?: boolean
+    follow_up_date?: Date | string | null
+    status?: string | null
+    priority?: string | null
+    backlog_project_id?: number | null
+    backlog_issue_id?: number | null
+    created_at?: Date | string
+    updated_at?: Date | string | null
+    deleted_at?: Date | string | null
+    deleted_by?: number | null
+    line_info?: NullableJsonNullValueInput | InputJsonValue
+    session?: string | null
+    has_remind_follow_up?: boolean
+    follow_up_end_date?: Date | string | null
+    follow_up_frequency?: string | null
+    customer_follow_up_date?: Date | string | null
+    customer_follow_up_end_date?: Date | string | null
+    customer_follow_up_frequency?: string | null
+    customer_notify_message?: boolean
+    assign_staff_id?: number | null
+    note?: string | null
+    onboarding?: boolean
+    reference_key?: string | null
+    reference_value?: string | null
+    backlog_model?: string | null
+    start_date?: Date | string | null
+    due_date?: Date | string | null
+    is_deleted?: boolean
+    creator?: UserCreateNestedOneWithoutCrm_createdInput
+  }
+
+  export type CrmSupportUncheckedCreateWithoutUpdaterInput = {
+    id?: number
+    issue_date: Date | string
+    school_id: number
+    channel?: string | null
+    contact_id?: string | null
+    type?: string | null
+    sub_type?: string | null
+    ref_code?: string | null
+    support_detail?: string | null
+    subject?: string | null
+    question?: string | null
+    answer?: string | null
+    is_follow_up?: boolean
+    follow_up_date?: Date | string | null
+    status?: string | null
+    priority?: string | null
+    backlog_project_id?: number | null
+    backlog_issue_id?: number | null
+    created_at?: Date | string
+    created_by?: number | null
+    updated_at?: Date | string | null
+    deleted_at?: Date | string | null
+    deleted_by?: number | null
+    line_info?: NullableJsonNullValueInput | InputJsonValue
+    session?: string | null
+    has_remind_follow_up?: boolean
+    follow_up_end_date?: Date | string | null
+    follow_up_frequency?: string | null
+    customer_follow_up_date?: Date | string | null
+    customer_follow_up_end_date?: Date | string | null
+    customer_follow_up_frequency?: string | null
+    customer_notify_message?: boolean
+    assign_staff_id?: number | null
+    note?: string | null
+    onboarding?: boolean
+    reference_key?: string | null
+    reference_value?: string | null
+    backlog_model?: string | null
+    start_date?: Date | string | null
+    due_date?: Date | string | null
+    is_deleted?: boolean
+  }
+
+  export type CrmSupportCreateOrConnectWithoutUpdaterInput = {
+    where: CrmSupportWhereUniqueInput
+    create: XOR<CrmSupportCreateWithoutUpdaterInput, CrmSupportUncheckedCreateWithoutUpdaterInput>
+  }
+
+  export type CrmSupportCreateManyUpdaterInputEnvelope = {
+    data: CrmSupportCreateManyUpdaterInput | CrmSupportCreateManyUpdaterInput[]
     skipDuplicates?: boolean
   }
 
@@ -28363,6 +31271,86 @@ export namespace Prisma {
   export type OvertimeUpdateManyWithWhereWithoutRequesterInput = {
     where: OvertimeScalarWhereInput
     data: XOR<OvertimeUpdateManyMutationInput, OvertimeUncheckedUpdateManyWithoutRequesterInput>
+  }
+
+  export type CrmSupportUpsertWithWhereUniqueWithoutCreatorInput = {
+    where: CrmSupportWhereUniqueInput
+    update: XOR<CrmSupportUpdateWithoutCreatorInput, CrmSupportUncheckedUpdateWithoutCreatorInput>
+    create: XOR<CrmSupportCreateWithoutCreatorInput, CrmSupportUncheckedCreateWithoutCreatorInput>
+  }
+
+  export type CrmSupportUpdateWithWhereUniqueWithoutCreatorInput = {
+    where: CrmSupportWhereUniqueInput
+    data: XOR<CrmSupportUpdateWithoutCreatorInput, CrmSupportUncheckedUpdateWithoutCreatorInput>
+  }
+
+  export type CrmSupportUpdateManyWithWhereWithoutCreatorInput = {
+    where: CrmSupportScalarWhereInput
+    data: XOR<CrmSupportUpdateManyMutationInput, CrmSupportUncheckedUpdateManyWithoutCreatorInput>
+  }
+
+  export type CrmSupportScalarWhereInput = {
+    AND?: CrmSupportScalarWhereInput | CrmSupportScalarWhereInput[]
+    OR?: CrmSupportScalarWhereInput[]
+    NOT?: CrmSupportScalarWhereInput | CrmSupportScalarWhereInput[]
+    id?: IntFilter<"CrmSupport"> | number
+    issue_date?: DateTimeFilter<"CrmSupport"> | Date | string
+    school_id?: IntFilter<"CrmSupport"> | number
+    channel?: StringNullableFilter<"CrmSupport"> | string | null
+    contact_id?: StringNullableFilter<"CrmSupport"> | string | null
+    type?: StringNullableFilter<"CrmSupport"> | string | null
+    sub_type?: StringNullableFilter<"CrmSupport"> | string | null
+    ref_code?: StringNullableFilter<"CrmSupport"> | string | null
+    support_detail?: StringNullableFilter<"CrmSupport"> | string | null
+    subject?: StringNullableFilter<"CrmSupport"> | string | null
+    question?: StringNullableFilter<"CrmSupport"> | string | null
+    answer?: StringNullableFilter<"CrmSupport"> | string | null
+    is_follow_up?: BoolFilter<"CrmSupport"> | boolean
+    follow_up_date?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    status?: StringNullableFilter<"CrmSupport"> | string | null
+    priority?: StringNullableFilter<"CrmSupport"> | string | null
+    backlog_project_id?: IntNullableFilter<"CrmSupport"> | number | null
+    backlog_issue_id?: IntNullableFilter<"CrmSupport"> | number | null
+    created_at?: DateTimeFilter<"CrmSupport"> | Date | string
+    created_by?: IntNullableFilter<"CrmSupport"> | number | null
+    updated_at?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    updated_by?: IntNullableFilter<"CrmSupport"> | number | null
+    deleted_at?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    deleted_by?: IntNullableFilter<"CrmSupport"> | number | null
+    line_info?: JsonNullableFilter<"CrmSupport">
+    session?: StringNullableFilter<"CrmSupport"> | string | null
+    has_remind_follow_up?: BoolFilter<"CrmSupport"> | boolean
+    follow_up_end_date?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    follow_up_frequency?: StringNullableFilter<"CrmSupport"> | string | null
+    customer_follow_up_date?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    customer_follow_up_end_date?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    customer_follow_up_frequency?: StringNullableFilter<"CrmSupport"> | string | null
+    customer_notify_message?: BoolFilter<"CrmSupport"> | boolean
+    assign_staff_id?: IntNullableFilter<"CrmSupport"> | number | null
+    note?: StringNullableFilter<"CrmSupport"> | string | null
+    onboarding?: BoolFilter<"CrmSupport"> | boolean
+    reference_key?: StringNullableFilter<"CrmSupport"> | string | null
+    reference_value?: StringNullableFilter<"CrmSupport"> | string | null
+    backlog_model?: StringNullableFilter<"CrmSupport"> | string | null
+    start_date?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    due_date?: DateTimeNullableFilter<"CrmSupport"> | Date | string | null
+    is_deleted?: BoolFilter<"CrmSupport"> | boolean
+  }
+
+  export type CrmSupportUpsertWithWhereUniqueWithoutUpdaterInput = {
+    where: CrmSupportWhereUniqueInput
+    update: XOR<CrmSupportUpdateWithoutUpdaterInput, CrmSupportUncheckedUpdateWithoutUpdaterInput>
+    create: XOR<CrmSupportCreateWithoutUpdaterInput, CrmSupportUncheckedCreateWithoutUpdaterInput>
+  }
+
+  export type CrmSupportUpdateWithWhereUniqueWithoutUpdaterInput = {
+    where: CrmSupportWhereUniqueInput
+    data: XOR<CrmSupportUpdateWithoutUpdaterInput, CrmSupportUncheckedUpdateWithoutUpdaterInput>
+  }
+
+  export type CrmSupportUpdateManyWithWhereWithoutUpdaterInput = {
+    where: CrmSupportScalarWhereInput
+    data: XOR<CrmSupportUpdateManyMutationInput, CrmSupportUncheckedUpdateManyWithoutUpdaterInput>
   }
 
   export type DepartmentUpsertWithoutUsersInput = {
@@ -28511,6 +31499,8 @@ export namespace Prisma {
     gender?: string | null
     overtime_created?: OvertimeCreateNestedManyWithoutCreatorInput
     overtime_requests?: OvertimeCreateNestedManyWithoutRequesterInput
+    crm_created?: CrmSupportCreateNestedManyWithoutCreatorInput
+    crm_updated?: CrmSupportCreateNestedManyWithoutUpdaterInput
     department?: DepartmentCreateNestedOneWithoutUsersInput
     position_ref?: PositionCreateNestedOneWithoutUsersInput
   }
@@ -28548,6 +31538,8 @@ export namespace Prisma {
     gender?: string | null
     overtime_created?: OvertimeUncheckedCreateNestedManyWithoutCreatorInput
     overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
+    crm_created?: CrmSupportUncheckedCreateNestedManyWithoutCreatorInput
+    crm_updated?: CrmSupportUncheckedCreateNestedManyWithoutUpdaterInput
   }
 
   export type UserCreateOrConnectWithoutRoleInput = {
@@ -30082,6 +33074,8 @@ export namespace Prisma {
     birth_date?: Date | string | null
     gender?: string | null
     overtime_requests?: OvertimeCreateNestedManyWithoutRequesterInput
+    crm_created?: CrmSupportCreateNestedManyWithoutCreatorInput
+    crm_updated?: CrmSupportCreateNestedManyWithoutUpdaterInput
     department?: DepartmentCreateNestedOneWithoutUsersInput
     position_ref?: PositionCreateNestedOneWithoutUsersInput
     role?: RoleCreateNestedOneWithoutUsersInput
@@ -30120,6 +33114,8 @@ export namespace Prisma {
     birth_date?: Date | string | null
     gender?: string | null
     overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
+    crm_created?: CrmSupportUncheckedCreateNestedManyWithoutCreatorInput
+    crm_updated?: CrmSupportUncheckedCreateNestedManyWithoutUpdaterInput
   }
 
   export type UserCreateOrConnectWithoutOvertime_createdInput = {
@@ -30156,6 +33152,8 @@ export namespace Prisma {
     birth_date?: Date | string | null
     gender?: string | null
     overtime_created?: OvertimeCreateNestedManyWithoutCreatorInput
+    crm_created?: CrmSupportCreateNestedManyWithoutCreatorInput
+    crm_updated?: CrmSupportCreateNestedManyWithoutUpdaterInput
     department?: DepartmentCreateNestedOneWithoutUsersInput
     position_ref?: PositionCreateNestedOneWithoutUsersInput
     role?: RoleCreateNestedOneWithoutUsersInput
@@ -30194,6 +33192,8 @@ export namespace Prisma {
     birth_date?: Date | string | null
     gender?: string | null
     overtime_created?: OvertimeUncheckedCreateNestedManyWithoutCreatorInput
+    crm_created?: CrmSupportUncheckedCreateNestedManyWithoutCreatorInput
+    crm_updated?: CrmSupportUncheckedCreateNestedManyWithoutUpdaterInput
   }
 
   export type UserCreateOrConnectWithoutOvertime_requestsInput = {
@@ -30272,6 +33272,8 @@ export namespace Prisma {
     birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
     overtime_requests?: OvertimeUpdateManyWithoutRequesterNestedInput
+    crm_created?: CrmSupportUpdateManyWithoutCreatorNestedInput
+    crm_updated?: CrmSupportUpdateManyWithoutUpdaterNestedInput
     department?: DepartmentUpdateOneWithoutUsersNestedInput
     position_ref?: PositionUpdateOneWithoutUsersNestedInput
     role?: RoleUpdateOneWithoutUsersNestedInput
@@ -30310,6 +33312,8 @@ export namespace Prisma {
     birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
     overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
+    crm_created?: CrmSupportUncheckedUpdateManyWithoutCreatorNestedInput
+    crm_updated?: CrmSupportUncheckedUpdateManyWithoutUpdaterNestedInput
   }
 
   export type UserUpsertWithoutOvertime_requestsInput = {
@@ -30352,6 +33356,8 @@ export namespace Prisma {
     birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
     overtime_created?: OvertimeUpdateManyWithoutCreatorNestedInput
+    crm_created?: CrmSupportUpdateManyWithoutCreatorNestedInput
+    crm_updated?: CrmSupportUpdateManyWithoutUpdaterNestedInput
     department?: DepartmentUpdateOneWithoutUsersNestedInput
     position_ref?: PositionUpdateOneWithoutUsersNestedInput
     role?: RoleUpdateOneWithoutUsersNestedInput
@@ -30390,6 +33396,8 @@ export namespace Prisma {
     birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
     overtime_created?: OvertimeUncheckedUpdateManyWithoutCreatorNestedInput
+    crm_created?: CrmSupportUncheckedUpdateManyWithoutCreatorNestedInput
+    crm_updated?: CrmSupportUncheckedUpdateManyWithoutUpdaterNestedInput
   }
 
   export type OvertimeCreateWithoutDescriptionsInput = {
@@ -30452,6 +33460,330 @@ export namespace Prisma {
     requesterId?: NullableIntFieldUpdateOperationsInput | number | null
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type UserCreateWithoutCrm_createdInput = {
+    username: string
+    password: string
+    admin_id: number
+    employee_code?: string | null
+    firstname_th?: string | null
+    lastname_th?: string | null
+    firstname_en?: string | null
+    lastname_en?: string | null
+    nickname?: string | null
+    status?: string
+    email?: string | null
+    phone?: string | null
+    profile_image_path?: string | null
+    joined_date?: Date | string | null
+    resigned_date?: Date | string | null
+    employment_type?: string | null
+    last_login?: Date | string | null
+    failed_login_attempts?: number
+    refresh_token?: string | null
+    is_deleted?: boolean
+    created_at?: Date | string
+    created_by?: number | null
+    updated_at?: Date | string
+    updated_by?: number | null
+    deleted_at?: Date | string | null
+    birth_date?: Date | string | null
+    gender?: string | null
+    overtime_created?: OvertimeCreateNestedManyWithoutCreatorInput
+    overtime_requests?: OvertimeCreateNestedManyWithoutRequesterInput
+    crm_updated?: CrmSupportCreateNestedManyWithoutUpdaterInput
+    department?: DepartmentCreateNestedOneWithoutUsersInput
+    position_ref?: PositionCreateNestedOneWithoutUsersInput
+    role?: RoleCreateNestedOneWithoutUsersInput
+  }
+
+  export type UserUncheckedCreateWithoutCrm_createdInput = {
+    id?: number
+    username: string
+    password: string
+    admin_id: number
+    employee_code?: string | null
+    firstname_th?: string | null
+    lastname_th?: string | null
+    firstname_en?: string | null
+    lastname_en?: string | null
+    nickname?: string | null
+    position_id?: number | null
+    department_id?: number | null
+    status?: string
+    email?: string | null
+    phone?: string | null
+    profile_image_path?: string | null
+    joined_date?: Date | string | null
+    resigned_date?: Date | string | null
+    employment_type?: string | null
+    last_login?: Date | string | null
+    failed_login_attempts?: number
+    refresh_token?: string | null
+    role_id?: number | null
+    is_deleted?: boolean
+    created_at?: Date | string
+    created_by?: number | null
+    updated_at?: Date | string
+    updated_by?: number | null
+    deleted_at?: Date | string | null
+    birth_date?: Date | string | null
+    gender?: string | null
+    overtime_created?: OvertimeUncheckedCreateNestedManyWithoutCreatorInput
+    overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
+    crm_updated?: CrmSupportUncheckedCreateNestedManyWithoutUpdaterInput
+  }
+
+  export type UserCreateOrConnectWithoutCrm_createdInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutCrm_createdInput, UserUncheckedCreateWithoutCrm_createdInput>
+  }
+
+  export type UserCreateWithoutCrm_updatedInput = {
+    username: string
+    password: string
+    admin_id: number
+    employee_code?: string | null
+    firstname_th?: string | null
+    lastname_th?: string | null
+    firstname_en?: string | null
+    lastname_en?: string | null
+    nickname?: string | null
+    status?: string
+    email?: string | null
+    phone?: string | null
+    profile_image_path?: string | null
+    joined_date?: Date | string | null
+    resigned_date?: Date | string | null
+    employment_type?: string | null
+    last_login?: Date | string | null
+    failed_login_attempts?: number
+    refresh_token?: string | null
+    is_deleted?: boolean
+    created_at?: Date | string
+    created_by?: number | null
+    updated_at?: Date | string
+    updated_by?: number | null
+    deleted_at?: Date | string | null
+    birth_date?: Date | string | null
+    gender?: string | null
+    overtime_created?: OvertimeCreateNestedManyWithoutCreatorInput
+    overtime_requests?: OvertimeCreateNestedManyWithoutRequesterInput
+    crm_created?: CrmSupportCreateNestedManyWithoutCreatorInput
+    department?: DepartmentCreateNestedOneWithoutUsersInput
+    position_ref?: PositionCreateNestedOneWithoutUsersInput
+    role?: RoleCreateNestedOneWithoutUsersInput
+  }
+
+  export type UserUncheckedCreateWithoutCrm_updatedInput = {
+    id?: number
+    username: string
+    password: string
+    admin_id: number
+    employee_code?: string | null
+    firstname_th?: string | null
+    lastname_th?: string | null
+    firstname_en?: string | null
+    lastname_en?: string | null
+    nickname?: string | null
+    position_id?: number | null
+    department_id?: number | null
+    status?: string
+    email?: string | null
+    phone?: string | null
+    profile_image_path?: string | null
+    joined_date?: Date | string | null
+    resigned_date?: Date | string | null
+    employment_type?: string | null
+    last_login?: Date | string | null
+    failed_login_attempts?: number
+    refresh_token?: string | null
+    role_id?: number | null
+    is_deleted?: boolean
+    created_at?: Date | string
+    created_by?: number | null
+    updated_at?: Date | string
+    updated_by?: number | null
+    deleted_at?: Date | string | null
+    birth_date?: Date | string | null
+    gender?: string | null
+    overtime_created?: OvertimeUncheckedCreateNestedManyWithoutCreatorInput
+    overtime_requests?: OvertimeUncheckedCreateNestedManyWithoutRequesterInput
+    crm_created?: CrmSupportUncheckedCreateNestedManyWithoutCreatorInput
+  }
+
+  export type UserCreateOrConnectWithoutCrm_updatedInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutCrm_updatedInput, UserUncheckedCreateWithoutCrm_updatedInput>
+  }
+
+  export type UserUpsertWithoutCrm_createdInput = {
+    update: XOR<UserUpdateWithoutCrm_createdInput, UserUncheckedUpdateWithoutCrm_createdInput>
+    create: XOR<UserCreateWithoutCrm_createdInput, UserUncheckedCreateWithoutCrm_createdInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutCrm_createdInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutCrm_createdInput, UserUncheckedUpdateWithoutCrm_createdInput>
+  }
+
+  export type UserUpdateWithoutCrm_createdInput = {
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    admin_id?: IntFieldUpdateOperationsInput | number
+    employee_code?: NullableStringFieldUpdateOperationsInput | string | null
+    firstname_th?: NullableStringFieldUpdateOperationsInput | string | null
+    lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
+    firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
+    lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employment_type?: NullableStringFieldUpdateOperationsInput | string | null
+    last_login?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failed_login_attempts?: IntFieldUpdateOperationsInput | number
+    refresh_token?: NullableStringFieldUpdateOperationsInput | string | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_by?: NullableIntFieldUpdateOperationsInput | number | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    overtime_created?: OvertimeUpdateManyWithoutCreatorNestedInput
+    overtime_requests?: OvertimeUpdateManyWithoutRequesterNestedInput
+    crm_updated?: CrmSupportUpdateManyWithoutUpdaterNestedInput
+    department?: DepartmentUpdateOneWithoutUsersNestedInput
+    position_ref?: PositionUpdateOneWithoutUsersNestedInput
+    role?: RoleUpdateOneWithoutUsersNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutCrm_createdInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    admin_id?: IntFieldUpdateOperationsInput | number
+    employee_code?: NullableStringFieldUpdateOperationsInput | string | null
+    firstname_th?: NullableStringFieldUpdateOperationsInput | string | null
+    lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
+    firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
+    lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    position_id?: NullableIntFieldUpdateOperationsInput | number | null
+    department_id?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employment_type?: NullableStringFieldUpdateOperationsInput | string | null
+    last_login?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failed_login_attempts?: IntFieldUpdateOperationsInput | number
+    refresh_token?: NullableStringFieldUpdateOperationsInput | string | null
+    role_id?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_by?: NullableIntFieldUpdateOperationsInput | number | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    overtime_created?: OvertimeUncheckedUpdateManyWithoutCreatorNestedInput
+    overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
+    crm_updated?: CrmSupportUncheckedUpdateManyWithoutUpdaterNestedInput
+  }
+
+  export type UserUpsertWithoutCrm_updatedInput = {
+    update: XOR<UserUpdateWithoutCrm_updatedInput, UserUncheckedUpdateWithoutCrm_updatedInput>
+    create: XOR<UserCreateWithoutCrm_updatedInput, UserUncheckedCreateWithoutCrm_updatedInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutCrm_updatedInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutCrm_updatedInput, UserUncheckedUpdateWithoutCrm_updatedInput>
+  }
+
+  export type UserUpdateWithoutCrm_updatedInput = {
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    admin_id?: IntFieldUpdateOperationsInput | number
+    employee_code?: NullableStringFieldUpdateOperationsInput | string | null
+    firstname_th?: NullableStringFieldUpdateOperationsInput | string | null
+    lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
+    firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
+    lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employment_type?: NullableStringFieldUpdateOperationsInput | string | null
+    last_login?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failed_login_attempts?: IntFieldUpdateOperationsInput | number
+    refresh_token?: NullableStringFieldUpdateOperationsInput | string | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_by?: NullableIntFieldUpdateOperationsInput | number | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    overtime_created?: OvertimeUpdateManyWithoutCreatorNestedInput
+    overtime_requests?: OvertimeUpdateManyWithoutRequesterNestedInput
+    crm_created?: CrmSupportUpdateManyWithoutCreatorNestedInput
+    department?: DepartmentUpdateOneWithoutUsersNestedInput
+    position_ref?: PositionUpdateOneWithoutUsersNestedInput
+    role?: RoleUpdateOneWithoutUsersNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutCrm_updatedInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    admin_id?: IntFieldUpdateOperationsInput | number
+    employee_code?: NullableStringFieldUpdateOperationsInput | string | null
+    firstname_th?: NullableStringFieldUpdateOperationsInput | string | null
+    lastname_th?: NullableStringFieldUpdateOperationsInput | string | null
+    firstname_en?: NullableStringFieldUpdateOperationsInput | string | null
+    lastname_en?: NullableStringFieldUpdateOperationsInput | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    position_id?: NullableIntFieldUpdateOperationsInput | number | null
+    department_id?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employment_type?: NullableStringFieldUpdateOperationsInput | string | null
+    last_login?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failed_login_attempts?: IntFieldUpdateOperationsInput | number
+    refresh_token?: NullableStringFieldUpdateOperationsInput | string | null
+    role_id?: NullableIntFieldUpdateOperationsInput | number | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_by?: NullableIntFieldUpdateOperationsInput | number | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    birth_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    overtime_created?: OvertimeUncheckedUpdateManyWithoutCreatorNestedInput
+    overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
+    crm_created?: CrmSupportUncheckedUpdateManyWithoutCreatorNestedInput
   }
 
   export type UserCreateManyPosition_refInput = {
@@ -30517,6 +33849,8 @@ export namespace Prisma {
     gender?: NullableStringFieldUpdateOperationsInput | string | null
     overtime_created?: OvertimeUpdateManyWithoutCreatorNestedInput
     overtime_requests?: OvertimeUpdateManyWithoutRequesterNestedInput
+    crm_created?: CrmSupportUpdateManyWithoutCreatorNestedInput
+    crm_updated?: CrmSupportUpdateManyWithoutUpdaterNestedInput
     department?: DepartmentUpdateOneWithoutUsersNestedInput
     role?: RoleUpdateOneWithoutUsersNestedInput
   }
@@ -30554,6 +33888,8 @@ export namespace Prisma {
     gender?: NullableStringFieldUpdateOperationsInput | string | null
     overtime_created?: OvertimeUncheckedUpdateManyWithoutCreatorNestedInput
     overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
+    crm_created?: CrmSupportUncheckedUpdateManyWithoutCreatorNestedInput
+    crm_updated?: CrmSupportUncheckedUpdateManyWithoutUpdaterNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutPosition_refInput = {
@@ -30652,6 +33988,8 @@ export namespace Prisma {
     gender?: NullableStringFieldUpdateOperationsInput | string | null
     overtime_created?: OvertimeUpdateManyWithoutCreatorNestedInput
     overtime_requests?: OvertimeUpdateManyWithoutRequesterNestedInput
+    crm_created?: CrmSupportUpdateManyWithoutCreatorNestedInput
+    crm_updated?: CrmSupportUpdateManyWithoutUpdaterNestedInput
     position_ref?: PositionUpdateOneWithoutUsersNestedInput
     role?: RoleUpdateOneWithoutUsersNestedInput
   }
@@ -30689,6 +34027,8 @@ export namespace Prisma {
     gender?: NullableStringFieldUpdateOperationsInput | string | null
     overtime_created?: OvertimeUncheckedUpdateManyWithoutCreatorNestedInput
     overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
+    crm_created?: CrmSupportUncheckedUpdateManyWithoutCreatorNestedInput
+    crm_updated?: CrmSupportUncheckedUpdateManyWithoutUpdaterNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutDepartmentInput = {
@@ -30744,6 +34084,94 @@ export namespace Prisma {
     isDeleted?: boolean
     createdBy?: number | null
     updatedBy?: number | null
+  }
+
+  export type CrmSupportCreateManyCreatorInput = {
+    id?: number
+    issue_date: Date | string
+    school_id: number
+    channel?: string | null
+    contact_id?: string | null
+    type?: string | null
+    sub_type?: string | null
+    ref_code?: string | null
+    support_detail?: string | null
+    subject?: string | null
+    question?: string | null
+    answer?: string | null
+    is_follow_up?: boolean
+    follow_up_date?: Date | string | null
+    status?: string | null
+    priority?: string | null
+    backlog_project_id?: number | null
+    backlog_issue_id?: number | null
+    created_at?: Date | string
+    updated_at?: Date | string | null
+    updated_by?: number | null
+    deleted_at?: Date | string | null
+    deleted_by?: number | null
+    line_info?: NullableJsonNullValueInput | InputJsonValue
+    session?: string | null
+    has_remind_follow_up?: boolean
+    follow_up_end_date?: Date | string | null
+    follow_up_frequency?: string | null
+    customer_follow_up_date?: Date | string | null
+    customer_follow_up_end_date?: Date | string | null
+    customer_follow_up_frequency?: string | null
+    customer_notify_message?: boolean
+    assign_staff_id?: number | null
+    note?: string | null
+    onboarding?: boolean
+    reference_key?: string | null
+    reference_value?: string | null
+    backlog_model?: string | null
+    start_date?: Date | string | null
+    due_date?: Date | string | null
+    is_deleted?: boolean
+  }
+
+  export type CrmSupportCreateManyUpdaterInput = {
+    id?: number
+    issue_date: Date | string
+    school_id: number
+    channel?: string | null
+    contact_id?: string | null
+    type?: string | null
+    sub_type?: string | null
+    ref_code?: string | null
+    support_detail?: string | null
+    subject?: string | null
+    question?: string | null
+    answer?: string | null
+    is_follow_up?: boolean
+    follow_up_date?: Date | string | null
+    status?: string | null
+    priority?: string | null
+    backlog_project_id?: number | null
+    backlog_issue_id?: number | null
+    created_at?: Date | string
+    created_by?: number | null
+    updated_at?: Date | string | null
+    deleted_at?: Date | string | null
+    deleted_by?: number | null
+    line_info?: NullableJsonNullValueInput | InputJsonValue
+    session?: string | null
+    has_remind_follow_up?: boolean
+    follow_up_end_date?: Date | string | null
+    follow_up_frequency?: string | null
+    customer_follow_up_date?: Date | string | null
+    customer_follow_up_end_date?: Date | string | null
+    customer_follow_up_frequency?: string | null
+    customer_notify_message?: boolean
+    assign_staff_id?: number | null
+    note?: string | null
+    onboarding?: boolean
+    reference_key?: string | null
+    reference_value?: string | null
+    backlog_model?: string | null
+    start_date?: Date | string | null
+    due_date?: Date | string | null
+    is_deleted?: boolean
   }
 
   export type OvertimeUpdateWithoutCreatorInput = {
@@ -30812,6 +34240,268 @@ export namespace Prisma {
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     createdBy?: NullableIntFieldUpdateOperationsInput | number | null
     updatedBy?: NullableIntFieldUpdateOperationsInput | number | null
+  }
+
+  export type CrmSupportUpdateWithoutCreatorInput = {
+    issue_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    school_id?: IntFieldUpdateOperationsInput | number
+    channel?: NullableStringFieldUpdateOperationsInput | string | null
+    contact_id?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
+    sub_type?: NullableStringFieldUpdateOperationsInput | string | null
+    ref_code?: NullableStringFieldUpdateOperationsInput | string | null
+    support_detail?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    question?: NullableStringFieldUpdateOperationsInput | string | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
+    is_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    priority?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_project_id?: NullableIntFieldUpdateOperationsInput | number | null
+    backlog_issue_id?: NullableIntFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_by?: NullableIntFieldUpdateOperationsInput | number | null
+    line_info?: NullableJsonNullValueInput | InputJsonValue
+    session?: NullableStringFieldUpdateOperationsInput | string | null
+    has_remind_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_notify_message?: BoolFieldUpdateOperationsInput | boolean
+    assign_staff_id?: NullableIntFieldUpdateOperationsInput | number | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    onboarding?: BoolFieldUpdateOperationsInput | boolean
+    reference_key?: NullableStringFieldUpdateOperationsInput | string | null
+    reference_value?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_model?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    due_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    updater?: UserUpdateOneWithoutCrm_updatedNestedInput
+  }
+
+  export type CrmSupportUncheckedUpdateWithoutCreatorInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    issue_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    school_id?: IntFieldUpdateOperationsInput | number
+    channel?: NullableStringFieldUpdateOperationsInput | string | null
+    contact_id?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
+    sub_type?: NullableStringFieldUpdateOperationsInput | string | null
+    ref_code?: NullableStringFieldUpdateOperationsInput | string | null
+    support_detail?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    question?: NullableStringFieldUpdateOperationsInput | string | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
+    is_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    priority?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_project_id?: NullableIntFieldUpdateOperationsInput | number | null
+    backlog_issue_id?: NullableIntFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_by?: NullableIntFieldUpdateOperationsInput | number | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_by?: NullableIntFieldUpdateOperationsInput | number | null
+    line_info?: NullableJsonNullValueInput | InputJsonValue
+    session?: NullableStringFieldUpdateOperationsInput | string | null
+    has_remind_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_notify_message?: BoolFieldUpdateOperationsInput | boolean
+    assign_staff_id?: NullableIntFieldUpdateOperationsInput | number | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    onboarding?: BoolFieldUpdateOperationsInput | boolean
+    reference_key?: NullableStringFieldUpdateOperationsInput | string | null
+    reference_value?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_model?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    due_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type CrmSupportUncheckedUpdateManyWithoutCreatorInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    issue_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    school_id?: IntFieldUpdateOperationsInput | number
+    channel?: NullableStringFieldUpdateOperationsInput | string | null
+    contact_id?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
+    sub_type?: NullableStringFieldUpdateOperationsInput | string | null
+    ref_code?: NullableStringFieldUpdateOperationsInput | string | null
+    support_detail?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    question?: NullableStringFieldUpdateOperationsInput | string | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
+    is_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    priority?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_project_id?: NullableIntFieldUpdateOperationsInput | number | null
+    backlog_issue_id?: NullableIntFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_by?: NullableIntFieldUpdateOperationsInput | number | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_by?: NullableIntFieldUpdateOperationsInput | number | null
+    line_info?: NullableJsonNullValueInput | InputJsonValue
+    session?: NullableStringFieldUpdateOperationsInput | string | null
+    has_remind_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_notify_message?: BoolFieldUpdateOperationsInput | boolean
+    assign_staff_id?: NullableIntFieldUpdateOperationsInput | number | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    onboarding?: BoolFieldUpdateOperationsInput | boolean
+    reference_key?: NullableStringFieldUpdateOperationsInput | string | null
+    reference_value?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_model?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    due_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type CrmSupportUpdateWithoutUpdaterInput = {
+    issue_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    school_id?: IntFieldUpdateOperationsInput | number
+    channel?: NullableStringFieldUpdateOperationsInput | string | null
+    contact_id?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
+    sub_type?: NullableStringFieldUpdateOperationsInput | string | null
+    ref_code?: NullableStringFieldUpdateOperationsInput | string | null
+    support_detail?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    question?: NullableStringFieldUpdateOperationsInput | string | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
+    is_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    priority?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_project_id?: NullableIntFieldUpdateOperationsInput | number | null
+    backlog_issue_id?: NullableIntFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_by?: NullableIntFieldUpdateOperationsInput | number | null
+    line_info?: NullableJsonNullValueInput | InputJsonValue
+    session?: NullableStringFieldUpdateOperationsInput | string | null
+    has_remind_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_notify_message?: BoolFieldUpdateOperationsInput | boolean
+    assign_staff_id?: NullableIntFieldUpdateOperationsInput | number | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    onboarding?: BoolFieldUpdateOperationsInput | boolean
+    reference_key?: NullableStringFieldUpdateOperationsInput | string | null
+    reference_value?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_model?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    due_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    creator?: UserUpdateOneWithoutCrm_createdNestedInput
+  }
+
+  export type CrmSupportUncheckedUpdateWithoutUpdaterInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    issue_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    school_id?: IntFieldUpdateOperationsInput | number
+    channel?: NullableStringFieldUpdateOperationsInput | string | null
+    contact_id?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
+    sub_type?: NullableStringFieldUpdateOperationsInput | string | null
+    ref_code?: NullableStringFieldUpdateOperationsInput | string | null
+    support_detail?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    question?: NullableStringFieldUpdateOperationsInput | string | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
+    is_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    priority?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_project_id?: NullableIntFieldUpdateOperationsInput | number | null
+    backlog_issue_id?: NullableIntFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_by?: NullableIntFieldUpdateOperationsInput | number | null
+    line_info?: NullableJsonNullValueInput | InputJsonValue
+    session?: NullableStringFieldUpdateOperationsInput | string | null
+    has_remind_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_notify_message?: BoolFieldUpdateOperationsInput | boolean
+    assign_staff_id?: NullableIntFieldUpdateOperationsInput | number | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    onboarding?: BoolFieldUpdateOperationsInput | boolean
+    reference_key?: NullableStringFieldUpdateOperationsInput | string | null
+    reference_value?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_model?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    due_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type CrmSupportUncheckedUpdateManyWithoutUpdaterInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    issue_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    school_id?: IntFieldUpdateOperationsInput | number
+    channel?: NullableStringFieldUpdateOperationsInput | string | null
+    contact_id?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: NullableStringFieldUpdateOperationsInput | string | null
+    sub_type?: NullableStringFieldUpdateOperationsInput | string | null
+    ref_code?: NullableStringFieldUpdateOperationsInput | string | null
+    support_detail?: NullableStringFieldUpdateOperationsInput | string | null
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    question?: NullableStringFieldUpdateOperationsInput | string | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
+    is_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    priority?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_project_id?: NullableIntFieldUpdateOperationsInput | number | null
+    backlog_issue_id?: NullableIntFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_by?: NullableIntFieldUpdateOperationsInput | number | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_by?: NullableIntFieldUpdateOperationsInput | number | null
+    line_info?: NullableJsonNullValueInput | InputJsonValue
+    session?: NullableStringFieldUpdateOperationsInput | string | null
+    has_remind_follow_up?: BoolFieldUpdateOperationsInput | boolean
+    follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_follow_up_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_end_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    customer_follow_up_frequency?: NullableStringFieldUpdateOperationsInput | string | null
+    customer_notify_message?: BoolFieldUpdateOperationsInput | boolean
+    assign_staff_id?: NullableIntFieldUpdateOperationsInput | number | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    onboarding?: BoolFieldUpdateOperationsInput | boolean
+    reference_key?: NullableStringFieldUpdateOperationsInput | string | null
+    reference_value?: NullableStringFieldUpdateOperationsInput | string | null
+    backlog_model?: NullableStringFieldUpdateOperationsInput | string | null
+    start_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    due_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type RolePermissionCreateManyRoleInput = {
@@ -30901,6 +34591,8 @@ export namespace Prisma {
     gender?: NullableStringFieldUpdateOperationsInput | string | null
     overtime_created?: OvertimeUpdateManyWithoutCreatorNestedInput
     overtime_requests?: OvertimeUpdateManyWithoutRequesterNestedInput
+    crm_created?: CrmSupportUpdateManyWithoutCreatorNestedInput
+    crm_updated?: CrmSupportUpdateManyWithoutUpdaterNestedInput
     department?: DepartmentUpdateOneWithoutUsersNestedInput
     position_ref?: PositionUpdateOneWithoutUsersNestedInput
   }
@@ -30938,6 +34630,8 @@ export namespace Prisma {
     gender?: NullableStringFieldUpdateOperationsInput | string | null
     overtime_created?: OvertimeUncheckedUpdateManyWithoutCreatorNestedInput
     overtime_requests?: OvertimeUncheckedUpdateManyWithoutRequesterNestedInput
+    crm_created?: CrmSupportUncheckedUpdateManyWithoutCreatorNestedInput
+    crm_updated?: CrmSupportUncheckedUpdateManyWithoutUpdaterNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutRoleInput = {

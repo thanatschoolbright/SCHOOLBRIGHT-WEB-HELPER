@@ -342,6 +342,51 @@ exports.Prisma.ApiLogScalarFieldEnum = {
   is_archived: 'is_archived'
 };
 
+exports.Prisma.CrmSupportScalarFieldEnum = {
+  id: 'id',
+  issue_date: 'issue_date',
+  school_id: 'school_id',
+  channel: 'channel',
+  contact_id: 'contact_id',
+  type: 'type',
+  sub_type: 'sub_type',
+  ref_code: 'ref_code',
+  support_detail: 'support_detail',
+  subject: 'subject',
+  question: 'question',
+  answer: 'answer',
+  is_follow_up: 'is_follow_up',
+  follow_up_date: 'follow_up_date',
+  status: 'status',
+  priority: 'priority',
+  backlog_project_id: 'backlog_project_id',
+  backlog_issue_id: 'backlog_issue_id',
+  created_at: 'created_at',
+  created_by: 'created_by',
+  updated_at: 'updated_at',
+  updated_by: 'updated_by',
+  deleted_at: 'deleted_at',
+  deleted_by: 'deleted_by',
+  line_info: 'line_info',
+  session: 'session',
+  has_remind_follow_up: 'has_remind_follow_up',
+  follow_up_end_date: 'follow_up_end_date',
+  follow_up_frequency: 'follow_up_frequency',
+  customer_follow_up_date: 'customer_follow_up_date',
+  customer_follow_up_end_date: 'customer_follow_up_end_date',
+  customer_follow_up_frequency: 'customer_follow_up_frequency',
+  customer_notify_message: 'customer_notify_message',
+  assign_staff_id: 'assign_staff_id',
+  note: 'note',
+  onboarding: 'onboarding',
+  reference_key: 'reference_key',
+  reference_value: 'reference_value',
+  backlog_model: 'backlog_model',
+  start_date: 'start_date',
+  due_date: 'due_date',
+  is_deleted: 'is_deleted'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -388,7 +433,8 @@ exports.Prisma.ModelName = {
   Overtime: 'Overtime',
   OvertimeDescription: 'OvertimeDescription',
   OvertimeStatusLog: 'OvertimeStatusLog',
-  ApiLog: 'ApiLog'
+  ApiLog: 'ApiLog',
+  CrmSupport: 'CrmSupport'
 };
 
 /**
