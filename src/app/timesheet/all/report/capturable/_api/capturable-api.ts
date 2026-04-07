@@ -74,15 +74,19 @@ export interface SendEmailResult {
   results: { email: string; success: boolean; error?: string }[];
 }
 
-// ส่ง Excel Capturable Report ทางอีเมล
+export interface DateRange {
+  start_date: string;
+  end_date: string;
+}
+
+// ส่ง Excel Capturable Report ทางอีเมล (รองรับหลาย range)
 export const requestSendCapturableEmail = async (
-  startDate: string,
-  endDate: string,
+  ranges: DateRange[],
   recipients: string[],
 ): Promise<SendEmailResult> => {
   const response = await axios.post(
     "/api/v1/timesheet/report/capturable-report/send-email",
-    { start_date: startDate, end_date: endDate, recipients },
+    { ranges, recipients },
   );
   return response.data.data;
 };

@@ -5,6 +5,7 @@ import { create } from "zustand";
 import {
   CapturableData,
   CapturableSummary,
+  DateRange,
   requestCapturableReport,
   requestCapturableSummary,
   requestExportExcel,
@@ -50,7 +51,7 @@ interface CapturableStore {
   fetchReport: () => Promise<void>;
   openDetails: (record: CapturableData) => Promise<void>;
   exportExcel: () => Promise<void>;
-  sendEmail: (recipients: string[]) => Promise<boolean>;
+  sendEmail: (ranges: DateRange[], recipients: string[]) => Promise<boolean>;
   clearFilters: () => void;
 }
 
@@ -157,16 +158,11 @@ export const useCapturableStore = create<CapturableStore>((set, get) => ({
     }
   },
 
-  // ✨ ส่ง Excel ทางอีเมล — คืนค่า true เมื่อสำเร็จ
-  sendEmail: async (recipients) => {
-    const { dateRange } = get();
+  // ✨ ส่ง Excel ทางอีเมล (multi-range) — คืนค่า true เมื่อสำเร็จ
+  sendEmail: async (ranges, recipients) => {
     set({ emailLoading: true });
     try {
-      const result = await requestSendCapturableEmail(
-        dateRange[0].format("YYYY-MM-DD"),
-        dateRange[1].format("YYYY-MM-DD"),
-        recipients,
-      );
+      const result = await requestSendCapturableEmail(ranges, recipients);
       if (result.failed > 0) {
         toast.warning(`ส่งไม่สำเร็จ ${result.failed} ที่อยู่`);
       }

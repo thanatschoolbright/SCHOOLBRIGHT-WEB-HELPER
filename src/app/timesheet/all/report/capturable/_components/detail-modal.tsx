@@ -51,14 +51,17 @@ export const DetailModal: React.FC = () => {
         centered
         footer={null}
         styles={{
-          content: { padding: 0, borderRadius: token.borderRadiusLG, overflow: "hidden" },
+          content: {
+            padding: 0,
+            borderRadius: token.borderRadiusLG,
+            overflow: "hidden",
+          },
           body: { padding: 0 },
           header: { display: "none" },
         }}
       >
         {selectedProject && (
           <Flex vertical style={{ minHeight: 400 }}>
-
             {/* ── Header ── */}
             <Flex
               align="center"
@@ -92,7 +95,11 @@ export const DetailModal: React.FC = () => {
                   </Text>
                 </Flex>
               </Flex>
-              <Button onClick={closeDetailModal} size="middle" style={{ borderRadius: token.borderRadius }}>
+              <Button
+                onClick={closeDetailModal}
+                size="middle"
+                style={{ borderRadius: token.borderRadius }}
+              >
                 ปิด
               </Button>
             </Flex>
@@ -127,19 +134,40 @@ export const DetailModal: React.FC = () => {
                     flexShrink: 0,
                   }}
                 >
-                  <ProjectOutlined style={{ color: token.colorInfo, fontSize: 16 }} />
+                  <ProjectOutlined
+                    style={{ color: token.colorInfo, fontSize: 16 }}
+                  />
                 </Flex>
                 <Flex vertical gap={1}>
-                  <Text type="secondary" style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  <Text
+                    type="secondary"
+                    style={{
+                      fontSize: 11,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
                     โครงการที่วิเคราะห์
                   </Text>
                   <Flex align="center" gap={6}>
-                    <Tag color="blue" bordered={false} style={{ margin: 0, fontWeight: 700, fontSize: 11 }}>
+                    <Tag
+                      color="blue"
+                      bordered={false}
+                      style={{ margin: 0, fontWeight: 700, fontSize: 11 }}
+                    >
                       {selectedProject.project_code}
                     </Tag>
-                    <Text strong style={{ fontSize: 13 }}>{selectedProject.project_name}</Text>
+                    <Text strong style={{ fontSize: 13 }}>
+                      {selectedProject.project_name}
+                    </Text>
                     {selectedProject.is_deleted && (
-                      <Tag color="error" bordered={false} style={{ margin: 0, fontSize: 10 }}>ถูกลบ</Tag>
+                      <Tag
+                        color="error"
+                        bordered={false}
+                        style={{ margin: 0, fontSize: 10 }}
+                      >
+                        ถูกลบ
+                      </Tag>
                     )}
                   </Flex>
                 </Flex>
@@ -166,15 +194,38 @@ export const DetailModal: React.FC = () => {
                     flexShrink: 0,
                   }}
                 >
-                  <ClockCircleOutlined style={{ color: token.colorInfo, fontSize: 16 }} />
+                  <ClockCircleOutlined
+                    style={{ color: token.colorInfo, fontSize: 16 }}
+                  />
                 </Flex>
                 <Flex vertical gap={1}>
-                  <Text type="secondary" style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  <Text
+                    type="secondary"
+                    style={{
+                      fontSize: 11,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
                     ชั่วโมงรวม
                   </Text>
-                  <Text strong style={{ fontSize: 18, color: token.colorInfoText, lineHeight: 1.2 }}>
-                    {selectedProject.hours.toLocaleString(undefined, { minimumFractionDigits: 2 })}{" "}
-                    <Text type="secondary" style={{ fontSize: 12, fontWeight: 400 }}>ชม.</Text>
+                  <Text
+                    strong
+                    style={{
+                      fontSize: 18,
+                      color: token.colorInfoText,
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {selectedProject.hours.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                    })}{" "}
+                    <Text
+                      type="secondary"
+                      style={{ fontSize: 12, fontWeight: 400 }}
+                    >
+                      ชม.
+                    </Text>
                   </Text>
                 </Flex>
               </Flex>
@@ -200,14 +251,30 @@ export const DetailModal: React.FC = () => {
                     flexShrink: 0,
                   }}
                 >
-                  <CheckCircleOutlined style={{ color: token.colorSuccess, fontSize: 16 }} />
+                  <CheckCircleOutlined
+                    style={{ color: token.colorSuccess, fontSize: 16 }}
+                  />
                 </Flex>
                 <Flex vertical gap={1}>
-                  <Text type="secondary" style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  <Text
+                    type="secondary"
+                    style={{
+                      fontSize: 11,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
                     Capitalization
                   </Text>
                   <Flex align="center" gap={6}>
-                    <Text strong style={{ fontSize: 16, color: token.colorSuccess, lineHeight: 1.2 }}>
+                    <Text
+                      strong
+                      style={{
+                        fontSize: 16,
+                        color: token.colorSuccess,
+                        lineHeight: 1.2,
+                      }}
+                    >
                       {selectedProject.capturable_percent.toFixed(1)}%
                     </Text>
                     <Text type="secondary" style={{ fontSize: 12 }}>
@@ -238,14 +305,30 @@ export const DetailModal: React.FC = () => {
                     flexShrink: 0,
                   }}
                 >
-                  <InfoCircleOutlined style={{ color: token.colorError, fontSize: 16 }} />
+                  <InfoCircleOutlined
+                    style={{ color: token.colorError, fontSize: 16 }}
+                  />
                 </Flex>
                 <Flex vertical gap={1}>
-                  <Text type="secondary" style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  <Text
+                    type="secondary"
+                    style={{
+                      fontSize: 11,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
                     Expense
                   </Text>
                   <Flex align="center" gap={6}>
-                    <Text strong style={{ fontSize: 16, color: token.colorError, lineHeight: 1.2 }}>
+                    <Text
+                      strong
+                      style={{
+                        fontSize: 16,
+                        color: token.colorError,
+                        lineHeight: 1.2,
+                      }}
+                    >
                       {selectedProject.uncapturable_percent.toFixed(1)}%
                     </Text>
                     <Text type="secondary" style={{ fontSize: 12 }}>
@@ -272,14 +355,24 @@ export const DetailModal: React.FC = () => {
                     flexShrink: 0,
                   }}
                 >
-                  <HistoryOutlined style={{ color: token.colorTextSecondary, fontSize: 16 }} />
+                  <HistoryOutlined
+                    style={{ color: token.colorTextSecondary, fontSize: 16 }}
+                  />
                 </Flex>
                 <Flex vertical gap={1}>
-                  <Text type="secondary" style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  <Text
+                    type="secondary"
+                    style={{
+                      fontSize: 11,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
                     ช่วงเวลา
                   </Text>
                   <Text strong style={{ fontSize: 13 }}>
-                    {dateRange[0].format("DD/MM/YYYY")} — {dateRange[1].format("DD/MM/YYYY")}
+                    {dateRange[0].format("DD/MM/YYYY")} —{" "}
+                    {dateRange[1].format("DD/MM/YYYY")}
                   </Text>
                 </Flex>
               </Flex>
@@ -326,9 +419,13 @@ export const DetailModal: React.FC = () => {
                       background: token.colorPrimaryBg,
                     }}
                   >
-                    <HistoryOutlined style={{ fontSize: 14, color: token.colorPrimary }} />
+                    <HistoryOutlined
+                      style={{ fontSize: 14, color: token.colorPrimary }}
+                    />
                   </Flex>
-                  <Text strong style={{ fontSize: 13 }}>สรุปรายงานตามประเภทรายจ่าย</Text>
+                  <Text strong style={{ fontSize: 13 }}>
+                    สรุปรายงานตามประเภทรายจ่าย
+                  </Text>
                   <Tag
                     bordered={false}
                     style={{
@@ -346,7 +443,9 @@ export const DetailModal: React.FC = () => {
 
                 <Table
                   dataSource={selectedProject.details}
-                  rowKey={(record) => `${record.feature_id}-${record.asset_capture_type}`}
+                  rowKey={(record) =>
+                    `${record.feature_id}-${record.asset_capture_type}`
+                  }
                   pagination={false}
                   size="middle"
                   scroll={{ x: 1100 }}
@@ -369,7 +468,11 @@ export const DetailModal: React.FC = () => {
                             border: `1px solid ${token.colorBorderSecondary}`,
                           }}
                         >
-                          <Flex align="center" gap={8} style={{ marginBottom: 14 }}>
+                          <Flex
+                            align="center"
+                            gap={8}
+                            style={{ marginBottom: 14 }}
+                          >
                             <Flex
                               align="center"
                               justify="center"
@@ -380,9 +483,20 @@ export const DetailModal: React.FC = () => {
                                 background: token.colorPrimaryBg,
                               }}
                             >
-                              <UserOutlined style={{ fontSize: 12, color: token.colorPrimary }} />
+                              <UserOutlined
+                                style={{
+                                  fontSize: 12,
+                                  color: token.colorPrimary,
+                                }}
+                              />
                             </Flex>
-                            <Text strong style={{ fontSize: 12, color: token.colorPrimary }}>
+                            <Text
+                              strong
+                              style={{
+                                fontSize: 12,
+                                color: token.colorPrimary,
+                              }}
+                            >
                               ประวัติการลงเวลารายบุคคล
                             </Text>
                           </Flex>
@@ -407,7 +521,9 @@ export const DetailModal: React.FC = () => {
                                 key: "user",
                                 width: 220,
                                 sorter: (a: any, b: any) =>
-                                  (a.user_name || "").localeCompare(b.user_name || ""),
+                                  (a.user_name || "").localeCompare(
+                                    b.user_name || "",
+                                  ),
                                 render: (_: any, t: any) => (
                                   <Flex align="center" gap={8}>
                                     <Avatar
@@ -419,11 +535,20 @@ export const DetailModal: React.FC = () => {
                                       }}
                                     />
                                     <Flex vertical gap={0}>
-                                      <Text strong style={{ fontSize: 12, lineHeight: 1.3 }}>
+                                      <Text
+                                        strong
+                                        style={{
+                                          fontSize: 12,
+                                          lineHeight: 1.3,
+                                        }}
+                                      >
                                         {t.user_name}
                                       </Text>
                                       {t.user_nickname && (
-                                        <Text type="secondary" style={{ fontSize: 11 }}>
+                                        <Text
+                                          type="secondary"
+                                          style={{ fontSize: 11 }}
+                                        >
                                           @{t.user_nickname}
                                         </Text>
                                       )}
@@ -440,7 +565,11 @@ export const DetailModal: React.FC = () => {
                                 sorter: (a: any, b: any) =>
                                   dayjs(a.date).unix() - dayjs(b.date).unix(),
                                 render: (d: string) => (
-                                  <Tag bordered={false} color="default" style={{ fontSize: 11, borderRadius: 6 }}>
+                                  <Tag
+                                    bordered={false}
+                                    color="default"
+                                    style={{ fontSize: 11, borderRadius: 6 }}
+                                  >
                                     {dayjs(d).format("DD/MM/YYYY")}
                                   </Tag>
                                 ),
@@ -450,24 +579,45 @@ export const DetailModal: React.FC = () => {
                                 dataIndex: "description",
                                 key: "description",
                                 render: (desc: string) => {
-                                  if (!desc) return <Text type="secondary">-</Text>;
+                                  if (!desc)
+                                    return <Text type="secondary">-</Text>;
                                   const isLong = desc.length > 100;
                                   return (
                                     <Flex vertical align="start" gap={2}>
-                                      <Text style={{ fontSize: 12, lineHeight: 1.6, color: token.colorText }}>
-                                        {isLong ? `${desc.slice(0, 100)}...` : desc}
+                                      <Text
+                                        style={{
+                                          fontSize: 12,
+                                          lineHeight: 1.6,
+                                          color: token.colorText,
+                                        }}
+                                      >
+                                        {isLong
+                                          ? `${desc.slice(0, 100)}...`
+                                          : desc}
                                       </Text>
                                       {isLong && (
                                         <Button
                                           type="link"
                                           size="small"
-                                          style={{ padding: 0, height: "auto", fontSize: 11, color: token.colorPrimary }}
+                                          style={{
+                                            padding: 0,
+                                            height: "auto",
+                                            fontSize: 11,
+                                            color: token.colorPrimary,
+                                          }}
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             modal.info({
                                               title: "รายละเอียดงานฉบับเต็ม",
                                               content: (
-                                                <div style={{ paddingTop: 16, whiteSpace: "pre-wrap", fontSize: 14, lineHeight: "1.6" }}>
+                                                <div
+                                                  style={{
+                                                    paddingTop: 16,
+                                                    whiteSpace: "pre-wrap",
+                                                    fontSize: 14,
+                                                    lineHeight: "1.6",
+                                                  }}
+                                                >
                                                   {desc}
                                                 </div>
                                               ),
@@ -493,7 +643,13 @@ export const DetailModal: React.FC = () => {
                                 align: "right",
                                 sorter: (a: any, b: any) => a.hours - b.hours,
                                 render: (h: number) => (
-                                  <Text strong style={{ color: token.colorInfoText, fontSize: 13 }}>
+                                  <Text
+                                    strong
+                                    style={{
+                                      color: token.colorInfoText,
+                                      fontSize: 13,
+                                    }}
+                                  >
                                     {h.toFixed(2)}
                                   </Text>
                                 ),
@@ -504,7 +660,10 @@ export const DetailModal: React.FC = () => {
                                 <Empty
                                   image={Empty.PRESENTED_IMAGE_SIMPLE}
                                   description={
-                                    <Text type="secondary" style={{ fontSize: 12 }}>
+                                    <Text
+                                      type="secondary"
+                                      style={{ fontSize: 12 }}
+                                    >
                                       ไม่พบประวัติการลงเวลา
                                     </Text>
                                   }
@@ -517,7 +676,9 @@ export const DetailModal: React.FC = () => {
                     },
                     columnTitle: (
                       <Tooltip title="คลิกเพื่อดูรายละเอียดรายบุคคล">
-                        <HistoryOutlined style={{ color: token.colorTextSecondary }} />
+                        <HistoryOutlined
+                          style={{ color: token.colorTextSecondary }}
+                        />
                       </Tooltip>
                     ),
                     expandRowByClick: true,
@@ -529,12 +690,24 @@ export const DetailModal: React.FC = () => {
                       key: "feature_name",
                       width: 420,
                       sorter: (a: any, b: any) =>
-                        (a.feature_name || "").localeCompare(b.feature_name || ""),
+                        (a.feature_name || "").localeCompare(
+                          b.feature_name || "",
+                        ),
                       render: (text: string, record: ProjectStatDetail) => (
                         <Flex vertical gap={2}>
-                          <Text strong style={{ fontSize: 13 }}>{text}</Text>
+                          <Text strong style={{ fontSize: 13 }}>
+                            {text}
+                          </Text>
                           {record.is_deleted && (
-                            <Tag color="error" bordered={false} style={{ fontSize: 10, lineHeight: "14px", width: "fit-content" }}>
+                            <Tag
+                              color="error"
+                              bordered={false}
+                              style={{
+                                fontSize: 10,
+                                lineHeight: "14px",
+                                width: "fit-content",
+                              }}
+                            >
                               ถูกลบ
                             </Tag>
                           )}
@@ -548,7 +721,9 @@ export const DetailModal: React.FC = () => {
                       width: 220,
                       align: "center",
                       sorter: (a: any, b: any) =>
-                        (a.asset_capture_type || "").localeCompare(b.asset_capture_type || ""),
+                        (a.asset_capture_type || "").localeCompare(
+                          b.asset_capture_type || "",
+                        ),
                       render: (type: string) => {
                         const isCapture = type === "CAPTUREABLE";
                         return (
@@ -558,7 +733,9 @@ export const DetailModal: React.FC = () => {
                                 width: 8,
                                 height: 8,
                                 borderRadius: "50%",
-                                background: isCapture ? token.colorSuccess : token.colorError,
+                                background: isCapture
+                                  ? token.colorSuccess
+                                  : token.colorError,
                                 flexShrink: 0,
                               }}
                             />
@@ -566,7 +743,9 @@ export const DetailModal: React.FC = () => {
                               strong
                               style={{
                                 fontSize: 12,
-                                color: isCapture ? token.colorSuccess : token.colorError,
+                                color: isCapture
+                                  ? token.colorSuccess
+                                  : token.colorError,
                               }}
                             >
                               {isCapture ? "Capitalization" : "Expense"}
@@ -583,9 +762,24 @@ export const DetailModal: React.FC = () => {
                       align: "right",
                       sorter: (a: any, b: any) => a.hours - b.hours,
                       render: (val: number) => (
-                        <Text strong style={{ color: token.colorInfoText, fontSize: 14 }}>
-                          {val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                          <Text type="secondary" style={{ fontSize: 11, fontWeight: 400, marginLeft: 4 }}>ชม.</Text>
+                        <Text
+                          strong
+                          style={{ color: token.colorInfoText, fontSize: 14 }}
+                        >
+                          {val.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                          <Text
+                            type="secondary"
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 400,
+                              marginLeft: 4,
+                            }}
+                          >
+                            ชม.
+                          </Text>
                         </Text>
                       ),
                     },
@@ -596,12 +790,17 @@ export const DetailModal: React.FC = () => {
                       width: 180,
                       sorter: (a: any, b: any) => a.percent - b.percent,
                       render: (val: number, record: ProjectStatDetail) => {
-                        const isCapture = record.asset_capture_type === "CAPTUREABLE";
+                        const isCapture =
+                          record.asset_capture_type === "CAPTUREABLE";
                         return (
                           <Flex align="center" gap={8}>
                             <Progress
                               percent={val}
-                              strokeColor={isCapture ? token.colorSuccess : token.colorError}
+                              strokeColor={
+                                isCapture
+                                  ? token.colorSuccess
+                                  : token.colorError
+                              }
                               trailColor={token.colorFillSecondary}
                               showInfo={false}
                               size="small"
@@ -613,7 +812,9 @@ export const DetailModal: React.FC = () => {
                                 width: 44,
                                 textAlign: "right",
                                 fontSize: 12,
-                                color: isCapture ? token.colorSuccess : token.colorError,
+                                color: isCapture
+                                  ? token.colorSuccess
+                                  : token.colorError,
                                 flexShrink: 0,
                               }}
                             >
@@ -625,18 +826,38 @@ export const DetailModal: React.FC = () => {
                     },
                   ]}
                   summary={(pageData) => (
-                    <Table.Summary.Row style={{ background: token.colorFillAlter }}>
+                    <Table.Summary.Row
+                      style={{ background: token.colorFillAlter }}
+                    >
                       <Table.Summary.Cell index={0} colSpan={3} align="right">
-                        <Text type="secondary" style={{ fontSize: 12, fontWeight: 600 }}>
+                        <Text
+                          type="secondary"
+                          style={{ fontSize: 12, fontWeight: 600 }}
+                        >
                           รวมสุทธิในโครงการนี้
                         </Text>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell index={1} align="right">
-                        <Text strong style={{ fontSize: 15, color: token.colorInfoText }}>
+                        <Text
+                          strong
+                          style={{ fontSize: 15, color: token.colorInfoText }}
+                        >
                           {pageData
                             .reduce((acc, curr) => acc + curr.hours, 0)
-                            .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                          <Text type="secondary" style={{ fontSize: 11, fontWeight: 400, marginLeft: 4 }}>ชม.</Text>
+                            .toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                          <Text
+                            type="secondary"
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 400,
+                              marginLeft: 4,
+                            }}
+                          >
+                            ชม.
+                          </Text>
                         </Text>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell index={2} />
@@ -657,21 +878,32 @@ export const DetailModal: React.FC = () => {
                 }}
               >
                 <InfoCircleOutlined
-                  style={{ color: token.colorInfo, fontSize: 15, marginTop: 2, flexShrink: 0 }}
+                  style={{
+                    color: token.colorInfo,
+                    fontSize: 15,
+                    marginTop: 2,
+                    flexShrink: 0,
+                  }}
                 />
                 <Flex vertical gap={2}>
-                  <Text strong style={{ fontSize: 12, color: token.colorInfoText }}>
+                  <Text
+                    strong
+                    style={{ fontSize: 12, color: token.colorInfoText }}
+                  >
                     มาตรฐานการตรวจสอบระบบ (IPO Traceability Protocol)
                   </Text>
-                  <Text type="secondary" style={{ fontSize: 12, lineHeight: 1.7 }}>
-                    ข้อมูลการลงเวลาถูกแยกประเภทตาม Capitalization Rules โดยระบบรองรับการ Audit รายบุคคล
-                    (User-level Drill down) เพื่อใช้เป็นหลักฐานประกอบการลงบัญชี Capitalization ทรัพย์สิน
+                  <Text
+                    type="secondary"
+                    style={{ fontSize: 12, lineHeight: 1.7 }}
+                  >
+                    ข้อมูลการลงเวลาถูกแยกประเภทตาม Capitalization Rules
+                    โดยระบบรองรับการ Audit รายบุคคล (User-level Drill down)
+                    เพื่อใช้เป็นหลักฐานประกอบการลงบัญชี Capitalization ทรัพย์สิน
                     และ Expense รายจ่ายของบริษัท
                   </Text>
                 </Flex>
               </Flex>
             </Flex>
-
           </Flex>
         )}
       </Modal>
