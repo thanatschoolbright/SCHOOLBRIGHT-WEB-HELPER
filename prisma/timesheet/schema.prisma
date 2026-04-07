@@ -71,8 +71,6 @@ model User {
   gender                    String?                    @map("gender")
   overtime_created          Overtime[]                 @relation("OvertimeCreator")
   overtime_requests         Overtime[]                 @relation("OvertimeRequester")
-  crm_created               CrmSupport[]               @relation("CrmCreator")
-  crm_updated               CrmSupport[]               @relation("CrmUpdater")
   department                Department?                @relation(fields: [department_id], references: [id])
   position_ref              Position?                  @relation(fields: [position_id], references: [id])
   role                      Role?                      @relation(fields: [role_id], references: [id])
