@@ -53,26 +53,26 @@ function MenuItemRow({ icon, label, isNew, onClick }: MenuItemRowProps) {
     <button
       type="button"
       onClick={onClick}
-      className="group/item w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 transition-all duration-150 text-left"
+      className="group/item w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all duration-150 text-left"
     >
       {/* Icon Badge */}
-      <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 text-[16px] flex-shrink-0 group-hover/item:bg-slate-200 transition-colors">
+      <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 text-[16px] flex-shrink-0 group-hover/item:bg-slate-200 dark:group-hover/item:bg-slate-600 transition-colors">
         {icon}
       </div>
 
       {/* Label */}
-      <span className="flex-1 text-[14px] font-medium text-slate-700 truncate group-hover/item:text-slate-900 transition-colors">
+      <span className="flex-1 text-[14px] font-medium text-slate-700 dark:text-slate-300 truncate group-hover/item:text-slate-900 dark:group-hover/item:text-white transition-colors">
         {label}
       </span>
 
       {/* Right side */}
       <div className="flex items-center gap-2 flex-shrink-0">
         {isNew ? (
-          <span className="text-[9px] font-bold tracking-widest text-red-500 bg-red-50 border border-red-100 rounded px-1.5 py-0.5 uppercase">
+          <span className="text-[9px] font-bold tracking-widest text-red-500 bg-red-50 dark:bg-red-950/50 border border-red-100 dark:border-red-900/50 rounded px-1.5 py-0.5 uppercase">
             New
           </span>
         ) : null}
-        <span className="text-slate-300 group-hover/item:text-slate-500 transition-colors">
+        <span className="text-slate-300 dark:text-slate-600 group-hover/item:text-slate-500 dark:group-hover/item:text-slate-400 transition-colors">
           <IconArrow />
         </span>
       </div>
@@ -89,7 +89,7 @@ interface MenuSectionProps {
 function MenuSection({ label, children }: MenuSectionProps) {
   return (
     <div className="mb-1">
-      <p className="text-[10px] font-semibold tracking-[0.1em] uppercase text-slate-400 px-4 pt-4 pb-2 m-0">
+      <p className="text-[10px] font-semibold tracking-[0.1em] uppercase text-slate-400 dark:text-slate-500 px-4 pt-4 pb-2 m-0">
         {label}
       </p>
       {children}
@@ -109,17 +109,17 @@ function MenuGroupCard({ group, onNavigate, index }: MenuGroupCardProps) {
     <motion.div
       variants={cardVariants}
       custom={index}
-      className="bg-white rounded-2xl border border-slate-100 overflow-hidden"
+      className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden"
       style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03)" }}
       whileHover={{ y: -3, boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }}
       transition={{ duration: 0.2 }}
     >
       {/* Card Header */}
-      <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100 dark:border-slate-700">
         <div className="w-9 h-9 rounded-xl bg-orange-500 flex items-center justify-center text-white text-[18px] flex-shrink-0">
           {group.icon}
         </div>
-        <h3 className="text-[14px] font-bold text-slate-800 m-0 tracking-tight">
+        <h3 className="text-[14px] font-bold text-slate-800 dark:text-slate-100 m-0 tracking-tight">
           {group.label}
         </h3>
       </div>
@@ -165,20 +165,20 @@ function EmptyState({ onReset }: { onReset: () => void }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
     >
-      <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center">
+      <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="11" cy="11" r="8" />
           <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
       </div>
       <div className="text-center">
-        <p className="text-[15px] font-semibold text-slate-700 m-0 mb-1">ไม่พบระบบที่ระบุ</p>
-        <p className="text-[13px] text-slate-400 m-0">ลองค้นหาด้วยคำสำคัญอื่น หรือตรวจสอบตัวสะกด</p>
+        <p className="text-[15px] font-semibold text-slate-700 dark:text-slate-200 m-0 mb-1">ไม่พบระบบที่ระบุ</p>
+        <p className="text-[13px] text-slate-400 dark:text-slate-500 m-0">ลองค้นหาด้วยคำสำคัญอื่น หรือตรวจสอบตัวสะกด</p>
       </div>
       <button
         type="button"
         onClick={onReset}
-        className="text-[13px] font-semibold text-orange-500 hover:text-orange-600 bg-orange-50 hover:bg-orange-100 px-5 py-2.5 rounded-xl transition-colors border-none cursor-pointer"
+        className="text-[13px] font-semibold text-orange-500 hover:text-orange-600 bg-orange-50 dark:bg-orange-950/40 hover:bg-orange-100 dark:hover:bg-orange-950/60 px-5 py-2.5 rounded-xl transition-colors border-none cursor-pointer"
       >
         แสดงเมนูทั้งหมด
       </button>

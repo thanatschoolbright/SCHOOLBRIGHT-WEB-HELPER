@@ -47,7 +47,7 @@ export default function MainHero() {
     >
       {/* Badge */}
       <motion.div variants={itemVariants} className="mb-6">
-        <span className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.12em] uppercase px-4 py-2 rounded-full border border-slate-200 bg-white text-slate-500">
+        <span className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.12em] uppercase px-4 py-2 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400">
           <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
           System Navigation Hub
         </span>
@@ -56,7 +56,7 @@ export default function MainHero() {
       {/* Heading */}
       <motion.div variants={itemVariants} className="mb-4">
         <h1
-          className="font-bold text-slate-900 m-0 leading-tight"
+          className="font-bold text-slate-900 dark:text-white m-0 leading-tight"
           style={{ fontSize: "clamp(36px, 4vw, 56px)", letterSpacing: "-0.03em" }}
         >
           Web Helper{" "}
@@ -66,7 +66,7 @@ export default function MainHero() {
 
       {/* Subtext */}
       <motion.div variants={itemVariants} className="mb-10">
-        <p className="text-[16px] text-slate-500 m-0 max-w-[500px] leading-relaxed">
+        <p className="text-[16px] text-slate-500 dark:text-slate-400 m-0 max-w-[500px] leading-relaxed">
           แหล่งรวมเครื่องมือและระบบจัดการทั้งหมดที่คุณต้องการ
           เข้าถึงทุกฟีเจอร์ได้ในที่เดียว
         </p>
@@ -74,8 +74,8 @@ export default function MainHero() {
 
       {/* Search Box */}
       <motion.div variants={itemVariants} className="max-w-[520px]">
-        <div className="group flex items-center gap-3 h-[54px] px-5 rounded-2xl bg-white border border-slate-200 focus-within:border-slate-400 transition-all duration-200 focus-within:shadow-[0_0_0_4px_rgba(0,0,0,0.04)]">
-          <span className="text-slate-400 flex-shrink-0 group-focus-within:text-slate-600 transition-colors">
+        <div className="group flex items-center gap-3 h-[54px] px-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus-within:border-slate-400 dark:focus-within:border-slate-500 transition-all duration-200 focus-within:shadow-[0_0_0_4px_rgba(0,0,0,0.04)] dark:focus-within:shadow-[0_0_0_4px_rgba(255,255,255,0.04)]">
+          <span className="text-slate-400 flex-shrink-0 group-focus-within:text-slate-600 dark:group-focus-within:text-slate-300 transition-colors">
             <IconSearch />
           </span>
           <input
@@ -83,13 +83,13 @@ export default function MainHero() {
             placeholder="ค้นหาระบบที่ต้องการ..."
             value={searchKeyword}
             onChange={(e) => setSearchKeyword(e.target.value)}
-            className="flex-1 bg-transparent outline-none text-[15px] text-slate-800 placeholder-slate-300 font-medium"
+            className="flex-1 bg-transparent outline-none text-[15px] text-slate-800 dark:text-slate-100 placeholder-slate-300 dark:placeholder-slate-600 font-medium"
           />
           {searchKeyword && (
             <button
               type="button"
               onClick={clearSearch}
-              className="text-slate-300 hover:text-slate-500 transition-colors flex-shrink-0"
+              className="text-slate-300 dark:text-slate-600 hover:text-slate-500 dark:hover:text-slate-400 transition-colors flex-shrink-0"
             >
               <IconX />
             </button>
