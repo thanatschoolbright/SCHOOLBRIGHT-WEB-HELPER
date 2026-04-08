@@ -1,6 +1,6 @@
 "use client";
 
-import { type SidebarMenuItem } from "@/constants/sidebar-menu-constant";
+import { type SidebarItem } from "@/constants/sidebar-menu-constant";
 import { type Variants, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
@@ -99,7 +99,7 @@ function MenuSection({ label, children }: MenuSectionProps) {
 
 // ---- Group Card ----
 interface MenuGroupCardProps {
-  group: SidebarMenuItem;
+  group: SidebarItem;
   onNavigate: (href?: string) => void;
   index: number;
 }
@@ -188,7 +188,7 @@ function EmptyState({ onReset }: { onReset: () => void }) {
 
 // ---- Main Export ----
 interface MainMenuGridProps {
-  menuItems: SidebarMenuItem[];
+  menuItems: SidebarItem[];
 }
 
 export default function MainMenuGrid({ menuItems }: MainMenuGridProps) {
