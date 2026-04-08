@@ -168,7 +168,7 @@ export default function ThemeCustomizer() {
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-white/8 transition-colors border-none bg-transparent cursor-pointer"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/8 transition-colors border-none bg-transparent cursor-pointer"
                 >
                   <IconClose />
                 </button>
@@ -186,7 +186,7 @@ export default function ThemeCustomizer() {
                       รูปแบบตัวอักษร
                     </h3>
                   </div>
-                  <p className="text-[12px] text-slate-400 mb-5 m-0">
+                  <p className="text-[12px] text-slate-400 dark:text-slate-500 mb-5 m-0">
                     ฟอนต์ทั้งหมดรองรับภาษาไทยและภาษาอังกฤษ
                   </p>
 
@@ -227,7 +227,7 @@ export default function ThemeCustomizer() {
                                 <span className="text-[18px] font-medium text-slate-600 dark:text-slate-300 leading-tight">
                                   {font.sampleTh}
                                 </span>
-                                <span className="text-[13px] text-slate-400 leading-tight">
+                                <span className="text-[13px] text-slate-400 dark:text-slate-500 leading-tight">
                                   {font.sampleEn}
                                 </span>
                               </div>

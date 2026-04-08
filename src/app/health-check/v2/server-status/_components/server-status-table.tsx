@@ -17,7 +17,6 @@ import {
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import {
-  Badge,
   Button,
   Card,
   Empty,
@@ -37,7 +36,7 @@ import { useServerStatusStore } from "../_state/server-status-store";
 
 const { Text } = Typography;
 
-// ── Module meta: icon + color per group ───────────────────────────────────
+// ── Module meta ────────────────────────────────────────────────────────────
 const MODULE_META: Record<string, { icon: React.ReactNode; color: string }> = {
   "login-system": { icon: <LoginOutlined />, color: "#6366f1" },
   "user-system": { icon: <IdcardOutlined />, color: "#0ea5e9" },
@@ -61,15 +60,16 @@ const MethodBadge: React.FC<{ method: string }> = ({ method }) => {
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        fontSize: 10,
+        fontSize: 11,
         fontWeight: 700,
-        letterSpacing: "0.06em",
-        padding: "2px 7px",
-        borderRadius: 4,
+        letterSpacing: "0.08em",
+        padding: "3px 10px",
+        borderRadius: 6,
         background: isPost ? token.colorErrorBg : token.colorSuccessBg,
         color: isPost ? token.colorError : token.colorSuccess,
         border: `1px solid ${isPost ? token.colorErrorBorder : token.colorSuccessBorder}`,
         whiteSpace: "nowrap",
+        fontFamily: "monospace",
       }}
     >
       {method}
@@ -77,33 +77,47 @@ const MethodBadge: React.FC<{ method: string }> = ({ method }) => {
   );
 };
 
-// ── Status indicator ──────────────────────────────────────────────────────
+// ── Status cell ───────────────────────────────────────────────────────────
 const StatusCell: React.FC<{ code: string }> = ({ code }) => {
+  const { token } = theme.useToken();
   const isOk = ["200", "404"].includes(code);
   return (
-    <Flex align="center" gap={8}>
-      <span
-        style={{
-          width: 8,
-          height: 8,
-          borderRadius: "50%",
-          background: isOk ? "#22c55e" : "#ef4444",
-          flexShrink: 0,
-          boxShadow: isOk ? "0 0 0 3px #bbf7d0" : "0 0 0 3px #fecaca",
-        }}
-      />
+    <Flex align="center" gap={10}>
+      {/* Pulse dot */}
+      <span style={{ position: "relative", flexShrink: 0 }}>
+        <span
+          style={{
+            display: "block",
+            width: 10,
+            height: 10,
+            borderRadius: "50%",
+            background: isOk ? "#22c55e" : "#ef4444",
+            boxShadow: isOk
+              ? "0 0 0 3px rgba(34,197,94,0.25)"
+              : "0 0 0 3px rgba(239,68,68,0.25)",
+          }}
+        />
+      </span>
       <Tag
         icon={isOk ? <CheckCircleFilled /> : <CloseCircleFilled />}
         color={isOk ? "success" : "error"}
         style={{
           borderRadius: 20,
-          paddingInline: 10,
-          fontWeight: 600,
+          paddingInline: 12,
+          paddingBlock: 3,
+          fontWeight: 700,
+          fontSize: 13,
           margin: 0,
+          lineHeight: "22px",
         }}
       >
         {isOk ? "ONLINE" : `ERROR · ${code}`}
       </Tag>
+      {!isOk && (
+        <Text style={{ fontSize: 11, color: token.colorTextQuaternary }}>
+          {code}
+        </Text>
+      )}
     </Flex>
   );
 };
@@ -123,50 +137,34 @@ const ServerStatusTable: React.FC = () => {
     openExportModal,
   } = useServerStatusStore();
 
-  // คำนวณ filtered data
   const filteredData = useMemo(() => {
     return serverHealthData.filter((item) => {
-      // 1. Search filter (Null-safe)
       const q = (searchQuery || "").toLowerCase();
-      const nTh = (item.name_th || "").toLowerCase();
-      const nEn = (item.name_en || "").toLowerCase();
-      const serv = (item.service || "").toLowerCase();
-      const mod = (item.module || "").toLowerCase();
-      const ep = (item.request?.url || "").toLowerCase();
-
       const matchSearch =
-        nTh.includes(q) ||
-        nEn.includes(q) ||
-        serv.includes(q) ||
-        mod.includes(q) ||
-        ep.includes(q);
+        (item.name_th || "").toLowerCase().includes(q) ||
+        (item.name_en || "").toLowerCase().includes(q) ||
+        (item.service || "").toLowerCase().includes(q) ||
+        (item.module || "").toLowerCase().includes(q) ||
+        (item.request?.url || "").toLowerCase().includes(q);
 
-      // 2. Status filter
       const matchStatus =
         statusFilter === "ALL" ||
         (statusFilter === "ONLINE" && ["200", "404"].includes(item.status)) ||
         (statusFilter === "ERROR" && !["200", "404"].includes(item.status));
 
-      // 3. Group filter (Handle null group from API)
       const gF = (groupFilter || "ALL").toUpperCase();
-      const itemG = (item.group || "other").toUpperCase();
-      const matchGroup = gF === "ALL" || itemG === gF;
+      const matchGroup = gF === "ALL" || (item.group || "other").toUpperCase() === gF;
 
-      // 4. Method filter (Handle null request from API)
       const mF = (methodFilter || "ALL").toUpperCase();
-      const itemM = (item.request?.method || "GET").toUpperCase();
-      const matchMethod = mF === "ALL" || itemM === mF;
+      const matchMethod = mF === "ALL" || (item.request?.method || "GET").toUpperCase() === mF;
 
       return matchSearch && matchStatus && matchGroup && matchMethod;
     });
   }, [serverHealthData, searchQuery, statusFilter, groupFilter, methodFilter]);
 
-  // สถิติสรุปด้านบน
   const stats = useMemo(() => {
     const total = filteredData.length;
-    const online = filteredData.filter((r) =>
-      ["200", "404"].includes(r.status),
-    ).length;
+    const online = filteredData.filter((r) => ["200", "404"].includes(r.status)).length;
     return { total, online, error: total - online };
   }, [filteredData]);
 
@@ -174,37 +172,40 @@ const ServerStatusTable: React.FC = () => {
     {
       title: "กลุ่มระบบ",
       dataIndex: "group",
-      width: 160,
+      width: 200,
       sorter: (a, b) => (a.group || "").localeCompare(b.group || ""),
       render: (group: string) => {
         const meta = getModuleMeta(group);
         return (
-          <Flex align="center" gap={8}>
+          <Flex align="center" gap={12}>
             <span
               style={{
-                width: 28,
-                height: 28,
-                borderRadius: 8,
-                background: `${meta.color}1a`,
+                width: 40,
+                height: 40,
+                borderRadius: 12,
+                background: `${meta.color}18`,
                 color: meta.color,
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 14,
+                fontSize: 18,
                 flexShrink: 0,
+                border: `1.5px solid ${meta.color}30`,
               }}
             >
               {meta.icon}
             </span>
             <Text
               style={{
-                fontSize: 12,
-                fontWeight: 600,
+                fontSize: 13,
+                fontWeight: 700,
                 color: meta.color,
                 textTransform: "uppercase",
+                letterSpacing: "0.04em",
+                lineHeight: 1.3,
               }}
             >
-              {(group || "other").replace(/-/g, " ")}
+              {(group || "other").replace(/-/g, "\n")}
             </Text>
           </Flex>
         );
@@ -213,21 +214,35 @@ const ServerStatusTable: React.FC = () => {
     {
       title: "ชื่อระบบ",
       key: "name",
+      width: 240,
       sorter: (a, b) => (a.name_th || "").localeCompare(b.name_th || ""),
       render: (_, record) => {
         const isOnline = ["200", "404"].includes(record.status);
         return (
-          <Flex vertical gap={2}>
-            <Text strong style={{ fontSize: 13, fontWeight: 600 }}>
+          <Flex vertical gap={4}>
+            <Text
+              strong
+              style={{ fontSize: 15, fontWeight: 700, lineHeight: 1.3 }}
+            >
               {record.name_th}
             </Text>
             <Text
               style={{
-                fontSize: 11,
-                color: isOnline ? token.colorTextDescription : token.colorError,
+                fontSize: 12,
+                color: isOnline ? token.colorTextTertiary : token.colorError,
+                fontStyle: "italic",
               }}
             >
               {record.name_en}
+            </Text>
+            <Text
+              style={{
+                fontSize: 11,
+                color: token.colorTextQuaternary,
+                fontFamily: "monospace",
+              }}
+            >
+              {record.module}
             </Text>
           </Flex>
         );
@@ -237,52 +252,54 @@ const ServerStatusTable: React.FC = () => {
       title: "Endpoint",
       key: "endpoint",
       sorter: (a, b) =>
-        (a.request?.url ?? a.service).localeCompare(
-          b.request?.url ?? b.service,
-        ),
+        (a.request?.url ?? a.service).localeCompare(b.request?.url ?? b.service),
       render: (_: unknown, record) => {
         const method = record.request?.method || "GET";
         const endpointUrl = record.request?.url ?? record.service;
         return (
-          <Flex align="center" gap={8}>
+          <Flex vertical gap={8}>
             <MethodBadge method={method} />
-            <Tooltip title={endpointUrl}>
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: "monospace",
-                  color: token.colorPrimary,
-                  cursor: "pointer",
-                  maxWidth: 300,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  display: "block",
-                }}
-                onClick={() => {
-                  navigator.clipboard.writeText(endpointUrl);
-                  toast.success("คัดลอก Endpoint เรียบร้อย");
-                }}
-              >
-                {endpointUrl}
-              </Text>
-            </Tooltip>
-            <Tooltip title="คัดลอก">
-              <Button
-                type="text"
-                size="small"
-                icon={<CopyOutlined style={{ fontSize: 11 }} />}
-                style={{
-                  padding: "0 4px",
-                  height: 20,
-                  color: token.colorTextDescription,
-                }}
-                onClick={() => {
-                  navigator.clipboard.writeText(endpointUrl);
-                  toast.success("คัดลอก Endpoint เรียบร้อย");
-                }}
-              />
-            </Tooltip>
+            <Flex align="center" gap={8}>
+              <Tooltip title={endpointUrl}>
+                <Text
+                  style={{
+                    fontSize: 13,
+                    fontFamily: "monospace",
+                    color: token.colorPrimary,
+                    cursor: "pointer",
+                    maxWidth: 380,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    display: "block",
+                    fontWeight: 500,
+                  }}
+                  onClick={() => {
+                    navigator.clipboard.writeText(endpointUrl);
+                    toast.success("คัดลอก Endpoint เรียบร้อย");
+                  }}
+                >
+                  {endpointUrl}
+                </Text>
+              </Tooltip>
+              <Tooltip title="คัดลอก">
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<CopyOutlined style={{ fontSize: 13 }} />}
+                  style={{
+                    padding: "0 4px",
+                    height: 24,
+                    color: token.colorTextTertiary,
+                    flexShrink: 0,
+                  }}
+                  onClick={() => {
+                    navigator.clipboard.writeText(endpointUrl);
+                    toast.success("คัดลอก Endpoint เรียบร้อย");
+                  }}
+                />
+              </Tooltip>
+            </Flex>
           </Flex>
         );
       },
@@ -290,24 +307,23 @@ const ServerStatusTable: React.FC = () => {
     {
       title: "สถานะ",
       dataIndex: "status",
-      width: 170,
+      width: 200,
       sorter: (a, b) => (a.status || "").localeCompare(b.status || ""),
       render: (code: string) => <StatusCell code={code} />,
     },
     {
       title: "ตรวจสอบ",
       key: "action",
-      width: 110,
+      width: 130,
       align: "center",
       render: (_, record) => (
         <Tooltip title="ดูรายละเอียดทางเทคนิค">
           <Button
             type="primary"
             ghost
-            size="small"
             icon={<EyeOutlined />}
             onClick={() => openDetailModal(record)}
-            style={{ borderRadius: 20, fontWeight: 600, fontSize: 12 }}
+            style={{ borderRadius: 20, fontWeight: 700, fontSize: 13, height: 38, paddingInline: 16 }}
           >
             Debug
           </Button>
@@ -331,51 +347,81 @@ const ServerStatusTable: React.FC = () => {
         justify="space-between"
         align="center"
         style={{
-          padding: "16px 20px",
+          padding: "20px 24px",
           borderBottom: `1px solid ${token.colorBorderSecondary}`,
         }}
       >
-        <Flex align="center" gap={12}>
-          <UnorderedListOutlined
-            style={{ fontSize: "1rem", color: token.colorPrimary }}
-          />
-          <Text strong style={{ fontSize: "1rem", fontWeight: 600 }}>
-            รายการประเมินสถานะระบบ
-          </Text>
-          {/* Live stats pills */}
-          <Flex gap={6}>
-            <Badge
-              count={stats.online}
+        <Flex align="center" gap={14}>
+          <span
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 12,
+              background: `${token.colorPrimary}15`,
+              color: token.colorPrimary,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 18,
+            }}
+          >
+            <UnorderedListOutlined />
+          </span>
+          <Flex vertical gap={2}>
+            <Text strong style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.2 }}>
+              รายการประเมินสถานะระบบ
+            </Text>
+            <Text style={{ fontSize: 12, color: token.colorTextTertiary }}>
+              แสดง {stats.total} / {serverHealthData.length} รายการ
+            </Text>
+          </Flex>
+          {/* Live pill stats */}
+          <Flex gap={8} style={{ marginLeft: 8 }}>
+            <span
               style={{
-                backgroundColor: "#22c55e",
-                fontSize: 11,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: 13,
                 fontWeight: 700,
-                boxShadow: "none",
+                padding: "4px 12px",
+                borderRadius: 20,
+                background: token.colorSuccessBg,
+                color: token.colorSuccess,
+                border: `1px solid ${token.colorSuccessBorder}`,
               }}
-              overflowCount={999}
-            />
+            >
+              <CheckCircleFilled style={{ fontSize: 12 }} />
+              {stats.online} Online
+            </span>
             {stats.error > 0 && (
-              <Badge
-                count={stats.error}
+              <span
                 style={{
-                  backgroundColor: "#ef4444",
-                  fontSize: 11,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: 13,
                   fontWeight: 700,
-                  boxShadow: "none",
+                  padding: "4px 12px",
+                  borderRadius: 20,
+                  background: token.colorErrorBg,
+                  color: token.colorError,
+                  border: `1px solid ${token.colorErrorBorder}`,
                 }}
-                overflowCount={999}
-              />
+              >
+                <CloseCircleFilled style={{ fontSize: 12 }} />
+                {stats.error} Error
+              </span>
             )}
           </Flex>
         </Flex>
 
-        <Space size={8}>
-          <Tooltip title="ส่งรายงานสถานะเข้า Discord ทันที"></Tooltip>
+        <Space size={10}>
           <Tooltip title="ส่งออกรายงาน Excel">
             <Button
               icon={<FileExcelOutlined />}
               onClick={openExportModal}
-              style={{ borderRadius: 8, fontWeight: 600 }}
+              style={{ borderRadius: 10, fontWeight: 600, height: 40 }}
             >
               Excel
             </Button>
@@ -385,84 +431,63 @@ const ServerStatusTable: React.FC = () => {
             icon={<ReloadOutlined />}
             onClick={() => fetchServerStatus("normal")}
             loading={isFetchingStatus}
-            style={{ borderRadius: 8, fontWeight: 600 }}
+            style={{ borderRadius: 10, fontWeight: 600, height: 40 }}
           >
             รีเฟรช
           </Button>
         </Space>
       </Flex>
 
-      {/* Status summary bar */}
-      {!isFetchingStatus && stats.total > 0 && (
+      {/* Status alert bar */}
+      {!isFetchingStatus && stats.error > 0 && (
         <Flex
-          style={{
-            padding: "10px 20px",
-            background: stats.error > 0
-              ? token.colorErrorBg
-              : token.colorSuccessBg,
-            borderBottom: `1px solid ${
-              stats.error > 0 ? token.colorErrorBorder : token.colorSuccessBorder
-            }`,
-          }}
           align="center"
-          gap={16}
+          gap={10}
+          style={{
+            padding: "12px 24px",
+            background: token.colorErrorBg,
+            borderBottom: `1px solid ${token.colorErrorBorder}`,
+          }}
         >
-          <CheckCircleFilled style={{ color: token.colorSuccess, fontSize: 15 }} />
-          <Text style={{ fontSize: 12, color: token.colorSuccess, fontWeight: 600 }}>
-            ออนไลน์ {stats.online} รายการ
-          </Text>
-          {stats.error > 0 && (
-            <>
-              <CloseCircleFilled style={{ color: token.colorError, fontSize: 15 }} />
-              <Text style={{ fontSize: 12, color: token.colorError, fontWeight: 600 }}>
-                พบปัญหา {stats.error} รายการ — กรุณาแจ้ง Developer ทันที
-              </Text>
-            </>
-          )}
-          <Text
-            style={{
-              fontSize: 12,
-              color: token.colorTextDescription,
-              marginLeft: "auto",
-            }}
-          >
-            แสดง {stats.total} / {serverHealthData.length} รายการ
+          <CloseCircleFilled style={{ color: token.colorError, fontSize: 16 }} />
+          <Text style={{ fontSize: 13, color: token.colorError, fontWeight: 700 }}>
+            พบปัญหา {stats.error} รายการ — กรุณาแจ้ง Developer ทันที
           </Text>
         </Flex>
       )}
 
       {/* Table */}
-      <div style={{ padding: "0 0 4px" }}>
-        <Table
-          columns={columns}
-          dataSource={filteredData}
-          rowKey={(record) =>
-            `${record.group}-${record.module}-${record.service}`
-          }
-          loading={isFetchingStatus}
-          size="middle"
-          pagination={{
-            pageSize: 15,
-            showSizeChanger: true,
-            pageSizeOptions: ["10", "15", "25", "50"],
-            showTotal: (total) => `ทั้งหมด ${total} รายการ`,
-            style: { padding: "12px 20px", margin: 0 },
-          }}
-          rowClassName={(record) =>
-            !["200", "404"].includes(record.status) ? "row-error" : ""
-          }
-          locale={{
-            emptyText: (
-              <Empty
-                description="ไม่พบข้อมูลสถานะระบบในขณะนี้"
-                style={{ padding: 48 }}
-              />
+      <Table
+        columns={columns}
+        dataSource={filteredData}
+        rowKey={(record) => `${record.group}-${record.module}-${record.service}`}
+        loading={isFetchingStatus}
+        size="large"
+        pagination={{
+          pageSize: 15,
+          showSizeChanger: true,
+          pageSizeOptions: ["10", "15", "25", "50"],
+          showTotal: (total) => `ทั้งหมด ${total} รายการ`,
+          style: { padding: "16px 24px", margin: 0 },
+        }}
+        rowClassName={(record) =>
+          !["200", "404"].includes(record.status) ? "row-error" : ""
+        }
+        locale={{
+          emptyText: (
+            <Empty description="ไม่พบข้อมูลสถานะระบบในขณะนี้" style={{ padding: 64 }} />
+          ),
+        }}
+        scroll={{ x: "max-content" }}
+        style={{ borderRadius: 0 }}
+        components={{
+          body: {
+            row: (props: React.HTMLAttributes<HTMLTableRowElement>) => (
+              <tr {...props} style={{ ...props.style, height: 72 }} />
             ),
-          }}
-          scroll={{ x: "max-content" }}
-          style={{ borderRadius: 0 }}
-        />
-      </div>
+          },
+        }}
+      />
 
       {/* Row error highlight */}
       <style>{`
@@ -470,7 +495,7 @@ const ServerStatusTable: React.FC = () => {
           background: #fff5f5 !important;
         }
         .dark .row-error > td {
-          background: rgba(239,68,68,0.08) !important;
+          background: rgba(239,68,68,0.07) !important;
         }
       `}</style>
     </Card>
