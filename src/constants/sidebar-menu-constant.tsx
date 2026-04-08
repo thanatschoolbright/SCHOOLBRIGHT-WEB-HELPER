@@ -51,7 +51,7 @@ import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { PERMISSIONS } from "./permission.constant";
 
-interface SidebarChild {
+export interface SidebarChild {
   label: string;
   href?: string;
   news?: boolean;
@@ -62,7 +62,7 @@ interface SidebarChild {
   children?: SidebarChild[];
 }
 
-interface SidebarItem {
+export interface SidebarItem {
   label: string;
   icon: JSX.Element;
   children?: SidebarChild[];
