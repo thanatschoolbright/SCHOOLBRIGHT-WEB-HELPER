@@ -8,7 +8,6 @@ on:
     # รันทุกวันจันทร์–ศุกร์ เวลา 11:00 UTC = 18:00 ประเทศไทย (UTC+7)
     - cron: "0 11 * * 1-5"
 
-  # เปิดให้รัน manual ได้ (สำหรับทดสอบ)
   workflow_dispatch:
     inputs:
       dry_run:
@@ -16,81 +15,253 @@ on:
         required: false
         default: "false"
       department_ids:
-        description: "department_ids (JSON array, e.g. [7,9]) ถ้าว่างจะส่งทุกแผนก"
+        description: "department_ids JSON array (default: [7,9])"
         required: false
-        default: "[]"
+        default: "[7,9]"
 
 jobs:
   employee-notify:
-    name: Send Personal Timesheet Reminder to Each Employee
+    name: "🔔 Send Personal Timesheet Reminder — 18:00 Thai"
     runs-on: ubuntu-latest
 
     steps:
+      # ──────────────────────────────────────────────────────────────────
       - name: "📋 Step 1 — Initialize"
         run: |
           echo "======================================================"
           echo "🔔 TIMESHEET EMPLOYEE PERSONAL NOTIFICATION"
           echo "======================================================"
-          echo "📅 Run at (UTC)   : $(date)"
-          echo "🕕 Run at (Thai)  : $(TZ=Asia/Bangkok date)"
-          echo "🌐 API Base URL   : ${{ vars.SB_HELPER_URL || 'https://sb-helper.schoolbright.co' }}"
-          echo "🧪 Dry Run        : ${{ github.event.inputs.dry_run || 'false' }}"
+          echo "📅 UTC    : $(date)"
+          echo "🕕 Thai   : $(TZ=Asia/Bangkok date)"
+          echo "🌐 URL    : ${{ vars.SB_HELPER_URL || 'https://sb-helper.schoolbright.co' }}"
+          echo "🏢 Dept   : ${{ github.event.inputs.department_ids || '[7,9]' }}"
+          echo "🧪 DryRun : ${{ github.event.inputs.dry_run || 'false' }}"
           echo "======================================================"
 
-      - name: "📬 Step 2 — Send Personal Email to Each Incomplete Employee"
-        id: send_notify
+      # ──────────────────────────────────────────────────────────────────
+      - name: "🔍 Step 2 — Fetch Target List (Dry Run)"
+        id: fetch_targets
         run: |
           BASE_URL="${{ vars.SB_HELPER_URL || 'https://sb-helper.schoolbright.co' }}"
-          NOTIFY_URL="$BASE_URL/api/v1/timesheet/report/employee-notify"
-
-          DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
-          DEPT_IDS="${{ github.event.inputs.department_ids || '[]' }}"
+          DEPT_IDS='${{ github.event.inputs.department_ids || '[7,9]' }}'
 
           PAYLOAD=$(python3 -c "
           import json
           payload = {
               'department_ids': json.loads('$DEPT_IDS'),
-              'dry_run': $DRY_RUN == 'true' if isinstance($DRY_RUN == 'true', bool) else ('$DRY_RUN' == 'true'),
+              'dry_run': True,
           }
           print(json.dumps(payload))
           ")
 
           echo "📦 Payload: $PAYLOAD"
-          echo "📡 Calling: $NOTIFY_URL"
-          echo ""
+          echo "📡 Fetching target list..."
 
-          HTTP_CODE=$(curl -s -w "%{http_code}" -o response.json -X POST \
+          HTTP_CODE=$(curl -s -w "%{http_code}" -o targets.json -X POST \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD" \
-            "$NOTIFY_URL")
+            "$BASE_URL/api/v1/timesheet/report/employee-notify")
 
           echo "📊 HTTP Status: $HTTP_CODE"
-          echo ""
-          echo "📄 Response:"
-          cat response.json
-          echo ""
-
-          echo "http_code=$HTTP_CODE" >> $GITHUB_OUTPUT
 
           if [ "$HTTP_CODE" -ne 200 ]; then
-            echo "❌ API call failed. HTTP: $HTTP_CODE"
+            echo "❌ Failed to fetch targets. HTTP: $HTTP_CODE"
+            cat targets.json
             exit 1
           fi
 
-          echo "✅ Done."
+          # สรุปจำนวนเป้าหมาย
+          TOTAL=$(python3 -c "
+          import json
+          with open('targets.json') as f:
+              body = json.load(f)
+          print(body.get('data', {}).get('total_targets', 0))
+          ")
 
-      - name: "🏁 Step 3 — Job Summary"
+          echo ""
+          echo "👥 Total targets to notify: $TOTAL"
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+
+          if [ "$TOTAL" = "0" ]; then
+            echo "✅ All employees have completed their timesheet. No emails to send."
+          fi
+
+      # ──────────────────────────────────────────────────────────────────
+      - name: "📬 Step 3 — Send Email to Each Employee (Real-time)"
+        id: send_emails
+        run: |
+          BASE_URL="${{ vars.SB_HELPER_URL || 'https://sb-helper.schoolbright.co' }}"
+          DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
+          TOTAL="${{ steps.fetch_targets.outputs.total }}"
+
+          if [ "$TOTAL" = "0" ]; then
+            echo "⏭️  No targets — skipping send step."
+            echo "sent=0" >> $GITHUB_OUTPUT
+            echo "skipped=0" >> $GITHUB_OUTPUT
+            echo "failed=0" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # ดึงรายชื่อเป้าหมายจากไฟล์ dry_run
+          TARGETS=$(python3 -c "
+          import json
+          with open('targets.json') as f:
+              body = json.load(f)
+          targets = body.get('data', {}).get('targets', [])
+          print(json.dumps(targets))
+          ")
+
+          SENT=0
+          SKIPPED=0
+          FAILED=0
+          RESULT_LINES=""
+
+          echo "======================================================"
+          echo "📧 SENDING EMAILS — $TOTAL EMPLOYEE(S)"
+          echo "======================================================"
+          echo ""
+
+          # วนลูปส่งทีละคน
+          echo "$TARGETS" | python3 -c "
+          import sys, json
+          targets = json.load(sys.stdin)
+          for t in targets:
+              print(json.dumps(t))
+          " | while IFS= read -r TARGET_JSON; do
+            ADMIN_ID=$(echo "$TARGET_JSON" | python3 -c "import sys,json; t=json.load(sys.stdin); print(t['admin_id'])")
+            FULL_NAME=$(echo "$TARGET_JSON" | python3 -c "import sys,json; t=json.load(sys.stdin); print(t['full_name'])")
+            EMAIL=$(echo "$TARGET_JSON" | python3 -c "import sys,json; t=json.load(sys.stdin); print(t.get('email',''))")
+            STATUS=$(echo "$TARGET_JSON" | python3 -c "import sys,json; t=json.load(sys.stdin); print(t.get('status',''))")
+            HOURS=$(echo "$TARGET_JSON" | python3 -c "import sys,json; t=json.load(sys.stdin); print(t.get('total_hours',0))")
+
+            echo "──────────────────────────────────────────────────────"
+            echo "👤 $FULL_NAME"
+            echo "   📧 Email   : ${EMAIL:-'(ไม่มีอีเมล)'}"
+            echo "   📊 Status  : $STATUS ($HOURS hr)"
+            echo "   🆔 AdminID : $ADMIN_ID"
+
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "   🧪 [DRY RUN] — ข้ามการส่งจริง"
+              continue
+            fi
+
+            DATE_LABEL=$(TZ=Asia/Bangkok date +'%d %b %Y')
+
+            ONE_PAYLOAD=$(python3 -c "
+          import json
+          print(json.dumps({'admin_id': $ADMIN_ID, 'date_label': '$DATE_LABEL'}))
+          ")
+
+            HTTP=$(curl -s -w "%{http_code}" -o one_response.json -X POST \
+              -H "Content-Type: application/json" \
+              -d "$ONE_PAYLOAD" \
+              "$BASE_URL/api/v1/timesheet/report/employee-notify-one")
+
+            if [ "$HTTP" = "200" ]; then
+              SKIPPED_FLAG=$(python3 -c "
+          import json
+          with open('one_response.json') as f:
+              b = json.load(f)
+          print(b.get('data', {}).get('skipped', False))
+          " 2>/dev/null || echo "False")
+
+              if [ "$SKIPPED_FLAG" = "True" ]; then
+                REASON=$(python3 -c "
+          import json
+          with open('one_response.json') as f:
+              b = json.load(f)
+          print(b.get('data', {}).get('reason', ''))
+          " 2>/dev/null || echo "")
+                echo "   ⏭️  Skipped — $REASON"
+                echo "SKIP|$FULL_NAME|$EMAIL|$STATUS" >> results.txt
+              else
+                echo "   ✅ Sent email successfully to : $EMAIL"
+                echo "OK|$FULL_NAME|$EMAIL|$STATUS" >> results.txt
+              fi
+            else
+              echo "   ❌ Failed to send — HTTP $HTTP"
+              cat one_response.json
+              echo "FAIL|$FULL_NAME|$EMAIL|$STATUS" >> results.txt
+            fi
+          done
+
+          echo ""
+          echo "======================================================"
+
+          # นับผล
+          if [ -f results.txt ]; then
+            SENT=$(grep -c "^OK|" results.txt || echo 0)
+            SKIPPED=$(grep -c "^SKIP|" results.txt || echo 0)
+            FAILED=$(grep -c "^FAIL|" results.txt || echo 0)
+          else
+            SENT=0; SKIPPED=0; FAILED=0
+          fi
+
+          echo "sent=$SENT"     >> $GITHUB_OUTPUT
+          echo "skipped=$SKIPPED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED"  >> $GITHUB_OUTPUT
+
+      # ──────────────────────────────────────────────────────────────────
+      - name: "📊 Step 4 — GitHub Actions Job Summary"
         if: always()
         run: |
-          echo "======================================================"
-          echo "🏁 JOB SUMMARY"
-          echo "======================================================"
-          echo "📬 API Status  : ${{ steps.send_notify.outputs.http_code || 'N/A' }}"
-          echo "🕕 Finished    : $(TZ=Asia/Bangkok date)"
+          DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
+          TOTAL="${{ steps.fetch_targets.outputs.total || '0' }}"
+          SENT="${{ steps.send_emails.outputs.sent || '0' }}"
+          SKIPPED="${{ steps.send_emails.outputs.skipped || '0' }}"
+          FAILED="${{ steps.send_emails.outputs.failed || '0' }}"
 
-          if [ "${{ steps.send_notify.outputs.http_code }}" = "200" ]; then
-            echo "✅ STATUS: SUCCESS"
-          else
-            echo "❌ STATUS: FAILED — Check logs above."
-          fi
-          echo "======================================================"
+          {
+            echo "# 🔔 Timesheet Employee Personal Notification"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| 🕕 เวลาที่รัน (Thai) | \`$(TZ=Asia/Bangkok date +'%d/%m/%Y %H:%M')\` |"
+            echo "| 🏢 แผนก | \`${{ github.event.inputs.department_ids || '[7,9]' }}\` |"
+            echo "| 🧪 Dry Run | \`$DRY_RUN\` |"
+            echo ""
+
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "## ⚠️ Dry Run Mode — ไม่ได้ส่งอีเมลจริง"
+              echo ""
+            fi
+
+            echo "## 📊 สรุปผล"
+            echo ""
+            echo "| ผลลัพธ์ | จำนวน |"
+            echo "|---|---|"
+            echo "| 👥 เป้าหมายทั้งหมด | **$TOTAL** คน |"
+            echo "| ✅ ส่งสำเร็จ | **$SENT** คน |"
+            echo "| ⏭️ ข้าม (ไม่มีอีเมล) | **$SKIPPED** คน |"
+            echo "| ❌ ส่งไม่สำเร็จ | **$FAILED** คน |"
+            echo ""
+
+            if [ -f results.txt ]; then
+              echo "## 📋 รายละเอียดรายคน"
+              echo ""
+              echo "| สถานะ | ชื่อ | อีเมล | Timesheet |"
+              echo "|---|---|---|---|"
+              while IFS='|' read -r STATUS NAME EMAIL TS_STATUS; do
+                case "$STATUS" in
+                  OK)   ICON="✅" ;;
+                  SKIP) ICON="⏭️" ;;
+                  FAIL) ICON="❌" ;;
+                  *)    ICON="❓" ;;
+                esac
+                echo "| $ICON | $NAME | $EMAIL | $TS_STATUS |"
+              done < results.txt
+              echo ""
+            fi
+
+            if [ "$FAILED" != "0" ] && [ "$FAILED" != "" ]; then
+              echo "---"
+              echo "> ⚠️ มีอีเมลที่ส่งไม่สำเร็จ $FAILED รายการ — กรุณาตรวจสอบ logs ด้านบน"
+            elif [ "$TOTAL" = "0" ]; then
+              echo "---"
+              echo "> ✅ พนักงานทุกคนกรอก Timesheet ครบแล้ว ไม่มีการแจ้งเตือน"
+            else
+              echo "---"
+              echo "> ✅ ส่งการแจ้งเตือนเรียบร้อยแล้ว"
+            fi
+
+          } >> $GITHUB_STEP_SUMMARY
