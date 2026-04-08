@@ -1,3 +1,5 @@
+"use client";
+
 import { useSidebarMenu } from "@/constants/sidebar-menu-constant";
 import {
   MenuFoldOutlined,
@@ -5,145 +7,13 @@ import {
   MoonOutlined,
   SunOutlined,
 } from "@ant-design/icons";
-import type { MenuProps } from "antd";
-import {
-  Button,
-  ConfigProvider,
-  Flex,
-  Grid,
-  Menu,
-  Switch,
-  Tag,
-  theme,
-  Typography,
-} from "antd";
+import { Grid, theme, Tooltip } from "antd";
+import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import packageJson from "../../../../package.json";
-
-const { Text } = Typography;
-
-const DARK_MODE_KEY = "theme";
-
-interface DarkModeToggleProps {
-  collapsed?: boolean;
-}
-
-const DarkModeToggle = ({ collapsed }: DarkModeToggleProps) => {
-  const { token } = theme.useToken();
-  const [isDarkModeActive, setIsDarkModeActive] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedDarkMode = localStorage.getItem(DARK_MODE_KEY);
-      if (savedDarkMode !== null) {
-        // eslint-disable-next-line
-        setIsDarkModeActive(savedDarkMode === "dark");
-      } else {
-        const prefersDarkMode = window.matchMedia(
-          "(prefers-color-scheme: dark)",
-        ).matches;
-        setIsDarkModeActive(prefersDarkMode);
-      }
-      setIsInitialized(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!isInitialized) return;
-    const documentRoot = document.documentElement;
-    if (isDarkModeActive) {
-      documentRoot.classList.add("dark");
-    } else {
-      documentRoot.classList.remove("dark");
-    }
-  }, [isDarkModeActive, isInitialized]);
-
-  const handleToggleDarkMode = (checkedValue: boolean) => {
-    setIsDarkModeActive(checkedValue);
-    localStorage.setItem(DARK_MODE_KEY, checkedValue ? "dark" : "light");
-  };
-
-  return collapsed ? (
-    <Flex
-      align="center"
-      justify="center"
-      style={{
-        paddingTop: 16,
-        marginTop: 16,
-        borderTop: `1px solid ${token.colorBorderSecondary}`,
-        width: "100%",
-      }}
-    >
-      <Flex
-        align="center"
-        justify="center"
-        onClick={() => {
-          handleToggleDarkMode(!isDarkModeActive);
-        }}
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: 12,
-          background: isDarkModeActive
-            ? token.colorFillSecondary
-            : token.colorPrimaryBg,
-          color: isDarkModeActive ? token.colorText : token.colorPrimary,
-          cursor: "pointer",
-        }}
-        title={isDarkModeActive ? "โหมดมืด" : "โหมดสว่าง"}
-      >
-        {isDarkModeActive ? <MoonOutlined /> : <SunOutlined />}
-      </Flex>
-    </Flex>
-  ) : (
-    <Flex
-      align="center"
-      justify="space-between"
-      style={{
-        paddingTop: 24,
-        marginTop: 24,
-        borderTop: `1px solid ${token.colorBorderSecondary}`,
-        width: "100%",
-      }}
-    >
-      <Flex align="center" gap={12}>
-        <Flex
-          align="center"
-          justify="center"
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 12,
-            background: isDarkModeActive
-              ? token.colorFillSecondary
-              : token.colorPrimaryBg,
-            color: isDarkModeActive ? token.colorText : token.colorPrimary,
-          }}
-        >
-          {isDarkModeActive ? <MoonOutlined /> : <SunOutlined />}
-        </Flex>
-        <Flex vertical>
-          <Text strong style={{ fontSize: 14 }}>
-            {isDarkModeActive ? "โหมดมืด" : "โหมดสว่าง"}
-          </Text>
-          <Text type="secondary" style={{ fontSize: 11 }}>
-            {isDarkModeActive ? "ปกป้องดวงตาของคุณ" : "มองเห็นได้ชัดเจน"}
-          </Text>
-        </Flex>
-      </Flex>
-      <Switch
-        checked={isDarkModeActive}
-        onChange={handleToggleDarkMode}
-        checkedChildren={<MoonOutlined />}
-        unCheckedChildren={<SunOutlined />}
-      />
-    </Flex>
-  );
-};
 
 export interface CustomMenuItemType {
   label: string;
@@ -156,348 +26,674 @@ export interface CustomMenuItemType {
   children?: CustomMenuItemType[];
 }
 
-const StatusTag = ({ type }: { type: "new" | "revamp" | "maintenance" }) => {
-  const { t: translateMenu } = useTranslation("menu");
+const DARK_MODE_KEY = "theme";
 
-  const statusProperties = useMemo(() => {
-    switch (type) {
-      case "new":
-        return { color: "orange", text: translateMenu("status.new") };
-      case "revamp":
-        return { color: "blue", text: translateMenu("status.revamp") };
-      case "maintenance":
-        return { color: "red", text: translateMenu("status.maintenance") };
-      default:
-        return { color: "default", text: "" };
-    }
-  }, [type, translateMenu]);
+function isDescendantActive(item: CustomMenuItemType, pathname: string): boolean {
+  if (item.href === pathname) return true;
+  if (!item.children) return false;
+  return item.children.some((child) => isDescendantActive(child, pathname));
+}
 
-  return (
-    <Tag
-      color={statusProperties.color}
-      bordered={false}
-      style={{
-        marginLeft: "8px",
-        fontSize: 10,
-        fontWeight: 700,
-        borderRadius: 10,
-        padding: "0 6px",
-      }}
-    >
-      {statusProperties.text}
-    </Tag>
-  );
+// --- Animation variants ---
+// framer-motion v12 ต้องการ ease เป็น tuple 4 ค่าหรือ string เท่านั้น
+const EASE_STD = "easeInOut" as const;
+
+const submenuVariants = {
+  closed: { height: 0, opacity: 0 },
+  open: {
+    height: "auto" as const,
+    opacity: 1,
+    transition: { duration: 0.28, ease: EASE_STD },
+  },
+  exit: {
+    height: 0,
+    opacity: 0,
+    transition: { duration: 0.22, ease: EASE_STD },
+  },
 };
 
-type MenuItem = Required<MenuProps>["items"][number];
+const itemVariants = {
+  hidden: { opacity: 0, x: -8 },
+  visible: (i: number) => ({
+    opacity: 1,
+    x: 0,
+    transition: { delay: i * 0.04, duration: 0.22, ease: EASE_STD },
+  }),
+};
 
+const collapsedIconVariants = {
+  hidden: { opacity: 0, scale: 0.7 },
+  visible: (i: number) => ({
+    opacity: 1,
+    scale: 1,
+    transition: { delay: i * 0.05, duration: 0.25, type: "spring" as const, stiffness: 300, damping: 20 },
+  }),
+};
+
+// --- Dark Mode Toggle ---
+function DarkModeToggle({ collapsed }: { collapsed: boolean }) {
+  const { token } = theme.useToken();
+  const [isDark, setIsDark] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(DARK_MODE_KEY);
+    const initialDark =
+      saved !== null
+        ? saved === "dark"
+        : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    setIsDark(initialDark);
+    document.documentElement.classList.toggle("dark", initialDark);
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    document.documentElement.classList.toggle("dark", isDark);
+  }, [isDark, mounted]);
+
+  const toggle = () => {
+    const next = !isDark;
+    setIsDark(next);
+    localStorage.setItem(DARK_MODE_KEY, next ? "dark" : "light");
+  };
+
+  if (!mounted) return null;
+
+  if (collapsed) {
+    return (
+      <div
+        className="border-t mt-4 pt-4 flex justify-center"
+        style={{ borderColor: token.colorBorderSecondary }}
+      >
+        <Tooltip title={isDark ? "โหมดมืด" : "โหมดสว่าง"} placement="right">
+          <motion.button
+            type="button"
+            onClick={toggle}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-base cursor-pointer border-0 outline-none"
+            style={{
+              background: isDark ? token.colorFillSecondary : token.colorPrimaryBg,
+              color: isDark ? token.colorText : token.colorPrimary,
+            }}
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span
+                key={isDark ? "moon" : "sun"}
+                initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
+                animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
+                transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                className="flex items-center justify-center"
+              >
+                {isDark ? <MoonOutlined /> : <SunOutlined />}
+              </motion.span>
+            </AnimatePresence>
+          </motion.button>
+        </Tooltip>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="border-t mt-6 pt-6 flex items-center justify-between"
+      style={{ borderColor: token.colorBorderSecondary }}
+    >
+      <div className="flex items-center gap-3">
+        <div
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-base overflow-hidden"
+          style={{
+            background: isDark ? token.colorFillSecondary : token.colorPrimaryBg,
+            color: isDark ? token.colorText : token.colorPrimary,
+          }}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.span
+              key={isDark ? "moon" : "sun"}
+              initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
+              animate={{ rotate: 0, opacity: 1, scale: 1 }}
+              exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
+              transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+              className="flex items-center justify-center"
+            >
+              {isDark ? <MoonOutlined /> : <SunOutlined />}
+            </motion.span>
+          </AnimatePresence>
+        </div>
+        <div className="flex flex-col leading-none gap-0.5">
+          <span className="text-sm font-semibold" style={{ color: token.colorText }}>
+            {isDark ? "โหมดมืด" : "โหมดสว่าง"}
+          </span>
+          <span className="text-xs" style={{ color: token.colorTextTertiary }}>
+            {isDark ? "ปกป้องดวงตาของคุณ" : "มองเห็นได้ชัดเจน"}
+          </span>
+        </div>
+      </div>
+      {/* Toggle pill */}
+      <motion.button
+        type="button"
+        onClick={toggle}
+        whileTap={{ scale: 0.95 }}
+        className="relative w-12 h-6 rounded-full cursor-pointer border-0 outline-none flex-shrink-0"
+        style={{ background: isDark ? token.colorPrimary : token.colorFillSecondary }}
+        transition={{ duration: 0.3 }}
+      >
+        <motion.span
+          layout
+          transition={{ type: "spring", stiffness: 500, damping: 35 }}
+          className="absolute top-0.5 w-5 h-5 rounded-full flex items-center justify-center text-[10px]"
+          style={{
+            left: isDark ? "calc(100% - 22px)" : "2px",
+            background: "#fff",
+            color: isDark ? token.colorPrimary : token.colorTextTertiary,
+          }}
+        >
+          {isDark ? "🌙" : "☀️"}
+        </motion.span>
+      </motion.button>
+    </div>
+  );
+}
+
+// --- Status Badge ---
+function StatusBadge({ type }: { type: "new" | "revamp" | "maintenance" }) {
+  const { t } = useTranslation("menu");
+  const map = {
+    new: { bg: "bg-orange-500/15 text-orange-500", label: t("status.new") },
+    revamp: { bg: "bg-blue-500/15 text-blue-500", label: t("status.revamp") },
+    maintenance: { bg: "bg-red-500/15 text-red-500", label: t("status.maintenance") },
+  };
+  const { bg, label } = map[type];
+  return (
+    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none flex-shrink-0 ${bg}`}>
+      {label}
+    </span>
+  );
+}
+
+// --- Leaf Item ---
+function LeafItem({
+  item,
+  currentPathname,
+  onNavigate,
+  index = 0,
+}: {
+  item: CustomMenuItemType;
+  currentPathname: string;
+  onNavigate: (href: string) => void;
+  index?: number;
+}) {
+  const { token } = theme.useToken();
+  const isActive = currentPathname === item.href;
+
+  return (
+    <motion.button
+      type="button"
+      custom={index}
+      variants={itemVariants}
+      initial="hidden"
+      animate="visible"
+      whileHover={{ x: 3, transition: { duration: 0.15 } }}
+      whileTap={{ scale: 0.98 }}
+      onClick={() => item.href && onNavigate(item.href)}
+      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left cursor-pointer border-0 outline-none"
+      style={{
+        background: isActive ? token.colorPrimaryBg : "transparent",
+        color: isActive ? token.colorPrimary : token.colorTextSecondary,
+        border: isActive ? `1px solid ${token.colorPrimary}30` : "1px solid transparent",
+        transition: "background 0.2s, color 0.2s, border-color 0.2s",
+      }}
+    >
+      {item.icon ? (
+        <span
+          className="text-sm flex-shrink-0 flex items-center justify-center w-5 h-5"
+          style={{ color: isActive ? token.colorPrimary : token.colorTextTertiary }}
+        >
+          {item.icon}
+        </span>
+      ) : (
+        <motion.span
+          animate={{
+            scale: isActive ? 1.4 : 1,
+            backgroundColor: isActive ? token.colorPrimary : token.colorTextQuaternary,
+          }}
+          transition={{ duration: 0.2 }}
+          className="w-1.5 h-1.5 rounded-full flex-shrink-0 ml-0.5"
+        />
+      )}
+      <span
+        className={`flex-1 text-[13px] leading-snug truncate text-left ${isActive ? "font-semibold" : "font-normal"}`}
+      >
+        {item.label}
+      </span>
+      <div className="flex items-center gap-1 flex-shrink-0">
+        {item.news && <StatusBadge type="new" />}
+        {item.revamp && <StatusBadge type="revamp" />}
+        {item.maintenance && <StatusBadge type="maintenance" />}
+      </div>
+    </motion.button>
+  );
+}
+
+// --- Group Item (non-leaf, non-top-level) ---
+function GroupItem({
+  item,
+  currentPathname,
+  onNavigate,
+  defaultOpen = false,
+  index = 0,
+}: {
+  item: CustomMenuItemType;
+  currentPathname: string;
+  onNavigate: (href: string) => void;
+  defaultOpen?: boolean;
+  index?: number;
+}) {
+  const { token } = theme.useToken();
+  const isActive = isDescendantActive(item, currentPathname);
+  const [open, setOpen] = useState(defaultOpen || isActive);
+
+  return (
+    <motion.div
+      custom={index}
+      variants={itemVariants}
+      initial="hidden"
+      animate="visible"
+      className="flex flex-col"
+    >
+      <motion.button
+        type="button"
+        onClick={() => setOpen((p) => !p)}
+        whileHover={{ x: 3, transition: { duration: 0.15 } }}
+        whileTap={{ scale: 0.98 }}
+        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left cursor-pointer border-0 outline-none"
+        style={{
+          background: isActive && !open ? token.colorFillTertiary : "transparent",
+          color: isActive ? token.colorPrimary : token.colorTextSecondary,
+          transition: "background 0.2s, color 0.2s",
+        }}
+      >
+        {item.icon && (
+          <span className="text-sm flex-shrink-0 flex items-center justify-center w-5 h-5">
+            {item.icon}
+          </span>
+        )}
+        <span className="flex-1 text-[13px] font-semibold leading-snug truncate text-left">
+          {item.label}
+        </span>
+        <motion.span
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+          className="flex-shrink-0 text-xs"
+          style={{ color: token.colorTextQuaternary }}
+        >
+          ▾
+        </motion.span>
+      </motion.button>
+
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            key="group-children"
+            variants={submenuVariants}
+            initial="closed"
+            animate="open"
+            exit="exit"
+            className="overflow-hidden"
+          >
+            <div
+              className="flex flex-col gap-0.5 mt-1 ml-4 pl-3 border-l"
+              style={{ borderColor: token.colorBorderSecondary }}
+            >
+              {item.children?.map((child, i) =>
+                child.children ? (
+                  <GroupItem
+                    key={child.label}
+                    item={child}
+                    currentPathname={currentPathname}
+                    onNavigate={onNavigate}
+                    defaultOpen={isDescendantActive(child, currentPathname)}
+                    index={i}
+                  />
+                ) : (
+                  <LeafItem
+                    key={child.href ?? child.label}
+                    item={child}
+                    currentPathname={currentPathname}
+                    onNavigate={onNavigate}
+                    index={i}
+                  />
+                ),
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+// --- Section Item (top-level) ---
+function SectionItem({
+  item,
+  currentPathname,
+  onNavigate,
+  index = 0,
+}: {
+  item: CustomMenuItemType;
+  currentPathname: string;
+  onNavigate: (href: string) => void;
+  index?: number;
+}) {
+  const { token } = theme.useToken();
+  const isActive = isDescendantActive(item, currentPathname);
+  const [open, setOpen] = useState(isActive);
+
+  if (item.href) {
+    return (
+      <LeafItem
+        item={item}
+        currentPathname={currentPathname}
+        onNavigate={onNavigate}
+        index={index}
+      />
+    );
+  }
+
+  return (
+    <motion.div
+      custom={index}
+      variants={itemVariants}
+      initial="hidden"
+      animate="visible"
+      className="flex flex-col"
+    >
+      {/* Section Header */}
+      <motion.button
+        type="button"
+        onClick={() => setOpen((p) => !p)}
+        whileHover={{ x: 2, transition: { duration: 0.15 } }}
+        whileTap={{ scale: 0.98 }}
+        className="w-full flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer border-0 outline-none"
+        style={{
+          background: isActive ? token.colorPrimaryBg : "transparent",
+          color: isActive ? token.colorPrimary : token.colorText,
+          border: isActive ? `1px solid ${token.colorPrimary}20` : "1px solid transparent",
+          transition: "background 0.2s, color 0.2s, border-color 0.2s",
+        }}
+      >
+        <motion.span
+          animate={{
+            background: isActive ? token.colorPrimary : token.colorFillSecondary,
+            color: isActive ? "#fff" : token.colorTextSecondary,
+          }}
+          transition={{ duration: 0.25 }}
+          className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg text-base"
+        >
+          {item.icon}
+        </motion.span>
+        <span className="flex-1 text-[13.5px] leading-snug font-bold tracking-wide truncate text-left">
+          {item.label}
+        </span>
+        <motion.span
+          animate={{ rotate: open ? 90 : 0 }}
+          transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
+          className="flex-shrink-0 text-[11px]"
+          style={{ color: token.colorTextQuaternary }}
+        >
+          ▶
+        </motion.span>
+      </motion.button>
+
+      {/* Children */}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            key="section-children"
+            variants={submenuVariants}
+            initial="closed"
+            animate="open"
+            exit="exit"
+            className="overflow-hidden"
+          >
+            <div
+              className="flex flex-col gap-0.5 mt-1 ml-4 pl-3 border-l mb-2"
+              style={{ borderColor: token.colorBorderSecondary }}
+            >
+              {item.children?.map((child, i) =>
+                child.children ? (
+                  <GroupItem
+                    key={child.label}
+                    item={child}
+                    currentPathname={currentPathname}
+                    onNavigate={onNavigate}
+                    defaultOpen={isDescendantActive(child, currentPathname)}
+                    index={i}
+                  />
+                ) : (
+                  <LeafItem
+                    key={child.href ?? child.label}
+                    item={child}
+                    currentPathname={currentPathname}
+                    onNavigate={onNavigate}
+                    index={i}
+                  />
+                ),
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+// --- Collapsed Icon Rail ---
+function CollapsedRail({
+  items,
+  currentPathname,
+  onNavigate,
+}: {
+  items: CustomMenuItemType[];
+  currentPathname: string;
+  onNavigate: (href: string) => void;
+}) {
+  const { token } = theme.useToken();
+
+  return (
+    <div className="flex flex-col gap-2 px-2">
+      {items.map((item, i) => {
+        const isActive = isDescendantActive(item, currentPathname);
+        const href = item.href;
+
+        return (
+          <Tooltip key={item.href ?? item.label} title={item.label} placement="right">
+            <motion.button
+              type="button"
+              custom={i}
+              variants={collapsedIconVariants}
+              initial="hidden"
+              animate="visible"
+              whileHover={{ scale: 1.12, x: 2 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => (href ? onNavigate(href) : undefined)}
+              className="flex items-center justify-center w-10 h-10 rounded-xl mx-auto cursor-pointer border-0 outline-none flex-shrink-0"
+              style={{
+                background: isActive ? token.colorPrimaryBg : "transparent",
+                color: isActive ? token.colorPrimary : token.colorTextSecondary,
+                border: isActive
+                  ? `1px solid ${token.colorPrimary}40`
+                  : "1px solid transparent",
+                fontSize: 18,
+                transition: "background 0.2s, color 0.2s, border-color 0.2s",
+              }}
+            >
+              {item.icon}
+            </motion.button>
+          </Tooltip>
+        );
+      })}
+    </div>
+  );
+}
+
+// --- Main Sidebar ---
 export default function SidebarContent({
   collapsed = false,
-  onToggle: onSidebarToggle,
-  onMobileClose: onMobileMenuClose,
+  onToggle,
+  onMobileClose,
 }: {
   collapsed?: boolean;
   onToggle?: () => void;
   onMobileClose?: () => void;
 }) {
   const { t: translate } = useTranslation("translate");
-  const sidebarMenu = useSidebarMenu();
+  const sidebarMenu = useSidebarMenu() as CustomMenuItemType[];
   const currentPathname = usePathname();
   const router = useRouter();
   const { token } = theme.useToken();
   const screens = Grid.useBreakpoint();
 
-  const [openKeys, setOpenKeys] = useState<string[]>([]);
-
-  const sidebarTheme = {
-    token: {
-      fontFamily: token.fontFamily,
-      colorBgContainer: token.colorBgContainer, // Solid background
-    },
-    components: {
-      Menu: {
-        itemActiveBg: token.colorFillTertiary,
-        itemHoverBg: token.colorFillQuaternary,
-        itemSelectedBg: token.colorPrimaryBgHover,
-        itemSelectedColor: token.colorPrimary,
-        itemMarginInline: 16,
-        itemBorderRadius: 10,
-        subMenuItemBg: "transparent",
-      },
-    },
-  };
-
-  useEffect(() => {
-    if (collapsed || !currentPathname) return;
-
-    const findPathKeys = (
-      items: CustomMenuItemType[],
-      targetHref: string,
-    ): string[] | null => {
-      for (const item of items) {
-        const itemKey = item.href ?? item.label;
-        if (item.href === targetHref) {
-          return [itemKey];
-        }
-        if (item.children) {
-          const path = findPathKeys(item.children, targetHref);
-          if (path) {
-            return [itemKey, ...path];
-          }
-        }
+  const handleNavigate = useCallback(
+    (href: string) => {
+      if (href.startsWith("http")) {
+        window.open(href, "_blank");
+      } else {
+        router.push(href);
       }
-      return null;
-    };
-
-    const pathKeys = findPathKeys(sidebarMenu, currentPathname);
-    if (pathKeys) {
-      const newOpenKeys = pathKeys.slice(0, -1);
-      if (newOpenKeys.length > 0) {
-        // eslint-disable-next-line
-        setOpenKeys((prev) => Array.from(new Set([...prev, ...newOpenKeys])));
-      }
-    }
-  }, [sidebarMenu, currentPathname, collapsed]);
-
-  const getChildLabel = (child: CustomMenuItemType, depth: number) => {
-    const labelStyle: React.CSSProperties = {
-      fontWeight: depth === 2 ? 600 : 400,
-      fontSize: depth === 2 ? "13.5px" : "13px",
-    };
-
-    if (collapsed || (!child.news && !child.revamp && !child.maintenance)) {
-      return <span style={labelStyle}>{child.label}</span>;
-    }
-
-    return (
-      <Flex align="center" justify="space-between" style={{ width: "100%" }}>
-        <span style={labelStyle}>{child.label}</span>
-        <Flex gap={4}>
-          {child.news && <StatusTag type="new" />}
-          {child.revamp && <StatusTag type="revamp" />}
-          {child.maintenance && <StatusTag type="maintenance" />}
-        </Flex>
-      </Flex>
-    );
-  };
-
-  const mapMenuItems = (menuItem: CustomMenuItemType): MenuItem => {
-    const { label, icon, href, children, tag } = menuItem;
-    const itemKey = href ?? label;
-
-    const level1Style: React.CSSProperties = {
-      fontWeight: 700,
-      fontSize: "14px",
-      letterSpacing: "0.2px",
-    };
-
-    const displayLabel =
-      collapsed || (!tag && !menuItem.maintenance) ? (
-        <span style={level1Style}>{label}</span>
-      ) : (
-        <Flex align="center" justify="space-between" style={{ width: "100%" }}>
-          <span style={level1Style}>{label}</span>
-          <Flex gap={4}>
-            {menuItem.maintenance && <StatusTag type="maintenance" />}
-            {tag && (
-              <Tag
-                color="orange"
-                bordered={false}
-                style={{
-                  borderRadius: 8,
-                  fontSize: 10,
-                  fontWeight: 600,
-                  marginInlineEnd: 0,
-                }}
-              >
-                {tag}
-              </Tag>
-            )}
-          </Flex>
-        </Flex>
-      );
-
-    return {
-      key: itemKey,
-      icon,
-      label: displayLabel,
-      children: children?.map((childItem: CustomMenuItemType) => {
-        const childKey = childItem.href ?? childItem.label;
-
-        if (childItem.children) {
-          return {
-            key: childKey,
-            icon: childItem.icon,
-            label: getChildLabel(childItem, 2),
-            children: childItem.children.map((subItem: CustomMenuItemType) => ({
-              key: subItem.href ?? subItem.label,
-              icon: subItem.icon,
-              label: getChildLabel(subItem, 3),
-            })),
-          };
-        }
-        return {
-          key: childKey,
-          icon: childItem.icon,
-          label: getChildLabel(childItem, 2),
-        };
-      }),
-    } as MenuItem;
-  };
-
-  const handleMenuClick: MenuProps["onClick"] = ({ key }) => {
-    const clickTarget = key;
-    if (clickTarget.startsWith("/")) {
-      router.push(clickTarget);
-      if (!screens.md) onMobileMenuClose?.();
-    } else if (clickTarget.startsWith("http")) {
-      window.open(clickTarget, "_blank");
-    }
-  };
-
-  const sidebarMenuItems: MenuItem[] = (
-    sidebarMenu as CustomMenuItemType[]
-  ).map((menuItem) => mapMenuItems(menuItem));
-
-  const handleLogoClick = () => {
-    router.push("/main");
-  };
+      onMobileClose?.();
+    },
+    [router, onMobileClose],
+  );
 
   return (
-    <ConfigProvider theme={sidebarTheme}>
-      <style>{`
-        .sidebar-menu-wrapper .ant-menu-item-selected {
-          border: 1px solid ${token.colorPrimary} !important;
-          background-color: ${token.colorPrimaryBg} !important;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
-          font-weight: 600 !important;
-        }
-        .sidebar-menu-wrapper .ant-menu-item {
-          transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
-        }
-      `}</style>
-      <Flex
-        className="sidebar-menu-wrapper"
-        vertical
-        style={{
-          height: "100vh",
-          padding: "24px 0",
-          background: token.colorBgContainer, // Solid color for clear visibility
-        }}
-      >
-        <Flex
-          align="center"
-          justify={collapsed ? "center" : "space-between"}
-          style={{
-            padding: "0 20px",
-            marginBottom: 32,
-            transition: "all 0.3s",
-          }}
-        >
+    <div
+      className="flex flex-col h-screen py-5 select-none w-full"
+      style={{ background: token.colorBgContainer }}
+    >
+      {/* Header */}
+      <div className="flex items-center px-4 mb-6 gap-2">
+        <AnimatePresence mode="wait" initial={false}>
           {!collapsed && (
-            <Flex
-              align="center"
-              gap={12}
-              style={{ cursor: "pointer" }}
-              onClick={handleLogoClick}
+            <motion.button
+              key="logo"
+              type="button"
+              onClick={() => router.push("/main")}
+              initial={{ opacity: 0, x: -16 }}
+              animate={{ opacity: 1, x: 0, transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] } }}
+              exit={{ opacity: 0, x: -16, transition: { duration: 0.18 } }}
+              className="flex items-center gap-3 cursor-pointer border-0 bg-transparent outline-none p-0 flex-1 min-w-0"
             >
               <Image
                 src="/web-app-manifest-192x192.png"
                 alt="Logo"
-                width={42}
-                height={42}
-                style={{ borderRadius: 12, objectFit: "cover" }}
+                width={38}
+                height={38}
+                className="rounded-xl object-cover flex-shrink-0"
               />
-              <Flex vertical>
-                <Text
-                  strong
-                  style={{
-                    fontSize: 16,
-                    lineHeight: 1.2,
-                    whiteSpace: "nowrap",
-                    fontWeight: 800,
-                  }}
+              <div className="flex flex-col leading-none gap-1 min-w-0">
+                <span
+                  className="text-[15px] font-extrabold whitespace-nowrap truncate"
+                  style={{ color: token.colorText }}
                 >
                   School Bright
-                </Text>
-                <Text
-                  type="secondary"
-                  style={{
-                    fontSize: 9,
-                    lineHeight: 1.5,
-                    whiteSpace: "nowrap",
-                    letterSpacing: 0.5,
-                  }}
+                </span>
+                <span
+                  className="text-[9px] font-medium tracking-widest whitespace-nowrap uppercase"
+                  style={{ color: token.colorTextTertiary }}
                 >
-                  {translate("navbar.backend_system").toUpperCase()}
-                </Text>
-              </Flex>
-            </Flex>
+                  {translate("navbar.backend_system")}
+                </span>
+              </div>
+            </motion.button>
           )}
+        </AnimatePresence>
 
-          {screens.lg && (
-            <Button
-              type="text"
-              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              onClick={onSidebarToggle}
-              style={{
-                fontSize: 18,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 40,
-                height: 40,
-                borderRadius: 10,
-              }}
-            />
-          )}
-        </Flex>
-
-        <Flex
-          vertical
-          style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}
-          className="custom-scrollbar"
-        >
-          <Menu
-            mode="inline"
-            inlineCollapsed={collapsed}
-            selectedKeys={[currentPathname]}
-            openKeys={!collapsed ? openKeys : undefined}
-            onOpenChange={setOpenKeys}
-            onClick={handleMenuClick}
-            items={sidebarMenuItems}
-            style={{ border: "none", background: "transparent" }}
-          />
-        </Flex>
-
-        <Flex
-          vertical
-          gap={token.marginSM}
-          style={{
-            padding: collapsed ? "16px 8px" : "16px 20px",
-            marginTop: "auto",
-            transition: "all 0.3s",
-          }}
-        >
-          <DarkModeToggle collapsed={collapsed} />
-          <Flex
-            justify={collapsed ? "center" : "flex-start"}
-            style={{ padding: "0 4px" }}
+        {screens.lg && (
+          <motion.button
+            type="button"
+            onClick={onToggle}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.92 }}
+            className="flex items-center justify-center w-8 h-8 rounded-xl cursor-pointer border-0 outline-none text-sm flex-shrink-0"
+            style={{
+              background: token.colorFillTertiary,
+              color: token.colorTextSecondary,
+              marginLeft: collapsed ? "auto" : 0,
+              marginRight: collapsed ? "auto" : 0,
+            }}
           >
-            <Text
-              type="secondary"
-              style={{
-                fontSize: 10,
-                opacity: 0.6,
-                fontWeight: 500,
-                letterSpacing: 0.5,
-              }}
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span
+                key={collapsed ? "unfold" : "fold"}
+                initial={{ rotate: -90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: 90, opacity: 0 }}
+                transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                className="flex items-center justify-center"
+              >
+                {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              </motion.span>
+            </AnimatePresence>
+          </motion.button>
+        )}
+      </div>
+
+      {/* Menu List */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar px-3 w-full">
+        <AnimatePresence mode="wait" initial={false}>
+          {collapsed ? (
+            <motion.div
+              key="collapsed"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, transition: { duration: 0.2, delay: 0.05 } }}
+              exit={{ opacity: 0, transition: { duration: 0.15 } }}
             >
-              v{packageJson.version}
-            </Text>
-          </Flex>
-        </Flex>
-      </Flex>
-    </ConfigProvider>
+              <CollapsedRail
+                items={sidebarMenu}
+                currentPathname={currentPathname}
+                onNavigate={handleNavigate}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="expanded"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, transition: { duration: 0.2, delay: 0.05 } }}
+              exit={{ opacity: 0, transition: { duration: 0.15 } }}
+              className="flex flex-col gap-0.5 w-full"
+            >
+              {sidebarMenu.map((item, i) => (
+                <SectionItem
+                  key={item.href ?? item.label}
+                  item={item}
+                  currentPathname={currentPathname}
+                  onNavigate={handleNavigate}
+                  index={i}
+                />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Footer */}
+      <div
+        className="mt-auto w-full transition-all duration-300"
+        style={{ padding: collapsed ? "0 8px" : "0 16px" }}
+      >
+        <DarkModeToggle collapsed={collapsed} />
+        <div className={`mt-2 flex ${collapsed ? "justify-center" : "justify-start"}`}>
+          <span
+            className="text-[10px] font-medium tracking-wide opacity-50"
+            style={{ color: token.colorTextTertiary }}
+          >
+            v{packageJson.version}
+          </span>
+        </div>
+      </div>
+    </div>
   );
 }
