@@ -1,0 +1,96 @@
+name: TIMESHEET EMPLOYEE PERSONAL NOTIFICATION — 18:00 DAILY
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+on:
+  schedule:
+    # รันทุกวันจันทร์–ศุกร์ เวลา 11:00 UTC = 18:00 ประเทศไทย (UTC+7)
+    - cron: "0 11 * * 1-5"
+
+  # เปิดให้รัน manual ได้ (สำหรับทดสอบ)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "dry_run: true = ดูรายชื่อเท่านั้น ไม่ส่งอีเมลจริง"
+        required: false
+        default: "false"
+      department_ids:
+        description: "department_ids (JSON array, e.g. [7,9]) ถ้าว่างจะส่งทุกแผนก"
+        required: false
+        default: "[]"
+
+jobs:
+  employee-notify:
+    name: Send Personal Timesheet Reminder to Each Employee
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "📋 Step 1 — Initialize"
+        run: |
+          echo "======================================================"
+          echo "🔔 TIMESHEET EMPLOYEE PERSONAL NOTIFICATION"
+          echo "======================================================"
+          echo "📅 Run at (UTC)   : $(date)"
+          echo "🕕 Run at (Thai)  : $(TZ=Asia/Bangkok date)"
+          echo "🌐 API Base URL   : ${{ vars.SB_HELPER_URL || 'https://sb-helper.schoolbright.co' }}"
+          echo "🧪 Dry Run        : ${{ github.event.inputs.dry_run || 'false' }}"
+          echo "======================================================"
+
+      - name: "📬 Step 2 — Send Personal Email to Each Incomplete Employee"
+        id: send_notify
+        run: |
+          BASE_URL="${{ vars.SB_HELPER_URL || 'https://sb-helper.schoolbright.co' }}"
+          NOTIFY_URL="$BASE_URL/api/v1/timesheet/report/employee-notify"
+
+          DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
+          DEPT_IDS="${{ github.event.inputs.department_ids || '[]' }}"
+
+          PAYLOAD=$(python3 -c "
+          import json
+          payload = {
+              'department_ids': json.loads('$DEPT_IDS'),
+              'dry_run': $DRY_RUN == 'true' if isinstance($DRY_RUN == 'true', bool) else ('$DRY_RUN' == 'true'),
+          }
+          print(json.dumps(payload))
+          ")
+
+          echo "📦 Payload: $PAYLOAD"
+          echo "📡 Calling: $NOTIFY_URL"
+          echo ""
+
+          HTTP_CODE=$(curl -s -w "%{http_code}" -o response.json -X POST \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" \
+            "$NOTIFY_URL")
+
+          echo "📊 HTTP Status: $HTTP_CODE"
+          echo ""
+          echo "📄 Response:"
+          cat response.json
+          echo ""
+
+          echo "http_code=$HTTP_CODE" >> $GITHUB_OUTPUT
+
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "❌ API call failed. HTTP: $HTTP_CODE"
+            exit 1
+          fi
+
+          echo "✅ Done."
+
+      - name: "🏁 Step 3 — Job Summary"
+        if: always()
+        run: |
+          echo "======================================================"
+          echo "🏁 JOB SUMMARY"
+          echo "======================================================"
+          echo "📬 API Status  : ${{ steps.send_notify.outputs.http_code || 'N/A' }}"
+          echo "🕕 Finished    : $(TZ=Asia/Bangkok date)"
+
+          if [ "${{ steps.send_notify.outputs.http_code }}" = "200" ]; then
+            echo "✅ STATUS: SUCCESS"
+          else
+            echo "❌ STATUS: FAILED — Check logs above."
+          fi
+          echo "======================================================"
