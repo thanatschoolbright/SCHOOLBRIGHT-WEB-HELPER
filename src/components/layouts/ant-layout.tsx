@@ -392,6 +392,27 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 color: #ff8c00 !important;
               }
 
+              /* ══════════════════════════════
+                 Select — Tag / Selection Item
+                 ══════════════════════════════ */
+              .ant-select-selection-item {
+                padding-inline-start: 10px !important;
+                padding-inline-end: 6px !important;
+                height: 28px !important;
+                line-height: 26px !important;
+                border-radius: 6px !important;
+                gap: 4px !important;
+              }
+              .ant-select-selection-item-content {
+                margin-inline-end: 6px !important;
+              }
+              .ant-select-selection-item-remove {
+                display: flex !important;
+                align-items: center !important;
+                padding-inline: 4px !important;
+                font-size: 11px !important;
+              }
+
               /* Global Component Polishing */
               .ant-table-wrapper .ant-table {
                 background: transparent !important;

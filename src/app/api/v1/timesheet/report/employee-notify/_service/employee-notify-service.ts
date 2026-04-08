@@ -105,7 +105,8 @@ export const queryNotEntryUsersToday = async (
 };
 
 // ====================================================================
-// Email Template สำหรับพนักงาน — Personal reminder
+// Email Template สำหรับพนักงาน — Personal reminder (Enterprise Edition)
+// รองรับ Light Mode / Dark Mode ผ่าน CSS Media Query
 // ====================================================================
 
 export const buildEmployeeEmailHtml = (
@@ -117,161 +118,244 @@ export const buildEmployeeEmailHtml = (
     Math.round((target.total_hours / 8) * 100),
     100,
   );
-  const progressColor = target.total_hours === 0 ? "#ef4444" : "#f59e0b";
   const isZero = target.total_hours === 0;
   const helperUrl =
     process.env.NEXT_PUBLIC_SB_HELPER_URL ??
     "https://sb-helper.schoolbright.co";
+
+  const statusColor = isZero ? "#dc2626" : "#d97706";
+  const statusBg = isZero ? "#fef2f2" : "#fffbeb";
+  const statusBorder = isZero ? "#fecaca" : "#fde68a";
+  const statusBorderLeft = isZero ? "#ef4444" : "#f59e0b";
+  const statusTitleColor = isZero ? "#991b1b" : "#92400e";
+  const statusDescColor = isZero ? "#7f1d1d" : "#78350f";
+  const badgeText = isZero ? "NOT RECORDED" : "INCOMPLETE";
 
   return `<!DOCTYPE html>
 <html lang="th">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>แจ้งเตือนบันทึกเวลาทำงาน</title>
+  <title>แจ้งเตือนบันทึกเวลาทำงาน — SchoolBright</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { background:#f1f5f9; font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; }
-    .wrapper { background:#f1f5f9; padding:40px 20px; }
-    .container { max-width:560px; margin:0 auto; }
+
+    /* ── Light Mode (Default) ── */
+    body {
+      background:#f0f2f5;
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;
+      color:#1a2332;
+      -webkit-text-size-adjust:100%;
+    }
+    .wrapper { background:#f0f2f5; padding:48px 20px; }
+    .container { max-width:580px; margin:0 auto; }
+
     /* Header */
-    .header { background:linear-gradient(135deg,#1a1a2e 0%,#16213e 60%,#0f3460 100%); border-radius:16px 16px 0 0; padding:36px 40px; text-align:center; }
-    .header-badge { display:inline-block; background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.5); color:#fca5a5; font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:5px 14px; border-radius:20px; margin-bottom:16px; }
-    .header-logo { color:#fff; font-size:22px; font-weight:800; margin-bottom:6px; }
-    .header-logo span { color:#818cf8; }
-    .header-sub { color:#94a3b8; font-size:13px; }
-    /* Body */
-    .body { background:#fff; padding:36px 40px; }
-    .greeting { font-size:20px; font-weight:700; color:#0f172a; margin-bottom:6px; }
-    .greeting-sub { color:#64748b; font-size:14px; line-height:1.6; margin-bottom:28px; }
-    /* Status Card */
-    .status-card { border-radius:14px; padding:24px; margin-bottom:28px; ${
-      isZero
-        ? "background:linear-gradient(135deg,#fef2f2,#fff1f2);border:1px solid #fecdd3;border-left:4px solid #ef4444;"
-        : "background:linear-gradient(135deg,#fffbeb,#fef9c3);border:1px solid #fde68a;border-left:4px solid #f59e0b;"
-    } }
-    .status-icon { font-size:32px; margin-bottom:10px; }
-    .status-title { font-size:16px; font-weight:700; color:${
-      isZero ? "#b91c1c" : "#92400e"
-    }; margin-bottom:4px; }
-    .status-desc { font-size:13px; color:${isZero ? "#7f1d1d" : "#78350f"}; }
+    .header { background:#1e2a3a; border-radius:8px 8px 0 0; padding:36px 44px; }
+    .header-brand { color:#94a3b8; font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; margin-bottom:10px; }
+    .header-title { color:#ffffff; font-size:21px; font-weight:700; margin-bottom:6px; }
+    .header-subtitle { color:#64748b; font-size:13px; }
+
+    /* Body card */
+    .body-card { background:#ffffff; padding:40px 44px; }
+
+    /* Badge */
+    .badge {
+      display:inline-block;
+      font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;
+      padding:4px 12px; border-radius:4px; margin-bottom:28px;
+      background:${statusBg}; color:${statusTitleColor}; border:1px solid ${statusBorder};
+    }
+
+    /* Greeting */
+    .greeting-label { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#94a3b8; margin-bottom:8px; }
+    .greeting-name { font-size:22px; font-weight:700; color:#1a2332; margin-bottom:10px; }
+    .greeting-text { font-size:14px; color:#4a5568; line-height:1.75; }
+
+    /* Divider */
+    .divider { border:none; border-top:1px solid #e5e9f0; margin:32px 0; }
+
+    /* Alert */
+    .alert {
+      padding:18px 20px; border-radius:6px; margin-bottom:0;
+      background:${statusBg}; border:1px solid ${statusBorder}; border-left:4px solid ${statusBorderLeft};
+    }
+    .alert-title { font-size:14px; font-weight:700; color:${statusTitleColor}; margin-bottom:4px; }
+    .alert-desc { font-size:13px; color:${statusDescColor}; line-height:1.6; }
+
     /* Progress */
-    .progress-section { margin-bottom:28px; }
-    .progress-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-    .progress-label { font-size:13px; font-weight:600; color:#475569; }
-    .progress-value { font-size:13px; font-weight:700; color:${progressColor}; }
-    .progress-track { background:#f1f5f9; border-radius:8px; height:12px; overflow:hidden; }
-    .progress-fill { height:12px; border-radius:8px; background:${progressColor}; width:${filledPercent}%; transition:width 0.5s; }
-    .progress-hint { font-size:12px; color:#94a3b8; margin-top:6px; text-align:right; }
-    /* Info grid */
-    .info-grid { background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:20px; margin-bottom:28px; }
-    .info-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9; }
-    .info-row:last-child { border-bottom:none; padding-bottom:0; }
-    .info-label { font-size:12px; color:#64748b; font-weight:500; }
-    .info-value { font-size:12px; color:#1e293b; font-weight:600; }
+    .progress-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+    .progress-label { font-size:13px; font-weight:600; color:#4a5568; }
+    .progress-value { font-size:13px; font-weight:700; color:${statusColor}; }
+    .progress-track { background:#e5e9f0; border-radius:4px; height:8px; overflow:hidden; }
+    .progress-fill { height:8px; border-radius:4px; background:${statusColor}; width:${filledPercent}%; }
+    .progress-hint { font-size:12px; color:#94a3b8; margin-top:8px; text-align:right; }
+
+    /* Info table */
+    .section-label { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#94a3b8; margin-bottom:14px; }
+    .table-wrap { background:#f8fafc; border:1px solid #e5e9f0; border-radius:6px; overflow:hidden; }
+    .info-table { width:100%; border-collapse:collapse; }
+    .info-table tr { border-bottom:1px solid #eef1f5; }
+    .info-table tr:last-child { border-bottom:none; }
+    .info-table td { padding:11px 16px; font-size:13px; vertical-align:middle; }
+    .info-table td.td-label { color:#6b7a8d; font-weight:500; width:42%; }
+    .info-table td.td-value { color:#1a2332; font-weight:600; text-align:right; }
+
     /* CTA */
-    .cta-wrap { text-align:center; margin-bottom:28px; }
-    .cta-btn { display:inline-block; background:linear-gradient(135deg,#6366f1,#4f46e5); color:#fff; font-size:15px; font-weight:700; padding:14px 40px; border-radius:12px; text-decoration:none; letter-spacing:0.3px; }
-    .cta-hint { font-size:12px; color:#94a3b8; text-align:center; margin-top:10px; }
+    .cta-wrap { text-align:center; }
+    .cta-btn {
+      display:inline-block;
+      background:#1d4ed8; color:#ffffff !important;
+      font-size:14px; font-weight:700;
+      padding:14px 40px; border-radius:6px;
+      text-decoration:none; letter-spacing:0.4px;
+    }
+    .cta-hint { font-size:12px; color:#94a3b8; margin-top:12px; }
+
     /* Footer */
-    .footer { background:#1e293b; border-radius:0 0 16px 16px; padding:28px 40px; text-align:center; }
-    .footer-logo { color:#94a3b8; font-size:12px; font-weight:600; margin-bottom:6px; }
-    .footer-logo span { color:#6366f1; }
-    .footer-divider { border:none; border-top:1px solid #334155; margin:12px 0; }
-    .footer-text { color:#475569; font-size:11px; line-height:1.6; }
+    .footer { background:#1e2a3a; border-radius:0 0 8px 8px; padding:28px 44px; text-align:center; }
+    .footer-name { color:#e2e8f0; font-size:13px; font-weight:700; letter-spacing:0.5px; margin-bottom:3px; }
+    .footer-role { color:#64748b; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:14px; }
+    .footer-divider { border:none; border-top:1px solid #2d3e52; margin:0 0 14px 0; }
+    .footer-auto { color:#94a3b8; font-size:12px; margin-bottom:4px; }
+    .footer-auto a { color:#818cf8; text-decoration:none; }
+    .footer-copy { color:#64748b; font-size:11px; margin-top:8px; }
+
+    /* ── Dark Mode ── */
+    @media (prefers-color-scheme: dark) {
+      body { background:#0d1117; color:#e6edf3; }
+      .wrapper { background:#0d1117; }
+      .body-card { background:#161b22; }
+      .divider { border-color:#21262d; }
+      .greeting-name { color:#e6edf3; }
+      .greeting-text { color:#8b949e; }
+      .progress-label { color:#8b949e; }
+      .progress-track { background:#21262d; }
+      .progress-hint { color:#484f58; }
+      .table-wrap { background:#0d1117; border-color:#21262d; }
+      .info-table tr { border-color:#21262d; }
+      .info-table td.td-label { color:#8b949e; }
+      .info-table td.td-value { color:#e6edf3; }
+      .cta-hint { color:#484f58; }
+    }
   </style>
 </head>
 <body>
-<div class="wrapper"><div class="container">
+<div class="wrapper">
+  <div class="container">
 
-  <div class="header">
-    <div class="header-badge">${
-      isZero ? "⚠️ ยังไม่บันทึกเลย" : "⏳ บันทึกไม่ครบ"
-    }</div>
-    <div class="header-logo">SchoolBright <span>Helper</span></div>
-    <div class="header-sub">แจ้งเตือนการบันทึกเวลาทำงานประจำวัน</div>
-  </div>
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-brand">SchoolBright Helper &mdash; Timesheet System</div>
+      <div class="header-title">การแจ้งเตือนบันทึกเวลาทำงาน</div>
+      <div class="header-subtitle">Daily Timesheet Reminder &mdash; ${dateLabel}</div>
+    </div>
 
-  <div class="body">
-    <div class="greeting">สวัสดี คุณ${target.full_name}${
+    <!-- BODY -->
+    <div class="body-card">
+
+      <div class="badge">${badgeText}</div>
+
+      <!-- Greeting -->
+      <div class="greeting-label">เรียน</div>
+      <div class="greeting-name">${target.full_name}${
     target.nickname ? ` (${target.nickname})` : ""
   }</div>
-    <div class="greeting-sub">
-      ระบบตรวจพบว่าท่านยัง<strong>${
-        isZero ? "ไม่ได้บันทึกเวลาทำงานเลย" : "บันทึกเวลาทำงานไม่ครบ"
-      }</strong>
-      สำหรับวันที่ <strong>${dateLabel}</strong>
-      กรุณาบันทึกให้ครบถ้วนก่อนสิ้นวันทำงาน
+      <div class="greeting-text">
+        ระบบตรวจพบว่าท่านยัง<strong>${
+          isZero ? "ไม่ได้บันทึกเวลาทำงาน" : "บันทึกเวลาทำงานไม่ครบ"
+        }</strong>
+        สำหรับวันที่ <strong>${dateLabel}</strong>
+        กรุณาดำเนินการให้เรียบร้อยก่อนสิ้นวันทำงาน
+      </div>
+
+      <hr class="divider"/>
+
+      <!-- Alert -->
+      <div class="alert" style="margin-bottom:32px;">
+        <div class="alert-title">${
+          isZero
+            ? "ยังไม่ได้บันทึกเวลาทำงานวันนี้"
+            : `บันทึกแล้ว ${target.total_hours} ชั่วโมง จากเป้าหมาย 8 ชั่วโมง`
+        }</div>
+        <div class="alert-desc">${
+          isZero
+            ? "กรุณาเข้าระบบและบันทึกเวลาทำงานโดยเร็ว"
+            : `ขาดอีก ${remaining} ชั่วโมง — กรุณาบันทึกเพิ่มก่อนสิ้นวัน`
+        }</div>
+      </div>
+
+      <!-- Progress -->
+      <div style="margin-bottom:32px;">
+        <div class="progress-row">
+          <span class="progress-label">ความคืบหน้าวันนี้</span>
+          <span class="progress-value">${
+            target.total_hours
+          } / 8 ชั่วโมง (${filledPercent}%)</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill"></div>
+        </div>
+        <div class="progress-hint">ต้องการอีก ${remaining} ชั่วโมงเพื่อครบเป้าหมาย</div>
+      </div>
+
+      <hr class="divider"/>
+
+      <!-- Info Table -->
+      <div style="margin-bottom:32px;">
+        <div class="section-label">ข้อมูลพนักงาน</div>
+        <div class="table-wrap">
+          <table class="info-table">
+            <tr>
+              <td class="td-label">รหัสพนักงาน</td>
+              <td class="td-value">${target.employee_code ?? "-"}</td>
+            </tr>
+            <tr>
+              <td class="td-label">แผนก</td>
+              <td class="td-value">${target.department ?? "-"}</td>
+            </tr>
+            <tr>
+              <td class="td-label">ตำแหน่ง</td>
+              <td class="td-value">${target.position ?? "-"}</td>
+            </tr>
+            <tr>
+              <td class="td-label">วันที่</td>
+              <td class="td-value">${dateLabel}</td>
+            </tr>
+            <tr>
+              <td class="td-label">สถานะ</td>
+              <td class="td-value">${target.status}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <hr class="divider"/>
+
+      <!-- CTA -->
+      <div class="cta-wrap" style="margin-bottom:8px;">
+        <a href="${helperUrl}/timesheet" class="cta-btn">บันทึกเวลาทำงานเดี๋ยวนี้</a>
+        <div class="cta-hint">คลิกปุ่มด้านบนเพื่อเข้าสู่ระบบ SchoolBright Helper</div>
+      </div>
+
     </div>
 
-    <!-- Status Card -->
-    <div class="status-card">
-      <div class="status-icon">${isZero ? "🚨" : "⚠️"}</div>
-      <div class="status-title">${
-        isZero
-          ? "ยังไม่ได้บันทึกเวลาทำงานวันนี้เลย"
-          : `บันทึกแล้ว ${target.total_hours} ชั่วโมง จากเป้า 8 ชั่วโมง`
-      }</div>
-      <div class="status-desc">${
-        isZero
-          ? "กรุณาเข้าระบบและบันทึกเวลาทำงานโดยเร็วที่สุด"
-          : `ยังขาดอีก ${remaining} ชั่วโมง — กรุณาบันทึกเพิ่มก่อนสิ้นวัน`
-      }</div>
+    <!-- FOOTER -->
+    <div class="footer">
+      <div class="footer-name">THANAT PROMPIRIYA</div>
+      <div class="footer-role">Head of Technology</div>
+      <hr class="footer-divider"/>
+      <div class="footer-auto">
+        อีเมลนี้ถูกส่งโดยอัตโนมัติ &mdash; กรุณาอย่าตอบกลับ<br/>
+        หากมีปัญหาติดต่อ <a href="mailto:sa@schoolbright.co">sa@schoolbright.co</a>
+      </div>
+      <div class="footer-copy">&copy; ${new Date().getFullYear()} SchoolBright Co., Ltd. All rights reserved.</div>
     </div>
 
-    <!-- Progress -->
-    <div class="progress-section">
-      <div class="progress-header">
-        <span class="progress-label">ความคืบหน้าวันนี้</span>
-        <span class="progress-value">${
-          target.total_hours
-        } / 8 ชั่วโมง (${filledPercent}%)</span>
-      </div>
-      <div class="progress-track"><div class="progress-fill"></div></div>
-      <div class="progress-hint">ต้องการอีก ${remaining} ชั่วโมงเพื่อครบเป้า</div>
-    </div>
-
-    <!-- Info -->
-    <div class="info-grid">
-      <div class="info-row">
-        <span class="info-label">รหัสพนักงาน</span>
-        <span class="info-value">${target.employee_code ?? "-"}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">แผนก</span>
-        <span class="info-value">${target.department ?? "-"}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">ตำแหน่ง</span>
-        <span class="info-value">${target.position ?? "-"}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">วันที่</span>
-        <span class="info-value">${dateLabel}</span>
-      </div>
-    </div>
-
-    <!-- CTA -->
-    <div class="cta-wrap">
-      <a href="${helperUrl}/timesheet" class="cta-btn">บันทึกเวลาทำงานเดี๋ยวนี้ →</a>
-    </div>
-    <p class="cta-hint">คลิกปุ่มด้านบนเพื่อเข้าสู่ระบบ SchoolBright Helper</p>
   </div>
-
-  <div class="footer">
-    <div class="footer-logo">SchoolBright <span>Helper</span> System</div>
-    <hr class="footer-divider"/>
-    <p class="footer-text">
-      อีเมลนี้ถูกส่งโดยอัตโนมัติ — กรุณาอย่าตอบกลับ<br/>
-      หากมีปัญหาติดต่อ <a href="mailto:sa@schoolbright.co" style="color:#6366f1;">sa@schoolbright.co</a>
-    </p>
-    <hr class="footer-divider"/>
-    <p style="color:#334155;font-size:10px;">© ${new Date().getFullYear()} SchoolBright Co., Ltd.</p>
-  </div>
-
-</div></div>
-</body></html>`;
+</div>
+</body>
+</html>`;
 };
 
 // ====================================================================
