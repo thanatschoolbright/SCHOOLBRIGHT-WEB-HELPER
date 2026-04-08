@@ -13,27 +13,14 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { useAppSelector } from "@stores/store";
-import {
-  Avatar,
-  Badge,
-  Button,
-  Card,
-  Divider,
-  Drawer,
-  Flex,
-  Segmented,
-  Space,
-  Tag,
-  theme,
-  Typography,
-} from "antd";
+import { theme } from "antd";
+import { AnimatePresence, motion } from "framer-motion";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-// Services & Helpers
 import {
   getUserRankFromStorage,
   saveUserRankToMemory,
@@ -41,64 +28,17 @@ import {
 import { HUAWEI_STORAGE } from "@/services/huawei-bucket-storage.service";
 import { fetchUserRank } from "@/services/user-rank/user-rank.service";
 
-const { Text, Title } = Typography;
-
-// ==========================================
-// การตั้งค่า Rank และธีม
-// ==========================================
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface RankConfig {
   color: string;
   accent: string;
   labelKey: string;
   icon: React.ReactNode;
-  bg: string;
-  darkBg: string;
+  gradient: string;
+  gradientDark: string;
+  ring: string;
 }
-
-// Config สีและ Effect ของแต่ละ Rank
-const RANK_THEME_CONFIG: Record<string, RankConfig> = {
-  S: {
-    color: "#F59E0B",
-    accent: "#FBBF24",
-    labelKey: "user_dropdown.ranking.legendary",
-    icon: <CrownFilled />,
-    bg: "linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)",
-    darkBg: "linear-gradient(135deg, #1E1B4B 0%, #312E81 100%)",
-  },
-  A: {
-    color: "#10B981",
-    accent: "#34D399",
-    labelKey: "user_dropdown.ranking.excellent",
-    icon: <SafetyCertificateFilled />,
-    bg: "linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%)",
-    darkBg: "linear-gradient(135deg, #064E3B 0%, #065F46 100%)",
-  },
-  B: {
-    color: "#3B82F6",
-    accent: "#60A5FA",
-    labelKey: "user_dropdown.ranking.professional",
-    icon: <ThunderboltFilled />,
-    bg: "linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)",
-    darkBg: "linear-gradient(135deg, #1E3A8A 0%, #172554 100%)",
-  },
-  C: {
-    color: "#F97316",
-    accent: "#FB923C",
-    labelKey: "user_dropdown.ranking.intermediate",
-    icon: <FireFilled />,
-    bg: "linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)",
-    darkBg: "linear-gradient(135deg, #7C2D12 0%, #431407 100%)",
-  },
-  F: {
-    color: "#64748B",
-    accent: "#94A3B8",
-    labelKey: "user_dropdown.ranking.beginner",
-    icon: <UserOutlined />,
-    bg: "linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%)",
-    darkBg: "linear-gradient(135deg, #1E293B 0%, #0F172A 100%)",
-  },
-};
 
 interface UserProfile {
   profile_image_path?: string;
@@ -111,67 +51,6 @@ interface UserProfile {
   position_name?: string;
 }
 
-const generateAvatarUrl = (userProfile: UserProfile) => {
-  // 1. ตรวจสอบว่ามีรูปภาพในฐานข้อมูลหรือไม่ (Real Image)
-  const realImage = userProfile.profile_image_path ?? userProfile.image;
-
-  if (realImage && realImage !== "null") {
-    // * ตรวจสอบว่าเป็น Path ของ Huawei OBS (ที่อาจไม่มี Domain ติดมา)
-    if (
-      typeof realImage === "string" &&
-      !realImage.startsWith("http") &&
-      !realImage.startsWith("data:")
-    ) {
-      // ตัด / ข้างหน้าออกถ้ามี เพื่อป้องกัน URL ซ้อนกัน
-      const cleanPath = realImage.startsWith("/")
-        ? realImage.substring(1)
-        : realImage;
-      return `${HUAWEI_STORAGE.OBS_BUCKET_URL}/${cleanPath}`;
-    }
-    return realImage;
-  }
-
-  // 2. กรณีไม่มีรูปภาพ ให้ Generate ผ่าน DiceBear ตามปกติ
-  const seedString = `${userProfile.firstname_en ?? userProfile.firstname ?? "User"}_${
-    userProfile.lastname_en ?? userProfile.lastname ?? ""
-  }_${String(userProfile.admin_id ?? "0")}`;
-  return `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(
-    seedString,
-  )}&backgroundColor=e0e7ff,d1d5db,f3f4f6`;
-};
-
-// ==========================================
-// Components
-// ==========================================
-
-const RankAvatarDisplay = ({
-  userProfile,
-  currentRankLetter,
-  avatarSize = 40,
-}: {
-  userProfile: UserProfile;
-  currentRankLetter: string;
-  avatarSize?: number;
-}) => {
-  const { token } = theme.useToken();
-  const rankThemeConfig =
-    RANK_THEME_CONFIG[currentRankLetter] || RANK_THEME_CONFIG.F;
-
-  return (
-    <Avatar
-      size={avatarSize}
-      src={generateAvatarUrl(userProfile)}
-      style={{
-        border: `3px solid ${rankThemeConfig.color}`,
-        backgroundColor: token.colorBgContainer,
-        padding: 2,
-        boxShadow: `0 0 20px ${rankThemeConfig.color}44`,
-        transition: "all 0.3s ease",
-      }}
-    />
-  );
-};
-
 interface UserRankDetails {
   rankLetter?: string;
   completion_rate?: number;
@@ -180,576 +59,542 @@ interface UserRankDetails {
   rank?: number | string;
 }
 
-const UserRankDetailsCard = ({
-  userRankDetails,
-}: {
-  userRankDetails: UserRankDetails | null;
-}) => {
-  const { t: TRANSLATION } = useTranslation("translate");
-  const { token } = theme.useToken();
-  const currentRankLetter = userRankDetails?.rankLetter?.toUpperCase() || "F";
-  const rankConfig =
-    RANK_THEME_CONFIG[currentRankLetter] || RANK_THEME_CONFIG.F;
+// ─── Rank Config ──────────────────────────────────────────────────────────────
 
-  const completionPercent = Math.min(
-    Math.round(userRankDetails?.completion_rate ?? 0),
-    100,
+const RANK_CONFIG: Record<string, RankConfig> = {
+  S: {
+    color: "#F59E0B",
+    accent: "#FBBF24",
+    labelKey: "user_dropdown.ranking.legendary",
+    icon: <CrownFilled />,
+    gradient: "from-amber-50 to-yellow-100",
+    gradientDark: "dark:from-indigo-950 dark:to-purple-900",
+    ring: "ring-amber-400",
+  },
+  A: {
+    color: "#10B981",
+    accent: "#34D399",
+    labelKey: "user_dropdown.ranking.excellent",
+    icon: <SafetyCertificateFilled />,
+    gradient: "from-emerald-50 to-green-100",
+    gradientDark: "dark:from-emerald-950 dark:to-green-900",
+    ring: "ring-emerald-400",
+  },
+  B: {
+    color: "#3B82F6",
+    accent: "#60A5FA",
+    labelKey: "user_dropdown.ranking.professional",
+    icon: <ThunderboltFilled />,
+    gradient: "from-blue-50 to-blue-100",
+    gradientDark: "dark:from-blue-950 dark:to-blue-900",
+    ring: "ring-blue-400",
+  },
+  C: {
+    color: "#F97316",
+    accent: "#FB923C",
+    labelKey: "user_dropdown.ranking.intermediate",
+    icon: <FireFilled />,
+    gradient: "from-orange-50 to-orange-100",
+    gradientDark: "dark:from-orange-950 dark:to-red-900",
+    ring: "ring-orange-400",
+  },
+  F: {
+    color: "#64748B",
+    accent: "#94A3B8",
+    labelKey: "user_dropdown.ranking.beginner",
+    icon: <UserOutlined />,
+    gradient: "from-slate-50 to-slate-100",
+    gradientDark: "dark:from-slate-900 dark:to-slate-800",
+    ring: "ring-slate-400",
+  },
+};
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const getRankCfg = (rankLetter: string): RankConfig =>
+  (RANK_CONFIG[rankLetter] ?? RANK_CONFIG.F) as RankConfig;
+
+const generateAvatarUrl = (userProfile: UserProfile): string => {
+  const realImage = userProfile.profile_image_path ?? userProfile.image;
+  if (realImage && realImage !== "null") {
+    if (
+      typeof realImage === "string" &&
+      !realImage.startsWith("http") &&
+      !realImage.startsWith("data:")
+    ) {
+      const cleanPath = realImage.startsWith("/") ? realImage.substring(1) : realImage;
+      return `${HUAWEI_STORAGE.OBS_BUCKET_URL}/${cleanPath}`;
+    }
+    return realImage;
+  }
+  const seed = `${userProfile.firstname_en ?? userProfile.firstname ?? "User"}_${
+    userProfile.lastname_en ?? userProfile.lastname ?? ""
+  }_${String(userProfile.admin_id ?? "0")}`;
+  return `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(seed)}&backgroundColor=e0e7ff,d1d5db,f3f4f6`;
+};
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function Avatar({
+  userProfile,
+  rankLetter,
+  size = 40,
+}: {
+  userProfile: UserProfile;
+  rankLetter: string;
+  size?: number;
+}) {
+  const cfg = getRankCfg(rankLetter);
+  return (
+    <motion.img
+      src={generateAvatarUrl(userProfile)}
+      alt="avatar"
+      whileHover={{ scale: 1.05 }}
+      transition={{ type: "spring", stiffness: 400, damping: 20 }}
+      className="rounded-full object-cover ring-2 flex-shrink-0"
+      style={{
+        width: size,
+        height: size,
+        padding: 2,
+        boxShadow: `0 0 18px ${cfg.color}55`,
+        border: `2.5px solid ${cfg.color}`,
+        backgroundColor: "white",
+      }}
+      onError={(e) => {
+        (e.target as HTMLImageElement).src =
+          "https://api.dicebear.com/7.x/notionists/svg?seed=fallback&backgroundColor=e0e7ff";
+      }}
+    />
   );
-  const totalHours = String(userRankDetails?.total_hours ?? 0);
-  const rawDisciplineScore =
-    typeof userRankDetails?.discipline_score === "object"
-      ? userRankDetails.discipline_score.score
-      : userRankDetails?.discipline_score;
-  const disciplineScore = Number(rawDisciplineScore ?? 0).toFixed(1);
+}
+
+function RankCard({ rankData }: { rankData: UserRankDetails | null }) {
+  const { t } = useTranslation("translate");
+  const rankLetter = rankData?.rankLetter?.toUpperCase() ?? "F";
+  const cfg = getRankCfg(rankLetter);
+
+  const completionPercent = Math.min(Math.round(rankData?.completion_rate ?? 0), 100);
+  const totalHours = String(rankData?.total_hours ?? 0);
+  const rawScore =
+    typeof rankData?.discipline_score === "object"
+      ? rankData.discipline_score.score
+      : rankData?.discipline_score;
+  const disciplineScore = Number(rawScore ?? 0).toFixed(1);
 
   return (
-    <Card
-      styles={{
-        body: {
-          padding: 0,
-          borderRadius: 24,
-          overflow: "hidden",
-        },
-      }}
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="rounded-2xl overflow-hidden border border-black/5 dark:border-white/10"
     >
-      {/* Top Banner: Rank Focus */}
+      {/* Rank Banner */}
       <div
-        style={{
-          padding: "24px 20px",
-          position: "relative",
-          overflow: "hidden",
-        }}
+        className={`px-5 py-6 bg-gradient-to-br ${cfg.gradient} ${cfg.gradientDark}`}
+        style={{ position: "relative" }}
       >
-        <Flex align="center" justify="space-between">
-          <Flex vertical>
-            <Text
-              style={{
-                fontSize: 12,
-                fontWeight: 800,
-                textTransform: "uppercase",
-                letterSpacing: 1.5,
-              }}
-            >
-              {TRANSLATION("user_dropdown.prestige_title")}
-            </Text>
-            <Flex align="baseline" gap={8}>
-              <Title
-                level={1}
-                style={{
-                  margin: 0,
-                  fontSize: 48,
-                  fontWeight: 900,
-                  letterSpacing: -2,
-                  lineHeight: 1,
-                }}
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-black uppercase tracking-[2px] opacity-60">
+              {t("user_dropdown.prestige_title")}
+            </span>
+            <div className="flex items-baseline gap-2">
+              <span
+                className="text-5xl font-black leading-none tracking-tighter"
+                style={{ color: cfg.color }}
               >
-                {currentRankLetter}
-              </Title>
-              <Text
-                style={{
-                  fontSize: 16,
-                  fontWeight: 700,
-                  opacity: 0.8,
-                }}
-              >
-                {TRANSLATION("user_dropdown.prestige_class")}
-              </Text>
-            </Flex>
-          </Flex>
-
-          <Flex vertical align="end">
-            <div
-              style={{
-                width: 64,
-                height: 64,
-                borderRadius: 20,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 32,
-              }}
-            >
-              {rankConfig.icon}
+                {rankLetter}
+              </span>
+              <span className="text-sm font-bold opacity-70">
+                {t("user_dropdown.prestige_class")}
+              </span>
             </div>
-          </Flex>
-        </Flex>
-
-        {/* Progress Bar To Next Level (Visual Only for motivation) */}
-        <div style={{ marginTop: 24 }}>
-          <Flex justify="space-between" style={{ marginBottom: 6 }}>
-            <Text
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-              }}
-            >
-              {TRANSLATION("user_dropdown.ranking_progress")}
-            </Text>
-            <Text
-              style={{
-                fontSize: 11,
-                fontWeight: 900,
-              }}
-            >
-              {completionPercent}%
-            </Text>
-          </Flex>
+          </div>
           <div
-            style={{
-              width: "100%",
-              height: 6,
-              borderRadius: 10,
-              overflow: "hidden",
-            }}
+            className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl"
+            style={{ color: cfg.color, background: `${cfg.color}18` }}
           >
-            <div
-              style={{
-                width: `${completionPercent}%`,
-                height: "100%",
-                borderRadius: 10,
-              }}
+            {cfg.icon}
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        <div className="mt-5">
+          <div className="flex justify-between mb-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-wide opacity-60">
+              {t("user_dropdown.ranking_progress")}
+            </span>
+            <span className="text-[10px] font-black" style={{ color: cfg.color }}>
+              {completionPercent}%
+            </span>
+          </div>
+          <div className="h-1.5 w-full rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+            <motion.div
+              className="h-full rounded-full"
+              style={{ background: cfg.color }}
+              initial={{ width: 0 }}
+              animate={{ width: `${completionPercent}%` }}
+              transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
             />
           </div>
         </div>
       </div>
 
-      {/* Bottom Stats: Clean & Technical */}
-      <div style={{ padding: "16px 20px" }}>
-        <Flex gap={16} justify="space-between">
-          <Flex vertical flex={1}>
-            <Text
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                textTransform: "uppercase",
-              }}
-            >
-              {TRANSLATION("user_dropdown.work_hours")}
-            </Text>
-            <Title level={5} style={{ margin: 0, fontWeight: 800 }}>
-              {totalHours}{" "}
-              <small style={{ fontSize: 10, fontWeight: 400 }}>
-                {TRANSLATION("user_dropdown.work_hours_unit")}
-              </small>
-            </Title>
-          </Flex>
-
-          <Divider type="vertical" style={{ height: 32, margin: "auto 0" }} />
-
-          <Flex vertical flex={1} align="center">
-            <Text
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                textTransform: "uppercase",
-              }}
-            >
-              {TRANSLATION("user_dropdown.discipline")}
-            </Text>
-            <Title level={5} style={{ margin: 0, fontWeight: 800 }}>
-              {disciplineScore}
-            </Title>
-          </Flex>
-
-          <Divider type="vertical" style={{ height: 32, margin: "auto 0" }} />
-
-          <Flex vertical flex={1} align="end">
-            <Text
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                textTransform: "uppercase",
-              }}
-            >
-              {TRANSLATION("user_dropdown.leaderboard")}
-            </Text>
-            <Title level={5} style={{ margin: 0, fontWeight: 800 }}>
-              #{userRankDetails?.rank ?? "-"}
-            </Title>
-          </Flex>
-        </Flex>
+      {/* Stats */}
+      <div className="px-5 py-4 flex items-center gap-0 bg-white/60 dark:bg-white/5">
+        {[
+          { label: t("user_dropdown.work_hours"), value: `${totalHours}h` },
+          { label: t("user_dropdown.discipline"), value: disciplineScore },
+          { label: t("user_dropdown.leaderboard"), value: `#${rankData?.rank ?? "-"}` },
+        ].map((stat, i, arr) => (
+          <div key={stat.label} className="flex items-center flex-1">
+            <div className="flex flex-col items-center flex-1 gap-0.5">
+              <span className="text-[9px] font-black uppercase tracking-widest opacity-50">
+                {stat.label}
+              </span>
+              <span className="text-sm font-black">{stat.value}</span>
+            </div>
+            {i < arr.length - 1 && (
+              <div className="w-px h-7 bg-black/10 dark:bg-white/10 flex-shrink-0" />
+            )}
+          </div>
+        ))}
       </div>
-    </Card>
+    </motion.div>
   );
-};
-
-interface StatisticBoxItemProps {
-  label: string;
-  value: string | number;
-  icon: React.ReactNode;
-  rankColor: string;
-  highlight?: boolean;
 }
 
-const StatisticBoxItem = ({
-  label,
-  value,
+function MenuButton({
   icon,
-  rankColor,
-  highlight,
-}: StatisticBoxItemProps) => {
-  const { token } = theme.useToken();
-  const isDark = token.colorBgBase !== "#FFFFFF";
-
+  label,
+  onClick,
+  badge,
+  danger = false,
+  index = 0,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  badge?: string;
+  danger?: boolean;
+  index?: number;
+}) {
   return (
-    <Flex
-      vertical
-      align="center"
-      flex={1}
-      style={{
-        padding: "8px 4px",
-        borderRadius: 16,
-        background: isDark ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.4)",
-        border: `1px solid ${highlight ? rankColor + "44" : "transparent"}`,
-        backdropFilter: "blur(8px)",
-      }}
+    <motion.button
+      type="button"
+      custom={index}
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0, transition: { delay: index * 0.05, duration: 0.2 } }}
+      whileHover={{ x: 4 }}
+      whileTap={{ scale: 0.97 }}
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left transition-colors duration-150 border cursor-pointer outline-none ${
+        danger
+          ? "border-red-400/30 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 bg-transparent font-bold"
+          : "border-transparent hover:bg-black/5 dark:hover:bg-white/8 bg-black/[0.03] dark:bg-white/5 text-inherit"
+      }`}
     >
-      <Text
-        style={{
-          color: highlight ? rankColor : token.colorTextTertiary,
-          fontSize: 14,
-        }}
-      >
+      <span className={`text-base flex-shrink-0 ${danger ? "text-red-500" : "opacity-60"}`}>
         {icon}
-      </Text>
-      <Text
-        style={{
-          fontSize: 13,
-          fontWeight: 900,
-          color: isDark ? "#fff" : token.colorText,
-        }}
-      >
-        {String(value)}
-      </Text>
-      <Text
-        style={{
-          fontSize: 8,
-          fontWeight: "bold",
-          textTransform: "uppercase",
-          opacity: 0.6,
-          color: token.colorTextSecondary,
-        }}
-      >
-        {label}
-      </Text>
-    </Flex>
+      </span>
+      <span className="flex-1 text-[13.5px] font-semibold leading-none">{label}</span>
+      {badge && (
+        <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-emerald-500 text-white uppercase tracking-wide">
+          {badge}
+        </span>
+      )}
+    </motion.button>
   );
-};
+}
 
-// ==========================================
-// Main Component
-// ==========================================
+// ─── Drawer Panel ─────────────────────────────────────────────────────────────
 
-export default function UserProfileDropdown(): React.JSX.Element {
-  const { t: TRANSLATION } = useTranslation("translate");
+function ProfileDrawer({
+  open,
+  onClose,
+  userProfile,
+  rankLetter,
+  rankData,
+  currentLang,
+  onChangeLang,
+}: {
+  open: boolean;
+  onClose: () => void;
+  userProfile: UserProfile;
+  rankLetter: string;
+  rankData: UserRankDetails | null;
+  currentLang: string;
+  onChangeLang: (lang: string) => void;
+}) {
+  const { t } = useTranslation("translate");
   const { token } = theme.useToken();
   const router = useRouter();
+  const cfg = getRankCfg(rankLetter);
+  const isDark = token.colorBgBase !== "#FFFFFF";
 
-  // * เปลี่ยนมาใช้ข้อมูลจาก Redux เพื่อความรวดเร็วและ Real-time (ซิงค์ผ่าน AuthProvider)
-  const AUTH_REDUX = useAppSelector((state) => state.callAdminLogin);
-  const userProfileData = (AUTH_REDUX.response.data?.user_data ??
-    {}) as UserProfile;
-
-  const [currentLanguageCode, setCurrentLanguageCode] = useState<string>(
-    i18n.language,
-  );
-  const [userRankData, setUserRankData] = useState<UserRankDetails | null>(
-    null,
-  );
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
+  // ปิดเมื่อกด ESC
   useEffect(() => {
-    const adminId = userProfileData.admin_id;
-    if (!adminId) return;
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
 
-    const fetchAndSetUserRank = async () => {
-      try {
-        const rankApiResponse = (await fetchUserRank(
-          String(adminId),
-        )) as UserRankDetails | null;
-        if (rankApiResponse) {
-          saveUserRankToMemory(rankApiResponse);
-        }
-        setUserRankData(
-          rankApiResponse ??
-            (getUserRankFromStorage() as UserRankDetails | null),
-        );
-      } catch {
-        setUserRankData(getUserRankFromStorage() as UserRankDetails | null);
-      }
-    };
-    void fetchAndSetUserRank();
-  }, [userProfileData.admin_id]);
+  // ล็อค scroll เมื่อเปิด
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
 
-  const handleChangeLanguage = (languageCode: string | number) => {
-    const code = String(languageCode);
-    if (code === currentLanguageCode) return;
-    void i18n.changeLanguage(code).then(() => {
-      setCurrentLanguageCode(code);
-      toast.success(TRANSLATION("user_dropdown.lang_success"));
-    });
+  const navigate = (path: string) => {
+    onClose();
+    router.push(path);
   };
 
-  const handleLogoutAction = () => {
-    toast.info(TRANSLATION("user_dropdown.logging_out"));
-    // * นำทางไปยัง URL ปัจจุบัน (Origin) แทนการใช้ Hardcoded path เพื่อป้องกันการเด้งไป localhost:3000 ใน Production
-    // NextAuth signOut จะจัดการเรื่อง Session ฝั่ง Client/Server ให้โดยตรง
+  const handleLogout = () => {
+    toast.info(t("user_dropdown.logging_out"));
     void signOut({ callbackUrl: window.location.origin });
   };
 
-  const isDark = token.colorBgBase !== "#FFFFFF";
-  const currentRankLetter = userRankData?.rankLetter?.toUpperCase() || "F";
-  const currentRankThemeConfig =
-    RANK_THEME_CONFIG[currentRankLetter] || RANK_THEME_CONFIG.F;
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            key="backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[200]"
+            onClick={onClose}
+          />
 
-  const userProfileDropdownContent = (
-    <Flex vertical>
-      <Flex
-        vertical
-        align="center"
-        style={{
-          padding: "32px 0",
-          background: isDark
-            ? `linear-gradient(180deg, ${currentRankThemeConfig.color}15 0%, transparent 100%)`
-            : `linear-gradient(180deg, ${currentRankThemeConfig.color}08 0%, transparent 100%)`,
-          borderRadius: 24,
-          marginBottom: 24,
-        }}
-      >
-        <RankAvatarDisplay
-          userProfile={userProfileData}
-          currentRankLetter={currentRankLetter}
-          avatarSize={120}
-        />
-        <Flex vertical align="center" style={{ marginTop: 20 }}>
-          <Title
-            level={3}
-            style={{
-              margin: 0,
-              lineHeight: 1.2,
-              color: token.colorTextHeading,
-              fontWeight: 800,
-            }}
+          {/* Panel */}
+          <motion.div
+            key="panel"
+            initial={{ x: "100%", opacity: 0.5 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: "100%", opacity: 0 }}
+            transition={{ type: "spring", stiffness: 320, damping: 34 }}
+            className="fixed top-0 right-0 h-full w-[420px] max-w-full z-[201] flex flex-col shadow-2xl"
+            style={{ background: token.colorBgElevated }}
           >
-            {userProfileData.firstname} {userProfileData.lastname}
-          </Title>
-          <Tag
-            color={currentRankThemeConfig.color}
-            style={{
-              marginTop: 12,
-              borderRadius: 50,
-              paddingInline: 16,
-              fontWeight: 700,
-              border: "none",
-            }}
-          >
-            {userProfileData.position_name ??
-              TRANSLATION("user_dropdown.default_position")}
-          </Tag>
-        </Flex>
-      </Flex>
+            {/* Header */}
+            <div
+              className="flex items-center justify-between px-6 py-4 border-b flex-shrink-0"
+              style={{ borderColor: token.colorBorderSecondary }}
+            >
+              <span className="text-sm font-bold tracking-wide" style={{ color: token.colorTextSecondary }}>
+                {t("user_dropdown.personal_info")}
+              </span>
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={onClose}
+                className="w-8 h-8 rounded-xl flex items-center justify-center text-base cursor-pointer border-0 outline-none"
+                style={{ background: token.colorFillTertiary, color: token.colorTextSecondary }}
+              >
+                ✕
+              </motion.button>
+            </div>
 
-      {userRankData && <UserRankDetailsCard userRankDetails={userRankData} />}
+            {/* Scrollable Body */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
+              <div className="px-6 py-6 flex flex-col gap-6">
 
-      <Flex vertical gap={12} style={{ marginTop: 32 }}>
-        <Text
-          strong
-          style={{
-            fontSize: 12,
-            color: token.colorTextDescription,
-            textTransform: "uppercase",
-            letterSpacing: 1,
-            paddingLeft: 4,
-          }}
-        >
-          {TRANSLATION("user_dropdown.settings")}
-        </Text>
-        <Segmented
-          block
-          options={[
-            {
-              label: TRANSLATION("user_dropdown.lang_th_label"),
-              value: "th",
-            },
-            {
-              label: TRANSLATION("user_dropdown.lang_en_label"),
-              value: "en",
-            },
-          ]}
-          value={currentLanguageCode}
-          onChange={(val) => {
-            handleChangeLanguage(val);
-          }}
-          style={{
-            background: token.colorFillQuaternary,
-            padding: 4,
-            borderRadius: 12,
-          }}
-        />
+                {/* Avatar + Name */}
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.28, ease: "easeOut" }}
+                  className="flex flex-col items-center pt-4 pb-6 rounded-3xl"
+                  style={{
+                    background: isDark
+                      ? `linear-gradient(180deg, ${cfg.color}18 0%, transparent 100%)`
+                      : `linear-gradient(180deg, ${cfg.color}10 0%, transparent 100%)`,
+                  }}
+                >
+                  <Avatar userProfile={userProfile} rankLetter={rankLetter} size={110} />
+                  <div className="flex flex-col items-center mt-5 gap-2">
+                    <span
+                      className="text-xl font-black leading-snug text-center"
+                      style={{ color: token.colorTextHeading }}
+                    >
+                      {userProfile.firstname} {userProfile.lastname}
+                    </span>
+                    <span
+                      className="text-[11px] font-bold px-4 py-1 rounded-full"
+                      style={{ background: `${cfg.color}22`, color: cfg.color }}
+                    >
+                      {userProfile.position_name ?? t("user_dropdown.default_position")}
+                    </span>
+                  </div>
+                </motion.div>
 
-        <Button
-          block
-          size="large"
-          type="text"
-          icon={<IdcardOutlined />}
-          onClick={() => {
-            setIsDrawerOpen(false);
-            router.push("/profile/personal-information");
-          }}
-          style={{
-            height: 54,
-            borderRadius: 16,
-            background: token.colorFillQuaternary,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-start",
-            padding: "0 20px",
-          }}
-        >
-          {TRANSLATION("user_dropdown.personal_info")}
-        </Button>
+                {/* Rank Card */}
+                {rankData && <RankCard rankData={rankData} />}
 
-        <Button
-          block
-          size="large"
-          type="text"
-          icon={<LockOutlined />}
-          onClick={() => {
-            setIsDrawerOpen(false);
-            router.push("/profile/reset-password");
-          }}
-          style={{
-            height: 54,
-            borderRadius: 16,
-            background: token.colorFillQuaternary,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-start",
-            padding: "0 20px",
-          }}
-        >
-          <Flex
-            justify="space-between"
-            align="center"
-            style={{ width: "100%" }}
-          >
-            <Space>{TRANSLATION("user_dropdown.change_password")}</Space>
-            <Badge
-              count="Security"
-              style={{
-                backgroundColor: token.colorSuccess,
-                fontSize: 10,
-                fontWeight: 800,
-                height: 20,
-                lineHeight: "20px",
-                borderRadius: 6,
-              }}
-            />
-          </Flex>
-        </Button>
+                {/* Language Switcher */}
+                <div className="flex flex-col gap-3">
+                  <span
+                    className="text-[10px] font-black uppercase tracking-[2px] pl-1"
+                    style={{ color: token.colorTextDescription }}
+                  >
+                    {t("user_dropdown.settings")}
+                  </span>
 
-        <Divider style={{ margin: "12px 0" }} />
+                  <div
+                    className="flex rounded-2xl p-1 gap-1"
+                    style={{ background: token.colorFillQuaternary }}
+                  >
+                    {["th", "en"].map((lang) => (
+                      <motion.button
+                        key={lang}
+                        type="button"
+                        whileTap={{ scale: 0.96 }}
+                        onClick={() => onChangeLang(lang)}
+                        className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer border-0 outline-none"
+                        style={{
+                          background: currentLang === lang ? token.colorBgContainer : "transparent",
+                          color: currentLang === lang ? token.colorPrimary : token.colorTextSecondary,
+                          boxShadow: currentLang === lang ? token.boxShadowSecondary : "none",
+                        }}
+                      >
+                        {lang === "th" ? t("user_dropdown.lang_th_label") : t("user_dropdown.lang_en_label")}
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
 
-        <Button
-          block
-          size="large"
-          type="primary"
-          danger
-          ghost
-          icon={<LogoutOutlined />}
-          onClick={() => {
-            handleLogoutAction();
-          }}
-          style={{
-            height: 54,
-            borderRadius: 16,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontWeight: "bold",
-            borderWidth: 2,
-          }}
-        >
-          {TRANSLATION("user_dropdown.logout")}
-        </Button>
-      </Flex>
-    </Flex>
+                {/* Menu Items */}
+                <div className="flex flex-col gap-2">
+                  <MenuButton
+                    index={0}
+                    icon={<IdcardOutlined />}
+                    label={t("user_dropdown.personal_info")}
+                    onClick={() => navigate("/profile/personal-information")}
+                  />
+                  <MenuButton
+                    index={1}
+                    icon={<LockOutlined />}
+                    label={t("user_dropdown.change_password")}
+                    badge="Security"
+                    onClick={() => navigate("/profile/reset-password")}
+                  />
+                </div>
+
+                {/* Divider */}
+                <div className="h-px w-full" style={{ background: token.colorBorderSecondary }} />
+
+                {/* Logout */}
+                <MenuButton
+                  index={0}
+                  icon={<LogoutOutlined />}
+                  label={t("user_dropdown.logout")}
+                  onClick={handleLogout}
+                  danger
+                />
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
+}
+
+// ─── Trigger Button ───────────────────────────────────────────────────────────
+
+export default function UserProfileDropdown(): React.JSX.Element {
+  const { t } = useTranslation("translate");
+  const { token } = theme.useToken();
+
+  const AUTH_REDUX = useAppSelector((state) => state.callAdminLogin);
+  const userProfile = (AUTH_REDUX.response.data?.user_data ?? {}) as UserProfile;
+
+  const [currentLang, setCurrentLang] = useState<string>(i18n.language);
+  const [rankData, setRankData] = useState<UserRankDetails | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const adminId = userProfile.admin_id;
+    if (!adminId) return;
+    const load = async () => {
+      try {
+        const res = (await fetchUserRank(String(adminId))) as UserRankDetails | null;
+        if (res) saveUserRankToMemory(res as unknown as import("@/helpers/user-rank.helper").UserRankData);
+        setRankData(res ?? (getUserRankFromStorage() as UserRankDetails | null));
+      } catch {
+        setRankData(getUserRankFromStorage() as UserRankDetails | null);
+      }
+    };
+    void load();
+  }, [userProfile.admin_id]);
+
+  const handleChangeLang = (lang: string) => {
+    if (lang === currentLang) return;
+    void i18n.changeLanguage(lang).then(() => {
+      setCurrentLang(lang);
+      toast.success(t("user_dropdown.lang_success"));
+    });
+  };
+
+  const rankLetter = rankData?.rankLetter?.toUpperCase() ?? "F";
+  const cfg = getRankCfg(rankLetter);
 
   return (
     <>
-      <Flex
-        align="center"
-        gap={12}
-        onClick={() => {
-          setIsDrawerOpen(true);
-        }}
+      {/* Trigger */}
+      <motion.button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.97 }}
+        className="flex items-center gap-3 px-3 py-1.5 rounded-full cursor-pointer border outline-none transition-all duration-200"
         style={{
-          padding: "6px 8px 6px 16px",
-          borderRadius: 100,
-          cursor: "pointer",
-          transition: "all 0.3s",
-          border: `1px solid ${isDrawerOpen ? token.colorBorder : "transparent"}`,
-          backgroundColor: isDrawerOpen
-            ? token.colorBgContainer
-            : "transparent",
-          boxShadow: isDrawerOpen ? token.boxShadow : "none",
+          borderColor: isOpen ? token.colorBorder : "transparent",
+          background: isOpen ? token.colorBgContainer : "transparent",
+          boxShadow: isOpen ? token.boxShadow : "none",
         }}
       >
-        <Flex vertical align="end" justify="center">
-          <Text strong style={{ fontSize: 14, lineHeight: 1.2 }}>
-            {userProfileData.firstname}
-          </Text>
-          <Badge
-            count={TRANSLATION(currentRankThemeConfig.labelKey).split(" ")[0]}
-            style={{
-              backgroundColor: currentRankThemeConfig.color,
-              fontSize: 9,
-              fontWeight: 800,
-              height: 16,
-              lineHeight: "16px",
-              borderRadius: 4,
-              marginTop: 2,
-            }}
-          />
-        </Flex>
+        {/* Name + rank badge */}
+        <div className="flex flex-col items-end gap-0.5">
+          <span className="text-[13px] font-bold leading-none" style={{ color: token.colorText }}>
+            {userProfile.firstname}
+          </span>
+          <span
+            className="text-[9px] font-black px-1.5 py-0.5 rounded leading-none uppercase tracking-wide"
+            style={{ background: cfg.color, color: "#fff" }}
+          >
+            {t(cfg.labelKey).split(" ")[0]}
+          </span>
+        </div>
 
-        <RankAvatarDisplay
-          userProfile={userProfileData}
-          currentRankLetter={currentRankLetter}
-          avatarSize={38}
-        />
+        <Avatar userProfile={userProfile} rankLetter={rankLetter} size={36} />
 
-        <DownOutlined
-          style={{
-            fontSize: 10,
-            color: token.colorTextQuaternary,
-            transform: isDrawerOpen ? "rotate(180deg)" : "none",
-            transition: "transform 0.3s",
-          }}
-        />
-      </Flex>
+        <motion.span
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.25, ease: "easeInOut" }}
+          className="text-[10px] flex-shrink-0"
+          style={{ color: token.colorTextQuaternary }}
+        >
+          <DownOutlined />
+        </motion.span>
+      </motion.button>
 
-      <Drawer
-        title={TRANSLATION("user_dropdown.personal_info")}
-        placement="right"
-        onClose={() => {
-          setIsDrawerOpen(false);
-        }}
-        open={isDrawerOpen}
-        width={420}
-        styles={{
-          body: {
-            padding: 24,
-            backgroundColor: token.colorBgElevated,
-          },
-          header: {
-            borderBottom: `1px solid ${token.colorBorderSecondary}`,
-          },
-        }}
-      >
-        {userProfileDropdownContent}
-      </Drawer>
+      {/* Drawer Panel */}
+      <ProfileDrawer
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+        userProfile={userProfile}
+        rankLetter={rankLetter}
+        rankData={rankData}
+        currentLang={currentLang}
+        onChangeLang={handleChangeLang}
+      />
     </>
   );
 }
