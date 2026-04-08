@@ -7,7 +7,13 @@ import { Toaster } from "sonner";
 
 import "@styles/globals.css";
 
-import { googleSansFont, sukhumvitFont } from "./fonts";
+import {
+  anuphanFont,
+  googleSansFont,
+  kanitFont,
+  lineSeedFont,
+  sukhumvitFont,
+} from "./fonts";
 export { metadata, viewport } from "./metadata";
 
 export default function RootLayout({
@@ -48,7 +54,7 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className={`${googleSansFont.variable} ${sukhumvitFont.variable} font-sans antialiased text-slate-900 dark:text-slate-50`}
+        className={`${googleSansFont.variable} ${sukhumvitFont.variable} ${anuphanFont.variable} ${kanitFont.variable} ${lineSeedFont.variable} font-sans antialiased text-slate-900 dark:text-slate-50`}
       >
         <AntdRegistry>
           <Toaster

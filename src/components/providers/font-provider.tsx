@@ -2,7 +2,29 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-type FontFamily = "google-sans" | "sukhumvit";
+export type FontFamily =
+  | "google-sans"
+  | "sukhumvit"
+  | "anuphan"
+  | "kanit"
+  | "line-seed";
+
+// CSS variable ของแต่ละ font
+export const FONT_CSS_VAR: Record<FontFamily, string> = {
+  "google-sans": "var(--font-google-sans), sans-serif",
+  "sukhumvit": "var(--font-sukhumvit), sans-serif",
+  "anuphan": "var(--font-anuphan), sans-serif",
+  "kanit": "var(--font-kanit), sans-serif",
+  "line-seed": "var(--font-line-seed), sans-serif",
+};
+
+const VALID_FONTS: FontFamily[] = [
+  "google-sans",
+  "sukhumvit",
+  "anuphan",
+  "kanit",
+  "line-seed",
+];
 
 interface FontContextType {
   fontFamily: FontFamily;
@@ -12,22 +34,18 @@ interface FontContextType {
 const FontContext = createContext<FontContextType | undefined>(undefined);
 
 export function FontProvider({ children }: { children: React.ReactNode }) {
-  const [fontFamily, setFontFamilyState] = useState<FontFamily>("google-sans");
-  const [isInitialized, setIsInitialized] = useState(false);
+  // ค่าเริ่มต้น: Anuphan (ฟอนต์ไทยสวยและ modern ที่สุด)
+  const [fontFamily, setFontFamilyState] = useState<FontFamily>("anuphan");
 
-  // Load saved font from localStorage on mount
+  // โหลด font ที่บันทึกไว้จาก localStorage
   useEffect(() => {
-    const savedFont = localStorage.getItem("app-font-family") as FontFamily;
-    if (
-      savedFont &&
-      (savedFont === "google-sans" || savedFont === "sukhumvit")
-    ) {
-      setFontFamilyState(savedFont);
+    const saved = localStorage.getItem("app-font-family") as FontFamily;
+    if (saved && VALID_FONTS.includes(saved)) {
+      setFontFamilyState(saved);
     }
-    setIsInitialized(true);
   }, []);
 
-  // Save font to localStorage when it changes
+  // บันทึก font เมื่อเปลี่ยนแปลง
   const setFontFamily = (font: FontFamily) => {
     setFontFamilyState(font);
     localStorage.setItem("app-font-family", font);
@@ -36,12 +54,7 @@ export function FontProvider({ children }: { children: React.ReactNode }) {
   return (
     <FontContext.Provider value={{ fontFamily, setFontFamily }}>
       <div
-        style={{
-          fontFamily:
-            fontFamily === "google-sans"
-              ? "var(--font-google-sans), sans-serif"
-              : "var(--font-sukhumvit), sans-serif",
-        }}
+        style={{ fontFamily: FONT_CSS_VAR[fontFamily] }}
         className="h-full w-full"
       >
         {children}
