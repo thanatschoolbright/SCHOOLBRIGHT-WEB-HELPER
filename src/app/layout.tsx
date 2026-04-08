@@ -1,6 +1,5 @@
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import AntThemeProvider from "@components/layouts/ant-layout";
-import CopyrightToggle from "@components/layouts/copyright-toggle";
 import ThemeCustomizer from "@components/layouts/theme-customizer";
 import CombinedProviders from "@components/providers/client-providers";
 import React from "react";
@@ -64,8 +63,7 @@ export default function RootLayout({
             <CombinedProviders>{children}</CombinedProviders>
             <ThemeCustomizer />
           </AntThemeProvider>
-          <CopyrightToggle />
-        </AntdRegistry>
+</AntdRegistry>
       </body>
     </html>
   );

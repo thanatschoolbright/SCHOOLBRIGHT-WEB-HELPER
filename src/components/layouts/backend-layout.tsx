@@ -6,6 +6,7 @@ import { Button, Drawer, Flex, Grid, Layout, theme } from "antd";
 import React, { Suspense, useCallback, useEffect, useState } from "react";
 
 import BreadcrumbComponent from "@components/breadcrump/breadcrumb-component";
+import BackendFooter from "@components/layouts/backend/footer";
 import MainHeader from "@components/layouts/backend/navbar";
 import SidebarContent from "@components/layouts/backend/sidebar-component";
 
@@ -277,6 +278,8 @@ export default function BackendLayout({
             </Layout.Content>
           </div>
         </Content>
+
+        <BackendFooter />
 
         {/* Dynamic Mobile Float Button (Optional enhancement) */}
         {!isDesktop && !mobileDrawerOpen && (
