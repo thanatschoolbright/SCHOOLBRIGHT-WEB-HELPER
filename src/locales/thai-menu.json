@@ -11,7 +11,7 @@
     "children": {
       "user_profile": "บัญชีผู้ใช้",
       "user_management": "สมาชิก",
-      "role_management": "สิทธิ์การใช้งาน",
+      "role_management": "จัดการบทบาทและสิทธิ์ (RBAC)",
       "position_management": "ตำแหน่ง",
       "department_management": "แผนก",
       "system_log": "ประวัติระบบ"

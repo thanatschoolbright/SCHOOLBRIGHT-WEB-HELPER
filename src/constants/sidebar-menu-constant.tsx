@@ -132,6 +132,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
                 label: t("admin_system.children.role_management"),
                 href: "/admin/permission-management",
                 icon: <LockOutlined />,
+                news: true,
                 permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.ROLE_MANAGE],
               },
               {
