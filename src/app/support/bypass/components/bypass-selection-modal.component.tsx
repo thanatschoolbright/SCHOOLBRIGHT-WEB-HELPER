@@ -14,6 +14,7 @@ import {
   RestOutlined,
   SearchOutlined,
   SmileOutlined,
+  TrophyOutlined,
   WalletOutlined,
 } from "@ant-design/icons";
 import {
@@ -101,6 +102,7 @@ const BypassSelectionModal = ({
       activity: <FireOutlined />,
       exam: <FileProtectOutlined />,
       bus: <CarOutlined />,
+      grade: <TrophyOutlined />,
     }),
     [],
   );
@@ -116,6 +118,7 @@ const BypassSelectionModal = ({
       activity: translate("bypass_page.targets.activity"),
       exam: translate("bypass_page.targets.exam"),
       bus: translate("bypass_page.targets.bus"),
+      grade: translate("bypass_page.targets.grade"),
     }),
     [translate],
   );
@@ -164,7 +167,7 @@ const BypassSelectionModal = ({
 
   const secondarySystemKeys = useMemo(
     () =>
-      filterSystemKeys(["bus", "kindergarten", "activity", "exam", "library"]),
+      filterSystemKeys(["bus", "kindergarten", "activity", "exam", "library", "grade"]),
     [systemSearchText, translate, targetDescriptionMap],
   );
 
@@ -219,7 +222,7 @@ const BypassSelectionModal = ({
                             `bypass_page.target_labels.${targetKey}`,
                           ) || targetConfiguration.label}
                         </Title>
-                        {targetKey === "bus" && (
+                        {targetKey === "grade" && (
                           <Tag color="cyan" bordered={false}>
                             {translate(
                               "bypass_page.selection_modal.new_system",

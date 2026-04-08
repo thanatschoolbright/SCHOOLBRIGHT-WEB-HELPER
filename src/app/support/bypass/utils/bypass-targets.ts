@@ -158,6 +158,19 @@ export const BYPASS_TARGETS: Record<string, BypassTarget> = {
       },
     },
   },
+  grade: {
+    label: "Grade Management System",
+    environments: {
+      production: {
+        label: "Production",
+        url: "https://grade.schoolbright.co/home/getToken?token=",
+      },
+      development: {
+        label: "Development",
+        url: "https://dev-grade.schoolbright.co/home/getToken?token=",
+      },
+    },
+  },
 };
 
 export const buildBypassMenuItems = (): MenuProps["items"] =>

@@ -514,7 +514,8 @@
       "kindergarten": "Nursery & Preschool",
       "activity": "Activity Tracking",
       "exam": "Exam Management",
-      "bus": "School Bus System"
+      "bus": "School Bus System",
+      "grade": "Grade Management System"
     },
     "targets": {
       "system": "Core administrative tools, school hierarchy, and primary configurations.",
@@ -525,7 +526,8 @@
       "kindergarten": "Early childhood development tracking and nursery activities.",
       "activity": "Record learner development scores and student clubs records.",
       "exam": "Test banks, online examinations, and performance analytics.",
-      "bus": "Manage bus routes, driver information, and track school transportation status."
+      "bus": "Manage bus routes, driver information, and track school transportation status.",
+      "grade": "Manage exam papers, scoring, and grade reporting for teachers and administrators."
     },
     "environments": {
       "production": "PRODUCTION",
