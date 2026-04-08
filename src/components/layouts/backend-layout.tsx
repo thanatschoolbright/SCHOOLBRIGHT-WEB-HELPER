@@ -64,9 +64,6 @@ export default function BackendLayout({
   }, []);
 
   const isDesktop = !!screens.lg;
-  const currentSidebarWidth = collapsed
-    ? COLLAPSED_SIDEBAR_WIDTH
-    : DESKTOP_SIDEBAR_WIDTH;
 
   if (!isMounted)
     return (
@@ -75,10 +72,11 @@ export default function BackendLayout({
 
   return (
     <Layout
-      className="min-h-screen relative overflow-hidden"
+      className="min-h-screen relative"
       style={{
         background: token.colorBgLayout,
         transition: "background 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+        overflow: "visible",
       }}
     >
       <style jsx global>{`
@@ -161,9 +159,10 @@ export default function BackendLayout({
             borderRight: `1px solid ${token.colorBorderSecondary}`,
             zIndex: 100,
             height: "100vh",
-            position: "fixed",
-            left: 0,
+            position: "sticky",
             top: 0,
+            flexShrink: 0,
+            alignSelf: "flex-start",
             boxShadow: "4px 0 24px -12px rgba(0,0,0,0.05)",
           }}
         >
@@ -200,10 +199,11 @@ export default function BackendLayout({
         className="layout-transition"
         style={{
           background: "transparent",
-          marginLeft: isDesktop ? currentSidebarWidth : 0,
           minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
+          flex: 1,
+          minWidth: 0,
         }}
       >
         <Header

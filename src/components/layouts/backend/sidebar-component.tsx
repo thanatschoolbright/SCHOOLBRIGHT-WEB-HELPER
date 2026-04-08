@@ -73,18 +73,20 @@ const collapsedIconVariants = {
 // --- Dark Mode Toggle ---
 function DarkModeToggle({ collapsed }: { collapsed: boolean }) {
   const { token } = theme.useToken();
-  const [isDark, setIsDark] = useState(false);
+  // ใช้ lazy initializer — ไม่ต้องใช้ useEffect สำหรับ init (ป้องกัน SSR: guard ด้วย typeof window)
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    const saved = localStorage.getItem(DARK_MODE_KEY);
+    return saved !== null
+      ? saved === "dark"
+      : window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem(DARK_MODE_KEY);
-    const initialDark =
-      saved !== null
-        ? saved === "dark"
-        : window.matchMedia("(prefers-color-scheme: dark)").matches;
-    setIsDark(initialDark);
-    document.documentElement.classList.toggle("dark", initialDark);
+    document.documentElement.classList.toggle("dark", isDark);
     setMounted(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
