@@ -7,7 +7,7 @@ import {
   FileExcelOutlined,
   LoadingOutlined,
 } from "@ant-design/icons";
-import { Button, Flex, Modal, Result, Steps, Typography } from "antd";
+import { Button, Flex, Modal, Result, Steps, Typography, theme } from "antd";
 import React, { useEffect, useMemo } from "react";
 import { useServerStatusStore } from "../_state/server-status-store";
 
@@ -15,6 +15,7 @@ const { Text } = Typography;
 
 // คอมโพเนนต์ Modal สำหรับแสดงสถานะการส่งออกรายงาน Excel แบบ step-by-step
 export const ExportModal: React.FC = () => {
+  const { token } = theme.useToken();
   const {
     isExportModalOpen,
     isExporting,
@@ -143,7 +144,7 @@ export const ExportModal: React.FC = () => {
             <Flex
               align="center"
               justify="center"
-              style={{ background: "#1677ff", borderRadius: 8, padding: 8 }}
+              style={{ background: token.colorPrimary, borderRadius: 8, padding: 8 }}
             >
               <FileExcelOutlined style={{ color: "#fff" }} />
             </Flex>

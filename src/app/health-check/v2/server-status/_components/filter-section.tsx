@@ -5,7 +5,7 @@ import {
   FilterOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import { Button, Col, Flex, Input, Row, Select, Space, Typography } from "antd";
+import { Button, Col, Flex, Input, Row, Select, Space, Typography, theme } from "antd";
 import React, { useMemo } from "react";
 import { useServerStatusStore } from "../_state/server-status-store";
 
@@ -15,6 +15,7 @@ const { Text } = Typography;
  * คอมโพเนนต์สำหรับตัวกรองข้อมูล
  */
 const FilterSection: React.FC = () => {
+  const { token } = theme.useToken();
   const {
     serverHealthData,
     searchQuery,
@@ -60,9 +61,9 @@ const FilterSection: React.FC = () => {
       style={{
         marginBottom: 24,
         padding: "24px",
-        background: "#fff",
+        background: token.colorBgContainer,
         borderRadius: 12,
-        border: "1px solid #f0f0f0",
+        border: `1px solid ${token.colorBorderSecondary}`,
       }}
     >
       <Space align="center" style={{ marginBottom: 16 }}>

@@ -38,44 +38,22 @@ import { useServerStatusStore } from "../_state/server-status-store";
 const { Text } = Typography;
 
 // ── Module meta: icon + color per group ───────────────────────────────────
-const MODULE_META: Record<
-  string,
-  { icon: React.ReactNode; color: string; bg: string }
-> = {
-  "login-system": { icon: <LoginOutlined />, color: "#6366f1", bg: "#eef2ff" },
-  "user-system": { icon: <IdcardOutlined />, color: "#0ea5e9", bg: "#e0f7ff" },
-  "notification-system": {
-    icon: <BellOutlined />,
-    color: "#f59e0b",
-    bg: "#fffbeb",
-  },
-  "attendance-system": {
-    icon: <ScanOutlined />,
-    color: "#10b981",
-    bg: "#ecfdf5",
-  },
-  "leave-system": { icon: <BugOutlined />, color: "#ef4444", bg: "#fff1f2" },
-  "school-system": {
-    icon: <CloudServerOutlined />,
-    color: "#8b5cf6",
-    bg: "#f5f3ff",
-  },
-  "server-system": {
-    icon: <CloudServerOutlined />,
-    color: "#64748b",
-    bg: "#f1f5f9",
-  },
+const MODULE_META: Record<string, { icon: React.ReactNode; color: string }> = {
+  "login-system": { icon: <LoginOutlined />, color: "#6366f1" },
+  "user-system": { icon: <IdcardOutlined />, color: "#0ea5e9" },
+  "notification-system": { icon: <BellOutlined />, color: "#f59e0b" },
+  "attendance-system": { icon: <ScanOutlined />, color: "#10b981" },
+  "leave-system": { icon: <BugOutlined />, color: "#ef4444" },
+  "school-system": { icon: <CloudServerOutlined />, color: "#8b5cf6" },
+  "server-system": { icon: <CloudServerOutlined />, color: "#64748b" },
 };
 
 const getModuleMeta = (group: string) =>
-  MODULE_META[group] ?? {
-    icon: <ApiOutlined />,
-    color: "#64748b",
-    bg: "#f1f5f9",
-  };
+  MODULE_META[group] ?? { icon: <ApiOutlined />, color: "#64748b" };
 
 // ── HTTP Method badge ─────────────────────────────────────────────────────
 const MethodBadge: React.FC<{ method: string }> = ({ method }) => {
+  const { token } = theme.useToken();
   const isPost = method === "POST";
   return (
     <span
@@ -88,9 +66,9 @@ const MethodBadge: React.FC<{ method: string }> = ({ method }) => {
         letterSpacing: "0.06em",
         padding: "2px 7px",
         borderRadius: 4,
-        background: isPost ? "#fef2f2" : "#f0fdf4",
-        color: isPost ? "#dc2626" : "#16a34a",
-        border: `1px solid ${isPost ? "#fecaca" : "#bbf7d0"}`,
+        background: isPost ? token.colorErrorBg : token.colorSuccessBg,
+        color: isPost ? token.colorError : token.colorSuccess,
+        border: `1px solid ${isPost ? token.colorErrorBorder : token.colorSuccessBorder}`,
         whiteSpace: "nowrap",
       }}
     >
@@ -207,7 +185,7 @@ const ServerStatusTable: React.FC = () => {
                 width: 28,
                 height: 28,
                 borderRadius: 8,
-                background: meta.bg,
+                background: `${meta.color}1a`,
                 color: meta.color,
                 display: "inline-flex",
                 alignItems: "center",
@@ -419,22 +397,24 @@ const ServerStatusTable: React.FC = () => {
         <Flex
           style={{
             padding: "10px 20px",
-            background: stats.error > 0 ? "#fff7f7" : "#f0fdf4",
+            background: stats.error > 0
+              ? token.colorErrorBg
+              : token.colorSuccessBg,
             borderBottom: `1px solid ${
-              stats.error > 0 ? "#fecaca" : "#bbf7d0"
+              stats.error > 0 ? token.colorErrorBorder : token.colorSuccessBorder
             }`,
           }}
           align="center"
           gap={16}
         >
-          <CheckCircleFilled style={{ color: "#22c55e", fontSize: 15 }} />
-          <Text style={{ fontSize: 12, color: "#166534", fontWeight: 600 }}>
+          <CheckCircleFilled style={{ color: token.colorSuccess, fontSize: 15 }} />
+          <Text style={{ fontSize: 12, color: token.colorSuccess, fontWeight: 600 }}>
             ออนไลน์ {stats.online} รายการ
           </Text>
           {stats.error > 0 && (
             <>
-              <CloseCircleFilled style={{ color: "#ef4444", fontSize: 15 }} />
-              <Text style={{ fontSize: 12, color: "#991b1b", fontWeight: 600 }}>
+              <CloseCircleFilled style={{ color: token.colorError, fontSize: 15 }} />
+              <Text style={{ fontSize: 12, color: token.colorError, fontWeight: 600 }}>
                 พบปัญหา {stats.error} รายการ — กรุณาแจ้ง Developer ทันที
               </Text>
             </>
