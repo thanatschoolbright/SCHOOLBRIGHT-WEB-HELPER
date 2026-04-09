@@ -146,6 +146,7 @@ const TaskDescriptionCard = ({ fieldProps, remove, token }: any) => {
               label={<Typography.Text strong>เวลาเริ่มต้น</Typography.Text>}
               rules={[{ required: true, message: "โปรดระบุ" }]}
               style={{ marginBottom: 0 }}
+              normalize={(val) => (val && !dayjs.isDayjs(val) ? dayjs(val) : val)}
             >
               <DatePicker
                 showTime={{ format: "HH:mm" }}
@@ -164,6 +165,7 @@ const TaskDescriptionCard = ({ fieldProps, remove, token }: any) => {
                 { validator: validateEndDate },
               ]}
               style={{ marginBottom: 0 }}
+              normalize={(val) => (val && !dayjs.isDayjs(val) ? dayjs(val) : val)}
             >
               <DatePicker
                 showTime={{ format: "HH:mm" }}
@@ -554,6 +556,7 @@ const CreateModal: React.FC<CreateModalProps> = ({
               initialValue={dayjs()}
               rules={[{ required: true, message: "โปรดระบุวันที่" }]}
               style={{ marginBottom: 24 }}
+              normalize={(val) => (val && !dayjs.isDayjs(val) ? dayjs(val) : val)}
             >
               <DatePicker
                 style={{

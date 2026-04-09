@@ -411,7 +411,10 @@ export async function updateOvertimeStatusWithNotification(
       where: { id },
       include: {
         requester: {
-          include: { department: true },
+          include: { department: true, position_ref: true },
+        },
+        descriptions: {
+          orderBy: { date: "asc" },
         },
       },
     });
@@ -420,77 +423,239 @@ export async function updateOvertimeStatusWithNotification(
       const u = overtime.requester as unknown as {
         firstname_th?: string | null;
         lastname_th?: string | null;
+        firstname_en?: string | null;
+        lastname_en?: string | null;
+        nickname?: string | null;
         email: string;
+        employee_code?: string | null;
+        phone?: string | null;
+        employment_type?: string | null;
+        position_ref?: { name?: string | null } | null;
+        department?: { name?: string | null } | null;
       };
 
       const fullName = `${u.firstname_th ?? ""} ${u.lastname_th ?? ""}`.trim();
-      const statusLabel =
-        {
-          approved: "อนุมัติ",
-          rejected: "ปฏิเสธ",
-          paid: "จ่าย OT สำเร็จ",
-          payment_failed: "จ่าย OT ล้มเหลว",
-          pending: "รออนุมัติ",
-        }[status] || status;
+      const fullNameEn = `${u.firstname_en ?? ""} ${u.lastname_en ?? ""}`.trim();
 
-      const baseUrl =
-        process.env.NEXT_PUBLIC_SB_HELPER_URL || "http://localhost:3000";
-      const emailSubject = `[Overtime Status] คำขอ OT ของคุณได้รับการ${statusLabel}แล้ว`;
+      const STATUS_MAP: Record<string, { label: string; color: string; bg: string; headerColor: string }> = {
+        approved:        { label: "อนุมัติแล้ว",        color: "#15803d", bg: "#dcfce7", headerColor: "#16a34a" },
+        paid:            { label: "จ่าย OT สำเร็จ",     color: "#1d4ed8", bg: "#dbeafe", headerColor: "#2563eb" },
+        rejected:        { label: "ไม่อนุมัติ",          color: "#b91c1c", bg: "#fee2e2", headerColor: "#dc2626" },
+        payment_failed:  { label: "จ่าย OT ล้มเหลว",    color: "#92400e", bg: "#fef3c7", headerColor: "#d97706" },
+        pending:         { label: "รออนุมัติ",           color: "#7c3aed", bg: "#ede9fe", headerColor: "#7c3aed" },
+      };
+      const st = STATUS_MAP[status] ?? { label: status, color: "#374151", bg: "#f3f4f6", headerColor: "#6b7280" };
+
+      const baseUrl = process.env.NEXT_PUBLIC_SB_HELPER_URL || "http://localhost:3000";
+      const emailSubject = `[OT Notification] #OT-${String(id).padStart(5, "0")} · ${fullName} · ${st.label}`;
+
+      // สร้าง rows ตาราง OvertimeDescription
+      const descs = (overtime.descriptions ?? []) as unknown as Array<{
+        id: number;
+        date?: Date | null;
+        startDate?: Date | null;
+        endDate?: Date | null;
+        duration: { toNumber?: () => number } | number;
+        description: string;
+        assignee: string;
+      }>;
+
+      const totalHours = descs.reduce((sum, d) => {
+        const h = typeof d.duration === "object" && d.duration?.toNumber ? d.duration.toNumber() : Number(d.duration ?? 0);
+        return sum + h;
+      }, 0);
+
+      const descRows = descs.map((d, idx) => {
+        const dateStr = d.date ? dayjs(d.date).locale("th").format("DD MMM BBBB") : "-";
+        const startStr = d.startDate ? dayjs(d.startDate).format("HH:mm") : "-";
+        const endStr = d.endDate ? dayjs(d.endDate).format("HH:mm") : "-";
+        const dur = typeof d.duration === "object" && d.duration?.toNumber ? d.duration.toNumber() : Number(d.duration ?? 0);
+        const isEven = idx % 2 === 0;
+        return `
+          <tr style="background-color:${isEven ? "#ffffff" : "#f8fafc"};">
+            <td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;color:#374151;font-size:13px;text-align:center;font-weight:600;color:#6366f1;">${String(idx + 1).padStart(2, "0")}</td>
+            <td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;color:#374151;font-size:13px;">${dateStr}</td>
+            <td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;color:#374151;font-size:13px;text-align:center;">${startStr} – ${endStr}</td>
+            <td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;color:#374151;font-size:13px;">${d.description || "-"}</td>
+            <td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;color:#374151;font-size:13px;">${d.assignee || "-"}</td>
+            <td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;text-align:center;font-weight:700;color:${st.color};">${dur.toFixed(1)} ชม.</td>
+          </tr>`;
+      }).join("");
+
+      const requestDateStr = overtime.requestDate
+        ? dayjs(overtime.requestDate).locale("th").format("DD MMMM BBBB")
+        : "-";
+      const updatedAtStr = overtime.updatedAt
+        ? dayjs(overtime.updatedAt).locale("th").format("DD MMMM BBBB · HH:mm น.")
+        : "-";
 
       const emailHtml = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <style>
-            body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-          </style>
-        </head>
-        <body style="background-color: #f8fafc; padding: 40px 20px; margin: 0;">
-          <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
-            <div style="background-color: ${status === "approved" || status === "paid" ? "#22c55e" : status === "rejected" || status === "payment_failed" ? "#ef4444" : "#f97316"}; padding: 48px 32px; text-align: center;">
-              <h2 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">Overtime Status Updated</h2>
-              <p style="margin: 12px 0 0; color: rgba(255, 255, 255, 0.9); font-size: 15px;">แจ้งเตือนการเปลี่ยนแปลงสถานะคำขอ OT</p>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
+  <title>OT Notification</title>
+  <style>
+    @media (prefers-color-scheme: dark) {
+      body { background-color: #0f172a !important; }
+      .email-wrapper { background-color: #0f172a !important; }
+      .card { background-color: #1e293b !important; border-color: #334155 !important; }
+      .section-label { color: #94a3b8 !important; }
+      .info-row td { color: #cbd5e1 !important; border-color: #334155 !important; }
+      .info-row-label { color: #94a3b8 !important; }
+      .table-head th { background-color: #1e3a5f !important; color: #93c5fd !important; }
+      .table-row-even td { background-color: #1e293b !important; }
+      .table-row-odd td { background-color: #0f172a !important; }
+      .table-row-even td, .table-row-odd td { color: #e2e8f0 !important; border-color: #334155 !important; }
+      .footer-card { background-color: #0f172a !important; border-color: #1e293b !important; }
+      .footer-text { color: #64748b !important; }
+      .greeting { color: #f1f5f9 !important; }
+      .body-text { color: #94a3b8 !important; }
+      .divider { border-color: #334155 !important; }
+      .total-row td { background-color: #1e3a5f !important; border-color: #2563eb !important; color: #93c5fd !important; }
+    }
+  </style>
+</head>
+<body class="email-wrapper" style="margin:0;padding:0;background-color:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f1f5f9;padding:40px 16px;">
+    <tr><td align="center">
+      <table class="card" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;background-color:#ffffff;border-radius:20px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 4px 6px -1px rgba(0,0,0,0.07),0 20px 40px -12px rgba(0,0,0,0.1);">
+
+        <!-- ═══ HEADER BANNER ═══ -->
+        <tr>
+          <td style="background:linear-gradient(135deg,${st.headerColor} 0%,${st.headerColor}cc 100%);padding:40px 40px 32px;text-align:center;position:relative;">
+            <!-- Badge ID -->
+            <div style="display:inline-block;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:9999px;padding:5px 14px;margin-bottom:16px;">
+              <span style="color:#ffffff;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;">OT REQUEST · #OT-${String(id).padStart(5, "0")}</span>
+            </div>
+            <h1 style="margin:0 0 8px;color:#ffffff;font-size:26px;font-weight:800;letter-spacing:-0.5px;">Overtime Notification</h1>
+            <p style="margin:0;color:rgba(255,255,255,0.85);font-size:14px;">แจ้งผลการอนุมัติคำขอทำงานล่วงเวลา</p>
+            <!-- Status Pill -->
+            <div style="margin-top:24px;">
+              <span style="display:inline-block;background:rgba(255,255,255,0.22);border:2px solid rgba(255,255,255,0.5);border-radius:9999px;padding:8px 28px;color:#ffffff;font-size:17px;font-weight:800;letter-spacing:0.03em;">
+                ${st.label}
+              </span>
+            </div>
+          </td>
+        </tr>
+
+        <!-- ═══ BODY ═══ -->
+        <tr>
+          <td style="padding:36px 40px 0;">
+
+            <!-- Greeting -->
+            <p class="greeting" style="margin:0 0 6px;font-size:17px;font-weight:700;color:#0f172a;">เรียนคุณ ${fullName}${fullNameEn ? ` (${fullNameEn})` : ""},</p>
+            <p class="body-text" style="margin:0 0 28px;font-size:14px;color:#64748b;line-height:1.75;">
+              คำขออนุมัติทำงานล่วงเวลา (OT) ของคุณได้รับการประมวลผลเรียบร้อยแล้ว กรุณาตรวจสอบรายละเอียดด้านล่างนี้
+            </p>
+
+            <!-- ── Requester Info Card ── -->
+            <div style="margin-bottom:28px;">
+              <p class="section-label" style="margin:0 0 10px;font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:0.14em;text-transform:uppercase;">ข้อมูลผู้ขอ OT</p>
+              <table class="card" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;background:#f8fafc;">
+                ${[
+                  ["ชื่อ-นามสกุล", fullName],
+                  ["ชื่อ (ภาษาอังกฤษ)", fullNameEn || "-"],
+                  ["อีเมล", u.email],
+                  ["รหัสพนักงาน", u.employee_code || "-"],
+                  ["แผนก", (u.department as { name?: string | null } | null)?.name || "-"],
+                  ["ตำแหน่ง", (u.position_ref as { name?: string | null } | null)?.name || "-"],
+                  ["เบอร์โทร", u.phone || "-"],
+                  ["ประเภทพนักงาน", u.employment_type === "FULL_TIME" ? "พนักงานประจำ" : u.employment_type === "PART_TIME" ? "พนักงานพาร์ทไทม์" : u.employment_type || "-"],
+                ].map(([label, val]) => `
+                  <tr class="info-row" style="border-bottom:1px solid #e2e8f0;">
+                    <td class="info-row-label" style="padding:10px 16px;font-size:12px;font-weight:600;color:#94a3b8;white-space:nowrap;width:36%;border-right:1px solid #e2e8f0;">${label}</td>
+                    <td style="padding:10px 16px;font-size:13px;font-weight:500;color:#1e293b;">${val}</td>
+                  </tr>`).join("")}
+              </table>
             </div>
 
-            <div style="padding: 40px 32px;">
-              <p style="margin: 0 0 18px; color: #111827; font-size: 16px; font-weight: 600;">เรียนคุณ ${fullName},</p>
-              <p style="margin: 0 0 24px; color: #4b5563; font-size: 14px; line-height: 1.7;">
-                คำขออนุมัติทำงานล่วงเวลา (OT) ของคุณที่บันทึกไว้ในระบบ SB Web Helper ได้รับการอัปเดตสถานะเรียบร้อยแล้ว:
-              </p>
+            <!-- ── Request Meta ── -->
+            <div style="margin-bottom:28px;">
+              <p class="section-label" style="margin:0 0 10px;font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:0.14em;text-transform:uppercase;">ข้อมูลคำขอ</p>
+              <table class="card" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;background:#f8fafc;">
+                ${[
+                  ["รหัส OT", `#OT-${String(id).padStart(5, "0")}`],
+                  ["วันที่ขอ OT", requestDateStr],
+                  ["อัปเดตล่าสุด", updatedAtStr],
+                  ["สถานะ", `<span style="display:inline-block;padding:3px 12px;border-radius:9999px;font-weight:700;font-size:12px;background:${st.bg};color:${st.color};">${st.label}</span>`],
+                  ["รวมชั่วโมง OT ทั้งหมด", `<strong style="color:${st.color};font-size:15px;">${totalHours.toFixed(1)} ชั่วโมง</strong>`],
+                ].map(([label, val]) => `
+                  <tr class="info-row" style="border-bottom:1px solid #e2e8f0;">
+                    <td class="info-row-label" style="padding:10px 16px;font-size:12px;font-weight:600;color:#94a3b8;white-space:nowrap;width:36%;border-right:1px solid #e2e8f0;">${label}</td>
+                    <td style="padding:10px 16px;font-size:13px;font-weight:500;color:#1e293b;">${val}</td>
+                  </tr>`).join("")}
+              </table>
+            </div>
 
-              <div style="background-color: #f9fafb; border-radius: 12px; padding: 24px; text-align: center; border: 1px solid #f1f5f9;">
-                <span style="display: block; color: #6b7280; font-size: 13px; margin-bottom: 8px;">สถานะใหม่ของคุณคือ</span>
-                <span style="display: inline-block; padding: 8px 16px; border-radius: 9999px; font-weight: 700; font-size: 18px;
-                  ${
-                    status === "approved" || status === "paid"
-                      ? "background-color: #dcfce7; color: #15803d;"
-                      : status === "rejected" || status === "payment_failed"
-                        ? "background-color: #fee2e2; color: #b91c1c;"
-                        : "background-color: #ffedd5; color: #9a3412;"
-                  }">
-                  ${statusLabel}
-                </span>
+            <!-- ── OT Items Table ── -->
+            ${descs.length > 0 ? `
+            <div style="margin-bottom:28px;">
+              <p class="section-label" style="margin:0 0 10px;font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:0.14em;text-transform:uppercase;">รายการ OT ที่ได้รับการอนุมัติ (${descs.length} รายการ)</p>
+              <div style="border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;">
+                <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+                  <thead>
+                    <tr class="table-head">
+                      <th style="padding:12px 14px;background:#1e40af;color:#bfdbfe;font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;text-align:center;white-space:nowrap;">#</th>
+                      <th style="padding:12px 14px;background:#1e40af;color:#bfdbfe;font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;">วันที่</th>
+                      <th style="padding:12px 14px;background:#1e40af;color:#bfdbfe;font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;text-align:center;">เวลา</th>
+                      <th style="padding:12px 14px;background:#1e40af;color:#bfdbfe;font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;">รายละเอียดงาน</th>
+                      <th style="padding:12px 14px;background:#1e40af;color:#bfdbfe;font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;">ผู้รับผิดชอบ</th>
+                      <th style="padding:12px 14px;background:#1e40af;color:#bfdbfe;font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;text-align:center;white-space:nowrap;">ชม. OT</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${descRows}
+                    <!-- Total Row -->
+                    <tr class="total-row">
+                      <td colspan="5" style="padding:13px 14px;background:#eff6ff;border-top:2px solid #3b82f6;font-size:13px;font-weight:800;color:#1e40af;text-align:right;letter-spacing:0.02em;">รวมชั่วโมง OT ทั้งหมด</td>
+                      <td style="padding:13px 14px;background:#eff6ff;border-top:2px solid #3b82f6;font-size:15px;font-weight:900;color:#1e40af;text-align:center;">${totalHours.toFixed(1)} ชม.</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
+            </div>
+            ` : ""}
 
-              <div style="margin-top: 40px; text-align: center;">
-                <a href="${baseUrl}/timesheet/overtime"
-                   style="color: #6366f1; text-decoration: underline; font-weight: 500; font-size: 14px;">
-                  คลิกที่นี่เพื่อตรวจสอบรายละเอียดในระบบ
-                </a>
-              </div>
+            <!-- CTA Button -->
+            <div style="text-align:center;margin-bottom:32px;">
+              <a href="${baseUrl}/timesheet/overtime"
+                 style="display:inline-block;background:linear-gradient(135deg,${st.headerColor},${st.headerColor}cc);color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:9999px;font-size:14px;font-weight:700;letter-spacing:0.02em;box-shadow:0 4px 14px ${st.headerColor}55;">
+                ดูรายละเอียดในระบบ
+              </a>
             </div>
 
-            <div style="background-color: #f8fafc; border-top: 1px solid #f1f5f9; padding: 32px; text-align: center;">
-              <p style="margin: 0; color: #94a3b8; font-size: 12px; line-height: 1.6;">
-                นี่คือการแจ้งเตือนอัตโนมัติจากระบบ SB Web Helper<br>
-                © 2026 SCHOOLBRIGHT. All rights reserved.
-              </p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `;
+            <hr class="divider" style="border:none;border-top:1px solid #e2e8f0;margin:0 0 32px;">
+          </td>
+        </tr>
+
+        <!-- ═══ FOOTER ═══ -->
+        <tr>
+          <td class="footer-card" style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:28px 40px;text-align:center;">
+            <!-- Logo / Brand -->
+            <p style="margin:0 0 4px;font-size:13px;font-weight:800;color:#0f172a;letter-spacing:0.04em;">SCHOOL BRIGHT</p>
+            <p style="margin:0 0 16px;font-size:11px;color:#94a3b8;">SB Web Helper · Overtime Management System</p>
+            <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 16px;">
+            <p class="footer-text" style="margin:0 0 4px;font-size:11px;color:#94a3b8;line-height:1.7;">
+              นี่คืออีเมลแจ้งเตือนอัตโนมัติจากระบบ · กรุณาอย่าตอบกลับอีเมลฉบับนี้
+            </p>
+            <p class="footer-text" style="margin:0 0 14px;font-size:11px;color:#94a3b8;">
+              © ${new Date().getFullYear()} SCHOOLBRIGHT. All rights reserved.
+            </p>
+            <p style="margin:0;font-size:10px;font-weight:700;color:#64748b;letter-spacing:0.08em;text-transform:uppercase;">
+              SYSTEM BY THANAT PROMPIRIYA · HEAD OF TECHNOLOGY @SCHOOL BRIGHT
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
 
       await sendOvertimeEmail(u.email, emailSubject, "", emailHtml);
     }

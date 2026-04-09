@@ -1526,7 +1526,12 @@ const OvertimeManagementPage = () => {
             setSelectedOvertimeDetail(record);
             overtimeForm.setFieldsValue({
               ...record,
-              date: dayjs(record.request_date),
+              request_date: record.request_date ? dayjs(record.request_date) : dayjs(),
+              descriptions: (record.descriptions || []).map((desc: any) => ({
+                ...desc,
+                startDate: desc.startDate ? dayjs(desc.startDate) : undefined,
+                endDate: desc.endDate ? dayjs(desc.endDate) : undefined,
+              })),
             });
             setIsCreateModalVisible(true);
           }}

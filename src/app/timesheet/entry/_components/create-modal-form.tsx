@@ -689,14 +689,16 @@ export const CreateModalForm: React.FC<CreateModalProps> = ({
                       placement="bottomRight"
                       color={token.colorBgElevated}
                       title={
-                        <Flex vertical gap={0} style={{ minWidth: 280 }}>
+                        <Flex vertical gap={0} style={{ minWidth: 480, maxWidth: 580 }}>
                           <Text
                             type="secondary"
                             style={{
-                              fontSize: 11,
-                              padding: "8px 12px 6px",
+                              fontSize: 12,
+                              fontWeight: 600,
+                              padding: "10px 16px 8px",
                               borderBottom: `1px solid ${token.colorBorderSecondary}`,
                               display: "block",
+                              letterSpacing: "0.03em",
                             }}
                           >
                             ประวัติล่าสุด (กดเพื่อใช้)
@@ -705,13 +707,13 @@ export const CreateModalForm: React.FC<CreateModalProps> = ({
                             <Flex
                               key={i}
                               align="flex-start"
-                              gap={8}
+                              gap={10}
                               onClick={() => {
                                 form.setFieldsValue({ description: desc });
                                 setRecentOpen(false);
                               }}
                               style={{
-                                padding: "8px 12px",
+                                padding: "12px 16px",
                                 cursor: "pointer",
                                 borderBottom:
                                   i < recentDescriptions.length - 1
@@ -730,14 +732,12 @@ export const CreateModalForm: React.FC<CreateModalProps> = ({
                             >
                               <Text
                                 style={{
-                                  fontSize: 12,
+                                  fontSize: 13,
                                   color: token.colorText,
-                                  lineHeight: 1.5,
+                                  lineHeight: 1.65,
                                   flex: 1,
-                                  display: "-webkit-box",
-                                  WebkitLineClamp: 2,
-                                  WebkitBoxOrient: "vertical",
-                                  overflow: "hidden",
+                                  whiteSpace: "pre-wrap",
+                                  wordBreak: "break-word",
                                 }}
                               >
                                 {desc}
