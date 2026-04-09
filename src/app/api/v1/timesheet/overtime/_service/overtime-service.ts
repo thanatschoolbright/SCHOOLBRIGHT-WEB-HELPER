@@ -466,7 +466,7 @@ export async function updateOvertimeStatusWithNotification(
       }, 0);
 
       const descRows = descs.map((d, idx) => {
-        const dateStr = d.date ? dayjs(d.date).locale("th").format("DD MMM BBBB") : "-";
+        const dateStr = d.date ? dayjs(d.date).format("DD/MM/YYYY") : "-";
         const startStr = d.startDate ? dayjs(d.startDate).format("HH:mm") : "-";
         const endStr = d.endDate ? dayjs(d.endDate).format("HH:mm") : "-";
         const dur = typeof d.duration === "object" && d.duration?.toNumber ? d.duration.toNumber() : Number(d.duration ?? 0);
@@ -483,10 +483,10 @@ export async function updateOvertimeStatusWithNotification(
       }).join("");
 
       const requestDateStr = overtime.requestDate
-        ? dayjs(overtime.requestDate).locale("th").format("DD MMMM BBBB")
+        ? dayjs(overtime.requestDate).format("DD/MM/YYYY")
         : "-";
       const updatedAtStr = overtime.updatedAt
-        ? dayjs(overtime.updatedAt).locale("th").format("DD MMMM BBBB · HH:mm น.")
+        ? dayjs(overtime.updatedAt).format("DD/MM/YYYY HH:mm") + " น."
         : "-";
 
       const emailHtml = `
