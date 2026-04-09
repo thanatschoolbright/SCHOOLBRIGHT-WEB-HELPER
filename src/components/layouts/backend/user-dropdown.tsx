@@ -27,6 +27,7 @@ import {
 } from "@/helpers/user-rank.helper";
 import { HUAWEI_STORAGE } from "@/services/huawei-bucket-storage.service";
 import { fetchUserRank } from "@/services/user-rank/user-rank.service";
+import { createPortal } from "react-dom";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -356,7 +357,7 @@ function ProfileDrawer({
     void signOut({ callbackUrl: window.location.origin });
   };
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {open && (
         <>
@@ -502,7 +503,8 @@ function ProfileDrawer({
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
 
