@@ -67,7 +67,9 @@ const MethodBadge: React.FC<{ method: string }> = ({ method }) => {
         borderRadius: 6,
         background: isPost ? token.colorErrorBg : token.colorSuccessBg,
         color: isPost ? token.colorError : token.colorSuccess,
-        border: `1px solid ${isPost ? token.colorErrorBorder : token.colorSuccessBorder}`,
+        border: `1px solid ${
+          isPost ? token.colorErrorBorder : token.colorSuccessBorder
+        }`,
         whiteSpace: "nowrap",
         fontFamily: "monospace",
       }}
@@ -153,10 +155,12 @@ const ServerStatusTable: React.FC = () => {
         (statusFilter === "ERROR" && !["200", "404"].includes(item.status));
 
       const gF = (groupFilter || "ALL").toUpperCase();
-      const matchGroup = gF === "ALL" || (item.group || "other").toUpperCase() === gF;
+      const matchGroup =
+        gF === "ALL" || (item.group || "other").toUpperCase() === gF;
 
       const mF = (methodFilter || "ALL").toUpperCase();
-      const matchMethod = mF === "ALL" || (item.request?.method || "GET").toUpperCase() === mF;
+      const matchMethod =
+        mF === "ALL" || (item.request?.method || "GET").toUpperCase() === mF;
 
       return matchSearch && matchStatus && matchGroup && matchMethod;
     });
@@ -164,7 +168,9 @@ const ServerStatusTable: React.FC = () => {
 
   const stats = useMemo(() => {
     const total = filteredData.length;
-    const online = filteredData.filter((r) => ["200", "404"].includes(r.status)).length;
+    const online = filteredData.filter((r) =>
+      ["200", "404"].includes(r.status),
+    ).length;
     return { total, online, error: total - online };
   }, [filteredData]);
 
@@ -252,7 +258,9 @@ const ServerStatusTable: React.FC = () => {
       title: "Endpoint",
       key: "endpoint",
       sorter: (a, b) =>
-        (a.request?.url ?? a.service).localeCompare(b.request?.url ?? b.service),
+        (a.request?.url ?? a.service).localeCompare(
+          b.request?.url ?? b.service,
+        ),
       render: (_: unknown, record) => {
         const method = record.request?.method || "GET";
         const endpointUrl = record.request?.url ?? record.service;
@@ -323,7 +331,13 @@ const ServerStatusTable: React.FC = () => {
             ghost
             icon={<EyeOutlined />}
             onClick={() => openDetailModal(record)}
-            style={{ borderRadius: 20, fontWeight: 700, fontSize: 13, height: 38, paddingInline: 16 }}
+            style={{
+              borderRadius: 20,
+              fontWeight: 700,
+              fontSize: 13,
+              height: 38,
+              paddingInline: 16,
+            }}
           >
             Debug
           </Button>
@@ -368,7 +382,10 @@ const ServerStatusTable: React.FC = () => {
             <UnorderedListOutlined />
           </span>
           <Flex vertical gap={2}>
-            <Text strong style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.2 }}>
+            <Text
+              strong
+              style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.2 }}
+            >
               รายการประเมินสถานะระบบ
             </Text>
             <Text style={{ fontSize: 12, color: token.colorTextTertiary }}>
@@ -449,45 +466,56 @@ const ServerStatusTable: React.FC = () => {
             borderBottom: `1px solid ${token.colorErrorBorder}`,
           }}
         >
-          <CloseCircleFilled style={{ color: token.colorError, fontSize: 16 }} />
-          <Text style={{ fontSize: 13, color: token.colorError, fontWeight: 700 }}>
+          <CloseCircleFilled
+            style={{ color: token.colorError, fontSize: 16 }}
+          />
+          <Text
+            style={{ fontSize: 13, color: token.colorError, fontWeight: 700 }}
+          >
             พบปัญหา {stats.error} รายการ — กรุณาแจ้ง Developer ทันที
           </Text>
         </Flex>
       )}
 
       {/* Table */}
-      <Table
-        columns={columns}
-        dataSource={filteredData}
-        rowKey={(record) => `${record.group}-${record.module}-${record.service}`}
-        loading={isFetchingStatus}
-        size="large"
-        pagination={{
-          pageSize: 15,
-          showSizeChanger: true,
-          pageSizeOptions: ["10", "15", "25", "50"],
-          showTotal: (total) => `ทั้งหมด ${total} รายการ`,
-          style: { padding: "16px 24px", margin: 0 },
-        }}
-        rowClassName={(record) =>
-          !["200", "404"].includes(record.status) ? "row-error" : ""
-        }
-        locale={{
-          emptyText: (
-            <Empty description="ไม่พบข้อมูลสถานะระบบในขณะนี้" style={{ padding: 64 }} />
-          ),
-        }}
-        scroll={{ x: "max-content" }}
-        style={{ borderRadius: 0 }}
-        components={{
-          body: {
-            row: (props: React.HTMLAttributes<HTMLTableRowElement>) => (
-              <tr {...props} style={{ ...props.style, height: 72 }} />
+      <div className="mx-5">
+        <Table
+          columns={columns}
+          dataSource={filteredData}
+          rowKey={(record) =>
+            `${record.group}-${record.module}-${record.service}`
+          }
+          loading={isFetchingStatus}
+          size="large"
+          pagination={{
+            pageSize: 15,
+            showSizeChanger: true,
+            pageSizeOptions: ["10", "15", "25", "50"],
+            showTotal: (total) => `ทั้งหมด ${total} รายการ`,
+            style: { padding: "16px 24px", margin: 0 },
+          }}
+          rowClassName={(record) =>
+            !["200", "404"].includes(record.status) ? "row-error" : ""
+          }
+          locale={{
+            emptyText: (
+              <Empty
+                description="ไม่พบข้อมูลสถานะระบบในขณะนี้"
+                style={{ padding: 64 }}
+              />
             ),
-          },
-        }}
-      />
+          }}
+          scroll={{ x: "max-content" }}
+          style={{ borderRadius: 0 }}
+          components={{
+            body: {
+              row: (props: React.HTMLAttributes<HTMLTableRowElement>) => (
+                <tr {...props} style={{ ...props.style, height: 72 }} />
+              ),
+            },
+          }}
+        />
+      </div>
 
       {/* Row error highlight */}
       <style>{`
