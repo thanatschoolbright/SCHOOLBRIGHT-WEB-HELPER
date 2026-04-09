@@ -15,8 +15,14 @@ const config: Config = {
           "sans-serif",
         ],
       },
+      keyframes: {
+        shimmer: {
+          "100%": { transform: "translateX(200%)" },
+        },
+      },
       animation: {
         "pulse-slow": "pulse 10s infinite",
+        shimmer: "shimmer 1.8s infinite",
       },
       transitionProperty: {
         colors: "background-color, border-color, color, fill, stroke",

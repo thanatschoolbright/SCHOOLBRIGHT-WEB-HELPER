@@ -1,10 +1,6 @@
 "use client";
 
-import { InfoCircleOutlined } from "@ant-design/icons";
-import { Card, Flex, Skeleton, Tooltip, Typography, theme } from "antd";
 import React from "react";
-
-const { Text } = Typography;
 
 export interface SummaryCardProps {
   title: string;
@@ -18,254 +14,139 @@ export interface SummaryCardProps {
   suffix?: string;
 }
 
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+
+function SkeletonPulse({ className }: { className: string }) {
+  return <div className={`animate-pulse rounded-lg bg-black/8 dark:bg-white/8 ${className}`} />;
+}
+
+function SummaryCardSkeleton() {
+  return (
+    <div className="relative h-full min-h-[160px] rounded-3xl border border-black/8 dark:border-white/8 bg-white dark:bg-white/5 p-7 flex flex-col justify-between overflow-hidden">
+      {/* shimmer overlay */}
+      <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.8s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+      <div className="flex items-center gap-3">
+        <SkeletonPulse className="w-10 h-10 rounded-xl" />
+        <SkeletonPulse className="w-32 h-4" />
+      </div>
+      <div className="flex flex-col gap-2 mt-6">
+        <SkeletonPulse className="w-44 h-10" />
+        <SkeletonPulse className="w-24 h-3.5" />
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Card ────────────────────────────────────────────────────────────────
+
 const SummaryCard: React.FC<SummaryCardProps> = ({
   title,
   value,
   unit,
   subtitle,
   icon,
-  color,
+  color = "#6366F1",
   tooltip,
   isLoading = false,
   suffix,
 }) => {
-  const { token } = theme.useToken();
-  const themeColor = color ?? token.colorPrimary;
+  if (isLoading) return <SummaryCardSkeleton />;
 
-  // 1. Loading State
-  if (isLoading) {
-    return (
-      <Card
-        styles={{ body: { padding: 24 } }}
-        style={{
-          borderRadius: 20,
-          border: `1px solid ${token.colorBorderSecondary}`,
-          height: "100%",
-          minHeight: 140,
-        }}
-        variant="borderless"
-      >
-        <Flex
-          vertical
-          justify="space-between"
-          style={{ height: "100%", gap: 24 }}
-        >
-          {/* Top part: Icon placeholder + Title placeholder */}
-          <Flex align="center" gap={12}>
-            <Skeleton.Avatar
-              active
-              shape="square"
-              size={32}
-              style={{ borderRadius: 8 }}
-            />
-            <Skeleton active paragraph={false} title={{ width: 120 }} />
-          </Flex>
-          {/* Bottom part: Big Number placeholder + Subtitle placeholder */}
-          <Flex vertical gap={8}>
-            <Skeleton.Button active style={{ width: 180, height: 40 }} />
-            {/* 🟢 เพิ่ม Skeleton เส้นเล็กๆ สำหรับ subtitle */}
-            <Skeleton.Button active style={{ width: 100, height: 16 }} />
-          </Flex>
-        </Flex>
-      </Card>
-    );
-  }
+  const accentBg = `${color}18`;
+  const accentGlow = `${color}28`;
 
-  // 2. Main Render State
   return (
-    <>
-      <Card
-        className="metric-first-card"
-        style={
-          {
-            "--theme-color": themeColor,
-            "--theme-color-bg": `${themeColor}15`,
-            "--theme-color-hover": `${themeColor}12`, // Increased opacity for hover highlight
-            "--border-color": token.colorBorderSecondary,
-            "--bg-color": token.colorBgContainer,
-            "--value-text-shadow": "none",
-          } as React.CSSProperties
-        }
-        styles={{
-          body: {
-            padding: "32px 28px", // Increased padding from 24px 24px 20px 24px
-            height: "100%",
-            minHeight: 160,
-            display: "flex",
-            flexDirection: "column",
-          },
-        }}
-        variant="borderless"
-      >
-        <Flex
-          vertical
-          justify="space-between"
-          style={{ height: "100%", flex: 1 }}
-        >
-          {/* --- Top Section: Context (Icon + Title) --- */}
-          <Flex align="center" justify="space-between">
-            <Flex align="center" gap={12}>
-              {icon && <div className="metric-icon">{icon}</div>}
-              <Text
-                type="secondary"
-                style={{
-                  fontSize: 16, // Increased from 15
-                  fontWeight: 600, // More emphasized
-                  letterSpacing: "0.2px",
-                }}
-              >
-                {title}
-              </Text>
-            </Flex>
-            {tooltip && (
-              <Tooltip title={tooltip} placement="topRight" arrow>
-                <div className="tooltip-trigger">
-                  <InfoCircleOutlined />
-                </div>
-              </Tooltip>
-            )}
-          </Flex>
+    <div
+      className="group relative h-full min-h-[160px] rounded-3xl border bg-white dark:bg-white/[0.03] overflow-hidden flex flex-col justify-between p-7 transition-all duration-300 ease-out hover:-translate-y-1 cursor-default"
+      style={{
+        borderColor: `${color}30`,
+        boxShadow: `0 1px 3px ${accentGlow}, 0 0 0 1px ${color}10`,
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLDivElement).style.boxShadow =
+          `0 16px 40px -12px ${accentGlow}, 0 0 0 1px ${color}40`;
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLDivElement).style.boxShadow =
+          `0 1px 3px ${accentGlow}, 0 0 0 1px ${color}10`;
+      }}
+    >
+      {/* Top accent bar */}
+      <div
+        className="absolute top-0 left-0 right-0 h-[3px] opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        style={{ background: `linear-gradient(90deg, ${color}, ${color}60)` }}
+      />
 
-          {/* --- Bottom Section: The Big Number & Subtitle --- */}
-          <Flex vertical style={{ marginTop: 28 }}>
-            <Flex align="baseline" gap={8} wrap="wrap">
-              <Text
-                style={{
-                  fontSize: 52, // Increased from 42
-                  fontWeight: 900, // Much bolder for emphasis
-                  letterSpacing: "-2px",
-                  color: token.colorText,
-                  lineHeight: 1,
-                  display: "inline-block",
-                  textShadow: "var(--value-text-shadow)", // Use CSS variable for text shadow
-                }}
-              >
-                {value}
-              </Text>
-              {unit && (
-                <Text
-                  type="secondary"
-                  style={{
-                    fontSize: 18, // Increased from 16
-                  }}
-                >
-                  {unit}
-                </Text>
-              )}
-              {suffix && (
-                <Text
-                  type="secondary"
-                  style={{
-                    fontSize: 18,
-                    fontWeight: 700,
-                    marginLeft: 2,
-                  }}
-                >
-                  {suffix}
-                </Text>
-              )}
-            </Flex>
+      {/* Background glow orb */}
+      <div
+        className="absolute -top-8 -right-8 w-32 h-32 rounded-full blur-2xl opacity-40 group-hover:opacity-70 transition-opacity duration-500"
+        style={{ background: accentBg }}
+      />
 
-            {/* 🟢 แสดง Subtitle ด้านล่างของตัวเลขหลัก */}
-            {subtitle && (
-              <Text
-                type="secondary"
-                style={{
-                  fontSize: 14, // Increased from 13
-                  marginTop: 6,
-                  fontWeight: 500,
-                  lineHeight: 1.4,
-                  opacity: 0.85,
-                }}
-              >
-                {subtitle}
-              </Text>
-            )}
-          </Flex>
-        </Flex>
-      </Card>
+      {/* ── Top: Icon + Title + Tooltip ── */}
+      <div className="relative flex items-start justify-between gap-2">
+        <div className="flex items-center gap-3">
+          {icon && (
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
+              style={{ background: accentBg, color }}
+            >
+              {icon}
+            </div>
+          )}
+          <span
+            className="text-[14px] font-semibold leading-snug text-black/50 dark:text-white/45 tracking-wide uppercase"
+            style={{ letterSpacing: "0.04em" }}
+          >
+            {title}
+          </span>
+        </div>
 
-      {/* --- Styles --- */}
-      <style jsx>{`
-        :global(.metric-first-card) {
-          border-radius: 24px !important; // More rounded
-          border: 1px solid var(--border-color) !important;
-          background-color: var(--bg-color) !important;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
-          overflow: hidden;
-          position: relative;
-        }
+        {tooltip && (
+          <div className="group/tip relative flex-shrink-0 mt-0.5">
+            <div
+              className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] cursor-help transition-colors duration-200"
+              style={{ color: `${color}80`, background: accentBg }}
+            >
+              ℹ
+            </div>
+            {/* Custom tooltip */}
+            <div className="pointer-events-none absolute right-0 top-8 z-50 w-max max-w-[200px] rounded-xl px-3 py-2 text-[11px] font-medium text-white opacity-0 group-hover/tip:opacity-100 transition-opacity duration-200 shadow-xl"
+              style={{ background: color }}>
+              {tooltip}
+            </div>
+          </div>
+        )}
+      </div>
 
-        :global(.dark .metric-first-card) {
-          --value-text-shadow: 0 0 20px var(--theme-color-bg);
-        }
+      {/* ── Bottom: Value + Unit + Subtitle ── */}
+      <div className="relative flex flex-col gap-1.5 mt-5">
+        <div className="flex items-baseline gap-2 flex-wrap">
+          <span
+            className="text-[52px] font-black leading-none tracking-tight text-black dark:text-white"
+            style={{ letterSpacing: "-2px" }}
+          >
+            {value}
+          </span>
+          {unit && (
+            <span className="text-[18px] font-bold text-black/40 dark:text-white/35 leading-none">
+              {unit}
+            </span>
+          )}
+          {suffix && (
+            <span className="text-[18px] font-bold text-black/40 dark:text-white/35 leading-none">
+              {suffix}
+            </span>
+          )}
+        </div>
 
-        :global(.metric-first-card:hover) {
-          border-color: var(--theme-color) !important;
-          background-color: var(--theme-color-hover) !important;
-          box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.12) !important;
-          transform: translateY(-4px);
-        }
-
-        :global(.dark .metric-first-card:hover) {
-          box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.4) !important;
-          background-color: var(
-            --theme-color-bg
-          ) !important; // Slightly deeper highlight in dark mode
-        }
-
-        :global(.metric-first-card::before) {
-          content: "";
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 4px;
-          background-color: var(--theme-color);
-          opacity: 0;
-          transition: opacity 0.3s ease;
-        }
-
-        :global(.metric-first-card:hover::before) {
-          opacity: 1;
-        }
-
-        .metric-icon {
-          width: 40px; // Increased from 32
-          height: 40px;
-          border-radius: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 18px;
-          color: var(--theme-color);
-          background-color: var(--theme-color-bg);
-          box-shadow: 0 4px 8px -2px var(--theme-color-bg);
-          transition: all 0.3s ease;
-        }
-
-        :global(.metric-first-card:hover) .metric-icon {
-          transform: scale(1.1) rotate(-5deg);
-        }
-
-        .tooltip-trigger {
-          color: ${token.colorTextQuaternary};
-          font-size: 14px;
-          cursor: help;
-          padding: 6px;
-          border-radius: 50%;
-          transition: all 0.2s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .tooltip-trigger:hover {
-          color: var(--theme-color);
-          background-color: var(--theme-color-bg);
-        }
-      `}</style>
-    </>
+        {subtitle && (
+          <div className="text-[13px] font-medium text-black/40 dark:text-white/35 leading-snug">
+            {subtitle}
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
