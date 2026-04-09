@@ -25,9 +25,11 @@ const BRAND_COLORS = {
 };
 
 const FONTS = {
-  "google-sans":
-    'var(--font-google-sans), "Google Sans", system-ui, sans-serif',
+  "google-sans": 'var(--font-google-sans), "Google Sans", system-ui, sans-serif',
   sukhumvit: 'var(--font-sukhumvit), "Sukhumvit Set", system-ui, sans-serif',
+  anuphan: 'var(--font-anuphan), "Anuphan", system-ui, sans-serif',
+  kanit: 'var(--font-kanit), "Kanit", system-ui, sans-serif',
+  "line-seed": 'var(--font-line-seed), "LINE Seed Sans TH", system-ui, sans-serif',
 };
 
 const SYSTEM_PALETTE = {
@@ -191,8 +193,14 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
     setIsMounted(true);
   }, []);
 
-  const themeFont =
-    (fontFromContext as keyof typeof FONTS | undefined) ?? "google-sans";
+  const themeFont: keyof typeof FONTS =
+    fontFromContext in FONTS ? (fontFromContext as keyof typeof FONTS) : "google-sans";
+
+  // sync font ไปที่ body และ Ant Design Layout ทันทีเมื่อเปลี่ยน
+  useEffect(() => {
+    document.body.style.fontFamily = FONTS[themeFont];
+  }, [themeFont]);
+
   const themeConfig = useMemo(
     () => getModernTheme(isDark, themeFont),
     [isDark, themeFont],
@@ -240,12 +248,12 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
           {isMounted && (
             <style jsx global>{`
               :root {
-                --font-family: ${FONTS[themeFont]};
+                --font-family-current: ${FONTS[themeFont]};
               }
               body {
                 background-color: var(--bg-layout);
                 color: var(--text-main);
-                font-family: var(--font-family);
+                font-family: var(--font-family-current);
                 -webkit-font-smoothing: antialiased;
                 transition: background-color 0.4s ease, color 0.4s ease;
                 margin: 0;

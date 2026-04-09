@@ -6,7 +6,8 @@ import {
   useFont,
 } from "@components/providers/font-provider";
 import { AnimatePresence, motion } from "framer-motion";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 // ข้อมูลฟอนต์ทั้ง 5 ตัว
 const FONT_OPTIONS: {
@@ -118,43 +119,77 @@ export default function ThemeCustomizer() {
 
   return (
     <>
-      {/* Trigger Button — ชิดขวากลางหน้า */}
-      <motion.button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="fixed top-1/2 -translate-y-1/2 right-0 z-[1100] flex items-center justify-center w-11 h-11 rounded-l-xl text-white border-none cursor-pointer"
-        style={{ background: "#f97316" }}
-        whileHover={{ width: 52 }}
-        whileTap={{ scale: 0.95 }}
-        transition={{ duration: 0.15 }}
-        title="ปรับแต่งเว็บไซต์"
-      >
-        <IconSettings />
-      </motion.button>
+      {/* Trigger Button — sticky ชิดขวากลางหน้า */}
+      <div className="fixed top-1/2 -translate-y-1/2 right-0 z-[1100]">
+        {/* NEW badge */}
+        <motion.div
+          className="absolute -top-3 -left-5 z-10 pointer-events-none"
+          initial={{ opacity: 0, scale: 0.6, y: 4 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ delay: 1.2, duration: 0.35, type: "spring", stiffness: 400 }}
+        >
+          <motion.span
+            className="flex items-center px-1.5 py-0.5 rounded-md text-[9px] font-black tracking-widest text-white uppercase select-none"
+            style={{ background: "#ef4444", letterSpacing: "0.1em" }}
+            animate={{ scale: [1, 1.12, 1] }}
+            transition={{ duration: 1.6, repeat: Infinity, repeatDelay: 2.5, ease: "easeInOut" }}
+          >
+            NEW
+          </motion.span>
+        </motion.div>
 
-      <AnimatePresence>
-        {open && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              className="fixed inset-0 z-[1199]"
-              style={{ background: "rgba(12,15,20,0.35)", backdropFilter: "blur(4px)" }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              onClick={() => setOpen(false)}
-            />
+        {/* Ping ring รอบปุ่ม */}
+        <motion.span
+          className="absolute inset-0 rounded-l-xl pointer-events-none"
+          style={{ background: "#f97316" }}
+          animate={{ opacity: [0.5, 0], scale: [1, 1.25] }}
+          transition={{ duration: 1.8, repeat: Infinity, repeatDelay: 1.5, ease: "easeOut" }}
+        />
 
-            {/* Drawer */}
-            <motion.div
-              className="fixed top-0 right-0 h-full z-[1200] bg-white dark:bg-slate-900 w-[380px] flex flex-col"
-              style={{ boxShadow: "-8px 0 40px rgba(0,0,0,0.1)" }}
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", stiffness: 320, damping: 32 }}
-            >
+        <motion.button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="relative flex items-center justify-center w-11 h-11 rounded-l-xl text-white border-none cursor-pointer outline-none"
+          style={{ background: "#f97316" }}
+          animate={{ x: [0, -3, 0] }}
+          transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 3, ease: "easeInOut" }}
+          whileHover={{ width: 52, x: 0 }}
+          whileTap={{ scale: 0.93 }}
+          title="ปรับแต่งเว็บไซต์"
+        >
+          <motion.span
+            animate={{ rotate: [0, 18, -18, 0] }}
+            transition={{ duration: 2, repeat: Infinity, repeatDelay: 4, ease: "easeInOut" }}
+          >
+            <IconSettings />
+          </motion.span>
+        </motion.button>
+      </div>
+
+      {createPortal(
+        <AnimatePresence>
+          {open && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                className="fixed inset-0 z-[1199]"
+                style={{ background: "rgba(12,15,20,0.35)", backdropFilter: "blur(4px)" }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                onClick={() => setOpen(false)}
+              />
+
+              {/* Drawer */}
+              <motion.div
+                className="fixed top-0 right-0 h-full z-[1200] bg-white dark:bg-slate-900 w-[380px] flex flex-col"
+                style={{ boxShadow: "-8px 0 40px rgba(0,0,0,0.1)" }}
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                transition={{ type: "spring", stiffness: 320, damping: 32 }}
+              >
               {/* Header */}
               <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-white/8 flex-shrink-0">
                 <div className="flex items-center gap-2.5">
@@ -259,8 +294,10 @@ export default function ThemeCustomizer() {
               </div>
             </motion.div>
           </>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }
