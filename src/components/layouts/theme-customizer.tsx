@@ -100,6 +100,10 @@ function IconClose() {
 export default function ThemeCustomizer() {
   const { fontFamily, setFontFamily } = useFont();
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { setMounted(true); }, []);
 
   // ESC ปิด drawer
   useEffect(() => {
@@ -166,7 +170,7 @@ export default function ThemeCustomizer() {
         </motion.button>
       </div>
 
-      {createPortal(
+      {mounted && createPortal(
         <AnimatePresence>
           {open && (
             <>

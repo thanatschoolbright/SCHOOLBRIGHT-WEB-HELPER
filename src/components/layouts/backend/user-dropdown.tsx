@@ -332,6 +332,9 @@ function ProfileDrawer({
   const router = useRouter();
   const cfg = getRankCfg(rankLetter);
   const isDark = token.colorBgBase !== "#FFFFFF";
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   // ปิดเมื่อกด ESC
   useEffect(() => {
@@ -356,6 +359,8 @@ function ProfileDrawer({
     toast.info(t("user_dropdown.logging_out"));
     void signOut({ callbackUrl: window.location.origin });
   };
+
+  if (!mounted) return null;
 
   return createPortal(
     <AnimatePresence>
