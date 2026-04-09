@@ -555,32 +555,32 @@ export default function UserProfileDropdown(): React.JSX.Element {
         onClick={() => setIsOpen(true)}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.97 }}
-        className="flex items-center gap-3 px-3 py-1.5 rounded-full cursor-pointer border outline-none transition-all duration-200"
+        className="flex items-center gap-4 px-4 py-2 rounded-2xl cursor-pointer border outline-none transition-all duration-200"
         style={{
-          borderColor: isOpen ? token.colorBorder : "transparent",
-          background: isOpen ? token.colorBgContainer : "transparent",
-          boxShadow: isOpen ? token.boxShadow : "none",
+          borderColor: isOpen ? token.colorBorder : token.colorBorderSecondary,
+          background: isOpen ? token.colorBgContainer : token.colorBgElevated,
+          boxShadow: isOpen ? token.boxShadow : token.boxShadowSecondary,
         }}
       >
         {/* Name + rank badge */}
-        <div className="flex flex-col items-end gap-0.5">
-          <span className="text-[13px] font-bold leading-none" style={{ color: token.colorText }}>
-            {userProfile.firstname}
+        <div className="flex flex-col items-end gap-1">
+          <span className="text-[15px] font-bold leading-none" style={{ color: token.colorText }}>
+            {userProfile.firstname} {userProfile.lastname}
           </span>
           <span
-            className="text-[9px] font-black px-1.5 py-0.5 rounded leading-none uppercase tracking-wide"
+            className="text-[11px] font-black px-2.5 py-1 rounded-lg leading-none uppercase tracking-wide"
             style={{ background: cfg.color, color: "#fff" }}
           >
-            {t(cfg.labelKey).split(" ")[0]}
+            {t(cfg.labelKey)}
           </span>
         </div>
 
-        <Avatar userProfile={userProfile} rankLetter={rankLetter} size={36} />
+        <Avatar userProfile={userProfile} rankLetter={rankLetter} size={48} />
 
         <motion.span
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.25, ease: "easeInOut" }}
-          className="text-[10px] flex-shrink-0"
+          className="text-[12px] flex-shrink-0"
           style={{ color: token.colorTextQuaternary }}
         >
           <DownOutlined />
