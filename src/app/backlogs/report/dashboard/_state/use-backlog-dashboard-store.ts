@@ -10,6 +10,10 @@ import {
   fetchProjectUsers,
   fetchStatuses,
 } from "../_api/backlog-analytics-service";
+import {
+  type BurndownPoint,
+  fetchBurndownData,
+} from "../_api/backlog-burndown-service";
 
 interface Issue {
   key: string;
@@ -94,7 +98,13 @@ interface BacklogDashboardState {
   setTimelineData: (data: TimelineEvent[]) => void;
   resetFilters: () => void;
 
+  // Burndown State
+  burndownLoading: boolean;
+  burndownData: BurndownPoint[];
+  burndownTotalIssues: number;
+
   // Async Actions
+  fetchBurndown: () => Promise<void>;
   loadProjectOptions: () => Promise<void>;
   loadIssueTypeOptions: (projectId: string) => Promise<void>;
   loadPriorityOptions: () => Promise<void>;
@@ -131,6 +141,11 @@ export const useBacklogDashboardStore = create<BacklogDashboardState>(
     statusOptions: [],
     assigneeOptions: [],
 
+    // Burndown State
+    burndownLoading: false,
+    burndownData: [],
+    burndownTotalIssues: 0,
+
     // Timeline State
     timelineLoading: false,
     timelineData: [],
@@ -141,10 +156,13 @@ export const useBacklogDashboardStore = create<BacklogDashboardState>(
     setSelectedAssigneeId: (selectedAssigneeId) => set({ selectedAssigneeId }),
     setSearchName: (searchName) => set({ searchName }),
     setSelectedProjectIds: (selectedProjectIds) => set({ selectedProjectIds }),
-    setSelectedIssueTypeIds: (selectedIssueTypeIds) => set({ selectedIssueTypeIds }),
-    setSelectedPriorityIds: (selectedPriorityIds) => set({ selectedPriorityIds }),
+    setSelectedIssueTypeIds: (selectedIssueTypeIds) =>
+      set({ selectedIssueTypeIds }),
+    setSelectedPriorityIds: (selectedPriorityIds) =>
+      set({ selectedPriorityIds }),
     setSelectedStatusIds: (selectedStatusIds) => set({ selectedStatusIds }),
-    setSelectedAssigneeIds: (selectedAssigneeIds) => set({ selectedAssigneeIds }),
+    setSelectedAssigneeIds: (selectedAssigneeIds) =>
+      set({ selectedAssigneeIds }),
     setTimelineData: (timelineData) => set({ timelineData }),
 
     resetFilters: () =>
@@ -190,8 +208,8 @@ export const useBacklogDashboardStore = create<BacklogDashboardState>(
           label: t.name,
           value: String(t.id),
         }));
-        const bugOption = options.find((o: SelectOption) =>
-          String(o.label).toLowerCase() === "bug",
+        const bugOption = options.find(
+          (o: SelectOption) => String(o.label).toLowerCase() === "bug",
         );
         set({
           issueTypeOptions: options,
@@ -252,7 +270,11 @@ export const useBacklogDashboardStore = create<BacklogDashboardState>(
 
     fetchTimeline: async (issueKey) => {
       const { space } = get();
-      set({ timelineLoading: true, selectedIssueKey: issueKey, timelineData: [] });
+      set({
+        timelineLoading: true,
+        selectedIssueKey: issueKey,
+        timelineData: [],
+      });
       try {
         const response = await fetchIssueTimeline(issueKey, space);
         set({ timelineData: response.data.timeline || [] });
@@ -281,11 +303,16 @@ export const useBacklogDashboardStore = create<BacklogDashboardState>(
           params.createdSince = dateRange[0].format("YYYY-MM-DD");
           params.createdUntil = dateRange[1].format("YYYY-MM-DD");
         }
-        if (selectedProjectIds.length > 0) params["projectId[]"] = selectedProjectIds;
-        if (selectedIssueTypeIds.length > 0) params["issueTypeId[]"] = selectedIssueTypeIds;
-        if (selectedPriorityIds.length > 0) params["priorityId[]"] = selectedPriorityIds;
-        if (selectedStatusIds.length > 0) params["statusId[]"] = selectedStatusIds;
-        if (selectedAssigneeIds.length > 0) params["assigneeId[]"] = selectedAssigneeIds;
+        if (selectedProjectIds.length > 0)
+          params["projectId[]"] = selectedProjectIds;
+        if (selectedIssueTypeIds.length > 0)
+          params["issueTypeId[]"] = selectedIssueTypeIds;
+        if (selectedPriorityIds.length > 0)
+          params["priorityId[]"] = selectedPriorityIds;
+        if (selectedStatusIds.length > 0)
+          params["statusId[]"] = selectedStatusIds;
+        if (selectedAssigneeIds.length > 0)
+          params["assigneeId[]"] = selectedAssigneeIds;
 
         const response = await fetchBacklogAnalytics(params);
         set({ analyticsData: response.data || [] });
@@ -295,6 +322,48 @@ export const useBacklogDashboardStore = create<BacklogDashboardState>(
         console.error(error);
       } finally {
         set({ loading: false });
+      }
+    },
+
+    fetchBurndown: async () => {
+      const {
+        space,
+        dateRange,
+        selectedProjectIds,
+        selectedIssueTypeIds,
+        selectedPriorityIds,
+        selectedStatusIds,
+        selectedAssigneeIds,
+      } = get();
+      set({ burndownLoading: true });
+      try {
+        const params: Record<string, unknown> = { space };
+        if (dateRange) {
+          params.createdSince = dateRange[0].format("YYYY-MM-DD");
+          params.createdUntil = dateRange[1].format("YYYY-MM-DD");
+        }
+        if (selectedProjectIds.length > 0)
+          params["projectId[]"] = selectedProjectIds;
+        if (selectedIssueTypeIds.length > 0)
+          params["issueTypeId[]"] = selectedIssueTypeIds;
+        if (selectedPriorityIds.length > 0)
+          params["priorityId[]"] = selectedPriorityIds;
+        if (selectedStatusIds.length > 0)
+          params["statusId[]"] = selectedStatusIds;
+        if (selectedAssigneeIds.length > 0)
+          params["assigneeId[]"] = selectedAssigneeIds;
+
+        const response = await fetchBurndownData(
+          params as Parameters<typeof fetchBurndownData>[0],
+        );
+        set({
+          burndownData: response.data?.points ?? [],
+          burndownTotalIssues: response.data?.total_issues ?? 0,
+        });
+      } catch {
+        toast.error("ไม่สามารถดึงข้อมูล Burndown Chart ได้");
+      } finally {
+        set({ burndownLoading: false });
       }
     },
 

@@ -4,6 +4,7 @@ import { AppstoreOutlined } from "@ant-design/icons";
 import BackendLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
 import { useEffect, type JSX } from "react";
+import { BurndownChart } from "./_components/burndown-chart";
 import { FilterSection } from "./_components/filter-section";
 import { IssueTimelineModal } from "./_components/issue-timeline-modal";
 import { PendingTasksTable } from "./_components/pending-tasks-table";
@@ -35,6 +36,7 @@ export default function DashboardPage(): JSX.Element {
       <div className="mt-6 flex w-full flex-col gap-6">
         <FilterSection />
         <SummarySection />
+        <BurndownChart />
         <PendingTasksTable />
         <RankingSection />
       </div>
