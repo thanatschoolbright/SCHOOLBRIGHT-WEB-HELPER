@@ -3,7 +3,7 @@
 import { AppstoreOutlined } from "@ant-design/icons";
 import BackendLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
-import { useEffect } from "react";
+import { useEffect, type JSX } from "react";
 import { FilterSection } from "./_components/filter-section";
 import { IssueTimelineModal } from "./_components/issue-timeline-modal";
 import { PendingTasksTable } from "./_components/pending-tasks-table";
