@@ -149,7 +149,7 @@ export const useBacklogDashboardStore = create<BacklogDashboardState>(
     loading: false,
     analyticsData: [],
     space: "jabjai",
-    dateRange: [dayjs("2026-03-23"), dayjs("2026-03-27")],
+    dateRange: [dayjs().startOf("month"), dayjs().endOf("month")],
     selectedAssigneeId: null,
     searchName: "",
 
@@ -214,7 +214,7 @@ export const useBacklogDashboardStore = create<BacklogDashboardState>(
         selectedAssigneeIds: [],
         issueTypeOptions: [],
         assigneeOptions: [],
-        dateRange: null,
+        dateRange: [dayjs().startOf("month"), dayjs().endOf("month")],
       }),
 
     loadProjectOptions: async () => {
