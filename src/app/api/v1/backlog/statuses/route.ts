@@ -17,9 +17,10 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const space = searchParams.get("space");
-    if (!space) {
+    const projectId = searchParams.get("projectId");
+    if (!space || !projectId) {
       return NextResponse.json(
-        errorResponse({ status: 400, message_en: "Missing space", message_th: "กรุณาระบุ space" }),
+        errorResponse({ status: 400, message_en: "Missing space or projectId", message_th: "กรุณาระบุ space และ projectId" }),
         { status: 400 }
       );
     }
@@ -27,7 +28,7 @@ export async function GET(req: NextRequest) {
     let lastError: any;
     for (const domain of DOMAINS) {
       try {
-        const url = `https://${space}.${domain}/api/v2/statuses`;
+        const url = `https://${space}.${domain}/api/v2/projects/${projectId}/statuses`;
         const { data } = await axios.get(url, { params: { apiKey } });
         return NextResponse.json(
           successResponse({ data, message_en: "Fetch statuses ok", message_th: "ดึงสถานะสำเร็จ" })

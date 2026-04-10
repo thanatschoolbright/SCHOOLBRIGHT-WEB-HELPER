@@ -98,7 +98,7 @@ interface BacklogDashboardState {
   loadProjectOptions: () => Promise<void>;
   loadIssueTypeOptions: (projectId: string) => Promise<void>;
   loadPriorityOptions: () => Promise<void>;
-  loadStatusOptions: (projectId?: string) => Promise<void>;
+  loadStatusOptions: (projectId: string) => Promise<void>;
   loadAssigneeOptions: (projectId: string) => Promise<void>;
   fetchTimeline: (issueKey: string) => Promise<void>;
   fetchAnalytics: () => Promise<void>;
@@ -218,7 +218,7 @@ export const useBacklogDashboardStore = create<BacklogDashboardState>(
       }
     },
 
-    loadStatusOptions: async (projectId) => {
+    loadStatusOptions: async (projectId: string) => {
       const { space } = get();
       try {
         const res = await fetchStatuses(space, projectId);

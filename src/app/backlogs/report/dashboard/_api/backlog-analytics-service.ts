@@ -75,10 +75,8 @@ export const fetchPriorities = async (space: string) => {
 /**
  * ดึงสถานะงาน (Statuses) ของ Project
  */
-export const fetchStatuses = async (space: string, projectId?: string) => {
-  const params: Record<string, string> = { space };
-  if (projectId) params.projectId = projectId;
-  const response = await axios.get("/api/v1/backlog/statuses", { params });
+export const fetchStatuses = async (space: string, projectId: string) => {
+  const response = await axios.get("/api/v1/backlog/statuses", { params: { space, projectId } });
   return response.data;
 };
 

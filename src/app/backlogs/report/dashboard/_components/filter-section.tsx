@@ -63,7 +63,6 @@ export const FilterSection = () => {
   useEffect(() => {
     loadProjectOptions();
     loadPriorityOptions();
-    loadStatusOptions();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [space]);
 
