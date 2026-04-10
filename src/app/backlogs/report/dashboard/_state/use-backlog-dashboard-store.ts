@@ -19,6 +19,7 @@ import {
   type HeatmapCell,
   fetchHeatmapData,
 } from "../_api/backlog-heatmap-service";
+import { submitReAssign } from "../_api/backlog-reassign-service";
 
 interface Issue {
   key: string;
@@ -114,6 +115,20 @@ interface BacklogDashboardState {
   heatmapAssignees: HeatmapAssignee[];
   heatmapMatrix: HeatmapCell[];
 
+  // Re-assign State
+  reassignModalOpen: boolean;
+  reassignIssueKey: string | null;
+  reassignIssueSummary: string | null;
+  reassignCurrentAssigneeName: string | null;
+  reassignLoading: boolean;
+  openReassignModal: (
+    issueKey: string,
+    summary: string,
+    currentAssigneeName: string,
+  ) => void;
+  closeReassignModal: () => void;
+  submitReassign: (assigneeId: number, comment?: string) => Promise<void>;
+
   // Async Actions
   fetchBurndown: () => Promise<void>;
   fetchHeatmap: () => Promise<void>;
@@ -163,6 +178,13 @@ export const useBacklogDashboardStore = create<BacklogDashboardState>(
     heatmapDates: [],
     heatmapAssignees: [],
     heatmapMatrix: [],
+
+    // Re-assign State
+    reassignModalOpen: false,
+    reassignIssueKey: null,
+    reassignIssueSummary: null,
+    reassignCurrentAssigneeName: null,
+    reassignLoading: false,
 
     // Timeline State
     timelineLoading: false,
@@ -425,6 +447,44 @@ export const useBacklogDashboardStore = create<BacklogDashboardState>(
         toast.error("ไม่สามารถดึงข้อมูล Workload Heatmap ได้");
       } finally {
         set({ heatmapLoading: false });
+      }
+    },
+
+    openReassignModal: (issueKey, summary, currentAssigneeName) =>
+      set({
+        reassignModalOpen: true,
+        reassignIssueKey: issueKey,
+        reassignIssueSummary: summary,
+        reassignCurrentAssigneeName: currentAssigneeName,
+      }),
+
+    closeReassignModal: () =>
+      set({
+        reassignModalOpen: false,
+        reassignIssueKey: null,
+        reassignIssueSummary: null,
+        reassignCurrentAssigneeName: null,
+      }),
+
+    submitReassign: async (assigneeId, comment) => {
+      const { space, reassignIssueKey, fetchAnalytics } = get();
+      if (!reassignIssueKey) return;
+      set({ reassignLoading: true });
+      try {
+        const response = await submitReAssign({
+          space,
+          issue_key_or_id: reassignIssueKey,
+          assignee_id: assigneeId,
+          comment,
+        });
+        toast.success(response.message_th);
+        set({ reassignModalOpen: false, reassignIssueKey: null });
+        // รีเฟรชข้อมูล Dashboard หลัง Re-assign สำเร็จ
+        await fetchAnalytics();
+      } catch {
+        toast.error("ไม่สามารถเปลี่ยนผู้รับผิดชอบงานได้");
+      } finally {
+        set({ reassignLoading: false });
       }
     },
 

@@ -4,6 +4,7 @@ import {
   ClockCircleOutlined,
   FilterOutlined,
   ReloadOutlined,
+  SwapOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import {
@@ -36,6 +37,7 @@ export const PendingTasksTable = () => {
     setSelectedAssigneeId,
     fetchTimeline,
     timelineLoading,
+    openReassignModal,
   } = useBacklogDashboardStore();
 
   const currentAssigneeData = selectedAssigneeId
@@ -155,8 +157,8 @@ export const PendingTasksTable = () => {
                         issueType.toLowerCase().includes("bug")
                           ? "red"
                           : issueType.toLowerCase().includes("task")
-                            ? "blue"
-                            : "default"
+                          ? "blue"
+                          : "default"
                       }
                     >
                       {issueType}
@@ -185,16 +187,35 @@ export const PendingTasksTable = () => {
                 title: "ตัวช่วย",
                 key: "actions",
                 align: "center",
-                render: (_, record: any) => (
-                  <Tooltip title="ดูประวัติการส่งต่องาน (Timeline)">
-                    <Button
-                      type="text"
-                      icon={<ClockCircleOutlined />}
-                      onClick={() => fetchTimeline(record.key)}
-                      loading={timelineLoading}
-                    />
-                  </Tooltip>
-                ),
+                render: (_, record: any) => {
+                  const assigneeName =
+                    record.assigneeName || currentAssigneeData?.name || "";
+                  return (
+                    <Space>
+                      <Tooltip title="มอบหมายงานใหม่ (Re-assign)">
+                        <Button
+                          type="text"
+                          icon={<SwapOutlined />}
+                          onClick={() =>
+                            openReassignModal(
+                              record.key,
+                              record.summary,
+                              assigneeName,
+                            )
+                          }
+                        />
+                      </Tooltip>
+                      <Tooltip title="ดูประวัติการส่งต่องาน (Timeline)">
+                        <Button
+                          type="text"
+                          icon={<ClockCircleOutlined />}
+                          onClick={() => fetchTimeline(record.key)}
+                          loading={timelineLoading}
+                        />
+                      </Tooltip>
+                    </Space>
+                  );
+                },
               },
             ]}
           />

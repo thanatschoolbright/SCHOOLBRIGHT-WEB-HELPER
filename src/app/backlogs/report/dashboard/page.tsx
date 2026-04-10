@@ -8,6 +8,7 @@ import { BurndownChart } from "./_components/burndown-chart";
 import { FilterSection } from "./_components/filter-section";
 import { IssueTimelineModal } from "./_components/issue-timeline-modal";
 import { PendingTasksTable } from "./_components/pending-tasks-table";
+import { QuickReassignModal } from "./_components/quick-reassign-modal";
 import { RankingSection } from "./_components/ranking-section";
 import { SummarySection } from "./_components/summary-section";
 import { WorkloadHeatmap } from "./_components/workload-heatmap";
@@ -44,6 +45,7 @@ export default function DashboardPage(): JSX.Element {
       </div>
 
       <IssueTimelineModal />
+      <QuickReassignModal />
     </BackendLayout>
   );
 }
