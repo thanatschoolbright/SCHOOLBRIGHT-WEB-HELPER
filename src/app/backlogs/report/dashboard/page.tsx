@@ -10,6 +10,7 @@ import { IssueTimelineModal } from "./_components/issue-timeline-modal";
 import { PendingTasksTable } from "./_components/pending-tasks-table";
 import { RankingSection } from "./_components/ranking-section";
 import { SummarySection } from "./_components/summary-section";
+import { WorkloadHeatmap } from "./_components/workload-heatmap";
 import { useBacklogDashboardStore } from "./_state/use-backlog-dashboard-store";
 
 /**
@@ -37,6 +38,7 @@ export default function DashboardPage(): JSX.Element {
         <FilterSection />
         <SummarySection />
         <BurndownChart />
+        <WorkloadHeatmap />
         <PendingTasksTable />
         <RankingSection />
       </div>

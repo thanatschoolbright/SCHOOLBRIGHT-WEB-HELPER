@@ -14,6 +14,11 @@ import {
   type BurndownPoint,
   fetchBurndownData,
 } from "../_api/backlog-burndown-service";
+import {
+  type HeatmapAssignee,
+  type HeatmapCell,
+  fetchHeatmapData,
+} from "../_api/backlog-heatmap-service";
 
 interface Issue {
   key: string;
@@ -103,8 +108,15 @@ interface BacklogDashboardState {
   burndownData: BurndownPoint[];
   burndownTotalIssues: number;
 
+  // Heatmap State
+  heatmapLoading: boolean;
+  heatmapDates: string[];
+  heatmapAssignees: HeatmapAssignee[];
+  heatmapMatrix: HeatmapCell[];
+
   // Async Actions
   fetchBurndown: () => Promise<void>;
+  fetchHeatmap: () => Promise<void>;
   loadProjectOptions: () => Promise<void>;
   loadIssueTypeOptions: (projectId: string) => Promise<void>;
   loadPriorityOptions: () => Promise<void>;
@@ -145,6 +157,12 @@ export const useBacklogDashboardStore = create<BacklogDashboardState>(
     burndownLoading: false,
     burndownData: [],
     burndownTotalIssues: 0,
+
+    // Heatmap State
+    heatmapLoading: false,
+    heatmapDates: [],
+    heatmapAssignees: [],
+    heatmapMatrix: [],
 
     // Timeline State
     timelineLoading: false,
@@ -364,6 +382,49 @@ export const useBacklogDashboardStore = create<BacklogDashboardState>(
         toast.error("ไม่สามารถดึงข้อมูล Burndown Chart ได้");
       } finally {
         set({ burndownLoading: false });
+      }
+    },
+
+    fetchHeatmap: async () => {
+      const {
+        space,
+        dateRange,
+        selectedProjectIds,
+        selectedIssueTypeIds,
+        selectedPriorityIds,
+        selectedStatusIds,
+        selectedAssigneeIds,
+      } = get();
+      set({ heatmapLoading: true });
+      try {
+        const params: Record<string, unknown> = { space };
+        if (dateRange) {
+          params.createdSince = dateRange[0].format("YYYY-MM-DD");
+          params.createdUntil = dateRange[1].format("YYYY-MM-DD");
+        }
+        if (selectedProjectIds.length > 0)
+          params["projectId[]"] = selectedProjectIds;
+        if (selectedIssueTypeIds.length > 0)
+          params["issueTypeId[]"] = selectedIssueTypeIds;
+        if (selectedPriorityIds.length > 0)
+          params["priorityId[]"] = selectedPriorityIds;
+        if (selectedStatusIds.length > 0)
+          params["statusId[]"] = selectedStatusIds;
+        if (selectedAssigneeIds.length > 0)
+          params["assigneeId[]"] = selectedAssigneeIds;
+
+        const response = await fetchHeatmapData(
+          params as Parameters<typeof fetchHeatmapData>[0],
+        );
+        set({
+          heatmapDates: response.data?.dates ?? [],
+          heatmapAssignees: response.data?.assignees ?? [],
+          heatmapMatrix: response.data?.matrix ?? [],
+        });
+      } catch {
+        toast.error("ไม่สามารถดึงข้อมูล Workload Heatmap ได้");
+      } finally {
+        set({ heatmapLoading: false });
       }
     },
 
