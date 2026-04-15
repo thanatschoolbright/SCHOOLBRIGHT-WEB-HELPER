@@ -642,6 +642,9 @@ const OvertimeManagementPage = () => {
     try {
       setIsLoadingOvertimeData(true);
       const currentApproverToken = await requestCurrentLocalUserID();
+      if (currentApproverToken !== BYPASS_USER_ID) {
+        toast.error("คุณไม่มีสิทธิ์ปรับสถานะ"); return;
+      }
       const apiResponseResultObject = await callApiService.post(
         `/api/v1/timesheet/overtime/change-status?id=${overtimeSubmissionIdentifier}`,
         {

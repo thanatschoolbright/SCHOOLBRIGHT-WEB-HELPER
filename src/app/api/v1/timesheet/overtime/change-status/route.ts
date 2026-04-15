@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { errorResponse, successResponse } from "@/helpers/api/response";
 import { validateRequest } from "@helpers/api/validate.request";
 import { handleError } from "@helpers/controller/handle-error.params";
@@ -5,6 +6,8 @@ import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { updateOvertimeStatusWithNotification } from "../_service/overtime-service";
+
+const APPROVER_USER_ID = "49";
 
 // Schema for change-status body (accept snake_case updated_by)
 const ChangeStatusSchema = z.object({
@@ -17,6 +20,30 @@ const ChangeStatusSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        errorResponse({
+          message_en: "Unauthorized",
+          message_th: "กรุณาเข้าสู่ระบบก่อนดำเนินการ",
+          status: 401,
+        }),
+        { status: 401 },
+      );
+    }
+
+    const sessionUserId = String((session.user as any).id ?? "");
+    if (sessionUserId !== APPROVER_USER_ID) {
+      return NextResponse.json(
+        errorResponse({
+          message_en: "Forbidden: you do not have permission to change OT status",
+          message_th: "คุณไม่มีสิทธิ์เปลี่ยนสถานะ OT",
+          status: 403,
+        }),
+        { status: 403 },
+      );
+    }
+
     const url = new URL(request.url);
     const idParam = url.searchParams.get("id");
     if (!idParam) {
