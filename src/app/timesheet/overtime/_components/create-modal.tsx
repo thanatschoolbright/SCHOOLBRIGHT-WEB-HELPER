@@ -1,41 +1,48 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { BYPASS_USER_ID } from "@/constants/overtime-status";
+import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 import {
-  Modal,
-  Flex,
-  Typography,
-  Form,
-  Row,
-  Col,
-  Input,
-  DatePicker,
-  Select,
-  Divider,
-  Space,
-  Button,
-  Card,
-  theme,
-  Tag,
-  Upload,
-  Popconfirm,
-  Tooltip,
-  message,
-} from "antd";
-import {
-  PlusOutlined,
   CalendarOutlined,
-  FileTextOutlined,
   CameraOutlined,
-  EditOutlined,
+  CheckCircleOutlined,
   DeleteOutlined,
-  UploadOutlined,
+  EditOutlined,
+  ExclamationCircleOutlined,
+  FileTextOutlined,
+  PlusOutlined,
   SaveOutlined,
   ThunderboltOutlined,
+  UploadOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
+import {
+  Alert,
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Divider,
+  Flex,
+  Form,
+  Image,
+  Input,
+  Modal,
+  Popconfirm,
+  Radio,
+  Row,
+  Select,
+  Space,
+  Spin,
+  Tag,
+  theme,
+  Tooltip,
+  Typography,
+  Upload,
+} from "antd";
 import dayjs from "dayjs";
-import { callApiService } from "@/services/axios-instance/sb-helper.axios";
-import { BYPASS_USER_ID } from "@/constants/overtime-status";
+import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const OT_TEMPLATE_STORAGE_KEY = "sb_ot_form_templates";
 
@@ -146,7 +153,9 @@ const TaskDescriptionCard = ({ fieldProps, remove, token }: any) => {
               label={<Typography.Text strong>เวลาเริ่มต้น</Typography.Text>}
               rules={[{ required: true, message: "โปรดระบุ" }]}
               style={{ marginBottom: 0 }}
-              normalize={(val) => (val && !dayjs.isDayjs(val) ? dayjs(val) : val)}
+              normalize={(val) =>
+                val && !dayjs.isDayjs(val) ? dayjs(val) : val
+              }
             >
               <DatePicker
                 showTime={{ format: "HH:mm" }}
@@ -165,7 +174,9 @@ const TaskDescriptionCard = ({ fieldProps, remove, token }: any) => {
                 { validator: validateEndDate },
               ]}
               style={{ marginBottom: 0 }}
-              normalize={(val) => (val && !dayjs.isDayjs(val) ? dayjs(val) : val)}
+              normalize={(val) =>
+                val && !dayjs.isDayjs(val) ? dayjs(val) : val
+              }
             >
               <DatePicker
                 showTime={{ format: "HH:mm" }}
@@ -245,6 +256,51 @@ const UploadFieldItem = ({ name, label, required, form }: any) => {
   );
 };
 
+// ประเภทของตัวเลือกลายเซ็น
+type SignatureMode = "default" | "upload";
+
+/**
+ * คอมโพเนนต์อัปโหลดลายเซ็นแบบเฉพาะทาง (แสดง preview เมื่อเลือกไฟล์แล้ว)
+ */
+const SignatureUploadField = ({ form }: { form: any }) => {
+  const [fileList, setFileList] = useState<any[]>([]);
+
+  const handleChange = ({ fileList: newList }: any) => {
+    const latest = newList.slice(-1);
+    setFileList(latest);
+    form.setFieldValue("signature_file", latest);
+  };
+
+  return (
+    <Upload
+      listType="picture"
+      maxCount={1}
+      fileList={fileList}
+      onChange={handleChange}
+      beforeUpload={() => false}
+      accept="image/*"
+      style={{ width: "100%" }}
+    >
+      <Button
+        icon={<UploadOutlined />}
+        style={{
+          height: 48,
+          width: "100%",
+          borderRadius: 12,
+          borderStyle: "dashed",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {fileList.length > 0
+          ? "เปลี่ยนรูปลายเซ็น"
+          : "เลือกรูปลายเซ็นจากเครื่อง"}
+      </Button>
+    </Upload>
+  );
+};
+
 /**
  * หน้าต่างสำหรับเพิ่มรายการคำขอ OT ใหม่
  */
@@ -259,7 +315,14 @@ const CreateModal: React.FC<CreateModalProps> = ({
 }) => {
   const { token } = theme.useToken();
   const [requesterName, setRequesterName] = useState<string>("กำลังโหลด...");
-  const [messageApi, contextHolder] = message.useMessage();
+
+  // สถานะลายเซ็น default ของผู้ใช้
+  const [defaultSignatureUrl, setDefaultSignatureUrl] = useState<string | null>(
+    null,
+  );
+  const [signatureLoading, setSignatureLoading] = useState<boolean>(false);
+  const [signatureMode, setSignatureModeState] =
+    useState<SignatureMode>("default");
 
   // Template state
   const [templates, setTemplates] = useState<OtTemplate[]>([]);
@@ -270,11 +333,37 @@ const CreateModal: React.FC<CreateModalProps> = ({
     if (visible) setTemplates(loadTemplates());
   }, [visible]);
 
+  // ดึงลายเซ็น default ของผู้ใช้เมื่อ modal เปิดหรือ currentUserId เปลี่ยน
+  useEffect(() => {
+    const fetchDefaultSignature = async () => {
+      if (!visible || !currentUserId) return;
+      setSignatureLoading(true);
+      try {
+        const response = await callApiService.get(
+          `/api/v2/admin/user-management/signature/read?user_id=${currentUserId}`,
+        );
+        const url = response?.data?.data?.signature_url ?? null;
+        setDefaultSignatureUrl(url);
+        // ถ้ามีลายเซ็น default → ตั้งค่าเริ่มต้นเป็น "default"
+        setSignatureModeState(url ? "default" : "upload");
+        // เคลียร์ form field signature_file เมื่อเปลี่ยน mode
+        form.setFieldValue("signature_file", undefined);
+      } catch {
+        setDefaultSignatureUrl(null);
+        setSignatureModeState("upload");
+      } finally {
+        setSignatureLoading(false);
+      }
+    };
+
+    void fetchDefaultSignature();
+  }, [visible, currentUserId]);
+
   /** บันทึก template จาก form ปัจจุบัน */
   const handleSaveTemplate = () => {
     const name = templateName.trim();
     if (!name) {
-      messageApi.warning("โปรดระบุชื่อ Template");
+      toast.warning("โปรดระบุชื่อ Template");
       return;
     }
     const descriptions = form.getFieldValue("descriptions") || [];
@@ -300,7 +389,7 @@ const CreateModal: React.FC<CreateModalProps> = ({
     saveTemplates(updated);
     setTemplates(updated);
     setTemplateName("");
-    messageApi.success(`บันทึก Template "${name}" แล้ว`);
+    toast.success(`บันทึก Template "${name}" แล้ว`);
   };
 
   /** Apply template ลง form */
@@ -317,7 +406,7 @@ const CreateModal: React.FC<CreateModalProps> = ({
     }));
 
     form.setFieldsValue({ overtime_type: tpl.overtime_type, descriptions });
-    messageApi.success(`Apply Template "${tpl.name}" แล้ว`);
+    toast.success(`Apply Template "${tpl.name}" แล้ว`);
   };
 
   /** ลบ template */
@@ -325,7 +414,7 @@ const CreateModal: React.FC<CreateModalProps> = ({
     const updated = templates.filter((t) => t.id !== templateId);
     saveTemplates(updated);
     setTemplates(updated);
-    messageApi.success("ลบ Template แล้ว");
+    toast.success("ลบ Template แล้ว");
   };
 
   // ดึงชื่อผู้ขอทำงานล่วงเวลา
@@ -334,12 +423,13 @@ const CreateModal: React.FC<CreateModalProps> = ({
       if (!currentUserId || !visible) return;
       try {
         const response = await callApiService.get(
-          `/api/v2/admin/user-management/detail/${currentUserId}`
+          `/api/v2/admin/user-management/detail/${currentUserId}`,
         );
         if (response?.data?.status === 200 && response.data.data) {
           const user = response.data.data;
           setRequesterName(
-            `${user.firstname_th || ""} ${user.lastname_th || ""}`.trim() || "-"
+            `${user.firstname_th || ""} ${user.lastname_th || ""}`.trim() ||
+              "-",
           );
         } else {
           setRequesterName("-");
@@ -379,14 +469,22 @@ const CreateModal: React.FC<CreateModalProps> = ({
             }
           }
         }
-      }
+      },
     );
 
     if (isChanged) form.setFieldsValue({ descriptions: updatedDescriptions });
   };
 
   const handleSubmission = async (formValues: any) => {
-    const success = await requestCreateOvertimeSubmission(formValues);
+    // แนบข้อมูลลายเซ็นตามที่ผู้ใช้เลือก
+    const enrichedValues = {
+      ...formValues,
+      signature_mode: signatureMode,
+      // กรณีใช้ลายเซ็น default → แนบ URL เข้าไปด้วย
+      signature_default_url:
+        signatureMode === "default" ? defaultSignatureUrl : null,
+    };
+    const success = await requestCreateOvertimeSubmission(enrichedValues);
     if (success) onClose();
   };
 
@@ -437,7 +535,6 @@ const CreateModal: React.FC<CreateModalProps> = ({
       centered
       style={{ borderRadius: 20, overflow: "hidden" }}
     >
-      {contextHolder}
       <Form
         form={form}
         layout="vertical"
@@ -458,7 +555,9 @@ const CreateModal: React.FC<CreateModalProps> = ({
         >
           <Flex align="center" gap={12} wrap="wrap">
             <Flex align="center" gap={6}>
-              <ThunderboltOutlined style={{ color: token.colorWarning, fontSize: 16 }} />
+              <ThunderboltOutlined
+                style={{ color: token.colorWarning, fontSize: 16 }}
+              />
               <Typography.Text strong style={{ fontSize: 13 }}>
                 เทมเพลต OT
               </Typography.Text>
@@ -474,7 +573,9 @@ const CreateModal: React.FC<CreateModalProps> = ({
                 options={templates.map((t) => ({
                   label: (
                     <Flex justify="space-between" align="center">
-                      <Typography.Text style={{ fontSize: 13 }}>{t.name}</Typography.Text>
+                      <Typography.Text style={{ fontSize: 13 }}>
+                        {t.name}
+                      </Typography.Text>
                       <Popconfirm
                         title="ลบ Template นี้?"
                         onConfirm={(e) => {
@@ -488,7 +589,11 @@ const CreateModal: React.FC<CreateModalProps> = ({
                       >
                         <Tooltip title="ลบ Template">
                           <DeleteOutlined
-                            style={{ color: token.colorError, fontSize: 12, marginLeft: 8 }}
+                            style={{
+                              color: token.colorError,
+                              fontSize: 12,
+                              marginLeft: 8,
+                            }}
                             onClick={(e) => e.stopPropagation()}
                           />
                         </Tooltip>
@@ -556,7 +661,9 @@ const CreateModal: React.FC<CreateModalProps> = ({
               initialValue={dayjs()}
               rules={[{ required: true, message: "โปรดระบุวันที่" }]}
               style={{ marginBottom: 24 }}
-              normalize={(val) => (val && !dayjs.isDayjs(val) ? dayjs(val) : val)}
+              normalize={(val) =>
+                val && !dayjs.isDayjs(val) ? dayjs(val) : val
+              }
             >
               <DatePicker
                 style={{
@@ -637,7 +744,7 @@ const CreateModal: React.FC<CreateModalProps> = ({
             const totalHours = descriptions.reduce(
               (sumValue: number, currentItem: any) =>
                 sumValue + Number(currentItem?.duration || 0),
-              0
+              0,
             );
 
             return (
@@ -764,17 +871,171 @@ const CreateModal: React.FC<CreateModalProps> = ({
           </Divider>
           <Card
             size="small"
-            style={{
-              borderRadius: 16,
-              background: token.colorFillAlter,
-            }}
+            style={{ borderRadius: 16, background: token.colorFillAlter }}
+            styles={{ body: { padding: 20 } }}
           >
-            <UploadFieldItem
-              name="signature_file"
-              label="อัปโหลดรูปภาพลายเซ็นรับรอง (1 รูป)"
-              required
-              form={form}
-            />
+            <Flex vertical gap={16}>
+              {signatureLoading ? (
+                <Flex justify="center" align="center" style={{ minHeight: 80 }}>
+                  <Spin spinning tip="กำลังโหลดลายเซ็น...">
+                    <div style={{ minHeight: 40, minWidth: 220 }} />
+                  </Spin>
+                </Flex>
+              ) : defaultSignatureUrl ? (
+                <>
+                  {/* มีลายเซ็น default ในระบบ — ให้เลือกว่าจะใช้ default หรืออัปโหลดใหม่ */}
+                  <Radio.Group
+                    value={signatureMode}
+                    onChange={(e) => {
+                      setSignatureModeState(e.target.value as SignatureMode);
+                      form.setFieldValue("signature_file", undefined);
+                    }}
+                  >
+                    <Flex vertical gap={12}>
+                      <Radio value="default">
+                        <Flex align="center" gap={8}>
+                          <CheckCircleOutlined
+                            style={{ color: token.colorSuccess }}
+                          />
+                          <Typography.Text strong>
+                            ใช้ลายเซ็นของฉันในระบบ
+                          </Typography.Text>
+                          <Typography.Text
+                            type="secondary"
+                            style={{ fontSize: 12 }}
+                          >
+                            (บันทึกไว้ที่โปรไฟล์ส่วนตัว)
+                          </Typography.Text>
+                        </Flex>
+                      </Radio>
+                      <Radio value="upload">
+                        <Flex align="center" gap={8}>
+                          <UploadOutlined />
+                          <Typography.Text strong>
+                            อัปโหลดลายเซ็นใหม่
+                          </Typography.Text>
+                          <Typography.Text
+                            type="secondary"
+                            style={{ fontSize: 12 }}
+                          >
+                            (เก็บเป็น Log สำหรับคำขอนี้เท่านั้น)
+                          </Typography.Text>
+                        </Flex>
+                      </Radio>
+                    </Flex>
+                  </Radio.Group>
+
+                  {signatureMode === "default" && (
+                    <Card
+                      size="small"
+                      style={{
+                        borderRadius: 12,
+                        border: `1px solid ${token.colorSuccessBorder}`,
+                        background: token.colorSuccessBg,
+                      }}
+                      styles={{ body: { padding: 12 } }}
+                    >
+                      <Flex align="center" gap={16}>
+                        <Image
+                          src={defaultSignatureUrl ?? ""}
+                          alt="ลายเซ็นในระบบ"
+                          height={80}
+                          style={{
+                            objectFit: "contain",
+                            borderRadius: 8,
+                            background: "#fff",
+                          }}
+                          preview={{ mask: "ดูลายเซ็น" }}
+                        />
+                        <Flex vertical gap={4}>
+                          <Flex align="center" gap={6}>
+                            <CheckCircleOutlined
+                              style={{
+                                color: token.colorSuccess,
+                                fontSize: 16,
+                              }}
+                            />
+                            <Typography.Text
+                              strong
+                              style={{ color: token.colorSuccess }}
+                            >
+                              ลายเซ็นพร้อมใช้งาน
+                            </Typography.Text>
+                          </Flex>
+                          <Typography.Text
+                            type="secondary"
+                            style={{ fontSize: 12 }}
+                          >
+                            ระบบจะใช้ลายเซ็นนี้แนบในเอกสารคำขอ OT อัตโนมัติ
+                          </Typography.Text>
+                        </Flex>
+                      </Flex>
+                    </Card>
+                  )}
+
+                  {signatureMode === "upload" && (
+                    <Form.Item
+                      name="signature_file"
+                      label={
+                        <Typography.Text strong>
+                          อัปโหลดรูปภาพลายเซ็น (สำหรับคำขอนี้เท่านั้น)
+                        </Typography.Text>
+                      }
+                      rules={[
+                        { required: true, message: "โปรดอัปโหลดลายเซ็น" },
+                      ]}
+                      style={{ marginBottom: 0 }}
+                    >
+                      <SignatureUploadField form={form} />
+                    </Form.Item>
+                  )}
+                </>
+              ) : (
+                <>
+                  {/* ไม่มีลายเซ็น default — แนะนำให้ไปอัปโหลดที่โปรไฟล์ */}
+                  <Alert
+                    type="warning"
+                    icon={<ExclamationCircleOutlined />}
+                    showIcon
+                    message={
+                      <Typography.Text strong>
+                        ยังไม่มีลายเซ็นในระบบ
+                      </Typography.Text>
+                    }
+                    description={
+                      <Flex vertical gap={8} style={{ marginTop: 4 }}>
+                        <Typography.Text style={{ fontSize: 13 }}>
+                          แนะนำให้อัปโหลดลายเซ็นไว้ที่โปรไฟล์ส่วนตัวก่อน
+                          เพื่อไม่ต้องอัปโหลดซ้ำทุกครั้งที่ยื่นคำขอ OT
+                        </Typography.Text>
+                        <Button
+                          type="link"
+                          icon={<UserOutlined />}
+                          href="/profile/personal-information"
+                          target="_blank"
+                          style={{ padding: 0, height: "auto", fontSize: 13 }}
+                        >
+                          ไปอัปโหลดลายเซ็นที่โปรไฟล์ส่วนตัว
+                        </Button>
+                      </Flex>
+                    }
+                    style={{ borderRadius: 12 }}
+                  />
+                  <Form.Item
+                    name="signature_file"
+                    label={
+                      <Typography.Text strong>
+                        อัปโหลดรูปภาพลายเซ็นรับรอง (สำหรับคำขอนี้)
+                      </Typography.Text>
+                    }
+                    rules={[{ required: true, message: "โปรดอัปโหลดลายเซ็น" }]}
+                    style={{ marginBottom: 0 }}
+                  >
+                    <SignatureUploadField form={form} />
+                  </Form.Item>
+                </>
+              )}
+            </Flex>
           </Card>
         </div>
 
