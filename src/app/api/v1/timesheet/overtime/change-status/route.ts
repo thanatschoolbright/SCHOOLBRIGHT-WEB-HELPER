@@ -16,6 +16,8 @@ const ChangeStatusSchema = z.object({
     if (typeof v === "string" && v.trim() !== "") return Number(v);
     return v;
   }, z.number().int().optional()),
+  // เหตุผลประกอบการเปลี่ยนสถานะ (จำเป็นเมื่อปฏิเสธ)
+  note: z.string().max(500).optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -77,6 +79,7 @@ export async function POST(request: NextRequest) {
 
     const status = bodyData.status as string;
     const updatedBy = bodyData.updated_by;
+    const note = bodyData.note ?? null;
 
     // ดึงสถานะก่อนหน้า เพื่อบันทึก from_status ใน log
     let fromStatus: string | null = null;
@@ -102,7 +105,7 @@ export async function POST(request: NextRequest) {
           changed_by: updatedBy ? Number(updatedBy) : null,
           from_status: fromStatus,
           to_status: status,
-          note: null,
+          note: note,
         },
       });
     } catch (logErr) {

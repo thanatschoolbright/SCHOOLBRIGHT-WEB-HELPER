@@ -39,6 +39,7 @@ import DetailModal from "./_components/detail-modal";
 import ExportModal from "./_components/export-modal";
 import FilterSection from "./_components/filter-section";
 import PersonalOtSummary from "./_components/personal-ot-summary";
+import RejectReasonModal from "./_components/reject-reason-modal";
 import RemindModal from "./_components/remind-modal";
 import RulesModal from "./_components/rules-modal";
 import SummarySection from "./_components/summary-section";
@@ -161,6 +162,10 @@ const OvertimeManagementPage = () => {
   const [isRulesModalVisible, setIsRulesModalVisible] = useState(false);
   const [isTimelineModalVisible, setIsTimelineModalVisible] = useState(false);
   const [isRemindModalVisible, setIsRemindModalVisible] = useState(false);
+  const [rejectReasonModal, setRejectReasonModal] = useState<{
+    open: boolean;
+    overtimeId: string | number | null;
+  }>({ open: false, overtimeId: null });
 
   // --- สถานะการส่งคำขอ OT (Submission Tracking) ---
   const [isSubmissionLoading, setIsSubmissionLoading] = useState(false);
@@ -669,6 +674,7 @@ const OvertimeManagementPage = () => {
   const requestApproveOvertimeSubmission = async (
     overtimeSubmissionIdentifier?: string | number,
     targetStatusString: string = "approved",
+    rejectNote?: string,
   ) => {
     if (!overtimeSubmissionIdentifier) return;
     try {
@@ -682,6 +688,7 @@ const OvertimeManagementPage = () => {
         {
           status: targetStatusString,
           updated_by: Number(currentApproverToken),
+          ...(rejectNote ? { note: rejectNote } : {}),
         },
       );
       if (apiResponseResultObject?.data?.status === 200) {
@@ -1581,7 +1588,9 @@ const OvertimeManagementPage = () => {
           }}
           onDelete={requestDeleteOvertimeSubmission}
           onApprove={requestApproveOvertimeSubmission}
-          onReject={(id) => requestApproveOvertimeSubmission(id, "rejected")}
+          onReject={(id) =>
+            setRejectReasonModal({ open: true, overtimeId: id })
+          }
           onSendMail={requestSendOvertimeMailToHR}
           onShowAnalytics={() => setIsAnalyticsModalVisible(true)}
           onShowExport={() => {
@@ -1633,6 +1642,24 @@ const OvertimeManagementPage = () => {
           visible={isDetailModalVisible}
           onClose={() => setIsDetailModalVisible(false)}
           selectedDetail={selectedOvertimeDetail}
+        />
+
+        {/* Modal ระบุเหตุผลการปฏิเสธ OT */}
+        <RejectReasonModal
+          open={rejectReasonModal.open}
+          overtimeId={rejectReasonModal.overtimeId ?? undefined}
+          loading={isLoadingOvertimeData}
+          onClose={() =>
+            setRejectReasonModal({ open: false, overtimeId: null })
+          }
+          onConfirm={async (reason) => {
+            await requestApproveOvertimeSubmission(
+              rejectReasonModal.overtimeId ?? undefined,
+              "rejected",
+              reason,
+            );
+            setRejectReasonModal({ open: false, overtimeId: null });
+          }}
         />
 
         {/* หน้าต่าง Modal สำหรับแสดงกราฟวิเคราะห์ข้อมูลทางสถิติ */}

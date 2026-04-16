@@ -1,7 +1,32 @@
 "use client";
 
-import { BarChartOutlined, FireOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
-import { Button, Calendar, Card, Col, Flex, Modal, Row, Space, theme, Tooltip, Typography } from "antd";
+import {
+  BarChartOutlined,
+  ClockCircleOutlined,
+  FireOutlined,
+  LeftOutlined,
+  RightOutlined,
+  TeamOutlined,
+  TrophyOutlined,
+} from "@ant-design/icons";
+import {
+  Avatar,
+  Button,
+  Calendar,
+  Card,
+  Col,
+  Flex,
+  Modal,
+  Progress,
+  Row,
+  Space,
+  Statistic,
+  Table,
+  Tag,
+  theme,
+  Tooltip,
+  Typography,
+} from "antd";
 import type { CellRenderInfo } from "rc-picker/lib/interface";
 import {
   ArcElement,
@@ -18,7 +43,7 @@ import {
 import dayjs, { Dayjs } from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
 import React, { useMemo, useState } from "react";
-import { Bar, Doughnut } from "react-chartjs-2";
+import { Bar, Doughnut, Line } from "react-chartjs-2";
 
 ChartJS.register(
   CategoryScale,
@@ -211,12 +236,178 @@ const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
     };
   }, [dataSource]);
 
+  // คำนวณข้อมูลสำหรับ Team Dashboard — Top OT Users
+  const topOtUsers = useMemo(() => {
+    const userMap: Record<
+      string,
+      {
+        name: string;
+        employeeCode: string;
+        totalHours: number;
+        approvedHours: number;
+        pendingCount: number;
+        requestCount: number;
+      }
+    > = {};
+
+    dataSource.forEach((record) => {
+      const uid = String(record.requester_id ?? record.requester_employee_code ?? "unknown");
+      const name =
+        record.requester_name ||
+        `${record.requester_user?.firstname_th ?? ""} ${record.requester_user?.lastname_th ?? ""}`.trim() ||
+        uid;
+      const employeeCode =
+        record.requester_employee_code ||
+        record.requester_user?.employee_code ||
+        "-";
+
+      if (!userMap[uid]) {
+        userMap[uid] = {
+          name,
+          employeeCode,
+          totalHours: 0,
+          approvedHours: 0,
+          pendingCount: 0,
+          requestCount: 0,
+        };
+      }
+
+      const hours =
+        record.descriptions?.reduce(
+          (s: number, d: any) => s + Number(d.duration || 0),
+          0,
+        ) || 0;
+
+      userMap[uid].totalHours += hours;
+      userMap[uid].requestCount += 1;
+      if (["approved", "paid"].includes(record.status || "")) {
+        userMap[uid].approvedHours += hours;
+      }
+      if (record.status === "pending") {
+        userMap[uid].pendingCount += 1;
+      }
+    });
+
+    return Object.entries(userMap)
+      .map(([uid, data]) => ({ uid, ...data }))
+      .sort((a, b) => b.totalHours - a.totalHours)
+      .slice(0, 10);
+  }, [dataSource]);
+
+  // คำนวณ max hours สำหรับ progress bar
+  const maxUserHours = useMemo(
+    () => (topOtUsers.length > 0 ? topOtUsers[0].totalHours : 1),
+    [topOtUsers],
+  );
+
+  // คำนวณ Average Wait Time (pending → approved/rejected) เป็นวัน
+  const avgWaitStats = useMemo(() => {
+    const completedItems = dataSource.filter((r) =>
+      ["approved", "rejected", "paid"].includes(r.status || ""),
+    );
+    if (completedItems.length === 0) return { avgDays: 0, minDays: 0, maxDays: 0 };
+
+    const waitDays = completedItems
+      .map((r) => {
+        const created = r.created_at || r.request_date;
+        const updated = r.updated_at;
+        if (!created || !updated) return null;
+        return Math.max(0, dayjs(updated).diff(dayjs(created), "day"));
+      })
+      .filter((d): d is number => d !== null);
+
+    if (waitDays.length === 0) return { avgDays: 0, minDays: 0, maxDays: 0 };
+
+    const avg = waitDays.reduce((a, b) => a + b, 0) / waitDays.length;
+    return {
+      avgDays: Math.round(avg * 10) / 10,
+      minDays: Math.min(...waitDays),
+      maxDays: Math.max(...waitDays),
+    };
+  }, [dataSource]);
+
+  // คำนวณ Weekly Trend — จำนวน OT request แต่ละวันใน 4 สัปดาห์ล่าสุด
+  const weeklyTrendData = useMemo(() => {
+    const weeks: Record<string, number> = {};
+    const weeksHours: Record<string, number> = {};
+    const now = dayjs();
+
+    // สร้าง label 8 สัปดาห์ย้อนหลัง
+    for (let i = 7; i >= 0; i--) {
+      const weekStart = now.subtract(i, "week").startOf("week");
+      const label = `สัปดาห์ที่ ${weekStart.format("D/M")}`;
+      weeks[label] = 0;
+      weeksHours[label] = 0;
+    }
+
+    dataSource.forEach((record) => {
+      const date = dayjs(record.created_at || record.request_date);
+      const weekStart = date.startOf("week");
+      const diffWeeks = now.startOf("week").diff(weekStart, "week");
+      if (diffWeeks < 0 || diffWeeks > 7) return;
+      const label = `สัปดาห์ที่ ${weekStart.format("D/M")}`;
+      if (label in weeks) {
+        weeks[label] += 1;
+        weeksHours[label] +=
+          record.descriptions?.reduce(
+            (s: number, d: any) => s + Number(d.duration || 0),
+            0,
+          ) || 0;
+      }
+    });
+
+    const labels = Object.keys(weeks);
+    return {
+      labels,
+      datasets: [
+        {
+          label: "จำนวนคำขอ",
+          data: labels.map((l) => weeks[l]),
+          borderColor: token.colorPrimary,
+          backgroundColor: token.colorPrimary + "20",
+          fill: true,
+          tension: 0.4,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          yAxisID: "y",
+        },
+        {
+          label: "ชั่วโมงรวม",
+          data: labels.map((l) => weeksHours[l]),
+          borderColor: token.colorWarning,
+          backgroundColor: token.colorWarning + "20",
+          fill: false,
+          tension: 0.4,
+          borderDash: [5, 5],
+          pointRadius: 4,
+          yAxisID: "y1",
+        },
+      ],
+    };
+  }, [dataSource, token.colorPrimary, token.colorWarning]);
+
+  // tab สำหรับสลับ view ใน Modal
+  const [activeTab, setActiveTab] = useState<"overview" | "team">("overview");
+
   return (
     <Modal
       title={
-        <Space>
-          <BarChartOutlined /> แดชบอร์ดวิเคราะห์สถิติการทำงานล่วงเวลา
-        </Space>
+        <Flex align="center" gap={12}>
+          <BarChartOutlined />
+          <span>แดชบอร์ดวิเคราะห์สถิติการทำงานล่วงเวลา</span>
+          <Space size={4} style={{ marginLeft: 8 }}>
+            {(["overview", "team"] as const).map((tab) => (
+              <Tag
+                key={tab}
+                color={activeTab === tab ? "blue" : "default"}
+                style={{ cursor: "pointer", margin: 0, fontSize: 12 }}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab === "overview" ? "ภาพรวม" : "ทีม"}
+              </Tag>
+            ))}
+          </Space>
+        </Flex>
       }
       open={visible}
       onCancel={() => setVisible(false)}
@@ -225,6 +416,301 @@ const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
       centered
     >
       <Flex vertical gap={32} style={{ paddingBlock: 32 }}>
+        {/* === Team Dashboard Section === */}
+        {activeTab === "team" && (
+          <Flex vertical gap={24}>
+            {/* Stats Row */}
+            <Row gutter={[16, 16]}>
+              <Col xs={24} sm={8}>
+                <Card
+                  styles={{ body: { padding: 20 } }}
+                  style={{
+                    borderRadius: 16,
+                    background: token.colorFillQuaternary,
+                    border: `1px solid ${token.colorBorderSecondary}`,
+                  }}
+                >
+                  <Flex align="center" gap={12}>
+                    <div
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 12,
+                        background: `${token.colorPrimary}20`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <TeamOutlined style={{ fontSize: 20, color: token.colorPrimary }} />
+                    </div>
+                    <Flex vertical gap={2}>
+                      <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                        พนักงานที่ยื่น OT
+                      </Typography.Text>
+                      <Statistic
+                        value={topOtUsers.length}
+                        suffix="คน"
+                        valueStyle={{ fontSize: 24, fontWeight: 600, lineHeight: 1.2 }}
+                      />
+                    </Flex>
+                  </Flex>
+                </Card>
+              </Col>
+
+              <Col xs={24} sm={8}>
+                <Card
+                  styles={{ body: { padding: 20 } }}
+                  style={{
+                    borderRadius: 16,
+                    background: token.colorFillQuaternary,
+                    border: `1px solid ${token.colorBorderSecondary}`,
+                  }}
+                >
+                  <Flex align="center" gap={12}>
+                    <div
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 12,
+                        background: `${token.colorWarning}20`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <ClockCircleOutlined style={{ fontSize: 20, color: token.colorWarning }} />
+                    </div>
+                    <Flex vertical gap={2}>
+                      <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                        เวลารอเฉลี่ย
+                      </Typography.Text>
+                      <Statistic
+                        value={avgWaitStats.avgDays}
+                        suffix="วัน"
+                        precision={1}
+                        valueStyle={{ fontSize: 24, fontWeight: 600, lineHeight: 1.2 }}
+                      />
+                      {avgWaitStats.maxDays > 0 && (
+                        <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                          น้อยสุด {avgWaitStats.minDays} — มากสุด {avgWaitStats.maxDays} วัน
+                        </Typography.Text>
+                      )}
+                    </Flex>
+                  </Flex>
+                </Card>
+              </Col>
+
+              <Col xs={24} sm={8}>
+                <Card
+                  styles={{ body: { padding: 20 } }}
+                  style={{
+                    borderRadius: 16,
+                    background: token.colorFillQuaternary,
+                    border: `1px solid ${token.colorBorderSecondary}`,
+                  }}
+                >
+                  <Flex align="center" gap={12}>
+                    <div
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 12,
+                        background: `${token.colorSuccess}20`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <TrophyOutlined style={{ fontSize: 20, color: token.colorSuccess }} />
+                    </div>
+                    <Flex vertical gap={2}>
+                      <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                        OT มากที่สุด
+                      </Typography.Text>
+                      <Typography.Text strong style={{ fontSize: 16 }}>
+                        {topOtUsers[0]?.name || "-"}
+                      </Typography.Text>
+                      {topOtUsers[0] && (
+                        <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                          {topOtUsers[0].totalHours.toFixed(1)} ชม.
+                        </Typography.Text>
+                      )}
+                    </Flex>
+                  </Flex>
+                </Card>
+              </Col>
+            </Row>
+
+            {/* Top OT Users Table */}
+            <Card
+              title={
+                <Flex align="center" gap={8}>
+                  <TrophyOutlined style={{ color: token.colorWarning }} />
+                  <Typography.Text strong>อันดับพนักงาน OT สูงสุด (Top 10)</Typography.Text>
+                </Flex>
+              }
+              variant="borderless"
+              style={{
+                borderRadius: token.borderRadiusLG,
+                background: token.colorFillQuaternary,
+              }}
+            >
+              <Table
+                dataSource={topOtUsers}
+                rowKey="uid"
+                pagination={false}
+                size="small"
+                columns={[
+                  {
+                    title: "อันดับ",
+                    key: "rank",
+                    width: 60,
+                    align: "center",
+                    render: (_: any, __: any, index: number) => {
+                      const medals = ["#FFD700", "#C0C0C0", "#CD7F32"];
+                      const color = medals[index] ?? token.colorTextTertiary;
+                      return (
+                        <Typography.Text strong style={{ color, fontSize: 14 }}>
+                          {index + 1}
+                        </Typography.Text>
+                      );
+                    },
+                  },
+                  {
+                    title: "ชื่อพนักงาน",
+                    key: "name",
+                    render: (record: any) => (
+                      <Flex align="center" gap={10}>
+                        <Avatar size={32} style={{ background: token.colorPrimary, flexShrink: 0 }}>
+                          {record.name.charAt(0)}
+                        </Avatar>
+                        <Flex vertical gap={0}>
+                          <Typography.Text strong style={{ fontSize: 13 }}>
+                            {record.name}
+                          </Typography.Text>
+                          <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                            {record.employeeCode}
+                          </Typography.Text>
+                        </Flex>
+                      </Flex>
+                    ),
+                  },
+                  {
+                    title: "คำขอ",
+                    dataIndex: "requestCount",
+                    key: "requestCount",
+                    align: "center",
+                    width: 80,
+                    render: (v: number) => <Tag>{v} รายการ</Tag>,
+                  },
+                  {
+                    title: "รออนุมัติ",
+                    dataIndex: "pendingCount",
+                    key: "pendingCount",
+                    align: "center",
+                    width: 90,
+                    render: (v: number) =>
+                      v > 0 ? (
+                        <Tag color="gold">{v} รายการ</Tag>
+                      ) : (
+                        <Typography.Text type="secondary">-</Typography.Text>
+                      ),
+                  },
+                  {
+                    title: "ชั่วโมงรวม",
+                    key: "totalHours",
+                    width: 200,
+                    render: (record: any) => (
+                      <Flex vertical gap={4}>
+                        <Flex justify="space-between">
+                          <Typography.Text strong style={{ fontSize: 12 }}>
+                            {record.totalHours.toFixed(1)} ชม.
+                          </Typography.Text>
+                          <Typography.Text
+                            type="secondary"
+                            style={{ fontSize: 11 }}
+                          >
+                            อนุมัติ {record.approvedHours.toFixed(1)} ชม.
+                          </Typography.Text>
+                        </Flex>
+                        <Progress
+                          percent={Math.round(
+                            (record.totalHours / maxUserHours) * 100,
+                          )}
+                          showInfo={false}
+                          size={["100%", 6] as any}
+                          strokeColor={
+                            record.totalHours === maxUserHours
+                              ? token.colorError
+                              : token.colorPrimary
+                          }
+                          style={{ margin: 0 }}
+                        />
+                      </Flex>
+                    ),
+                  },
+                ]}
+              />
+            </Card>
+
+            {/* Weekly Trend Chart */}
+            <Card
+              title={
+                <Flex align="center" gap={8}>
+                  <BarChartOutlined style={{ color: token.colorInfo }} />
+                  <Typography.Text strong>แนวโน้มรายสัปดาห์ (8 สัปดาห์ล่าสุด)</Typography.Text>
+                </Flex>
+              }
+              variant="borderless"
+              style={{
+                borderRadius: token.borderRadiusLG,
+                background: token.colorFillQuaternary,
+              }}
+            >
+              <Flex style={{ height: 320 }}>
+                <Line
+                  data={weeklyTrendData}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: "index", intersect: false },
+                    plugins: {
+                      legend: {
+                        position: "top",
+                        labels: { usePointStyle: true, padding: 16 },
+                      },
+                    },
+                    scales: {
+                      y: {
+                        type: "linear",
+                        position: "left",
+                        beginAtZero: true,
+                        title: { display: true, text: "จำนวนคำขอ" },
+                        grid: { color: token.colorBorderSecondary },
+                      },
+                      y1: {
+                        type: "linear",
+                        position: "right",
+                        beginAtZero: true,
+                        title: { display: true, text: "ชั่วโมง" },
+                        grid: { drawOnChartArea: false },
+                      },
+                      x: { grid: { display: false } },
+                    },
+                  }}
+                />
+              </Flex>
+            </Card>
+          </Flex>
+        )}
+
+        {/* === Overview Section (เดิม) === */}
+        {activeTab === "overview" && (
+        <>
         {/* === Calendar Heat Map Section === */}
         <Card
           title={
@@ -365,6 +851,8 @@ const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
             </Card>
           </Col>
         </Row>
+        </>
+        )}
       </Flex>
     </Modal>
   );
