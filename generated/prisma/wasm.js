@@ -93,6 +93,12 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.APIConfigurationScalarFieldEnum = {
+  ConfigurationID: 'ConfigurationID',
+  Name: 'Name',
+  Value: 'Value'
+};
+
 exports.Prisma.ActiveSchoolListScalarFieldEnum = {
   nCompany: 'nCompany',
   sCompany: 'sCompany',
@@ -101,1638 +107,70 @@ exports.Prisma.ActiveSchoolListScalarFieldEnum = {
   isActive: 'isActive'
 };
 
-exports.Prisma.ApplicationURLDataScalarFieldEnum = {
-  ID: 'ID',
-  ApplicationType: 'ApplicationType',
-  ProdURL: 'ProdURL',
-  DevURL: 'DevURL',
-  Tstamp: 'Tstamp',
-  UatURL: 'UatURL',
-  AlphaURL: 'AlphaURL'
-};
-
-exports.Prisma.JabjaiUserClaimsScalarFieldEnum = {
-  UserID: 'UserID',
+exports.Prisma.BBLTransactionScalarFieldEnum = {
+  TransactionID: 'TransactionID',
+  payeeId: 'payeeId',
+  transDate: 'transDate',
+  transTime: 'transTime',
+  transRef: 'transRef',
+  channel: 'channel',
+  termId: 'termId',
+  amount: 'amount',
+  reference1: 'reference1',
+  reference2: 'reference2',
+  fromBank: 'fromBank',
+  retryFlag: 'retryFlag',
+  InvoiceID: 'InvoiceID',
   SchoolID: 'SchoolID',
-  UserName: 'UserName',
-  Password: 'Password',
-  Email: 'Email',
-  AuthorizationKey: 'AuthorizationKey',
-  OldAuthorizationKey: 'OldAuthorizationKey',
-  ExpiredDate: 'ExpiredDate',
-  Tstamp: 'Tstamp',
-  GeneratedDate: 'GeneratedDate',
-  UserType: 'UserType'
-};
-
-exports.Prisma.LINERichMenuScalarFieldEnum = {
-  ID: 'ID',
-  RichMenuID: 'RichMenuID',
-  Status: 'Status'
-};
-
-exports.Prisma.LINEUserScalarFieldEnum = {
-  StudentID: 'StudentID',
-  LINEUserID: 'LINEUserID',
-  RichMenuID: 'RichMenuID',
-  SchoolID: 'SchoolID',
-  RegisterDate: 'RegisterDate',
-  Status: 'Status',
-  OS: 'OS',
-  UpdateDate: 'UpdateDate'
-};
-
-exports.Prisma.LogScanFCTempScalarFieldEnum = {
-  ID: 'ID',
-  SchoolID: 'SchoolID',
-  LogData: 'LogData',
-  Tstamp: 'Tstamp',
-  LogStatus: 'LogStatus',
-  MethodName: 'MethodName',
-  ErrorLog: 'ErrorLog'
-};
-
-exports.Prisma.SchoolTEmployeesScalarFieldEnum = {
-  SchoolID: 'SchoolID',
-  sEmp: 'sEmp',
-  nStudentStatus: 'nStudentStatus',
-  sStudentID: 'sStudentID'
-};
-
-exports.Prisma.SchoolTUserScalarFieldEnum = {
-  SchoolID: 'SchoolID',
-  sID: 'sID',
-  nStudentStatus: 'nStudentStatus',
-  sStudentID: 'sStudentID'
-};
-
-exports.Prisma.ShortenUrlScalarFieldEnum = {
-  UrlID: 'UrlID',
-  UrlString: 'UrlString',
-  ShortUrl: 'ShortUrl',
-  Tstamp: 'Tstamp'
-};
-
-exports.Prisma.TAccountJournalScalarFieldEnum = {
-  AccountJournalId: 'AccountJournalId',
-  RefID: 'RefID',
-  Code: 'Code',
-  Url: 'Url',
-  Type: 'Type',
-  Status: 'Status',
-  DebitCredit: 'DebitCredit',
-  Description: 'Description',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  DeleteDate: 'DeleteDate',
-  DeleteBy: 'DeleteBy'
-};
-
-exports.Prisma.TAccountRoleGroupScalarFieldEnum = {
-  AccountRoleGroupId: 'AccountRoleGroupId',
-  RoleGroupName: 'RoleGroupName',
-  Note: 'Note'
-};
-
-exports.Prisma.TAccountRoleUserScalarFieldEnum = {
-  AccountRoleUserId: 'AccountRoleUserId',
-  AccountRoleGroupId: 'AccountRoleGroupId',
-  UserId: 'UserId'
-};
-
-exports.Prisma.TAdminScalarFieldEnum = {
-  id: 'id',
-  username: 'username',
-  password: 'password',
-  picture: 'picture',
-  del: 'del',
-  name: 'name',
-  active: 'active',
-  email: 'email',
-  tel: 'tel',
-  id2: 'id2',
-  RoleID: 'RoleID',
-  OfficerID: 'OfficerID',
-  Code: 'Code',
-  FirstName: 'FirstName',
-  LastName: 'LastName',
-  NickName: 'NickName',
-  Position: 'Position',
-  IsActive: 'IsActive',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  BacklogEmailAccount: 'BacklogEmailAccount'
-};
-
-exports.Prisma.TAttachScalarFieldEnum = {
-  AttachId: 'AttachId',
-  EventName: 'EventName',
-  EventId: 'EventId',
-  AttachUrl: 'AttachUrl',
-  CreateDate: 'CreateDate',
-  AttachName: 'AttachName',
-  ContentType: 'ContentType'
-};
-
-exports.Prisma.TAvermentScalarFieldEnum = {
-  nAvermentID: 'nAvermentID',
-  sAverment: 'sAverment',
-  nCompany: 'nCompany',
-  sMac: 'sMac',
-  dAdd: 'dAdd',
-  cType: 'cType',
-  nStatus: 'nStatus'
-};
-
-exports.Prisma.TB_APILogScalarFieldEnum = {
-  ID: 'ID',
-  Info: 'Info',
-  Tstamp: 'Tstamp'
-};
-
-exports.Prisma.TB_AppVersionScalarFieldEnum = {
-  Fd_ID: 'Fd_ID',
-  Fd_Name: 'Fd_Name',
-  Fd_AppID: 'Fd_AppID',
-  Fd_URL: 'Fd_URL',
-  Fd_Prod: 'Fd_Prod',
-  Fd_Dev: 'Fd_Dev',
-  Fd_Environment: 'Fd_Environment',
-  Fd_IsLastestVersion: 'Fd_IsLastestVersion',
-  CreatedBy: 'CreatedBy',
-  UpdatedBy: 'UpdatedBy',
-  CreatedDate: 'CreatedDate',
-  UpdatedDate: 'UpdatedDate'
-};
-
-exports.Prisma.TB_ApplicationScalarFieldEnum = {
-  AppID: 'AppID',
-  Fd_AppID: 'Fd_AppID',
-  Fd_AppName: 'Fd_AppName',
-  Fd_AppType: 'Fd_AppType',
-  CreatedBy: 'CreatedBy',
-  UpdatedBy: 'UpdatedBy',
-  CreatedDate: 'CreatedDate',
-  UpdatedDate: 'UpdatedDate'
-};
-
-exports.Prisma.TB_BehaviorJobScalarFieldEnum = {
-  ID: 'ID',
-  CreatedDate: 'CreatedDate',
-  JobName: 'JobName',
-  JobValues: 'JobValues',
-  JobStatus: 'JobStatus',
-  SchoolID: 'SchoolID',
-  LogDate: 'LogDate'
-};
-
-exports.Prisma.TB_ChangePasswordHistoryScalarFieldEnum = {
-  Fd_ChangePasswordID: 'Fd_ChangePasswordID',
-  Fd_CreateDate: 'Fd_CreateDate',
-  Fd_UserID: 'Fd_UserID',
-  Fd_ResetDate: 'Fd_ResetDate',
-  Fd_OldPasswrod: 'Fd_OldPasswrod',
-  Fd_NewPassword: 'Fd_NewPassword',
-  Fd_SchoolID: 'Fd_SchoolID'
-};
-
-exports.Prisma.TB_FCMScalarFieldEnum = {
-  ID: 'ID',
-  Token: 'Token',
-  UserID: 'UserID',
-  SchoolID: 'SchoolID',
-  Imei: 'Imei',
-  System: 'System',
-  Fd_Lang: 'Fd_Lang',
-  isActive: 'isActive',
-  isDelete: 'isDelete',
-  CreatedBy: 'CreatedBy',
-  UpdatedBy: 'UpdatedBy',
-  CreatedDate: 'CreatedDate',
-  UpdatedDate: 'UpdatedDate',
-  Fd_MBBrand: 'Fd_MBBrand',
-  Fd_LoginDate: 'Fd_LoginDate',
-  Fd_VerifyStatus: 'Fd_VerifyStatus',
-  IPAddress: 'IPAddress',
-  Fd_FirstLoginDate: 'Fd_FirstLoginDate',
-  Fd_Location: 'Fd_Location'
-};
-
-exports.Prisma.TB_IPBlockListScalarFieldEnum = {
-  ID: 'ID',
-  IPAddress: 'IPAddress',
-  SchoolID: 'SchoolID',
-  BlockReason: 'BlockReason',
-  BlockType: 'BlockType',
-  BlockedFrom: 'BlockedFrom',
-  BlockedUntil: 'BlockedUntil',
-  IsActive: 'IsActive',
-  CreatedDate: 'CreatedDate',
-  CreatedBy: 'CreatedBy',
-  RelatedIncidentID: 'RelatedIncidentID'
-};
-
-exports.Prisma.TB_JobsQueueScalarFieldEnum = {
-  JobId: 'JobId',
-  MessageID: 'MessageID',
-  JobName: 'JobName',
-  JobValues: 'JobValues',
-  StateName: 'StateName',
-  CreatedDate: 'CreatedDate',
-  FetchedDate: 'FetchedDate',
-  SchedulerDate: 'SchedulerDate',
-  CompleteDate: 'CompleteDate',
+  ErrorCode: 'ErrorCode',
   ErrorMessage: 'ErrorMessage',
-  ResponseTime: 'ResponseTime'
+  VerifyDate: 'VerifyDate',
+  VerifyCode: 'VerifyCode',
+  VerifyStatus: 'VerifyStatus',
+  NotifyDate: 'NotifyDate',
+  NotifyCode: 'NotifyCode',
+  NotifyStatus: 'NotifyStatus'
 };
 
-exports.Prisma.TB_LoginAttemptsScalarFieldEnum = {
-  ID: 'ID',
-  UserID: 'UserID',
+exports.Prisma.DeviceDailyStatusScalarFieldEnum = {
+  DeviceStatusID: 'DeviceStatusID',
   SchoolID: 'SchoolID',
-  Username: 'Username',
-  AttemptDate: 'AttemptDate',
-  IsSuccess: 'IsSuccess',
-  FailureReason: 'FailureReason',
-  IsAccountLocked: 'IsAccountLocked',
-  RequirePasswordChange: 'RequirePasswordChange',
-  CreatedDate: 'CreatedDate',
-  IPAddress: 'IPAddress'
-};
-
-exports.Prisma.TB_LoginHistoryScalarFieldEnum = {
-  Fd_LoginHistoryID: 'Fd_LoginHistoryID',
-  Fd_LoginDate: 'Fd_LoginDate',
-  Fd_Token: 'Fd_Token',
-  Fd_UserID: 'Fd_UserID',
-  Fd_SchoolID: 'Fd_SchoolID',
-  Imei: 'Imei',
-  System: 'System',
-  Fd_Version: 'Fd_Version',
-  Fd_MBBrand: 'Fd_MBBrand'
-};
-
-exports.Prisma.TB_LogofflineScalarFieldEnum = {
-  LogOfflineID: 'LogOfflineID',
-  SchoolID: 'SchoolID',
-  LogText: 'LogText',
-  Created: 'Created'
-};
-
-exports.Prisma.TB_PaymentGatewayScalarFieldEnum = {
-  Fd_PaymentGatewayID: 'Fd_PaymentGatewayID',
-  Fd_SchoolID: 'Fd_SchoolID',
-  Fd_PublicKey: 'Fd_PublicKey',
-  Fd_SecretKey: 'Fd_SecretKey',
-  Fd_Active: 'Fd_Active',
-  Fd_ActiveInvoice: 'Fd_ActiveInvoice',
-  Fd_PartnerID: 'Fd_PartnerID',
-  Fd_PartnerSecret: 'Fd_PartnerSecret',
-  Fd_MerchantMID: 'Fd_MerchantMID',
-  Fd_PromptPayActive: 'Fd_PromptPayActive',
-  Fd_ConsumerID: 'Fd_ConsumerID',
-  Fd_ConsumerSecret: 'Fd_ConsumerSecret',
-  Fd_Campaign_ID: 'Fd_Campaign_ID',
-  Fd_CGA_Merchant_CreditCard_Full_ID: 'Fd_CGA_Merchant_CreditCard_Full_ID',
-  Fd_CGA_Terminal_CreditCard_Full_ID: 'Fd_CGA_Terminal_CreditCard_Full_ID',
-  Fd_CGA_Merchant_CreditCard_Installment_ID: 'Fd_CGA_Merchant_CreditCard_Installment_ID',
-  Fd_CGA_Terminal_CreditCard_Installment_ID: 'Fd_CGA_Terminal_CreditCard_Installment_ID',
-  Fd_CGA_SmartPay_CreditCard_Installment_ID: 'Fd_CGA_SmartPay_CreditCard_Installment_ID',
-  DisableNormalCard: 'DisableNormalCard',
-  Fd_PublicKeyInvoice: 'Fd_PublicKeyInvoice',
-  Fd_SecretKeyInvoice: 'Fd_SecretKeyInvoice',
-  Fd_FeePayment: 'Fd_FeePayment',
-  Fd_FeeInvoice: 'Fd_FeeInvoice',
-  Fd_BBLPayment: 'Fd_BBLPayment',
-  Fd_Suffix: 'Fd_Suffix',
-  Fd_KTBPayment: 'Fd_KTBPayment',
-  Fd_PaymentType: 'Fd_PaymentType',
-  Fd_BeamMerchant: 'Fd_BeamMerchant',
-  Fd_BeamSecretKey: 'Fd_BeamSecretKey'
-};
-
-exports.Prisma.TB_PaymentMethodsScalarFieldEnum = {
-  Id: 'Id',
-  PublicKey: 'PublicKey',
-  PaymentMethod: 'PaymentMethod',
-  PaymentChannel: 'PaymentChannel',
-  MerchantID: 'MerchantID',
-  SecretKey: 'SecretKey',
-  IsActive: 'IsActive',
-  ActiveInvoice: 'ActiveInvoice',
-  PartnerID: 'PartnerID',
-  PartnerSecret: 'PartnerSecret',
-  PromptPayActive: 'PromptPayActive',
-  ConsumerID: 'ConsumerID',
-  ConsumerSecret: 'ConsumerSecret',
-  Campaign_ID: 'Campaign_ID',
-  CGA_Merchant_CreditCard_Full_ID: 'CGA_Merchant_CreditCard_Full_ID',
-  CGA_Terminal_CreditCard_Full_ID: 'CGA_Terminal_CreditCard_Full_ID',
-  CGA_Merchant_CreditCard_Installment_ID: 'CGA_Merchant_CreditCard_Installment_ID',
-  CGA_Terminal_CreditCard_Installment_ID: 'CGA_Terminal_CreditCard_Installment_ID',
-  CGA_SmartPay_CreditCard_Installment_ID: 'CGA_SmartPay_CreditCard_Installment_ID',
-  DisableNormalCard: 'DisableNormalCard',
-  PublicKeyInvoice: 'PublicKeyInvoice',
-  SecretKeyInvoice: 'SecretKeyInvoice',
-  UpdateAt: 'UpdateAt',
-  UpdateBy: 'UpdateBy',
-  CreateAt: 'CreateAt',
-  CreateBy: 'CreateBy',
-  DeleteAt: 'DeleteAt',
-  SchoolId: 'SchoolId'
-};
-
-exports.Prisma.TB_PaymentSettingScalarFieldEnum = {
-  SystemID: 'SystemID',
-  Bank: 'Bank',
-  SystemName: 'SystemName',
-  isActive: 'isActive',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy'
-};
-
-exports.Prisma.TB_PolicyScalarFieldEnum = {
-  Fd_PolicyID: 'Fd_PolicyID',
-  Fd_Message: 'Fd_Message',
-  Fd_Version: 'Fd_Version',
-  Fd_IsActive: 'Fd_IsActive',
-  Fd_IsDel: 'Fd_IsDel',
-  Fd_IsStatus: 'Fd_IsStatus',
-  Fd_Created: 'Fd_Created',
-  Fd_Modified: 'Fd_Modified',
-  Fd_CreateBy: 'Fd_CreateBy',
-  Fd_ModifyBy: 'Fd_ModifyBy'
-};
-
-exports.Prisma.TB_PolicyApproveScalarFieldEnum = {
-  Fd_ApproveID: 'Fd_ApproveID',
-  Fd_PolicyID: 'Fd_PolicyID',
-  Fd_UserID: 'Fd_UserID',
-  Fd_ApproveDate: 'Fd_ApproveDate',
-  Fd_UserType: 'Fd_UserType'
-};
-
-exports.Prisma.TB_RecoverUserDataScalarFieldEnum = {
-  RecoverID: 'RecoverID',
-  Token: 'Token',
-  UserID: 'UserID',
-  SchoolID: 'SchoolID',
-  Imei: 'Imei',
-  System: 'System',
-  CreatedDate: 'CreatedDate',
-  AppvoreStatus: 'AppvoreStatus',
-  AppvoreUserID: 'AppvoreUserID',
-  AppvoreDate: 'AppvoreDate',
-  Email: 'Email',
-  student_picture_0: 'student_picture_0',
-  student_picture_1: 'student_picture_1',
-  parent_picture_0: 'parent_picture_0',
-  parent_picture_1: 'parent_picture_1',
-  teacher_picture_0: 'teacher_picture_0',
-  teacher_picture_1: 'teacher_picture_1',
-  EmailPin: 'EmailPin',
-  UserType: 'UserType',
-  Fd_ChangePasswordID: 'Fd_ChangePasswordID'
-};
-
-exports.Prisma.TB_SchoolAppVersionScalarFieldEnum = {
-  ID: 'ID',
-  SchoolID: 'SchoolID',
+  DeviceID: 'DeviceID',
+  Online: 'Online',
+  OnlineTime: 'OnlineTime',
+  Login: 'Login',
+  LoginTime: 'LoginTime',
+  LogOut: 'LogOut',
+  LogoutTime: 'LogoutTime',
+  Tstamp: 'Tstamp',
+  BusinessDate: 'BusinessDate',
   AppVersion: 'AppVersion',
-  CreatedBy: 'CreatedBy',
-  UpdatedBy: 'UpdatedBy',
-  CreatedDate: 'CreatedDate',
-  UpdatedDate: 'UpdatedDate',
-  AppID: 'AppID'
+  AppName: 'AppName',
+  Note: 'Note',
+  UserLoginID: 'UserLoginID',
+  DeviceTypeID: 'DeviceTypeID'
 };
 
-exports.Prisma.TB_SecurityIncidentsScalarFieldEnum = {
-  ID: 'ID',
-  IncidentType: 'IncidentType',
-  Severity: 'Severity',
-  SchoolID: 'SchoolID',
-  SourceIP: 'SourceIP',
-  TargetUserID: 'TargetUserID',
-  TargetUsername: 'TargetUsername',
-  ThreatLevel: 'ThreatLevel',
-  AttemptsCount: 'AttemptsCount',
-  TimeWindow: 'TimeWindow',
-  BlockDuration: 'BlockDuration',
-  Description: 'Description',
-  DetectedDate: 'DetectedDate',
-  CreatedDate: 'CreatedDate',
-  IsResolved: 'IsResolved',
-  ResolvedDate: 'ResolvedDate',
-  ResolvedBy: 'ResolvedBy'
+exports.Prisma.DeviceTypeScalarFieldEnum = {
+  DeviceTypeID: 'DeviceTypeID',
+  TypeNameEN: 'TypeNameEN',
+  TypeNameTH: 'TypeNameTH'
 };
 
-exports.Prisma.TB_ServerScalarFieldEnum = {
-  ID: 'ID',
-  Message: 'Message',
-  Status: 'Status',
-  ServerName: 'ServerName',
-  Url: 'Url'
-};
-
-exports.Prisma.TB_VerifierDeviceScalarFieldEnum = {
-  Fd_VerifierID: 'Fd_VerifierID',
-  Fd_Data: 'Fd_Data',
-  Fd_ChanelMessage: 'Fd_ChanelMessage',
-  Fd_UserID: 'Fd_UserID',
-  Fd_SchoolID: 'Fd_SchoolID',
-  CreatedDate: 'CreatedDate',
-  Fd_Status: 'Fd_Status'
-};
-
-exports.Prisma.TCompanyScalarFieldEnum = {
-  nCompany: 'nCompany',
-  sCompany: 'sCompany',
-  sSchoolPass: 'sSchoolPass',
-  sAddress: 'sAddress',
-  sTel: 'sTel',
-  sServer: 'sServer',
-  sDatabases: 'sDatabases',
-  sUser: 'sUser',
-  sPassword: 'sPassword',
-  sEntities: 'sEntities',
-  nType: 'nType',
-  sImage: 'sImage',
-  admin1: 'admin1',
-  admin2: 'admin2',
-  single_authen: 'single_authen',
-  double_authen: 'double_authen',
-  nfc: 'nfc',
-  sotfware: 'sotfware',
-  latitude: 'latitude',
-  longitude: 'longitude',
-  schoolHeadPicture: 'schoolHeadPicture',
-  serverAdminPicture: 'serverAdminPicture',
-  schoolCoverPicture: 'schoolCoverPicture',
-  sCode: 'sCode',
-  sNameEN: 'sNameEN',
-  sPhoneOne: 'sPhoneOne',
-  sPhoneTwo: 'sPhoneTwo',
-  sMobilePhone: 'sMobilePhone',
-  sFax: 'sFax',
-  sEmailOne: 'sEmailOne',
-  sEmailTwo: 'sEmailTwo',
-  sWebsite: 'sWebsite',
-  sHomeNumber: 'sHomeNumber',
-  sSoy: 'sSoy',
-  sMuu: 'sMuu',
-  sRoad: 'sRoad',
-  sTumbon: 'sTumbon',
-  sAumpher: 'sAumpher',
-  sPost: 'sPost',
-  SchoolHeadName: 'SchoolHeadName',
-  SchoolHeadLastname: 'SchoolHeadLastname',
-  SchoolHeadEmail: 'SchoolHeadEmail',
-  SchoolHeadPhone: 'SchoolHeadPhone',
-  ServerAdminName: 'ServerAdminName',
-  ServerAdminLastname: 'ServerAdminLastname',
-  ServerAdminEmail: 'ServerAdminEmail',
-  ServerAdminPhone: 'ServerAdminPhone',
-  checker: 'checker',
-  sProvince: 'sProvince',
-  sOwner: 'sOwner',
-  Active: 'Active',
-  settingTimePeriod: 'settingTimePeriod',
-  settingPlanTeacher: 'settingPlanTeacher',
-  settingGradeAdmin: 'settingGradeAdmin',
-  settingReportView: 'settingReportView',
-  TaxId: 'TaxId',
-  nSchoolHeadid: 'nSchoolHeadid',
-  nAcademicDirectorid: 'nAcademicDirectorid',
-  nRegistraDirectorid: 'nRegistraDirectorid',
-  nAcademicSubDirectorid: 'nAcademicSubDirectorid',
-  nAccountingDirectorid: 'nAccountingDirectorid',
-  nStudentDevelopmentDirectorid: 'nStudentDevelopmentDirectorid',
-  nWebAdminid: 'nWebAdminid',
-  nGM: 'nGM',
-  nPersonnel: 'nPersonnel',
-  sShortSchoolName: 'sShortSchoolName',
-  sSchoolHistory: 'sSchoolHistory',
-  sSchoolVision: 'sSchoolVision',
-  sSchoolMission: 'sSchoolMission',
-  EducationArea: 'EducationArea',
-  uID: 'uID',
-  PaymentAPIUrl: 'PaymentAPIUrl',
-  isActive: 'isActive',
-  cDel: 'cDel',
-  CostGradeRepairMid: 'CostGradeRepairMid',
-  CostGradeRepair: 'CostGradeRepair',
-  CostGradeRepairFinal: 'CostGradeRepairFinal',
-  SchoolAreaCode: 'SchoolAreaCode',
-  GradeViewFor100: 'GradeViewFor100',
-  GradeViewAutoBlock: 'GradeViewAutoBlock',
-  sAumpherEng: 'sAumpherEng',
-  sProvinceEng: 'sProvinceEng',
-  SchoolClass: 'SchoolClass',
-  UserSupportID: 'UserSupportID',
-  UserSaleID: 'UserSaleID',
-  SchoolGrade: 'SchoolGrade',
-  ActiveDate: 'ActiveDate',
-  InactiveDate: 'InactiveDate',
-  IsActiveSendMessageToLINE: 'IsActiveSendMessageToLINE',
-  TumbonID: 'TumbonID',
-  AumpherID: 'AumpherID',
-  ProvinceID: 'ProvinceID',
-  ClassNameDisable: 'ClassNameDisable',
-  CrmGrade: 'CrmGrade',
-  SchoolDataType: 'SchoolDataType',
-  ActiveStatus: 'ActiveStatus'
-};
-
-exports.Prisma.TComputerScalarFieldEnum = {
-  nComputerID: 'nComputerID',
-  sComputerName: 'sComputerName',
-  sMac: 'sMac',
-  nCompany: 'nCompany',
-  cType: 'cType',
-  sToken: 'sToken',
-  cStatus: 'cStatus'
-};
-
-exports.Prisma.TConnectScalarFieldEnum = {
-  nConnectID: 'nConnectID',
-  sMacPC: 'sMacPC',
-  sMacMoblie: 'sMacMoblie',
-  cStatus: 'cStatus',
-  sValue: 'sValue',
-  sDisplay: 'sDisplay',
-  cTypeConnect: 'cTypeConnect',
-  sList: 'sList',
-  dList: 'dList',
-  dUpdate: 'dUpdate',
-  CustomerID: 'CustomerID',
-  EmployessID: 'EmployessID'
-};
-
-exports.Prisma.TContactScalarFieldEnum = {
-  ContactID: 'ContactID',
-  SchoolID: 'SchoolID',
-  SaleID: 'SaleID',
-  SupportID: 'SupportID',
-  StudentFree: 'StudentFree',
-  StudentPay: 'StudentPay',
-  StudentCount: 'StudentCount',
-  PackageID: 'PackageID',
-  Remark: 'Remark',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  IsDelete: 'IsDelete',
-  ServiceType: 'ServiceType'
-};
-
-exports.Prisma.TContactListScalarFieldEnum = {
-  ContactListID: 'ContactListID',
-  SchoolID: 'SchoolID',
-  Episode: 'Episode',
-  ContactNo: 'ContactNo',
-  StartDate: 'StartDate',
-  EndDate: 'EndDate',
-  Period: 'Period',
-  RemainDay: 'RemainDay',
-  Status: 'Status',
-  StatusOther: 'StatusOther',
-  ServiceCharge: 'ServiceCharge',
-  VAT: 'VAT',
-  StudentAmount: 'StudentAmount',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  IsDelete: 'IsDelete'
-};
-
-exports.Prisma.TContactListAttachScalarFieldEnum = {
-  AttachID: 'AttachID',
-  ContactListID: 'ContactListID',
-  SchoolID: 'SchoolID',
-  AttachUrl: 'AttachUrl',
-  IsDelete: 'IsDelete',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy'
-};
-
-exports.Prisma.TContactLogScalarFieldEnum = {
-  LogID: 'LogID',
-  SchoolID: 'SchoolID',
-  ContactID: 'ContactID',
-  ContactListID: 'ContactListID',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  JsonLog: 'JsonLog',
-  DataModel: 'DataModel'
-};
-
-exports.Prisma.TCrmActivityScalarFieldEnum = {
-  CrmActivityId: 'CrmActivityId',
-  SchoolID: 'SchoolID',
-  SchoolName: 'SchoolName',
-  Type: 'Type',
-  ActivityType: 'ActivityType',
-  MeetingType: 'MeetingType',
-  ActivityTitle: 'ActivityTitle',
-  ActivityDescription: 'ActivityDescription',
-  ActivityStatus: 'ActivityStatus',
-  StartDate: 'StartDate',
-  EndDate: 'EndDate',
-  IsRecurring: 'IsRecurring',
-  Map: 'Map',
-  LatLng: 'LatLng',
-  AttachUrl: 'AttachUrl',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  DeleteDate: 'DeleteDate',
-  DeleteBy: 'DeleteBy'
-};
-
-exports.Prisma.TCrmAssignContactScalarFieldEnum = {
-  CrmAssignContactId: 'CrmAssignContactId',
-  CrmContactId: 'CrmContactId',
-  SaleId: 'SaleId',
-  CreateDate: 'CreateDate'
-};
-
-exports.Prisma.TCrmAssignSupportScalarFieldEnum = {
-  CrmAssignSupportId: 'CrmAssignSupportId',
-  CrmSupportId: 'CrmSupportId',
-  StaffId: 'StaffId',
-  CreateDate: 'CreateDate'
-};
-
-exports.Prisma.TCrmBacklogScalarFieldEnum = {
-  CrmBacklogId: 'CrmBacklogId',
-  Json: 'Json',
-  CreateDate: 'CreateDate',
-  HasUpdate: 'HasUpdate'
-};
-
-exports.Prisma.TCrmContactScalarFieldEnum = {
-  CrmContactId: 'CrmContactId',
-  Type: 'Type',
-  SchoolName: 'SchoolName',
-  Address: 'Address',
-  Province: 'Province',
-  District: 'District',
-  SubDistrict: 'SubDistrict',
-  StudentQty: 'StudentQty',
-  SchoolGroup: 'SchoolGroup',
-  SchoolEducation: 'SchoolEducation',
-  KnowFrom: 'KnowFrom',
-  Score: 'Score',
-  EventName: 'EventName',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  DeleteDate: 'DeleteDate',
-  DeleteBy: 'DeleteBy',
-  TaxNo: 'TaxNo',
-  SignName: 'SignName',
-  SignPosition: 'SignPosition',
-  WitnessName: 'WitnessName',
-  WitnessPosition: 'WitnessPosition',
-  ContactPhone: 'ContactPhone',
-  Zipcode: 'Zipcode',
-  SaleAreaId: 'SaleAreaId'
-};
-
-exports.Prisma.TCrmFeedbackScalarFieldEnum = {
-  CrmFeedbackId: 'CrmFeedbackId',
-  CrmSupportId: 'CrmSupportId',
-  Score: 'Score',
-  Reasons: 'Reasons',
-  Comment: 'Comment',
-  CreateDate: 'CreateDate'
-};
-
-exports.Prisma.TCrmReminderScalarFieldEnum = {
-  CrmReminderId: 'CrmReminderId',
-  Subject: 'Subject',
-  Body: 'Body',
-  StartDate: 'StartDate',
-  EndDate: 'EndDate',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  DeleteDate: 'DeleteDate',
-  DeleteBy: 'DeleteBy'
-};
-
-exports.Prisma.TCrmSubActivityScalarFieldEnum = {
-  CrmSubActivityId: 'CrmSubActivityId',
-  CrmActivityId: 'CrmActivityId',
-  SchoolID: 'SchoolID',
-  ContactID: 'ContactID',
-  CrmContactId: 'CrmContactId',
-  CrmSubContactId: 'CrmSubContactId',
-  ImportDate: 'ImportDate',
-  ImportBy: 'ImportBy',
-  SchoolName: 'SchoolName',
-  Position: 'Position',
+exports.Prisma.ExcelExportDataScalarFieldEnum = {
+  ExportID: 'ExportID',
   Name: 'Name',
-  Tel: 'Tel'
-};
-
-exports.Prisma.TCrmSubContactScalarFieldEnum = {
-  CrmSubContactId: 'CrmSubContactId',
-  CrmContactId: 'CrmContactId',
-  Position: 'Position',
-  Name: 'Name',
-  Tel: 'Tel',
-  Email: 'Email'
-};
-
-exports.Prisma.TCrmSupportScalarFieldEnum = {
-  CrmSupportId: 'CrmSupportId',
-  IssueDate: 'IssueDate',
-  SchoolId: 'SchoolId',
-  Channel: 'Channel',
-  ContactId: 'ContactId',
-  Type: 'Type',
-  SubType: 'SubType',
-  RefCode: 'RefCode',
-  SupportDetail: 'SupportDetail',
-  Subject: 'Subject',
-  Question: 'Question',
-  Answer: 'Answer',
-  IsFollowUp: 'IsFollowUp',
-  FollowUpDate: 'FollowUpDate',
-  Status: 'Status',
-  Priority: 'Priority',
-  BacklogProjectID: 'BacklogProjectID',
-  BacklogIssueID: 'BacklogIssueID',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  DeleteDate: 'DeleteDate',
-  DeleteBy: 'DeleteBy',
-  LineInfo: 'LineInfo',
-  Session: 'Session',
-  HasRemindFollowUp: 'HasRemindFollowUp',
-  FollowUpEndDate: 'FollowUpEndDate',
-  FollowUpFrequency: 'FollowUpFrequency',
-  CustomerFollowUpDate: 'CustomerFollowUpDate',
-  CustomerFollowUpEndDate: 'CustomerFollowUpEndDate',
-  CustomerFollowUpFrequency: 'CustomerFollowUpFrequency',
-  CustomerNotifyMessage: 'CustomerNotifyMessage',
-  AssignStaffId: 'AssignStaffId',
-  Note: 'Note',
-  Onboarding: 'Onboarding',
-  ReferenceKey: 'ReferenceKey',
-  ReferenceValue: 'ReferenceValue',
-  BacklogModel: 'BacklogModel',
-  StartDate: 'StartDate',
-  DueDate: 'DueDate'
-};
-
-exports.Prisma.TCrmSupportBacklogAuthScalarFieldEnum = {
-  CrmSupportBacklogAuthId: 'CrmSupportBacklogAuthId',
-  StaffId: 'StaffId',
-  AccessToken: 'AccessToken',
-  RefreshToken: 'RefreshToken',
-  CreateDate: 'CreateDate',
-  ExpireDate: 'ExpireDate'
-};
-
-exports.Prisma.TCrmSupportCommentScalarFieldEnum = {
-  CrmSupportCommentId: 'CrmSupportCommentId',
-  CrmSupportId: 'CrmSupportId',
-  Comment: 'Comment',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  DeleteDate: 'DeleteDate',
-  DeleteBy: 'DeleteBy'
-};
-
-exports.Prisma.TCrmSurveyScalarFieldEnum = {
-  CrmSurveyId: 'CrmSurveyId',
-  SchoolId: 'SchoolId',
-  SenderName: 'SenderName',
-  SenderType: 'SenderType',
-  SenderCode: 'SenderCode',
-  Tel: 'Tel',
-  Email: 'Email',
-  Note: 'Note',
-  TopupDate: 'TopupDate',
-  Session: 'Session',
-  CreateDate: 'CreateDate'
-};
-
-exports.Prisma.TDashboardSummariesScalarFieldEnum = {
-  DashboardSummaryId: 'DashboardSummaryId',
-  SchoolSummary: 'SchoolSummary',
-  StudentSummary: 'StudentSummary',
-  TeacherSummary: 'TeacherSummary',
-  UpdateDate: 'UpdateDate'
-};
-
-exports.Prisma.TDeliveryScalarFieldEnum = {
-  DeliveryId: 'DeliveryId',
-  SchoolId: 'SchoolId',
-  RecipientType: 'RecipientType',
-  TransmissionType: 'TransmissionType',
-  TransmissionDate: 'TransmissionDate',
-  TransportationName: 'TransportationName',
-  TrackingNo: 'TrackingNo',
-  RecipientName: 'RecipientName',
-  RecipientTel: 'RecipientTel',
-  RefNo: 'RefNo',
-  Note: 'Note',
-  AttachUrl: 'AttachUrl',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  DeleteDate: 'DeleteDate',
-  DeleteBy: 'DeleteBy',
-  NotifyMessage: 'NotifyMessage',
-  NotifyDate: 'NotifyDate'
-};
-
-exports.Prisma.TDeliveryAttachScalarFieldEnum = {
-  DeliveryAttachId: 'DeliveryAttachId',
-  DeliveryId: 'DeliveryId',
-  AttachUrl: 'AttachUrl'
-};
-
-exports.Prisma.TDiscordGroupScalarFieldEnum = {
-  DiscordGroupId: 'DiscordGroupId',
-  SchoolId: 'SchoolId',
-  GroupName: 'GroupName',
-  WebhookUrl: 'WebhookUrl',
-  CreateDate: 'CreateDate'
-};
-
-exports.Prisma.TEmailQueueScalarFieldEnum = {
-  EmailQueueId: 'EmailQueueId',
-  Email: 'Email',
-  EmailSubject: 'EmailSubject',
-  EmailBody: 'EmailBody',
-  ProcessDate: 'ProcessDate',
-  Status: 'Status',
-  Retry: 'Retry'
-};
-
-exports.Prisma.TEventLogScalarFieldEnum = {
-  EventLogId: 'EventLogId',
-  SchoolId: 'SchoolId',
-  UserId: 'UserId',
-  EventName: 'EventName',
-  TableName: 'TableName',
-  ColumnName: 'ColumnName',
-  KeyValue: 'KeyValue',
-  OldValue: 'OldValue',
-  NewValue: 'NewValue',
-  CreateDate: 'CreateDate'
-};
-
-exports.Prisma.TExceptionLogScalarFieldEnum = {
-  ExceptionLogId: 'ExceptionLogId',
-  MethodName: 'MethodName',
-  Parameter: 'Parameter',
-  Application: 'Application',
-  ExceptionMsg: 'ExceptionMsg',
-  ExceptionType: 'ExceptionType',
-  ExceptionSource: 'ExceptionSource',
-  ExceptionURL: 'ExceptionURL',
-  Logdate: 'Logdate',
-  SchoolId: 'SchoolId',
-  sEmp: 'sEmp'
-};
-
-exports.Prisma.TExpenseScalarFieldEnum = {
-  ExpenseId: 'ExpenseId',
-  Year: 'Year',
-  Month: 'Month',
-  AccountChartId: 'AccountChartId',
-  AccountChartType: 'AccountChartType',
-  BillingType: 'BillingType',
-  IssueBy: 'IssueBy',
-  IssueDate: 'IssueDate',
-  Description: 'Description',
-  Qty: 'Qty',
-  PriceBeforeVat: 'PriceBeforeVat',
-  Vat: 'Vat',
-  TotalPrice: 'TotalPrice',
-  RawTotalPrice: 'RawTotalPrice',
-  AttachUrl: 'AttachUrl',
-  Status: 'Status',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  DeleteDate: 'DeleteDate',
-  DeleteBy: 'DeleteBy',
-  ApproveDate: 'ApproveDate',
-  ApproveBy: 'ApproveBy',
-  PaidType: 'PaidType',
-  VehicleCode: 'VehicleCode',
-  CheckIn: 'CheckIn',
-  CheckOut: 'CheckOut',
-  ExpenseRefID: 'ExpenseRefID',
-  ExpenseCode: 'ExpenseCode',
-  ExpenseUrl: 'ExpenseUrl',
-  ExpenseCreateDate: 'ExpenseCreateDate',
-  ExpenseRefIDFleetcard: 'ExpenseRefIDFleetcard',
-  ExpenseCodeFleetcard: 'ExpenseCodeFleetcard',
-  ExpenseUrlFleetcard: 'ExpenseUrlFleetcard',
-  ExpenseCreateDateFleetcard: 'ExpenseCreateDateFleetcard'
-};
-
-exports.Prisma.TExpenseVehicleScalarFieldEnum = {
-  ExpenseVehicleId: 'ExpenseVehicleId',
-  StaffId: 'StaffId',
-  VehicleCode: 'VehicleCode'
-};
-
-exports.Prisma.TFeatureScalarFieldEnum = {
-  FeatureId: 'FeatureId',
-  GroupName: 'GroupName',
-  FeatureName: 'FeatureName',
-  Type: 'Type',
-  QueryParams: 'QueryParams',
-  Keyword: 'Keyword',
-  Active: 'Active'
-};
-
-exports.Prisma.TGroupMenuScalarFieldEnum = {
-  groupmenuid: 'groupmenuid',
-  groupmenu: 'groupmenu',
-  class: 'class',
-  title: 'title',
-  active: 'active',
-  group_order: 'group_order',
-  actvice: 'actvice',
-  new_order: 'new_order',
-  icon: 'icon',
-  IsDev: 'IsDev'
-};
-
-exports.Prisma.TGroupMenu_LangScalarFieldEnum = {
-  ID: 'ID',
-  GroupMenuName: 'GroupMenuName',
-  groupmenuid: 'groupmenuid',
-  Lang: 'Lang'
-};
-
-exports.Prisma.TGroupPermissionScalarFieldEnum = {
-  GroupID: 'GroupID',
-  GroupName: 'GroupName',
-  IsDel: 'IsDel',
-  IsActive: 'IsActive',
-  SchoolID: 'SchoolID',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  IsEditable: 'IsEditable'
-};
-
-exports.Prisma.TGroupPermissionMenuScalarFieldEnum = {
-  MenuID: 'MenuID',
-  GroupID: 'GroupID',
-  Type: 'Type',
-  Role: 'Role',
-  SchoolID: 'SchoolID',
-  IsDel: 'IsDel',
-  IsActive: 'IsActive'
-};
-
-exports.Prisma.TGroupPermissionUserScalarFieldEnum = {
-  GroupID: 'GroupID',
-  UserID: 'UserID',
-  IsDel: 'IsDel',
-  IsActive: 'IsActive',
-  SchoolID: 'SchoolID'
-};
-
-exports.Prisma.TGroupPermission_LogScalarFieldEnum = {
-  Id: 'Id',
-  SchoolID: 'SchoolID',
-  Date: 'Date',
-  Text: 'Text',
-  ByUser: 'ByUser'
-};
-
-exports.Prisma.TInvoiceScalarFieldEnum = {
-  InvoiceId: 'InvoiceId',
-  SchoolId: 'SchoolId',
-  PriceType: 'PriceType',
-  CalculationType: 'CalculationType',
-  ServiceType: 'ServiceType',
-  CurrentYear: 'CurrentYear',
-  TaxStatus: 'TaxStatus',
-  Term1Day: 'Term1Day',
-  Term1Month: 'Term1Month',
-  Term2Day: 'Term2Day',
-  Term2Month: 'Term2Month',
-  YearDay: 'YearDay',
-  YearMonth: 'YearMonth',
-  IssueDate: 'IssueDate',
-  DueDate: 'DueDate',
-  NoOfDueDate: 'NoOfDueDate',
-  ContactID: 'ContactID',
-  Note: 'Note',
-  StudentQuantity: 'StudentQuantity',
-  StudentAllowUsing: 'StudentAllowUsing',
-  StudentPay: 'StudentPay',
-  TotalPrice: 'TotalPrice',
-  InvoiceCreateDate: 'InvoiceCreateDate',
-  InvoiceUrl: 'InvoiceUrl',
-  InvoiceCode: 'InvoiceCode',
-  InvoiceRef: 'InvoiceRef',
-  IsActive: 'IsActive',
-  IsSuccess: 'IsSuccess',
-  SentEmailDate: 'SentEmailDate',
-  SentLineNotificationDate: 'SentLineNotificationDate',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  RecordDelete: 'RecordDelete',
-  DeleteBy: 'DeleteBy',
-  PeakModel: 'PeakModel'
-};
-
-exports.Prisma.TInvoiceDetailScalarFieldEnum = {
-  InvoiceDetailId: 'InvoiceDetailId',
-  InvoiceId: 'InvoiceId',
-  ProductId: 'ProductId',
-  EducationType: 'EducationType',
-  CurrentTerm: 'CurrentTerm',
-  Year: 'Year',
-  StartDate: 'StartDate',
-  EndDate: 'EndDate',
-  DueDate: 'DueDate',
-  Price: 'Price',
-  StudentCount: 'StudentCount',
-  TotalPrice: 'TotalPrice',
-  InvoiceCreateDate: 'InvoiceCreateDate',
-  InvoiceUrl: 'InvoiceUrl',
-  InvoiceCode: 'InvoiceCode',
-  InvoiceRef: 'InvoiceRef',
-  SentEmailDate: 'SentEmailDate',
-  SentLineNotificationDate: 'SentLineNotificationDate',
-  IsSuccess: 'IsSuccess',
-  RecordDelete: 'RecordDelete',
-  DeleteBy: 'DeleteBy',
-  RecieptRef: 'RecieptRef',
-  RecieptCode: 'RecieptCode',
-  RecieptUrl: 'RecieptUrl',
-  RecieptCreateDate: 'RecieptCreateDate',
-  PayStatus: 'PayStatus',
-  OverduePrice: 'OverduePrice',
-  RecieptSentEmailDate: 'RecieptSentEmailDate',
-  RecieptSentLineNotificationDate: 'RecieptSentLineNotificationDate',
-  CreateBy: 'CreateBy',
-  UpdateBy: 'UpdateBy',
-  UpdateDate: 'UpdateDate'
-};
-
-exports.Prisma.TLineGroupScalarFieldEnum = {
-  LineGroupId: 'LineGroupId',
-  SchoolId: 'SchoolId',
-  GroupId: 'GroupId',
-  LineNotificationAccessToken: 'LineNotificationAccessToken',
-  GroupType: 'GroupType',
-  CreateDate: 'CreateDate'
-};
-
-exports.Prisma.TLineMessageScalarFieldEnum = {
-  LineMessageId: 'LineMessageId',
-  SchoolId: 'SchoolId',
-  Type: 'Type',
-  UserId: 'UserId',
-  GroupId: 'GroupId',
-  Text: 'Text',
-  CreateDate: 'CreateDate',
-  Session: 'Session',
-  ReferenceKey: 'ReferenceKey',
-  ReferenceValue: 'ReferenceValue',
-  Model: 'Model'
-};
-
-exports.Prisma.TLogDebugScalarFieldEnum = {
-  ID: 'ID',
-  SchoolID: 'SchoolID',
   StudentID: 'StudentID',
-  EmployeeID: 'EmployeeID',
-  LogMessage: 'LogMessage',
-  LogDate: 'LogDate',
-  IP: 'IP'
-};
-
-exports.Prisma.TLogErrorScalarFieldEnum = {
-  dLogError: 'dLogError',
-  sLogError: 'sLogError',
-  sFunction: 'sFunction'
-};
-
-exports.Prisma.TMenuScalarFieldEnum = {
-  MenuId: 'MenuId',
-  MenuName: 'MenuName',
-  url: 'url',
-  title: 'title',
-  urlDev: 'urlDev',
-  class: 'class',
-  MenuMode: 'MenuMode',
-  MenuType: 'MenuType',
-  MenuIndex: 'MenuIndex',
-  groupmenuid: 'groupmenuid',
-  nMenuOrder: 'nMenuOrder',
-  showmenu: 'showmenu',
-  demo: 'demo',
-  target: 'target',
-  Submenu: 'Submenu',
-  active: 'active',
-  actvice: 'actvice',
-  SegmentID: 'SegmentID',
-  nMenuOrder2: 'nMenuOrder2',
-  IsExceptAuth: 'IsExceptAuth'
-};
-
-exports.Prisma.TMenuPermissionScalarFieldEnum = {
-  Id: 'Id',
-  MenuID: 'MenuID',
-  MenuName: 'MenuName',
-  MenuUrl: 'MenuUrl'
-};
-
-exports.Prisma.TMenu_LangScalarFieldEnum = {
-  ID: 'ID',
-  MenuName: 'MenuName',
-  MenuId: 'MenuId',
-  Lang: 'Lang'
-};
-
-exports.Prisma.TMessageScalarFieldEnum = {
-  nMessageID: 'nMessageID',
-  UserID: 'UserID',
-  sMessage: 'sMessage',
-  sTitle: 'sTitle',
-  nType: 'nType',
-  dSend: 'dSend',
-  nStatus: 'nStatus',
-  scheduled_id: 'scheduled_id',
-  push_id: 'push_id',
-  homework_id: 'homework_id',
-  cDel: 'cDel',
-  sell_id: 'sell_id',
-  topup_id: 'topup_id'
-};
-
-exports.Prisma.TMessageSystemScalarFieldEnum = {
-  ID: 'ID',
-  Title: 'Title',
-  Message: 'Message',
-  AddDate: 'AddDate',
-  AddBy: 'AddBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  IsDelete: 'IsDelete'
-};
-
-exports.Prisma.TMessageTemplateScalarFieldEnum = {
-  MessageTemplateId: 'MessageTemplateId',
-  Message: 'Message'
-};
-
-exports.Prisma.TMobileMenuScalarFieldEnum = {
-  Menu_Id: 'Menu_Id',
-  Menu_Name: 'Menu_Name',
-  Menu_NameEN: 'Menu_NameEN',
-  Actvie: 'Actvie',
-  Demo: 'Demo',
-  SubMenu_Id: 'SubMenu_Id',
-  IsExceptAuth: 'IsExceptAuth',
-  OrderNo: 'OrderNo',
-  MenuUrl: 'MenuUrl'
-};
-
-exports.Prisma.TNewsScalarFieldEnum = {
-  NewsID: 'NewsID',
-  Type: 'Type',
-  ToType: 'ToType',
-  Title: 'Title',
-  Detail: 'Detail',
-  Remark: 'Remark',
-  StartDate: 'StartDate',
-  EndDate: 'EndDate',
-  IsEmail: 'IsEmail',
-  IsBroadcast: 'IsBroadcast',
-  IsPopup: 'IsPopup',
-  PopupUrl: 'PopupUrl',
-  IsBanner: 'IsBanner',
-  BannerUrl: 'BannerUrl',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  IsDelete: 'IsDelete',
-  IsDone: 'IsDone',
-  SchoolID: 'SchoolID'
-};
-
-exports.Prisma.TNews2ScalarFieldEnum = {
-  NewsID: 'NewsID',
-  SystemType: 'SystemType',
-  SendType: 'SendType',
-  Title: 'Title',
   SchoolID: 'SchoolID',
-  ToType: 'ToType',
-  StartDate: 'StartDate',
-  EndDate: 'EndDate',
-  IsSystemLogin: 'IsSystemLogin',
-  SystemLogin: 'SystemLogin',
-  IsStudentLogin: 'IsStudentLogin',
-  StudentLogin: 'StudentLogin',
-  IsNoteHead: 'IsNoteHead',
-  NoteHead: 'NoteHead',
-  IsNoteAppWeb: 'IsNoteAppWeb',
-  NoteAppWeb: 'NoteAppWeb',
-  IsPopup: 'IsPopup',
-  Popup: 'Popup',
-  IsBanner: 'IsBanner',
-  Banner: 'Banner',
-  IsEmail: 'IsEmail',
-  Email: 'Email',
-  ToSID: 'ToSID',
-  IsSMS: 'IsSMS',
-  SMS: 'SMS',
-  IsLine: 'IsLine',
-  Line: 'Line',
-  IsLineGroup: 'IsLineGroup',
-  LineGroup: 'LineGroup',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  IsDelete: 'IsDelete',
-  IsDone: 'IsDone'
-};
-
-exports.Prisma.TNewsAttachFileScalarFieldEnum = {
-  AttachID: 'AttachID',
-  NewsID: 'NewsID',
-  AttachUrl: 'AttachUrl',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  IsDelete: 'IsDelete'
-};
-
-exports.Prisma.TNewsPushNotifyScalarFieldEnum = {
-  PushID: 'PushID',
-  NewsID: 'NewsID',
-  UserID: 'UserID',
-  UserType: 'UserType',
-  SendDate: 'SendDate',
-  ReadDate: 'ReadDate',
-  SchoolID: 'SchoolID',
-  Created: 'Created',
-  CreatedBy: 'CreatedBy',
-  Modified: 'Modified',
-  ModifyBy: 'ModifyBy',
-  IsDelete: 'IsDelete'
-};
-
-exports.Prisma.TNotificationSettingScalarFieldEnum = {
-  NotificationSettingId: 'NotificationSettingId',
-  SchoolId: 'SchoolId',
-  StaffID: 'StaffID',
-  LineNotificationAccessToken: 'LineNotificationAccessToken',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy'
-};
-
-exports.Prisma.TOfficerScalarFieldEnum = {
-  OfficerID: 'OfficerID',
-  Code: 'Code',
-  FirstName: 'FirstName',
-  LastName: 'LastName',
-  NickName: 'NickName',
-  Position: 'Position',
-  IsActive: 'IsActive',
-  IsDelete: 'IsDelete',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy'
-};
-
-exports.Prisma.TPackageScalarFieldEnum = {
-  PackageID: 'PackageID',
-  PackageName: 'PackageName',
-  IsActive: 'IsActive',
-  IsDelete: 'IsDelete',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy'
-};
-
-exports.Prisma.TParent_CardScalarFieldEnum = {
-  Id: 'Id',
-  sID: 'sID',
-  SchoolID: 'SchoolID',
-  No: 'No',
-  Type: 'Type',
-  ParentName: 'ParentName',
-  NFC: 'NFC',
-  NFCEncrypt: 'NFCEncrypt',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  IsDel: 'IsDel',
-  IsActive: 'IsActive',
-  Barcode: 'Barcode'
-};
-
-exports.Prisma.TPeakDataScalarFieldEnum = {
-  PeakDataId: 'PeakDataId',
-  Name: 'Name',
-  Value: 'Value',
-  UpdateDate: 'UpdateDate'
-};
-
-exports.Prisma.TPosDevicesScalarFieldEnum = {
-  PosID: 'PosID',
-  TTabletID: 'TTabletID',
-  TerminalID: 'TerminalID'
-};
-
-exports.Prisma.TProductScalarFieldEnum = {
-  ProductId: 'ProductId',
-  ProductCode: 'ProductCode',
-  Name: 'Name',
-  IsActive: 'IsActive'
-};
-
-exports.Prisma.TResetPasswordScalarFieldEnum = {
-  ID: 'ID',
-  sUerID: 'sUerID',
-  dExpUpdate: 'dExpUpdate',
-  dExpActive: 'dExpActive',
-  OTP: 'OTP',
-  cStatus: 'cStatus'
-};
-
-exports.Prisma.TSaleAreaScalarFieldEnum = {
-  SaleAreaId: 'SaleAreaId',
-  Name: 'Name',
-  Text: 'Text',
-  Mapping: 'Mapping'
-};
-
-exports.Prisma.TSchoolAreaScalarFieldEnum = {
-  ID: 'ID',
-  Code: 'Code',
-  Area: 'Area'
-};
-
-exports.Prisma.TSegmentMenuScalarFieldEnum = {
-  ID: 'ID',
-  GroupMenuID: 'GroupMenuID',
-  Name: 'Name',
-  Class: 'Class',
-  Title: 'Title',
-  Active: 'Active',
-  nOrder: 'nOrder'
-};
-
-exports.Prisma.TSegmentMenu_LangScalarFieldEnum = {
-  ID: 'ID',
-  SegmentMenuName: 'SegmentMenuName',
-  SegmentMenuID: 'SegmentMenuID',
-  Lang: 'Lang'
-};
-
-exports.Prisma.TSound_StudentScalarFieldEnum = {
-  SchoolID: 'SchoolID',
-  sID: 'sID',
-  nTermSubLevel2: 'nTermSubLevel2',
-  FullName: 'FullName',
-  Code: 'Code',
-  NickName: 'NickName',
-  Receiver: 'Receiver',
-  Base64Sound: 'Base64Sound',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  IsDel: 'IsDel',
-  Gate: 'Gate',
-  TermID: 'TermID'
-};
-
-exports.Prisma.TStudentCallScalarFieldEnum = {
-  CallDate: 'CallDate',
-  sID: 'sID',
-  SchoolID: 'SchoolID',
-  CardNo: 'CardNo',
-  Status: 'Status',
-  Created: 'Created',
-  Announced: 'Announced',
-  Completed: 'Completed',
-  IsResend: 'IsResend',
-  ScanType: 'ScanType',
-  Token: 'Token',
-  Remark: 'Remark',
-  GateToken: 'GateToken'
-};
-
-exports.Prisma.TStudentCall_ConfigScalarFieldEnum = {
-  SchoolId: 'SchoolId',
-  Gate: 'Gate',
-  BgCard: 'BgCard',
-  IsActive: 'IsActive',
-  Radius: 'Radius',
-  Created: 'Created',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  Modified: 'Modified',
-  IsShowLevel: 'IsShowLevel',
-  IsShowLastName: 'IsShowLastName',
-  IsShowParent: 'IsShowParent',
-  CardType: 'CardType',
-  NameType: 'NameType',
-  IsEng: 'IsEng'
-};
-
-exports.Prisma.TStudentCall_GateScalarFieldEnum = {
-  Token: 'Token',
-  SchoolID: 'SchoolID',
-  Gate: 'Gate',
-  GateName: 'GateName',
-  SelectedRoom: 'SelectedRoom',
-  FullUrl: 'FullUrl',
-  ShortUrl: 'ShortUrl',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  IsDel: 'IsDel'
-};
-
-exports.Prisma.TStudentCall_LogScalarFieldEnum = {
-  LogId: 'LogId',
-  LogDate: 'LogDate',
-  LogText: 'LogText',
-  SchoolID: 'SchoolID',
-  sID: 'sID',
-  Type: 'Type',
-  IPAddress: 'IPAddress',
-  Token: 'Token',
-  ConnectionID: 'ConnectionID'
-};
-
-exports.Prisma.TSubDeliveryScalarFieldEnum = {
-  SubDeliveryId: 'SubDeliveryId',
-  DeliveryId: 'DeliveryId',
-  ProductName: 'ProductName',
-  Qty: 'Qty',
-  SerialNo: 'SerialNo',
-  StartDate: 'StartDate',
-  InsuranceNo: 'InsuranceNo',
-  EndDate: 'EndDate',
-  DeliveryNo: 'DeliveryNo',
-  ClaimNo: 'ClaimNo',
-  Note: 'Note'
-};
-
-exports.Prisma.TSubInsuranceScalarFieldEnum = {
-  SubInsuranceId: 'SubInsuranceId',
-  InsuranceId: 'InsuranceId',
-  ProductName: 'ProductName',
-  Qty: 'Qty',
-  SerialNo: 'SerialNo',
-  InsuranceNo: 'InsuranceNo',
-  StartDate: 'StartDate',
-  EndDate: 'EndDate'
-};
-
-exports.Prisma.TSystemSettingScalarFieldEnum = {
-  nSystemID: 'nSystemID',
-  SchoolID: 'SchoolID',
-  bScanOut: 'bScanOut',
-  CreatedBy: 'CreatedBy',
-  UpdatedBy: 'UpdatedBy',
-  CreatedDate: 'CreatedDate',
-  UpdatedDate: 'UpdatedDate',
-  MenuID: 'MenuID',
-  DocumentID: 'DocumentID',
-  Config: 'Config',
-  IsOpenApproveUserProfile: 'IsOpenApproveUserProfile',
-  ApproveOption: 'ApproveOption',
-  ApproveStartDate: 'ApproveStartDate',
-  ApproveEndDate: 'ApproveEndDate',
-  MaxTopup: 'MaxTopup'
-};
-
-exports.Prisma.TTokenScalarFieldEnum = {
-  Token_Id: 'Token_Id',
-  Client_Token: 'Client_Token',
-  User_Token: 'User_Token',
-  School_Id: 'School_Id',
-  Client_Time_Stamp: 'Client_Time_Stamp',
-  JabJai_Token: 'JabJai_Token'
-};
-
-exports.Prisma.TTopuphistoryScalarFieldEnum = {
-  History_id: 'History_id',
-  order_no: 'order_no',
-  user_id: 'user_id',
-  trade_mony: 'trade_mony',
-  Hash_data: 'Hash_data',
-  pay_type: 'pay_type',
-  site_cd: 'site_cd',
-  ret_url: 'ret_url',
-  good_name: 'good_name',
-  order_first_name: 'order_first_name',
-  order_last_name: 'order_last_name',
-  order_email: 'order_email',
-  currency: 'currency',
-  fee: 'fee',
-  res_cd: 'res_cd',
-  res_msg: 'res_msg',
-  tno: 'tno',
-  money: 'money'
-};
-
-exports.Prisma.TUserScalarFieldEnum = {
-  sID: 'sID',
-  sName: 'sName',
-  sLastname: 'sLastname',
-  sIdentification: 'sIdentification',
-  dUpdatePass: 'dUpdatePass',
-  username: 'username',
-  userpassword: 'userpassword',
-  dBirth: 'dBirth',
-  cSex: 'cSex',
-  sPhone: 'sPhone',
-  sEmail: 'sEmail',
-  sPassword: 'sPassword',
-  sAddress: 'sAddress',
-  PROVINCE_ID: 'PROVINCE_ID',
-  AMPHUR_ID: 'AMPHUR_ID',
-  DISTRICT_ID: 'DISTRICT_ID',
-  nSystemID: 'nSystemID',
-  sCity: 'sCity',
-  sPostalcode: 'sPostalcode',
-  sCountry: 'sCountry',
-  dCreate: 'dCreate',
-  dUpdate: 'dUpdate',
-  sFinger: 'sFinger',
-  sFinger2: 'sFinger2',
-  sFinger3: 'sFinger3',
-  NFC: 'NFC',
-  cType: 'cType',
-  cDel: 'cDel',
-  nCompany: 'nCompany',
-  ContactPeak: 'ContactPeak',
-  pin: 'pin',
-  Token: 'Token',
-  Secret_Key: 'Secret_Key',
   nMoney: 'nMoney',
-  uID: 'uID',
-  UserSignature: 'UserSignature',
-  UseBiometric: 'UseBiometric',
-  sPicture: 'sPicture',
-  LineID: 'LineID',
-  PasswordHash: 'PasswordHash',
-  UseEncryptPassword: 'UseEncryptPassword',
-  IsFirstLogin: 'IsFirstLogin',
-  CurrentFailedAttempts: 'CurrentFailedAttempts',
-  AccountLockedUntil: 'AccountLockedUntil',
-  IsAccountVerified: 'IsAccountVerified'
+  Status: 'Status',
+  Tstamp: 'Tstamp',
+  Success: 'Success',
+  RecordExists: 'RecordExists',
+  Remarks: 'Remarks'
 };
 
-exports.Prisma.TUser_CardScalarFieldEnum = {
+exports.Prisma.MasterDBTUserCardScalarFieldEnum = {
   Id: 'Id',
   sID: 'sID',
   SchoolID: 'SchoolID',
@@ -1750,6 +188,3161 @@ exports.Prisma.TUser_CardScalarFieldEnum = {
   FreeText: 'FreeText'
 };
 
+exports.Prisma.SBLoginHistoryScalarFieldEnum = {
+  id: 'id',
+  nStudentID: 'nStudentID',
+  sFirstName: 'sFirstName',
+  sLastName: 'sLastName',
+  schoolID: 'schoolID',
+  sIMEI: 'sIMEI',
+  sDeviceOS: 'sDeviceOS',
+  sAppName: 'sAppName',
+  sAppVersion: 'sAppVersion',
+  sIPAddress: 'sIPAddress',
+  loginAt: 'loginAt'
+};
+
+exports.Prisma.TApproveEmployeeContactAddressScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  EmployeeID: 'EmployeeID',
+  SchoolID: 'SchoolID',
+  IsPermanentAddress: 'IsPermanentAddress',
+  HouseNo: 'HouseNo',
+  Moo: 'Moo',
+  Village: 'Village',
+  Soi: 'Soi',
+  Building: 'Building',
+  Road: 'Road',
+  Province: 'Province',
+  District: 'District',
+  SubDistrict: 'SubDistrict',
+  PostalCode: 'PostalCode',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult'
+};
+
+exports.Prisma.TApproveEmployeeEducationScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  EmployeeID: 'EmployeeID',
+  SchoolID: 'SchoolID',
+  No: 'No',
+  EducationInstitution: 'EducationInstitution',
+  GraduateStartDate: 'GraduateStartDate',
+  GraduateEndDate: 'GraduateEndDate',
+  Education: 'Education',
+  Major: 'Major',
+  Minor: 'Minor',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult'
+};
+
+exports.Prisma.TApproveEmployeeFamilyScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  EmployeeID: 'EmployeeID',
+  SchoolID: 'SchoolID',
+  No: 'No',
+  FamilyRelationship: 'FamilyRelationship',
+  Title: 'Title',
+  Name: 'Name',
+  Surname: 'Surname',
+  Birthday: 'Birthday',
+  MaritalStatus: 'MaritalStatus',
+  LivingStatus: 'LivingStatus',
+  DeathStatus: 'DeathStatus',
+  FamilyOccupation: 'FamilyOccupation',
+  Education: 'Education',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult'
+};
+
+exports.Prisma.TApproveEmployeeHistoryReceivingRoyalDecorationScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  EmployeeID: 'EmployeeID',
+  SchoolID: 'SchoolID',
+  No: 'No',
+  YearReceived: 'YearReceived',
+  RoyalDecorationClass: 'RoyalDecorationClass',
+  Position: 'Position',
+  RoyalGovernmentVolumeNo: 'RoyalGovernmentVolumeNo',
+  RoyalGovernmentPart: 'RoyalGovernmentPart',
+  RoyalGovernmentNo: 'RoyalGovernmentNo',
+  Dated: 'Dated',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult'
+};
+
+exports.Prisma.TApproveEmployeeHonorScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  EmployeeID: 'EmployeeID',
+  SchoolID: 'SchoolID',
+  No: 'No',
+  HonorType: 'HonorType',
+  DonatingAgency: 'DonatingAgency',
+  YearReceived: 'YearReceived',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult'
+};
+
+exports.Prisma.TApproveEmployeeOccupationalLicenseScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  EmployeeID: 'EmployeeID',
+  SchoolID: 'SchoolID',
+  No: 'No',
+  ProfessionalLicenseType: 'ProfessionalLicenseType',
+  ProfessionalLicenseNumber: 'ProfessionalLicenseNumber',
+  ProfessionalLicenseName: 'ProfessionalLicenseName',
+  CertificateIssueDate: 'CertificateIssueDate',
+  CertificateExpireDate: 'CertificateExpireDate',
+  OrganizationIssuingCertificate: 'OrganizationIssuingCertificate',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult'
+};
+
+exports.Prisma.TApproveEmployeePermanentAddressScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  EmployeeID: 'EmployeeID',
+  SchoolID: 'SchoolID',
+  HouseNo: 'HouseNo',
+  Moo: 'Moo',
+  Village: 'Village',
+  Soi: 'Soi',
+  Building: 'Building',
+  Road: 'Road',
+  Province: 'Province',
+  District: 'District',
+  SubDistrict: 'SubDistrict',
+  PostalCode: 'PostalCode',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult'
+};
+
+exports.Prisma.TApproveEmployeeProfileScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  EmployeeID: 'EmployeeID',
+  SchoolID: 'SchoolID',
+  Gender: 'Gender',
+  Title: 'Title',
+  Name: 'Name',
+  Surname: 'Surname',
+  NameEn: 'NameEn',
+  SurnameEn: 'SurnameEn',
+  IDCardNumber: 'IDCardNumber',
+  PassportNumber: 'PassportNumber',
+  PassportCountry: 'PassportCountry',
+  BirthDay: 'BirthDay',
+  BloodType: 'BloodType',
+  Nationality: 'Nationality',
+  Race: 'Race',
+  Religion: 'Religion',
+  MaritalStatus: 'MaritalStatus',
+  SpouseName: 'SpouseName',
+  SpouseSurname: 'SpouseSurname',
+  PhoneNumber: 'PhoneNumber',
+  Email: 'Email',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult'
+};
+
+exports.Prisma.TApproveEmployeeTrainingScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  EmployeeID: 'EmployeeID',
+  SchoolID: 'SchoolID',
+  No: 'No',
+  Type: 'Type',
+  Project: 'Project',
+  TrainingCourseName: 'TrainingCourseName',
+  TrainingStartDate: 'TrainingStartDate',
+  TrainingEndDate: 'TrainingEndDate',
+  NumberHours: 'NumberHours',
+  Location: 'Location',
+  Country: 'Country',
+  Province: 'Province',
+  Expenses: 'Expenses',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult'
+};
+
+exports.Prisma.TApproveStudentContactAddressScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  StudentID: 'StudentID',
+  SchoolID: 'SchoolID',
+  IsPermanentAddress: 'IsPermanentAddress',
+  HouseNo: 'HouseNo',
+  Soi: 'Soi',
+  Moo: 'Moo',
+  Road: 'Road',
+  Province: 'Province',
+  District: 'District',
+  SubDistrict: 'SubDistrict',
+  PostalCode: 'PostalCode',
+  HousePhone: 'HousePhone',
+  LiveWithTitle: 'LiveWithTitle',
+  LiveWithName: 'LiveWithName',
+  LiveWithSurname: 'LiveWithSurname',
+  EmergencyPhone: 'EmergencyPhone',
+  LiveWithEmail: 'LiveWithEmail',
+  NeighborName: 'NeighborName',
+  NeighborSurname: 'NeighborSurname',
+  NeighborPhone: 'NeighborPhone',
+  HouseStyle: 'HouseStyle',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult',
+  RecoveryScript: 'RecoveryScript',
+  RecoveryDate: 'RecoveryDate',
+  RecoveryBy: 'RecoveryBy'
+};
+
+exports.Prisma.TApproveStudentFatherInfoScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  StudentID: 'StudentID',
+  SchoolID: 'SchoolID',
+  Title: 'Title',
+  Name: 'Name',
+  Surname: 'Surname',
+  NameEn: 'NameEn',
+  SurnameEn: 'SurnameEn',
+  BirthDay: 'BirthDay',
+  IDCardNumber: 'IDCardNumber',
+  Race: 'Race',
+  Nationality: 'Nationality',
+  Religion: 'Religion',
+  Education: 'Education',
+  HouseNo: 'HouseNo',
+  Soi: 'Soi',
+  Moo: 'Moo',
+  Road: 'Road',
+  Province: 'Province',
+  District: 'District',
+  SubDistrict: 'SubDistrict',
+  PostalCode: 'PostalCode',
+  Career: 'Career',
+  MonthlyIncome: 'MonthlyIncome',
+  WorkPlaces: 'WorkPlaces',
+  PhoneNumberHouse: 'PhoneNumberHouse',
+  PhoneNumberMobile: 'PhoneNumberMobile',
+  PhoneNumberWorkPlace: 'PhoneNumberWorkPlace',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult',
+  RecoveryScript: 'RecoveryScript',
+  RecoveryDate: 'RecoveryDate',
+  RecoveryBy: 'RecoveryBy'
+};
+
+exports.Prisma.TApproveStudentMotherInfoScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  StudentID: 'StudentID',
+  SchoolID: 'SchoolID',
+  Title: 'Title',
+  Name: 'Name',
+  Surname: 'Surname',
+  NameEn: 'NameEn',
+  SurnameEn: 'SurnameEn',
+  BirthDay: 'BirthDay',
+  IDCardNumber: 'IDCardNumber',
+  Race: 'Race',
+  Nationality: 'Nationality',
+  Religion: 'Religion',
+  Education: 'Education',
+  IsFatherAddress: 'IsFatherAddress',
+  HouseNo: 'HouseNo',
+  Soi: 'Soi',
+  Moo: 'Moo',
+  Road: 'Road',
+  Province: 'Province',
+  District: 'District',
+  SubDistrict: 'SubDistrict',
+  PostalCode: 'PostalCode',
+  Career: 'Career',
+  MonthlyIncome: 'MonthlyIncome',
+  WorkPlaces: 'WorkPlaces',
+  PhoneNumberHouse: 'PhoneNumberHouse',
+  PhoneNumberMobile: 'PhoneNumberMobile',
+  PhoneNumberWorkPlace: 'PhoneNumberWorkPlace',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult',
+  RecoveryScript: 'RecoveryScript',
+  RecoveryDate: 'RecoveryDate',
+  RecoveryBy: 'RecoveryBy'
+};
+
+exports.Prisma.TApproveStudentParentInfoScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  StudentID: 'StudentID',
+  SchoolID: 'SchoolID',
+  CopyFrom: 'CopyFrom',
+  Relationship: 'Relationship',
+  Title: 'Title',
+  Name: 'Name',
+  Surname: 'Surname',
+  NameEn: 'NameEn',
+  SurnameEn: 'SurnameEn',
+  BirthDay: 'BirthDay',
+  IDCardNumber: 'IDCardNumber',
+  Race: 'Race',
+  Nationality: 'Nationality',
+  Religion: 'Religion',
+  Education: 'Education',
+  HouseNo: 'HouseNo',
+  Soi: 'Soi',
+  Moo: 'Moo',
+  Road: 'Road',
+  Province: 'Province',
+  District: 'District',
+  SubDistrict: 'SubDistrict',
+  PostalCode: 'PostalCode',
+  TuitionFee: 'TuitionFee',
+  FamilyStatus: 'FamilyStatus',
+  Career: 'Career',
+  MonthlyIncome: 'MonthlyIncome',
+  WorkPlaces: 'WorkPlaces',
+  PhoneNumberHouse: 'PhoneNumberHouse',
+  PhoneNumberMobile: 'PhoneNumberMobile',
+  PhoneNumberWorkPlace: 'PhoneNumberWorkPlace',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult',
+  RecoveryScript: 'RecoveryScript',
+  RecoveryDate: 'RecoveryDate',
+  RecoveryBy: 'RecoveryBy'
+};
+
+exports.Prisma.TApproveStudentPermanentAddressScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  StudentID: 'StudentID',
+  SchoolID: 'SchoolID',
+  HouseCode: 'HouseCode',
+  HouseNo: 'HouseNo',
+  Soi: 'Soi',
+  Moo: 'Moo',
+  Road: 'Road',
+  Province: 'Province',
+  District: 'District',
+  SubDistrict: 'SubDistrict',
+  PostalCode: 'PostalCode',
+  HomePhoneNumber: 'HomePhoneNumber',
+  BirthPlace: 'BirthPlace',
+  BirthPlaceProvince: 'BirthPlaceProvince',
+  BirthPlaceDistrict: 'BirthPlaceDistrict',
+  BirthPlaceSubDistrict: 'BirthPlaceSubDistrict',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult',
+  RecoveryScript: 'RecoveryScript',
+  RecoveryDate: 'RecoveryDate',
+  RecoveryBy: 'RecoveryBy'
+};
+
+exports.Prisma.TApproveStudentProfileScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  StudentID: 'StudentID',
+  SchoolID: 'SchoolID',
+  Gender: 'Gender',
+  Title: 'Title',
+  Name: 'Name',
+  Surname: 'Surname',
+  NameEn: 'NameEn',
+  SurnameEn: 'SurnameEn',
+  NameOther: 'NameOther',
+  SurnameOther: 'SurnameOther',
+  Nickname: 'Nickname',
+  NicknameEn: 'NicknameEn',
+  BirthDay: 'BirthDay',
+  Race: 'Race',
+  Nationality: 'Nationality',
+  Religion: 'Religion',
+  Disability: 'Disability',
+  Disadvantaged: 'Disadvantaged',
+  PhoneNumber: 'PhoneNumber',
+  Email: 'Email',
+  NumberMemberInFamily: 'NumberMemberInFamily',
+  YouAreChildOfFamily: 'YouAreChildOfFamily',
+  HaveBrotherStudyInSchool: 'HaveBrotherStudyInSchool',
+  Other: 'Other',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult',
+  RecoveryScript: 'RecoveryScript',
+  RecoveryDate: 'RecoveryDate',
+  RecoveryBy: 'RecoveryBy',
+  SpendingPerDay: 'SpendingPerDay'
+};
+
+exports.Prisma.TB_EQ_AnswerScalarFieldEnum = {
+  TB_EQ_Answer_Id: 'TB_EQ_Answer_Id',
+  TB_EQ_Question_Id: 'TB_EQ_Question_Id',
+  TB_EQ_Point_Point: 'TB_EQ_Point_Point',
+  sID: 'sID',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TB_EQ_DataScalarFieldEnum = {
+  TB_EQ_Data_Id: 'TB_EQ_Data_Id',
+  TB_EQ_Data_Datetime: 'TB_EQ_Data_Datetime',
+  sID: 'sID',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TB_EQ_GroupScalarFieldEnum = {
+  TB_EQ_Group_Id: 'TB_EQ_Group_Id',
+  TB_EQ_Group_Des: 'TB_EQ_Group_Des',
+  TB_EQ_Question_Group: 'TB_EQ_Question_Group',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TB_EQ_PointScalarFieldEnum = {
+  TB_EQ_Point_Id: 'TB_EQ_Point_Id',
+  TB_EQ_Point_Point: 'TB_EQ_Point_Point',
+  TB_EQ_Question_Id: 'TB_EQ_Question_Id',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TB_EQ_QuestionScalarFieldEnum = {
+  TB_EQ_Question_Id: 'TB_EQ_Question_Id',
+  TB_EQ_Question_Des: 'TB_EQ_Question_Des',
+  TB_EQ_Question_Group: 'TB_EQ_Question_Group',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TB_HistorySettingScalarFieldEnum = {
+  Fd_HistoryID: 'Fd_HistoryID',
+  Fd_FunctionName: 'Fd_FunctionName',
+  Fd_SettingData: 'Fd_SettingData',
+  Fd_SchoolID: 'Fd_SchoolID',
+  Fd_UpdatedDate: 'Fd_UpdatedDate',
+  Fd_UpdatedBy: 'Fd_UpdatedBy'
+};
+
+exports.Prisma.TBackupCardScalarFieldEnum = {
+  CardID: 'CardID',
+  SchoolID: 'SchoolID',
+  CardName: 'CardName',
+  BarCode: 'BarCode',
+  NFC: 'NFC',
+  NFCReverse: 'NFCReverse',
+  NFCEncrypt: 'NFCEncrypt',
+  NFCEncryptReverse: 'NFCEncryptReverse',
+  Money: 'Money',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  Insurance: 'Insurance'
+};
+
+exports.Prisma.TBackupCardHistoryScalarFieldEnum = {
+  CardHistoryID: 'CardHistoryID',
+  SchoolID: 'SchoolID',
+  CardID: 'CardID',
+  UserType: 'UserType',
+  UserID: 'UserID',
+  UserName: 'UserName',
+  BorrowingDate: 'BorrowingDate',
+  ReturnDate: 'ReturnDate',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  Insurance: 'Insurance'
+};
+
+exports.Prisma.TBranchScalarFieldEnum = {
+  BranchId: 'BranchId',
+  nTLevel: 'nTLevel',
+  BranchName: 'BranchName',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TBranchSpecScalarFieldEnum = {
+  BranchSpecId: 'BranchSpecId',
+  BranchSubjectId: 'BranchSubjectId',
+  BranchSpecName: 'BranchSpecName',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TBranchSubjectScalarFieldEnum = {
+  BranchSubjectId: 'BranchSubjectId',
+  BranchId: 'BranchId',
+  BranchSubjectName: 'BranchSubjectName',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TClassScalarFieldEnum = {
+  sClassID: 'sClassID',
+  sClass: 'sClass',
+  sClassIP: 'sClassIP',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TClassMemberScalarFieldEnum = {
+  nClassMemberid: 'nClassMemberid',
+  nTeacherHeadid: 'nTeacherHeadid',
+  nTeacherAssistOne: 'nTeacherAssistOne',
+  nTeacherAssistTwo: 'nTeacherAssistTwo',
+  nTermSubLevel2: 'nTermSubLevel2',
+  nTerm: 'nTerm',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TClassOnlineScalarFieldEnum = {
+  OnlineId: 'OnlineId',
+  TermId: 'TermId',
+  LevelId: 'LevelId',
+  PlanId: 'PlanId',
+  TitleName: 'TitleName',
+  TeacherId: 'TeacherId',
+  SchoolId: 'SchoolId',
+  SelectedRoom: 'SelectedRoom',
+  cDel: 'cDel',
+  ShareId: 'ShareId',
+  CreateBy: 'CreateBy',
+  Created: 'Created',
+  ModifyBy: 'ModifyBy',
+  Modfied: 'Modfied'
+};
+
+exports.Prisma.TCourseAbbreviationScalarFieldEnum = {
+  CourseAbbreviationId: 'CourseAbbreviationId',
+  ShortName: 'ShortName',
+  cDel: 'cDel',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedBy: 'UpdatedBy',
+  UpdatedDate: 'UpdatedDate',
+  sPlaneID: 'sPlaneID',
+  SchoolID: 'SchoolID'
+};
+
+exports.Prisma.TCourseGroupScalarFieldEnum = {
+  courseGroupId: 'courseGroupId',
+  Description: 'Description',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  MasterCode: 'MasterCode',
+  DescriptionEn: 'DescriptionEn'
+};
+
+exports.Prisma.TCourseTypeScalarFieldEnum = {
+  courseTypeId: 'courseTypeId',
+  Description: 'Description',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  nOrder: 'nOrder',
+  MasterCode: 'MasterCode',
+  DescriptionEn: 'DescriptionEn'
+};
+
+exports.Prisma.TCurriculumScalarFieldEnum = {
+  CurriculumId: 'CurriculumId',
+  CurriculumName: 'CurriculumName',
+  CreatedDate: 'CreatedDate',
+  CreatedBy: 'CreatedBy',
+  UpdatedDate: 'UpdatedDate',
+  UpdatedBy: 'UpdatedBy',
+  nYear: 'nYear',
+  SchoolId: 'SchoolId',
+  IsActive: 'IsActive',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TDepartmentScalarFieldEnum = {
+  DepID: 'DepID',
+  userHeadId: 'userHeadId',
+  userApproveOne: 'userApproveOne',
+  userApproveTwo: 'userApproveTwo',
+  departmentName: 'departmentName',
+  deleted: 'deleted',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TDocumentStampDateScalarFieldEnum = {
+  ID: 'ID',
+  SchoolID: 'SchoolID',
+  DocType: 'DocType',
+  DocDate: 'DocDate'
+};
+
+exports.Prisma.TEmpAddressScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  Type: 'Type',
+  No: 'No',
+  VillageNo: 'VillageNo',
+  Village: 'Village',
+  Building: 'Building',
+  Alley: 'Alley',
+  Road: 'Road',
+  SubdistrictID: 'SubdistrictID',
+  DistrictID: 'DistrictID',
+  ProvinceID: 'ProvinceID',
+  Postcode: 'Postcode',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TEmpEducationInfoScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  Institution: 'Institution',
+  StudyYear: 'StudyYear',
+  GraduationYear: 'GraduationYear',
+  LevelID: 'LevelID',
+  Major: 'Major',
+  MinorSubject: 'MinorSubject',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TEmpFamilyScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  FamilyRelation: 'FamilyRelation',
+  TitleID: 'TitleID',
+  FirstName: 'FirstName',
+  LastName: 'LastName',
+  Birthday: 'Birthday',
+  PersonalStatus: 'PersonalStatus',
+  LiveStatus: 'LiveStatus',
+  DeathStatus: 'DeathStatus',
+  FamilyCareer: 'FamilyCareer',
+  LevelID: 'LevelID',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel',
+  EducationBackground: 'EducationBackground'
+};
+
+exports.Prisma.TEmpHonorScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  Type: 'Type',
+  Department: 'Department',
+  Year: 'Year',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TEmpInsigniaScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  Year: 'Year',
+  Grade: 'Grade',
+  Position: 'Position',
+  BookNumber: 'BookNumber',
+  Part: 'Part',
+  Duty: 'Duty',
+  Number: 'Number',
+  Date: 'Date',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TEmpProfessionalLicenseScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  LicenseType: 'LicenseType',
+  LicenseNo: 'LicenseNo',
+  LicenseName: 'LicenseName',
+  IssuedDate: 'IssuedDate',
+  ExpireDate: 'ExpireDate',
+  AgencyIssued: 'AgencyIssued',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TEmpSalaryScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  WorkStatus: 'WorkStatus',
+  WorkInEducationDate: 'WorkInEducationDate',
+  Salary: 'Salary',
+  PositionMoney: 'PositionMoney',
+  RetirementDate: 'RetirementDate',
+  RemainGovernmentYear: 'RemainGovernmentYear',
+  RemainGovernmentMonth: 'RemainGovernmentMonth',
+  RemainGovernmentDay: 'RemainGovernmentDay',
+  Degree: 'Degree',
+  GovernmentOrderDate: 'GovernmentOrderDate',
+  WorkStartDate: 'WorkStartDate',
+  AcademicStandingMoney: 'AcademicStandingMoney',
+  NetSalary: 'NetSalary',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  DayQuit: 'DayQuit'
+};
+
+exports.Prisma.TEmpSignerScalarFieldEnum = {
+  SignerID: 'SignerID',
+  SchoolID: 'SchoolID',
+  YearID: 'YearID',
+  TermID: 'TermID',
+  Position: 'Position',
+  PositionEN: 'PositionEN',
+  DefaultID: 'DefaultID',
+  EmpID: 'EmpID',
+  Signer: 'Signer',
+  IsDefault: 'IsDefault',
+  IsDel: 'IsDel',
+  IsActive: 'IsActive',
+  Created: 'Created',
+  Modified: 'Modified',
+  CreateBy: 'CreateBy',
+  ModifyBy: 'ModifyBy',
+  OldSigner: 'OldSigner'
+};
+
+exports.Prisma.TEmpTOEICScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  TOEICScore: 'TOEICScore',
+  InstitutionAnnouncement: 'InstitutionAnnouncement',
+  ExpirationDate: 'ExpirationDate',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdateBy: 'UpdateBy',
+  UpdateDate: 'UpdateDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TEmpTeachingScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  nYear: 'nYear',
+  nTerm: 'nTerm',
+  courseTypeId: 'courseTypeId',
+  SUBJECT_ID: 'SUBJECT_ID',
+  sClassID: 'sClassID',
+  sRoomID: 'sRoomID',
+  HoursPerWeek: 'HoursPerWeek',
+  DirectTeaching: 'DirectTeaching',
+  CompetentTeaching: 'CompetentTeaching',
+  WantTrain: 'WantTrain',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TEmpTrainingScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  ProjectName: 'ProjectName',
+  TrainingName: 'TrainingName',
+  StartDate: 'StartDate',
+  EndDate: 'EndDate',
+  Place: 'Place',
+  ProvinceID: 'ProvinceID',
+  Country: 'Country',
+  Expenses: 'Expenses',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  Province: 'Province',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel',
+  TrainingType: 'TrainingType',
+  TrainingHours: 'TrainingHours'
+};
+
+exports.Prisma.TEmployeeInfoScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  Code: 'Code',
+  FirstNameEn: 'FirstNameEn',
+  LastNameEn: 'LastNameEn',
+  PassportNumber: 'PassportNumber',
+  PassportCountry: 'PassportCountry',
+  PassportExpirationDate: 'PassportExpirationDate',
+  VisaNo: 'VisaNo',
+  VisaExpirationDate: 'VisaExpirationDate',
+  WorkPermitNo: 'WorkPermitNo',
+  WorkPermitExpirationDate: 'WorkPermitExpirationDate',
+  BloodType: 'BloodType',
+  Nationality: 'Nationality',
+  Ethnicity: 'Ethnicity',
+  Religion: 'Religion',
+  PersonalStatus: 'PersonalStatus',
+  SpouseFirstName: 'SpouseFirstName',
+  SpouseLastName: 'SpouseLastName',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TEmployeeTypeScalarFieldEnum = {
+  nTypeId: 'nTypeId',
+  nTypeId2: 'nTypeId2',
+  Title: 'Title',
+  SchoolID: 'SchoolID',
+  IsDel: 'IsDel',
+  IsActive: 'IsActive',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  MasterCode: 'MasterCode'
+};
+
+exports.Prisma.TEmployeesScalarFieldEnum = {
+  sEmp: 'sEmp',
+  sName: 'sName',
+  sLastname: 'sLastname',
+  sIdentification: 'sIdentification',
+  dBirth: 'dBirth',
+  cSex: 'cSex',
+  sPhone: 'sPhone',
+  sEmail: 'sEmail',
+  sPassword: 'sPassword',
+  sSubtopic: 'sSubtopic',
+  sAddress: 'sAddress',
+  sCity: 'sCity',
+  sPostalcode: 'sPostalcode',
+  sCountry: 'sCountry',
+  dUpdate: 'dUpdate',
+  sFinger: 'sFinger',
+  nMoney: 'nMoney',
+  sFinger2: 'sFinger2',
+  sClaim: 'sClaim',
+  cDel: 'cDel',
+  sStatusReport: 'sStatusReport',
+  nTimeType: 'nTimeType',
+  cType: 'cType',
+  sToken: 'sToken',
+  sPicture: 'sPicture',
+  sProvince: 'sProvince',
+  sTumbon: 'sTumbon',
+  sSoy: 'sSoy',
+  sHomeNumber: 'sHomeNumber',
+  sMuu: 'sMuu',
+  sRoad: 'sRoad',
+  sAumpher: 'sAumpher',
+  sPost: 'sPost',
+  sTitle: 'sTitle',
+  dPicUpdate: 'dPicUpdate',
+  nPicversion: 'nPicversion',
+  leavecheck: 'leavecheck',
+  nJobid: 'nJobid',
+  nDepartmentId: 'nDepartmentId',
+  gradeSystemAdmin: 'gradeSystemAdmin',
+  Village: 'Village',
+  Building: 'Building',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  DailyUsageLimit: 'DailyUsageLimit',
+  nMax: 'nMax',
+  sNameEng: 'sNameEng',
+  sLastNameEng: 'sLastNameEng'
+};
+
+exports.Prisma.TFamilyProfileScalarFieldEnum = {
+  sFamilyTitle: 'sFamilyTitle',
+  sFamilyName: 'sFamilyName',
+  sFamilyLast: 'sFamilyLast',
+  sFamilyRace: 'sFamilyRace',
+  sFamilyNation: 'sFamilyNation',
+  sFamilyReligion: 'sFamilyReligion',
+  sFamilyIdCardNumber: 'sFamilyIdCardNumber',
+  sFamilyRelate: 'sFamilyRelate',
+  sFamilyHomeNumber: 'sFamilyHomeNumber',
+  sFamilySoy: 'sFamilySoy',
+  sFamilyTumbon: 'sFamilyTumbon',
+  sFamilyProvince: 'sFamilyProvince',
+  sFamilyMuu: 'sFamilyMuu',
+  sFamilyRoad: 'sFamilyRoad',
+  sFamilyAumpher: 'sFamilyAumpher',
+  sFamilyPost: 'sFamilyPost',
+  sPhoneOne: 'sPhoneOne',
+  sPhoneTwo: 'sPhoneTwo',
+  sPhoneThree: 'sPhoneThree',
+  sPhoneMail: 'sPhoneMail',
+  sID: 'sID',
+  sDeleted: 'sDeleted',
+  sFatherTitle: 'sFatherTitle',
+  sFatherFirstName: 'sFatherFirstName',
+  sFatherLastName: 'sFatherLastName',
+  sFatherNation: 'sFatherNation',
+  sFatherRace: 'sFatherRace',
+  sFatherReligion: 'sFatherReligion',
+  sFatherIdCardNumber: 'sFatherIdCardNumber',
+  sMotherTitle: 'sMotherTitle',
+  sMotherFirstName: 'sMotherFirstName',
+  sMotherLastName: 'sMotherLastName',
+  sMotherNation: 'sMotherNation',
+  sMotherRace: 'sMotherRace',
+  sMotherReligion: 'sMotherReligion',
+  sMotherIdCardNumber: 'sMotherIdCardNumber',
+  sMotherTumbon: 'sMotherTumbon',
+  sMotherSoy: 'sMotherSoy',
+  sMotherRoad: 'sMotherRoad',
+  sMotherProvince: 'sMotherProvince',
+  sMotherPost: 'sMotherPost',
+  sMotherPhone: 'sMotherPhone',
+  sMotherMuu: 'sMotherMuu',
+  sMotherHomeNumber: 'sMotherHomeNumber',
+  sMotherAumpher: 'sMotherAumpher',
+  sFatherTumbon: 'sFatherTumbon',
+  sFatherSoy: 'sFatherSoy',
+  sFatherRoad: 'sFatherRoad',
+  sFatherProvince: 'sFatherProvince',
+  sFatherPost: 'sFatherPost',
+  sFatherPhone: 'sFatherPhone',
+  sFatherMuu: 'sFatherMuu',
+  sFatherHomeNumber: 'sFatherHomeNumber',
+  sFatherAumpher: 'sFatherAumpher',
+  nFamilyID: 'nFamilyID',
+  sFamilyNameEN: 'sFamilyNameEN',
+  sFamilyLastEN: 'sFamilyLastEN',
+  dFamilyBirthDay: 'dFamilyBirthDay',
+  nFamilyRequestStudyMoney: 'nFamilyRequestStudyMoney',
+  sFamilyGraduated: 'sFamilyGraduated',
+  sFamilyJob: 'sFamilyJob',
+  sFamilyWorkPlace: 'sFamilyWorkPlace',
+  nFamilyIncome: 'nFamilyIncome',
+  sFatherNameEN: 'sFatherNameEN',
+  sFatherLastEN: 'sFatherLastEN',
+  dFatherBirthDay: 'dFatherBirthDay',
+  sFatherGraduated: 'sFatherGraduated',
+  sFatherJob: 'sFatherJob',
+  sFatherWorkPlace: 'sFatherWorkPlace',
+  sFatherPhone2: 'sFatherPhone2',
+  sFatherPhone3: 'sFatherPhone3',
+  nFatherIncome: 'nFatherIncome',
+  sMotherNameEN: 'sMotherNameEN',
+  sMotherLastEN: 'sMotherLastEN',
+  dMotherBirthDay: 'dMotherBirthDay',
+  sMotherGraduated: 'sMotherGraduated',
+  sMotherJob: 'sMotherJob',
+  sMotherWorkPlace: 'sMotherWorkPlace',
+  sMotherPhone2: 'sMotherPhone2',
+  sMotherPhone3: 'sMotherPhone3',
+  nMotherIncome: 'nMotherIncome',
+  nSonTotal: 'nSonTotal',
+  nRelativeStudyHere: 'nRelativeStudyHere',
+  stayWithTitle: 'stayWithTitle',
+  stayWithName: 'stayWithName',
+  stayWithLast: 'stayWithLast',
+  stayWithEmergencyCall: 'stayWithEmergencyCall',
+  stayWithEmail: 'stayWithEmail',
+  HomeType: 'HomeType',
+  friendSID: 'friendSID',
+  houseRegistrationNumber: 'houseRegistrationNumber',
+  houseRegistrationMuu: 'houseRegistrationMuu',
+  houseRegistrationSoy: 'houseRegistrationSoy',
+  houseRegistrationRoad: 'houseRegistrationRoad',
+  houseRegistrationProvince: 'houseRegistrationProvince',
+  houseRegistrationAumpher: 'houseRegistrationAumpher',
+  houseRegistrationTumbon: 'houseRegistrationTumbon',
+  houseRegistrationPost: 'houseRegistrationPost',
+  houseRegistrationPhone: 'houseRegistrationPhone',
+  bornFrom: 'bornFrom',
+  bornFromProvince: 'bornFromProvince',
+  bornFromAumpher: 'bornFromAumpher',
+  bornFromTumbon: 'bornFromTumbon',
+  friendName: 'friendName',
+  friendLastName: 'friendLastName',
+  friendSubLevel: 'friendSubLevel',
+  friendPhone: 'friendPhone',
+  familyStatus: 'familyStatus',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  bornFromEn: 'bornFromEn'
+};
+
+exports.Prisma.TGradeAttendanceScalarFieldEnum = {
+  nGradeAttendanceId: 'nGradeAttendanceId',
+  nGradeId: 'nGradeId',
+  sID: 'sID',
+  week1_1: 'week1_1',
+  week1_2: 'week1_2',
+  week1_3: 'week1_3',
+  week1_4: 'week1_4',
+  week1_5: 'week1_5',
+  week1_6: 'week1_6',
+  week1_7: 'week1_7',
+  week2_1: 'week2_1',
+  week2_2: 'week2_2',
+  week2_3: 'week2_3',
+  week2_4: 'week2_4',
+  week2_5: 'week2_5',
+  week2_6: 'week2_6',
+  week2_7: 'week2_7',
+  week3_1: 'week3_1',
+  week3_2: 'week3_2',
+  week3_3: 'week3_3',
+  week3_4: 'week3_4',
+  week3_5: 'week3_5',
+  week3_6: 'week3_6',
+  week3_7: 'week3_7',
+  week4_1: 'week4_1',
+  week4_2: 'week4_2',
+  week4_3: 'week4_3',
+  week4_4: 'week4_4',
+  week4_5: 'week4_5',
+  week4_6: 'week4_6',
+  week4_7: 'week4_7',
+  week5_1: 'week5_1',
+  week5_2: 'week5_2',
+  week5_3: 'week5_3',
+  week5_4: 'week5_4',
+  week5_5: 'week5_5',
+  week5_6: 'week5_6',
+  week5_7: 'week5_7',
+  week6_1: 'week6_1',
+  week6_2: 'week6_2',
+  week6_3: 'week6_3',
+  week6_4: 'week6_4',
+  week6_5: 'week6_5',
+  week6_6: 'week6_6',
+  week6_7: 'week6_7',
+  week7_1: 'week7_1',
+  week7_2: 'week7_2',
+  week7_3: 'week7_3',
+  week7_4: 'week7_4',
+  week7_5: 'week7_5',
+  week7_6: 'week7_6',
+  week7_7: 'week7_7',
+  week8_1: 'week8_1',
+  week8_2: 'week8_2',
+  week8_3: 'week8_3',
+  week8_4: 'week8_4',
+  week8_5: 'week8_5',
+  week8_6: 'week8_6',
+  week8_7: 'week8_7',
+  week9_1: 'week9_1',
+  week9_2: 'week9_2',
+  week9_3: 'week9_3',
+  week9_4: 'week9_4',
+  week9_5: 'week9_5',
+  week9_6: 'week9_6',
+  week9_7: 'week9_7',
+  week10_1: 'week10_1',
+  week10_2: 'week10_2',
+  week10_3: 'week10_3',
+  week10_4: 'week10_4',
+  week10_5: 'week10_5',
+  week10_6: 'week10_6',
+  week10_7: 'week10_7',
+  week11_1: 'week11_1',
+  week11_2: 'week11_2',
+  week11_3: 'week11_3',
+  week11_4: 'week11_4',
+  week11_5: 'week11_5',
+  week11_6: 'week11_6',
+  week11_7: 'week11_7',
+  week12_1: 'week12_1',
+  week12_2: 'week12_2',
+  week12_3: 'week12_3',
+  week12_4: 'week12_4',
+  week12_5: 'week12_5',
+  week12_6: 'week12_6',
+  week12_7: 'week12_7',
+  week13_1: 'week13_1',
+  week13_2: 'week13_2',
+  week13_3: 'week13_3',
+  week13_4: 'week13_4',
+  week13_5: 'week13_5',
+  week13_6: 'week13_6',
+  week13_7: 'week13_7',
+  week14_1: 'week14_1',
+  week14_2: 'week14_2',
+  week14_3: 'week14_3',
+  week14_4: 'week14_4',
+  week14_5: 'week14_5',
+  week14_6: 'week14_6',
+  week14_7: 'week14_7',
+  week15_1: 'week15_1',
+  week15_2: 'week15_2',
+  week15_3: 'week15_3',
+  week15_4: 'week15_4',
+  week15_5: 'week15_5',
+  week15_6: 'week15_6',
+  week15_7: 'week15_7',
+  week16_1: 'week16_1',
+  week16_2: 'week16_2',
+  week16_3: 'week16_3',
+  week16_4: 'week16_4',
+  week16_5: 'week16_5',
+  week16_6: 'week16_6',
+  week16_7: 'week16_7',
+  week17_1: 'week17_1',
+  week17_2: 'week17_2',
+  week17_3: 'week17_3',
+  week17_4: 'week17_4',
+  week17_5: 'week17_5',
+  week17_6: 'week17_6',
+  week17_7: 'week17_7',
+  week18_1: 'week18_1',
+  week18_2: 'week18_2',
+  week18_3: 'week18_3',
+  week18_4: 'week18_4',
+  week18_5: 'week18_5',
+  week18_6: 'week18_6',
+  week18_7: 'week18_7',
+  week19_1: 'week19_1',
+  week19_2: 'week19_2',
+  week19_3: 'week19_3',
+  week19_4: 'week19_4',
+  week19_5: 'week19_5',
+  week19_6: 'week19_6',
+  week19_7: 'week19_7',
+  week20_1: 'week20_1',
+  week20_2: 'week20_2',
+  week20_3: 'week20_3',
+  week20_4: 'week20_4',
+  week20_5: 'week20_5',
+  week20_6: 'week20_6',
+  week20_7: 'week20_7',
+  totalcome: 'totalcome',
+  totalskip: 'totalskip',
+  totalsick: 'totalsick',
+  totalleave: 'totalleave',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TGradeCheckScalarFieldEnum = {
+  nGradeCheckId: 'nGradeCheckId',
+  teacherId: 'teacherId',
+  PlanId: 'PlanId',
+  Deleted: 'Deleted',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TGradeLockScalarFieldEnum = {
+  nGradeLock: 'nGradeLock',
+  nGradeId: 'nGradeId',
+  scoreGrade1: 'scoreGrade1',
+  scoreGrade2: 'scoreGrade2',
+  scoreGrade3: 'scoreGrade3',
+  scoreGrade4: 'scoreGrade4',
+  scoreGrade5: 'scoreGrade5',
+  scoreGrade6: 'scoreGrade6',
+  scoreGrade7: 'scoreGrade7',
+  scoreGrade8: 'scoreGrade8',
+  scoreGrade9: 'scoreGrade9',
+  scoreGrade10: 'scoreGrade10',
+  scoreGrade11: 'scoreGrade11',
+  scoreGrade12: 'scoreGrade12',
+  scoreGrade13: 'scoreGrade13',
+  scoreGrade14: 'scoreGrade14',
+  scoreGrade15: 'scoreGrade15',
+  scoreGrade16: 'scoreGrade16',
+  scoreGrade17: 'scoreGrade17',
+  scoreGrade18: 'scoreGrade18',
+  scoreGrade19: 'scoreGrade19',
+  scoreGrade20: 'scoreGrade20',
+  scoreBehavior1: 'scoreBehavior1',
+  scoreBehavior2: 'scoreBehavior2',
+  scoreBehavior3: 'scoreBehavior3',
+  scoreBehavior4: 'scoreBehavior4',
+  scoreBehavior5: 'scoreBehavior5',
+  scoreBehavior6: 'scoreBehavior6',
+  scoreBehavior7: 'scoreBehavior7',
+  scoreBehavior8: 'scoreBehavior8',
+  scoreBehavior9: 'scoreBehavior9',
+  scoreBehavior10: 'scoreBehavior10',
+  scoreMidTerm: 'scoreMidTerm',
+  scoreFinalTerm: 'scoreFinalTerm',
+  scoreCheewat1: 'scoreCheewat1',
+  scoreCheewat2: 'scoreCheewat2',
+  scoreCheewat3: 'scoreCheewat3',
+  scoreCheewat4: 'scoreCheewat4',
+  scoreCheewat5: 'scoreCheewat5',
+  scoreCheewat6: 'scoreCheewat6',
+  scoreCheewat7: 'scoreCheewat7',
+  scoreCheewat8: 'scoreCheewat8',
+  scoreCheewat9: 'scoreCheewat9',
+  scoreCheewat10: 'scoreCheewat10',
+  scoreCheewat11: 'scoreCheewat11',
+  scoreCheewat12: 'scoreCheewat12',
+  scoreCheewat13: 'scoreCheewat13',
+  scoreCheewat14: 'scoreCheewat14',
+  scoreCheewat15: 'scoreCheewat15',
+  scoreCheewat16: 'scoreCheewat16',
+  scoreCheewat17: 'scoreCheewat17',
+  scoreCheewat18: 'scoreCheewat18',
+  scoreCheewat19: 'scoreCheewat19',
+  scoreCheewat20: 'scoreCheewat20',
+  scoreMid1: 'scoreMid1',
+  scoreMid2: 'scoreMid2',
+  scoreMid3: 'scoreMid3',
+  scoreMid4: 'scoreMid4',
+  scoreMid5: 'scoreMid5',
+  scoreMid6: 'scoreMid6',
+  scoreMid7: 'scoreMid7',
+  scoreMid8: 'scoreMid8',
+  scoreMid9: 'scoreMid9',
+  scoreMid10: 'scoreMid10',
+  scoreFinal1: 'scoreFinal1',
+  scoreFinal2: 'scoreFinal2',
+  scoreFinal3: 'scoreFinal3',
+  scoreFinal4: 'scoreFinal4',
+  scoreFinal5: 'scoreFinal5',
+  scoreFinal6: 'scoreFinal6',
+  scoreFinal7: 'scoreFinal7',
+  scoreFinal8: 'scoreFinal8',
+  scoreFinal9: 'scoreFinal9',
+  scoreFinal10: 'scoreFinal10',
+  lastUpdate: 'lastUpdate',
+  updateByEMP: 'updateByEMP',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TGradeMigrationScalarFieldEnum = {
+  GradeMigrationId: 'GradeMigrationId',
+  nGradeId: 'nGradeId',
+  sID: 'sID',
+  AssessmentId: 'AssessmentId',
+  ExamID: 'ExamID',
+  nTermSubLevel2: 'nTermSubLevel2',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  ApplicationName: 'ApplicationName'
+};
+
+exports.Prisma.TGradeRegisterPeriodScalarFieldEnum = {
+  nGradeRegisterPeriod: 'nGradeRegisterPeriod',
+  nTerm: 'nTerm',
+  beforeMidtermStart: 'beforeMidtermStart',
+  beforeMidtermEnd: 'beforeMidtermEnd',
+  duringMidtermStart: 'duringMidtermStart',
+  duringMidtermEnd: 'duringMidtermEnd',
+  afterMidtermStart: 'afterMidtermStart',
+  afterMidtermEnd: 'afterMidtermEnd',
+  FinaltermStart: 'FinaltermStart',
+  FinaltermEnd: 'FinaltermEnd',
+  ExtraStart: 'ExtraStart',
+  ExtraEnd: 'ExtraEnd',
+  lastUpdate: 'lastUpdate',
+  updateByEmp: 'updateByEmp',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TGradeShareInfoScalarFieldEnum = {
+  nGradeShareInfoId: 'nGradeShareInfoId',
+  nTerm: 'nTerm',
+  sPlaneID: 'sPlaneID',
+  from_nTSubLevel2: 'from_nTSubLevel2',
+  to_nTSubLevel2: 'to_nTSubLevel2',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TGradeTeacherDescribeScalarFieldEnum = {
+  nGradeTeacherDescribe: 'nGradeTeacherDescribe',
+  Describe: 'Describe',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TGradeViewRoomListSettingScalarFieldEnum = {
+  RoomListSettingId: 'RoomListSettingId',
+  GradeViewSettingId: 'GradeViewSettingId',
+  nTermSubLevel2: 'nTermSubLevel2',
+  ApprovedDate: 'ApprovedDate',
+  ApprovedBy: 'ApprovedBy',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  SchoolID: 'SchoolID',
+  cDel: 'cDel',
+  IsRoomBlocked: 'IsRoomBlocked'
+};
+
+exports.Prisma.TGradeViewSettingScalarFieldEnum = {
+  GradeViewSettingId: 'GradeViewSettingId',
+  nTerm: 'nTerm',
+  IsTermApproved: 'IsTermApproved',
+  IsAllRoomApproved: 'IsAllRoomApproved',
+  SchoolId: 'SchoolId',
+  ApprovedDate: 'ApprovedDate',
+  ApprovedBy: 'ApprovedBy',
+  UpdatedDate: 'UpdatedDate',
+  UpdatedBy: 'UpdatedBy',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel',
+  GradeViewFor100: 'GradeViewFor100',
+  IsMidTermApproved: 'IsMidTermApproved',
+  IsFinalTermApproved: 'IsFinalTermApproved'
+};
+
+exports.Prisma.TGradeViewStudentBlockListSettingScalarFieldEnum = {
+  StudentBlockListSettingId: 'StudentBlockListSettingId',
+  GradeViewSettingId: 'GradeViewSettingId',
+  sID: 'sID',
+  BlockedDate: 'BlockedDate',
+  BlockedBy: 'BlockedBy',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  IsStudentBlocked: 'IsStudentBlocked',
+  SchoolID: 'SchoolID'
+};
+
+exports.Prisma.THealtProfileScalarFieldEnum = {
+  nWeight: 'nWeight',
+  nHeight: 'nHeight',
+  sBlood: 'sBlood',
+  sSickFood: 'sSickFood',
+  sSickDrug: 'sSickDrug',
+  sSickOther: 'sSickOther',
+  sSickNormal: 'sSickNormal',
+  sSickDanger: 'sSickDanger',
+  sID: 'sID',
+  sDeleted: 'sDeleted',
+  Weight1_1: 'Weight1_1',
+  Weight1_2: 'Weight1_2',
+  Weight1_3: 'Weight1_3',
+  Weight1_4: 'Weight1_4',
+  Weight2_1: 'Weight2_1',
+  Weight2_2: 'Weight2_2',
+  Weight2_3: 'Weight2_3',
+  Weight2_4: 'Weight2_4',
+  Weight3_1: 'Weight3_1',
+  Weight3_2: 'Weight3_2',
+  Weight3_3: 'Weight3_3',
+  Weight3_4: 'Weight3_4',
+  Weight4_1: 'Weight4_1',
+  Weight4_2: 'Weight4_2',
+  Weight4_3: 'Weight4_3',
+  Weight4_4: 'Weight4_4',
+  Weight5_1: 'Weight5_1',
+  Weight5_2: 'Weight5_2',
+  Weight5_3: 'Weight5_3',
+  Weight5_4: 'Weight5_4',
+  Weight6_1: 'Weight6_1',
+  Weight6_2: 'Weight6_2',
+  Weight6_3: 'Weight6_3',
+  Weight6_4: 'Weight6_4',
+  Height1_1: 'Height1_1',
+  Height1_2: 'Height1_2',
+  Height1_3: 'Height1_3',
+  Height1_4: 'Height1_4',
+  Height2_1: 'Height2_1',
+  Height2_2: 'Height2_2',
+  Height2_3: 'Height2_3',
+  Height2_4: 'Height2_4',
+  Height3_1: 'Height3_1',
+  Height3_2: 'Height3_2',
+  Height3_3: 'Height3_3',
+  Height3_4: 'Height3_4',
+  Height4_1: 'Height4_1',
+  Height4_2: 'Height4_2',
+  Height4_3: 'Height4_3',
+  Height4_4: 'Height4_4',
+  Height5_1: 'Height5_1',
+  Height5_2: 'Height5_2',
+  Height5_3: 'Height5_3',
+  Height5_4: 'Height5_4',
+  Height6_1: 'Height6_1',
+  Height6_2: 'Height6_2',
+  Height6_3: 'Height6_3',
+  Height6_4: 'Height6_4',
+  nHealthID: 'nHealthID',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.THistoryLogScalarFieldEnum = {
+  ID: 'ID',
+  SchoolID: 'SchoolID',
+  Date: 'Date',
+  MenuID: 'MenuID',
+  FunctionName: 'FunctionName',
+  sID: 'sID',
+  sEmp: 'sEmp',
+  UpdateBy: 'UpdateBy',
+  JsonDetail: 'JsonDetail'
+};
+
+exports.Prisma.THolidayScalarFieldEnum = {
+  nHoliday: 'nHoliday',
+  sEmp: 'sEmp',
+  sHoliday: 'sHoliday',
+  sHolidayEN: 'sHolidayEN',
+  TimeType: 'TimeType',
+  sHolidayType: 'sHolidayType',
+  dHolidayStart: 'dHolidayStart',
+  dHolidayEnd: 'dHolidayEnd',
+  cDel: 'cDel',
+  sHolidayAll: 'sHolidayAll',
+  sWhoSeeThis: 'sWhoSeeThis',
+  sColor: 'sColor',
+  sGroupTarget: 'sGroupTarget',
+  cStatusActive: 'cStatusActive',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.THolidayLogScalarFieldEnum = {
+  LogID: 'LogID',
+  SchoolID: 'SchoolID',
+  Detail: 'Detail',
+  Creator: 'Creator',
+  Created: 'Created',
+  HolidayID: 'HolidayID'
+};
+
+exports.Prisma.THolidaySomeScalarFieldEnum = {
+  nHolidaySomeID: 'nHolidaySomeID',
+  nHoliday: 'nHoliday',
+  nTSubLevel: 'nTSubLevel',
+  nTimeType: 'nTimeType',
+  Deleted: 'Deleted',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.THomeWorkFileScalarFieldEnum = {
+  nHomeWorkId: 'nHomeWorkId',
+  sFileName: 'sFileName',
+  ContentType: 'ContentType',
+  nFileId: 'nFileId',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  Title: 'Title'
+};
+
+exports.Prisma.THomeWorkLearningScalarFieldEnum = {
+  LearnId: 'LearnId',
+  OnlineId: 'OnlineId',
+  sPlaneID: 'sPlaneID',
+  sEmp: 'sEmp',
+  TitleName: 'TitleName',
+  Description: 'Description',
+  LinkYT: 'LinkYT',
+  Created: 'Created',
+  Modified: 'Modified',
+  SchoolId: 'SchoolId',
+  SelectedRoom: 'SelectedRoom',
+  SelectedStudent: 'SelectedStudent',
+  AssignType: 'AssignType',
+  cDel: 'cDel',
+  DisplayDate: 'DisplayDate',
+  DisplayType: 'DisplayType'
+};
+
+exports.Prisma.THomeWorkLearningFileScalarFieldEnum = {
+  AttachId: 'AttachId',
+  LearnId: 'LearnId',
+  sFileName: 'sFileName',
+  ContentType: 'ContentType',
+  Title: 'Title',
+  SchoolId: 'SchoolId',
+  cDel: 'cDel'
+};
+
+exports.Prisma.THomeWorkReplyScalarFieldEnum = {
+  ReplyId: 'ReplyId',
+  HomeWorkId: 'HomeWorkId',
+  UserId: 'UserId',
+  ReplyRefId: 'ReplyRefId',
+  Comment: 'Comment',
+  Created: 'Created',
+  Modified: 'Modified',
+  Type: 'Type',
+  SchoolId: 'SchoolId',
+  sID: 'sID',
+  tID: 'tID'
+};
+
+exports.Prisma.THomeWorkReply_FileScalarFieldEnum = {
+  FileID: 'FileID',
+  HomeWorkID: 'HomeWorkID',
+  ReplyID: 'ReplyID',
+  FileUrl: 'FileUrl',
+  FileTitle: 'FileTitle',
+  ContentType: 'ContentType',
+  SchoolID: 'SchoolID',
+  cDel: 'cDel',
+  CreateDate: 'CreateDate'
+};
+
+exports.Prisma.THomeworkScalarFieldEnum = {
+  nHomeWork: 'nHomeWork',
+  SchoolID: 'SchoolID',
+  OnlineId: 'OnlineId',
+  sPlaneID: 'sPlaneID',
+  dStart: 'dStart',
+  dEnd: 'dEnd',
+  dNotification: 'dNotification',
+  dOrder: 'dOrder',
+  sEmp: 'sEmp',
+  sHomeworkDetail: 'sHomeworkDetail',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  TitleName: 'TitleName',
+  MaxScore: 'MaxScore',
+  AssignType: 'AssignType',
+  LinkYT: 'LinkYT',
+  SelectedRoom: 'SelectedRoom',
+  SelectedStudent: 'SelectedStudent',
+  Created: 'Created',
+  Modified: 'Modified',
+  DisplayDate: 'DisplayDate',
+  DisplayType: 'DisplayType'
+};
+
+exports.Prisma.THomework_UserScalarFieldEnum = {
+  nHomeWork: 'nHomeWork',
+  sID: 'sID',
+  cStatusHomeWork: 'cStatusHomeWork',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  IsRead: 'IsRead',
+  IsSend: 'IsSend',
+  IsLate: 'IsLate',
+  IsManual: 'IsManual',
+  Score: 'Score',
+  AttachFile: 'AttachFile',
+  AttachTitle: 'AttachTitle',
+  AttachFileContentType: 'AttachFileContentType',
+  LinkUrl: 'LinkUrl',
+  Remark: 'Remark'
+};
+
+exports.Prisma.THomework_User_FileScalarFieldEnum = {
+  FileId: 'FileId',
+  nHomeWorkId: 'nHomeWorkId',
+  sID: 'sID',
+  SchoolID: 'SchoolID',
+  FileUrl: 'FileUrl',
+  FileTitle: 'FileTitle',
+  FileContentType: 'FileContentType',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TJobListScalarFieldEnum = {
+  nSchoolId: 'nSchoolId',
+  jobDescription: 'jobDescription',
+  deleted: 'deleted',
+  workStatus: 'workStatus',
+  nJobid: 'nJobid',
+  empType: 'empType',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TLearningCenterScalarFieldEnum = {
+  LearningCenterID: 'LearningCenterID',
+  Type: 'Type',
+  Name: 'Name',
+  Detail: 'Detail',
+  Admin: 'Admin',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TLevelScalarFieldEnum = {
+  LevelID: 'LevelID',
+  LevelName: 'LevelName',
+  nTimeType: 'nTimeType',
+  sortValue: 'sortValue',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  MasterCode: 'MasterCode',
+  LevelNameEng: 'LevelNameEng'
+};
+
+exports.Prisma.TMasterDBUserScalarFieldEnum = {
+  sID: 'sID',
+  nSystemID: 'nSystemID',
+  nCompany: 'nCompany',
+  NFC: 'NFC',
+  cDel: 'cDel',
+  username: 'username',
+  userpassword: 'userpassword',
+  cType: 'cType',
+  nMoney: 'nMoney',
+  sName: 'sName',
+  sLastname: 'sLastname',
+  sIdentification: 'sIdentification',
+  pin: 'pin',
+  sPicture: 'sPicture',
+  PasswordHash: 'PasswordHash',
+  sEmail: 'sEmail',
+  nStudentStatus: 'nStudentStatus',
+  UseEncryptPassword: 'UseEncryptPassword',
+  sStudentID: 'sStudentID'
+};
+
+exports.Prisma.TMasterDataScalarFieldEnum = {
+  MasterID: 'MasterID',
+  MasterCode: 'MasterCode',
+  MasterDes: 'MasterDes',
+  MasterType: 'MasterType',
+  isActive: 'isActive',
+  MasterOrder: 'MasterOrder',
+  MasterDesEn: 'MasterDesEn'
+};
+
+exports.Prisma.TMasterTypeScalarFieldEnum = {
+  MasterTypeID: 'MasterTypeID',
+  MasterTypeNameTH: 'MasterTypeNameTH',
+  MasterTypeNameEN: 'MasterTypeNameEN'
+};
+
+exports.Prisma.TMessageLINEMulticastScalarFieldEnum = {
+  MessageID: 'MessageID',
+  GroupID: 'GroupID',
+  StreamID: 'StreamID',
+  UpdateDate: 'UpdateDate',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TONETScoreScalarFieldEnum = {
+  Year: 'Year',
+  sID: 'sID',
+  Identification: 'Identification',
+  nTSubLevel: 'nTSubLevel',
+  Class: 'Class',
+  SeatNo: 'SeatNo',
+  SubjectScore61: 'SubjectScore61',
+  SubjectScore64: 'SubjectScore64',
+  SubjectScore65: 'SubjectScore65',
+  SubjectScore63: 'SubjectScore63',
+  SubjectScore91: 'SubjectScore91',
+  SubjectScore94: 'SubjectScore94',
+  SubjectScore95: 'SubjectScore95',
+  SubjectScore93: 'SubjectScore93',
+  SubjectScore01: 'SubjectScore01',
+  SubjectScore04: 'SubjectScore04',
+  SubjectScore05: 'SubjectScore05',
+  SubjectScore02: 'SubjectScore02',
+  SubjectScore03: 'SubjectScore03',
+  Result30Percent: 'Result30Percent',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel',
+  ResultPercent: 'ResultPercent',
+  Multiplier: 'Multiplier'
+};
+
+exports.Prisma.TParentScalarFieldEnum = {
+  parent_id: 'parent_id',
+  parent_title: 'parent_title',
+  parent_name: 'parent_name',
+  parent_lastname: 'parent_lastname',
+  tel: 'tel',
+  email: 'email',
+  password_hash: 'password_hash',
+  created_at: 'created_at',
+  created_by: 'created_by',
+  updated_at: 'updated_at',
+  updated_by: 'updated_by',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TParentStudentsScalarFieldEnum = {
+  parent_student_id: 'parent_student_id',
+  parent_id: 'parent_id',
+  SchoolID: 'SchoolID',
+  sID: 'sID',
+  parent_code: 'parent_code',
+  relation: 'relation',
+  relation_other_text: 'relation_other_text',
+  linked_at: 'linked_at',
+  linked_by: 'linked_by',
+  unlinked_at: 'unlinked_at',
+  unlinked_by: 'unlinked_by'
+};
+
+exports.Prisma.TPeriodScalarFieldEnum = {
+  sPeriodID: 'sPeriodID',
+  sScheduleID: 'sScheduleID',
+  sPlaneID: 'sPlaneID',
+  sClassID: 'sClassID',
+  nDay: 'nDay',
+  sPeriodName: 'sPeriodName',
+  dStart: 'dStart',
+  dEnd: 'dEnd',
+  dTimeStart_IN: 'dTimeStart_IN',
+  dTimeStart_OUT: 'dTimeStart_OUT',
+  dTimeEnd_IN: 'dTimeEnd_IN',
+  dTimeEnd_OUT: 'dTimeEnd_OUT',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TPeriod_TSubLevelScalarFieldEnum = {
+  nTSubLevel: 'nTSubLevel',
+  sPeriodID: 'sPeriodID',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TPermissionCardScalarFieldEnum = {
+  ID: 'ID',
+  RefNo: 'RefNo',
+  SchoolID: 'SchoolID',
+  StudentID: 'StudentID',
+  TypeID: 'TypeID',
+  Time: 'Time',
+  IsAttach: 'IsAttach',
+  AttachUrl: 'AttachUrl',
+  StartDate: 'StartDate',
+  EndDate: 'EndDate',
+  Cause: 'Cause',
+  Note: 'Note',
+  Created: 'Created',
+  Modified: 'Modified',
+  Creator: 'Creator',
+  Modifier: 'Modifier',
+  IsDel: 'IsDel'
+};
+
+exports.Prisma.TPermissionCardTypeScalarFieldEnum = {
+  ID: 'ID',
+  SchoolID: 'SchoolID',
+  Permission: 'Permission',
+  Created: 'Created',
+  Modified: 'Modified',
+  Creator: 'Creator',
+  Modifier: 'Modifier',
+  IsDel: 'IsDel'
+};
+
+exports.Prisma.TPlanScalarFieldEnum = {
+  PlanId: 'PlanId',
+  CurriculumId: 'CurriculumId',
+  nTSubLevel: 'nTSubLevel',
+  PlanName: 'PlanName',
+  CreatedDate: 'CreatedDate',
+  CreatedBy: 'CreatedBy',
+  UpdatedDate: 'UpdatedDate',
+  UpdatedBy: 'UpdatedBy',
+  IsActive: 'IsActive',
+  SchoolID: 'SchoolID',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TPlanCourseScalarFieldEnum = {
+  PlanCourseId: 'PlanCourseId',
+  PlanId: 'PlanId',
+  sPlaneID: 'sPlaneID',
+  nCredit: 'nCredit',
+  CourseHour: 'CourseHour',
+  CourseTotalHour: 'CourseTotalHour',
+  CourseStatus: 'CourseStatus',
+  SortNumber: 'SortNumber',
+  CreatedDate: 'CreatedDate',
+  CreatedBy: 'CreatedBy',
+  UpdatedDate: 'UpdatedDate',
+  UpdatedBy: 'UpdatedBy',
+  IsActive: 'IsActive',
+  SchoolID: 'SchoolID',
+  nYear: 'nYear',
+  RB1DisplayOrder: 'RB1DisplayOrder',
+  IsActiveForGrade: 'IsActiveForGrade',
+  cDel: 'cDel',
+  RatioQuiz: 'RatioQuiz',
+  RatioBeforeMidTerm: 'RatioBeforeMidTerm',
+  RatioAfterMidTerm: 'RatioAfterMidTerm',
+  RatioMidTerm: 'RatioMidTerm',
+  RatioLateTerm: 'RatioLateTerm',
+  RatioQuizPass: 'RatioQuizPass',
+  IsUserAllowedToEditRatio: 'IsUserAllowedToEditRatio'
+};
+
+exports.Prisma.TPlanCourseAdjustedTermScalarFieldEnum = {
+  PlanCourseAdjustedTermId: 'PlanCourseAdjustedTermId',
+  PlanCourseId: 'PlanCourseId',
+  nTerm: 'nTerm',
+  IsActive: 'IsActive',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TPlanCourseStudentScalarFieldEnum = {
+  PlanCourseStudentId: 'PlanCourseStudentId',
+  PlanCourseId: 'PlanCourseId',
+  sID: 'sID',
+  cDel: 'cDel',
+  CreatedBy: 'CreatedBy',
+  Updatedby: 'Updatedby',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  SchoolID: 'SchoolID',
+  nTerm: 'nTerm',
+  IsActive: 'IsActive',
+  nTermSubLevel2: 'nTermSubLevel2',
+  nTSubLevel: 'nTSubLevel'
+};
+
+exports.Prisma.TPlanCourseTeacherScalarFieldEnum = {
+  PlanCourseTeacherId: 'PlanCourseTeacherId',
+  PlanCourseId: 'PlanCourseId',
+  sEmp: 'sEmp',
+  IsActive: 'IsActive',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TPlanCourseTermScalarFieldEnum = {
+  PlanCourseTermId: 'PlanCourseTermId',
+  PlanCourseId: 'PlanCourseId',
+  nTerm: 'nTerm',
+  IsActive: 'IsActive',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TPlanOwnerScalarFieldEnum = {
+  nPlanOwnerID: 'nPlanOwnerID',
+  sEMP: 'sEMP',
+  changeScoreAnytime: 'changeScoreAnytime',
+  cDel: 'cDel',
+  sPlaneID: 'sPlaneID',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TPlanTermSubLevel2ScalarFieldEnum = {
+  PlanTermSubLevel2Id: 'PlanTermSubLevel2Id',
+  PlanId: 'PlanId',
+  nTermSubLevel2: 'nTermSubLevel2',
+  CreatedDate: 'CreatedDate',
+  CreatedBy: 'CreatedBy',
+  UpdatedDate: 'UpdatedDate',
+  UpdatedBy: 'UpdatedBy',
+  IsActive: 'IsActive',
+  SchoolID: 'SchoolID',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TPlaneScalarFieldEnum = {
+  sPlaneID: 'sPlaneID',
+  sPlaneName: 'sPlaneName',
+  cDel: 'cDel',
+  nCredit: 'nCredit',
+  courseCode: 'courseCode',
+  courseType: 'courseType',
+  courseHour: 'courseHour',
+  courseTotalHour: 'courseTotalHour',
+  courseGroup: 'courseGroup',
+  nTSubLevel: 'nTSubLevel',
+  nTerm: 'nTerm',
+  courseStatus: 'courseStatus',
+  sortNumber: 'sortNumber',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  CourseCodeEn: 'CourseCodeEn',
+  CourseNameEn: 'CourseNameEn'
+};
+
+exports.Prisma.TPreRegisterScalarFieldEnum = {
+  preRegisterId: 'preRegisterId',
+  StudentTitle: 'StudentTitle',
+  sName: 'sName',
+  sLastname: 'sLastname',
+  sIdentification: 'sIdentification',
+  dBirth: 'dBirth',
+  cSex: 'cSex',
+  sPhone: 'sPhone',
+  sEmail: 'sEmail',
+  sAddress: 'sAddress',
+  sCity: 'sCity',
+  sPostalcode: 'sPostalcode',
+  sCountry: 'sCountry',
+  cType: 'cType',
+  cDel: 'cDel',
+  nTermSubLevel2: 'nTermSubLevel2',
+  sStudentID: 'sStudentID',
+  sStudentNameEN: 'sStudentNameEN',
+  sStudentLastEN: 'sStudentLastEN',
+  sStudentRace: 'sStudentRace',
+  sStudentNation: 'sStudentNation',
+  sStudentReligion: 'sStudentReligion',
+  sStudentIdCardNumber: 'sStudentIdCardNumber',
+  sStudentHomeNumber: 'sStudentHomeNumber',
+  sStudentSoy: 'sStudentSoy',
+  sStudentTumbon: 'sStudentTumbon',
+  sStudentProvince: 'sStudentProvince',
+  sStudentMuu: 'sStudentMuu',
+  sStudentRoad: 'sStudentRoad',
+  sStudentAumpher: 'sStudentAumpher',
+  sStudentPost: 'sStudentPost',
+  sStudentPicture: 'sStudentPicture',
+  sNickName: 'sNickName',
+  nSonNumber: 'nSonNumber',
+  dPicUpdate: 'dPicUpdate',
+  nPicversion: 'nPicversion',
+  nStudentNumber: 'nStudentNumber',
+  nStudentStatus: 'nStudentStatus',
+  oldSchoolName: 'oldSchoolName',
+  oldSchoolProvince: 'oldSchoolProvince',
+  oldSchoolAumpher: 'oldSchoolAumpher',
+  oldSchoolTumbon: 'oldSchoolTumbon',
+  oldSchoolGPA: 'oldSchoolGPA',
+  oldSchoolGraduated: 'oldSchoolGraduated',
+  nFamilyTitle: 'nFamilyTitle',
+  sFamilyName: 'sFamilyName',
+  sFamilyLast: 'sFamilyLast',
+  sFamilyRace: 'sFamilyRace',
+  sFamilyNation: 'sFamilyNation',
+  sFamilyReligion: 'sFamilyReligion',
+  sFamilyIdCardNumber: 'sFamilyIdCardNumber',
+  sFamilyRelate: 'sFamilyRelate',
+  sFamilyHomeNumber: 'sFamilyHomeNumber',
+  sFamilySoy: 'sFamilySoy',
+  sFamilyTumbon: 'sFamilyTumbon',
+  sFamilyProvince: 'sFamilyProvince',
+  sFamilyMuu: 'sFamilyMuu',
+  sFamilyRoad: 'sFamilyRoad',
+  sFamilyAumpher: 'sFamilyAumpher',
+  sFamilyPost: 'sFamilyPost',
+  sPhoneOne: 'sPhoneOne',
+  sPhoneTwo: 'sPhoneTwo',
+  sPhoneThree: 'sPhoneThree',
+  sPhoneMail: 'sPhoneMail',
+  FatherTitle: 'FatherTitle',
+  sFatherFirstName: 'sFatherFirstName',
+  sFatherLastName: 'sFatherLastName',
+  sFatherNation: 'sFatherNation',
+  sFatherRace: 'sFatherRace',
+  sFatherReligion: 'sFatherReligion',
+  sFatherIdCardNumber: 'sFatherIdCardNumber',
+  sFatherHomeNumber: 'sFatherHomeNumber',
+  sFatherSoy: 'sFatherSoy',
+  sFatherTumbon: 'sFatherTumbon',
+  sFatherProvince: 'sFatherProvince',
+  sFatherMuu: 'sFatherMuu',
+  sFatherRoad: 'sFatherRoad',
+  sFatherAumpher: 'sFatherAumpher',
+  sFatherPost: 'sFatherPost',
+  sFatherPhone: 'sFatherPhone',
+  MotherTitle: 'MotherTitle',
+  sMotherFirstName: 'sMotherFirstName',
+  sMotherLastName: 'sMotherLastName',
+  sMotherNation: 'sMotherNation',
+  sMotherRace: 'sMotherRace',
+  sMotherReligion: 'sMotherReligion',
+  sMotherIdCardNumber: 'sMotherIdCardNumber',
+  sMotherHomeNumber: 'sMotherHomeNumber',
+  sMotherSoy: 'sMotherSoy',
+  sMotherTumbon: 'sMotherTumbon',
+  sMotherProvince: 'sMotherProvince',
+  sMotherMuu: 'sMotherMuu',
+  sMotherRoad: 'sMotherRoad',
+  sMotherAumpher: 'sMotherAumpher',
+  sMotherPost: 'sMotherPost',
+  sMotherPhone: 'sMotherPhone',
+  nWeight: 'nWeight',
+  nHeight: 'nHeight',
+  sBlood: 'sBlood',
+  sSickFood: 'sSickFood',
+  sSickDrug: 'sSickDrug',
+  sSickOther: 'sSickOther',
+  sSickNormal: 'sSickNormal',
+  sSickDanger: 'sSickDanger',
+  registerStatus: 'registerStatus',
+  paymentStatus: 'paymentStatus',
+  registerYear: 'registerYear',
+  registerCode: 'registerCode',
+  addressLat: 'addressLat',
+  addressLng: 'addressLng',
+  moveInDate: 'moveInDate',
+  optionCourse: 'optionCourse',
+  optionLevel: 'optionLevel',
+  optionTime: 'optionTime',
+  optionBranch: 'optionBranch',
+  saveAsSID: 'saveAsSID',
+  knowFrom9txt: 'knowFrom9txt',
+  knowFrom9: 'knowFrom9',
+  knowFrom8txt: 'knowFrom8txt',
+  knowFrom8: 'knowFrom8',
+  knowFrom7txt: 'knowFrom7txt',
+  knowFrom7: 'knowFrom7',
+  knowFrom6: 'knowFrom6',
+  knowFrom5txt: 'knowFrom5txt',
+  knowFrom5: 'knowFrom5',
+  knowFrom4: 'knowFrom4',
+  knowFrom3: 'knowFrom3',
+  knowFrom2: 'knowFrom2',
+  knowFrom1: 'knowFrom1',
+  motherIncome: 'motherIncome',
+  fatherIncome: 'fatherIncome',
+  knowFrom10: 'knowFrom10',
+  knowFrom11: 'knowFrom11',
+  addDate: 'addDate',
+  sFamilyNameEN: 'sFamilyNameEN',
+  sFamilyLastEN: 'sFamilyLastEN',
+  dFamilyBirthDay: 'dFamilyBirthDay',
+  nFamilyRequestStudyMoney: 'nFamilyRequestStudyMoney',
+  sFamilyGraduated: 'sFamilyGraduated',
+  sFamilyJob: 'sFamilyJob',
+  sFamilyWorkPlace: 'sFamilyWorkPlace',
+  nFamilyIncome: 'nFamilyIncome',
+  sFatherNameEN: 'sFatherNameEN',
+  sFatherLastEN: 'sFatherLastEN',
+  dFatherBirthDay: 'dFatherBirthDay',
+  sFatherGraduated: 'sFatherGraduated',
+  sFatherJob: 'sFatherJob',
+  sFatherWorkPlace: 'sFatherWorkPlace',
+  sFatherPhone2: 'sFatherPhone2',
+  sFatherPhone3: 'sFatherPhone3',
+  nFatherIncome: 'nFatherIncome',
+  sMotherNameEN: 'sMotherNameEN',
+  sMotherLastEN: 'sMotherLastEN',
+  dMotherBirthDay: 'dMotherBirthDay',
+  sMotherGraduated: 'sMotherGraduated',
+  sMotherJob: 'sMotherJob',
+  sMotherWorkPlace: 'sMotherWorkPlace',
+  sMotherPhone2: 'sMotherPhone2',
+  sMotherPhone3: 'sMotherPhone3',
+  nMotherIncome: 'nMotherIncome',
+  nSonTotal: 'nSonTotal',
+  nRelativeStudyHere: 'nRelativeStudyHere',
+  sNickNameEN: 'sNickNameEN',
+  sStudentHomeRegisterCode: 'sStudentHomeRegisterCode',
+  stayWithTitle: 'stayWithTitle',
+  stayWithName: 'stayWithName',
+  stayWithLast: 'stayWithLast',
+  stayWithEmergencyCall: 'stayWithEmergencyCall',
+  stayWithEmail: 'stayWithEmail',
+  HomeType: 'HomeType',
+  friendSID: 'friendSID',
+  houseRegistrationNumber: 'houseRegistrationNumber',
+  houseRegistrationMuu: 'houseRegistrationMuu',
+  houseRegistrationSoy: 'houseRegistrationSoy',
+  houseRegistrationRoad: 'houseRegistrationRoad',
+  houseRegistrationProvince: 'houseRegistrationProvince',
+  houseRegistrationAumpher: 'houseRegistrationAumpher',
+  houseRegistrationTumbon: 'houseRegistrationTumbon',
+  houseRegistrationPost: 'houseRegistrationPost',
+  houseRegistrationPhone: 'houseRegistrationPhone',
+  bornFrom: 'bornFrom',
+  bornFromProvince: 'bornFromProvince',
+  bornFromAumpher: 'bornFromAumpher',
+  bornFromTumbon: 'bornFromTumbon',
+  moveOutReason: 'moveOutReason',
+  sStudentHousePhone: 'sStudentHousePhone',
+  friendName: 'friendName',
+  friendLastName: 'friendLastName',
+  friendSubLevel: 'friendSubLevel',
+  friendPhone: 'friendPhone',
+  familyStatus: 'familyStatus',
+  sStudentNameOther: 'sStudentNameOther',
+  sStudentLastOther: 'sStudentLastOther',
+  StudentType: 'StudentType',
+  RegisterPlanSetupID: 'RegisterPlanSetupID',
+  ExamCode: 'ExamCode',
+  StudentCategory: 'StudentCategory',
+  FatherAnnualIncome: 'FatherAnnualIncome',
+  FatherEmail: 'FatherEmail',
+  MotherAnnualIncome: 'MotherAnnualIncome',
+  MotherEmail: 'MotherEmail',
+  ParentAnnualIncome: 'ParentAnnualIncome',
+  ParentEmail: 'ParentEmail',
+  ExamResults: 'ExamResults',
+  ExamResultsUpdateBy: 'ExamResultsUpdateBy',
+  ExamResultsUpdateDate: 'ExamResultsUpdateDate',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  ExamSeatNo: 'ExamSeatNo',
+  RegisterExamRoomID: 'RegisterExamRoomID',
+  CompleteDocuments: 'CompleteDocuments',
+  CompleteDocumentsUpdateBy: 'CompleteDocumentsUpdateBy',
+  CompleteDocumentsUpdateDate: 'CompleteDocumentsUpdateDate',
+  CompleteDocumentsInfo: 'CompleteDocumentsInfo',
+  MainPlan: 'MainPlan',
+  BackupPlans: 'BackupPlans'
+};
+
+exports.Prisma.TPreRegisterDocumentScalarFieldEnum = {
+  PreRegisterDocumentID: 'PreRegisterDocumentID',
+  preRegisterId: 'preRegisterId',
+  DocumentID: 'DocumentID',
+  Type: 'Type',
+  VFIID: 'VFIID',
+  FileName: 'FileName',
+  ContentType: 'ContentType',
+  FilePath: 'FilePath',
+  SchoolID: 'SchoolID',
+  UpdateDate: 'UpdateDate'
+};
+
+exports.Prisma.TPreRegisterRequiredCategoryScalarFieldEnum = {
+  CategoryID: 'CategoryID',
+  CategoryName: 'CategoryName',
+  CategoryNameEn: 'CategoryNameEn',
+  Order: 'Order',
+  IsDel: 'IsDel',
+  CreateDate: 'CreateDate'
+};
+
+exports.Prisma.TPreRegisterRequiredFieldScalarFieldEnum = {
+  VFIID: 'VFIID',
+  CategoryID: 'CategoryID',
+  SchoolID: 'SchoolID',
+  Status: 'Status',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy'
+};
+
+exports.Prisma.TPreRegisterRequiredFieldInitiateScalarFieldEnum = {
+  VFIID: 'VFIID',
+  CategoryID: 'CategoryID',
+  No: 'No',
+  IsHead: 'IsHead',
+  FieldName: 'FieldName',
+  FieldNameEn: 'FieldNameEn',
+  InputFieldName: 'InputFieldName',
+  DefaultStatus: 'DefaultStatus',
+  Order: 'Order',
+  IsDel: 'IsDel',
+  CreateDate: 'CreateDate'
+};
+
+exports.Prisma.TPreRegisterSendMailScalarFieldEnum = {
+  SendMailID: 'SendMailID',
+  preRegisterId: 'preRegisterId',
+  SendTo: 'SendTo',
+  SendFrom: 'SendFrom',
+  Title: 'Title',
+  Message: 'Message',
+  SendDate: 'SendDate',
+  SendBy: 'SendBy'
+};
+
+exports.Prisma.TRegisterExamRoomScalarFieldEnum = {
+  RegisterExamRoomID: 'RegisterExamRoomID',
+  nTSubLevel: 'nTSubLevel',
+  RegisterPlanSetupID: 'RegisterPlanSetupID',
+  ExamRoomName: 'ExamRoomName',
+  Seats: 'Seats',
+  SchoolID: 'SchoolID',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  IsDel: 'IsDel'
+};
+
+exports.Prisma.TRegisterExplanationScalarFieldEnum = {
+  RegisterExplanationID: 'RegisterExplanationID',
+  Description: 'Description',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TRegisterPlanSetupScalarFieldEnum = {
+  RegPlanID: 'RegPlanID',
+  RegisterPlanSetupID: 'RegisterPlanSetupID',
+  nTSubLevel: 'nTSubLevel',
+  PlanName: 'PlanName',
+  PlanCode: 'PlanCode',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TRegisterRegularityScalarFieldEnum = {
+  RegisterRegularityID: 'RegisterRegularityID',
+  nTSubLevel: 'nTSubLevel',
+  Filename: 'Filename',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TRegisterSetupScalarFieldEnum = {
+  RegisterSetupID: 'RegisterSetupID',
+  nYear: 'nYear',
+  Year: 'Year',
+  StudentType: 'StudentType',
+  nTSubLevel: 'nTSubLevel',
+  RegisterPlanSetupID: 'RegisterPlanSetupID',
+  StudentMax: 'StudentMax',
+  SubmitDocumentDate: 'SubmitDocumentDate',
+  StartDate: 'StartDate',
+  EndDate: 'EndDate',
+  Fee: 'Fee',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  ExamAnnounce: 'ExamAnnounce',
+  MeetingDate: 'MeetingDate',
+  MeetingTime: 'MeetingTime',
+  MeetingPlace: 'MeetingPlace',
+  AttachmentsPassExam: 'AttachmentsPassExam',
+  AttachmentsFailExam: 'AttachmentsFailExam',
+  SchoolID: 'SchoolID',
+  PlanID: 'PlanID',
+  PaymentGroupID: 'PaymentGroupID',
+  IsActiveBackupPlan: 'IsActiveBackupPlan',
+  OrderPlans: 'OrderPlans',
+  BackupPlans: 'BackupPlans',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel',
+  AttachmentsSubstitute: 'AttachmentsSubstitute'
+};
+
+exports.Prisma.TRoomScalarFieldEnum = {
+  sRoomID: 'sRoomID',
+  sRoomName: 'sRoomName',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TRoomChangeScalarFieldEnum = {
+  RoomChangeID: 'RoomChangeID',
+  sID: 'sID',
+  Level2Old: 'Level2Old',
+  Level2New: 'Level2New',
+  DayChange: 'DayChange',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TScheduleScalarFieldEnum = {
+  sScheduleID: 'sScheduleID',
+  nPlaneDay: 'nPlaneDay',
+  tStart: 'tStart',
+  tEnd: 'tEnd',
+  dTimeStart_IN: 'dTimeStart_IN',
+  dTimeStart_OUT: 'dTimeStart_OUT',
+  dTimeEnd_IN: 'dTimeEnd_IN',
+  dTimeEnd_OUT: 'dTimeEnd_OUT',
+  nTimeLate: 'nTimeLate',
+  dTimeHalf: 'dTimeHalf',
+  sClassID: 'sClassID',
+  sPlaneID: 'sPlaneID',
+  sEmp: 'sEmp',
+  nTermTable: 'nTermTable',
+  cActive: 'cActive',
+  cDel: 'cDel',
+  calculate: 'calculate',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  CourseAbbreviationId: 'CourseAbbreviationId'
+};
+
+exports.Prisma.TScheduleTeacherScalarFieldEnum = {
+  ScheduleTeacherId: 'ScheduleTeacherId',
+  sScheduleID: 'sScheduleID',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  sEmp: 'sEmp'
+};
+
+exports.Prisma.TSchoolRecordScalarFieldEnum = {
+  nSchoolRecordId: 'nSchoolRecordId',
+  nTerm: 'nTerm',
+  nTsudentId: 'nTsudentId',
+  dAdd: 'dAdd',
+  dUpdate: 'dUpdate',
+  UserAdd: 'UserAdd',
+  UserUpdate: 'UserUpdate',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TSchoolRecord_DetailScalarFieldEnum = {
+  nSchoolRecordId: 'nSchoolRecordId',
+  sPlaneID: 'sPlaneID',
+  Grade: 'Grade',
+  ReGrade: 'ReGrade',
+  Note: 'Note',
+  Score: 'Score',
+  MaxScore: 'MaxScore',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TSendDataPSISScalarFieldEnum = {
+  SchoolID: 'SchoolID',
+  nYear: 'nYear',
+  sID: 'sID',
+  SendDate: 'SendDate',
+  StatusCode: 'StatusCode',
+  ResponseContent: 'ResponseContent',
+  SendDate2: 'SendDate2',
+  StatusCode2: 'StatusCode2',
+  ResponseContent2: 'ResponseContent2'
+};
+
+exports.Prisma.TSendGradePSISScalarFieldEnum = {
+  SchoolID: 'SchoolID',
+  nYear: 'nYear',
+  Year: 'Year',
+  nTerm: 'nTerm',
+  Term: 'Term',
+  sID: 'sID',
+  sPlaneID: 'sPlaneID',
+  CourseCode: 'CourseCode',
+  Grade: 'Grade',
+  SendDate: 'SendDate',
+  StatusCode: 'StatusCode',
+  ResponseContent: 'ResponseContent'
+};
+
+exports.Prisma.TSendSubjectPSISScalarFieldEnum = {
+  SchoolID: 'SchoolID',
+  sPlaneID: 'sPlaneID',
+  SendDate: 'SendDate',
+  StatusCode: 'StatusCode',
+  ResponseContent: 'ResponseContent'
+};
+
+exports.Prisma.TSettingExtraTimeScalarFieldEnum = {
+  nSettingExtraTime: 'nSettingExtraTime',
+  sEMP: 'sEMP',
+  nTermSubLevel2: 'nTermSubLevel2',
+  nTerm: 'nTerm',
+  addDate: 'addDate',
+  sPlaneID: 'sPlaneID',
+  useToken: 'useToken',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TStudentCardInfoScalarFieldEnum = {
+  nStudentCardInfoId: 'nStudentCardInfoId',
+  elementValue: 'elementValue',
+  elementName: 'elementName',
+  date: 'date',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TStudentClassroomHistoryScalarFieldEnum = {
+  nHistoryId: 'nHistoryId',
+  sID: 'sID',
+  nTerm: 'nTerm',
+  nTermSubLevel2: 'nTermSubLevel2',
+  nStudentNumber: 'nStudentNumber',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  nStudentStatus: 'nStudentStatus',
+  MoveInDate: 'MoveInDate',
+  MoveOutDate: 'MoveOutDate',
+  DropOutType: 'DropOutType',
+  IsActive: 'IsActive',
+  Note: 'Note'
+};
+
+exports.Prisma.TStudentHIstoryScalarFieldEnum = {
+  StudentHistory_ID: 'StudentHistory_ID',
+  nTermSubLevel2_OLD: 'nTermSubLevel2_OLD',
+  nTermSubLevel2_NEW: 'nTermSubLevel2_NEW',
+  DayStart: 'DayStart',
+  DayEnd: 'DayEnd',
+  StudentStatus: 'StudentStatus',
+  DayAdd: 'DayAdd',
+  USERADDID: 'USERADDID',
+  nTerm: 'nTerm',
+  sID: 'sID',
+  SchoolID: 'SchoolID',
+  dProfessionalStandard: 'dProfessionalStandard',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  DiplomaCode: 'DiplomaCode',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TStudentHealthGrowthScalarFieldEnum = {
+  nHealthID: 'nHealthID',
+  nTSubLevel: 'nTSubLevel',
+  nMonth: 'nMonth',
+  Weight: 'Weight',
+  Height: 'Height',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TStudentHealthInfoScalarFieldEnum = {
+  StudentHealthID: 'StudentHealthID',
+  nHealthID: 'nHealthID',
+  sID: 'sID',
+  sBlood: 'sBlood',
+  sSickFood: 'sSickFood',
+  sSickDrug: 'sSickDrug',
+  sSickOther: 'sSickOther',
+  sSickNormal: 'sSickNormal',
+  sSickDanger: 'sSickDanger',
+  sDeleted: 'sDeleted',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TStudentLevelScalarFieldEnum = {
+  sID: 'sID',
+  nTermSubLevel2: 'nTermSubLevel2',
+  nYear: 'nYear',
+  nStdLvID: 'nStdLvID',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TStudentTypeScalarFieldEnum = {
+  ID: 'ID',
+  SchoolID: 'SchoolID',
+  StudentTypeTH: 'StudentTypeTH',
+  StudentTypeEN: 'StudentTypeEN',
+  Status: 'Status',
+  IsDel: 'IsDel',
+  CreatedDate: 'CreatedDate',
+  CreatedBy: 'CreatedBy',
+  UpdatedDate: 'UpdatedDate',
+  UpdatedBy: 'UpdatedBy'
+};
+
+exports.Prisma.TSubLevelScalarFieldEnum = {
+  nTSubLevel: 'nTSubLevel',
+  SubLevel: 'SubLevel',
+  nTLevel: 'nTLevel',
+  nTimeType: 'nTimeType',
+  nDeleted: 'nDeleted',
+  fullName: 'fullName',
+  SubLevelEN: 'SubLevelEN',
+  fullNameEN: 'fullNameEN',
+  nWorkingStatus: 'nWorkingStatus',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  isGraduate: 'isGraduate',
+  MasterCode: 'MasterCode',
+  SubLevelNameEN: 'SubLevelNameEN',
+  SubLevelNameTH: 'SubLevelNameTH'
+};
+
+exports.Prisma.TTeacherCardInfoScalarFieldEnum = {
+  TeacherCardInfoId: 'TeacherCardInfoId',
+  elementValue: 'elementValue',
+  elementName: 'elementName',
+  date: 'date',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TTeacherStudentTypeScalarFieldEnum = {
+  ID: 'ID',
+  StudentTypeID: 'StudentTypeID',
+  SchoolID: 'SchoolID',
+  sEmp: 'sEmp',
+  Status: 'Status',
+  IsDel: 'IsDel',
+  CreateDate: 'CreateDate',
+  CreateBy: 'CreateBy',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy'
+};
+
+exports.Prisma.TTempScanCameraIPStatusScalarFieldEnum = {
+  SchoolID: 'SchoolID',
+  IP: 'IP',
+  MAC: 'MAC',
+  MachineName: 'MachineName',
+  CameraNo: 'CameraNo',
+  CameraIP: 'CameraIP',
+  CameraStatus: 'CameraStatus',
+  LastUpdate: 'LastUpdate'
+};
+
+exports.Prisma.TTempScanStatusOnlineScalarFieldEnum = {
+  SchoolID: 'SchoolID',
+  IP: 'IP',
+  MAC: 'MAC',
+  MachineName: 'MachineName',
+  LastOnline: 'LastOnline',
+  CameraNo: 'CameraNo',
+  CameraIP: 'CameraIP',
+  CameraStatus: 'CameraStatus'
+};
+
+exports.Prisma.TTermScalarFieldEnum = {
+  nTerm: 'nTerm',
+  nYear: 'nYear',
+  numberTerm: 'numberTerm',
+  TermStatus: 'TermStatus',
+  cDel: 'cDel',
+  sTerm: 'sTerm',
+  dStart: 'dStart',
+  dEnd: 'dEnd',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TTermSubLevel2ScalarFieldEnum = {
+  nTermSubLevel2: 'nTermSubLevel2',
+  nTerm: 'nTerm',
+  nTSubLevel: 'nTSubLevel',
+  nTSubLevel2: 'nTSubLevel2',
+  nTermSubLevel2Status: 'nTermSubLevel2Status',
+  nTimeType: 'nTimeType',
+  nWorkingStatus: 'nWorkingStatus',
+  nBranchSpecId: 'nBranchSpecId',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TTermTimeTableScalarFieldEnum = {
+  nTermTable: 'nTermTable',
+  nTermSubLevel2: 'nTermSubLevel2',
+  nTeacher: 'nTeacher',
+  nTerm: 'nTerm',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TTimeScalarFieldEnum = {
+  TimeID: 'TimeID',
+  dTimeStart_IN: 'dTimeStart_IN',
+  dTimeEnd_IN: 'dTimeEnd_IN',
+  dTimeStart_OUT: 'dTimeStart_OUT',
+  dTimeEnd_OUT: 'dTimeEnd_OUT',
+  nDay: 'nDay',
+  cDel: 'cDel',
+  nTimeType: 'nTimeType',
+  nTimeLate: 'nTimeLate',
+  dTimeHalf: 'dTimeHalf',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TTimetypeScalarFieldEnum = {
+  nTimeType: 'nTimeType',
+  sTimeType: 'sTimeType',
+  cDel: 'cDel',
+  cType: 'cType',
+  cUserType: 'cUserType',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TTitleListScalarFieldEnum = {
+  nSchoolId: 'nSchoolId',
+  titleDescription: 'titleDescription',
+  titleDescriptionEn: 'titleDescriptionEn',
+  deleted: 'deleted',
+  workStatus: 'workStatus',
+  nTitleid: 'nTitleid',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  MasterCode: 'MasterCode',
+  nTitleIdStr: 'nTitleIdStr'
+};
+
+exports.Prisma.TTranscriptNumberScalarFieldEnum = {
+  ID: 'ID',
+  SchoolID: 'SchoolID',
+  nTerm: 'nTerm',
+  nTSubLevel: 'nTSubLevel',
+  nTermSubLevel2: 'nTermSubLevel2',
+  sID: 'sID',
+  TranscriptSetNumber: 'TranscriptSetNumber',
+  TranscriptNumber: 'TranscriptNumber',
+  cDel: 'cDel',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedBy: 'UpdatedBy',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TTypeScalarFieldEnum = {
+  nTypeID: 'nTypeID',
+  sType: 'sType',
+  cDel: 'cDel',
+  shop_id: 'shop_id',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TUserScalarFieldEnum = {
+  sID: 'sID',
+  sStudentTitle: 'sStudentTitle',
+  sName: 'sName',
+  sLastname: 'sLastname',
+  sIdentification: 'sIdentification',
+  dBirth: 'dBirth',
+  cSex: 'cSex',
+  sPhone: 'sPhone',
+  sEmail: 'sEmail',
+  sPassword: 'sPassword',
+  sSubtopic: 'sSubtopic',
+  sAddress: 'sAddress',
+  sCity: 'sCity',
+  sPostalcode: 'sPostalcode',
+  sCountry: 'sCountry',
+  dUpdate: 'dUpdate',
+  sFinger: 'sFinger',
+  nMoney: 'nMoney',
+  sFinger2: 'sFinger2',
+  nMax: 'nMax',
+  cType: 'cType',
+  cDel: 'cDel',
+  cSMS: 'cSMS',
+  baseSalary: 'baseSalary',
+  cTelSMS: 'cTelSMS',
+  nTermSubLevel2: 'nTermSubLevel2',
+  sToken: 'sToken',
+  sStudentID: 'sStudentID',
+  sStudentNameEN: 'sStudentNameEN',
+  sStudentLastEN: 'sStudentLastEN',
+  sStudentRace: 'sStudentRace',
+  sStudentNation: 'sStudentNation',
+  sStudentReligion: 'sStudentReligion',
+  sStudentIdCardNumber: 'sStudentIdCardNumber',
+  sStudentHomeNumber: 'sStudentHomeNumber',
+  sStudentSoy: 'sStudentSoy',
+  sStudentTumbon: 'sStudentTumbon',
+  sStudentProvince: 'sStudentProvince',
+  sStudentMuu: 'sStudentMuu',
+  sStudentRoad: 'sStudentRoad',
+  sStudentAumpher: 'sStudentAumpher',
+  sStudentPost: 'sStudentPost',
+  sStudentPicture: 'sStudentPicture',
+  sNickName: 'sNickName',
+  nSonNumber: 'nSonNumber',
+  dPicUpdate: 'dPicUpdate',
+  nPicversion: 'nPicversion',
+  nStudentNumber: 'nStudentNumber',
+  nStudentStatus: 'nStudentStatus',
+  ContactPeak: 'ContactPeak',
+  DayQuit: 'DayQuit',
+  Note: 'Note',
+  oldSchoolName: 'oldSchoolName',
+  oldSchoolProvince: 'oldSchoolProvince',
+  oldSchoolAumpher: 'oldSchoolAumpher',
+  oldSchoolTumbon: 'oldSchoolTumbon',
+  oldSchoolGPA: 'oldSchoolGPA',
+  oldSchoolGraduated: 'oldSchoolGraduated',
+  moveInDate: 'moveInDate',
+  addressLng: 'addressLng',
+  addressLat: 'addressLat',
+  moveOutReason: 'moveOutReason',
+  sNickNameEN: 'sNickNameEN',
+  sStudentHomeRegisterCode: 'sStudentHomeRegisterCode',
+  sStudentHousePhone: 'sStudentHousePhone',
+  sStudentNameOther: 'sStudentNameOther',
+  sStudentLastOther: 'sStudentLastOther',
+  SchoolID: 'SchoolID',
+  Note2: 'Note2',
+  Credit: 'Credit',
+  DiplomaCode: 'DiplomaCode',
+  TranscriptSetNumber: 'TranscriptSetNumber',
+  TranscriptNumber: 'TranscriptNumber',
+  oldSchoolGPA2: 'oldSchoolGPA2',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  DisabilityCode: 'DisabilityCode',
+  DisadvantageCode: 'DisadvantageCode',
+  DailyUsageLimit: 'DailyUsageLimit',
+  JourneyType: 'JourneyType',
+  DormitoryName: 'DormitoryName',
+  OldSchoolDateGraduated: 'OldSchoolDateGraduated',
+  PassportNumber: 'PassportNumber',
+  PassportCountry: 'PassportCountry',
+  PassportExpirationDate: 'PassportExpirationDate',
+  CountryType: 'CountryType',
+  CountryNameTH: 'CountryNameTH',
+  CountryNameEN: 'CountryNameEN',
+  StudentTypeID: 'StudentTypeID',
+  parent_code: 'parent_code',
+  oldSchoolName2: 'oldSchoolName2',
+  oldSchoolGPA3: 'oldSchoolGPA3',
+  Credit2: 'Credit2',
+  OldSchoolDateGraduated2: 'OldSchoolDateGraduated2',
+  oldSchoolGraduated2: 'oldSchoolGraduated2',
+  moveOutReason2: 'moveOutReason2',
+  oldSchoolGPA4: 'oldSchoolGPA4'
+};
+
+exports.Prisma.TUserAttendanceScalarFieldEnum = {
+  AttendanceID: 'AttendanceID',
+  SchoolID: 'SchoolID',
+  sID: 'sID',
+  cType: 'cType',
+  MacAddress: 'MacAddress',
+  ShopID: 'ShopID',
+  NFCEncrypt: 'NFCEncrypt',
+  sName: 'sName',
+  sLastName: 'sLastName',
+  sStudentID: 'sStudentID',
+  sStudentPicture: 'sStudentPicture',
+  AttendanceDate: 'AttendanceDate',
+  TStamp: 'TStamp'
+};
+
+exports.Prisma.TUserVerifyScalarFieldEnum = {
+  VerifyID: 'VerifyID',
+  SchoolID: 'SchoolID',
+  UserID: 'UserID',
+  Type: 'Type',
+  No: 'No',
+  Email: 'Email',
+  PhoneNumber: 'PhoneNumber',
+  RequestNo: 'RequestNo',
+  Token: 'Token',
+  EmailPin: 'EmailPin',
+  Ref: 'Ref',
+  RequestDate: 'RequestDate',
+  RequestResponse: 'RequestResponse',
+  VerifyPin: 'VerifyPin',
+  VerifyDate: 'VerifyDate',
+  VerifyResponse: 'VerifyResponse',
+  Status: 'Status'
+};
+
+exports.Prisma.TUserVerifyLINEConnectScalarFieldEnum = {
+  ConnectID: 'ConnectID',
+  SchoolID: 'SchoolID',
+  UserID: 'UserID',
+  LINEAuthorizeCode: 'LINEAuthorizeCode',
+  LINEToken: 'LINEToken',
+  ConnectDate: 'ConnectDate',
+  Status: 'Status'
+};
+
+exports.Prisma.TYearScalarFieldEnum = {
+  nYear: 'nYear',
+  numberYear: 'numberYear',
+  YearStatus: 'YearStatus',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.T_FSDQ_AnswerScalarFieldEnum = {
+  T_FSDQ_Answer_Id: 'T_FSDQ_Answer_Id',
+  T_FSDQ_Question_Id: 'T_FSDQ_Question_Id',
+  T_FSDQ_Point_Point: 'T_FSDQ_Point_Point',
+  sId: 'sId',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.T_FSDQ_DataScalarFieldEnum = {
+  T_FSDQ_Data_Id: 'T_FSDQ_Data_Id',
+  T_FSDQ_Data_Datetime: 'T_FSDQ_Data_Datetime',
+  sID: 'sID',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.T_FSDQ_PointScalarFieldEnum = {
+  T_FSDQ_Point_Id: 'T_FSDQ_Point_Id',
+  T_FSDQ_Point_Point: 'T_FSDQ_Point_Point',
+  T_FSDQ_Question_Id: 'T_FSDQ_Question_Id',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.T_FSDQ_QuestionScalarFieldEnum = {
+  T_FSDQ_Question_Id: 'T_FSDQ_Question_Id',
+  T_FSDQ_Question_Des: 'T_FSDQ_Question_Des',
+  T_FSDQ_Question_Group: 'T_FSDQ_Question_Group',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
 exports.Prisma.TrackingDataScalarFieldEnum = {
   ID: 'ID',
   PID: 'PID',
@@ -1759,6 +3352,43 @@ exports.Prisma.TrackingDataScalarFieldEnum = {
   sPID: 'sPID'
 };
 
+exports.Prisma.UpdateBalanceScalarFieldEnum = {
+  LogID: 'LogID',
+  sID: 'sID',
+  sEmp: 'sEmp',
+  SchoolID: 'SchoolID',
+  nMoney: 'nMoney',
+  Tstamp: 'Tstamp',
+  Source: 'Source'
+};
+
+exports.Prisma.UpdateBalanceLogScalarFieldEnum = {
+  LogID: 'LogID',
+  sID: 'sID',
+  OldBalance: 'OldBalance',
+  NewBalance: 'NewBalance',
+  Source: 'Source',
+  TStatmp: 'TStatmp'
+};
+
+exports.Prisma.UpdateBalanceMemoryScalarFieldEnum = {
+  LogID: 'LogID',
+  sID: 'sID',
+  sEmp: 'sEmp',
+  SchoolID: 'SchoolID',
+  nMoney: 'nMoney',
+  Tstamp: 'Tstamp',
+  Source: 'Source'
+};
+
+exports.Prisma.UserUsedLimitScalarFieldEnum = {
+  ID: 'ID',
+  UserID: 'UserID',
+  UserType: 'UserType',
+  UsedAmount: 'UsedAmount',
+  Tstamp: 'Tstamp'
+};
+
 exports.Prisma.User_Audit_TableScalarFieldEnum = {
   AuditID: 'AuditID',
   TableName: 'TableName',
@@ -1766,51 +3396,6 @@ exports.Prisma.User_Audit_TableScalarFieldEnum = {
   TStamp: 'TStamp',
   OldID: 'OldID',
   NewID: 'NewID'
-};
-
-exports.Prisma.AmphurScalarFieldEnum = {
-  AMPHUR_ID: 'AMPHUR_ID',
-  AMPHUR_CODE: 'AMPHUR_CODE',
-  AMPHUR_NAME: 'AMPHUR_NAME',
-  POSTCODE: 'POSTCODE',
-  GEO_ID: 'GEO_ID',
-  PROVINCE_ID: 'PROVINCE_ID',
-  AMPHUR_NAME_EN: 'AMPHUR_NAME_EN'
-};
-
-exports.Prisma.DistrictScalarFieldEnum = {
-  DISTRICT_ID: 'DISTRICT_ID',
-  DISTRICT_CODE: 'DISTRICT_CODE',
-  DISTRICT_NAME_EN: 'DISTRICT_NAME_EN',
-  DISTRICT_NAME: 'DISTRICT_NAME',
-  AMPHUR_ID: 'AMPHUR_ID',
-  PROVINCE_ID: 'PROVINCE_ID',
-  GEO_ID: 'GEO_ID'
-};
-
-exports.Prisma.FavoritesScalarFieldEnum = {
-  favoritesid: 'favoritesid',
-  tabletid: 'tabletid',
-  productid: 'productid'
-};
-
-exports.Prisma.PermissionScalarFieldEnum = {
-  user_id: 'user_id',
-  menu_id: 'menu_id',
-  type: 'type',
-  actvice: 'actvice',
-  CreatedBy: 'CreatedBy',
-  UpdatedBy: 'UpdatedBy',
-  CreatedDate: 'CreatedDate',
-  UpdatedDate: 'UpdatedDate'
-};
-
-exports.Prisma.ProvinceScalarFieldEnum = {
-  PROVINCE_ID: 'PROVINCE_ID',
-  PROVINCE_CODE: 'PROVINCE_CODE',
-  PROVINCE_NAME: 'PROVINCE_NAME',
-  GEO_ID: 'GEO_ID',
-  PROVINCE_NAME_EN: 'PROVINCE_NAME_EN'
 };
 
 exports.Prisma.SortOrder = {
@@ -1830,126 +3415,166 @@ exports.Prisma.NullsOrder = {
 
 
 exports.Prisma.ModelName = {
+  APIConfiguration: 'APIConfiguration',
   ActiveSchoolList: 'ActiveSchoolList',
-  ApplicationURLData: 'ApplicationURLData',
-  JabjaiUserClaims: 'JabjaiUserClaims',
-  LINERichMenu: 'LINERichMenu',
-  LINEUser: 'LINEUser',
-  LogScanFCTemp: 'LogScanFCTemp',
-  SchoolTEmployees: 'SchoolTEmployees',
-  SchoolTUser: 'SchoolTUser',
-  ShortenUrl: 'ShortenUrl',
-  TAccountJournal: 'TAccountJournal',
-  TAccountRoleGroup: 'TAccountRoleGroup',
-  TAccountRoleUser: 'TAccountRoleUser',
-  TAdmin: 'TAdmin',
-  TAttach: 'TAttach',
-  TAverment: 'TAverment',
-  TB_APILog: 'TB_APILog',
-  TB_AppVersion: 'TB_AppVersion',
-  TB_Application: 'TB_Application',
-  TB_BehaviorJob: 'TB_BehaviorJob',
-  TB_ChangePasswordHistory: 'TB_ChangePasswordHistory',
-  TB_FCM: 'TB_FCM',
-  TB_IPBlockList: 'TB_IPBlockList',
-  TB_JobsQueue: 'TB_JobsQueue',
-  TB_LoginAttempts: 'TB_LoginAttempts',
-  TB_LoginHistory: 'TB_LoginHistory',
-  TB_Logoffline: 'TB_Logoffline',
-  TB_PaymentGateway: 'TB_PaymentGateway',
-  TB_PaymentMethods: 'TB_PaymentMethods',
-  TB_PaymentSetting: 'TB_PaymentSetting',
-  TB_Policy: 'TB_Policy',
-  TB_PolicyApprove: 'TB_PolicyApprove',
-  TB_RecoverUserData: 'TB_RecoverUserData',
-  TB_SchoolAppVersion: 'TB_SchoolAppVersion',
-  TB_SecurityIncidents: 'TB_SecurityIncidents',
-  TB_Server: 'TB_Server',
-  TB_VerifierDevice: 'TB_VerifierDevice',
-  TCompany: 'TCompany',
-  TComputer: 'TComputer',
-  TConnect: 'TConnect',
-  TContact: 'TContact',
-  TContactList: 'TContactList',
-  TContactListAttach: 'TContactListAttach',
-  TContactLog: 'TContactLog',
-  TCrmActivity: 'TCrmActivity',
-  TCrmAssignContact: 'TCrmAssignContact',
-  TCrmAssignSupport: 'TCrmAssignSupport',
-  TCrmBacklog: 'TCrmBacklog',
-  TCrmContact: 'TCrmContact',
-  TCrmFeedback: 'TCrmFeedback',
-  TCrmReminder: 'TCrmReminder',
-  TCrmSubActivity: 'TCrmSubActivity',
-  TCrmSubContact: 'TCrmSubContact',
-  TCrmSupport: 'TCrmSupport',
-  TCrmSupportBacklogAuth: 'TCrmSupportBacklogAuth',
-  TCrmSupportComment: 'TCrmSupportComment',
-  TCrmSurvey: 'TCrmSurvey',
-  TDashboardSummaries: 'TDashboardSummaries',
-  TDelivery: 'TDelivery',
-  TDeliveryAttach: 'TDeliveryAttach',
-  TDiscordGroup: 'TDiscordGroup',
-  TEmailQueue: 'TEmailQueue',
-  TEventLog: 'TEventLog',
-  TExceptionLog: 'TExceptionLog',
-  TExpense: 'TExpense',
-  TExpenseVehicle: 'TExpenseVehicle',
-  TFeature: 'TFeature',
-  TGroupMenu: 'TGroupMenu',
-  TGroupMenu_Lang: 'TGroupMenu_Lang',
-  TGroupPermission: 'TGroupPermission',
-  TGroupPermissionMenu: 'TGroupPermissionMenu',
-  TGroupPermissionUser: 'TGroupPermissionUser',
-  TGroupPermission_Log: 'TGroupPermission_Log',
-  TInvoice: 'TInvoice',
-  TInvoiceDetail: 'TInvoiceDetail',
-  TLineGroup: 'TLineGroup',
-  TLineMessage: 'TLineMessage',
-  TLogDebug: 'TLogDebug',
-  TLogError: 'TLogError',
-  TMenu: 'TMenu',
-  TMenuPermission: 'TMenuPermission',
-  TMenu_Lang: 'TMenu_Lang',
-  TMessage: 'TMessage',
-  TMessageSystem: 'TMessageSystem',
-  TMessageTemplate: 'TMessageTemplate',
-  TMobileMenu: 'TMobileMenu',
-  TNews: 'TNews',
-  TNews2: 'TNews2',
-  TNewsAttachFile: 'TNewsAttachFile',
-  TNewsPushNotify: 'TNewsPushNotify',
-  TNotificationSetting: 'TNotificationSetting',
-  TOfficer: 'TOfficer',
-  TPackage: 'TPackage',
-  TParent_Card: 'TParent_Card',
-  TPeakData: 'TPeakData',
-  TPosDevices: 'TPosDevices',
-  TProduct: 'TProduct',
-  TResetPassword: 'TResetPassword',
-  TSaleArea: 'TSaleArea',
-  TSchoolArea: 'TSchoolArea',
-  TSegmentMenu: 'TSegmentMenu',
-  TSegmentMenu_Lang: 'TSegmentMenu_Lang',
-  TSound_Student: 'TSound_Student',
-  TStudentCall: 'TStudentCall',
-  TStudentCall_Config: 'TStudentCall_Config',
-  TStudentCall_Gate: 'TStudentCall_Gate',
-  TStudentCall_Log: 'TStudentCall_Log',
-  TSubDelivery: 'TSubDelivery',
-  TSubInsurance: 'TSubInsurance',
-  TSystemSetting: 'TSystemSetting',
-  TToken: 'TToken',
-  TTopuphistory: 'TTopuphistory',
+  BBLTransaction: 'BBLTransaction',
+  DeviceDailyStatus: 'DeviceDailyStatus',
+  DeviceType: 'DeviceType',
+  ExcelExportData: 'ExcelExportData',
+  MasterDBTUserCard: 'MasterDBTUserCard',
+  SBLoginHistory: 'SBLoginHistory',
+  TApproveEmployeeContactAddress: 'TApproveEmployeeContactAddress',
+  TApproveEmployeeEducation: 'TApproveEmployeeEducation',
+  TApproveEmployeeFamily: 'TApproveEmployeeFamily',
+  TApproveEmployeeHistoryReceivingRoyalDecoration: 'TApproveEmployeeHistoryReceivingRoyalDecoration',
+  TApproveEmployeeHonor: 'TApproveEmployeeHonor',
+  TApproveEmployeeOccupationalLicense: 'TApproveEmployeeOccupationalLicense',
+  TApproveEmployeePermanentAddress: 'TApproveEmployeePermanentAddress',
+  TApproveEmployeeProfile: 'TApproveEmployeeProfile',
+  TApproveEmployeeTraining: 'TApproveEmployeeTraining',
+  TApproveStudentContactAddress: 'TApproveStudentContactAddress',
+  TApproveStudentFatherInfo: 'TApproveStudentFatherInfo',
+  TApproveStudentMotherInfo: 'TApproveStudentMotherInfo',
+  TApproveStudentParentInfo: 'TApproveStudentParentInfo',
+  TApproveStudentPermanentAddress: 'TApproveStudentPermanentAddress',
+  TApproveStudentProfile: 'TApproveStudentProfile',
+  TB_EQ_Answer: 'TB_EQ_Answer',
+  TB_EQ_Data: 'TB_EQ_Data',
+  TB_EQ_Group: 'TB_EQ_Group',
+  TB_EQ_Point: 'TB_EQ_Point',
+  TB_EQ_Question: 'TB_EQ_Question',
+  TB_HistorySetting: 'TB_HistorySetting',
+  TBackupCard: 'TBackupCard',
+  TBackupCardHistory: 'TBackupCardHistory',
+  TBranch: 'TBranch',
+  TBranchSpec: 'TBranchSpec',
+  TBranchSubject: 'TBranchSubject',
+  TClass: 'TClass',
+  TClassMember: 'TClassMember',
+  TClassOnline: 'TClassOnline',
+  TCourseAbbreviation: 'TCourseAbbreviation',
+  TCourseGroup: 'TCourseGroup',
+  TCourseType: 'TCourseType',
+  TCurriculum: 'TCurriculum',
+  TDepartment: 'TDepartment',
+  TDocumentStampDate: 'TDocumentStampDate',
+  TEmpAddress: 'TEmpAddress',
+  TEmpEducationInfo: 'TEmpEducationInfo',
+  TEmpFamily: 'TEmpFamily',
+  TEmpHonor: 'TEmpHonor',
+  TEmpInsignia: 'TEmpInsignia',
+  TEmpProfessionalLicense: 'TEmpProfessionalLicense',
+  TEmpSalary: 'TEmpSalary',
+  TEmpSigner: 'TEmpSigner',
+  TEmpTOEIC: 'TEmpTOEIC',
+  TEmpTeaching: 'TEmpTeaching',
+  TEmpTraining: 'TEmpTraining',
+  TEmployeeInfo: 'TEmployeeInfo',
+  TEmployeeType: 'TEmployeeType',
+  TEmployees: 'TEmployees',
+  TFamilyProfile: 'TFamilyProfile',
+  TGradeAttendance: 'TGradeAttendance',
+  TGradeCheck: 'TGradeCheck',
+  TGradeLock: 'TGradeLock',
+  TGradeMigration: 'TGradeMigration',
+  TGradeRegisterPeriod: 'TGradeRegisterPeriod',
+  TGradeShareInfo: 'TGradeShareInfo',
+  TGradeTeacherDescribe: 'TGradeTeacherDescribe',
+  TGradeViewRoomListSetting: 'TGradeViewRoomListSetting',
+  TGradeViewSetting: 'TGradeViewSetting',
+  TGradeViewStudentBlockListSetting: 'TGradeViewStudentBlockListSetting',
+  THealtProfile: 'THealtProfile',
+  THistoryLog: 'THistoryLog',
+  THoliday: 'THoliday',
+  THolidayLog: 'THolidayLog',
+  THolidaySome: 'THolidaySome',
+  THomeWorkFile: 'THomeWorkFile',
+  THomeWorkLearning: 'THomeWorkLearning',
+  THomeWorkLearningFile: 'THomeWorkLearningFile',
+  THomeWorkReply: 'THomeWorkReply',
+  THomeWorkReply_File: 'THomeWorkReply_File',
+  THomework: 'THomework',
+  THomework_User: 'THomework_User',
+  THomework_User_File: 'THomework_User_File',
+  TJobList: 'TJobList',
+  TLearningCenter: 'TLearningCenter',
+  TLevel: 'TLevel',
+  TMasterDBUser: 'TMasterDBUser',
+  TMasterData: 'TMasterData',
+  TMasterType: 'TMasterType',
+  TMessageLINEMulticast: 'TMessageLINEMulticast',
+  TONETScore: 'TONETScore',
+  TParent: 'TParent',
+  TParentStudents: 'TParentStudents',
+  TPeriod: 'TPeriod',
+  TPeriod_TSubLevel: 'TPeriod_TSubLevel',
+  TPermissionCard: 'TPermissionCard',
+  TPermissionCardType: 'TPermissionCardType',
+  TPlan: 'TPlan',
+  TPlanCourse: 'TPlanCourse',
+  TPlanCourseAdjustedTerm: 'TPlanCourseAdjustedTerm',
+  TPlanCourseStudent: 'TPlanCourseStudent',
+  TPlanCourseTeacher: 'TPlanCourseTeacher',
+  TPlanCourseTerm: 'TPlanCourseTerm',
+  TPlanOwner: 'TPlanOwner',
+  TPlanTermSubLevel2: 'TPlanTermSubLevel2',
+  TPlane: 'TPlane',
+  TPreRegister: 'TPreRegister',
+  TPreRegisterDocument: 'TPreRegisterDocument',
+  TPreRegisterRequiredCategory: 'TPreRegisterRequiredCategory',
+  TPreRegisterRequiredField: 'TPreRegisterRequiredField',
+  TPreRegisterRequiredFieldInitiate: 'TPreRegisterRequiredFieldInitiate',
+  TPreRegisterSendMail: 'TPreRegisterSendMail',
+  TRegisterExamRoom: 'TRegisterExamRoom',
+  TRegisterExplanation: 'TRegisterExplanation',
+  TRegisterPlanSetup: 'TRegisterPlanSetup',
+  TRegisterRegularity: 'TRegisterRegularity',
+  TRegisterSetup: 'TRegisterSetup',
+  TRoom: 'TRoom',
+  TRoomChange: 'TRoomChange',
+  TSchedule: 'TSchedule',
+  TScheduleTeacher: 'TScheduleTeacher',
+  TSchoolRecord: 'TSchoolRecord',
+  TSchoolRecord_Detail: 'TSchoolRecord_Detail',
+  TSendDataPSIS: 'TSendDataPSIS',
+  TSendGradePSIS: 'TSendGradePSIS',
+  TSendSubjectPSIS: 'TSendSubjectPSIS',
+  TSettingExtraTime: 'TSettingExtraTime',
+  TStudentCardInfo: 'TStudentCardInfo',
+  TStudentClassroomHistory: 'TStudentClassroomHistory',
+  TStudentHIstory: 'TStudentHIstory',
+  TStudentHealthGrowth: 'TStudentHealthGrowth',
+  TStudentHealthInfo: 'TStudentHealthInfo',
+  TStudentLevel: 'TStudentLevel',
+  TStudentType: 'TStudentType',
+  TSubLevel: 'TSubLevel',
+  TTeacherCardInfo: 'TTeacherCardInfo',
+  TTeacherStudentType: 'TTeacherStudentType',
+  TTempScanCameraIPStatus: 'TTempScanCameraIPStatus',
+  TTempScanStatusOnline: 'TTempScanStatusOnline',
+  TTerm: 'TTerm',
+  TTermSubLevel2: 'TTermSubLevel2',
+  TTermTimeTable: 'TTermTimeTable',
+  TTime: 'TTime',
+  TTimetype: 'TTimetype',
+  TTitleList: 'TTitleList',
+  TTranscriptNumber: 'TTranscriptNumber',
+  TType: 'TType',
   TUser: 'TUser',
-  TUser_Card: 'TUser_Card',
+  TUserAttendance: 'TUserAttendance',
+  TUserVerify: 'TUserVerify',
+  TUserVerifyLINEConnect: 'TUserVerifyLINEConnect',
+  TYear: 'TYear',
+  T_FSDQ_Answer: 'T_FSDQ_Answer',
+  T_FSDQ_Data: 'T_FSDQ_Data',
+  T_FSDQ_Point: 'T_FSDQ_Point',
+  T_FSDQ_Question: 'T_FSDQ_Question',
   TrackingData: 'TrackingData',
-  User_Audit_Table: 'User_Audit_Table',
-  amphur: 'amphur',
-  district: 'district',
-  favorites: 'favorites',
-  permission: 'permission',
-  province: 'province'
+  UpdateBalance: 'UpdateBalance',
+  UpdateBalanceLog: 'UpdateBalanceLog',
+  UpdateBalanceMemory: 'UpdateBalanceMemory',
+  UserUsedLimit: 'UserUsedLimit',
+  User_Audit_Table: 'User_Audit_Table'
 };
 /**
  * Create the Client
@@ -2003,13 +3628,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../generated/prisma\"\n  binaryTargets = [\"native\", \"debian-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel ActiveSchoolList {\n  nCompany Int      @id\n  sCompany String?  @db.VarChar(250)\n  cDel     Boolean?\n  Active   Boolean?\n  isActive Boolean?\n\n  @@index([nCompany], map: \"IDX_nCompany\")\n}\n\nmodel ApplicationURLData {\n  ID              Int      @id(map: \"public_ApplicationURLData_PK_ApplicationURLData\") @default(autoincrement())\n  ApplicationType String   @db.VarChar(50)\n  ProdURL         String   @db.VarChar(500)\n  DevURL          String   @db.VarChar(500)\n  Tstamp          DateTime\n  UatURL          String?  @db.VarChar(500)\n  AlphaURL        String?  @db.VarChar(500)\n}\n\nmodel JabjaiUserClaims {\n  UserID              Int      @id(map: \"public_JabjaiUserClaims_PK_JabjaiUserClaims_1\")\n  SchoolID            Int\n  UserName            String   @db.VarChar(300)\n  Password            String   @db.VarChar(300)\n  Email               String   @db.VarChar(500)\n  AuthorizationKey    String?  @db.VarChar(1000)\n  OldAuthorizationKey String?  @db.VarChar(1000)\n  ExpiredDate         DateTime\n  Tstamp              DateTime\n  GeneratedDate       DateTime @db.Timestamp(6)\n  UserType            Int?     @default(0) @db.SmallInt\n\n  @@index([SchoolID], map: \"public_JabjaiUserClaims_INDEX_VV_2355_2354\")\n  @@index([SchoolID, UserID], map: \"public_JabjaiUserClaims_IX_JabjaiUserClaims\")\n  @@index([AuthorizationKey], map: \"public_JabjaiUserClaims_IX_JabjaiUserClaims_AuthorizationKey\")\n}\n\nmodel LINERichMenu {\n  ID         Int     @id(map: \"public_LINERichMenu_PK_LINERICHMENU\")\n  RichMenuID String? @db.VarChar(100)\n  Status     String? @db.VarChar(1)\n}\n\nmodel LINEUser {\n  StudentID    Int\n  LINEUserID   String    @db.VarChar(100)\n  RichMenuID   String?   @db.VarChar(100)\n  SchoolID     Int?\n  RegisterDate DateTime?\n  Status       String?   @db.VarChar(15)\n  OS           String?   @db.VarChar(20)\n  UpdateDate   DateTime?\n\n  @@id([StudentID, LINEUserID], map: \"public_LINEUser_PK_LINEUSER\")\n  @@index([Status, RegisterDate], map: \"public_LINEUser_INDEX_VV_2337_2336\")\n  @@index([SchoolID, Status], map: \"public_LINEUser_INDEX_VV_4178_4177\")\n  @@index([LINEUserID], map: \"public_LINEUser_INDEX_VV_4862180_4862179\")\n  @@index([RichMenuID], map: \"public_LINEUser_INDEX_VV_5178383_5178382\")\n  @@index([SchoolID], map: \"public_LINEUser_IX_VV_LINEUser_SchoolID\")\n}\n\nmodel LogScanFCTemp {\n  ID         Int      @id(map: \"public_LogScanFCTemp_PK_LogScanFCTemp\") @default(autoincrement())\n  SchoolID   Int\n  LogData    String\n  Tstamp     DateTime\n  LogStatus  String?  @db.VarChar(50)\n  MethodName String?  @db.VarChar(250)\n  ErrorLog   String?\n\n  @@index([LogStatus, MethodName], map: \"public_LogScanFCTemp_INDEX_VV_553_552\")\n  @@index([SchoolID, MethodName], map: \"public_LogScanFCTemp_INDEX_VV_71217_71216\")\n  @@index([Tstamp], map: \"public_LogScanFCTemp_INDEX_VV_92974_92973\")\n  @@index([MethodName, Tstamp], map: \"public_LogScanFCTemp_IX_LogScanFCTemp_FacScan_Method_Tstamp\")\n  @@index([Tstamp], map: \"public_LogScanFCTemp_IX_LogScanFCTemp_Filtered1\")\n  @@index([Tstamp], map: \"public_LogScanFCTemp_IX_LogScanFCTemp_Filtered2\")\n}\n\nmodel SchoolTEmployees {\n  SchoolID       Int\n  sEmp           Int\n  nStudentStatus Int?\n  sStudentID     String? @db.VarChar\n\n  @@id([SchoolID, sEmp])\n  @@index([sEmp, nStudentStatus], map: \"IDX_sEmp\")\n}\n\nmodel SchoolTUser {\n  SchoolID       Int\n  sID            Int\n  nStudentStatus Int?\n  sStudentID     String? @db.VarChar\n\n  @@id([SchoolID, sID])\n  @@index([sID, nStudentStatus], map: \"IDX_sID\")\n}\n\nmodel ShortenUrl {\n  UrlID     Int      @id(map: \"public_ShortenUrl_PK_ShortenUrl\") @default(autoincrement())\n  UrlString String   @db.VarChar(1500)\n  ShortUrl  String   @db.VarChar(50)\n  Tstamp    DateTime\n\n  @@index([ShortUrl], map: \"public_ShortenUrl_INDEX_VV_505_504\")\n}\n\nmodel TAccountJournal {\n  AccountJournalId Int       @id @default(autoincrement())\n  RefID            String?   @db.VarChar(150)\n  Code             String?   @db.VarChar(50)\n  Url              String?   @db.VarChar(300)\n  Type             String?   @db.VarChar(50)\n  Status           String?   @db.VarChar(50)\n  DebitCredit      Decimal?  @db.Decimal(18, 2)\n  Description      String?   @db.VarChar(300)\n  CreateDate       DateTime? @db.Timestamp(6)\n  CreateBy         Int?\n  UpdateDate       DateTime? @db.Timestamp(6)\n  UpdateBy         Int?\n  DeleteDate       DateTime? @db.Timestamp(6)\n  DeleteBy         Int?\n}\n\nmodel TAccountRoleGroup {\n  AccountRoleGroupId Int     @id(map: \"public_TAccountRoleGroup_PK_TAccountRoleGroup\") @default(autoincrement())\n  RoleGroupName      String? @db.VarChar(50)\n  Note               String? @db.VarChar(200)\n}\n\nmodel TAccountRoleUser {\n  AccountRoleUserId  Int  @id(map: \"public_TAccountRoleUser_PK_TAccountRoleUser\") @default(autoincrement())\n  AccountRoleGroupId Int?\n  UserId             Int?\n}\n\nmodel TAdmin {\n  id                  String    @id(map: \"public_TAdmin_PK_TAdmin\") @db.VarChar(100)\n  username            String?   @db.VarChar(250)\n  password            String?\n  picture             String?   @db.VarChar(250)\n  del                 Boolean?\n  name                String?   @db.VarChar(100)\n  active              Boolean?\n  email               String?   @db.VarChar(250)\n  tel                 String?   @db.VarChar(20)\n  id2                 Int       @default(autoincrement())\n  RoleID              Int?      @db.SmallInt\n  OfficerID           Int?\n  Code                String?   @db.VarChar(50)\n  FirstName           String?   @db.VarChar(250)\n  LastName            String?   @db.VarChar(250)\n  NickName            String?   @db.VarChar(50)\n  Position            String?   @db.VarChar(50)\n  IsActive            Boolean?\n  CreateDate          DateTime?\n  CreateBy            Int?\n  UpdateDate          DateTime?\n  UpdateBy            Int?\n  BacklogEmailAccount String?   @db.VarChar(50)\n}\n\nmodel TAttach {\n  AttachId    Int       @id(map: \"public_TAttach_PK_TAttach\") @default(autoincrement())\n  EventName   String?   @db.VarChar(50)\n  EventId     Int?\n  AttachUrl   String?   @db.VarChar(1000)\n  CreateDate  DateTime?\n  AttachName  String?   @db.VarChar(255)\n  ContentType String?   @db.VarChar(255)\n}\n\nmodel TAverment {\n  nAvermentID Int       @id(map: \"public_TAverment_PK_TAverment\")\n  sAverment   String?   @db.VarChar(6)\n  nCompany    String?\n  sMac        String?   @db.VarChar(20)\n  dAdd        DateTime?\n  cType       Int?\n  nStatus     Int?\n}\n\nmodel TB_APILog {\n  ID     Int      @id(map: \"public_TB_APILog_PK_TB_APILog_1\") @default(autoincrement())\n  Info   String?\n  Tstamp DateTime @default(now())\n\n  @@index([Tstamp], map: \"public_TB_APILog_INDEX_VV_2203_2202_1\")\n}\n\nmodel TB_AppVersion {\n  Fd_ID               String    @id(map: \"public_TB_AppVersion_PK_TB_AppVersion\") @db.Uuid\n  Fd_Name             String    @db.VarChar(250)\n  Fd_AppID            String    @db.Uuid\n  Fd_URL              String?\n  Fd_Prod             Boolean?\n  Fd_Dev              Boolean?\n  Fd_Environment      String?   @db.VarChar(50)\n  Fd_IsLastestVersion Boolean?\n  CreatedBy           Int?\n  UpdatedBy           Int?\n  CreatedDate         DateTime?\n  UpdatedDate         DateTime?\n}\n\nmodel TB_Application {\n  AppID       Int       @default(autoincrement())\n  Fd_AppID    String    @default(dbgenerated(\"uuid_generate_v4()\")) @db.Uuid\n  Fd_AppName  String?   @db.VarChar(250)\n  Fd_AppType  Int?\n  CreatedBy   Int?\n  UpdatedBy   Int?\n  CreatedDate DateTime?\n  UpdatedDate DateTime?\n\n  @@id([AppID, Fd_AppID], map: \"public_TB_Application_PK_TB_Application\")\n}\n\nmodel TB_BehaviorJob {\n  ID          String    @id(map: \"public_TB_BehaviorJob_PK_TB_BehaviorJob\") @db.Uuid\n  CreatedDate DateTime?\n  JobName     String?   @db.VarChar(100)\n  JobValues   String?\n  JobStatus   String?   @db.VarChar(50)\n  SchoolID    Int?\n  LogDate     DateTime? @db.Timestamp(6)\n\n  @@index([SchoolID, LogDate], map: \"public_TB_BehaviorJob_INDEX_VV_71312_71311\")\n}\n\nmodel TB_ChangePasswordHistory {\n  Fd_ChangePasswordID String    @id(map: \"public_TB_ChangePasswordHistory_PK_TB_ChangePasswordHistory\") @db.Uuid\n  Fd_CreateDate       DateTime?\n  Fd_UserID           Int?\n  Fd_ResetDate        DateTime?\n  Fd_OldPasswrod      String?   @db.VarChar(50)\n  Fd_NewPassword      String?   @db.VarChar(50)\n  Fd_SchoolID         Int?\n\n  @@index([Fd_UserID], map: \"public_TB_ChangePasswordHistory_INDEX_VV_4882845_4882844\")\n}\n\nmodel TB_FCM {\n  ID                String    @id(map: \"public_TB_FCM_PK_TB_FCM\") @db.Uuid\n  Token             String?   @db.VarChar(2000)\n  UserID            Int?\n  SchoolID          Int?\n  Imei              String?   @db.VarChar(150)\n  System            String?   @db.VarChar(150)\n  Fd_Lang           String?   @db.VarChar(10)\n  isActive          Boolean?\n  isDelete          Boolean?\n  CreatedBy         Int?\n  UpdatedBy         Int?\n  CreatedDate       DateTime?\n  UpdatedDate       DateTime?\n  Fd_MBBrand        String?   @db.VarChar(100)\n  Fd_LoginDate      DateTime?\n  Fd_VerifyStatus   Int?\n  IPAddress         String?   @db.VarChar(50)\n  Fd_FirstLoginDate DateTime?\n  Fd_Location       String?   @db.VarChar(150)\n\n  @@index([UserID, Imei], map: \"public_TB_FCM_INDEX_VV_115964_115963\")\n  @@index([UserID, isDelete, Fd_VerifyStatus, Imei], map: \"public_TB_FCM_INDEX_VV_156823_156822\")\n  @@index([Fd_LoginDate], map: \"public_TB_FCM_INDEX_VV_23039_23038\")\n  @@index([SchoolID], map: \"public_TB_FCM_INDEX_VV_27312_27311\")\n  @@index([Imei], map: \"public_TB_FCM_INDEX_VV_773_772\")\n  @@index([UserID, SchoolID], map: \"public_TB_FCM_TB_FCM_UserID_SchoolID\")\n}\n\nmodel TB_IPBlockList {\n  ID                BigInt    @id(map: \"public_TB_IPBlockList_PK__TB_IPBlo__3214EC27F556445A\") @default(autoincrement())\n  IPAddress         String    @db.VarChar(50)\n  SchoolID          Int?\n  BlockReason       String    @db.VarChar(500)\n  BlockType         String    @db.VarChar(20)\n  BlockedFrom       DateTime\n  BlockedUntil      DateTime?\n  IsActive          Boolean   @default(true)\n  CreatedDate       DateTime  @default(now())\n  CreatedBy         String?   @db.VarChar(100)\n  RelatedIncidentID BigInt?\n\n  @@index([IsActive, BlockedUntil], map: \"public_TB_IPBlockList_IX_IPBlockList_Active\")\n  @@index([IPAddress, SchoolID, IsActive], map: \"public_TB_IPBlockList_UX_IPBlockList_IP\")\n}\n\nmodel TB_JobsQueue {\n  JobId         String    @id(map: \"public_TB_JobsQueue_PK_TB_JobsQueue\") @db.Uuid\n  MessageID     Int\n  JobName       String?   @db.VarChar(200)\n  JobValues     String?\n  StateName     String?   @db.VarChar(20)\n  CreatedDate   DateTime?\n  FetchedDate   DateTime?\n  SchedulerDate DateTime?\n  CompleteDate  DateTime?\n  ErrorMessage  String?\n  ResponseTime  Float?\n\n  @@index([MessageID, StateName], map: \"public_TB_JobsQueue_INDEX_VV_3131_3130\")\n  @@index([StateName, CreatedDate], map: \"public_TB_JobsQueue_INDEX_VV_63565_63564\")\n  @@index([JobName, StateName], map: \"public_TB_JobsQueue_INDEX_VV_996_995\")\n}\n\nmodel TB_LoginAttempts {\n  ID                    BigInt   @id(map: \"public_TB_LoginAttempts_PK_TB_LoginAttempts\") @default(autoincrement())\n  UserID                Int\n  SchoolID              Int\n  Username              String   @db.VarChar(100)\n  AttemptDate           DateTime @default(now())\n  IsSuccess             Boolean\n  FailureReason         String?  @db.VarChar(200)\n  IsAccountLocked       Boolean  @default(false)\n  RequirePasswordChange Boolean  @default(false)\n  CreatedDate           DateTime @default(now())\n  IPAddress             String?  @db.VarChar(20)\n\n  @@index([SchoolID, IsSuccess, IPAddress, AttemptDate], map: \"public_TB_LoginAttempts_INDEX_VV_1785_1784\")\n  @@index([SchoolID, AttemptDate], map: \"public_TB_LoginAttempts_IX_LoginAttempts_SchoolID_Date\")\n  @@index([UserID, AttemptDate], map: \"public_TB_LoginAttempts_IX_LoginAttempts_UserID_Date\")\n}\n\nmodel TB_LoginHistory {\n  Fd_LoginHistoryID String    @id(map: \"public_TB_LoginHistory_PK_TB_LoginHistory_Backup\") @db.Uuid\n  Fd_LoginDate      DateTime?\n  Fd_Token          String?   @db.VarChar(250)\n  Fd_UserID         Int?\n  Fd_SchoolID       Int?\n  Imei              String?   @db.VarChar(150)\n  System            String?   @db.VarChar(150)\n  Fd_Version        String?   @db.VarChar(100)\n  Fd_MBBrand        String?   @db.VarChar(10)\n\n  @@index([Fd_Token], map: \"public_TB_LoginHistory_INDEX_VV_2904_2903\")\n  @@index([Fd_LoginDate], map: \"public_TB_LoginHistory_INDEX_VV_6065990_6065989_Backup\")\n  @@index([Fd_SchoolID], map: \"public_TB_LoginHistory_INDEX_VV_831_830\")\n  @@index([Fd_UserID, Fd_SchoolID], map: \"public_TB_LoginHistory_IX_TB_LoginHistory_Backup_Fd_UserID_Fd_S\")\n}\n\nmodel TB_Logoffline {\n  LogOfflineID String    @id(map: \"public_TB_Logoffline_PK_TB_Logoffline\") @db.Uuid\n  SchoolID     Int\n  LogText      String?\n  Created      DateTime?\n}\n\nmodel TB_PaymentGateway {\n  Fd_PaymentGatewayID                       Int      @id(map: \"public_TB_PaymentGateway_PK_TB_PaymentGateway\")\n  Fd_SchoolID                               Int?\n  Fd_PublicKey                              String?  @db.VarChar(250)\n  Fd_SecretKey                              String?  @db.VarChar(250)\n  Fd_Active                                 Boolean?\n  Fd_ActiveInvoice                          Boolean?\n  Fd_PartnerID                              String?  @db.VarChar(20)\n  Fd_PartnerSecret                          String?  @db.VarChar(70)\n  Fd_MerchantMID                            String?  @db.VarChar(20)\n  Fd_PromptPayActive                        Int?\n  Fd_ConsumerID                             String?  @db.VarChar(50)\n  Fd_ConsumerSecret                         String?  @db.VarChar(25)\n  Fd_Campaign_ID                            String?  @db.VarChar(10)\n  Fd_CGA_Merchant_CreditCard_Full_ID        String?  @db.VarChar(25)\n  Fd_CGA_Terminal_CreditCard_Full_ID        String?  @db.VarChar(15)\n  Fd_CGA_Merchant_CreditCard_Installment_ID String?  @db.VarChar(25)\n  Fd_CGA_Terminal_CreditCard_Installment_ID String?  @db.VarChar(15)\n  Fd_CGA_SmartPay_CreditCard_Installment_ID String?  @db.VarChar(10)\n  DisableNormalCard                         Boolean?\n  Fd_PublicKeyInvoice                       String?  @db.VarChar(250)\n  Fd_SecretKeyInvoice                       String?  @db.VarChar(250)\n  Fd_FeePayment                             Decimal? @db.Decimal(18, 2)\n  Fd_FeeInvoice                             Decimal? @db.Decimal(18, 2)\n  Fd_BBLPayment                             Boolean?\n  Fd_Suffix                                 String?  @db.VarChar(10)\n  Fd_KTBPayment                             Boolean?\n  Fd_PaymentType                            Int?     @db.SmallInt\n  Fd_BeamMerchant                           String?  @db.VarChar(50)\n  Fd_BeamSecretKey                          String?  @db.VarChar(250)\n\n  @@index([Fd_SchoolID, Fd_Active], map: \"public_TB_PaymentGateway_TB_PaymentGateway_SchoolID_Active\")\n  @@index([Fd_SchoolID, Fd_ActiveInvoice], map: \"public_TB_PaymentGateway_TB_PaymentGateway_SchoolID_Fd_ActiveIn\")\n}\n\nmodel TB_PaymentMethods {\n  Id                                     Int       @id(map: \"public_TB_PaymentMethods_PK_TB_PaymentMethods\") @default(autoincrement())\n  PublicKey                              String?   @db.VarChar(255)\n  PaymentMethod                          Int?      @db.SmallInt\n  PaymentChannel                         Int?      @db.SmallInt\n  MerchantID                             String?   @db.VarChar(255)\n  SecretKey                              String?   @db.VarChar(255)\n  IsActive                               Boolean?\n  ActiveInvoice                          Boolean?\n  PartnerID                              String?   @db.VarChar(20)\n  PartnerSecret                          String?   @db.VarChar(70)\n  PromptPayActive                        Int?\n  ConsumerID                             String?   @db.VarChar(50)\n  ConsumerSecret                         String?   @db.VarChar(25)\n  Campaign_ID                            String?   @db.VarChar(10)\n  CGA_Merchant_CreditCard_Full_ID        String?   @db.VarChar(25)\n  CGA_Terminal_CreditCard_Full_ID        String?   @db.VarChar(25)\n  CGA_Merchant_CreditCard_Installment_ID String?   @db.VarChar(25)\n  CGA_Terminal_CreditCard_Installment_ID String?   @db.VarChar(25)\n  CGA_SmartPay_CreditCard_Installment_ID String?   @db.VarChar(25)\n  DisableNormalCard                      Boolean?\n  PublicKeyInvoice                       String?   @db.VarChar(255)\n  SecretKeyInvoice                       String?   @db.VarChar(255)\n  UpdateAt                               DateTime? @db.Timestamp(6)\n  UpdateBy                               Int?\n  CreateAt                               DateTime? @db.Timestamp(6)\n  CreateBy                               Int?\n  DeleteAt                               DateTime? @db.Timestamp(6)\n  SchoolId                               Int?\n\n  @@index([IsActive], map: \"public_TB_PaymentMethods_IsActive\")\n  @@index([PaymentMethod, PaymentChannel], map: \"public_TB_PaymentMethods_PaymentMethod_PaymentChannel\")\n  @@index([SchoolId, IsActive], map: \"public_TB_PaymentMethods_SchoolId_IsActive\")\n}\n\nmodel TB_PaymentSetting {\n  SystemID   String    @id(map: \"public_TB_PaymentSetting_PK_TB_PaymentSetting\") @db.Uuid\n  Bank       String?   @db.VarChar(150)\n  SystemName String?   @db.VarChar(150)\n  isActive   Boolean?\n  CreateDate DateTime?\n  CreateBy   Int?\n  UpdateDate DateTime?\n  UpdateBy   Int?\n}\n\nmodel TB_Policy {\n  Fd_PolicyID String    @id(map: \"public_TB_Policy_PK_TB_Policy\") @db.Uuid\n  Fd_Message  String?\n  Fd_Version  String?   @db.VarChar(10)\n  Fd_IsActive Boolean?\n  Fd_IsDel    Boolean?\n  Fd_IsStatus Int?\n  Fd_Created  DateTime?\n  Fd_Modified DateTime?\n  Fd_CreateBy String?   @db.Uuid\n  Fd_ModifyBy String?   @db.Uuid\n}\n\nmodel TB_PolicyApprove {\n  Fd_ApproveID   String    @id(map: \"public_TB_PolicyApprove_PK_TB_PolicyApprove\") @db.Uuid\n  Fd_PolicyID    String    @db.Uuid\n  Fd_UserID      Int\n  Fd_ApproveDate DateTime?\n  Fd_UserType    Int?      @db.SmallInt\n\n  @@index([Fd_UserID, Fd_PolicyID, Fd_ApproveID], map: \"public_TB_PolicyApprove__dta_index_TB_PolicyApprove_6_105115079\")\n}\n\nmodel TB_RecoverUserData {\n  RecoverID           String    @id(map: \"public_TB_RecoverUserData_PK_TB_RecoverUserData\") @db.Uuid\n  Token               String?   @db.VarChar(250)\n  UserID              Int?\n  SchoolID            Int?\n  Imei                String?   @db.VarChar(150)\n  System              String?   @db.VarChar(150)\n  CreatedDate         DateTime?\n  AppvoreStatus       Int?\n  AppvoreUserID       Int?\n  AppvoreDate         DateTime?\n  Email               String?   @db.VarChar(100)\n  student_picture_0   String?   @db.VarChar(250)\n  student_picture_1   String?   @db.VarChar(250)\n  parent_picture_0    String?   @db.VarChar(250)\n  parent_picture_1    String?   @db.VarChar(250)\n  teacher_picture_0   String?   @db.VarChar(250)\n  teacher_picture_1   String?   @db.VarChar(250)\n  EmailPin            String?   @db.VarChar(50)\n  UserType            String?   @db.VarChar(50)\n  Fd_ChangePasswordID String?   @db.Uuid\n\n  @@index([UserID], map: \"public_TB_RecoverUserData_INDEX_VV_5092367_5092366\")\n  @@index([UserID, Email, CreatedDate], map: \"public_TB_RecoverUserData_INDEX_VV_5125918_5125917\")\n}\n\nmodel TB_SchoolAppVersion {\n  ID          String    @id(map: \"public_TB_SchoolAppVersion_PK_TB_SchoolAppVersion\") @db.Uuid\n  SchoolID    Int?\n  AppVersion  String?   @db.Uuid\n  CreatedBy   Int?\n  UpdatedBy   Int?\n  CreatedDate DateTime?\n  UpdatedDate DateTime?\n  AppID       Int       @default(0)\n}\n\nmodel TB_SecurityIncidents {\n  ID             BigInt    @id(map: \"public_TB_SecurityIncidents_PK__TB_Secur__3214EC272F28FDD2\") @default(autoincrement())\n  IncidentType   String    @db.VarChar(50)\n  Severity       String    @db.VarChar(20)\n  SchoolID       Int\n  SourceIP       String?   @db.VarChar(50)\n  TargetUserID   Int?\n  TargetUsername String?   @db.VarChar(100)\n  ThreatLevel    String    @db.VarChar(20)\n  AttemptsCount  Int\n  TimeWindow     Int?\n  BlockDuration  Int?\n  Description    String?\n  DetectedDate   DateTime\n  CreatedDate    DateTime  @default(now())\n  IsResolved     Boolean   @default(false)\n  ResolvedDate   DateTime?\n  ResolvedBy     String?   @db.VarChar(100)\n\n  @@index([SourceIP, DetectedDate], map: \"public_TB_SecurityIncidents_IX_SecurityIncidents_IP\")\n  @@index([Severity, IsResolved, DetectedDate], map: \"public_TB_SecurityIncidents_IX_SecurityIncidents_Severity\")\n  @@index([IncidentType, DetectedDate], map: \"public_TB_SecurityIncidents_IX_SecurityIncidents_Type\")\n}\n\nmodel TB_Server {\n  ID         String   @id(map: \"public_TB_Server_PK_TB_Server\") @db.Uuid\n  Message    String?\n  Status     Boolean?\n  ServerName String?  @db.VarChar(250)\n  Url        String?  @db.VarChar(250)\n}\n\nmodel TB_VerifierDevice {\n  Fd_VerifierID    String    @id(map: \"public_TB_VerifierDevice_PK_TB_VerifierDevice\") @db.Uuid\n  Fd_Data          String?\n  Fd_ChanelMessage Int?\n  Fd_UserID        Int?\n  Fd_SchoolID      Int?\n  CreatedDate      DateTime?\n  Fd_Status        Int?\n\n  @@index([Fd_SchoolID], map: \"public_TB_VerifierDevice_INDEX_VV_1006_1005\")\n  @@index([Fd_UserID], map: \"public_TB_VerifierDevice_INDEX_VV_5138658_5138657\")\n}\n\nmodel TCompany {\n  nCompany                      Int       @id(map: \"public_TCompany_PK_TCompany\")\n  sCompany                      String?   @db.VarChar(250)\n  sSchoolPass                   String?   @db.VarChar(100)\n  sAddress                      String?   @db.VarChar(250)\n  sTel                          String?   @db.VarChar(15)\n  sServer                       String?   @db.VarChar(100)\n  sDatabases                    String?   @db.VarChar(100)\n  sUser                         String?   @db.VarChar(100)\n  sPassword                     String?   @db.VarChar(100)\n  sEntities                     String?   @db.VarChar(100)\n  nType                         String?   @db.Char(1)\n  sImage                        String?   @db.VarChar(1000)\n  admin1                        Int?\n  admin2                        Int?\n  single_authen                 Boolean?\n  double_authen                 Boolean?\n  nfc                           Boolean?\n  sotfware                      Boolean?\n  latitude                      Float?\n  longitude                     Float?\n  schoolHeadPicture             String?   @db.VarChar(250)\n  serverAdminPicture            String?   @db.VarChar(250)\n  schoolCoverPicture            String?   @db.VarChar(250)\n  sCode                         String?   @db.VarChar(50)\n  sNameEN                       String?   @db.VarChar(100)\n  sPhoneOne                     String?   @db.VarChar(50)\n  sPhoneTwo                     String?   @db.VarChar(50)\n  sMobilePhone                  String?   @db.VarChar(50)\n  sFax                          String?   @db.VarChar(50)\n  sEmailOne                     String?   @db.VarChar(100)\n  sEmailTwo                     String?   @db.VarChar(100)\n  sWebsite                      String?   @db.VarChar(100)\n  sHomeNumber                   String?   @db.VarChar(100)\n  sSoy                          String?   @db.VarChar(100)\n  sMuu                          String?   @db.VarChar(100)\n  sRoad                         String?   @db.VarChar(100)\n  sTumbon                       String?   @db.VarChar(100)\n  sAumpher                      String?   @db.VarChar(100)\n  sPost                         String?   @db.VarChar(100)\n  SchoolHeadName                String?   @db.VarChar(100)\n  SchoolHeadLastname            String?   @db.VarChar(100)\n  SchoolHeadEmail               String?   @db.VarChar(100)\n  SchoolHeadPhone               String?   @db.VarChar(100)\n  ServerAdminName               String?   @db.VarChar(100)\n  ServerAdminLastname           String?   @db.VarChar(100)\n  ServerAdminEmail              String?   @db.VarChar(100)\n  ServerAdminPhone              String?   @db.VarChar(100)\n  checker                       Int?\n  sProvince                     String?   @db.VarChar(50)\n  sOwner                        String?   @db.VarChar(100)\n  Active                        Boolean?\n  settingTimePeriod             Int?\n  settingPlanTeacher            Int?\n  settingGradeAdmin             Int?\n  settingReportView             Int?\n  TaxId                         String?   @db.VarChar(100)\n  nSchoolHeadid                 Int?\n  nAcademicDirectorid           Int?\n  nRegistraDirectorid           Int?\n  nAcademicSubDirectorid        Int?\n  nAccountingDirectorid         Int?\n  nStudentDevelopmentDirectorid Int?\n  nWebAdminid                   Int?\n  nGM                           Int?\n  nPersonnel                    Int?\n  sShortSchoolName              String?   @db.VarChar(10)\n  sSchoolHistory                String?\n  sSchoolVision                 String?\n  sSchoolMission                String?\n  EducationArea                 String?   @db.VarChar(100)\n  uID                           String    @db.Uuid\n  PaymentAPIUrl                 String?   @db.VarChar(400)\n  isActive                      Boolean?\n  cDel                          Boolean?\n  CostGradeRepairMid            Decimal?  @db.Decimal(6, 2)\n  CostGradeRepair               Decimal?  @db.Decimal(6, 2)\n  CostGradeRepairFinal          Decimal?  @db.Decimal(6, 2)\n  SchoolAreaCode                String?   @db.VarChar(10)\n  GradeViewFor100               Boolean\n  GradeViewAutoBlock            Boolean\n  sAumpherEng                   String?   @db.VarChar(100)\n  sProvinceEng                  String?   @db.VarChar(50)\n  SchoolClass                   String?   @db.VarChar(150)\n  UserSupportID                 Int?\n  UserSaleID                    Int?\n  SchoolGrade                   String?   @db.Char(2)\n  ActiveDate                    DateTime?\n  InactiveDate                  DateTime?\n  IsActiveSendMessageToLINE     Boolean?\n  TumbonID                      Int?      @db.SmallInt\n  AumpherID                     Int?      @db.SmallInt\n  ProvinceID                    Int?      @db.SmallInt\n  ClassNameDisable              Boolean?\n  CrmGrade                      String?   @db.Char(1)\n  SchoolDataType                String?   @db.VarChar(50)\n  ActiveStatus                  Int?\n\n  @@index([ActiveStatus, nCompany], map: \"idx_tcompany_activestatus_company\")\n  @@index([single_authen, double_authen], map: \"idx_tcompany_auth\")\n  @@index([sCompany], map: \"idx_tcompany_companyname\")\n  @@index([sEntities], map: \"idx_tcompany_entities\")\n  @@index([isActive, cDel], map: \"idx_tcompany_isactive_cdel\")\n  @@index([ProvinceID], map: \"idx_tcompany_province\")\n  @@index([isActive, nCompany, SchoolDataType], map: \"idx_tcompany_schooldata\")\n  @@index([SchoolGrade], map: \"idx_tcompany_schoolgrade\")\n  @@index([UserSaleID, cDel], map: \"idx_tcompany_usersale_cdel\")\n  @@index([UserSupportID, nCompany], map: \"idx_tcompany_usersupport_company\")\n}\n\nmodel TComputer {\n  nComputerID   Int     @id(map: \"public_TComputer_PK_TComputer\")\n  sComputerName String? @db.VarChar(100)\n  sMac          String? @db.VarChar(50)\n  nCompany      Int?\n  cType         String? @db.Char(1)\n  sToken        String?\n  cStatus       String? @db.Char(1)\n}\n\nmodel TConnect {\n  nConnectID   Int       @id(map: \"public_TConnect_PK_TConnect\")\n  sMacPC       String?   @db.VarChar(50)\n  sMacMoblie   String?   @db.VarChar(50)\n  cStatus      String?   @db.VarChar(2)\n  sValue       String?\n  sDisplay     String?\n  cTypeConnect String?   @db.Char(2)\n  sList        String?\n  dList        DateTime?\n  dUpdate      DateTime?\n  CustomerID   Int?\n  EmployessID  Int?\n}\n\nmodel TContact {\n  ContactID    Int       @id(map: \"public_TContact_PK_TContact_1\") @default(autoincrement())\n  SchoolID     Int?\n  SaleID       String?   @db.VarChar(50)\n  SupportID    String?   @db.VarChar(50)\n  StudentFree  Int?\n  StudentPay   Int?\n  StudentCount Int?\n  PackageID    Int?      @db.SmallInt\n  Remark       String?   @db.VarChar(4000)\n  Created      DateTime?\n  Modified     DateTime?\n  CreateBy     Int?\n  ModifyBy     Int?\n  IsDelete     Boolean?\n  ServiceType  String?   @db.VarChar(5)\n\n  @@index([SchoolID], map: \"public_TContact_INDEX_VV_1587_1586\")\n}\n\nmodel TContactList {\n  ContactListID Int       @id(map: \"public_TContactList_PK_TContact\") @default(autoincrement())\n  SchoolID      Int?\n  Episode       String?   @db.VarChar(50)\n  ContactNo     String?   @db.VarChar(50)\n  StartDate     DateTime?\n  EndDate       DateTime?\n  Period        Int?      @db.SmallInt\n  RemainDay     Int?      @db.SmallInt\n  Status        String?   @db.VarChar(10)\n  StatusOther   String?   @db.VarChar(50)\n  ServiceCharge String?   @db.VarChar(10)\n  VAT           String?   @db.VarChar(10)\n  StudentAmount Int?      @db.SmallInt\n  Created       DateTime?\n  Modified      DateTime?\n  CreateBy      Int?\n  ModifyBy      Int?\n  IsDelete      Boolean?\n\n  @@index([IsDelete], map: \"public_TContactList_INDEX_VV_97417_97416\")\n  @@index([SchoolID, IsDelete], map: \"public_TContactList_IX_TContactList_SchoolID_IsDelete\")\n}\n\nmodel TContactListAttach {\n  AttachID      Int       @id(map: \"public_TContactListAttach_PK_TContactAttach\") @default(autoincrement())\n  ContactListID Int?\n  SchoolID      Int?\n  AttachUrl     String?   @db.VarChar(1000)\n  IsDelete      Boolean?\n  Created       DateTime?\n  Modified      DateTime?\n  CreateBy      Int?\n  ModifyBy      Int?\n\n  @@index([ContactListID, IsDelete], map: \"public_TContactListAttach_INDEX_VV_5667683_5667682\")\n}\n\nmodel TContactLog {\n  LogID         Int       @id(map: \"public_TContactLog_PK_TContactLog\") @default(autoincrement())\n  SchoolID      Int?\n  ContactID     Int?\n  ContactListID Int?\n  Created       DateTime?\n  Modified      DateTime?\n  CreateBy      Int?\n  ModifyBy      Int?\n  JsonLog       String?   @db.VarChar(4000)\n  DataModel     String?\n\n  @@index([ContactID], map: \"public_TContactLog_INDEX_VV_94846_94845\")\n}\n\nmodel TCrmActivity {\n  CrmActivityId       Int       @id(map: \"public_TCrmActivity_PK_TCrmActivity\") @default(autoincrement())\n  SchoolID            Int?\n  SchoolName          String?   @db.VarChar(250)\n  Type                String?   @db.VarChar(50)\n  ActivityType        String?   @db.VarChar(20)\n  MeetingType         String?   @db.VarChar(20)\n  ActivityTitle       String?   @db.VarChar(300)\n  ActivityDescription String?   @db.VarChar(4000)\n  ActivityStatus      String?   @db.VarChar(50)\n  StartDate           DateTime?\n  EndDate             DateTime?\n  IsRecurring         Boolean?\n  Map                 String?   @db.VarChar(300)\n  LatLng              String?   @db.VarChar(50)\n  AttachUrl           String?   @db.VarChar(300)\n  CreateDate          DateTime?\n  CreateBy            Int?\n  UpdateDate          DateTime?\n  UpdateBy            Int?\n  DeleteDate          DateTime?\n  DeleteBy            Int?\n\n  @@index([DeleteDate], map: \"public_TCrmActivity_INDEX_VV_126323_126322\")\n  @@index([CreateBy, DeleteDate], map: \"public_TCrmActivity_INDEX_VV_126362_126361\")\n  @@index([CreateBy, DeleteDate, StartDate], map: \"public_TCrmActivity_INDEX_VV_1807_1806\")\n  @@index([DeleteDate, CreateDate], map: \"public_TCrmActivity_INDEX_VV_2495_2494\")\n  @@index([StartDate, DeleteDate], map: \"public_TCrmActivity_INDEX_VV_967_966\")\n}\n\nmodel TCrmAssignContact {\n  CrmAssignContactId Int       @id(map: \"public_TCrmAssignContact_PK_TCrmAssignContact\") @default(autoincrement())\n  CrmContactId       Int?\n  SaleId             Int?\n  CreateDate         DateTime?\n}\n\nmodel TCrmAssignSupport {\n  CrmAssignSupportId Int       @id(map: \"public_TCrmAssignSupport_PK_TCrmAssignSupport\") @default(autoincrement())\n  CrmSupportId       Int?\n  StaffId            Int?\n  CreateDate         DateTime?\n\n  @@index([CrmSupportId], map: \"public_TCrmAssignSupport_INDEX_VV_65807_65806\")\n}\n\nmodel TCrmBacklog {\n  CrmBacklogId Int       @id(map: \"public_TCrmBacklog_PK_TCrmBacklog\") @default(autoincrement())\n  Json         String?\n  CreateDate   DateTime?\n  HasUpdate    Boolean?\n}\n\nmodel TCrmContact {\n  CrmContactId    Int       @id(map: \"public_TCrmContact_PK_TCrmContact\") @default(autoincrement())\n  Type            String?   @db.VarChar(50)\n  SchoolName      String?   @db.VarChar(100)\n  Address         String?   @db.VarChar(300)\n  Province        String?   @db.VarChar(50)\n  District        String?   @db.VarChar(150)\n  SubDistrict     String?   @db.VarChar(150)\n  StudentQty      Int?\n  SchoolGroup     String?   @db.VarChar(50)\n  SchoolEducation String?   @db.VarChar(50)\n  KnowFrom        String?   @db.VarChar(50)\n  Score           Int?\n  EventName       String?   @db.VarChar(300)\n  CreateDate      DateTime?\n  CreateBy        Int?\n  UpdateDate      DateTime?\n  UpdateBy        Int?\n  DeleteDate      DateTime?\n  DeleteBy        Int?\n  TaxNo           String?   @db.VarChar(13)\n  SignName        String?   @db.VarChar(100)\n  SignPosition    String?   @db.VarChar(100)\n  WitnessName     String?   @db.VarChar(100)\n  WitnessPosition String?   @db.VarChar(100)\n  ContactPhone    String?   @db.VarChar(50)\n  Zipcode         String?   @db.VarChar(6)\n  SaleAreaId      Int?\n\n  @@index([SchoolName], map: \"public_TCrmContact_INDEX_VV_1056_1055\")\n  @@index([CreateBy, DeleteDate], map: \"public_TCrmContact_INDEX_VV_118027_118026\")\n  @@index([DeleteDate], map: \"public_TCrmContact_INDEX_VV_19713_19712\")\n  @@index([DeleteDate], map: \"public_TCrmContact_INDEX_VV_4198_4197\")\n  @@index([DeleteDate], map: \"public_TCrmContact_INDEX_VV_99406_99405\")\n}\n\nmodel TCrmFeedback {\n  CrmFeedbackId Int       @id(map: \"public_TCrmFeedback_PK_TCrmFeedback\") @default(autoincrement())\n  CrmSupportId  Int?\n  Score         Int?\n  Reasons       String?   @db.VarChar(200)\n  Comment       String?   @db.VarChar(500)\n  CreateDate    DateTime?\n}\n\nmodel TCrmReminder {\n  CrmReminderId Int       @id(map: \"public_TCrmReminder_PK_TCrmReminder\") @default(autoincrement())\n  Subject       String?   @db.VarChar(200)\n  Body          String?   @db.VarChar(500)\n  StartDate     DateTime?\n  EndDate       DateTime?\n  CreateDate    DateTime?\n  CreateBy      Int?\n  UpdateDate    DateTime?\n  UpdateBy      Int?\n  DeleteDate    DateTime?\n  DeleteBy      Int?\n}\n\nmodel TCrmSubActivity {\n  CrmSubActivityId Int       @id(map: \"public_TCrmSubActivity_PK_CrmSubActivity\") @default(autoincrement())\n  CrmActivityId    Int?\n  SchoolID         Int?\n  ContactID        Int?\n  CrmContactId     Int?\n  CrmSubContactId  Int?\n  ImportDate       DateTime?\n  ImportBy         Int?\n  SchoolName       String?   @db.VarChar(250)\n  Position         String?   @db.VarChar(50)\n  Name             String?   @db.VarChar(100)\n  Tel              String?   @db.VarChar(50)\n}\n\nmodel TCrmSubContact {\n  CrmSubContactId Int     @id(map: \"public_TCrmSubContact_PK_TCrmSubContact\") @default(autoincrement())\n  CrmContactId    Int?\n  Position        String? @db.VarChar(50)\n  Name            String? @db.VarChar(100)\n  Tel             String? @db.VarChar(50)\n  Email           String? @db.VarChar(50)\n\n  @@index([CrmContactId], map: \"public_TCrmSubContact_INDEX_VV_3285_3284\")\n}\n\nmodel TCrmSupport {\n  CrmSupportId              Int       @id(map: \"public_TCrmSupport_PK_TCrmSupport\") @default(autoincrement())\n  IssueDate                 DateTime?\n  SchoolId                  Int?\n  Channel                   String?   @db.VarChar(50)\n  ContactId                 Int?\n  Type                      String?   @db.VarChar(50)\n  SubType                   String?   @db.VarChar(50)\n  RefCode                   String?   @db.VarChar(50)\n  SupportDetail             String?   @db.VarChar(500)\n  Subject                   String?   @db.VarChar(255)\n  Question                  String?\n  Answer                    String?\n  IsFollowUp                Boolean?\n  FollowUpDate              DateTime?\n  Status                    String?   @db.VarChar(50)\n  Priority                  String?   @db.VarChar(50)\n  BacklogProjectID          Int?\n  BacklogIssueID            Int?\n  CreateDate                DateTime?\n  CreateBy                  Int?\n  UpdateDate                DateTime?\n  UpdateBy                  Int?\n  DeleteDate                DateTime?\n  DeleteBy                  Int?\n  LineInfo                  String?\n  Session                   String?   @db.Uuid\n  HasRemindFollowUp         Boolean?\n  FollowUpEndDate           DateTime?\n  FollowUpFrequency         String?   @db.VarChar(20)\n  CustomerFollowUpDate      DateTime?\n  CustomerFollowUpEndDate   DateTime?\n  CustomerFollowUpFrequency String?   @db.VarChar(20)\n  CustomerNotifyMessage     String?   @db.VarChar(1000)\n  AssignStaffId             Int?\n  Note                      String?   @db.VarChar(300)\n  Onboarding                String?   @db.VarChar(500)\n  ReferenceKey              String?   @db.VarChar(50)\n  ReferenceValue            String?   @db.VarChar(50)\n  BacklogModel              String?\n  StartDate                 DateTime?\n  DueDate                   DateTime?\n\n  @@index([AssignStaffId, Status, DeleteDate], map: \"idx_tcrmsupport_assignstaff\")\n  @@index([CreateBy, DeleteDate], map: \"idx_tcrmsupport_createby\")\n  @@index([FollowUpDate, Status], map: \"idx_tcrmsupport_followup\")\n  @@index([IssueDate], map: \"idx_tcrmsupport_issue\")\n  @@index([Priority, Status, DeleteDate], map: \"idx_tcrmsupport_priority\")\n  @@index([SchoolId, DeleteDate], map: \"idx_tcrmsupport_school\")\n  @@index([SchoolId, Status, DeleteDate], map: \"idx_tcrmsupport_school_status\")\n  @@index([Type, SubType, DeleteDate], map: \"idx_tcrmsupport_type\")\n}\n\nmodel TCrmSupportBacklogAuth {\n  CrmSupportBacklogAuthId Int       @id(map: \"public_TCrmSupportBacklogAuth_PK_TCrmSupportBacklogAuth\") @default(autoincrement())\n  StaffId                 Int?\n  AccessToken             String?   @db.VarChar(500)\n  RefreshToken            String?   @db.VarChar(500)\n  CreateDate              DateTime?\n  ExpireDate              DateTime?\n}\n\nmodel TCrmSupportComment {\n  CrmSupportCommentId Int       @id(map: \"public_TCrmSupportComment_PK_TCrmSupportComment\") @default(autoincrement())\n  CrmSupportId        Int?\n  Comment             String?   @db.VarChar(500)\n  CreateDate          DateTime?\n  CreateBy            Int?\n  UpdateDate          DateTime?\n  UpdateBy            Int?\n  DeleteDate          DateTime?\n  DeleteBy            Int?\n}\n\nmodel TCrmSurvey {\n  CrmSurveyId Int       @id(map: \"public_TCrmSurvey_PK_TCrmSurvey\") @default(autoincrement())\n  SchoolId    Int?\n  SenderName  String?   @db.VarChar(200)\n  SenderType  String?   @db.VarChar(50)\n  SenderCode  String?   @db.VarChar(50)\n  Tel         String?   @db.VarChar(50)\n  Email       String?   @db.VarChar(50)\n  Note        String?   @db.VarChar(500)\n  TopupDate   DateTime?\n  Session     String?   @db.Uuid\n  CreateDate  DateTime?\n}\n\nmodel TDashboardSummaries {\n  DashboardSummaryId Int       @id(map: \"public_TDashboardSummaries_PK_TDashboardSummaries\") @default(autoincrement())\n  SchoolSummary      String?\n  StudentSummary     String?\n  TeacherSummary     String?\n  UpdateDate         DateTime?\n}\n\nmodel TDelivery {\n  DeliveryId         Int       @id(map: \"public_TDelivery_PK_TDelivery\") @default(autoincrement())\n  SchoolId           Int?\n  RecipientType      String?   @db.VarChar(50)\n  TransmissionType   String?   @db.VarChar(50)\n  TransmissionDate   DateTime?\n  TransportationName String?   @db.VarChar(100)\n  TrackingNo         String?   @db.VarChar(50)\n  RecipientName      String?   @db.VarChar(100)\n  RecipientTel       String?   @db.VarChar(50)\n  RefNo              String?   @db.VarChar(300)\n  Note               String?   @db.VarChar(200)\n  AttachUrl          String?   @db.VarChar(300)\n  CreateDate         DateTime?\n  CreateBy           Int?\n  UpdateDate         DateTime?\n  UpdateBy           Int?\n  DeleteDate         DateTime?\n  DeleteBy           Int?\n  NotifyMessage      String?   @db.VarChar(1000)\n  NotifyDate         DateTime?\n\n  @@index([DeleteDate], map: \"public_TDelivery_INDEX_VV_23054_23053\")\n  @@index([DeleteDate], map: \"public_TDelivery_INDEX_VV_46739_46738\")\n  @@index([SchoolId], map: \"public_TDelivery_INDEX_VV_5942991_5942990\")\n}\n\nmodel TDeliveryAttach {\n  DeliveryAttachId Int     @id(map: \"public_TDeliveryAttach_PK_TDeliveryAttach\") @default(autoincrement())\n  DeliveryId       Int?\n  AttachUrl        String? @db.VarChar(300)\n}\n\nmodel TDiscordGroup {\n  DiscordGroupId Int       @id(map: \"public_TDiscordGroup_PK_TDiscordGroup\") @default(autoincrement())\n  SchoolId       Int?\n  GroupName      String?   @db.VarChar(50)\n  WebhookUrl     String?   @db.VarChar(200)\n  CreateDate     DateTime?\n}\n\nmodel TEmailQueue {\n  EmailQueueId Int       @id(map: \"public_TEmailQueue_PK_TEmailQueue\") @default(autoincrement())\n  Email        String?   @db.VarChar(50)\n  EmailSubject String?   @db.VarChar(200)\n  EmailBody    String?\n  ProcessDate  DateTime?\n  Status       String?   @db.VarChar(50)\n  Retry        Int?\n}\n\nmodel TEventLog {\n  EventLogId BigInt    @id(map: \"public_TEventLog_PK_TEventLog\") @default(autoincrement())\n  SchoolId   Int?\n  UserId     Int?\n  EventName  String?   @db.VarChar(50)\n  TableName  String?   @db.VarChar(50)\n  ColumnName String?   @db.VarChar(50)\n  KeyValue   String?   @db.VarChar(50)\n  OldValue   String?\n  NewValue   String?\n  CreateDate DateTime?\n\n  @@index([CreateDate], map: \"public_TEventLog_INDEX_VV_1130_1129\")\n  @@index([UserId, TableName], map: \"public_TEventLog_INDEX_VV_1140_1139\")\n  @@index([TableName], map: \"public_TEventLog_INDEX_VV_1200_1199\")\n  @@index([TableName, ColumnName], map: \"public_TEventLog_INDEX_VV_23922_23921\")\n}\n\nmodel TExceptionLog {\n  ExceptionLogId  BigInt    @id(map: \"public_TExceptionLog_PK_TExceptionLog\") @default(autoincrement())\n  MethodName      String?   @db.VarChar(200)\n  Parameter       String?\n  Application     String?   @db.VarChar(100)\n  ExceptionMsg    String?\n  ExceptionType   String?   @db.VarChar(100)\n  ExceptionSource String?\n  ExceptionURL    String?   @db.VarChar(100)\n  Logdate         DateTime?\n  SchoolId        Int?\n  sEmp            Int?\n\n  @@index([SchoolId, Logdate], map: \"public_TExceptionLog_INDEX_VV_6116_6115\")\n}\n\nmodel TExpense {\n  ExpenseId                  Int       @id(map: \"public_TExpense_PK_TExpense\") @default(autoincrement())\n  Year                       Int?\n  Month                      Int?\n  AccountChartId             Int?\n  AccountChartType           String?   @db.VarChar(150)\n  BillingType                String?   @db.VarChar(50)\n  IssueBy                    String?   @db.VarChar(200)\n  IssueDate                  DateTime?\n  Description                String?   @db.VarChar(500)\n  Qty                        Int?\n  PriceBeforeVat             Decimal?  @db.Decimal(18, 2)\n  Vat                        Decimal?  @db.Decimal(18, 2)\n  TotalPrice                 Decimal?  @db.Decimal(18, 2)\n  RawTotalPrice              Decimal?  @db.Decimal(18, 2)\n  AttachUrl                  String?   @db.VarChar(300)\n  Status                     String?   @db.VarChar(50)\n  CreateDate                 DateTime?\n  CreateBy                   Int?\n  UpdateDate                 DateTime?\n  UpdateBy                   Int?\n  DeleteDate                 DateTime?\n  DeleteBy                   Int?\n  ApproveDate                DateTime?\n  ApproveBy                  Int?\n  PaidType                   String?   @db.VarChar(50)\n  VehicleCode                String?   @db.VarChar(50)\n  CheckIn                    DateTime?\n  CheckOut                   DateTime?\n  ExpenseRefID               String?   @db.VarChar(150)\n  ExpenseCode                String?   @db.VarChar(50)\n  ExpenseUrl                 String?   @db.VarChar(300)\n  ExpenseCreateDate          DateTime?\n  ExpenseRefIDFleetcard      String?   @db.VarChar(150)\n  ExpenseCodeFleetcard       String?   @db.VarChar(50)\n  ExpenseUrlFleetcard        String?   @db.VarChar(300)\n  ExpenseCreateDateFleetcard DateTime?\n\n  @@index([Year, DeleteDate], map: \"public_TExpense_INDEX_VV_126797_126796\")\n  @@index([CreateBy, DeleteDate], map: \"public_TExpense_INDEX_VV_13611_13610\")\n  @@index([DeleteDate], map: \"public_TExpense_INDEX_VV_23128_23127\")\n  @@index([Year, CreateBy, DeleteDate], map: \"public_TExpense_INDEX_VV_23733_23732\")\n  @@index([Year, DeleteDate], map: \"public_TExpense_INDEX_VV_4286_4285\")\n  @@index([DeleteDate], map: \"public_TExpense_INDEX_VV_465_464\")\n  @@index([Year, Month, CreateBy, DeleteDate], map: \"public_TExpense_INDEX_VV_5112200_5112199\")\n  @@index([Month, DeleteDate], map: \"public_TExpense_INDEX_VV_5992_5991\")\n}\n\nmodel TExpenseVehicle {\n  ExpenseVehicleId Int     @id(map: \"public_TExpenseVehicle_PK_TExpenseVehicle\") @default(autoincrement())\n  StaffId          Int?\n  VehicleCode      String? @db.VarChar(20)\n}\n\nmodel TFeature {\n  FeatureId   Int      @id(map: \"public_TFeature_PK_TFeature\")\n  GroupName   String?  @db.VarChar(50)\n  FeatureName String?  @db.VarChar(200)\n  Type        String?  @db.VarChar(20)\n  QueryParams String?  @db.VarChar(1000)\n  Keyword     String?  @db.VarChar(100)\n  Active      Boolean?\n}\n\nmodel TGroupMenu {\n  groupmenuid Int      @id(map: \"public_TGroupMenu_PK_TGroupMenu\")\n  groupmenu   String?  @db.VarChar(250)\n  class       String?  @db.VarChar(100)\n  title       String?  @db.VarChar(100)\n  active      Boolean?\n  group_order Int?\n  actvice     Boolean?\n  new_order   Int?\n  icon        String?  @db.VarChar(100)\n  IsDev       Boolean?\n}\n\nmodel TGroupMenu_Lang {\n  ID            String  @id(map: \"public_TGroupMenu_Lang_PK_TGroupMenu_Lang\") @db.Uuid\n  GroupMenuName String?\n  groupmenuid   Int?\n  Lang          String? @db.VarChar(10)\n}\n\nmodel TGroupPermission {\n  GroupID    Int       @id(map: \"public_TGroupPermission_PK_TGroupPermission\") @default(autoincrement())\n  GroupName  String?   @db.VarChar(250)\n  IsDel      Boolean?\n  IsActive   Boolean?\n  SchoolID   Int?\n  Created    DateTime?\n  Modified   DateTime?\n  CreateBy   Int?\n  ModifyBy   Int?\n  IsEditable Boolean?\n\n  @@index([GroupName, IsEditable], map: \"public_TGroupPermission_INDEX_VV_23929_23928\")\n  @@index([IsDel, IsActive, SchoolID], map: \"public_TGroupPermission_INDEX_VV_5063631_5063630\")\n  @@index([IsDel, SchoolID], map: \"public_TGroupPermission_INDEX_VV_5101174_5101173\")\n  @@index([SchoolID], map: \"public_TGroupPermission_INDEX_VV_5126323_5126322\")\n}\n\nmodel TGroupPermissionMenu {\n  MenuID   Int\n  GroupID  Int\n  Type     String   @db.Char(1)\n  Role     Int?     @db.SmallInt\n  SchoolID Int?\n  IsDel    Boolean?\n  IsActive Boolean?\n\n  @@id([MenuID, GroupID, Type], map: \"public_TGroupPermissionMenu_PK_TGroupPermissionMenu\")\n  @@index([Type, SchoolID, IsActive], map: \"public_TGroupPermissionMenu_INDEX_VV_1002_1001\")\n  @@index([GroupID, Type, SchoolID], map: \"public_TGroupPermissionMenu_INDEX_VV_104_103\")\n  @@index([Role], map: \"public_TGroupPermissionMenu_INDEX_VV_5599137_5599136\")\n}\n\nmodel TGroupPermissionUser {\n  GroupID  Int\n  UserID   Int\n  IsDel    Boolean?\n  IsActive Boolean?\n  SchoolID Int?\n\n  @@id([UserID, GroupID], map: \"public_TGroupPermissionUser_PK_TGroupPermissionUser\")\n  @@index([IsDel], map: \"public_TGroupPermissionUser_INDEX_VV_328_327\")\n  @@index([GroupID, IsDel, IsActive, SchoolID], map: \"public_TGroupPermissionUser_IX_VV_TGroupPermissionUser_GroupID_\")\n  @@index([IsDel, IsActive, SchoolID], map: \"public_TGroupPermissionUser_IX_VV_TGroupPermissionUser_IsDel_Is\")\n  @@index([IsDel, SchoolID], map: \"public_TGroupPermissionUser_IX_VV_TGroupPermissionUser_IsDel_Sc\")\n}\n\nmodel TGroupPermission_Log {\n  Id       Int       @default(autoincrement())\n  SchoolID Int\n  Date     DateTime?\n  Text     String?\n  ByUser   String?   @db.VarChar(250)\n\n  @@id([Id, SchoolID], map: \"public_TGroupPermission_Log_PK_TGroupPermission_Log\")\n  @@index([SchoolID], map: \"public_TGroupPermission_Log_INDEX_VV_18221_18220\")\n}\n\nmodel TInvoice {\n  InvoiceId                Int       @id(map: \"public_TInvoice_PK_TInvoice\") @default(autoincrement())\n  SchoolId                 Int?\n  PriceType                String?   @db.VarChar(10)\n  CalculationType          String?   @db.VarChar(10)\n  ServiceType              String?   @db.VarChar(10)\n  CurrentYear              Int?\n  TaxStatus                Int?\n  Term1Day                 Int?\n  Term1Month               Int?\n  Term2Day                 Int?\n  Term2Month               Int?\n  YearDay                  Int?\n  YearMonth                Int?\n  IssueDate                DateTime?\n  DueDate                  DateTime?\n  NoOfDueDate              Int?\n  ContactID                Int?\n  Note                     String?   @db.VarChar(300)\n  StudentQuantity          Int?\n  StudentAllowUsing        Int?\n  StudentPay               Int?\n  TotalPrice               Decimal?  @db.Decimal(18, 2)\n  InvoiceCreateDate        DateTime?\n  InvoiceUrl               String?   @db.VarChar(300)\n  InvoiceCode              String?   @db.VarChar(50)\n  InvoiceRef               String?   @db.VarChar(100)\n  IsActive                 Boolean?\n  IsSuccess                Boolean?\n  SentEmailDate            DateTime?\n  SentLineNotificationDate DateTime?\n  CreateDate               DateTime?\n  CreateBy                 Int?\n  UpdateDate               DateTime?\n  UpdateBy                 Int?\n  RecordDelete             Boolean?\n  DeleteBy                 Int?\n  PeakModel                String?\n\n  @@index([RecordDelete, SchoolId], map: \"public_TInvoice_INDEX_VV_5669387_5669386\")\n  @@index([IsActive, RecordDelete], map: \"public_TInvoice_INDEX_VV_665_664\")\n  @@index([SchoolId], map: \"public_TInvoice_INDEX_VV_789_788\")\n}\n\nmodel TInvoiceDetail {\n  InvoiceDetailId                 Int       @id(map: \"public_TInvoiceDetail_PK_TInvoiceDetail\") @default(autoincrement())\n  InvoiceId                       Int?\n  ProductId                       Int?\n  EducationType                   String?   @db.VarChar(30)\n  CurrentTerm                     Int?\n  Year                            Int?\n  StartDate                       DateTime?\n  EndDate                         DateTime?\n  DueDate                         DateTime?\n  Price                           Decimal?  @db.Decimal(18, 2)\n  StudentCount                    Int?\n  TotalPrice                      Decimal?  @db.Decimal(18, 2)\n  InvoiceCreateDate               DateTime?\n  InvoiceUrl                      String?   @db.VarChar(300)\n  InvoiceCode                     String?   @db.VarChar(50)\n  InvoiceRef                      String?   @db.VarChar(100)\n  SentEmailDate                   DateTime?\n  SentLineNotificationDate        DateTime?\n  IsSuccess                       Boolean?\n  RecordDelete                    Boolean?\n  DeleteBy                        Int?\n  RecieptRef                      String?   @db.VarChar(100)\n  RecieptCode                     String?   @db.VarChar(300)\n  RecieptUrl                      String?   @db.VarChar(2000)\n  RecieptCreateDate               DateTime?\n  PayStatus                       String?   @db.VarChar(50)\n  OverduePrice                    Decimal?  @db.Decimal(18, 2)\n  RecieptSentEmailDate            DateTime?\n  RecieptSentLineNotificationDate DateTime?\n  CreateBy                        Int?\n  UpdateBy                        Int?\n  UpdateDate                      DateTime?\n\n  @@index([CurrentTerm, Year, RecordDelete], map: \"public_TInvoiceDetail_INDEX_VV_1152_1151\")\n  @@index([InvoiceId], map: \"public_TInvoiceDetail_INDEX_VV_148965_148964\")\n  @@index([Year, SentEmailDate, InvoiceUrl], map: \"public_TInvoiceDetail_INDEX_VV_23783_23782\")\n  @@index([CurrentTerm, Year, SentEmailDate], map: \"public_TInvoiceDetail_INDEX_VV_81426_81425\")\n  @@index([InvoiceCode], map: \"public_TInvoiceDetail_INDEX_VV_93478_93477\")\n}\n\nmodel TLineGroup {\n  LineGroupId                 Int       @id(map: \"public_TLineGroup_PK_TLineGroup\") @default(autoincrement())\n  SchoolId                    Int?\n  GroupId                     String?   @db.VarChar(50)\n  LineNotificationAccessToken String?   @db.VarChar(500)\n  GroupType                   String?   @db.VarChar(50)\n  CreateDate                  DateTime?\n}\n\nmodel TLineMessage {\n  LineMessageId  Int       @id(map: \"public_TLineMessage_PK_TLineMessage\") @default(autoincrement())\n  SchoolId       Int?\n  Type           String?   @db.VarChar(50)\n  UserId         String?   @db.VarChar(50)\n  GroupId        String?   @db.VarChar(50)\n  Text           String?   @db.VarChar(2000)\n  CreateDate     DateTime?\n  Session        String?   @db.Uuid\n  ReferenceKey   String?   @db.VarChar(50)\n  ReferenceValue String?   @db.VarChar(50)\n  Model          String?\n\n  @@index([Type, ReferenceKey, ReferenceValue], map: \"public_TLineMessage_INDEX_VV_1184_1183\")\n  @@index([Text, SchoolId], map: \"public_TLineMessage_INDEX_VV_126410_126409\")\n  @@index([GroupId], map: \"public_TLineMessage_INDEX_VV_1540_1539\")\n  @@index([Type, Session], map: \"public_TLineMessage_INDEX_VV_5024001_5024000\")\n}\n\nmodel TLogDebug {\n  ID         Int       @id(map: \"public_TLogDebug_PK_TLOGDEBUG\") @default(autoincrement())\n  SchoolID   Int?\n  StudentID  Int?\n  EmployeeID Int?\n  LogMessage String?\n  LogDate    DateTime?\n  IP         String?   @db.VarChar(20)\n}\n\nmodel TLogError {\n  dLogError DateTime @id(map: \"public_TLogError_PK_TLogError\")\n  sLogError String?\n  sFunction String?\n}\n\nmodel TMenu {\n  MenuId       Int      @id(map: \"public_TMenu_PK_TMenu\")\n  MenuName     String?  @db.VarChar(250)\n  url          String?  @db.VarChar(100)\n  title        String?  @db.VarChar(250)\n  urlDev       String?  @db.VarChar(100)\n  class        String?  @db.VarChar(250)\n  MenuMode     String?  @db.VarChar(100)\n  MenuType     Int?\n  MenuIndex    Int?\n  groupmenuid  Int?\n  nMenuOrder   Int?\n  showmenu     Boolean?\n  demo         Boolean?\n  target       Int?\n  Submenu      Int?\n  active       Boolean?\n  actvice      Boolean?\n  SegmentID    Int?\n  nMenuOrder2  Int?\n  IsExceptAuth Boolean?\n}\n\nmodel TMenuPermission {\n  Id       Int     @id(map: \"public_TMenuPermission_PK_TMenuPermission\") @default(autoincrement())\n  MenuID   Int?\n  MenuName String? @db.VarChar(250)\n  MenuUrl  String? @db.VarChar(250)\n}\n\nmodel TMenu_Lang {\n  ID       String  @id(map: \"public_TMenu_Lang_PK_TMenu_Lang\") @db.Uuid\n  MenuName String?\n  MenuId   Int?\n  Lang     String? @db.VarChar(10)\n}\n\nmodel TMessage {\n  nMessageID   Int       @id(map: \"public_TMessage_PK_TMessage_1\") @default(autoincrement())\n  UserID       Int\n  sMessage     String?\n  sTitle       String?\n  nType        Int?\n  dSend        DateTime?\n  nStatus      Int?\n  scheduled_id String?   @db.VarChar(250)\n  push_id      Int?\n  homework_id  Int?\n  cDel         String?   @db.Char(1)\n  sell_id      Int?\n  topup_id     Int?\n}\n\nmodel TMessageSystem {\n  ID         Int       @id(map: \"public_TMessageSystem_PK_TMESSAGESYSTEM\") @default(autoincrement())\n  Title      String?   @db.VarChar(150)\n  Message    String?   @db.VarChar(1024)\n  AddDate    DateTime?\n  AddBy      String?   @db.VarChar(100)\n  UpdateDate DateTime?\n  UpdateBy   String?   @db.VarChar(100)\n  IsDelete   String?   @db.VarChar(1)\n}\n\nmodel TMessageTemplate {\n  MessageTemplateId Int     @id(map: \"public_TMessageTemplate_PK_TMessageTemplate\") @default(autoincrement())\n  Message           String? @db.VarChar(1000)\n}\n\nmodel TMobileMenu {\n  Menu_Id      Int      @id(map: \"public_TMobileMenu_PK_TMobileMenu\")\n  Menu_Name    String?  @db.VarChar(250)\n  Menu_NameEN  String?  @db.VarChar(250)\n  Actvie       Boolean?\n  Demo         Boolean?\n  SubMenu_Id   Int?\n  IsExceptAuth Boolean?\n  OrderNo      Int?     @db.SmallInt\n  MenuUrl      String?\n}\n\nmodel TNews {\n  NewsID      Int       @id(map: \"public_TNews_PK_TNews\") @default(autoincrement())\n  Type        Int?      @db.SmallInt\n  ToType      Int?      @db.SmallInt\n  Title       String?   @db.VarChar(250)\n  Detail      String?\n  Remark      String?\n  StartDate   DateTime?\n  EndDate     DateTime?\n  IsEmail     Boolean?\n  IsBroadcast Boolean?\n  IsPopup     Boolean?\n  PopupUrl    String?   @db.VarChar(500)\n  IsBanner    Boolean?\n  BannerUrl   String?   @db.VarChar(500)\n  Created     DateTime?\n  Modified    DateTime?\n  CreateBy    Int?\n  ModifyBy    Int?\n  IsDelete    Boolean?\n  IsDone      Boolean?\n  SchoolID    Int?\n\n  @@index([IsBroadcast], map: \"public_TNews_INDEX_VV_5093745_5093744\")\n  @@index([SchoolID], map: \"public_TNews_INDEX_VV_5126410_5126409\")\n  @@index([Created], map: \"public_TNews_INDEX_VV_81548_81547\")\n  @@index([Title], map: \"public_TNews__dta_index_TNews_6_1550628567__K10_K21_K7_K8_K20_K\")\n}\n\nmodel TNews2 {\n  NewsID         Int       @id(map: \"public_TNews2_PK_TNews2\") @default(autoincrement())\n  SystemType     Int?      @db.SmallInt\n  SendType       String?   @db.VarChar(20)\n  Title          String?   @db.VarChar(250)\n  SchoolID       Int?\n  ToType         Int?      @db.SmallInt\n  StartDate      DateTime?\n  EndDate        DateTime?\n  IsSystemLogin  Boolean?\n  SystemLogin    String?\n  IsStudentLogin Boolean?\n  StudentLogin   String?\n  IsNoteHead     Boolean?\n  NoteHead       String?\n  IsNoteAppWeb   Boolean?\n  NoteAppWeb     String?\n  IsPopup        Boolean?\n  Popup          String?\n  IsBanner       Boolean?\n  Banner         String?\n  IsEmail        Boolean?\n  Email          String?\n  ToSID          String?\n  IsSMS          Boolean?\n  SMS            String?\n  IsLine         Boolean?\n  Line           String?\n  IsLineGroup    Boolean?\n  LineGroup      String?\n  Created        DateTime?\n  Modified       DateTime?\n  CreateBy       Int?\n  ModifyBy       Int?\n  IsDelete       Boolean?\n  IsDone         Boolean?\n\n  @@index([IsNoteAppWeb, IsDelete], map: \"public_TNews2_INDEX_VV_550_549\")\n  @@index([NewsID, IsDelete, IsNoteAppWeb], map: \"public_TNews2__dta_index_TNews2_6_790293875__K1_K34_K15\")\n  @@index([IsSystemLogin], map: \"public_TNews2__dta_index_TNews2_6_790293875__K34_K7_K8_K13_K5_9\")\n}\n\nmodel TNewsAttachFile {\n  AttachID  Int       @id(map: \"public_TNewsAttachFile_PK_TNewsAttachFile\") @default(autoincrement())\n  NewsID    Int\n  AttachUrl String?   @db.VarChar(500)\n  Created   DateTime?\n  Modified  DateTime?\n  CreateBy  Int?\n  ModifyBy  Int?\n  IsDelete  Boolean?\n}\n\nmodel TNewsPushNotify {\n  PushID    Int       @id(map: \"public_TNewsPushNotify_PK_TNewsPushNotifyNew\") @default(autoincrement())\n  NewsID    Int\n  UserID    Int\n  UserType  Int\n  SendDate  DateTime?\n  ReadDate  DateTime?\n  SchoolID  Int\n  Created   DateTime?\n  CreatedBy Int?\n  Modified  DateTime?\n  ModifyBy  Int?\n  IsDelete  Boolean\n\n  @@index([UserID], map: \"public_TNewsPushNotify_INDEX_VV_1135_1134\")\n  @@index([NewsID, SchoolID, UserID], map: \"public_TNewsPushNotify_INDEX_VV_5703_5702\")\n  @@index([UserID, ReadDate], map: \"public_TNewsPushNotify_IX_TNewsPushNotifyNew_UserID_ReadDate\")\n  @@index([UserID, SchoolID], map: \"public_TNewsPushNotify_IX_TNewsPushNotifyNew_UserID_SchoolID\")\n}\n\nmodel TNotificationSetting {\n  NotificationSettingId       Int       @id(map: \"public_TNotificationSetting_PK_TNotificationSetting\") @default(autoincrement())\n  SchoolId                    Int?\n  StaffID                     BigInt?\n  LineNotificationAccessToken String?   @db.VarChar(500)\n  CreateDate                  DateTime?\n  CreateBy                    Int?\n  UpdateDate                  DateTime?\n  UpdateBy                    Int?\n}\n\nmodel TOfficer {\n  OfficerID Int       @id(map: \"public_TOfficer_PK_TOfficer\") @default(autoincrement())\n  Code      String?   @db.VarChar(50)\n  FirstName String?   @db.VarChar(250)\n  LastName  String?   @db.VarChar(250)\n  NickName  String?   @db.VarChar(50)\n  Position  String?   @db.VarChar(50)\n  IsActive  Boolean?\n  IsDelete  Boolean?\n  Created   DateTime?\n  Modified  DateTime?\n  CreateBy  Int?\n  ModifyBy  Int?\n}\n\nmodel TPackage {\n  PackageID   Int       @id(map: \"public_TPackage_PK_TPackage\") @default(autoincrement())\n  PackageName String?   @db.VarChar(100)\n  IsActive    Boolean?\n  IsDelete    Boolean?\n  Created     DateTime?\n  Modified    DateTime?\n  CreateBy    Int?\n  ModifyBy    Int?\n}\n\nmodel TParent_Card {\n  Id         Int       @default(autoincrement())\n  sID        Int\n  SchoolID   Int\n  No         Int       @db.SmallInt\n  Type       Int?      @db.SmallInt\n  ParentName String?   @db.VarChar(250)\n  NFC        String?   @db.VarChar(20)\n  NFCEncrypt String?   @db.VarChar(20)\n  Created    DateTime?\n  Modified   DateTime?\n  CreateBy   Int?\n  ModifyBy   Int?\n  IsDel      Boolean?\n  IsActive   Boolean?\n  Barcode    String?   @db.VarChar(30)\n\n  @@id([Id, sID, SchoolID, No], map: \"public_TParent_Card_PK_TParent_Card\")\n  @@index([SchoolID, IsDel, Barcode], map: \"public_TParent_Card_INDEX_VV_28_27\")\n  @@index([SchoolID, IsDel, IsActive], map: \"public_TParent_Card_INDEX_VV_30151_30150\")\n  @@index([SchoolID, NFCEncrypt, IsDel, IsActive], map: \"public_TParent_Card_IX_TParent_Card_SchoolID_NFCEncrypt_IsDel_I\")\n  @@index([sID, SchoolID, No, IsDel, IsActive], map: \"public_TParent_Card_IX_TParent_Card_sID_SchoolID_No_IsDel_IsAct\")\n  @@index([Type], map: \"public_TParent_Card_IX_VV_TParent_Card_SchoolID_IsDel_IsActive\")\n}\n\nmodel TPeakData {\n  PeakDataId Int       @id @default(autoincrement())\n  Name       String?   @db.VarChar(50)\n  Value      String?\n  UpdateDate DateTime? @db.Timestamp(6)\n}\n\nmodel TPosDevices {\n  PosID      String @id(map: \"public_TPosDevices_PK_TPosDevices\") @db.VarChar(10)\n  TTabletID  Int?\n  TerminalID Int?\n}\n\nmodel TProduct {\n  ProductId   Int      @id(map: \"public_TProduct_PK_TProduct\") @default(autoincrement())\n  ProductCode String?  @db.VarChar(10)\n  Name        String?  @db.VarChar(200)\n  IsActive    Boolean?\n}\n\nmodel TResetPassword {\n  ID         Int       @id(map: \"public_TResetPassword_PK_TResetPassword\")\n  sUerID     Int?\n  dExpUpdate DateTime?\n  dExpActive DateTime?\n  OTP        String?   @db.VarChar(10)\n  cStatus    String?   @db.VarChar(10)\n}\n\nmodel TSaleArea {\n  SaleAreaId Int     @id @default(autoincrement())\n  Name       String? @db.VarChar(50)\n  Text       String?\n  Mapping    String? @db.VarChar(50)\n}\n\nmodel TSchoolArea {\n  ID   Int     @id(map: \"public_TSchoolArea_PK_TSchoolArea_1\") @default(autoincrement())\n  Code String? @db.VarChar(10)\n  Area String? @db.VarChar(100)\n}\n\nmodel TSegmentMenu {\n  ID          Int      @id(map: \"public_TSegmentMenu_PK_TSegmentMenu\") @default(autoincrement())\n  GroupMenuID Int?\n  Name        String?  @db.VarChar(250)\n  Class       String?  @db.VarChar(100)\n  Title       String?  @db.VarChar(100)\n  Active      Boolean?\n  nOrder      Int?\n}\n\nmodel TSegmentMenu_Lang {\n  ID              String  @id(map: \"public_TSegmentMenu_Lang_PK_TSegmentMenuLang\") @db.Uuid\n  SegmentMenuName String?\n  SegmentMenuID   Int?\n  Lang            String? @db.VarChar(10)\n}\n\nmodel TSound_Student {\n  SchoolID       Int\n  sID            Int\n  nTermSubLevel2 Int\n  FullName       String?   @db.VarChar(250)\n  Code           String?   @db.VarChar(50)\n  NickName       String?   @db.VarChar(50)\n  Receiver       String?   @db.VarChar(250)\n  Base64Sound    String?\n  Created        DateTime?\n  Modified       DateTime?\n  CreateBy       Int?\n  ModifyBy       Int?\n  IsDel          Boolean?\n  Gate           String?   @db.VarChar(10)\n  TermID         String?   @db.VarChar(20)\n\n  @@id([SchoolID, sID, nTermSubLevel2], map: \"public_TSound_Student_PK_TUser_Sound\")\n}\n\nmodel TStudentCall {\n  CallDate  DateTime\n  sID       Int\n  SchoolID  Int\n  CardNo    Int?      @db.SmallInt\n  Status    Int?      @db.SmallInt\n  Created   DateTime? @db.Time(6)\n  Announced DateTime? @db.Time(6)\n  Completed DateTime? @db.Time(6)\n  IsResend  Boolean?\n  ScanType  String?   @db.VarChar(10)\n  Token     String?   @db.Uuid\n  Remark    String?   @db.VarChar(250)\n  GateToken String?   @db.VarChar(500)\n\n  @@id([CallDate, sID, SchoolID], map: \"public_TStudentCall_PK_TStudentCalling\")\n  @@index([CallDate, SchoolID], map: \"public_TStudentCall_INDEX_VV_103297_103296\")\n  @@index([sID], map: \"public_TStudentCall_INDEX_VV_916_915\")\n  @@index([SchoolID, Status], map: \"public_TStudentCall_INDEX_VV_93396_93395\")\n  @@index([CallDate, SchoolID, ScanType], map: \"public_TStudentCall_INDEX_VV_97423_97422\")\n  @@index([Status], map: \"public_TStudentCall_IX_TStudentCall_CallDate_SchoolID_ScanType\")\n}\n\nmodel TStudentCall_Config {\n  SchoolId       Int       @id(map: \"public_TStudentCall_Config_PK_TStudentCall_Config\")\n  Gate           String?   @db.VarChar(20)\n  BgCard         String?\n  IsActive       Boolean?\n  Radius         Float?\n  Created        DateTime?\n  CreateBy       Int?\n  ModifyBy       Int?\n  Modified       DateTime?\n  IsShowLevel    Boolean?\n  IsShowLastName Boolean?\n  IsShowParent   Boolean?\n  CardType       Int?      @db.SmallInt\n  NameType       Int?      @db.SmallInt\n  IsEng          Boolean?\n}\n\nmodel TStudentCall_Gate {\n  Token        String    @id(map: \"public_TStudentCall_Gate_PK_TStudentCall_Gate\") @db.Uuid\n  SchoolID     Int?\n  Gate         Int?      @db.SmallInt\n  GateName     String?   @db.VarChar(250)\n  SelectedRoom String?\n  FullUrl      String?   @db.VarChar(250)\n  ShortUrl     String?   @db.VarChar(250)\n  Created      DateTime?\n  Modified     DateTime?\n  CreateBy     Int?\n  ModifyBy     Int?\n  IsDel        Boolean?\n\n  @@index([SchoolID, IsDel], map: \"public_TStudentCall_Gate_INDEX_VV_162_161\")\n}\n\nmodel TStudentCall_Log {\n  LogId        Int       @id(map: \"public_TStudentCall_Log_PK_TStudentCall_Log\") @default(autoincrement())\n  LogDate      DateTime?\n  LogText      String?\n  SchoolID     Int?\n  sID          Int?\n  Type         Int?      @db.SmallInt\n  IPAddress    String?   @db.VarChar(50)\n  Token        String?   @db.VarChar(50)\n  ConnectionID String?   @db.VarChar(50)\n\n  @@index([LogDate], map: \"public_TStudentCall_Log_INDEX_VV_169071_169070\")\n}\n\nmodel TSubDelivery {\n  SubDeliveryId Int       @id(map: \"public_TSubDelivery_PK_TSubDelivery\") @default(autoincrement())\n  DeliveryId    Int?\n  ProductName   String?   @db.VarChar(300)\n  Qty           Int?\n  SerialNo      String?   @db.VarChar(100)\n  StartDate     DateTime?\n  InsuranceNo   String?   @db.VarChar(100)\n  EndDate       DateTime?\n  DeliveryNo    String?   @db.VarChar(100)\n  ClaimNo       String?   @db.VarChar(100)\n  Note          String?   @db.VarChar(100)\n\n  @@index([ProductName, DeliveryId], map: \"public_TSubDelivery_INDEX_VV_5110763_5110762\")\n  @@index([DeliveryId], map: \"public_TSubDelivery_INDEX_VV_99726_99725\")\n}\n\nmodel TSubInsurance {\n  SubInsuranceId Int       @id(map: \"public_TSubInsurance_PK_TSubInsurance\") @default(autoincrement())\n  InsuranceId    Int?\n  ProductName    String?   @db.VarChar(100)\n  Qty            Int?\n  SerialNo       String?   @db.VarChar(100)\n  InsuranceNo    String?   @db.VarChar(100)\n  StartDate      DateTime?\n  EndDate        DateTime?\n}\n\nmodel TSystemSetting {\n  nSystemID                Int       @id(map: \"public_TSystemSetting_PK_TSystemSetting\") @default(autoincrement())\n  SchoolID                 Int?\n  bScanOut                 Boolean?\n  CreatedBy                Int?\n  UpdatedBy                Int?\n  CreatedDate              DateTime?\n  UpdatedDate              DateTime?\n  MenuID                   Int?\n  DocumentID               String?   @db.VarChar(50)\n  Config                   String?   @db.VarChar(1000)\n  IsOpenApproveUserProfile Boolean?\n  ApproveOption            Int?\n  ApproveStartDate         DateTime?\n  ApproveEndDate           DateTime?\n  MaxTopup                 Float?\n}\n\nmodel TToken {\n  Token_Id          Int       @id(map: \"public_TToken_PK_TToken\")\n  Client_Token      String?   @db.VarChar(200)\n  User_Token        String?   @db.VarChar(200)\n  School_Id         Int?\n  Client_Time_Stamp DateTime?\n  JabJai_Token      String?   @db.VarChar(200)\n}\n\nmodel TTopuphistory {\n  History_id       Int      @id(map: \"public_TTopuphistory_PK_TTopuphistory\")\n  order_no         String?  @db.VarChar(50)\n  user_id          Int?\n  trade_mony       Int?\n  Hash_data        String?\n  pay_type         String?  @db.VarChar(10)\n  site_cd          String?  @db.VarChar(20)\n  ret_url          String?  @db.VarChar(100)\n  good_name        String?  @db.VarChar(100)\n  order_first_name String?  @db.VarChar(100)\n  order_last_name  String?  @db.VarChar(100)\n  order_email      String?  @db.VarChar(100)\n  currency         String?  @db.VarChar(10)\n  fee              Int?\n  res_cd           String?  @db.VarChar(20)\n  res_msg          String?  @db.VarChar(50)\n  tno              String?  @db.VarChar(50)\n  money            Decimal? @db.Decimal(18, 0)\n}\n\nmodel TUser {\n  sID                   Int       @id(map: \"public_TUser_PK_TUser\") @default(autoincrement())\n  sName                 String?   @db.VarChar(256)\n  sLastname             String?   @db.VarChar(256)\n  sIdentification       String?   @db.VarChar(13)\n  dUpdatePass           DateTime?\n  username              String?   @db.VarChar(20)\n  userpassword          String?   @db.VarChar(50)\n  dBirth                DateTime?\n  cSex                  String?   @db.Char(1)\n  sPhone                String?   @db.VarChar(100)\n  sEmail                String?   @db.VarChar(256)\n  sPassword             String?   @db.VarChar(100)\n  sAddress              String?   @db.VarChar(512)\n  PROVINCE_ID           Int?\n  AMPHUR_ID             Int?\n  DISTRICT_ID           Int?\n  nSystemID             Int?\n  sCity                 String?   @db.VarChar(512)\n  sPostalcode           String?   @db.VarChar(10)\n  sCountry              String?   @db.VarChar(512)\n  dCreate               DateTime?\n  dUpdate               DateTime?\n  sFinger               String?\n  sFinger2              String?\n  sFinger3              String?\n  NFC                   String?   @db.VarChar(10)\n  cType                 String?   @db.Char(1)\n  cDel                  String?   @db.Char(1)\n  nCompany              Int\n  ContactPeak           String?   @db.VarChar(250)\n  pin                   String?   @db.VarChar(100)\n  Token                 String?\n  Secret_Key            String?\n  nMoney                Decimal?  @db.Decimal(18, 2)\n  uID                   String    @db.Uuid\n  UserSignature         String?   @db.VarChar(250)\n  UseBiometric          Boolean\n  sPicture              String?   @db.VarChar(250)\n  LineID                String?   @db.VarChar(250)\n  PasswordHash          String?   @db.VarChar(350)\n  UseEncryptPassword    Boolean\n  IsFirstLogin          Boolean   @default(true)\n  CurrentFailedAttempts Int       @default(0)\n  AccountLockedUntil    DateTime?\n  IsAccountVerified     Boolean   @default(false)\n\n  @@index([nCompany, cDel], map: \"idx_tuser_company_cdel\")\n  @@index([nCompany, cType, cDel], map: \"idx_tuser_company_type\")\n  @@index([nCompany, username], map: \"idx_tuser_company_username\")\n  @@index([sIdentification], map: \"idx_tuser_identification\")\n  @@index([username, cDel], map: \"idx_tuser_login\")\n  @@index([sName, sLastname], map: \"idx_tuser_name\")\n  @@index([NFC], map: \"idx_tuser_nfc\")\n  @@index([PasswordHash], map: \"idx_tuser_passwordhash\")\n  @@index([sID, nCompany], map: \"idx_tuser_sid\")\n  @@index([nSystemID, cType, nCompany], map: \"idx_tuser_system\")\n}\n\nmodel TUser_Card {\n  Id                Int       @default(autoincrement())\n  sID               Int\n  SchoolID          Int\n  No                Int?      @db.SmallInt\n  NFC               String?   @db.VarChar(20)\n  NFCReverse        String?   @db.VarChar(20)\n  NFCEncrypt        String?   @db.VarChar(20)\n  NFCEncryptReverse String?   @db.VarChar(20)\n  Created           DateTime?\n  Modified          DateTime?\n  CreateBy          Int?\n  ModifyBy          Int?\n  IsDel             Boolean?\n  IsActive          Boolean?\n  FreeText          String?   @db.VarChar(20)\n\n  @@id([Id, sID, SchoolID], map: \"public_TUser_Card_PK_TUser_Card\")\n  @@index([NFC], map: \"idx_tusercard_nfc\")\n  @@index([NFCEncrypt], map: \"idx_tusercard_nfcencrypt\")\n  @@index([NFCEncryptReverse], map: \"idx_tusercard_nfcencryptreverse\")\n  @@index([NFCReverse], map: \"idx_tusercard_nfcreverse\")\n  @@index([No], map: \"idx_tusercard_no\")\n  @@index([SchoolID, IsActive, IsDel], map: \"idx_tusercard_school_active\")\n  @@index([SchoolID, sID, IsDel], map: \"idx_tusercard_school_sid\")\n  @@index([sID, SchoolID], map: \"idx_tusercard_sid_school\")\n}\n\nmodel TrackingData {\n  ID      Int     @id(map: \"public_TrackingData_PK_TrackingData\") @default(autoincrement())\n  PID     Int?\n  ChVer   BigInt?\n  ChCrVer BigInt?\n  ChOp    String? @db.VarChar(200)\n  sPID    String? @db.VarChar(200)\n}\n\nmodel User_Audit_Table {\n  AuditID       Int       @id @default(autoincrement())\n  TableName     String\n  OperationType String\n  TStamp        DateTime? @default(now()) @db.Timestamp(6)\n  OldID         Int?\n  NewID         Int?\n\n  @@index([AuditID], map: \"IDX_PK_AuditID\")\n  @@index([TableName, NewID(sort: Desc), AuditID(sort: Desc)], map: \"IDX_VV_TableName_NewID\")\n}\n\nmodel amphur {\n  AMPHUR_ID      Int     @id(map: \"public_amphur_PK_amphur\")\n  AMPHUR_CODE    String  @db.VarChar(4)\n  AMPHUR_NAME    String  @db.VarChar(150)\n  POSTCODE       String  @db.VarChar(5)\n  GEO_ID         Int\n  PROVINCE_ID    Int\n  AMPHUR_NAME_EN String? @db.VarChar(150)\n}\n\nmodel district {\n  DISTRICT_ID      Int     @id(map: \"public_district_PK_district\")\n  DISTRICT_CODE    String  @db.VarChar(6)\n  DISTRICT_NAME_EN String? @db.VarChar(150)\n  DISTRICT_NAME    String  @db.VarChar(150)\n  AMPHUR_ID        Int\n  PROVINCE_ID      Int\n  GEO_ID           Int\n\n  @@index([PROVINCE_ID], map: \"public_district_INDEX_VV_4298_4297\")\n  @@index([AMPHUR_ID, PROVINCE_ID], map: \"public_district_INDEX_VV_99835_99834\")\n}\n\nmodel favorites {\n  favoritesid Int  @id(map: \"public_favorites_PK_favorites\")\n  tabletid    Int?\n  productid   Int?\n}\n\n/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.\nmodel indexupdated {\n  table_name      Unsupported(\"name\")?\n  index_type      Unsupported(\"name\")?\n  duplicate_count BigInt?\n  indexes         Unsupported(\"_name\")[]\n\n  @@ignore\n}\n\nmodel permission {\n  user_id     Int\n  menu_id     Int\n  type        String    @db.VarChar(5)\n  actvice     Int\n  CreatedBy   Int?\n  UpdatedBy   Int?\n  CreatedDate DateTime?\n  UpdatedDate DateTime?\n\n  @@id([user_id, menu_id, type], map: \"public_permission_PK_permission\")\n}\n\nmodel province {\n  PROVINCE_ID      Int     @id(map: \"public_province_PK_province\")\n  PROVINCE_CODE    String  @db.VarChar(2)\n  PROVINCE_NAME    String  @db.VarChar(150)\n  GEO_ID           Int\n  PROVINCE_NAME_EN String? @db.VarChar(150)\n}\n",
-  "inlineSchemaHash": "7ee510bbcbeb457bbbd72276a7dbfa31e13f33e1628740e3e6f26f83cff5c63e",
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../generated/prisma\"\n  binaryTargets = [\"native\", \"debian-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel APIConfiguration {\n  ConfigurationID Int    @id(map: \"public_APIConfiguration_PK_APIConfiguration\") @default(autoincrement())\n  Name            String @db.VarChar(200)\n  Value           String\n}\n\nmodel ActiveSchoolList {\n  nCompany Int      @id\n  sCompany String?  @db.VarChar(250)\n  cDel     Boolean?\n  Active   Boolean?\n  isActive Boolean?\n\n  @@index([nCompany], map: \"IDX_nCompany\")\n}\n\nmodel BBLTransaction {\n  TransactionID String    @id(map: \"public_BBLTransaction_PK_BBLTransaction\") @db.Uuid\n  payeeId       String?   @db.VarChar(100)\n  transDate     String?   @db.VarChar(100)\n  transTime     String?   @db.VarChar(100)\n  transRef      String?   @db.VarChar(100)\n  channel       String?   @db.VarChar(100)\n  termId        String?   @db.VarChar(100)\n  amount        String?   @db.VarChar(100)\n  reference1    String?   @db.VarChar(100)\n  reference2    String?   @db.VarChar(100)\n  fromBank      String?   @db.VarChar(100)\n  retryFlag     String?   @db.VarChar(100)\n  InvoiceID     Int?\n  SchoolID      Int?\n  ErrorCode     String?   @db.VarChar(250)\n  ErrorMessage  String?   @db.VarChar(250)\n  VerifyDate    DateTime?\n  VerifyCode    String?   @db.VarChar(10)\n  VerifyStatus  String?   @db.VarChar(100)\n  NotifyDate    DateTime?\n  NotifyCode    String?   @db.VarChar(10)\n  NotifyStatus  String?   @db.VarChar(100)\n}\n\nmodel DeviceDailyStatus {\n  DeviceStatusID String    @id(map: \"public_DeviceDailyStatus_PK_DeviceDailyStatus_new\") @db.Uuid\n  SchoolID       Int\n  DeviceID       String    @db.VarChar(200)\n  Online         Boolean\n  OnlineTime     DateTime?\n  Login          Boolean\n  LoginTime      DateTime?\n  LogOut         Boolean\n  LogoutTime     DateTime?\n  Tstamp         DateTime\n  BusinessDate   DateTime  @db.Timestamp(6)\n  AppVersion     String?   @db.VarChar(200)\n  AppName        String?   @db.VarChar(200)\n  Note           String?\n  UserLoginID    Int?\n  DeviceTypeID   Int?\n\n  @@index([SchoolID, OnlineTime], map: \"public_DeviceDailyStatus_INDEX_VV_3735_3734_new\")\n  @@index([Online, Login], map: \"public_DeviceDailyStatus_INDEX_VV_629_628\")\n  @@index([SchoolID, DeviceID, BusinessDate], map: \"public_DeviceDailyStatus_IX_DeviceDailyStatus_SchoolID_DeviceID\")\n}\n\nmodel DeviceType {\n  DeviceTypeID Int     @id(map: \"public_DeviceType_PK_DeviceType\")\n  TypeNameEN   String? @db.VarChar(250)\n  TypeNameTH   String? @db.VarChar(250)\n}\n\nmodel ExcelExportData {\n  ExportID     Int      @id(map: \"public_ExcelExportData_PK_ExcelExportData\") @default(autoincrement())\n  Name         String?  @db.VarChar(300)\n  StudentID    String?  @db.VarChar(50)\n  SchoolID     Int\n  nMoney       Decimal  @db.Decimal(18, 2)\n  Status       String?  @db.Char(1)\n  Tstamp       DateTime\n  Success      Boolean\n  RecordExists Boolean\n  Remarks      String?  @db.VarChar(500)\n}\n\nmodel MasterDBTUserCard {\n  Id                Int\n  sID               Int\n  SchoolID          Int\n  No                Int?      @db.SmallInt\n  NFC               String?   @db.VarChar(20)\n  NFCReverse        String?   @db.VarChar(20)\n  NFCEncrypt        String?   @db.VarChar(20)\n  NFCEncryptReverse String?   @db.VarChar(20)\n  Created           DateTime?\n  Modified          DateTime?\n  CreateBy          Int?\n  ModifyBy          Int?\n  IsDel             Boolean?\n  IsActive          Boolean?\n  FreeText          String?   @db.VarChar(20)\n\n  @@id([Id, sID, SchoolID], map: \"public_MasterDBTUserCard_PK_MasterDBTUserCard\")\n  @@index([NFC], map: \"idx_tusercard_nfc\")\n  @@index([NFCEncrypt], map: \"idx_tusercard_nfcencrypt\")\n  @@index([NFCEncryptReverse], map: \"idx_tusercard_nfcencryptreverse\")\n  @@index([NFCReverse], map: \"idx_tusercard_nfcreverse\")\n  @@index([No], map: \"idx_tusercard_no\")\n  @@index([SchoolID, IsActive, IsDel], map: \"idx_tusercard_school_active\")\n  @@index([SchoolID, sID, IsDel], map: \"idx_tusercard_school_sid\")\n  @@index([sID, SchoolID], map: \"idx_tusercard_sid_school\")\n}\n\n/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.\nmodel ResultVerifyUserBalanceTempCard {\n  CardHistoryID String?   @db.Uuid\n  Balance       Decimal?  @db.Decimal(18, 2)\n  SystemBalance Float?\n  SQLStatement  String?\n  Tstamp        DateTime? @db.Timestamptz(6)\n\n  @@ignore\n}\n\n/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.\nmodel ResultVerifyUserBalanceTempCard_Bkup {\n  CardHistoryID String?   @db.Uuid\n  balance       Decimal?  @db.Decimal(18, 2)\n  SystemBalance Float?\n  SQLStatement  String?   @db.VarChar(560)\n  Tstamp        DateTime\n  BusinessDate  DateTime? @db.Timestamp(6)\n\n  @@ignore\n}\n\n/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.\nmodel ResultVerifyUserBalance_Bkup {\n  SchoolID      Int\n  sID           Int\n  Balance       Decimal?  @db.Decimal(18, 2)\n  SystemBalance Float\n  SQLStatement  String?   @db.VarChar(99)\n  Tstamp        DateTime\n  BusinessDate  DateTime? @db.Timestamp(6)\n  cType         String?   @db.VarChar(5)\n\n  @@ignore\n}\n\nmodel SBLoginHistory {\n  id          Int       @id(map: \"public_SBLoginHistory_PK_SBLoginHistory\") @default(autoincrement())\n  nStudentID  Int?\n  sFirstName  String?   @db.VarChar(100)\n  sLastName   String?   @db.VarChar(100)\n  schoolID    Int?\n  sIMEI       String?   @db.VarChar(450)\n  sDeviceOS   String?   @db.VarChar(450)\n  sAppName    String?   @db.VarChar(100)\n  sAppVersion String?   @db.VarChar(100)\n  sIPAddress  String?   @db.VarChar(150)\n  loginAt     DateTime?\n\n  @@index([schoolID, nStudentID, loginAt], map: \"public_SBLoginHistory_IDX_SBLoginHistory_Covering\")\n  @@index([schoolID], map: \"public_SBLoginHistory_INDEX_VV_126133_126132\")\n  @@index([sIMEI], map: \"public_SBLoginHistory_INDEX_VV_126711_126710\")\n  @@index([schoolID, nStudentID, loginAt], map: \"public_SBLoginHistory_IX_SBLoginHistory_School_Student_LoginAt\")\n  @@index([schoolID, nStudentID, loginAt], map: \"public_SBLoginHistory_IX_SBLoginHistory_School_Student_LoginAt_\")\n}\n\n/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.\nmodel SchoolTUser {\n  SchoolID       Int?\n  sID            Int?\n  nStudentStatus Int?\n  sStudentID     String? @db.VarChar(20)\n\n  @@ignore\n}\n\nmodel TApproveEmployeeContactAddress {\n  ID                 Int       @default(autoincrement())\n  Version            Int?\n  EmployeeID         Int\n  SchoolID           Int\n  IsPermanentAddress Boolean?\n  HouseNo            String?   @db.VarChar(10)\n  Moo                String?   @db.VarChar(10)\n  Village            String?   @db.VarChar(50)\n  Soi                String?   @db.VarChar(40)\n  Building           String?   @db.VarChar(50)\n  Road               String?   @db.VarChar(40)\n  Province           Int?\n  District           Int?\n  SubDistrict        Int?\n  PostalCode         String?   @db.VarChar(10)\n  RequestApproveDate DateTime?\n  ApproveDate        DateTime?\n  ApproveBy          Int?\n  ApproveStatus      String?   @db.VarChar(20)\n  ApproveComment     String?   @db.VarChar(500)\n  UserAcknowledge    Boolean?\n  EndDateShowResult  DateTime?\n\n  @@id([ID, EmployeeID, SchoolID], map: \"public_TApproveEmployeeContactAddress_PK_TAPPROVEEMPLOYEECONTAC\")\n}\n\nmodel TApproveEmployeeEducation {\n  ID                   Int       @default(autoincrement())\n  Version              Int?\n  EmployeeID           Int\n  SchoolID             Int\n  No                   Int?\n  EducationInstitution String?   @db.VarChar(100)\n  GraduateStartDate    Int?\n  GraduateEndDate      Int?\n  Education            Int?\n  Major                String?   @db.VarChar(100)\n  Minor                String?   @db.VarChar(100)\n  RequestApproveDate   DateTime?\n  ApproveDate          DateTime?\n  ApproveBy            Int?\n  ApproveStatus        String?   @db.VarChar(20)\n  ApproveComment       String?   @db.VarChar(500)\n  UserAcknowledge      Boolean?\n  EndDateShowResult    DateTime?\n\n  @@id([ID, EmployeeID, SchoolID], map: \"public_TApproveEmployeeEducation_PK_TAPPROVEEMPLOYEEEDUCATION\")\n}\n\nmodel TApproveEmployeeFamily {\n  ID                 Int       @default(autoincrement())\n  Version            Int?\n  EmployeeID         Int\n  SchoolID           Int\n  No                 Int?\n  FamilyRelationship String?   @db.VarChar(20)\n  Title              Int?\n  Name               String?   @db.VarChar(30)\n  Surname            String?   @db.VarChar(50)\n  Birthday           DateTime?\n  MaritalStatus      Int?\n  LivingStatus       String?   @db.VarChar(30)\n  DeathStatus        String?   @db.VarChar(30)\n  FamilyOccupation   String?   @db.VarChar(50)\n  Education          Int?\n  RequestApproveDate DateTime?\n  ApproveDate        DateTime?\n  ApproveBy          Int?\n  ApproveStatus      String?   @db.VarChar(20)\n  ApproveComment     String?   @db.VarChar(500)\n  UserAcknowledge    Boolean?\n  EndDateShowResult  DateTime?\n\n  @@id([ID, EmployeeID, SchoolID], map: \"public_TApproveEmployeeFamily_PK_TAPPROVEEMPLOYEEFAMILY\")\n}\n\nmodel TApproveEmployeeHistoryReceivingRoyalDecoration {\n  ID                      Int       @default(autoincrement())\n  Version                 Int?\n  EmployeeID              Int\n  SchoolID                Int\n  No                      Int?\n  YearReceived            Int?\n  RoyalDecorationClass    String?   @db.VarChar(50)\n  Position                String?   @db.VarChar(50)\n  RoyalGovernmentVolumeNo String?   @db.VarChar(10)\n  RoyalGovernmentPart     String?   @db.VarChar(10)\n  RoyalGovernmentNo       String?   @db.VarChar(10)\n  Dated                   DateTime?\n  RequestApproveDate      DateTime?\n  ApproveDate             DateTime?\n  ApproveBy               Int?\n  ApproveStatus           String?   @db.VarChar(20)\n  ApproveComment          String?   @db.VarChar(500)\n  UserAcknowledge         Boolean?\n  EndDateShowResult       DateTime?\n\n  @@id([ID, EmployeeID, SchoolID], map: \"public_TApproveEmployeeHistoryReceivingRoyalDecoration_PK_TAPPR\")\n}\n\nmodel TApproveEmployeeHonor {\n  ID                 Int       @default(autoincrement())\n  Version            Int?\n  EmployeeID         Int\n  SchoolID           Int\n  No                 Int?\n  HonorType          String?   @db.VarChar(100)\n  DonatingAgency     String?   @db.VarChar(100)\n  YearReceived       Int?\n  RequestApproveDate DateTime?\n  ApproveDate        DateTime?\n  ApproveBy          Int?\n  ApproveStatus      String?   @db.VarChar(20)\n  ApproveComment     String?   @db.VarChar(500)\n  UserAcknowledge    Boolean?\n  EndDateShowResult  DateTime?\n\n  @@id([ID, EmployeeID, SchoolID], map: \"public_TApproveEmployeeHonor_PK_TAPPROVEEMPLOYEEHONOR\")\n}\n\nmodel TApproveEmployeeOccupationalLicense {\n  ID                             Int       @default(autoincrement())\n  Version                        Int?\n  EmployeeID                     Int\n  SchoolID                       Int\n  No                             Int?\n  ProfessionalLicenseType        Int?\n  ProfessionalLicenseNumber      String?   @db.VarChar(20)\n  ProfessionalLicenseName        String?   @db.VarChar(100)\n  CertificateIssueDate           DateTime?\n  CertificateExpireDate          DateTime?\n  OrganizationIssuingCertificate String?   @db.VarChar(100)\n  RequestApproveDate             DateTime?\n  ApproveDate                    DateTime?\n  ApproveBy                      Int?\n  ApproveStatus                  String?   @db.VarChar(20)\n  ApproveComment                 String?   @db.VarChar(500)\n  UserAcknowledge                Boolean?\n  EndDateShowResult              DateTime?\n\n  @@id([ID, EmployeeID, SchoolID], map: \"public_TApproveEmployeeOccupationalLicense_PK_TAPPROVEEMPLOYEEO\")\n}\n\nmodel TApproveEmployeePermanentAddress {\n  ID                 Int       @default(autoincrement())\n  Version            Int?\n  EmployeeID         Int\n  SchoolID           Int\n  HouseNo            String?   @db.VarChar(100)\n  Moo                String?   @db.VarChar(50)\n  Village            String?   @db.VarChar(50)\n  Soi                String?   @db.VarChar(50)\n  Building           String?   @db.VarChar(50)\n  Road               String?   @db.VarChar(50)\n  Province           Int?\n  District           Int?\n  SubDistrict        Int?\n  PostalCode         String?   @db.VarChar(10)\n  RequestApproveDate DateTime?\n  ApproveDate        DateTime?\n  ApproveBy          Int?\n  ApproveStatus      String?   @db.VarChar(20)\n  ApproveComment     String?   @db.VarChar(500)\n  UserAcknowledge    Boolean?\n  EndDateShowResult  DateTime?\n\n  @@id([ID, EmployeeID, SchoolID], map: \"public_TApproveEmployeePermanentAddress_PK_TAPPROVEEMPLOYEEPERM\")\n}\n\nmodel TApproveEmployeeProfile {\n  ID                 Int       @default(autoincrement())\n  Version            Int?\n  EmployeeID         Int\n  SchoolID           Int\n  Gender             String?   @db.Char(1)\n  Title              Int?\n  Name               String?   @db.VarChar(256)\n  Surname            String?   @db.VarChar(256)\n  NameEn             String?   @db.VarChar(30)\n  SurnameEn          String?   @db.VarChar(50)\n  IDCardNumber       String?   @db.VarChar(13)\n  PassportNumber     String?   @db.VarChar(50)\n  PassportCountry    String?   @db.VarChar(100)\n  BirthDay           DateTime?\n  BloodType          String?   @db.VarChar(5)\n  Nationality        String?   @db.VarChar(3)\n  Race               String?   @db.VarChar(3)\n  Religion           String?   @db.VarChar(3)\n  MaritalStatus      Int?\n  SpouseName         String?   @db.VarChar(30)\n  SpouseSurname      String?   @db.VarChar(50)\n  PhoneNumber        String?   @db.VarChar(20)\n  Email              String?   @db.VarChar(256)\n  RequestApproveDate DateTime?\n  ApproveDate        DateTime?\n  ApproveBy          Int?\n  ApproveStatus      String?   @db.VarChar(20)\n  ApproveComment     String?   @db.VarChar(500)\n  UserAcknowledge    Boolean?\n  EndDateShowResult  DateTime?\n\n  @@id([ID, EmployeeID, SchoolID], map: \"public_TApproveEmployeeProfile_PK_TAPPROVEEMPLOYEEPROFILE\")\n}\n\nmodel TApproveEmployeeTraining {\n  ID                 Int       @default(autoincrement())\n  Version            Int?\n  EmployeeID         Int\n  SchoolID           Int\n  No                 Int?\n  Type               Int?\n  Project            String?   @db.VarChar(100)\n  TrainingCourseName String?   @db.VarChar(100)\n  TrainingStartDate  DateTime?\n  TrainingEndDate    DateTime?\n  NumberHours        Decimal?  @db.Decimal(6, 2)\n  Location           String?   @db.VarChar(100)\n  Country            String?   @db.VarChar(100)\n  Province           String?   @db.VarChar(100)\n  Expenses           Decimal?  @db.Decimal(6, 2)\n  RequestApproveDate DateTime?\n  ApproveDate        DateTime?\n  ApproveBy          Int?\n  ApproveStatus      String?   @db.VarChar(20)\n  ApproveComment     String?   @db.VarChar(500)\n  UserAcknowledge    Boolean?\n  EndDateShowResult  DateTime?\n\n  @@id([ID, EmployeeID, SchoolID], map: \"public_TApproveEmployeeTraining_PK_TAPPROVEEMPLOYEETRAINING\")\n}\n\nmodel TApproveStudentContactAddress {\n  ID                 Int       @default(autoincrement())\n  Version            Int?\n  StudentID          Int\n  SchoolID           Int\n  IsPermanentAddress Boolean?\n  HouseNo            String?   @db.VarChar(100)\n  Soi                String?   @db.VarChar(50)\n  Moo                String?   @db.VarChar(50)\n  Road               String?   @db.VarChar(50)\n  Province           Int?\n  District           Int?\n  SubDistrict        Int?\n  PostalCode         String?   @db.VarChar(50)\n  HousePhone         String?   @db.VarChar(50)\n  LiveWithTitle      Int?\n  LiveWithName       String?   @db.VarChar(100)\n  LiveWithSurname    String?   @db.VarChar(100)\n  EmergencyPhone     String?   @db.VarChar(20)\n  LiveWithEmail      String?   @db.VarChar(100)\n  NeighborName       String?   @db.VarChar(50)\n  NeighborSurname    String?   @db.VarChar(50)\n  NeighborPhone      String?   @db.VarChar(30)\n  HouseStyle         Int?\n  RequestApproveDate DateTime?\n  ApproveDate        DateTime?\n  ApproveBy          Int?\n  ApproveStatus      String?   @db.VarChar(20)\n  ApproveComment     String?   @db.VarChar(500)\n  UserAcknowledge    Boolean?\n  EndDateShowResult  DateTime?\n  RecoveryScript     String?   @db.VarChar(2000)\n  RecoveryDate       DateTime?\n  RecoveryBy         Int?\n\n  @@id([ID, StudentID, SchoolID], map: \"public_TApproveStudentContactAddress_PK_TAPPROVESTUDENTCONTACTA\")\n  @@index([ApproveStatus], map: \"public_TApproveStudentContactAddress_INDEX_VV_1031_1030\")\n  @@index([StudentID, SchoolID], map: \"public_TApproveStudentContactAddress_INDEX_VV_156524_156523\")\n  @@index([SchoolID], map: \"public_TApproveStudentContactAddress_INDEX_VV_22350_22349\")\n}\n\nmodel TApproveStudentFatherInfo {\n  ID                   Int       @default(autoincrement())\n  Version              Int?\n  StudentID            Int\n  SchoolID             Int\n  Title                Int?\n  Name                 String?   @db.VarChar(50)\n  Surname              String?   @db.VarChar(50)\n  NameEn               String?   @db.VarChar(100)\n  SurnameEn            String?   @db.VarChar(100)\n  BirthDay             DateTime?\n  IDCardNumber         String?   @db.VarChar(50)\n  Race                 String?   @db.VarChar(3)\n  Nationality          String?   @db.VarChar(3)\n  Religion             String?   @db.VarChar(3)\n  Education            Int?\n  HouseNo              String?   @db.VarChar(50)\n  Soi                  String?   @db.VarChar(50)\n  Moo                  String?   @db.VarChar(50)\n  Road                 String?   @db.VarChar(50)\n  Province             Int?\n  District             Int?\n  SubDistrict          Int?\n  PostalCode           String?   @db.VarChar(50)\n  Career               String?   @db.VarChar(100)\n  MonthlyIncome        Float?\n  WorkPlaces           String?   @db.VarChar(200)\n  PhoneNumberHouse     String?   @db.VarChar(50)\n  PhoneNumberMobile    String?   @db.VarChar(20)\n  PhoneNumberWorkPlace String?   @db.VarChar(20)\n  RequestApproveDate   DateTime?\n  ApproveDate          DateTime?\n  ApproveBy            Int?\n  ApproveStatus        String?   @db.VarChar(20)\n  ApproveComment       String?   @db.VarChar(500)\n  UserAcknowledge      Boolean?\n  EndDateShowResult    DateTime?\n  RecoveryScript       String?   @db.VarChar(2000)\n  RecoveryDate         DateTime?\n  RecoveryBy           Int?\n\n  @@id([ID, StudentID, SchoolID], map: \"public_TApproveStudentFatherInfo_PK_TAPPROVESTUDENTFATHERINFO\")\n  @@index([StudentID, SchoolID], map: \"public_TApproveStudentFatherInfo_INDEX_VV_18210_18209\")\n  @@index([SchoolID], map: \"public_TApproveStudentFatherInfo_INDEX_VV_22352_22351\")\n}\n\nmodel TApproveStudentMotherInfo {\n  ID                   Int       @default(autoincrement())\n  Version              Int?\n  StudentID            Int\n  SchoolID             Int\n  Title                Int?\n  Name                 String?   @db.VarChar(50)\n  Surname              String?   @db.VarChar(50)\n  NameEn               String?   @db.VarChar(100)\n  SurnameEn            String?   @db.VarChar(100)\n  BirthDay             DateTime?\n  IDCardNumber         String?   @db.VarChar(50)\n  Race                 String?   @db.VarChar(3)\n  Nationality          String?   @db.VarChar(3)\n  Religion             String?   @db.VarChar(3)\n  Education            Int?\n  IsFatherAddress      Boolean?\n  HouseNo              String?   @db.VarChar(50)\n  Soi                  String?   @db.VarChar(50)\n  Moo                  String?   @db.VarChar(50)\n  Road                 String?   @db.VarChar(50)\n  Province             Int?\n  District             Int?\n  SubDistrict          Int?\n  PostalCode           String?   @db.VarChar(50)\n  Career               String?   @db.VarChar(100)\n  MonthlyIncome        Float?\n  WorkPlaces           String?   @db.VarChar(200)\n  PhoneNumberHouse     String?   @db.VarChar(50)\n  PhoneNumberMobile    String?   @db.VarChar(20)\n  PhoneNumberWorkPlace String?   @db.VarChar(20)\n  RequestApproveDate   DateTime?\n  ApproveDate          DateTime?\n  ApproveBy            Int?\n  ApproveStatus        String?   @db.VarChar(20)\n  ApproveComment       String?   @db.VarChar(500)\n  UserAcknowledge      Boolean?\n  EndDateShowResult    DateTime?\n  RecoveryScript       String?   @db.VarChar(2000)\n  RecoveryDate         DateTime?\n  RecoveryBy           Int?\n\n  @@id([ID, StudentID, SchoolID], map: \"public_TApproveStudentMotherInfo_PK_TAPPROVESTUDENTMOTHERINFO\")\n  @@index([StudentID, SchoolID], map: \"public_TApproveStudentMotherInfo_INDEX_VV_156854_156853\")\n  @@index([SchoolID], map: \"public_TApproveStudentMotherInfo_INDEX_VV_22354_22353\")\n}\n\nmodel TApproveStudentParentInfo {\n  ID                   Int       @default(autoincrement())\n  Version              Int?\n  StudentID            Int\n  SchoolID             Int\n  CopyFrom             Int?\n  Relationship         String?   @db.VarChar(20)\n  Title                Int?\n  Name                 String?   @db.VarChar(50)\n  Surname              String?   @db.VarChar(50)\n  NameEn               String?   @db.VarChar(50)\n  SurnameEn            String?   @db.VarChar(50)\n  BirthDay             DateTime?\n  IDCardNumber         String?   @db.VarChar(20)\n  Race                 String?   @db.VarChar(3)\n  Nationality          String?   @db.VarChar(3)\n  Religion             String?   @db.VarChar(3)\n  Education            Int?\n  HouseNo              String?   @db.VarChar(50)\n  Soi                  String?   @db.VarChar(50)\n  Moo                  String?   @db.VarChar(50)\n  Road                 String?   @db.VarChar(50)\n  Province             Int?\n  District             Int?\n  SubDistrict          Int?\n  PostalCode           String?   @db.VarChar(50)\n  TuitionFee           Int?\n  FamilyStatus         Int?\n  Career               String?   @db.VarChar(200)\n  MonthlyIncome        Float?\n  WorkPlaces           String?   @db.VarChar(200)\n  PhoneNumberHouse     String?   @db.VarChar(30)\n  PhoneNumberMobile    String?   @db.VarChar(30)\n  PhoneNumberWorkPlace String?   @db.VarChar(30)\n  RequestApproveDate   DateTime?\n  ApproveDate          DateTime?\n  ApproveBy            Int?\n  ApproveStatus        String?   @db.VarChar(20)\n  ApproveComment       String?   @db.VarChar(500)\n  UserAcknowledge      Boolean?\n  EndDateShowResult    DateTime?\n  RecoveryScript       String?   @db.VarChar(2000)\n  RecoveryDate         DateTime?\n  RecoveryBy           Int?\n\n  @@id([ID, StudentID, SchoolID], map: \"public_TApproveStudentParentInfo_PK_TAPPROVESTUDENTPARENTINFO\")\n  @@index([StudentID, SchoolID], map: \"public_TApproveStudentParentInfo_INDEX_VV_157518_157517\")\n  @@index([SchoolID], map: \"public_TApproveStudentParentInfo_INDEX_VV_22356_22355\")\n}\n\nmodel TApproveStudentPermanentAddress {\n  ID                    Int       @default(autoincrement())\n  Version               Int?\n  StudentID             Int\n  SchoolID              Int\n  HouseCode             String?   @db.VarChar(20)\n  HouseNo               String?   @db.VarChar(100)\n  Soi                   String?   @db.VarChar(100)\n  Moo                   String?   @db.VarChar(100)\n  Road                  String?   @db.VarChar(100)\n  Province              Int?\n  District              Int?\n  SubDistrict           Int?\n  PostalCode            String?   @db.VarChar(20)\n  HomePhoneNumber       String?   @db.VarChar(20)\n  BirthPlace            String?   @db.VarChar(100)\n  BirthPlaceProvince    Int?\n  BirthPlaceDistrict    Int?\n  BirthPlaceSubDistrict Int?\n  RequestApproveDate    DateTime?\n  ApproveDate           DateTime?\n  ApproveBy             Int?\n  ApproveStatus         String?   @db.VarChar(20)\n  ApproveComment        String?   @db.VarChar(500)\n  UserAcknowledge       Boolean?\n  EndDateShowResult     DateTime?\n  RecoveryScript        String?   @db.VarChar(2000)\n  RecoveryDate          DateTime?\n  RecoveryBy            Int?\n\n  @@id([ID, StudentID, SchoolID], map: \"public_TApproveStudentPermanentAddress_PK_TAPPROVESTUDENTPERMAN\")\n  @@index([StudentID, SchoolID], map: \"public_TApproveStudentPermanentAddress_INDEX_VV_145218_145217\")\n  @@index([SchoolID], map: \"public_TApproveStudentPermanentAddress_INDEX_VV_22348_22347\")\n  @@index([SchoolID, ApproveStatus], map: \"public_TApproveStudentPermanentAddress_INDEX_VV_23788_23787\")\n}\n\nmodel TApproveStudentProfile {\n  ID                       Int       @default(autoincrement())\n  Version                  Int?\n  StudentID                Int\n  SchoolID                 Int\n  Gender                   String?   @db.Char(1)\n  Title                    Int?\n  Name                     String?   @db.VarChar(256)\n  Surname                  String?   @db.VarChar(256)\n  NameEn                   String?   @db.VarChar(50)\n  SurnameEn                String?   @db.VarChar(50)\n  NameOther                String?   @db.VarChar(50)\n  SurnameOther             String?   @db.VarChar(50)\n  Nickname                 String?   @db.VarChar(256)\n  NicknameEn               String?   @db.VarChar(256)\n  BirthDay                 DateTime?\n  Race                     String?   @db.VarChar(3)\n  Nationality              String?   @db.VarChar(3)\n  Religion                 String?   @db.VarChar(3)\n  Disability               String?   @db.VarChar(2)\n  Disadvantaged            String?   @db.VarChar(2)\n  PhoneNumber              String?   @db.VarChar(100)\n  Email                    String?   @db.VarChar(256)\n  NumberMemberInFamily     Int?\n  YouAreChildOfFamily      Int?\n  HaveBrotherStudyInSchool Int?\n  Other                    String?   @db.VarChar(1000)\n  RequestApproveDate       DateTime?\n  ApproveDate              DateTime?\n  ApproveBy                Int?\n  ApproveStatus            String?   @db.VarChar(20)\n  ApproveComment           String?   @db.VarChar(500)\n  UserAcknowledge          Boolean?\n  EndDateShowResult        DateTime?\n  RecoveryScript           String?   @db.VarChar(2000)\n  RecoveryDate             DateTime?\n  RecoveryBy               Int?\n  SpendingPerDay           Decimal?  @db.Decimal(18, 2)\n\n  @@id([ID, StudentID, SchoolID], map: \"public_TApproveStudentProfile_PK_TAPPROVESTUDENTPROFILE\")\n  @@index([SchoolID], map: \"public_TApproveStudentProfile_INDEX_VV_22346_22345\")\n  @@index([SchoolID], map: \"public_TApproveStudentProfile_INDEX_VV_23527_23526\")\n  @@index([StudentID, SchoolID], map: \"public_TApproveStudentProfile_INDEX_VV_5794232_5794231\")\n}\n\nmodel TB_EQ_Answer {\n  TB_EQ_Answer_Id   Int       @default(autoincrement())\n  TB_EQ_Question_Id Int?\n  TB_EQ_Point_Point Int?\n  sID               Int?\n  SchoolID          Int\n  CreatedBy         Int?\n  UpdatedBy         Int?\n  CreatedDate       DateTime?\n  UpdatedDate       DateTime?\n  cDel              Boolean\n\n  @@id([SchoolID, TB_EQ_Answer_Id], map: \"public_TB_EQ_Answer_PK_TB_EQ_Answer\")\n}\n\nmodel TB_EQ_Data {\n  TB_EQ_Data_Id       Int       @default(autoincrement())\n  TB_EQ_Data_Datetime DateTime?\n  sID                 Int?\n  SchoolID            Int\n  CreatedBy           Int?\n  UpdatedBy           Int?\n  CreatedDate         DateTime?\n  UpdatedDate         DateTime?\n  cDel                Boolean\n\n  @@id([SchoolID, TB_EQ_Data_Id], map: \"public_TB_EQ_Data_PK_TB_EQ_Data\")\n}\n\nmodel TB_EQ_Group {\n  TB_EQ_Group_Id       Int       @default(autoincrement())\n  TB_EQ_Group_Des      String?   @db.VarChar(250)\n  TB_EQ_Question_Group Int?\n  SchoolID             Int\n  CreatedBy            Int?\n  UpdatedBy            Int?\n  CreatedDate          DateTime?\n  UpdatedDate          DateTime?\n  cDel                 Boolean\n\n  @@id([SchoolID, TB_EQ_Group_Id], map: \"public_TB_EQ_Group_PK_TB_EQ_Group\")\n}\n\nmodel TB_EQ_Point {\n  TB_EQ_Point_Id    Int       @default(autoincrement())\n  TB_EQ_Point_Point Int?\n  TB_EQ_Question_Id Int?\n  SchoolID          Int\n  CreatedBy         Int?\n  UpdatedBy         Int?\n  CreatedDate       DateTime?\n  UpdatedDate       DateTime?\n  cDel              Boolean\n\n  @@id([SchoolID, TB_EQ_Point_Id], map: \"public_TB_EQ_Point_PK_TB_EQ_Point\")\n}\n\nmodel TB_EQ_Question {\n  TB_EQ_Question_Id    Int       @default(autoincrement())\n  TB_EQ_Question_Des   String?   @db.VarChar(250)\n  TB_EQ_Question_Group Int?\n  SchoolID             Int\n  CreatedBy            Int?\n  UpdatedBy            Int?\n  CreatedDate          DateTime?\n  UpdatedDate          DateTime?\n  cDel                 Boolean\n\n  @@id([SchoolID, TB_EQ_Question_Id], map: \"public_TB_EQ_Question_PK_TB_EQ_Question\")\n}\n\nmodel TB_HistorySetting {\n  Fd_HistoryID    String    @id(map: \"public_TB_HistorySetting_PK_TB_HistorySetting\") @db.Uuid\n  Fd_FunctionName String?   @db.VarChar(200)\n  Fd_SettingData  String?\n  Fd_SchoolID     Int?\n  Fd_UpdatedDate  DateTime?\n  Fd_UpdatedBy    Int?\n}\n\nmodel TBackupCard {\n  CardID            String    @db.Uuid\n  SchoolID          Int\n  CardName          String?   @db.VarChar(250)\n  BarCode           String?   @db.VarChar(20)\n  NFC               String?   @db.VarChar(20)\n  NFCReverse        String?   @db.VarChar(20)\n  NFCEncrypt        String?   @db.VarChar(20)\n  NFCEncryptReverse String?   @db.VarChar(20)\n  Money             Decimal?  @db.Decimal(18, 2)\n  CreatedBy         Int?\n  UpdatedBy         Int?\n  CreatedDate       DateTime?\n  UpdatedDate       DateTime?\n  cDel              Boolean?\n  Insurance         Decimal?  @db.Decimal(6, 2)\n\n  @@id([CardID, SchoolID], map: \"public_TBackupCard_PK_TBackupCard_1\")\n  @@index([BarCode, cDel], map: \"idx_tbackupcard_barcode_cdel\")\n  @@index([CardID, SchoolID], map: \"idx_tbackupcard_cardid_schoolid\")\n  @@index([CardName], map: \"idx_tbackupcard_cardname\")\n  @@index([Money], map: \"idx_tbackupcard_money\")\n  @@index([NFC, cDel], map: \"idx_tbackupcard_nfc_cdel\")\n  @@index([SchoolID], map: \"idx_tbackupcard_schoolid\")\n  @@index([SchoolID, BarCode, cDel], map: \"idx_tbackupcard_schoolid_barcode_cdel\")\n  @@index([CardID, SchoolID, cDel], map: \"idx_tbackupcard_schoolid_cardid\")\n  @@index([SchoolID, cDel], map: \"idx_tbackupcard_schoolid_cdel\")\n  @@index([SchoolID, cDel, NFCEncryptReverse], map: \"idx_tbackupcard_schoolid_cdel_nfcencryptreverse\")\n  @@index([SchoolID, Money], map: \"idx_tbackupcard_schoolid_money\")\n}\n\nmodel TBackupCardHistory {\n  CardHistoryID String    @db.Uuid\n  SchoolID      Int\n  CardID        String?   @db.Uuid\n  UserType      Int?\n  UserID        Int?\n  UserName      String?   @db.VarChar(250)\n  BorrowingDate DateTime?\n  ReturnDate    DateTime?\n  CreatedBy     Int?\n  UpdatedBy     Int?\n  CreatedDate   DateTime?\n  UpdatedDate   DateTime?\n  cDel          Boolean?\n  Insurance     Decimal?  @db.Decimal(6, 2)\n\n  @@id([CardHistoryID, SchoolID], map: \"public_TBackupCardHistory_PK_TBackupCardHistory\")\n  @@index([CardID], map: \"idx_tbackupcardhistory_cardid\")\n  @@index([CardID, SchoolID, ReturnDate, cDel], map: \"idx_tbackupcardhistory_cardid_schoolid\")\n  @@index([ReturnDate, CardID], map: \"idx_tbackupcardhistory_returndate_cardid\")\n  @@index([ReturnDate, cDel], map: \"idx_tbackupcardhistory_returndate_cdel\")\n  @@index([SchoolID], map: \"idx_tbackupcardhistory_schoolid\")\n  @@index([SchoolID, CardID], map: \"idx_tbackupcardhistory_schoolid_cardid\")\n  @@index([SchoolID, cDel], map: \"idx_tbackupcardhistory_schoolid_cdel\")\n  @@index([SchoolID, ReturnDate, BorrowingDate, cDel], map: \"idx_tbackupcardhistory_schoolid_return_borrow_cdel\")\n  @@index([SchoolID, ReturnDate], map: \"idx_tbackupcardhistory_schoolid_returndate\")\n  @@index([UserID], map: \"idx_tbackupcardhistory_userid\")\n  @@index([UserType], map: \"idx_tbackupcardhistory_usertype\")\n}\n\nmodel TBranch {\n  BranchId    Int       @default(autoincrement())\n  nTLevel     Int?\n  BranchName  String?   @db.VarChar(200)\n  cDel        Int?\n  SchoolID    Int\n  CreatedBy   Int?\n  UpdatedBy   Int?\n  CreatedDate DateTime?\n  UpdatedDate DateTime?\n\n  @@id([SchoolID, BranchId], map: \"public_TBranch_PK_TBranch\")\n  @@index([BranchId], map: \"public_TBranch_INDEX_VV_780_779\")\n  @@index([nTLevel], map: \"public_TBranch_IX_TBranch\")\n}\n\nmodel TBranchSpec {\n  BranchSpecId    Int       @default(autoincrement())\n  BranchSubjectId Int\n  BranchSpecName  String?   @db.VarChar(200)\n  cDel            Int?\n  SchoolID        Int\n  CreatedBy       Int?\n  UpdatedBy       Int?\n  CreatedDate     DateTime?\n  UpdatedDate     DateTime?\n\n  @@id([SchoolID, BranchSpecId], map: \"public_TBranchSpec_PK_TBranchSpec\")\n  @@index([BranchSpecId], map: \"public_TBranchSpec_INDEX_VV_19312_19311\")\n  @@index([BranchSubjectId], map: \"public_TBranchSpec_IX_TBranchSpec\")\n}\n\nmodel TBranchSubject {\n  BranchSubjectId   Int       @default(autoincrement())\n  BranchId          Int\n  BranchSubjectName String?   @db.VarChar(200)\n  cDel              Int?\n  SchoolID          Int\n  CreatedBy         Int?\n  UpdatedBy         Int?\n  CreatedDate       DateTime?\n  UpdatedDate       DateTime?\n\n  @@id([SchoolID, BranchSubjectId], map: \"public_TBranchSubject_PK_TBranchSubject\")\n  @@index([BranchSubjectId], map: \"public_TBranchSubject_INDEX_VV_778_777\")\n  @@index([BranchId], map: \"public_TBranchSubject_IX_TBranchSubject\")\n}\n\nmodel TClass {\n  sClassID    String    @db.VarChar(10)\n  sClass      String?   @db.VarChar(250)\n  sClassIP    String?   @db.VarChar(15)\n  cDel        String?   @db.Char(1)\n  SchoolID    Int\n  CreatedBy   Int?\n  UpdatedBy   Int?\n  CreatedDate DateTime?\n  UpdatedDate DateTime?\n\n  @@id([SchoolID, sClassID], map: \"public_TClass_PK_TClass\")\n}\n\nmodel TClassMember {\n  nClassMemberid    Int       @default(autoincrement())\n  nTeacherHeadid    Int?\n  nTeacherAssistOne Int?\n  nTeacherAssistTwo Int?\n  nTermSubLevel2    Int?\n  nTerm             String?   @db.VarChar(50)\n  SchoolID          Int\n  CreatedBy         Int?\n  UpdatedBy         Int?\n  CreatedDate       DateTime?\n  UpdatedDate       DateTime?\n  cDel              Boolean\n\n  @@id([SchoolID, nClassMemberid], map: \"public_TClassMember_PK_Table_2\")\n  @@index([nTermSubLevel2, nTerm, SchoolID], map: \"public_TClassMember_IDX_M_1448_1447\")\n  @@index([nTermSubLevel2, SchoolID], map: \"public_TClassMember_IDX_M_206765_206764\")\n  @@index([nTeacherHeadid, nTermSubLevel2, nTerm, SchoolID], map: \"public_TClassMember_IDX_M_4084_4083\")\n  @@index([nTeacherAssistTwo, SchoolID], map: \"public_TClassMember_INDEX_VV_1505_1504\")\n  @@index([SchoolID, cDel], map: \"public_TClassMember_INDEX_VV_207_206\")\n  @@index([nTerm], map: \"public_TClassMember_INDEX_VV_89574_89573\")\n  @@index([SchoolID, nTerm, nTermSubLevel2, nTeacherHeadid, nTeacherAssistOne, nTeacherAssistTwo], map: \"public_TClassMember_IX_TClassMember_Active_0\")\n  @@index([SchoolID, nTerm, nTermSubLevel2, nTeacherHeadid, nTeacherAssistOne, nTeacherAssistTwo], map: \"public_TClassMember_IX_TClassMember_Active_NULL\")\n  @@index([SchoolID, nTeacherHeadid, nTeacherAssistOne, nTeacherAssistTwo, nTerm, nTermSubLevel2], map: \"public_TClassMember_IX_TClassMember_Approval\")\n  @@index([SchoolID, nTeacherHeadid, nTeacherAssistOne, nTeacherAssistTwo, nTerm, nTermSubLevel2], map: \"public_TClassMember_IX_TClassMember_ApprovalNULL\")\n}\n\nmodel TClassOnline {\n  OnlineId     Int       @id(map: \"public_TClassOnline_PK_TClassOnline\") @default(autoincrement())\n  TermId       String?   @db.VarChar(20)\n  LevelId      Int?\n  PlanId       Int?\n  TitleName    String?   @db.VarChar(150)\n  TeacherId    Int?\n  SchoolId     Int?\n  SelectedRoom String?   @db.VarChar(150)\n  cDel         Boolean?\n  ShareId      String?   @db.VarChar(250)\n  CreateBy     Int?\n  Created      DateTime?\n  ModifyBy     Int?\n  Modfied      DateTime?\n\n  @@index([TermId, LevelId, SchoolId], map: \"public_TClassOnline_IDX_M_138_137\")\n  @@index([TermId, LevelId, PlanId, SchoolId], map: \"public_TClassOnline_IDX_M_3183_3182\")\n  @@index([SchoolId], map: \"public_TClassOnline_INDEX_VV_98267_98266\")\n  @@index([TitleName], map: \"public_TClassOnline_TClassOnline_PlanID_SchoolID\")\n  @@index([PlanId], map: \"public_TClassOnline_TClassOnline_SchoolID\")\n  @@index([PlanId], map: \"public_TClassOnline_TClassOnline_SchoolID1\")\n}\n\nmodel TCourseAbbreviation {\n  CourseAbbreviationId Int       @id(map: \"public_TCourseAbbreviation_PK__TCourseA__FFD92FCC08290B1D\") @default(autoincrement())\n  ShortName            String    @db.VarChar(150)\n  cDel                 Boolean   @default(false)\n  CreatedBy            Int\n  CreatedDate          DateTime?\n  UpdatedBy            Int?\n  UpdatedDate          DateTime?\n  sPlaneID             Int\n  SchoolID             Int?\n}\n\nmodel TCourseGroup {\n  courseGroupId Int       @default(autoincrement())\n  Description   String?   @db.VarChar(30)\n  SchoolID      Int\n  CreatedBy     Int?\n  UpdatedBy     Int?\n  CreatedDate   DateTime?\n  UpdatedDate   DateTime?\n  cDel          Boolean\n  MasterCode    String?   @db.VarChar(5)\n  DescriptionEn String?   @db.VarChar(100)\n\n  @@id([SchoolID, courseGroupId], map: \"public_TCourseGroup_PK_TCourseGroup\")\n  @@index([courseGroupId], map: \"public_TCourseGroup_INDEX_VV_89878_89877\")\n}\n\nmodel TCourseType {\n  courseTypeId  Int       @default(autoincrement())\n  Description   String?   @db.VarChar(50)\n  SchoolID      Int\n  CreatedBy     Int?\n  UpdatedBy     Int?\n  CreatedDate   DateTime?\n  UpdatedDate   DateTime?\n  cDel          Boolean\n  nOrder        Int?\n  MasterCode    String?   @db.VarChar(5)\n  DescriptionEn String?   @db.VarChar(100)\n\n  @@id([SchoolID, courseTypeId], map: \"public_TCourseType_PK_TCourseType\")\n  @@index([courseTypeId], map: \"public_TCourseType_INDEX_VV_12040_12039\")\n  @@index([courseTypeId], map: \"public_TCourseType_IX_TCourseType_Optim\")\n}\n\nmodel TCurriculum {\n  CurriculumId   Int      @default(autoincrement())\n  CurriculumName String?  @db.VarChar(250)\n  CreatedDate    DateTime\n  CreatedBy      Int?\n  UpdatedDate    DateTime\n  UpdatedBy      Int?\n  nYear          Int?\n  SchoolId       Int\n  IsActive       Boolean?\n  cDel           Boolean\n\n  @@id([SchoolId, CurriculumId], map: \"public_TCurriculum_PK_TCurriculum\")\n  @@index([nYear], map: \"public_TCurriculum_IX_TCurriculum\")\n  @@index([CurriculumId], map: \"public_TCurriculum_IX_TCurriculum_CurriculumId\")\n}\n\nmodel TDepartment {\n  DepID          Int       @default(autoincrement())\n  userHeadId     Int?\n  userApproveOne Int?\n  userApproveTwo Int?\n  departmentName String?   @db.VarChar(50)\n  deleted        Int?\n  SchoolID       Int\n  CreatedBy      Int?\n  UpdatedBy      Int?\n  CreatedDate    DateTime?\n  UpdatedDate    DateTime?\n  cDel           Boolean\n\n  @@id([SchoolID, DepID], map: \"public_TDepartment_PK_TDepartment\")\n  @@index([DepID], map: \"public_TDepartment_INDEX_VV_125767_125766\")\n}\n\nmodel TDocumentStampDate {\n  ID       Int       @id(map: \"public_TDocumentStampDate_PK_TDocumentStampDate\") @default(autoincrement())\n  SchoolID Int?\n  DocType  String?   @db.VarChar(3)\n  DocDate  DateTime?\n}\n\nmodel TEmpAddress {\n  sEmp          Int\n  ID            Int\n  Type          Int?\n  No            String?   @db.VarChar(10)\n  VillageNo     String?   @db.VarChar(10)\n  Village       String?   @db.VarChar(50)\n  Building      String?   @db.VarChar(50)\n  Alley         String?   @db.VarChar(40)\n  Road          String?   @db.VarChar(40)\n  SubdistrictID Int?\n  DistrictID    Int?\n  ProvinceID    Int?\n  Postcode      String?   @db.VarChar(10)\n  UpdateDate    DateTime?\n  UpdateBy      Int?\n  SchoolID      Int\n  CreatedBy     Int?\n  CreatedDate   DateTime?\n  cDel          Boolean\n\n  @@id([SchoolID, sEmp, ID], map: \"public_TEmpAddress_PK_TEMPADDRESS\")\n}\n\nmodel TEmpEducationInfo {\n  sEmp           Int\n  ID             Int\n  Institution    String?   @db.VarChar(100)\n  StudyYear      Int?\n  GraduationYear Int?\n  LevelID        Int?\n  Major          String?   @db.VarChar(100)\n  MinorSubject   String?   @db.VarChar(100)\n  UpdateDate     DateTime?\n  UpdateBy       Int?\n  SchoolID       Int\n  CreatedBy      Int?\n  CreatedDate    DateTime?\n  cDel           Boolean\n\n  @@id([SchoolID, sEmp, ID], map: \"public_TEmpEducationInfo_PK_TEMPEDUCATIONINFO\")\n  @@index([sEmp, cDel], map: \"public_TEmpEducationInfo_IX_TEmpEducationInfo_sEmp_cDel\")\n}\n\nmodel TEmpFamily {\n  sEmp                Int\n  ID                  Int\n  FamilyRelation      String?   @db.VarChar(20)\n  TitleID             Int?\n  FirstName           String?   @db.VarChar(30)\n  LastName            String?   @db.VarChar(50)\n  Birthday            DateTime?\n  PersonalStatus      Int?\n  LiveStatus          String?   @db.VarChar(30)\n  DeathStatus         String?   @db.VarChar(30)\n  FamilyCareer        String?   @db.VarChar(50)\n  LevelID             Int?\n  UpdateDate          DateTime?\n  UpdateBy            Int?\n  SchoolID            Int\n  CreatedBy           Int?\n  CreatedDate         DateTime?\n  cDel                Boolean\n  EducationBackground Int?\n\n  @@id([SchoolID, sEmp, ID], map: \"public_TEmpFamily_PK_TEMPFAMILY\")\n  @@index([sEmp, cDel], map: \"public_TEmpFamily_INDEX_VV_18226_18225\")\n}\n\nmodel TEmpHonor {\n  sEmp        Int\n  ID          Int\n  Type        String?   @db.VarChar(100)\n  Department  String?   @db.VarChar(100)\n  Year        Int?\n  UpdateDate  DateTime?\n  UpdateBy    Int?\n  SchoolID    Int\n  CreatedBy   Int?\n  CreatedDate DateTime?\n  cDel        Boolean\n\n  @@id([SchoolID, sEmp, ID], map: \"public_TEmpHonor_PK_TEMPHONOR\")\n  @@index([sEmp, cDel], map: \"public_TEmpHonor_IX_TEmpHonor_sEmp_cDel\")\n}\n\nmodel TEmpInsignia {\n  sEmp        Int\n  ID          Int\n  Year        Int?\n  Grade       String?   @db.VarChar(50)\n  Position    String?   @db.VarChar(50)\n  BookNumber  String?   @db.VarChar(10)\n  Part        String?   @db.VarChar(10)\n  Duty        String?   @db.VarChar(10)\n  Number      String?   @db.VarChar(10)\n  Date        DateTime?\n  UpdateDate  DateTime?\n  UpdateBy    Int?\n  SchoolID    Int\n  CreatedBy   Int?\n  CreatedDate DateTime?\n  cDel        Boolean\n\n  @@id([SchoolID, sEmp, ID], map: \"public_TEmpInsignia_PK_TEMPINSIGNIA\")\n}\n\nmodel TEmpProfessionalLicense {\n  sEmp         Int\n  ID           Int\n  LicenseType  Int?\n  LicenseNo    String?   @db.VarChar(20)\n  LicenseName  String?   @db.VarChar(100)\n  IssuedDate   DateTime?\n  ExpireDate   DateTime?\n  AgencyIssued String?   @db.VarChar(100)\n  UpdateDate   DateTime?\n  UpdateBy     Int?\n  SchoolID     Int\n  CreatedBy    Int?\n  CreatedDate  DateTime?\n  cDel         Boolean\n\n  @@id([SchoolID, sEmp, ID], map: \"public_TEmpProfessionalLicense_PK_TEMPPROFESSIONALLICENSE\")\n  @@index([sEmp, cDel], map: \"public_TEmpProfessionalLicense_IX_TEmpProfessionalLicense_sEmp_\")\n}\n\nmodel TEmpSalary {\n  sEmp                  Int\n  ID                    Int\n  WorkStatus            Int?\n  WorkInEducationDate   DateTime?\n  Salary                Decimal?  @db.Decimal(8, 2)\n  PositionMoney         Decimal?  @db.Decimal(8, 2)\n  RetirementDate        DateTime?\n  RemainGovernmentYear  Int?\n  RemainGovernmentMonth Int?\n  RemainGovernmentDay   Int?\n  Degree                String?   @db.VarChar(100)\n  GovernmentOrderDate   DateTime?\n  WorkStartDate         DateTime?\n  AcademicStandingMoney Decimal?  @db.Decimal(8, 2)\n  NetSalary             Decimal?  @db.Decimal(8, 2)\n  SchoolID              Int\n  CreatedBy             Int?\n  UpdatedBy             Int?\n  CreatedDate           DateTime?\n  UpdatedDate           DateTime?\n  cDel                  Boolean\n  DayQuit               DateTime? @db.Date\n\n  @@id([SchoolID, sEmp, ID], map: \"public_TEmpSalary_PK_TEMPSALARY\")\n  @@index([WorkStatus, SchoolID], map: \"public_TEmpSalary_INDEX_VV_145730_145729\")\n  @@index([sEmp], map: \"public_TEmpSalary_INDEX_VV_146515_146514\")\n  @@index([SchoolID, cDel], map: \"public_TEmpSalary_INDEX_VV_22632_22631\")\n  @@index([sEmp, WorkStatus], map: \"public_TEmpSalary_IX_TEmpSalary_sEmp_WorkStatus\")\n}\n\nmodel TEmpSigner {\n  SignerID   Int       @default(autoincrement())\n  SchoolID   Int\n  YearID     Int?\n  TermID     String?   @db.VarChar(20)\n  Position   String?   @db.VarChar(250)\n  PositionEN String?   @db.VarChar(250)\n  DefaultID  Int?\n  EmpID      Int?\n  Signer     String?   @db.VarChar(250)\n  IsDefault  Boolean?\n  IsDel      Boolean?\n  IsActive   Boolean?\n  Created    DateTime?\n  Modified   DateTime?\n  CreateBy   Int?\n  ModifyBy   Int?\n  OldSigner  String?   @db.VarChar(250)\n\n  @@id([SignerID, SchoolID], map: \"public_TEmpSigner_PK_TEmpSigner\")\n  @@index([SchoolID, IsDel], map: \"public_TEmpSigner_INDEX_VV_102695_102694\")\n  @@index([YearID], map: \"public_TEmpSigner_INDEX_VV_120207_120206\")\n  @@index([PositionEN], map: \"public_TEmpSigner_INDEX_VV_695_694\")\n}\n\nmodel TEmpTOEIC {\n  sEmp                    Int\n  ID                      Int\n  TOEICScore              Int?\n  InstitutionAnnouncement String?   @db.VarChar(300)\n  ExpirationDate          DateTime?\n  SchoolID                Int\n  CreatedBy               Int?\n  CreatedDate             DateTime?\n  UpdateBy                Int?\n  UpdateDate              DateTime?\n  cDel                    Boolean\n\n  @@id([sEmp, ID, SchoolID], map: \"public_TEmpTOEIC_PK_TEmpTOEIC\")\n}\n\nmodel TEmpTeaching {\n  sEmp              Int\n  ID                Int\n  nYear             Int?\n  nTerm             String?   @db.VarChar(20)\n  courseTypeId      Int?\n  SUBJECT_ID        Int?\n  sClassID          String?   @db.VarChar(10)\n  sRoomID           String?   @db.VarChar(10)\n  HoursPerWeek      Int?\n  DirectTeaching    Int?\n  CompetentTeaching Int?\n  WantTrain         Int?\n  UpdateDate        DateTime?\n  UpdateBy          Int?\n  SchoolID          Int\n  CreatedBy         Int?\n  CreatedDate       DateTime?\n  cDel              Boolean\n\n  @@id([SchoolID, sEmp, ID], map: \"public_TEmpTeaching_PK_TEMPTEACHING\")\n}\n\nmodel TEmpTraining {\n  sEmp          Int\n  ID            Int\n  ProjectName   String?   @db.VarChar(100)\n  TrainingName  String?   @db.VarChar(100)\n  StartDate     DateTime?\n  EndDate       DateTime?\n  Place         String?   @db.VarChar(100)\n  ProvinceID    Int?\n  Country       String?   @db.VarChar(100)\n  Expenses      Decimal?  @db.Decimal(6, 2)\n  UpdateDate    DateTime?\n  UpdateBy      Int?\n  Province      String?   @db.VarChar(100)\n  SchoolID      Int\n  CreatedBy     Int?\n  CreatedDate   DateTime?\n  cDel          Boolean\n  TrainingType  String?   @db.VarChar(2)\n  TrainingHours Decimal?  @db.Decimal(6, 2)\n\n  @@id([SchoolID, sEmp, ID], map: \"public_TEmpTraining_PK_TEMPTRAINING\")\n  @@index([sEmp, cDel], map: \"public_TEmpTraining_IDX_M_53_52\")\n}\n\nmodel TEmployeeInfo {\n  sEmp                     Int\n  ID                       Int\n  Code                     String?   @db.VarChar(20)\n  FirstNameEn              String?   @db.VarChar(256)\n  LastNameEn               String?   @db.VarChar(256)\n  PassportNumber           String?   @db.VarChar(50)\n  PassportCountry          String?   @db.VarChar(100)\n  PassportExpirationDate   DateTime?\n  VisaNo                   String?   @db.VarChar(50)\n  VisaExpirationDate       DateTime?\n  WorkPermitNo             String?   @db.VarChar(50)\n  WorkPermitExpirationDate DateTime?\n  BloodType                String?   @db.VarChar(5)\n  Nationality              String?   @db.VarChar(50)\n  Ethnicity                String?   @db.VarChar(50)\n  Religion                 String?   @db.VarChar(50)\n  PersonalStatus           Int?\n  SpouseFirstName          String?   @db.VarChar(30)\n  SpouseLastName           String?   @db.VarChar(50)\n  UpdateDate               DateTime?\n  UpdateBy                 Int?\n  SchoolID                 Int\n  CreatedBy                Int?\n  CreatedDate              DateTime?\n  cDel                     Boolean\n\n  @@id([SchoolID, sEmp, ID], map: \"public_TEmployeeInfo_PK_TEMPLOYEEINFO\")\n  @@index([sEmp], map: \"public_TEmployeeInfo_IDX_M_27937_27936\")\n  @@index([sEmp], map: \"public_TEmployeeInfo_INDEX_VV_1201_1200\")\n  @@index([SchoolID, cDel], map: \"public_TEmployeeInfo_INDEX_VV_126832_126831\")\n  @@index([Code], map: \"public_TEmployeeInfo_INDEX_VV_1280_1279\")\n  @@index([SchoolID, cDel], map: \"public_TEmployeeInfo_INDEX_VV_66390_66389\")\n  @@index([SchoolID, cDel], map: \"public_TEmployeeInfo_INDEX_VV_94247_94246\")\n  @@index([ID, SchoolID], map: \"public_TEmployeeInfo_INDEX_VV_98004_98003\")\n}\n\nmodel TEmployeeType {\n  nTypeId     Int       @default(autoincrement())\n  nTypeId2    Int?\n  Title       String?   @db.VarChar(150)\n  SchoolID    Int\n  IsDel       Boolean\n  IsActive    Boolean\n  CreatedBy   Int?\n  UpdatedBy   Int?\n  CreatedDate DateTime?\n  UpdatedDate DateTime?\n  MasterCode  String?   @db.VarChar(20)\n\n  @@id([SchoolID, nTypeId], map: \"public_TEmployeeType_PK_TEmployeeType\")\n}\n\nmodel TEmployees {\n  sEmp             Int\n  sName            String?   @db.VarChar(256)\n  sLastname        String?   @db.VarChar(256)\n  sIdentification  String?   @db.VarChar(13)\n  dBirth           DateTime?\n  cSex             String?   @db.Char(1)\n  sPhone           String?   @db.VarChar(20)\n  sEmail           String?   @db.VarChar(256)\n  sPassword        String?   @db.VarChar(100)\n  sSubtopic        String?   @db.VarChar(512)\n  sAddress         String?   @db.VarChar(512)\n  sCity            String?   @db.VarChar(512)\n  sPostalcode      String?   @db.VarChar(10)\n  sCountry         String?   @db.VarChar(512)\n  dUpdate          DateTime?\n  sFinger          String?\n  nMoney           Decimal?  @db.Decimal(18, 2)\n  sFinger2         String?\n  sClaim           String?   @db.VarChar(100)\n  cDel             String?   @db.Char(1)\n  sStatusReport    String?   @db.VarChar(20)\n  nTimeType        Int?\n  cType            String?   @db.VarChar(10)\n  sToken           String?\n  sPicture         String?   @db.VarChar(250)\n  sProvince        String?   @db.VarChar(5)\n  sTumbon          String?   @db.VarChar(5)\n  sSoy             String?   @db.VarChar(50)\n  sHomeNumber      String?   @db.VarChar(100)\n  sMuu             String?   @db.VarChar(50)\n  sRoad            String?   @db.VarChar(50)\n  sAumpher         String?   @db.VarChar(5)\n  sPost            String?   @db.VarChar(10)\n  sTitle           String?   @db.VarChar(10)\n  dPicUpdate       DateTime?\n  nPicversion      Int?\n  leavecheck       Int?\n  nJobid           Int?\n  nDepartmentId    Int?\n  gradeSystemAdmin Int?\n  Village          String?   @db.VarChar(50)\n  Building         String?   @db.VarChar(50)\n  SchoolID         Int\n  CreatedBy        Int?\n  UpdatedBy        Int?\n  CreatedDate      DateTime?\n  UpdatedDate      DateTime?\n  DailyUsageLimit  Decimal   @db.Decimal(18, 2)\n  nMax             Decimal   @db.Decimal(18, 2)\n  sNameEng         String?   @db.VarChar(256)\n  sLastNameEng     String?   @db.VarChar(256)\n\n  @@id([SchoolID, sEmp], map: \"public_TEmployees_PK_TEmployees\")\n  @@index([SchoolID, nMoney], map: \"IDX_TEmployees_SchoolID_nMoney\")\n  @@index([SchoolID, sPhone], map: \"IDX_TEmployees_SchoolID_sPhone\")\n  @@index([cDel, SchoolID], map: \"IDX_TEmployees_cDel_SchoolID\")\n  @@index([cDel, cType, SchoolID], map: \"IDX_TEmployees_cDel_cType_SchoolID\")\n  @@index([cDel, gradeSystemAdmin, SchoolID], map: \"IDX_TEmployees_cDel_gradeSystemAdmin_SchoolID\")\n  @@index([cType, SchoolID], map: \"IDX_TEmployees_cType_SchoolID\")\n  @@index([nDepartmentId, SchoolID], map: \"IDX_TEmployees_nDepartmentId_SchoolID\")\n  @@index([sEmp], map: \"IDX_TEmployees_sEmp\")\n  @@index([sIdentification, cDel, SchoolID, sEmp], map: \"IDX_TEmployees_sIdentification_cDel_SchoolID_sEmp\")\n  @@index([sName], map: \"IDX_TEmployees_sName\")\n  @@index([SchoolID], map: \"idx_temployees_schoolid\")\n  @@index([sEmp, cDel], map: \"idx_temployees_semp_cdel\")\n}\n\nmodel TFamilyProfile {\n  sFamilyTitle              String?   @db.VarChar(50)\n  sFamilyName               String?   @db.VarChar(50)\n  sFamilyLast               String?   @db.VarChar(50)\n  sFamilyRace               String?   @db.VarChar(50)\n  sFamilyNation             String?   @db.VarChar(50)\n  sFamilyReligion           String?   @db.VarChar(50)\n  sFamilyIdCardNumber       String?   @db.VarChar(20)\n  sFamilyRelate             String?   @db.VarChar(20)\n  sFamilyHomeNumber         String?   @db.VarChar(50)\n  sFamilySoy                String?   @db.VarChar(50)\n  sFamilyTumbon             String?   @db.VarChar(50)\n  sFamilyProvince           String?   @db.VarChar(50)\n  sFamilyMuu                String?   @db.VarChar(50)\n  sFamilyRoad               String?   @db.VarChar(50)\n  sFamilyAumpher            String?   @db.VarChar(50)\n  sFamilyPost               String?   @db.VarChar(50)\n  sPhoneOne                 String?   @db.VarChar(30)\n  sPhoneTwo                 String?   @db.VarChar(30)\n  sPhoneThree               String?   @db.VarChar(30)\n  sPhoneMail                String?   @db.VarChar(50)\n  sID                       Int?\n  sDeleted                  String?   @db.VarChar(10)\n  sFatherTitle              String?   @db.VarChar(50)\n  sFatherFirstName          String?   @db.VarChar(50)\n  sFatherLastName           String?   @db.VarChar(50)\n  sFatherNation             String?   @db.VarChar(50)\n  sFatherRace               String?   @db.VarChar(50)\n  sFatherReligion           String?   @db.VarChar(50)\n  sFatherIdCardNumber       String?   @db.VarChar(50)\n  sMotherTitle              String?   @db.VarChar(50)\n  sMotherFirstName          String?   @db.VarChar(50)\n  sMotherLastName           String?   @db.VarChar(50)\n  sMotherNation             String?   @db.VarChar(50)\n  sMotherRace               String?   @db.VarChar(50)\n  sMotherReligion           String?   @db.VarChar(50)\n  sMotherIdCardNumber       String?   @db.VarChar(50)\n  sMotherTumbon             String?   @db.VarChar(50)\n  sMotherSoy                String?   @db.VarChar(50)\n  sMotherRoad               String?   @db.VarChar(50)\n  sMotherProvince           String?   @db.VarChar(50)\n  sMotherPost               String?   @db.VarChar(50)\n  sMotherPhone              String?   @db.VarChar(50)\n  sMotherMuu                String?   @db.VarChar(50)\n  sMotherHomeNumber         String?   @db.VarChar(50)\n  sMotherAumpher            String?   @db.VarChar(50)\n  sFatherTumbon             String?   @db.VarChar(50)\n  sFatherSoy                String?   @db.VarChar(50)\n  sFatherRoad               String?   @db.VarChar(50)\n  sFatherProvince           String?   @db.VarChar(50)\n  sFatherPost               String?   @db.VarChar(50)\n  sFatherPhone              String?   @db.VarChar(50)\n  sFatherMuu                String?   @db.VarChar(50)\n  sFatherHomeNumber         String?   @db.VarChar(50)\n  sFatherAumpher            String?   @db.VarChar(50)\n  nFamilyID                 Int       @default(autoincrement())\n  sFamilyNameEN             String?   @db.VarChar(50)\n  sFamilyLastEN             String?   @db.VarChar(50)\n  dFamilyBirthDay           DateTime?\n  nFamilyRequestStudyMoney  Int?\n  sFamilyGraduated          Int?\n  sFamilyJob                String?   @db.VarChar(200)\n  sFamilyWorkPlace          String?   @db.VarChar(200)\n  nFamilyIncome             Float?\n  sFatherNameEN             String?   @db.VarChar(100)\n  sFatherLastEN             String?   @db.VarChar(100)\n  dFatherBirthDay           DateTime?\n  sFatherGraduated          Int?\n  sFatherJob                String?   @db.VarChar(100)\n  sFatherWorkPlace          String?   @db.VarChar(200)\n  sFatherPhone2             String?   @db.VarChar(20)\n  sFatherPhone3             String?   @db.VarChar(20)\n  nFatherIncome             Float?\n  sMotherNameEN             String?   @db.VarChar(100)\n  sMotherLastEN             String?   @db.VarChar(100)\n  dMotherBirthDay           DateTime?\n  sMotherGraduated          Int?\n  sMotherJob                String?   @db.VarChar(100)\n  sMotherWorkPlace          String?   @db.VarChar(200)\n  sMotherPhone2             String?   @db.VarChar(20)\n  sMotherPhone3             String?   @db.VarChar(20)\n  nMotherIncome             Float?\n  nSonTotal                 Int?\n  nRelativeStudyHere        Int?\n  stayWithTitle             Int?\n  stayWithName              String?   @db.VarChar(100)\n  stayWithLast              String?   @db.VarChar(100)\n  stayWithEmergencyCall     String?   @db.VarChar(20)\n  stayWithEmail             String?   @db.VarChar(100)\n  HomeType                  Int?\n  friendSID                 Int?\n  houseRegistrationNumber   String?   @db.VarChar(100)\n  houseRegistrationMuu      String?   @db.VarChar(100)\n  houseRegistrationSoy      String?   @db.VarChar(100)\n  houseRegistrationRoad     String?   @db.VarChar(100)\n  houseRegistrationProvince Int?\n  houseRegistrationAumpher  Int?\n  houseRegistrationTumbon   Int?\n  houseRegistrationPost     String?   @db.VarChar(20)\n  houseRegistrationPhone    String?   @db.VarChar(20)\n  bornFrom                  String?   @db.VarChar(100)\n  bornFromProvince          Int?\n  bornFromAumpher           Int?\n  bornFromTumbon            Int?\n  friendName                String?   @db.VarChar(50)\n  friendLastName            String?   @db.VarChar(50)\n  friendSubLevel            Int?\n  friendPhone               String?   @db.VarChar(30)\n  familyStatus              Int?\n  SchoolID                  Int\n  CreatedBy                 Int?\n  UpdatedBy                 Int?\n  CreatedDate               DateTime?\n  UpdatedDate               DateTime?\n  cDel                      Boolean\n  bornFromEn                String?   @db.VarChar(100)\n\n  @@id([SchoolID, nFamilyID], map: \"public_TFamilyProfile_PK_TFamilyProfile\")\n  @@index([nFamilyID], map: \"public_TFamilyProfile_IDX_M_580_579\")\n  @@index([cDel], map: \"public_TFamilyProfile_INDEX_VV_714_713\")\n  @@index([sID, SchoolID], map: \"public_TFamilyProfile_INDEX_VV_8468_8467\")\n  @@index([SchoolID, sID], map: \"public_TFamilyProfile_IX_TFamilyProfile_Student\")\n}\n\nmodel TGradeAttendance {\n  nGradeAttendanceId Int       @default(autoincrement())\n  nGradeId           Int\n  sID                Int\n  week1_1            String?   @db.VarChar(1)\n  week1_2            String?   @db.VarChar(1)\n  week1_3            String?   @db.VarChar(1)\n  week1_4            String?   @db.VarChar(1)\n  week1_5            String?   @db.VarChar(1)\n  week1_6            String?   @db.VarChar(1)\n  week1_7            String?   @db.VarChar(1)\n  week2_1            String?   @db.VarChar(1)\n  week2_2            String?   @db.VarChar(1)\n  week2_3            String?   @db.VarChar(1)\n  week2_4            String?   @db.VarChar(1)\n  week2_5            String?   @db.VarChar(1)\n  week2_6            String?   @db.VarChar(1)\n  week2_7            String?   @db.VarChar(1)\n  week3_1            String?   @db.VarChar(1)\n  week3_2            String?   @db.VarChar(1)\n  week3_3            String?   @db.VarChar(1)\n  week3_4            String?   @db.VarChar(1)\n  week3_5            String?   @db.VarChar(1)\n  week3_6            String?   @db.VarChar(1)\n  week3_7            String?   @db.VarChar(1)\n  week4_1            String?   @db.VarChar(1)\n  week4_2            String?   @db.VarChar(1)\n  week4_3            String?   @db.VarChar(1)\n  week4_4            String?   @db.VarChar(1)\n  week4_5            String?   @db.VarChar(1)\n  week4_6            String?   @db.VarChar(1)\n  week4_7            String?   @db.VarChar(1)\n  week5_1            String?   @db.VarChar(1)\n  week5_2            String?   @db.VarChar(1)\n  week5_3            String?   @db.VarChar(1)\n  week5_4            String?   @db.VarChar(1)\n  week5_5            String?   @db.VarChar(1)\n  week5_6            String?   @db.VarChar(1)\n  week5_7            String?   @db.VarChar(1)\n  week6_1            String?   @db.VarChar(1)\n  week6_2            String?   @db.VarChar(1)\n  week6_3            String?   @db.VarChar(1)\n  week6_4            String?   @db.VarChar(1)\n  week6_5            String?   @db.VarChar(1)\n  week6_6            String?   @db.VarChar(1)\n  week6_7            String?   @db.VarChar(1)\n  week7_1            String?   @db.VarChar(1)\n  week7_2            String?   @db.VarChar(1)\n  week7_3            String?   @db.VarChar(1)\n  week7_4            String?   @db.VarChar(1)\n  week7_5            String?   @db.VarChar(1)\n  week7_6            String?   @db.VarChar(1)\n  week7_7            String?   @db.VarChar(1)\n  week8_1            String?   @db.VarChar(1)\n  week8_2            String?   @db.VarChar(1)\n  week8_3            String?   @db.VarChar(1)\n  week8_4            String?   @db.VarChar(1)\n  week8_5            String?   @db.VarChar(1)\n  week8_6            String?   @db.VarChar(1)\n  week8_7            String?   @db.VarChar(1)\n  week9_1            String?   @db.VarChar(1)\n  week9_2            String?   @db.VarChar(1)\n  week9_3            String?   @db.VarChar(1)\n  week9_4            String?   @db.VarChar(1)\n  week9_5            String?   @db.VarChar(1)\n  week9_6            String?   @db.VarChar(1)\n  week9_7            String?   @db.VarChar(1)\n  week10_1           String?   @db.VarChar(1)\n  week10_2           String?   @db.VarChar(1)\n  week10_3           String?   @db.VarChar(1)\n  week10_4           String?   @db.VarChar(1)\n  week10_5           String?   @db.VarChar(1)\n  week10_6           String?   @db.VarChar(1)\n  week10_7           String?   @db.VarChar(1)\n  week11_1           String?   @db.VarChar(1)\n  week11_2           String?   @db.VarChar(1)\n  week11_3           String?   @db.VarChar(1)\n  week11_4           String?   @db.VarChar(1)\n  week11_5           String?   @db.VarChar(1)\n  week11_6           String?   @db.VarChar(1)\n  week11_7           String?   @db.VarChar(1)\n  week12_1           String?   @db.VarChar(1)\n  week12_2           String?   @db.VarChar(1)\n  week12_3           String?   @db.VarChar(1)\n  week12_4           String?   @db.VarChar(1)\n  week12_5           String?   @db.VarChar(1)\n  week12_6           String?   @db.VarChar(1)\n  week12_7           String?   @db.VarChar(1)\n  week13_1           String?   @db.VarChar(1)\n  week13_2           String?   @db.VarChar(1)\n  week13_3           String?   @db.VarChar(1)\n  week13_4           String?   @db.VarChar(1)\n  week13_5           String?   @db.VarChar(1)\n  week13_6           String?   @db.VarChar(1)\n  week13_7           String?   @db.VarChar(1)\n  week14_1           String?   @db.VarChar(1)\n  week14_2           String?   @db.VarChar(1)\n  week14_3           String?   @db.VarChar(1)\n  week14_4           String?   @db.VarChar(1)\n  week14_5           String?   @db.VarChar(1)\n  week14_6           String?   @db.VarChar(1)\n  week14_7           String?   @db.VarChar(1)\n  week15_1           String?   @db.VarChar(1)\n  week15_2           String?   @db.VarChar(1)\n  week15_3           String?   @db.VarChar(1)\n  week15_4           String?   @db.VarChar(1)\n  week15_5           String?   @db.VarChar(1)\n  week15_6           String?   @db.VarChar(1)\n  week15_7           String?   @db.VarChar(1)\n  week16_1           String?   @db.VarChar(1)\n  week16_2           String?   @db.VarChar(1)\n  week16_3           String?   @db.VarChar(1)\n  week16_4           String?   @db.VarChar(1)\n  week16_5           String?   @db.VarChar(1)\n  week16_6           String?   @db.VarChar(1)\n  week16_7           String?   @db.VarChar(1)\n  week17_1           String?   @db.VarChar(1)\n  week17_2           String?   @db.VarChar(1)\n  week17_3           String?   @db.VarChar(1)\n  week17_4           String?   @db.VarChar(1)\n  week17_5           String?   @db.VarChar(1)\n  week17_6           String?   @db.VarChar(1)\n  week17_7           String?   @db.VarChar(1)\n  week18_1           String?   @db.VarChar(1)\n  week18_2           String?   @db.VarChar(1)\n  week18_3           String?   @db.VarChar(1)\n  week18_4           String?   @db.VarChar(1)\n  week18_5           String?   @db.VarChar(1)\n  week18_6           String?   @db.VarChar(1)\n  week18_7           String?   @db.VarChar(1)\n  week19_1           String?   @db.VarChar(1)\n  week19_2           String?   @db.VarChar(1)\n  week19_3           String?   @db.VarChar(1)\n  week19_4           String?   @db.VarChar(1)\n  week19_5           String?   @db.VarChar(1)\n  week19_6           String?   @db.VarChar(1)\n  week19_7           String?   @db.VarChar(1)\n  week20_1           String?   @db.VarChar(1)\n  week20_2           String?   @db.VarChar(1)\n  week20_3           String?   @db.VarChar(1)\n  week20_4           String?   @db.VarChar(1)\n  week20_5           String?   @db.VarChar(1)\n  week20_6           String?   @db.VarChar(1)\n  week20_7           String?   @db.VarChar(1)\n  totalcome          String?   @db.VarChar(3)\n  totalskip          String?   @db.VarChar(3)\n  totalsick          String?   @db.VarChar(3)\n  totalleave         String?   @db.VarChar(3)\n  SchoolID           Int\n  CreatedBy          Int?\n  UpdatedBy          Int?\n  CreatedDate        DateTime?\n  UpdatedDate        DateTime?\n  cDel               Boolean\n\n  @@id([SchoolID, nGradeAttendanceId], map: \"public_TGradeAttendance_PK_TGradeAttendance\")\n  @@index([nGradeId, sID], map: \"public_TGradeAttendance_IX_TGradeAttendance\")\n}\n\nmodel TGradeCheck {\n  nGradeCheckId Int       @default(autoincrement())\n  teacherId     Int?\n  PlanId        Int?\n  Deleted       String?   @db.VarChar(10)\n  SchoolID      Int\n  CreatedBy     Int?\n  UpdatedBy     Int?\n  CreatedDate   DateTime?\n  UpdatedDate   DateTime?\n  cDel          Boolean\n\n  @@id([SchoolID, nGradeCheckId], map: \"public_TGradeCheck_PK_TGradeCheck\")\n}\n\nmodel TGradeLock {\n  nGradeLock      Int       @default(autoincrement())\n  nGradeId        Int\n  scoreGrade1     Int?\n  scoreGrade2     Int?\n  scoreGrade3     Int?\n  scoreGrade4     Int?\n  scoreGrade5     Int?\n  scoreGrade6     Int?\n  scoreGrade7     Int?\n  scoreGrade8     Int?\n  scoreGrade9     Int?\n  scoreGrade10    Int?\n  scoreGrade11    Int?\n  scoreGrade12    Int?\n  scoreGrade13    Int?\n  scoreGrade14    Int?\n  scoreGrade15    Int?\n  scoreGrade16    Int?\n  scoreGrade17    Int?\n  scoreGrade18    Int?\n  scoreGrade19    Int?\n  scoreGrade20    Int?\n  scoreBehavior1  Int?\n  scoreBehavior2  Int?\n  scoreBehavior3  Int?\n  scoreBehavior4  Int?\n  scoreBehavior5  Int?\n  scoreBehavior6  Int?\n  scoreBehavior7  Int?\n  scoreBehavior8  Int?\n  scoreBehavior9  Int?\n  scoreBehavior10 Int?\n  scoreMidTerm    Int?\n  scoreFinalTerm  Int?\n  scoreCheewat1   Int?\n  scoreCheewat2   Int?\n  scoreCheewat3   Int?\n  scoreCheewat4   Int?\n  scoreCheewat5   Int?\n  scoreCheewat6   Int?\n  scoreCheewat7   Int?\n  scoreCheewat8   Int?\n  scoreCheewat9   Int?\n  scoreCheewat10  Int?\n  scoreCheewat11  Int?\n  scoreCheewat12  Int?\n  scoreCheewat13  Int?\n  scoreCheewat14  Int?\n  scoreCheewat15  Int?\n  scoreCheewat16  Int?\n  scoreCheewat17  Int?\n  scoreCheewat18  Int?\n  scoreCheewat19  Int?\n  scoreCheewat20  Int?\n  scoreMid1       Int?\n  scoreMid2       Int?\n  scoreMid3       Int?\n  scoreMid4       Int?\n  scoreMid5       Int?\n  scoreMid6       Int?\n  scoreMid7       Int?\n  scoreMid8       Int?\n  scoreMid9       Int?\n  scoreMid10      Int?\n  scoreFinal1     Int?\n  scoreFinal2     Int?\n  scoreFinal3     Int?\n  scoreFinal4     Int?\n  scoreFinal5     Int?\n  scoreFinal6     Int?\n  scoreFinal7     Int?\n  scoreFinal8     Int?\n  scoreFinal9     Int?\n  scoreFinal10    Int?\n  lastUpdate      DateTime\n  updateByEMP     Int\n  SchoolID        Int\n  CreatedBy       Int?\n  UpdatedBy       Int?\n  CreatedDate     DateTime?\n  UpdatedDate     DateTime?\n  cDel            Boolean\n\n  @@id([SchoolID, nGradeLock], map: \"public_TGradeLock_PK_TGradeLock\")\n}\n\nmodel TGradeMigration {\n  GradeMigrationId Int       @default(autoincrement())\n  nGradeId         Int\n  sID              Int\n  AssessmentId     Int\n  ExamID           Int\n  nTermSubLevel2   Int\n  SchoolID         Int\n  CreatedBy        Int?\n  UpdatedBy        Int?\n  CreatedDate      DateTime?\n  UpdatedDate      DateTime?\n  cDel             Boolean\n  ApplicationName  String?   @db.VarChar(30)\n\n  @@id([SchoolID, GradeMigrationId], map: \"public_TGradeMigration_PK_TGradeMigration\")\n  @@index([AssessmentId, SchoolID], map: \"public_TGradeMigration_INDEX_VV_1038_1037\")\n  @@index([nGradeId, SchoolID], map: \"public_TGradeMigration_INDEX_VV_3642_3641\")\n  @@index([nGradeId, nTermSubLevel2, SchoolID, ApplicationName, ExamID], map: \"public_TGradeMigration_INDEX_VV_67778_67777\")\n  @@index([sID, AssessmentId, ExamID, nTermSubLevel2, SchoolID], map: \"public_TGradeMigration_INDEX_VV_89364_89363\")\n  @@index([nTermSubLevel2, SchoolID, cDel], map: \"public_TGradeMigration_INDEX_VV_94813_94812\")\n  @@index([ExamID], map: \"public_TGradeMigration_IX_TGradeMigration_nTermSubLevel2_School\")\n}\n\nmodel TGradeRegisterPeriod {\n  nGradeRegisterPeriod Int       @default(autoincrement())\n  nTerm                String    @db.VarChar(20)\n  beforeMidtermStart   DateTime?\n  beforeMidtermEnd     DateTime?\n  duringMidtermStart   DateTime?\n  duringMidtermEnd     DateTime?\n  afterMidtermStart    DateTime?\n  afterMidtermEnd      DateTime?\n  FinaltermStart       DateTime?\n  FinaltermEnd         DateTime?\n  ExtraStart           DateTime?\n  ExtraEnd             DateTime?\n  lastUpdate           DateTime\n  updateByEmp          Int\n  SchoolID             Int\n  CreatedBy            Int?\n  UpdatedBy            Int?\n  CreatedDate          DateTime?\n  UpdatedDate          DateTime?\n  cDel                 Boolean\n\n  @@id([SchoolID, nGradeRegisterPeriod], map: \"public_TGradeRegisterPeriod_PK_TGradeRegisterPeriod\")\n}\n\nmodel TGradeShareInfo {\n  nGradeShareInfoId Int       @default(autoincrement())\n  nTerm             String    @db.VarChar(20)\n  sPlaneID          Int\n  from_nTSubLevel2  Int\n  to_nTSubLevel2    Int\n  cDel              Int?\n  SchoolID          Int\n  CreatedBy         Int?\n  UpdatedBy         Int?\n  CreatedDate       DateTime?\n  UpdatedDate       DateTime?\n\n  @@id([SchoolID, nGradeShareInfoId], map: \"public_TGradeShareInfo_PK_TGradeShareInfo\")\n}\n\nmodel TGradeTeacherDescribe {\n  nGradeTeacherDescribe Int       @default(autoincrement())\n  Describe              String?   @db.VarChar(500)\n  cDel                  Int?\n  SchoolID              Int\n  CreatedBy             Int?\n  UpdatedBy             Int?\n  CreatedDate           DateTime?\n  UpdatedDate           DateTime?\n\n  @@id([SchoolID, nGradeTeacherDescribe], map: \"public_TGradeTeacherDescribe_PK_TGradeTeacherDescribe\")\n}\n\nmodel TGradeViewRoomListSetting {\n  RoomListSettingId  Int       @default(autoincrement())\n  GradeViewSettingId Int\n  nTermSubLevel2     Int?\n  ApprovedDate       DateTime?\n  ApprovedBy         Int?\n  CreatedBy          Int?\n  UpdatedBy          Int?\n  CreatedDate        DateTime?\n  UpdatedDate        DateTime?\n  SchoolID           Int\n  cDel               Boolean\n  IsRoomBlocked      Boolean?\n\n  @@id([SchoolID, RoomListSettingId], map: \"public_TGradeViewRoomListSetting_PK_TGradeViewRoomListSetting\")\n  @@index([IsRoomBlocked, GradeViewSettingId, nTermSubLevel2], map: \"public_TGradeViewRoomListSetting_INDEX_VV_5206679_5206678\")\n  @@index([GradeViewSettingId, nTermSubLevel2], map: \"public_TGradeViewRoomListSetting_INDEX_VV_94846_94845\")\n}\n\nmodel TGradeViewSetting {\n  GradeViewSettingId  Int       @id(map: \"public_TGradeViewSetting_PK_TGradeViewSetting\") @default(autoincrement())\n  nTerm               String    @db.VarChar(20)\n  IsTermApproved      Boolean?\n  IsAllRoomApproved   Boolean?\n  SchoolId            Int\n  ApprovedDate        DateTime?\n  ApprovedBy          Int?\n  UpdatedDate         DateTime?\n  UpdatedBy           Int?\n  CreatedBy           Int?\n  CreatedDate         DateTime?\n  cDel                Boolean\n  GradeViewFor100     Boolean\n  IsMidTermApproved   Boolean\n  IsFinalTermApproved Boolean\n\n  @@index([SchoolId, nTerm, ApprovedBy, IsTermApproved], map: \"public_TGradeViewSetting_IX_TGradeViewSetting\")\n}\n\nmodel TGradeViewStudentBlockListSetting {\n  StudentBlockListSettingId Int       @id(map: \"public_TGradeViewStudentBlockListSetting_PK_TGradeViewStudentBl\") @default(autoincrement())\n  GradeViewSettingId        Int\n  sID                       Int\n  BlockedDate               DateTime?\n  BlockedBy                 Int?\n  CreatedBy                 Int?\n  UpdatedBy                 Int?\n  CreatedDate               DateTime?\n  UpdatedDate               DateTime?\n  cDel                      Boolean\n  IsStudentBlocked          Boolean?\n  SchoolID                  Int\n\n  @@index([GradeViewSettingId, SchoolID], map: \"public_TGradeViewStudentBlockListSetting_INDEX_VV_33943_33942\")\n  @@index([sID], map: \"public_TGradeViewStudentBlockListSetting_IX_TGradeViewStudentBl\")\n}\n\nmodel THealtProfile {\n  nWeight     Float?\n  nHeight     Float?\n  sBlood      String?   @db.VarChar(255)\n  sSickFood   String?   @db.VarChar(255)\n  sSickDrug   String?   @db.VarChar(255)\n  sSickOther  String?   @db.VarChar(255)\n  sSickNormal String?   @db.VarChar(255)\n  sSickDanger String?   @db.VarChar(255)\n  sID         Int?\n  sDeleted    String?   @db.VarChar(10)\n  Weight1_1   String?   @db.VarChar(10)\n  Weight1_2   String?   @db.VarChar(10)\n  Weight1_3   String?   @db.VarChar(10)\n  Weight1_4   String?   @db.VarChar(10)\n  Weight2_1   String?   @db.VarChar(10)\n  Weight2_2   String?   @db.VarChar(10)\n  Weight2_3   String?   @db.VarChar(10)\n  Weight2_4   String?   @db.VarChar(10)\n  Weight3_1   String?   @db.VarChar(10)\n  Weight3_2   String?   @db.VarChar(10)\n  Weight3_3   String?   @db.VarChar(10)\n  Weight3_4   String?   @db.VarChar(10)\n  Weight4_1   String?   @db.VarChar(10)\n  Weight4_2   String?   @db.VarChar(10)\n  Weight4_3   String?   @db.VarChar(10)\n  Weight4_4   String?   @db.VarChar(10)\n  Weight5_1   String?   @db.VarChar(10)\n  Weight5_2   String?   @db.VarChar(10)\n  Weight5_3   String?   @db.VarChar(10)\n  Weight5_4   String?   @db.VarChar(10)\n  Weight6_1   String?   @db.VarChar(10)\n  Weight6_2   String?   @db.VarChar(10)\n  Weight6_3   String?   @db.VarChar(10)\n  Weight6_4   String?   @db.VarChar(10)\n  Height1_1   String?   @db.VarChar(10)\n  Height1_2   String?   @db.VarChar(10)\n  Height1_3   String?   @db.VarChar(10)\n  Height1_4   String?   @db.VarChar(10)\n  Height2_1   String?   @db.VarChar(10)\n  Height2_2   String?   @db.VarChar(10)\n  Height2_3   String?   @db.VarChar(10)\n  Height2_4   String?   @db.VarChar(10)\n  Height3_1   String?   @db.VarChar(10)\n  Height3_2   String?   @db.VarChar(10)\n  Height3_3   String?   @db.VarChar(10)\n  Height3_4   String?   @db.VarChar(10)\n  Height4_1   String?   @db.VarChar(10)\n  Height4_2   String?   @db.VarChar(10)\n  Height4_3   String?   @db.VarChar(10)\n  Height4_4   String?   @db.VarChar(10)\n  Height5_1   String?   @db.VarChar(10)\n  Height5_2   String?   @db.VarChar(10)\n  Height5_3   String?   @db.VarChar(10)\n  Height5_4   String?   @db.VarChar(10)\n  Height6_1   String?   @db.VarChar(10)\n  Height6_2   String?   @db.VarChar(10)\n  Height6_3   String?   @db.VarChar(10)\n  Height6_4   String?   @db.VarChar(10)\n  nHealthID   Int       @default(autoincrement())\n  SchoolID    Int\n  CreatedBy   Int?\n  UpdatedBy   Int?\n  CreatedDate DateTime?\n  UpdatedDate DateTime?\n  cDel        Boolean\n\n  @@id([SchoolID, nHealthID], map: \"public_THealtProfile_PK_THealtProfile\")\n}\n\nmodel THistoryLog {\n  ID           Int       @id(map: \"public_THistoryLog_PK_THistoryLog\") @default(autoincrement())\n  SchoolID     Int?\n  Date         DateTime?\n  MenuID       Int?\n  FunctionName String?   @db.VarChar(100)\n  sID          Int?\n  sEmp         Int?\n  UpdateBy     Int?\n  JsonDetail   String?\n}\n\nmodel THoliday {\n  nHoliday      String    @db.VarChar(10)\n  sEmp          Int?\n  sHoliday      String?   @db.VarChar(250)\n  sHolidayEN    String?   @db.VarChar(250)\n  TimeType      Int?      @db.SmallInt\n  sHolidayType  String?   @db.Char(1)\n  dHolidayStart DateTime?\n  dHolidayEnd   DateTime?\n  cDel          String?   @db.Char(1)\n  sHolidayAll   String?   @db.Char(1)\n  sWhoSeeThis   String?   @db.VarChar(1)\n  sColor        Int?\n  sGroupTarget  String?   @db.VarChar(1)\n  cStatusActive Boolean?\n  SchoolID      Int\n  CreatedBy     Int?\n  UpdatedBy     Int?\n  CreatedDate   DateTime?\n  UpdatedDate   DateTime?\n\n  @@id([SchoolID, nHoliday], map: \"public_THoliday_PK_THoliday\")\n  @@index([sHolidayType, cDel, sWhoSeeThis, SchoolID, dHolidayStart, dHolidayEnd], map: \"public_THoliday_IDX_M_7685_7684\")\n  @@index([SchoolID, dHolidayStart, dHolidayEnd], map: \"public_THoliday_INDEX_VV_100020_100019\")\n  @@index([sHolidayType, SchoolID], map: \"public_THoliday_INDEX_VV_121211_121210\")\n  @@index([cDel, SchoolID, dHolidayEnd], map: \"public_THoliday_INDEX_VV_125930_125929\")\n  @@index([sHolidayType, cDel, SchoolID, sWhoSeeThis], map: \"public_THoliday_INDEX_VV_126908_126907\")\n  @@index([cDel, SchoolID], map: \"public_THoliday_INDEX_VV_20402_20401\")\n  @@index([cDel, sWhoSeeThis, SchoolID, sHolidayType, dHolidayStart, dHolidayEnd], map: \"public_THoliday_INDEX_VV_2068_2067\")\n  @@index([cDel, SchoolID, sHolidayType], map: \"public_THoliday_INDEX_VV_2919_2918\")\n  @@index([cDel, SchoolID, sWhoSeeThis], map: \"public_THoliday_INDEX_VV_84783_84782\")\n  @@index([SchoolID, sWhoSeeThis], map: \"public_THoliday_INDEX_VV_94490_94489\")\n  @@index([cDel, SchoolID], map: \"public_THoliday_INDEX_VV_96813_96812\")\n  @@index([cDel, SchoolID, dHolidayStart, dHolidayEnd], map: \"public_THoliday_INDEX_VV_98482_98481\")\n}\n\nmodel THolidayLog {\n  LogID     Int       @id(map: \"public_THolidayLog_PK_THolidayLog\") @default(autoincrement())\n  SchoolID  Int?\n  Detail    String?\n  Creator   Int?\n  Created   DateTime?\n  HolidayID String?   @db.VarChar(15)\n\n  @@index([SchoolID], map: \"public_THolidayLog_INDEX_VV_110515_110514\")\n  @@index([SchoolID], map: \"public_THolidayLog_INDEX_VV_23103_23102\")\n}\n\nmodel THolidaySome {\n  nHolidaySomeID String    @db.VarChar(50)\n  nHoliday       String?   @db.VarChar(50)\n  nTSubLevel     Int?\n  nTimeType      Int?\n  Deleted        Int?\n  SchoolID       Int\n  CreatedBy      Int?\n  UpdatedBy      Int?\n  CreatedDate    DateTime?\n  UpdatedDate    DateTime?\n  cDel           Boolean\n\n  @@id([SchoolID, nHolidaySomeID], map: \"public_THolidaySome_PK_THolidaySome\")\n  @@index([Deleted, SchoolID], map: \"public_THolidaySome_INDEX_VV_104589_104588\")\n  @@index([Deleted, SchoolID], map: \"public_THolidaySome_INDEX_VV_110603_110602\")\n  @@index([Deleted, SchoolID, cDel], map: \"public_THolidaySome_INDEX_VV_126992_126991\")\n  @@index([nHoliday], map: \"public_THolidaySome_INDEX_VV_6066208_6066207\")\n  @@index([nHoliday], map: \"public_THolidaySome_IX_THolidaySome_Deleted_SchoolID\")\n  @@index([nTSubLevel, SchoolID], map: \"public_THolidaySome_IX_THolidaySome_nTSubLevel_SchoolID\")\n}\n\nmodel THomeWorkFile {\n  nHomeWorkId Int?\n  sFileName   String?   @db.VarChar(250)\n  ContentType String?   @db.VarChar(100)\n  nFileId     Int       @default(autoincrement())\n  SchoolID    Int\n  CreatedBy   Int?\n  UpdatedBy   Int?\n  CreatedDate DateTime?\n  UpdatedDate DateTime?\n  cDel        Boolean\n  Title       String?   @db.VarChar(250)\n\n  @@id([SchoolID, nFileId], map: \"public_THomeWorkFile_PK_THomeWorkFile\")\n  @@index([nHomeWorkId], map: \"public_THomeWorkFile_IX_THomeWorkFile_SchoolID_cDel\")\n}\n\nmodel THomeWorkLearning {\n  LearnId         Int       @id(map: \"public_THomeWorkLearning_PK_THomeWorkLearning\") @default(autoincrement())\n  OnlineId        Int?\n  sPlaneID        Int?\n  sEmp            Int?\n  TitleName       String?   @db.VarChar(250)\n  Description     String?\n  LinkYT          String?\n  Created         DateTime?\n  Modified        DateTime?\n  SchoolId        Int?\n  SelectedRoom    String?   @db.VarChar(250)\n  SelectedStudent String?   @db.VarChar(2500)\n  AssignType      Int?      @db.SmallInt\n  cDel            Boolean?\n  DisplayDate     DateTime?\n  DisplayType     Int?      @db.SmallInt\n\n  @@index([SchoolId], map: \"public_THomeWorkLearning_INDEX_VV_24290_24289\")\n  @@index([OnlineId], map: \"public_THomeWorkLearning_INDEX_VV_5801486_5801485\")\n}\n\nmodel THomeWorkLearningFile {\n  AttachId    Int      @id(map: \"public_THomeWorkLearningFile_PK_THomeWorkLearningFile\") @default(autoincrement())\n  LearnId     Int?\n  sFileName   String?  @db.VarChar(250)\n  ContentType String?  @db.VarChar(100)\n  Title       String?  @db.VarChar(250)\n  SchoolId    Int?\n  cDel        Boolean?\n\n  @@index([LearnId], map: \"public_THomeWorkLearningFile_INDEX_VV_5118105_5118104\")\n}\n\nmodel THomeWorkReply {\n  ReplyId    Int       @id(map: \"public_THomeWorkReply_PK_THomeWorkReply\") @default(autoincrement())\n  HomeWorkId Int?\n  UserId     Int?\n  ReplyRefId Int?\n  Comment    String?\n  Created    DateTime?\n  Modified   DateTime?\n  Type       Int?      @db.SmallInt\n  SchoolId   Int?\n  sID        Int?\n  tID        Int?\n\n  @@index([HomeWorkId], map: \"public_THomeWorkReply_IX_THomeWorkReply_SchoolId\")\n  @@index([Type, SchoolId, sID], map: \"public_THomeWorkReply_IX_THomeWorkReply_Type_SchoolId_sID\")\n}\n\nmodel THomeWorkReply_File {\n  FileID      Int       @id(map: \"public_THomeWorkReply_File_PK_THomeWorkReply_File\") @default(autoincrement())\n  HomeWorkID  Int\n  ReplyID     Int\n  FileUrl     String?   @db.VarChar(250)\n  FileTitle   String?   @db.VarChar(250)\n  ContentType String?   @db.VarChar(100)\n  SchoolID    Int?\n  cDel        Boolean?\n  CreateDate  DateTime?\n}\n\nmodel THomework {\n  nHomeWork       Int       @default(autoincrement())\n  SchoolID        Int\n  OnlineId        Int?\n  sPlaneID        Int?\n  dStart          DateTime?\n  dEnd            DateTime?\n  dNotification   DateTime?\n  dOrder          DateTime?\n  sEmp            Int?\n  sHomeworkDetail String?\n  CreatedBy       Int?\n  UpdatedBy       Int?\n  CreatedDate     DateTime?\n  UpdatedDate     DateTime?\n  cDel            Boolean\n  TitleName       String?   @db.VarChar(250)\n  MaxScore        Float?\n  AssignType      Int?      @db.SmallInt\n  LinkYT          String?\n  SelectedRoom    String?   @db.VarChar(250)\n  SelectedStudent String?   @db.VarChar(2500)\n  Created         DateTime?\n  Modified        DateTime?\n  DisplayDate     DateTime?\n  DisplayType     Int?      @db.SmallInt\n\n  @@id([SchoolID, nHomeWork], map: \"public_THomework_PK_THomework\")\n  @@index([OnlineId], map: \"public_THomework_IDX_M_9443_9442\")\n  @@index([cDel], map: \"public_THomework_IDX_THomework_nHomeWork\")\n  @@index([nHomeWork], map: \"public_THomework_INDEX_VV_12231_12230\")\n  @@index([SchoolID, cDel, DisplayDate], map: \"public_THomework_INDEX_VV_126703_126702\")\n  @@index([OnlineId], map: \"public_THomework_INDEX_VV_5155024_5155023\")\n  @@index([SchoolID, cDel, DisplayDate], map: \"public_THomework_INDEX_VV_89766_89765\")\n  @@index([OnlineId, SchoolID, cDel, DisplayDate], map: \"public_THomework_IX_THomework_SchoolID_cDel_DisplayDate\")\n}\n\nmodel THomework_User {\n  nHomeWork             Int\n  sID                   Int\n  cStatusHomeWork       String?   @db.Char(1)\n  SchoolID              Int\n  CreatedBy             Int?\n  UpdatedBy             Int?\n  CreatedDate           DateTime?\n  UpdatedDate           DateTime?\n  cDel                  Boolean\n  IsRead                Boolean?\n  IsSend                Boolean?\n  IsLate                Boolean?\n  IsManual              Boolean?\n  Score                 Float?\n  AttachFile            String?   @db.VarChar(250)\n  AttachTitle           String?   @db.VarChar(250)\n  AttachFileContentType String?   @db.VarChar(100)\n  LinkUrl               String?   @db.VarChar(250)\n  Remark                String?   @db.VarChar(1000)\n\n  @@id([SchoolID, nHomeWork, sID], map: \"public_THomework_User_PK_THomework_User\")\n  @@index([nHomeWork, sID], map: \"public_THomework_User_INDEX_VV_102707_102706\")\n  @@index([SchoolID, IsSend, cDel], map: \"public_THomework_User_INDEX_VV_107481_107480\")\n  @@index([sID, SchoolID, cDel], map: \"public_THomework_User_INDEX_VV_26401_26400\")\n  @@index([sID, SchoolID, CreatedDate, cDel], map: \"public_THomework_User_IX_VV_THomework_User_sID_SchoolID_Created\")\n  @@index([sID, SchoolID, cDel, nHomeWork], map: \"public_THomework_User_IX_VV_THomework_User_sID_SchoolID_cDel_nH\")\n}\n\nmodel THomework_User_File {\n  FileId          Int      @default(autoincrement())\n  nHomeWorkId     Int\n  sID             Int\n  SchoolID        Int\n  FileUrl         String?  @db.VarChar(350)\n  FileTitle       String?  @db.VarChar(250)\n  FileContentType String?  @db.VarChar(100)\n  cDel            Boolean?\n\n  @@id([FileId, nHomeWorkId, sID, SchoolID], map: \"public_THomework_User_File_PK_THomework_User_File\")\n  @@index([nHomeWorkId, sID, SchoolID], map: \"public_THomework_User_File_INDEX_VV_18206_18205\")\n}\n\nmodel TJobList {\n  nSchoolId      Int\n  jobDescription String?   @db.VarChar(100)\n  deleted        String?   @db.VarChar(50)\n  workStatus     String?   @db.VarChar(50)\n  nJobid         Int       @default(autoincrement())\n  empType        String?   @db.Char(1)\n  SchoolID       Int\n  CreatedBy      Int?\n  UpdatedBy      Int?\n  CreatedDate    DateTime? @default(now())\n  UpdatedDate    DateTime? @default(now())\n  cDel           Boolean   @default(false)\n\n  @@id([SchoolID, nJobid], map: \"public_TJobList_PK_TJobList\")\n  @@index([nJobid], map: \"public_TJobList_IDX_M_127_126\")\n  @@index([SchoolID, deleted], map: \"public_TJobList_INDEX_VV_579_578\")\n  @@index([SchoolID, cDel], map: \"public_TJobList_INDEX_VV_93844_93843\")\n}\n\nmodel TLearningCenter {\n  LearningCenterID Int       @default(autoincrement())\n  Type             Int?\n  Name             String?   @db.VarChar(100)\n  Detail           String?   @db.VarChar(300)\n  Admin            String?   @db.VarChar(100)\n  UpdateDate       DateTime?\n  UpdateBy         Int?\n  SchoolID         Int\n  CreatedBy        Int?\n  CreatedDate      DateTime?\n  cDel             Boolean\n\n  @@id([SchoolID, LearningCenterID], map: \"public_TLearningCenter_PK_TLEARNINGCENTER\")\n}\n\nmodel TLevel {\n  LevelID      Int       @default(autoincrement())\n  LevelName    String?   @db.VarChar(20)\n  nTimeType    Int?\n  sortValue    Int?\n  SchoolID     Int\n  CreatedBy    Int?\n  UpdatedBy    Int?\n  CreatedDate  DateTime?\n  UpdatedDate  DateTime?\n  cDel         Boolean\n  MasterCode   String?   @db.VarChar(2)\n  LevelNameEng String?   @db.VarChar(50)\n\n  @@id([SchoolID, LevelID], map: \"public_TLevel_PK_TLevel\")\n  @@index([cDel, LevelNameEng], map: \"public_TLevel_INDEX_VV_4019_4018\")\n  @@index([LevelName, cDel], map: \"public_TLevel_INDEX_VV_4317_4316\")\n  @@index([LevelID], map: \"public_TLevel_INDEX_VV_8638_8637\")\n  @@index([LevelName], map: \"public_TLevel_IX_TLevel_LevelName\")\n}\n\nmodel TMasterDBUser {\n  sID                Int      @id\n  nSystemID          Int?\n  nCompany           Int?\n  NFC                String?  @db.VarChar\n  cDel               String?  @db.Char(1)\n  username           String?  @db.VarChar\n  userpassword       String?  @db.VarChar\n  cType              String?  @db.VarChar\n  nMoney             Decimal? @db.Decimal\n  sName              String?  @db.VarChar\n  sLastname          String?  @db.VarChar\n  sIdentification    String?  @db.VarChar\n  pin                String?  @db.VarChar\n  sPicture           String?  @db.VarChar\n  PasswordHash       String?  @db.VarChar\n  sEmail             String?  @db.VarChar\n  nStudentStatus     Int?\n  UseEncryptPassword Boolean?\n  sStudentID         String?  @db.VarChar(200)\n\n  @@index([sID], map: \"idx_tmasterdbuser_sid\")\n  @@index([sID, cDel, cType, nCompany], map: \"idx_tmasterdbuser_sid_cdel_ctype\")\n}\n\nmodel TMasterData {\n  MasterID    Int      @id(map: \"public_TMasterData_PK_TMasterData\") @default(autoincrement())\n  MasterCode  String?  @db.VarChar(20)\n  MasterDes   String?  @db.VarChar(250)\n  MasterType  String?  @db.VarChar(20)\n  isActive    Boolean?\n  MasterOrder Int?\n  MasterDesEn String?  @db.VarChar(250)\n}\n\nmodel TMasterType {\n  MasterTypeID     Int     @id(map: \"public_TMasterType_PK_TMasterType\") @default(autoincrement())\n  MasterTypeNameTH String? @db.VarChar(200)\n  MasterTypeNameEN String? @db.VarChar(200)\n}\n\nmodel TMessageLINEMulticast {\n  MessageID   Int\n  GroupID     Int\n  StreamID    String?   @db.VarChar(1500)\n  UpdateDate  DateTime?\n  SchoolID    Int\n  CreatedBy   Int?\n  UpdatedBy   Int?\n  CreatedDate DateTime?\n  cDel        Boolean\n\n  @@id([SchoolID, MessageID, GroupID], map: \"public_TMessageLINEMulticast_PK_TMESSAGELINEMULTICAST\")\n}\n\nmodel TONETScore {\n  Year            Int\n  sID             Int\n  Identification  String    @db.VarChar(20)\n  nTSubLevel      Int\n  Class           String?   @db.VarChar(20)\n  SeatNo          String?   @db.VarChar(15)\n  SubjectScore61  Decimal?  @db.Decimal(5, 2)\n  SubjectScore64  Decimal?  @db.Decimal(5, 2)\n  SubjectScore65  Decimal?  @db.Decimal(5, 2)\n  SubjectScore63  Decimal?  @db.Decimal(5, 2)\n  SubjectScore91  Decimal?  @db.Decimal(5, 2)\n  SubjectScore94  Decimal?  @db.Decimal(5, 2)\n  SubjectScore95  Decimal?  @db.Decimal(5, 2)\n  SubjectScore93  Decimal?  @db.Decimal(5, 2)\n  SubjectScore01  Decimal?  @db.Decimal(5, 2)\n  SubjectScore04  Decimal?  @db.Decimal(5, 2)\n  SubjectScore05  Decimal?  @db.Decimal(5, 2)\n  SubjectScore02  Decimal?  @db.Decimal(5, 2)\n  SubjectScore03  Decimal?  @db.Decimal(5, 2)\n  Result30Percent Decimal?  @db.Decimal(5, 2)\n  UpdateDate      DateTime?\n  UpdateBy        Int?\n  SchoolID        Int\n  CreatedBy       Int?\n  CreatedDate     DateTime?\n  cDel            Boolean\n  ResultPercent   Decimal?  @db.Decimal(5, 2)\n  Multiplier      Decimal?  @db.Decimal(5, 2)\n\n  @@id([SchoolID, Year, sID, Identification, nTSubLevel], map: \"public_TONETScore_PK_TONETSCORE\")\n  @@index([sID, SchoolID, nTSubLevel], map: \"public_TONETScore_INDEX_VV_115426_115425\")\n}\n\nmodel TParent {\n  parent_id       Int               @id(map: \"public_TParent_PK_TParent\") @default(autoincrement())\n  parent_title    String?           @db.VarChar(50)\n  parent_name     String            @db.VarChar(100)\n  parent_lastname String            @db.VarChar(100)\n  tel             String?           @db.VarChar(20)\n  email           String?           @unique(map: \"public_TParent_UQ_TParent_Email\") @db.VarChar(255)\n  password_hash   String            @db.VarChar(255)\n  created_at      String            @default(\"getdate()\") @db.VarChar(27)\n  created_by      String?           @db.VarChar(100)\n  updated_at      DateTime?         @db.Timestamp(6)\n  updated_by      String?           @db.VarChar(100)\n  cDel            Boolean           @default(false)\n  TParentStudents TParentStudents[]\n\n  @@index([email], map: \"public_TParent_IX_TParent_Email\")\n  @@index([tel], map: \"public_TParent_IX_TParent_Tel\")\n  @@index([cDel], map: \"public_TParent_IX_TParent_cDel\")\n}\n\nmodel TParentStudents {\n  parent_student_id   Int       @id(map: \"public_TParentStudents_PK_TParentStudents\") @default(autoincrement())\n  parent_id           Int\n  SchoolID            Int\n  sID                 Int\n  parent_code         String?   @db.VarChar(13)\n  relation            String?   @db.VarChar(20)\n  relation_other_text String?   @db.VarChar(100)\n  linked_at           DateTime? @db.Timestamp(6)\n  linked_by           String?   @db.VarChar(100)\n  unlinked_at         DateTime? @db.Timestamp(6)\n  unlinked_by         String?   @db.VarChar(100)\n  TParent             TParent   @relation(fields: [parent_id], references: [parent_id], onDelete: Cascade, onUpdate: NoAction, map: \"FK_TParentStudents_Parent\")\n\n  @@unique([parent_id, SchoolID, sID], map: \"public_TParentStudents_UQ_TParentStudents_ParentStudent\")\n  @@index([linked_at], map: \"public_TParentStudents_IX_TParentStudents_LinkedAt\")\n  @@index([parent_code], map: \"public_TParentStudents_IX_TParentStudents_ParentCode\")\n  @@index([parent_id], map: \"public_TParentStudents_IX_TParentStudents_ParentID\")\n  @@index([sID], map: \"public_TParentStudents_IX_TParentStudents_SID\")\n  @@index([SchoolID], map: \"public_TParentStudents_IX_TParentStudents_SchoolID\")\n  @@index([SchoolID, sID], map: \"public_TParentStudents_IX_TParentStudents_SchoolID_SID\")\n  @@index([unlinked_at], map: \"public_TParentStudents_IX_TParentStudents_UnlinkedAt\")\n}\n\nmodel TPeriod {\n  sPeriodID      String    @db.VarChar(10)\n  sScheduleID    String?   @db.VarChar(10)\n  sPlaneID       Int?\n  sClassID       String?   @db.VarChar(10)\n  nDay           Int?\n  sPeriodName    String?   @db.VarChar(250)\n  dStart         DateTime?\n  dEnd           DateTime?\n  dTimeStart_IN  DateTime?\n  dTimeStart_OUT DateTime?\n  dTimeEnd_IN    DateTime?\n  dTimeEnd_OUT   DateTime?\n  SchoolID       Int\n  CreatedBy      Int?\n  UpdatedBy      Int?\n  CreatedDate    DateTime?\n  UpdatedDate    DateTime?\n  cDel           Boolean\n\n  @@id([SchoolID, sPeriodID], map: \"public_TPeriod_PK_TSchedule\")\n}\n\nmodel TPeriod_TSubLevel {\n  nTSubLevel  Int       @default(autoincrement())\n  sPeriodID   String    @db.VarChar(10)\n  SchoolID    Int\n  CreatedBy   Int?\n  UpdatedBy   Int?\n  CreatedDate DateTime?\n  UpdatedDate DateTime?\n  cDel        Boolean\n\n  @@id([SchoolID, nTSubLevel, sPeriodID], map: \"public_TPeriod_TSubLevel_PK_TPeriod_TSubLevel\")\n}\n\nmodel TPermissionCard {\n  ID        Int       @id(map: \"public_TPermissionCard_PK_TPermissionCard\") @default(autoincrement())\n  RefNo     Int?\n  SchoolID  Int?\n  StudentID Int?\n  TypeID    Int?\n  Time      Int?      @db.SmallInt\n  IsAttach  Boolean?\n  AttachUrl String?   @db.VarChar(500)\n  StartDate DateTime?\n  EndDate   DateTime?\n  Cause     String?   @db.VarChar(500)\n  Note      String?   @db.VarChar(500)\n  Created   DateTime?\n  Modified  DateTime?\n  Creator   Int?\n  Modifier  Int?\n  IsDel     Boolean?\n\n  @@index([RefNo, SchoolID], map: \"public_TPermissionCard_INDEX_VV_5661475_5661474\")\n  @@index([SchoolID], map: \"public_TPermissionCard_INDEX_VV_60407_60406\")\n  @@index([StudentID], map: \"public_TPermissionCard_INDEX_VV_73545_73544\")\n}\n\nmodel TPermissionCardType {\n  ID         Int       @id(map: \"public_TPermissionCardType_PK_TPermissionType\") @default(autoincrement())\n  SchoolID   Int?\n  Permission String?   @db.VarChar(250)\n  Created    DateTime?\n  Modified   DateTime?\n  Creator    Int?\n  Modifier   Int?\n  IsDel      Boolean?\n}\n\nmodel TPlan {\n  PlanId       Int           @default(autoincrement())\n  CurriculumId Int\n  nTSubLevel   Int\n  PlanName     String        @db.VarChar(250)\n  CreatedDate  DateTime\n  CreatedBy    Int?\n  UpdatedDate  DateTime\n  UpdatedBy    Int?\n  IsActive     Boolean?\n  SchoolID     Int\n  cDel         Boolean\n  TPlanCourse  TPlanCourse[]\n\n  @@id([SchoolID, PlanId], map: \"public_TPlan_PK_TPlan\")\n  @@index([nTSubLevel, IsActive, SchoolID], map: \"public_TPlan_INDEX_VV_102631_102630\")\n  @@index([PlanId], map: \"public_TPlan_INDEX_VV_263_262\")\n  @@index([CurriculumId], map: \"public_TPlan_INDEX_VV_5124310_5124309\")\n  @@index([CurriculumId], map: \"public_TPlan_INDEX_VV_55575_55574\")\n  @@index([PlanName, IsActive, SchoolID, PlanId], map: \"public_TPlan_IX_TPlan_PlanName_IsActive_SchoolID_PlanId\")\n  @@index([CurriculumId, nTSubLevel, IsActive, SchoolID], map: \"public_TPlan_ix_TPlan_new\")\n}\n\nmodel TPlanCourse {\n  PlanCourseId             Int      @default(autoincrement())\n  PlanId                   Int\n  sPlaneID                 Int\n  nCredit                  Float?\n  CourseHour               Float?\n  CourseTotalHour          Float?\n  CourseStatus             Int?\n  SortNumber               Int?\n  CreatedDate              DateTime\n  CreatedBy                Int?\n  UpdatedDate              DateTime\n  UpdatedBy                Int?\n  IsActive                 Boolean?\n  SchoolID                 Int\n  nYear                    Int?\n  RB1DisplayOrder          Int?\n  IsActiveForGrade         Int?\n  cDel                     Boolean\n  RatioQuiz                Float?\n  RatioBeforeMidTerm       Float?\n  RatioAfterMidTerm        Float?\n  RatioMidTerm             Float?\n  RatioLateTerm            Float?\n  RatioQuizPass            Float?\n  IsUserAllowedToEditRatio Boolean\n  TPlan                    TPlan    @relation(fields: [PlanId, SchoolID], references: [PlanId, SchoolID], onDelete: NoAction, onUpdate: NoAction, map: \"tplancourse_tplan\")\n\n  @@id([SchoolID, PlanCourseId], map: \"public_TPlanCourse_PK_TPlanCourse\")\n  @@index([SchoolID, sPlaneID], map: \"idx_plan_course_school\")\n  @@index([sPlaneID, PlanId, CourseStatus, IsActive, SchoolID], map: \"public_TPlanCourse_IDX_M_6856_6855\")\n  @@index([sPlaneID], map: \"public_TPlanCourse_IDX_M_6859_6858\")\n  @@index([CourseStatus, IsActive, SchoolID, cDel], map: \"public_TPlanCourse_INDEX_VV_111852_111851\")\n  @@index([PlanId, CourseStatus, IsActive, SchoolID, cDel], map: \"public_TPlanCourse_INDEX_VV_156376_156375\")\n  @@index([PlanId], map: \"public_TPlanCourse_INDEX_VV_32554_32553\")\n  @@index([PlanId], map: \"public_TPlanCourse_INDEX_VV_6065602_6065601\")\n  @@index([PlanCourseId], map: \"public_TPlanCourse_INDEX_VV_64745_64744\")\n  @@index([SchoolID, nYear], map: \"public_TPlanCourse_INDEX_VV_880_879\")\n  @@index([CourseStatus, IsActive, SchoolID, nYear, cDel], map: \"public_TPlanCourse_INDEX_VV_89903_89902\")\n  @@index([CourseStatus, IsActive, SchoolID], map: \"public_TPlanCourse_INDEX_VV_90906_90905\")\n  @@index([CourseStatus, IsActive, SchoolID, cDel], map: \"public_TPlanCourse_INDEX_VV_93421_93420\")\n  @@index([CourseStatus, IsActive, SchoolID, nYear, cDel], map: \"public_TPlanCourse_INDEX_VV_96819_96818\")\n  @@index([PlanId, sPlaneID, CourseStatus, IsActive, SchoolID], map: \"public_TPlanCourse_IX_TPlanCourse_2\")\n  @@index([SchoolID, PlanId, CourseStatus, IsActive], map: \"public_TPlanCourse_IX_TPlanCourse_Optim\")\n  @@index([PlanId], map: \"public_TPlanCourse_IX_TPlanCourse_SchoolID_nYear\")\n}\n\nmodel TPlanCourseAdjustedTerm {\n  PlanCourseAdjustedTermId Int       @default(autoincrement())\n  PlanCourseId             Int\n  nTerm                    String    @db.VarChar(20)\n  IsActive                 Boolean?\n  SchoolID                 Int\n  CreatedBy                Int?\n  UpdatedBy                Int?\n  CreatedDate              DateTime?\n  UpdatedDate              DateTime?\n  cDel                     Boolean\n\n  @@id([SchoolID, PlanCourseAdjustedTermId], map: \"public_TPlanCourseAdjustedTerm_PK_TPlanCourseAdjustedTerm\")\n  @@index([PlanCourseId, SchoolID, nTerm], map: \"idx_adjusted_term\")\n  @@index([PlanCourseId, nTerm], map: \"public_TPlanCourseAdjustedTerm_IX_TPlanCourseAdjustedTerm\")\n}\n\nmodel TPlanCourseStudent {\n  PlanCourseStudentId Int       @default(autoincrement())\n  PlanCourseId        Int\n  sID                 Int\n  cDel                Boolean\n  CreatedBy           Int?\n  Updatedby           Int?\n  CreatedDate         DateTime?\n  UpdatedDate         DateTime?\n  SchoolID            Int\n  nTerm               String?   @db.VarChar(40)\n  IsActive            Boolean\n  nTermSubLevel2      Int?\n  nTSubLevel          Int\n\n  @@id([SchoolID, PlanCourseStudentId], map: \"public_TPlanCourseStudent_PK_TPlanCourseStudent\")\n  @@index([sID, PlanCourseId, SchoolID, nTerm, IsActive, nTermSubLevel2, nTSubLevel], map: \"public_TPlanCourseStudent_IDX_M_16454_16453\")\n  @@index([IsActive, PlanCourseId, sID, nTerm, nTermSubLevel2, nTSubLevel], map: \"public_TPlanCourseStudent_IDX_M_4350_4349\")\n  @@index([PlanCourseId, IsActive], map: \"public_TPlanCourseStudent_INDEX_VV_3767_3766\")\n  @@index([PlanCourseId], map: \"public_TPlanCourseStudent_INDEX_VV_5224395_5224394\")\n  @@index([PlanCourseId], map: \"public_TPlanCourseStudent_INDEX_VV_53306_53305\")\n  @@index([SchoolID, IsActive], map: \"public_TPlanCourseStudent_INDEX_VV_89991_89990\")\n  @@index([SchoolID, nTerm, IsActive, nTermSubLevel2, nTSubLevel], map: \"public_TPlanCourseStudent_INDEX_VV_90061_90060\")\n  @@index([PlanCourseId, SchoolID, nTerm, IsActive, nTermSubLevel2, nTSubLevel], map: \"public_TPlanCourseStudent_INDEX_VV_98742_98741\")\n}\n\nmodel TPlanCourseTeacher {\n  PlanCourseTeacherId Int       @default(autoincrement())\n  PlanCourseId        Int\n  sEmp                Int\n  IsActive            Boolean?\n  SchoolID            Int\n  CreatedBy           Int?\n  UpdatedBy           Int?\n  CreatedDate         DateTime?\n  UpdatedDate         DateTime?\n  cDel                Boolean\n\n  @@id([SchoolID, PlanCourseTeacherId], map: \"public_TPlanCourseTeacher_PK_TPlanCourseTeacher\")\n  @@index([IsActive, SchoolID], map: \"public_TPlanCourseTeacher_INDEX_VV_116516_116515\")\n  @@index([IsActive, SchoolID, PlanCourseId], map: \"public_TPlanCourseTeacher_INDEX_VV_23647_23646\")\n  @@index([PlanCourseId, IsActive, SchoolID, cDel], map: \"public_TPlanCourseTeacher_INDEX_VV_5130749_5130748\")\n  @@index([sEmp, IsActive, SchoolID, PlanCourseId], map: \"public_TPlanCourseTeacher_INDEX_VV_72615_72614\")\n  @@index([IsActive, SchoolID, cDel], map: \"public_TPlanCourseTeacher_INDEX_VV_92906_92905\")\n  @@index([PlanCourseId], map: \"public_TPlanCourseTeacher_IX_TPlanCourseTeacher_IsActive_School\")\n}\n\nmodel TPlanCourseTerm {\n  PlanCourseTermId Int       @default(autoincrement())\n  PlanCourseId     Int\n  nTerm            String    @db.VarChar(20)\n  IsActive         Boolean?\n  SchoolID         Int\n  CreatedBy        Int?\n  UpdatedBy        Int?\n  CreatedDate      DateTime?\n  UpdatedDate      DateTime?\n  cDel             Boolean\n\n  @@id([SchoolID, PlanCourseTermId], map: \"public_TPlanCourseTerm_PK_TPlanCourseTerm\")\n  @@index([PlanCourseId, nTerm, SchoolID], map: \"idx_plan_term\")\n  @@index([PlanCourseId], map: \"public_TPlanCourseTerm_IDX_M_48351_48350\")\n  @@index([nTerm, IsActive, SchoolID, PlanCourseId], map: \"public_TPlanCourseTerm_INDEX_VV_120488_120487\")\n  @@index([nTerm, SchoolID], map: \"public_TPlanCourseTerm_INDEX_VV_124447_124446\")\n  @@index([PlanCourseId], map: \"public_TPlanCourseTerm_INDEX_VV_60273_60272\")\n  @@index([IsActive, SchoolID, nTerm], map: \"public_TPlanCourseTerm_INDEX_VV_98092_98091\")\n  @@index([PlanCourseId, nTerm], map: \"public_TPlanCourseTerm_IX_TPlanCourseTerm\")\n  @@index([PlanCourseId, nTerm], map: \"public_TPlanCourseTerm_IX_TPlanCourseTerm_Filtered\")\n  @@index([SchoolID, IsActive, PlanCourseId, nTerm], map: \"public_TPlanCourseTerm_IX_TPlanCourseTerm_Optim\")\n  @@index([PlanCourseId], map: \"public_TPlanCourseTerm_IX_TPlanCourseTerm_nTerm_SchoolID\")\n  @@index([nTerm, IsActive, SchoolID], map: \"public_TPlanCourseTerm_TPlanCourseTerm_nTerm_iSActive_SchoolID\")\n}\n\nmodel TPlanOwner {\n  nPlanOwnerID       Int       @default(autoincrement())\n  sEMP               Int\n  changeScoreAnytime Int\n  cDel               Int?\n  sPlaneID           Int\n  SchoolID           Int\n  CreatedBy          Int?\n  UpdatedBy          Int?\n  CreatedDate        DateTime?\n  UpdatedDate        DateTime?\n\n  @@id([SchoolID, nPlanOwnerID], map: \"public_TPlanOwner_PK_TPlanTeacher\")\n}\n\nmodel TPlanTermSubLevel2 {\n  PlanTermSubLevel2Id Int      @default(autoincrement())\n  PlanId              Int\n  nTermSubLevel2      Int\n  CreatedDate         DateTime\n  CreatedBy           Int?\n  UpdatedDate         DateTime\n  UpdatedBy           Int?\n  IsActive            Boolean?\n  SchoolID            Int\n  cDel                Boolean\n\n  @@id([SchoolID, PlanTermSubLevel2Id], map: \"public_TPlanTermSubLevel2_PK_TPlanTermSubLevel2\")\n  @@index([PlanId, SchoolID, nTermSubLevel2], map: \"idx_term_sublevel\")\n  @@index([nTermSubLevel2, IsActive, SchoolID], map: \"public_TPlanTermSubLevel2_IDX_M_3792_3791\")\n  @@index([PlanId, IsActive, SchoolID, nTermSubLevel2], map: \"public_TPlanTermSubLevel2_IDX_M_4988_4987\")\n  @@index([PlanTermSubLevel2Id], map: \"public_TPlanTermSubLevel2_INDEX_VV_1028_1027\")\n  @@index([IsActive, SchoolID, PlanId], map: \"public_TPlanTermSubLevel2_INDEX_VV_47796_47795\")\n  @@index([nTermSubLevel2], map: \"public_TPlanTermSubLevel2_INDEX_VV_56707_56706\")\n  @@index([nTermSubLevel2], map: \"public_TPlanTermSubLevel2_INDEX_VV_PLANID_ISACTIVE_SchoolID\")\n  @@index([PlanId, nTermSubLevel2], map: \"public_TPlanTermSubLevel2_IX_TPlanTermSubLevel2_1\")\n  @@index([SchoolID, nTermSubLevel2, IsActive], map: \"public_TPlanTermSubLevel2_IX_TPlanTermSubLevel2_Optim\")\n  @@index([PlanId], map: \"public_TPlanTermSubLevel2_IX_VV_TPlanTermSubLevel2_IsActive_Sch\")\n}\n\nmodel TPlane {\n  sPlaneID        Int       @default(autoincrement())\n  sPlaneName      String?   @db.VarChar(250)\n  cDel            String?   @db.Char(1)\n  nCredit         Float?\n  courseCode      String?   @db.VarChar(250)\n  courseType      Int?\n  courseHour      Float?\n  courseTotalHour Float?\n  courseGroup     Int?\n  nTSubLevel      String?   @db.VarChar(50)\n  nTerm           Int?\n  courseStatus    Int?\n  sortNumber      Int?\n  SchoolID        Int\n  CreatedBy       Int?\n  UpdatedBy       Int?\n  CreatedDate     DateTime?\n  UpdatedDate     DateTime?\n  CourseCodeEn    String?   @db.VarChar(100)\n  CourseNameEn    String?   @db.VarChar(500)\n\n  @@id([SchoolID, sPlaneID], map: \"public_TPlane_PK_TPlane\")\n  @@index([SchoolID, sPlaneID], map: \"idx_plane_school\")\n  @@index([sPlaneName], map: \"public_TPlane_IDX_M_1481_1480\")\n  @@index([SchoolID, nTSubLevel], map: \"public_TPlane_INDEX_VV_100337_100336\")\n  @@index([sPlaneID], map: \"public_TPlane_INDEX_VV_12048_12047\")\n  @@index([nTSubLevel], map: \"public_TPlane_INDEX_VV_12484_12483\")\n  @@index([courseCode], map: \"public_TPlane_INDEX_VV_126390_126389\")\n  @@index([cDel, SchoolID], map: \"public_TPlane_INDEX_VV_2901_2900\")\n  @@index([cDel, SchoolID], map: \"public_TPlane_INDEX_VV_91095_91094\")\n  @@index([cDel, SchoolID, nTSubLevel], map: \"public_TPlane_INDEX_VV_94473_94472\")\n  @@index([courseGroup, courseCode, courseType, nTerm, nTSubLevel, sortNumber], map: \"public_TPlane_IX_TPlane\")\n  @@index([sPlaneID], map: \"public_TPlane_IX_TPlane_Filtered\")\n  @@index([SchoolID, nTSubLevel, sPlaneID], map: \"public_TPlane_IX_TPlane_Optim\")\n}\n\nmodel TPreRegister {\n  preRegisterId               Int       @default(autoincrement())\n  StudentTitle                Int?\n  sName                       String?   @db.VarChar(256)\n  sLastname                   String?   @db.VarChar(256)\n  sIdentification             String?   @db.VarChar(13)\n  dBirth                      DateTime?\n  cSex                        String?   @db.Char(1)\n  sPhone                      String?   @db.VarChar(20)\n  sEmail                      String?   @db.VarChar(256)\n  sAddress                    String?   @db.VarChar(512)\n  sCity                       String?   @db.VarChar(512)\n  sPostalcode                 String?   @db.VarChar(10)\n  sCountry                    String?   @db.VarChar(512)\n  cType                       String?   @db.Char(1)\n  cDel                        Int?\n  nTermSubLevel2              Int?\n  sStudentID                  String?   @db.VarChar(20)\n  sStudentNameEN              String?   @db.VarChar(50)\n  sStudentLastEN              String?   @db.VarChar(50)\n  sStudentRace                String?   @db.VarChar(50)\n  sStudentNation              String?   @db.VarChar(50)\n  sStudentReligion            String?   @db.VarChar(50)\n  sStudentIdCardNumber        String?   @db.VarChar(20)\n  sStudentHomeNumber          String?   @db.VarChar(50)\n  sStudentSoy                 String?   @db.VarChar(50)\n  sStudentTumbon              String?   @db.VarChar(50)\n  sStudentProvince            String?   @db.VarChar(50)\n  sStudentMuu                 String?   @db.VarChar(50)\n  sStudentRoad                String?   @db.VarChar(50)\n  sStudentAumpher             String?   @db.VarChar(50)\n  sStudentPost                String?   @db.VarChar(50)\n  sStudentPicture             String?   @db.VarChar(255)\n  sNickName                   String?   @db.VarChar(50)\n  nSonNumber                  Int?\n  dPicUpdate                  DateTime?\n  nPicversion                 Int?\n  nStudentNumber              Int?\n  nStudentStatus              Int?\n  oldSchoolName               String?   @db.VarChar(250)\n  oldSchoolProvince           String?   @db.VarChar(50)\n  oldSchoolAumpher            String?   @db.VarChar(50)\n  oldSchoolTumbon             String?   @db.VarChar(50)\n  oldSchoolGPA                Float?\n  oldSchoolGraduated          String?   @db.VarChar(2)\n  nFamilyTitle                Int?\n  sFamilyName                 String?   @db.VarChar(50)\n  sFamilyLast                 String?   @db.VarChar(50)\n  sFamilyRace                 String?   @db.VarChar(50)\n  sFamilyNation               String?   @db.VarChar(50)\n  sFamilyReligion             String?   @db.VarChar(50)\n  sFamilyIdCardNumber         String?   @db.VarChar(20)\n  sFamilyRelate               String?   @db.VarChar(20)\n  sFamilyHomeNumber           String?   @db.VarChar(50)\n  sFamilySoy                  String?   @db.VarChar(50)\n  sFamilyTumbon               String?   @db.VarChar(50)\n  sFamilyProvince             String?   @db.VarChar(50)\n  sFamilyMuu                  String?   @db.VarChar(50)\n  sFamilyRoad                 String?   @db.VarChar(50)\n  sFamilyAumpher              String?   @db.VarChar(50)\n  sFamilyPost                 String?   @db.VarChar(50)\n  sPhoneOne                   String?   @db.VarChar(30)\n  sPhoneTwo                   String?   @db.VarChar(30)\n  sPhoneThree                 String?   @db.VarChar(30)\n  sPhoneMail                  String?   @db.VarChar(50)\n  FatherTitle                 Int?\n  sFatherFirstName            String?   @db.VarChar(50)\n  sFatherLastName             String?   @db.VarChar(50)\n  sFatherNation               String?   @db.VarChar(50)\n  sFatherRace                 String?   @db.VarChar(50)\n  sFatherReligion             String?   @db.VarChar(50)\n  sFatherIdCardNumber         String?   @db.VarChar(50)\n  sFatherHomeNumber           String?   @db.VarChar(50)\n  sFatherSoy                  String?   @db.VarChar(50)\n  sFatherTumbon               String?   @db.VarChar(50)\n  sFatherProvince             String?   @db.VarChar(50)\n  sFatherMuu                  String?   @db.VarChar(50)\n  sFatherRoad                 String?   @db.VarChar(50)\n  sFatherAumpher              String?   @db.VarChar(50)\n  sFatherPost                 String?   @db.VarChar(50)\n  sFatherPhone                String?   @db.VarChar(50)\n  MotherTitle                 Int?\n  sMotherFirstName            String?   @db.VarChar(50)\n  sMotherLastName             String?   @db.VarChar(50)\n  sMotherNation               String?   @db.VarChar(50)\n  sMotherRace                 String?   @db.VarChar(50)\n  sMotherReligion             String?   @db.VarChar(50)\n  sMotherIdCardNumber         String?   @db.VarChar(50)\n  sMotherHomeNumber           String?   @db.VarChar(50)\n  sMotherSoy                  String?   @db.VarChar(50)\n  sMotherTumbon               String?   @db.VarChar(50)\n  sMotherProvince             String?   @db.VarChar(50)\n  sMotherMuu                  String?   @db.VarChar(50)\n  sMotherRoad                 String?   @db.VarChar(50)\n  sMotherAumpher              String?   @db.VarChar(50)\n  sMotherPost                 String?   @db.VarChar(50)\n  sMotherPhone                String?   @db.VarChar(50)\n  nWeight                     Float?\n  nHeight                     Float?\n  sBlood                      String?   @db.VarChar(10)\n  sSickFood                   String?   @db.VarChar(250)\n  sSickDrug                   String?   @db.VarChar(250)\n  sSickOther                  String?   @db.VarChar(250)\n  sSickNormal                 String?   @db.VarChar(250)\n  sSickDanger                 String?   @db.VarChar(250)\n  registerStatus              Int\n  paymentStatus               Int\n  registerYear                Int\n  registerCode                String    @db.VarChar(20)\n  addressLat                  Float?\n  addressLng                  Float?\n  moveInDate                  DateTime?\n  optionCourse                Int?\n  optionLevel                 Int?\n  optionTime                  Int?\n  optionBranch                Int?\n  saveAsSID                   Int?\n  knowFrom9txt                String?   @db.VarChar(200)\n  knowFrom9                   Int?\n  knowFrom8txt                String?   @db.VarChar(200)\n  knowFrom8                   Int?\n  knowFrom7txt                String?   @db.VarChar(200)\n  knowFrom7                   Int?\n  knowFrom6                   Int?\n  knowFrom5txt                String?   @db.VarChar(200)\n  knowFrom5                   Int?\n  knowFrom4                   Int?\n  knowFrom3                   Int?\n  knowFrom2                   Int?\n  knowFrom1                   Int?\n  motherIncome                String?   @db.VarChar(50)\n  fatherIncome                String?   @db.VarChar(50)\n  knowFrom10                  Int?\n  knowFrom11                  Int?\n  addDate                     DateTime?\n  sFamilyNameEN               String?   @db.VarChar(50)\n  sFamilyLastEN               String?   @db.VarChar(50)\n  dFamilyBirthDay             DateTime?\n  nFamilyRequestStudyMoney    Int?\n  sFamilyGraduated            Int?\n  sFamilyJob                  String?   @db.VarChar(200)\n  sFamilyWorkPlace            String?   @db.VarChar(200)\n  nFamilyIncome               Float?\n  sFatherNameEN               String?   @db.VarChar(100)\n  sFatherLastEN               String?   @db.VarChar(100)\n  dFatherBirthDay             DateTime?\n  sFatherGraduated            Int?\n  sFatherJob                  String?   @db.VarChar(100)\n  sFatherWorkPlace            String?   @db.VarChar(200)\n  sFatherPhone2               String?   @db.VarChar(20)\n  sFatherPhone3               String?   @db.VarChar(20)\n  nFatherIncome               Float?\n  sMotherNameEN               String?   @db.VarChar(100)\n  sMotherLastEN               String?   @db.VarChar(100)\n  dMotherBirthDay             DateTime?\n  sMotherGraduated            Int?\n  sMotherJob                  String?   @db.VarChar(100)\n  sMotherWorkPlace            String?   @db.VarChar(200)\n  sMotherPhone2               String?   @db.VarChar(20)\n  sMotherPhone3               String?   @db.VarChar(20)\n  nMotherIncome               Float?\n  nSonTotal                   Int?\n  nRelativeStudyHere          Int?\n  sNickNameEN                 String?   @db.VarChar(100)\n  sStudentHomeRegisterCode    String?   @db.VarChar(20)\n  stayWithTitle               Int?\n  stayWithName                String?   @db.VarChar(100)\n  stayWithLast                String?   @db.VarChar(100)\n  stayWithEmergencyCall       String?   @db.VarChar(20)\n  stayWithEmail               String?   @db.VarChar(100)\n  HomeType                    Int?\n  friendSID                   Int?\n  houseRegistrationNumber     String?   @db.VarChar(20)\n  houseRegistrationMuu        String?   @db.VarChar(100)\n  houseRegistrationSoy        String?   @db.VarChar(100)\n  houseRegistrationRoad       String?   @db.VarChar(100)\n  houseRegistrationProvince   Int?\n  houseRegistrationAumpher    Int?\n  houseRegistrationTumbon     Int?\n  houseRegistrationPost       String?   @db.VarChar(20)\n  houseRegistrationPhone      String?   @db.VarChar(20)\n  bornFrom                    String?   @db.VarChar(100)\n  bornFromProvince            Int?\n  bornFromAumpher             Int?\n  bornFromTumbon              Int?\n  moveOutReason               String?   @db.VarChar(200)\n  sStudentHousePhone          String?   @db.VarChar(50)\n  friendName                  String?   @db.VarChar(100)\n  friendLastName              String?   @db.VarChar(100)\n  friendSubLevel              Int?\n  friendPhone                 String?   @db.VarChar(30)\n  familyStatus                Int?\n  sStudentNameOther           String?   @db.VarChar(50)\n  sStudentLastOther           String?   @db.VarChar(50)\n  StudentType                 String?   @db.VarChar(1)\n  RegisterPlanSetupID         Int?\n  ExamCode                    String?   @db.VarChar(20)\n  StudentCategory             String?   @db.VarChar(1)\n  FatherAnnualIncome          String?   @db.VarChar(30)\n  FatherEmail                 String?   @db.VarChar(100)\n  MotherAnnualIncome          String?   @db.VarChar(30)\n  MotherEmail                 String?   @db.VarChar(100)\n  ParentAnnualIncome          String?   @db.VarChar(30)\n  ParentEmail                 String?   @db.VarChar(100)\n  ExamResults                 String?   @db.VarChar(1)\n  ExamResultsUpdateBy         Int?\n  ExamResultsUpdateDate       DateTime?\n  SchoolID                    Int\n  CreatedBy                   Int?\n  UpdatedBy                   Int?\n  CreatedDate                 DateTime?\n  UpdatedDate                 DateTime?\n  ExamSeatNo                  String?   @db.VarChar(20)\n  RegisterExamRoomID          Int?\n  CompleteDocuments           String?   @db.VarChar(1)\n  CompleteDocumentsUpdateBy   Int?\n  CompleteDocumentsUpdateDate DateTime?\n  CompleteDocumentsInfo       String?   @db.VarChar(1000)\n  MainPlan                    Int?\n  BackupPlans                 String?   @db.VarChar(1200)\n\n  @@id([SchoolID, preRegisterId], map: \"public_TPreRegister_PK_TPreRegister\")\n  @@index([SchoolID, RegisterExamRoomID], map: \"IDX_TPreRegister_SchoolID_RegisterExamRoomID\")\n  @@index([cDel, SchoolID], map: \"IDX_TPreRegister_cDel_SchoolID\")\n  @@index([cDel, optionLevel, StudentType, RegisterPlanSetupID, SchoolID], map: \"IDX_TPreRegister_cDel_optionLevel_StudentType_RegisterPlanSetup\")\n  @@index([cDel, paymentStatus, registerYear, SchoolID], map: \"IDX_TPreRegister_cDel_paymentStatus_registerYear_SchoolID\")\n  @@index([cDel, registerYear, SchoolID], map: \"IDX_TPreRegister_cDel_registerYear_SchoolID\")\n  @@index([cDel, registerYear, optionCourse, SchoolID], map: \"IDX_TPreRegister_cDel_registerYear_optionCourse_SchoolID\")\n  @@index([cDel, registerYear, optionLevel, optionTime, SchoolID], map: \"IDX_TPreRegister_cDel_registerYear_optionLevel_optionTime_Schoo\")\n  @@index([optionLevel, SchoolID], map: \"IDX_TPreRegister_optionLevel_SchoolID\")\n  @@index([preRegisterId], map: \"IDX_TPreRegister_preRegisterId\")\n  @@index([sIdentification, SchoolID], map: \"IDX_TPreRegister_sIdentification_SchoolID\")\n  @@index([sIdentification, registerYear, SchoolID], map: \"IDX_TPreRegister_sIdentification_registerYear_SchoolID\")\n  @@index([sName, sLastname, cDel], map: \"IDX_TPreRegister_sName_sLastname_cDel\")\n  @@index([sStudentID, SchoolID], map: \"IDX_TPreRegister_sStudentID_SchoolID\")\n}\n\nmodel TPreRegisterDocument {\n  PreRegisterDocumentID Int       @id(map: \"public_TPreRegisterDocument_PK_TPREREGISTERDOCUMENT\") @default(autoincrement())\n  preRegisterId         Int?\n  DocumentID            Int?\n  Type                  Int?\n  VFIID                 Int?\n  FileName              String?   @db.VarChar(100)\n  ContentType           String?   @db.VarChar(200)\n  FilePath              String?   @db.VarChar(300)\n  SchoolID              Int?\n  UpdateDate            DateTime?\n\n  @@index([preRegisterId], map: \"public_TPreRegisterDocument_IX_TPreRegisterDocument_preRegister\")\n}\n\nmodel TPreRegisterRequiredCategory {\n  CategoryID     Int       @id(map: \"public_TPreRegisterRequiredCategory_PK_TPREREGISTERREQUIREDCATE\") @default(autoincrement())\n  CategoryName   String?   @db.VarChar(50)\n  CategoryNameEn String?   @db.VarChar(50)\n  Order          Int?\n  IsDel          Boolean?\n  CreateDate     DateTime?\n}\n\nmodel TPreRegisterRequiredField {\n  VFIID      Int\n  CategoryID Int?\n  SchoolID   Int\n  Status     Boolean?\n  UpdateDate DateTime?\n  UpdateBy   Int?\n\n  @@id([VFIID, SchoolID], map: \"public_TPreRegisterRequiredField_PK_TPREREGISTERREQUIREDFIELD\")\n  @@index([CategoryID, SchoolID], map: \"public_TPreRegisterRequiredField_INDEX_VV_18278_18277\")\n  @@index([SchoolID], map: \"public_TPreRegisterRequiredField_INDEX_VV_TPreRegisterRequiredF\")\n  @@index([Status, CategoryID, SchoolID], map: \"public_TPreRegisterRequiredField_IX_TPreRegisterRequiredField_C\")\n}\n\nmodel TPreRegisterRequiredFieldInitiate {\n  VFIID          Int       @id(map: \"public_TPreRegisterRequiredFieldInitiate_PK_TPREREGISTERREQUIRE\") @default(autoincrement())\n  CategoryID     Int?\n  No             String?   @db.VarChar(10)\n  IsHead         Boolean?\n  FieldName      String?   @db.VarChar(200)\n  FieldNameEn    String?   @db.VarChar(200)\n  InputFieldName String?   @db.VarChar(50)\n  DefaultStatus  Boolean?\n  Order          Int?\n  IsDel          Boolean?\n  CreateDate     DateTime?\n}\n\nmodel TPreRegisterSendMail {\n  SendMailID    Int       @id(map: \"public_TPreRegisterSendMail_PK_TPreRegisterSendMail\") @default(autoincrement())\n  preRegisterId Int\n  SendTo        String?   @db.VarChar(250)\n  SendFrom      String?   @db.VarChar(250)\n  Title         String?   @db.VarChar(150)\n  Message       String?\n  SendDate      DateTime?\n  SendBy        Int?\n}\n\nmodel TRegisterExamRoom {\n  RegisterExamRoomID  Int       @default(autoincrement())\n  nTSubLevel          Int?\n  RegisterPlanSetupID Int?\n  ExamRoomName        String?   @db.VarChar(150)\n  Seats               Int?\n  SchoolID            Int\n  UpdateDate          DateTime?\n  UpdateBy            Int?\n  IsDel               Boolean?\n\n  @@id([RegisterExamRoomID, SchoolID], map: \"public_TRegisterExamRoom_PK_TREGISTEREXAMROOM\")\n}\n\nmodel TRegisterExplanation {\n  RegisterExplanationID Int       @default(autoincrement())\n  Description           String?\n  UpdateDate            DateTime?\n  UpdateBy              Int?\n  SchoolID              Int\n  CreatedBy             Int?\n  CreatedDate           DateTime?\n  cDel                  Boolean\n\n  @@id([SchoolID, RegisterExplanationID], map: \"public_TRegisterExplanation_PK_TREGISTEREXPLANATION\")\n}\n\nmodel TRegisterPlanSetup {\n  RegPlanID           Int       @default(autoincrement())\n  RegisterPlanSetupID Int\n  nTSubLevel          Int\n  PlanName            String?   @db.VarChar(100)\n  PlanCode            String?   @db.VarChar(10)\n  UpdateDate          DateTime?\n  UpdateBy            Int?\n  SchoolID            Int\n  CreatedBy           Int?\n  CreatedDate         DateTime?\n  cDel                Boolean\n\n  @@id([SchoolID, RegPlanID, RegisterPlanSetupID, nTSubLevel], map: \"public_TRegisterPlanSetup_PK_TRegisterPlanSetup_1\")\n  @@index([RegisterPlanSetupID, nTSubLevel], map: \"public_TRegisterPlanSetup_INDEX_VV_24435_24434\")\n}\n\nmodel TRegisterRegularity {\n  RegisterRegularityID Int       @default(autoincrement())\n  nTSubLevel           Int?\n  Filename             String?   @db.VarChar(250)\n  UpdateDate           DateTime?\n  UpdateBy             Int?\n  SchoolID             Int\n  CreatedBy            Int?\n  CreatedDate          DateTime?\n  cDel                 Boolean\n\n  @@id([SchoolID, RegisterRegularityID], map: \"public_TRegisterRegularity_PK_TREGISTERREGULARITY\")\n}\n\nmodel TRegisterSetup {\n  RegisterSetupID       Int       @default(autoincrement())\n  nYear                 Int?\n  Year                  Int?\n  StudentType           String?   @db.VarChar(1)\n  nTSubLevel            Int?\n  RegisterPlanSetupID   Int?\n  StudentMax            Int?\n  SubmitDocumentDate    DateTime?\n  StartDate             DateTime?\n  EndDate               DateTime?\n  Fee                   Int?\n  UpdateDate            DateTime?\n  UpdateBy              Int?\n  ExamAnnounce          Int?\n  MeetingDate           DateTime?\n  MeetingTime           String?   @db.VarChar(5)\n  MeetingPlace          String?   @db.VarChar(250)\n  AttachmentsPassExam   String?   @db.VarChar(250)\n  AttachmentsFailExam   String?   @db.VarChar(250)\n  SchoolID              Int\n  PlanID                Int?\n  PaymentGroupID        Int?\n  IsActiveBackupPlan    Boolean?\n  OrderPlans            Int?\n  BackupPlans           String?   @db.VarChar(1200)\n  CreatedBy             Int?\n  CreatedDate           DateTime?\n  cDel                  Boolean\n  AttachmentsSubstitute String?   @db.VarChar(250)\n\n  @@id([SchoolID, RegisterSetupID], map: \"public_TRegisterSetup_PK_TREGISTERSETUP\")\n  @@index([RegisterSetupID], map: \"public_TRegisterSetup_INDEX_VV_1313_1312\")\n  @@index([SchoolID, cDel, Year, EndDate], map: \"public_TRegisterSetup_INDEX_VV_5668206_5668205\")\n  @@index([StudentType, nTSubLevel, SchoolID, cDel], map: \"public_TRegisterSetup_INDEX_VV_5941373_5941372\")\n  @@index([Year, StudentType, nTSubLevel, RegisterPlanSetupID, PaymentGroupID], map: \"public_TRegisterSetup_IX_TRegisterSetup_Year_StudentType_nTSubL\")\n  @@index([Year, nTSubLevel, RegisterPlanSetupID], map: \"public_TRegisterSetup_IX_TRegisterSetup_Year_nTSubLevel_Registe\")\n}\n\nmodel TRoom {\n  sRoomID     String    @db.VarChar(10)\n  sRoomName   String?   @db.VarChar(250)\n  cDel        String?   @db.Char(1)\n  SchoolID    Int\n  CreatedBy   Int?\n  UpdatedBy   Int?\n  CreatedDate DateTime?\n  UpdatedDate DateTime?\n\n  @@id([SchoolID, sRoomID], map: \"public_TRoom_PK_TRoom\")\n}\n\nmodel TRoomChange {\n  RoomChangeID String    @db.VarChar(100)\n  sID          Int?\n  Level2Old    Int?\n  Level2New    Int?\n  DayChange    DateTime? @db.Date\n  SchoolID     Int\n  CreatedBy    Int?\n  UpdatedBy    Int?\n  CreatedDate  DateTime?\n  UpdatedDate  DateTime?\n  cDel         Boolean\n\n  @@id([SchoolID, RoomChangeID], map: \"public_TRoomChange_PK_TChangeRoom\")\n  @@index([SchoolID, cDel, DayChange], map: \"public_TRoomChange_INDEX_VV_111866_111865\")\n  @@index([SchoolID, sID], map: \"public_TRoomChange_INDEX_VV_40855_40854\")\n  @@index([SchoolID, DayChange], map: \"public_TRoomChange_INDEX_VV_44646_44645\")\n  @@index([sID], map: \"public_TRoomChange_INDEX_VV_782_781\")\n}\n\nmodel TSchedule {\n  sScheduleID          Int       @default(autoincrement())\n  nPlaneDay            Int?\n  tStart               DateTime? @db.Time(6)\n  tEnd                 DateTime? @db.Time(6)\n  dTimeStart_IN        DateTime? @db.Time(6)\n  dTimeStart_OUT       DateTime? @db.Time(6)\n  dTimeEnd_IN          DateTime? @db.Time(6)\n  dTimeEnd_OUT         DateTime? @db.Time(6)\n  nTimeLate            Int?\n  dTimeHalf            DateTime? @db.Time(6)\n  sClassID             String?   @db.VarChar(20)\n  sPlaneID             Int?\n  sEmp                 Int?\n  nTermTable           Int?\n  cActive              Boolean?\n  cDel                 Boolean?\n  calculate            Boolean?\n  SchoolID             Int\n  CreatedBy            Int?\n  UpdatedBy            Int?\n  CreatedDate          DateTime?\n  UpdatedDate          DateTime?\n  CourseAbbreviationId Int?\n\n  @@id([SchoolID, sScheduleID], map: \"public_TSchedule_PK_TScheduled\")\n  @@index([nPlaneDay], map: \"public_TSchedule_IDX_M_1440_1439\")\n  @@index([sPlaneID, cDel, SchoolID], map: \"public_TSchedule_IDX_M_40_39\")\n  @@index([sEmp], map: \"public_TSchedule_INDEX_VV_144_143\")\n  @@index([nPlaneDay, sEmp, cDel], map: \"public_TSchedule_INDEX_VV_1684_1683\")\n  @@index([cDel, SchoolID], map: \"public_TSchedule_INDEX_VV_32126_32125\")\n  @@index([nTermTable], map: \"public_TSchedule_INDEX_VV_7883_7882\")\n  @@index([sScheduleID], map: \"public_TSchedule_INDEX_VV_8719_8718\")\n  @@index([SchoolID, sEmp], map: \"public_TSchedule_INDEX_VV_89919_89918\")\n  @@index([cDel], map: \"public_TSchedule_INDEX_VV_93469_93468\")\n  @@index([cDel, SchoolID], map: \"public_TSchedule_INDEX_VV_99552_99551\")\n  @@index([tStart], map: \"public_TSchedule_IX_TSchedule_TSchedule\")\n}\n\nmodel TScheduleTeacher {\n  ScheduleTeacherId Int       @default(autoincrement())\n  sScheduleID       Int?\n  cDel              Boolean?\n  SchoolID          Int\n  CreatedBy         Int?\n  UpdatedBy         Int?\n  CreatedDate       DateTime?\n  UpdatedDate       DateTime?\n  sEmp              Int?\n\n  @@id([SchoolID, ScheduleTeacherId], map: \"public_TScheduleTeacher_PK_TScheduleTeacher\")\n}\n\nmodel TSchoolRecord {\n  nSchoolRecordId Int       @default(autoincrement())\n  nTerm           String?   @db.VarChar(20)\n  nTsudentId      Int?\n  dAdd            DateTime?\n  dUpdate         DateTime?\n  UserAdd         Int?\n  UserUpdate      Int?\n  SchoolID        Int\n  CreatedBy       Int?\n  UpdatedBy       Int?\n  CreatedDate     DateTime?\n  UpdatedDate     DateTime?\n  cDel            Boolean\n\n  @@id([SchoolID, nSchoolRecordId], map: \"public_TSchoolRecord_PK_TSchoolRecord\")\n}\n\nmodel TSchoolRecord_Detail {\n  nSchoolRecordId Int       @default(autoincrement())\n  sPlaneID        Int\n  Grade           String?   @db.VarChar(20)\n  ReGrade         String?   @db.VarChar(20)\n  Note            String?   @db.VarChar(250)\n  Score           String?   @db.VarChar(20)\n  MaxScore        String?   @db.VarChar(20)\n  SchoolID        Int\n  CreatedBy       Int?\n  UpdatedBy       Int?\n  CreatedDate     DateTime?\n  UpdatedDate     DateTime?\n  cDel            Boolean\n\n  @@id([SchoolID, nSchoolRecordId, sPlaneID], map: \"public_TSchoolRecord_Detail_PK_TSchoolRecord_Detail\")\n}\n\nmodel TSendDataPSIS {\n  SchoolID         Int\n  nYear            Int\n  sID              Int\n  SendDate         DateTime?\n  StatusCode       Int?\n  ResponseContent  String?   @db.VarChar(300)\n  SendDate2        DateTime?\n  StatusCode2      Int?\n  ResponseContent2 String?   @db.VarChar(300)\n\n  @@id([SchoolID, nYear, sID], map: \"public_TSendDataPSIS_PK_TSendDataPSIS\")\n}\n\nmodel TSendGradePSIS {\n  SchoolID        Int\n  nYear           Int\n  Year            Int?\n  nTerm           String    @db.VarChar(20)\n  Term            String?   @db.VarChar(10)\n  sID             Int\n  sPlaneID        Int\n  CourseCode      String?   @db.VarChar(50)\n  Grade           String?   @db.VarChar(15)\n  SendDate        DateTime?\n  StatusCode      Int?\n  ResponseContent String?   @db.VarChar(300)\n\n  @@id([SchoolID, nYear, nTerm, sID, sPlaneID], map: \"public_TSendGradePSIS_PK_TSendGradePSIS\")\n  @@index([sID], map: \"public_TSendGradePSIS_INDEX_VV_4918_4917\")\n}\n\nmodel TSendSubjectPSIS {\n  SchoolID        Int\n  sPlaneID        Int\n  SendDate        DateTime?\n  StatusCode      Int?\n  ResponseContent String?   @db.VarChar(300)\n\n  @@id([SchoolID, sPlaneID], map: \"public_TSendSubjectPSIS_PK_TSendSubjectPSIS\")\n}\n\nmodel TSettingExtraTime {\n  nSettingExtraTime Int       @default(autoincrement())\n  sEMP              Int\n  nTermSubLevel2    Int\n  nTerm             String    @db.VarChar(20)\n  addDate           DateTime\n  sPlaneID          Int\n  useToken          Int?\n  cDel              Int?\n  SchoolID          Int\n  CreatedBy         Int?\n  UpdatedBy         Int?\n  CreatedDate       DateTime?\n  UpdatedDate       DateTime?\n\n  @@id([SchoolID, nSettingExtraTime], map: \"public_TSettingExtraTime_PK_TSettingExtraTime\")\n  @@index([sEMP], map: \"public_TSettingExtraTime_INDEX_VV_5898274_5898273\")\n  @@index([cDel, SchoolID, nTerm], map: \"public_TSettingExtraTime_INDEX_VV_71797_71796\")\n}\n\nmodel TStudentCardInfo {\n  nStudentCardInfoId Int       @default(autoincrement())\n  elementValue       String?   @db.VarChar(250)\n  elementName        String?   @db.VarChar(100)\n  date               DateTime?\n  cDel               Int?\n  SchoolID           Int\n  CreatedBy          Int?\n  UpdatedBy          Int?\n  CreatedDate        DateTime?\n  UpdatedDate        DateTime?\n\n  @@id([SchoolID, nStudentCardInfoId], map: \"public_TStudentCardInfo_PK_TStudentCardInfo\")\n}\n\nmodel TStudentClassroomHistory {\n  nHistoryId     Int       @default(autoincrement())\n  sID            Int?\n  nTerm          String?   @db.VarChar(20)\n  nTermSubLevel2 Int?\n  nStudentNumber Int?\n  SchoolID       Int\n  CreatedBy      Int?\n  UpdatedBy      Int?\n  CreatedDate    DateTime?\n  UpdatedDate    DateTime?\n  cDel           Boolean\n  nStudentStatus Int?\n  MoveInDate     DateTime?\n  MoveOutDate    DateTime?\n  DropOutType    Int?\n  IsActive       Boolean?\n  Note           String?   @db.VarChar(250)\n\n  @@id([nHistoryId, SchoolID], map: \"public_TStudentClassroomHistory_PK_TStudentClassroomHistory\")\n  @@index([CreatedDate], map: \"IDX_TSCH_CreatedDate\")\n  @@index([nHistoryId, SchoolID], map: \"IDX_TSCH_HistoryID\")\n  @@index([SchoolID, sID], map: \"IDX_TSCH_SchoolID_sID\")\n  @@index([nTermSubLevel2, SchoolID, cDel], map: \"IDX_TSCH_TermSubLevel2_School\")\n  @@index([nTerm, SchoolID, cDel], map: \"IDX_TSCH_Term_School_cDel\")\n  @@index([cDel, nStudentStatus], map: \"IDX_TSCH_cDel_StudentStatus\")\n  @@index([sID, IsActive], map: \"IDX_TSCH_sID_IsActive\")\n  @@index([sID, nTerm, SchoolID], map: \"IDX_TSCH_sID_Term_School\")\n  @@index([nTerm], map: \"idx_sch_term\")\n}\n\nmodel TStudentHIstory {\n  StudentHistory_ID     String    @db.VarChar(250)\n  nTermSubLevel2_OLD    Int?\n  nTermSubLevel2_NEW    Int?\n  DayStart              String?   @db.VarChar(10)\n  DayEnd                String?   @db.VarChar(10)\n  StudentStatus         String?   @db.VarChar(5)\n  DayAdd                DateTime?\n  USERADDID             Int?\n  nTerm                 String?   @db.VarChar(20)\n  sID                   Int?\n  SchoolID              Int\n  dProfessionalStandard DateTime?\n  CreatedBy             Int?\n  UpdatedBy             Int?\n  CreatedDate           DateTime?\n  UpdatedDate           DateTime?\n  DiplomaCode           String?   @db.VarChar(10)\n  cDel                  Boolean\n\n  @@id([SchoolID, StudentHistory_ID], map: \"public_TStudentHIstory_PK_TStudentHIstory\")\n  @@index([StudentStatus, SchoolID, cDel], map: \"public_TStudentHIstory_INDEX_VV_111324_111323\")\n  @@index([nTerm, SchoolID], map: \"public_TStudentHIstory_INDEX_VV_1365_1364\")\n  @@index([sID, StudentStatus, SchoolID, cDel], map: \"public_TStudentHIstory_INDEX_VV_5103161_5103160\")\n  @@index([SchoolID, cDel, sID], map: \"public_TStudentHIstory_INDEX_VV_5900_5899\")\n  @@index([StudentStatus, SchoolID, cDel], map: \"public_TStudentHIstory_INDEX_VV_92933_92932\")\n  @@index([StudentStatus, nTerm, SchoolID, cDel], map: \"public_TStudentHIstory_INDEX_VV_93863_93862\")\n  @@index([sID, nTerm, nTermSubLevel2_OLD, nTermSubLevel2_NEW], map: \"public_TStudentHIstory_IX_TStudentHIstory\")\n  @@index([nTermSubLevel2_OLD], map: \"public_TStudentHIstory_IX_TStudentHIstory_nTerm_SchoolID\")\n}\n\nmodel TStudentHealthGrowth {\n  nHealthID   Int\n  nTSubLevel  Int\n  nMonth      Int\n  Weight      Decimal?  @db.Decimal(6, 2)\n  Height      Decimal?  @db.Decimal(6, 2)\n  SchoolID    Int\n  CreatedBy   Int?\n  UpdatedBy   Int?\n  CreatedDate DateTime?\n  UpdatedDate DateTime?\n  cDel        Boolean\n\n  @@id([nHealthID, nTSubLevel, nMonth, SchoolID], map: \"public_TStudentHealthGrowth_PK_TStudentHealthGrowth\")\n  @@index([SchoolID], map: \"public_TStudentHealthGrowth_INDEX_VV_12810_12809\")\n  @@index([nTSubLevel, SchoolID], map: \"public_TStudentHealthGrowth_INDEX_VV_89959_89958\")\n  @@index([SchoolID], map: \"public_TStudentHealthGrowth_IX_TStudentHealthGrowth_SchoolID\")\n  @@index([nTSubLevel, SchoolID, Weight, Height], map: \"public_TStudentHealthGrowth_IX_TStudentHealthGrowth_nTSubLevel_\")\n  @@index([SchoolID, Weight, Height], map: \"public_TStudentHealthGrowth_IX_VV_TStudentHealthGrowth_SchoolID\")\n}\n\nmodel TStudentHealthInfo {\n  StudentHealthID Int       @default(autoincrement())\n  nHealthID       Int\n  sID             Int?\n  sBlood          String?   @db.VarChar(200)\n  sSickFood       String?   @db.VarChar(250)\n  sSickDrug       String?   @db.VarChar(250)\n  sSickOther      String?   @db.VarChar(250)\n  sSickNormal     String?   @db.VarChar(250)\n  sSickDanger     String?   @db.VarChar(250)\n  sDeleted        String?   @db.VarChar(10)\n  SchoolID        Int\n  CreatedBy       Int?\n  UpdatedBy       Int?\n  CreatedDate     DateTime?\n  UpdatedDate     DateTime?\n  cDel            Boolean\n\n  @@id([SchoolID, StudentHealthID, nHealthID], map: \"public_TStudentHealthInfo_PK_TStudentHealthInfo_1\")\n  @@index([sID, sDeleted, SchoolID], map: \"public_TStudentHealthInfo_INDEX_VV_92520_92519\")\n}\n\nmodel TStudentLevel {\n  sID            Int\n  nTermSubLevel2 Int\n  nYear          Int?\n  nStdLvID       Int       @default(autoincrement())\n  SchoolID       Int\n  CreatedBy      Int?\n  UpdatedBy      Int?\n  CreatedDate    DateTime?\n  UpdatedDate    DateTime?\n  cDel           Boolean\n\n  @@id([SchoolID, nStdLvID], map: \"public_TStudentLevel_PK_TStudentLevel\")\n}\n\nmodel TStudentType {\n  ID            Int       @default(autoincrement())\n  SchoolID      Int\n  StudentTypeTH String?   @db.VarChar(100)\n  StudentTypeEN String?   @db.VarChar(100)\n  Status        Boolean?\n  IsDel         Boolean?\n  CreatedDate   DateTime?\n  CreatedBy     Int?\n  UpdatedDate   DateTime?\n  UpdatedBy     Int?\n\n  @@id([ID, SchoolID], map: \"public_TStudentType_PK_TStudentType_1\")\n  @@index([SchoolID, ID], map: \"public_TStudentType_IX_TStudentType_Join\")\n}\n\nmodel TSubLevel {\n  nTSubLevel     Int       @default(autoincrement())\n  SubLevel       String?   @db.VarChar(20)\n  nTLevel        Int?\n  nTimeType      Int?\n  nDeleted       Int?\n  fullName       String?   @db.VarChar(50)\n  SubLevelEN     String?   @db.VarChar(10)\n  fullNameEN     String?   @db.VarChar(50)\n  nWorkingStatus Int?\n  SchoolID       Int\n  CreatedBy      Int?\n  UpdatedBy      Int?\n  CreatedDate    DateTime?\n  UpdatedDate    DateTime?\n  cDel           Boolean\n  isGraduate     Boolean?\n  MasterCode     String?   @db.VarChar(20)\n  SubLevelNameEN String?   @db.VarChar(50)\n  SubLevelNameTH String?   @db.VarChar(50)\n\n  @@id([SchoolID, nTSubLevel], map: \"public_TSubLevel_PK_TSubLevel\")\n  @@index([MasterCode], map: \"public_TSubLevel_INDEX_VV_120101_120100\")\n  @@index([nWorkingStatus], map: \"public_TSubLevel_INDEX_VV_128987_128986\")\n  @@index([cDel], map: \"public_TSubLevel_INDEX_VV_1525_1524\")\n  @@index([SubLevel], map: \"public_TSubLevel_INDEX_VV_4903423_4903422\")\n  @@index([nWorkingStatus], map: \"public_TSubLevel_INDEX_VV_509_508\")\n  @@index([nTLevel], map: \"public_TSubLevel_INDEX_VV_5130121_5130120\")\n  @@index([nWorkingStatus], map: \"public_TSubLevel_INDEX_VV_90980_90979\")\n  @@index([SubLevel, nTLevel, nTimeType], map: \"public_TSubLevel_IX_TSubLevel\")\n  @@index([nTSubLevel], map: \"public_TSubLevel_IX_TSubLevel_SubLevelID\")\n  @@index([SubLevel, nTSubLevel], map: \"public_TSubLevel_IX_TSubLevel_nTSubLevel\")\n  @@index([nTSubLevel, SchoolID], map: \"public_TSubLevel_IX_TSubLevel_nTSubLevel_SchoolID\")\n  @@index([nTSubLevel], map: \"public_TSubLevel_idx_TSubLevel_nTSubLevel\")\n}\n\nmodel TTeacherCardInfo {\n  TeacherCardInfoId Int       @default(autoincrement())\n  elementValue      String?   @db.VarChar(250)\n  elementName       String?   @db.VarChar(100)\n  date              DateTime?\n  cDel              Int?\n  SchoolID          Int\n  CreatedBy         Int?\n  UpdatedBy         Int?\n  CreatedDate       DateTime?\n  UpdatedDate       DateTime?\n\n  @@id([SchoolID, TeacherCardInfoId], map: \"public_TTeacherCardInfo_PK_TTeacherCardInfo\")\n}\n\nmodel TTeacherStudentType {\n  ID            Int       @id(map: \"public_TTeacherStudentType_PK_TTeacherStudentType\")\n  StudentTypeID Int\n  SchoolID      Int\n  sEmp          Int\n  Status        Boolean   @default(true)\n  IsDel         Boolean   @default(false)\n  CreateDate    DateTime  @default(now())\n  CreateBy      Int?\n  UpdateDate    DateTime?\n  UpdateBy      Int?\n\n  @@index([SchoolID, sEmp], map: \"public_TTeacherStudentType_IX_TTeacherStudentType\")\n  @@index([sEmp], map: \"public_TTeacherStudentType_IX_TTeacherStudentType_1\")\n}\n\nmodel TTempScanCameraIPStatus {\n  SchoolID     Int\n  IP           String?   @db.VarChar(50)\n  MAC          String?   @db.VarChar(50)\n  MachineName  String?   @db.VarChar(50)\n  CameraNo     Int?\n  CameraIP     String    @db.VarChar(50)\n  CameraStatus String?   @db.VarChar(10)\n  LastUpdate   DateTime?\n\n  @@id([SchoolID, CameraIP], map: \"public_TTempScanCameraIPStatus_PK_TTempScanCameraIPStatus\")\n}\n\nmodel TTempScanStatusOnline {\n  SchoolID     Int\n  IP           String    @db.VarChar(50)\n  MAC          String?   @db.VarChar(50)\n  MachineName  String?   @db.VarChar(50)\n  LastOnline   DateTime?\n  CameraNo     Int\n  CameraIP     String    @db.VarChar(50)\n  CameraStatus String?   @db.VarChar(10)\n\n  @@id([SchoolID, CameraNo, CameraIP], map: \"public_TTempScanStatusOnline_PK_TTempScanStatusOnline_1\")\n}\n\nmodel TTerm {\n  nTerm       String    @db.VarChar(20)\n  nYear       Int?\n  numberTerm  Int?\n  TermStatus  String?   @db.Char(1)\n  cDel        String?   @db.Char(1)\n  sTerm       String?   @db.VarChar(100)\n  dStart      DateTime?\n  dEnd        DateTime?\n  SchoolID    Int\n  CreatedBy   Int?\n  UpdatedBy   Int?\n  CreatedDate DateTime?\n  UpdatedDate DateTime?\n\n  @@id([SchoolID, nTerm], map: \"public_TTerm_PK_TTerm\")\n  @@index([SchoolID, nTerm], map: \"IDX_TTerm_SchoolID_nTerm\")\n  @@index([cDel], map: \"IDX_TTerm_cDel\")\n  @@index([cDel, SchoolID, dStart], map: \"IDX_TTerm_cDel_SchoolID_dStart\")\n  @@index([cDel, dStart, dEnd], map: \"IDX_TTerm_cDel_dStart_dEnd\")\n  @@index([cDel, sTerm], map: \"IDX_TTerm_cDel_sTerm\")\n  @@index([dStart, dEnd], map: \"IDX_TTerm_dStart_dEnd\")\n  @@index([nTerm], map: \"IDX_TTerm_nTerm\")\n  @@index([nTerm, SchoolID], map: \"IDX_TTerm_nTerm_SchoolID\")\n  @@index([nYear, SchoolID], map: \"IDX_TTerm_nYear_SchoolID\")\n  @@index([nYear, sTerm, dStart, dEnd], map: \"IDX_TTerm_nYear_sTerm_dStart_dEnd\")\n  @@index([sTerm], map: \"IDX_TTerm_sTerm\")\n  @@index([SchoolID, nYear, nTerm], map: \"idx_term_school\")\n}\n\nmodel TTermSubLevel2 {\n  nTermSubLevel2       Int       @default(autoincrement())\n  nTerm                String?   @db.VarChar(20)\n  nTSubLevel           Int\n  nTSubLevel2          String?   @db.VarChar(100)\n  nTermSubLevel2Status String    @db.Char(1)\n  nTimeType            Int?\n  nWorkingStatus       Int?\n  nBranchSpecId        Int?\n  SchoolID             Int\n  CreatedBy            Int?\n  UpdatedBy            Int?\n  CreatedDate          DateTime?\n  UpdatedDate          DateTime?\n  cDel                 Boolean\n\n  @@id([SchoolID, nTermSubLevel2], map: \"public_TTermSubLevel2_PK_TTermSubLevel2\")\n  @@index([SchoolID, nTermSubLevel2], map: \"idx_tsl2_school\")\n  @@index([nTerm], map: \"idx_ttermsublevel2_nterm\")\n  @@index([nTermSubLevel2], map: \"idx_ttermsublevel2_ntermsublevel2\")\n  @@index([nTermSubLevel2, SchoolID], map: \"idx_ttermsublevel2_ntermsublevel2_schoolid\")\n  @@index([nTSubLevel, SchoolID], map: \"idx_ttermsublevel2_ntsublevel_schoolid\")\n  @@index([nWorkingStatus], map: \"idx_ttermsublevel2_nworkingstatus\")\n  @@index([nWorkingStatus, SchoolID], map: \"idx_ttermsublevel2_nworkingstatus_schoolid\")\n}\n\nmodel TTermTimeTable {\n  nTermTable     Int       @default(autoincrement())\n  nTermSubLevel2 Int?\n  nTeacher       Int?\n  nTerm          String?   @db.VarChar(20)\n  SchoolID       Int\n  CreatedBy      Int?\n  UpdatedBy      Int?\n  CreatedDate    DateTime?\n  UpdatedDate    DateTime?\n  cDel           Boolean\n\n  @@id([SchoolID, nTermTable], map: \"public_TTermTimeTable_PK_TTermTimeTable\")\n  @@index([nTermSubLevel2, nTermTable], map: \"public_TTermTimeTable_IDX_M_798_797\")\n  @@index([nTermTable], map: \"public_TTermTimeTable_INDEX_VV_12246_12245\")\n  @@index([nTerm, nTeacher, nTermSubLevel2], map: \"public_TTermTimeTable_IX_TTermTimeTable\")\n  @@index([nTermSubLevel2, SchoolID], map: \"public_TTermTimeTable_IX_TTermTimeTable_nTermSubLevel2_SchoolID\")\n}\n\nmodel TTime {\n  TimeID         Int       @default(autoincrement())\n  dTimeStart_IN  DateTime?\n  dTimeEnd_IN    DateTime?\n  dTimeStart_OUT DateTime?\n  dTimeEnd_OUT   DateTime?\n  nDay           Int?\n  cDel           String?   @db.Char(1)\n  nTimeType      Int?\n  nTimeLate      Int?\n  dTimeHalf      DateTime?\n  SchoolID       Int\n  CreatedBy      Int?\n  UpdatedBy      Int?\n  CreatedDate    DateTime?\n  UpdatedDate    DateTime?\n\n  @@id([SchoolID, TimeID], map: \"public_TTime_PK_TTime_1\")\n  @@index([nTimeType], map: \"public_TTime_INDEX_VV_18219_18218\")\n  @@index([cDel], map: \"public_TTime_INDEX_VV_5204601_5204600\")\n  @@index([nDay], map: \"public_TTime_INDEX_VV_96669_96668\")\n}\n\nmodel TTimetype {\n  nTimeType   Int       @default(autoincrement())\n  sTimeType   String?   @db.VarChar(100)\n  cDel        String?   @db.Char(1)\n  cType       String?   @db.Char(1)\n  cUserType   String?   @db.Char(1)\n  SchoolID    Int\n  CreatedBy   Int?\n  UpdatedBy   Int?\n  CreatedDate DateTime?\n  UpdatedDate DateTime?\n\n  @@id([SchoolID, nTimeType], map: \"public_TTimetype_PK_TTimetype\")\n}\n\nmodel TTitleList {\n  nSchoolId          Int\n  titleDescription   String?   @db.VarChar(100)\n  titleDescriptionEn String?   @db.VarChar(100)\n  deleted            String?   @db.VarChar(50)\n  workStatus         String?   @db.VarChar(50)\n  nTitleid           Int       @default(autoincrement())\n  SchoolID           Int\n  CreatedBy          Int?\n  UpdatedBy          Int?\n  CreatedDate        DateTime?\n  UpdatedDate        DateTime?\n  cDel               Boolean   @default(false)\n  MasterCode         String?   @db.VarChar(20)\n  nTitleIdStr        String?   @db.VarChar(200)\n\n  @@id([SchoolID, nTitleid], map: \"public_TTitleList_PK_TTitleList\")\n  @@index([nSchoolId], map: \"public_TTitleList_INDEX_VV_5181199_5181198\")\n  @@index([titleDescription], map: \"public_TTitleList_INDEX_VV_5254317_5254316\")\n  @@index([nTitleid, SchoolID], map: \"public_TTitleList_IX_TTitleList_Lookup\")\n  @@index([nTitleid], map: \"public_TTitleList_IX_TTitleList_TitleID\")\n  @@index([nTitleid, SchoolID], map: \"public_TTitleList_IX_TTitleList_nTitleid_SchoolID\")\n}\n\nmodel TTranscriptNumber {\n  ID                  Int       @default(autoincrement())\n  SchoolID            Int\n  nTerm               String?   @db.VarChar(20)\n  nTSubLevel          Int\n  nTermSubLevel2      Int?\n  sID                 Int\n  TranscriptSetNumber Int?\n  TranscriptNumber    Int?\n  cDel                Boolean\n  CreatedBy           Int?\n  CreatedDate         DateTime?\n  UpdatedBy           Int?\n  UpdatedDate         DateTime?\n\n  @@id([ID, SchoolID, nTSubLevel, sID], map: \"public_TTranscriptNumber_PK_TTranscriptNumber\")\n  @@index([SchoolID, nTSubLevel, sID, cDel], map: \"public_TTranscriptNumber_INDEX_VV_29189_29188\")\n  @@index([SchoolID], map: \"public_TTranscriptNumber_INDEX_VV_3811_3810\")\n  @@index([SchoolID, TranscriptSetNumber, TranscriptNumber], map: \"public_TTranscriptNumber_INDEX_VV_51494_51493\")\n  @@index([SchoolID, sID], map: \"public_TTranscriptNumber_INDEX_VV_892_891\")\n}\n\nmodel TType {\n  nTypeID     Int       @default(autoincrement())\n  sType       String?   @db.VarChar(100)\n  cDel        String?   @db.Char(1)\n  shop_id     Int?\n  SchoolID    Int\n  CreatedBy   Int?\n  UpdatedBy   Int?\n  CreatedDate DateTime?\n  UpdatedDate DateTime?\n\n  @@id([SchoolID, nTypeID], map: \"public_TType_PK_TType\")\n  @@index([nTypeID], map: \"public_TType_INDEX_VV_2_1\")\n  @@index([shop_id], map: \"public_TType_INDEX_VV_4822461_4822460\")\n  @@index([nTypeID], map: \"public_TType_public_TType_INDEX_VV_2_1\")\n}\n\n/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.\nmodel TUser {\n  sID                      Int\n  sStudentTitle            String?   @db.VarChar(50)\n  sName                    String?   @db.VarChar(256)\n  sLastname                String?   @db.VarChar(256)\n  sIdentification          String?   @db.VarChar(13)\n  dBirth                   DateTime?\n  cSex                     String?   @db.Char(1)\n  sPhone                   String?   @db.VarChar(100)\n  sEmail                   String?   @db.VarChar(256)\n  sPassword                String?   @db.VarChar(100)\n  sSubtopic                String?   @db.VarChar(512)\n  sAddress                 String?   @db.VarChar(512)\n  sCity                    String?   @db.VarChar(512)\n  sPostalcode              String?   @db.VarChar(10)\n  sCountry                 String?   @db.VarChar(512)\n  dUpdate                  DateTime?\n  sFinger                  String?\n  nMoney                   Decimal?  @db.Decimal(18, 2)\n  sFinger2                 String?\n  nMax                     Decimal?  @db.Decimal(18, 2)\n  cType                    String?   @db.Char(1)\n  cDel                     String?   @db.Char(1)\n  cSMS                     String?   @db.Char(1)\n  baseSalary               Int?\n  cTelSMS                  String?   @db.VarChar(50)\n  nTermSubLevel2           Int?\n  sToken                   String?\n  sStudentID               String?   @db.VarChar(20)\n  sStudentNameEN           String?   @db.VarChar(50)\n  sStudentLastEN           String?   @db.VarChar(50)\n  sStudentRace             String?   @db.VarChar(50)\n  sStudentNation           String?   @db.VarChar(50)\n  sStudentReligion         String?   @db.VarChar(50)\n  sStudentIdCardNumber     String?   @db.VarChar(20)\n  sStudentHomeNumber       String?   @db.VarChar(100)\n  sStudentSoy              String?   @db.VarChar(50)\n  sStudentTumbon           String?   @db.VarChar(50)\n  sStudentProvince         String?   @db.VarChar(50)\n  sStudentMuu              String?   @db.VarChar(50)\n  sStudentRoad             String?   @db.VarChar(50)\n  sStudentAumpher          String?   @db.VarChar(50)\n  sStudentPost             String?   @db.VarChar(50)\n  sStudentPicture          String?   @db.VarChar(255)\n  sNickName                String?   @db.VarChar(256)\n  nSonNumber               Int?\n  dPicUpdate               DateTime?\n  nPicversion              Int?\n  nStudentNumber           Int?\n  nStudentStatus           Int?\n  ContactPeak              String?   @db.VarChar(100)\n  DayQuit                  DateTime? @db.Date\n  Note                     String?   @db.VarChar(250)\n  oldSchoolName            String?   @db.VarChar(250)\n  oldSchoolProvince        String?   @db.VarChar(250)\n  oldSchoolAumpher         String?   @db.VarChar(250)\n  oldSchoolTumbon          String?   @db.VarChar(250)\n  oldSchoolGPA             Decimal?  @db.Decimal(18, 2)\n  oldSchoolGraduated       String?   @db.VarChar(250)\n  moveInDate               DateTime?\n  addressLng               Float?\n  addressLat               Float?\n  moveOutReason            String?   @db.VarChar(200)\n  sNickNameEN              String?   @db.VarChar(256)\n  sStudentHomeRegisterCode String?   @db.VarChar(20)\n  sStudentHousePhone       String?   @db.VarChar(50)\n  sStudentNameOther        String?   @db.VarChar(50)\n  sStudentLastOther        String?   @db.VarChar(50)\n  SchoolID                 Int\n  Note2                    String?   @db.VarChar(1000)\n  Credit                   Decimal?  @db.Decimal(6, 2)\n  DiplomaCode              String?   @db.VarChar(10)\n  TranscriptSetNumber      Int?\n  TranscriptNumber         Int?\n  oldSchoolGPA2            String?   @db.VarChar(50)\n  CreatedBy                Int?\n  UpdatedBy                Int?\n  CreatedDate              DateTime?\n  UpdatedDate              DateTime?\n  DisabilityCode           String?   @db.VarChar(2)\n  DisadvantageCode         String?   @db.VarChar(2)\n  DailyUsageLimit          Decimal   @db.Decimal(18, 2)\n  JourneyType              Int?\n  DormitoryName            String?   @db.VarChar(150)\n  OldSchoolDateGraduated   DateTime?\n  PassportNumber           String?   @db.VarChar(50)\n  PassportCountry          String?   @db.VarChar(100)\n  PassportExpirationDate   DateTime?\n  CountryType              String?   @db.VarChar(1)\n  CountryNameTH            String?   @db.VarChar(200)\n  CountryNameEN            String?   @db.VarChar(200)\n  StudentTypeID            Int?\n  parent_code              String?   @db.VarChar(13)\n  oldSchoolName2           String?   @db.VarChar(250)\n  oldSchoolGPA3            Decimal?  @db.Decimal(18, 2)\n  Credit2                  Decimal?  @db.Decimal(6, 2)\n  OldSchoolDateGraduated2  DateTime?\n  oldSchoolGraduated2      String?   @db.VarChar(250)\n  moveOutReason2           String?   @db.VarChar(200)\n  oldSchoolGPA4            String?   @db.VarChar(50)\n\n  @@id([SchoolID, sID], map: \"public_TUser_PK_TUser\")\n  @@unique([SchoolID, sID], map: \"uidx_tuser_schoolid_sid\")\n  @@index([sIdentification, SchoolID], map: \"idx_tuser_identification\")\n  @@index([sIdentification(ops: raw(\"gin_trgm_ops\"))], map: \"idx_tuser_identification_trgm\", type: Gin)\n  @@index([SchoolID, sName, sLastname], map: \"idx_tuser_name\")\n  @@index([nTermSubLevel2], map: \"idx_tuser_ntermsublevel2\")\n  @@index([parent_code], map: \"idx_tuser_parent_code\")\n  @@index([SchoolID, cDel], map: \"idx_tuser_schoolid_cdel\")\n  @@index([SchoolID, StudentTypeID, nStudentStatus], map: \"idx_tuser_student\")\n  @@index([SchoolID, sStudentID], map: \"idx_tuser_studentid\")\n  @@index([sStudentID(ops: raw(\"gin_trgm_ops\"))], map: \"idx_tuser_studentid_trgm\", type: Gin)\n}\n\nmodel TUserAttendance {\n  AttendanceID    Int      @id(map: \"public_TUserAttendance_PK_TUserAttendance\") @default(autoincrement())\n  SchoolID        Int\n  sID             Int\n  cType           Int\n  MacAddress      String   @db.VarChar(250)\n  ShopID          Int\n  NFCEncrypt      String   @db.VarChar(250)\n  sName           String?  @db.VarChar(250)\n  sLastName       String?  @db.VarChar(250)\n  sStudentID      String?  @db.VarChar(250)\n  sStudentPicture String?  @db.VarChar(255)\n  AttendanceDate  DateTime @db.Date\n  TStamp          DateTime\n\n  @@index([SchoolID, ShopID, AttendanceDate], map: \"public_TUserAttendance_INDEX_VV_100569_100568\")\n  @@index([SchoolID, AttendanceDate], map: \"public_TUserAttendance_INDEX_VV_100571_100570\")\n  @@index([SchoolID, cType, ShopID, AttendanceDate], map: \"public_TUserAttendance_INDEX_VV_90455_90454\")\n  @@index([SchoolID, sID, AttendanceDate], map: \"public_TUserAttendance_IX_TUserAttendance_SchoolID_sID_Attendan\")\n}\n\nmodel TUserVerify {\n  VerifyID        Int       @id(map: \"public_TUserVerify_PK_TUserVerify\") @default(autoincrement())\n  SchoolID        Int\n  UserID          Int\n  Type            Int\n  No              Int\n  Email           String?   @db.VarChar(100)\n  PhoneNumber     String?   @db.VarChar(30)\n  RequestNo       String?   @db.VarChar(50)\n  Token           String?   @db.VarChar(50)\n  EmailPin        String?   @db.VarChar(10)\n  Ref             String?   @db.VarChar(10)\n  RequestDate     DateTime?\n  RequestResponse String?   @db.VarChar(200)\n  VerifyPin       String?   @db.VarChar(10)\n  VerifyDate      DateTime?\n  VerifyResponse  String?   @db.VarChar(200)\n  Status          Int\n\n  @@index([SchoolID, UserID], map: \"public_TUserVerify_INDEX_VV_4983534_4983533\")\n  @@index([UserID, Type, Status], map: \"public_TUserVerify_INDEX_VV_5092614_5092613\")\n}\n\nmodel TUserVerifyLINEConnect {\n  ConnectID         Int       @id(map: \"public_TUserVerifyLINEConnect_PK_TUserVerifyLINEConnect\") @default(autoincrement())\n  SchoolID          Int\n  UserID            Int\n  LINEAuthorizeCode String?   @db.VarChar(50)\n  LINEToken         String?   @db.VarChar(50)\n  ConnectDate       DateTime?\n  Status            Int\n\n  @@index([UserID, Status, LINEAuthorizeCode], map: \"public_TUserVerifyLINEConnect_INDEX_VV_5011105_5011104\")\n  @@index([UserID, SchoolID, Status], map: \"public_TUserVerifyLINEConnect_INDEX_VV_5054583_5054582\")\n}\n\nmodel TYear {\n  nYear       Int       @default(autoincrement())\n  numberYear  Int?\n  YearStatus  String?   @db.Char(1)\n  SchoolID    Int\n  CreatedBy   Int?\n  UpdatedBy   Int?\n  CreatedDate DateTime?\n  UpdatedDate DateTime?\n  cDel        Boolean\n\n  @@id([SchoolID, nYear], map: \"public_TYear_PK_TYear\")\n  @@index([numberYear], map: \"public_TYear_INDEX_VV_156570_156569\")\n  @@index([nYear, numberYear], map: \"public_TYear_INDEX_VV_31234_31233\")\n  @@index([cDel], map: \"public_TYear_INDEX_VV_53169_53168\")\n  @@index([YearStatus], map: \"public_TYear_INDEX_VV_numberyear\")\n  @@index([nYear, SchoolID], map: \"public_TYear_IX_TYear_Joins\")\n  @@index([nYear], map: \"public_TYear_idx_TYear_nYear\")\n}\n\nmodel T_FSDQ_Answer {\n  T_FSDQ_Answer_Id   Int       @default(autoincrement())\n  T_FSDQ_Question_Id Int?\n  T_FSDQ_Point_Point Int?\n  sId                Int?\n  SchoolID           Int\n  CreatedBy          Int?\n  UpdatedBy          Int?\n  CreatedDate        DateTime?\n  UpdatedDate        DateTime?\n  cDel               Boolean\n\n  @@id([SchoolID, T_FSDQ_Answer_Id], map: \"public_T_FSDQ_Answer_PK_T_FSDQ_Answer\")\n}\n\nmodel T_FSDQ_Data {\n  T_FSDQ_Data_Id       Int       @default(autoincrement())\n  T_FSDQ_Data_Datetime DateTime?\n  sID                  Int?\n  SchoolID             Int\n  CreatedBy            Int?\n  UpdatedBy            Int?\n  CreatedDate          DateTime?\n  UpdatedDate          DateTime?\n  cDel                 Boolean\n\n  @@id([SchoolID, T_FSDQ_Data_Id], map: \"public_T_FSDQ_Data_PK_T_FSDQ_Data\")\n}\n\nmodel T_FSDQ_Point {\n  T_FSDQ_Point_Id    Int       @default(autoincrement())\n  T_FSDQ_Point_Point Int?\n  T_FSDQ_Question_Id Int?\n  SchoolID           Int\n  CreatedBy          Int?\n  UpdatedBy          Int?\n  CreatedDate        DateTime?\n  UpdatedDate        DateTime?\n  cDel               Boolean\n\n  @@id([SchoolID, T_FSDQ_Point_Id], map: \"public_T_FSDQ_Point_PK_T_FSDQ_Point\")\n}\n\nmodel T_FSDQ_Question {\n  T_FSDQ_Question_Id    Int       @default(autoincrement())\n  T_FSDQ_Question_Des   String?   @db.VarChar(250)\n  T_FSDQ_Question_Group Int?\n  SchoolID              Int\n  CreatedBy             Int?\n  UpdatedBy             Int?\n  CreatedDate           DateTime?\n  UpdatedDate           DateTime?\n  cDel                  Boolean\n\n  @@id([SchoolID, T_FSDQ_Question_Id], map: \"public_T_FSDQ_Question_PK_T_FSDQ_Question\")\n}\n\nmodel TrackingData {\n  ID      Int     @id(map: \"public_TrackingData_PK_TrackingData\") @default(autoincrement())\n  PID     Int?\n  ChVer   BigInt?\n  ChCrVer BigInt?\n  ChOp    String? @db.VarChar(200)\n  sPID    String? @db.VarChar(200)\n}\n\nmodel UpdateBalance {\n  LogID    Int       @id(map: \"public_UpdateBalance_PK_UpdateBalance\") @default(autoincrement())\n  sID      Int?\n  sEmp     Int?\n  SchoolID Int?\n  nMoney   Decimal?  @db.Decimal(18, 3)\n  Tstamp   DateTime? @default(now())\n  Source   String?   @db.VarChar(200)\n}\n\nmodel UpdateBalanceLog {\n  LogID      Int      @id(map: \"public_UpdateBalanceLog_PK_UpdateBalanceLog_1\") @default(autoincrement())\n  sID        Int\n  OldBalance Decimal  @db.Decimal(18, 3)\n  NewBalance Decimal  @db.Decimal(18, 3)\n  Source     String   @db.VarChar(200)\n  TStatmp    DateTime\n}\n\nmodel UpdateBalanceMemory {\n  LogID    Int      @id(map: \"public_UpdateBalanceMemory_PK_UpdateBalanceMemory\") @default(autoincrement())\n  sID      Int?\n  sEmp     Int?\n  SchoolID Int?\n  nMoney   Decimal  @db.Decimal(18, 3)\n  Tstamp   DateTime @default(now())\n  Source   String?  @db.VarChar(200)\n}\n\n/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.\nmodel UpdateBalanceMemoryBackup {\n  LogID    Int\n  sID      Int?\n  sEmp     Int?\n  SchoolID Int?\n  nMoney   Decimal  @db.Decimal(18, 3)\n  Tstamp   DateTime\n  Source   String?  @db.VarChar(200)\n\n  @@ignore\n}\n\nmodel UserUsedLimit {\n  ID         Int      @id(map: \"public_UserUsedLimit_PK_UserUsedLimit\") @default(autoincrement())\n  UserID     Int\n  UserType   String   @db.VarChar(10)\n  UsedAmount Decimal  @default(0) @db.Decimal(18, 2)\n  Tstamp     DateTime @default(now())\n\n  @@index([Tstamp], map: \"public_UserUsedLimit_INDEX_VV_19190_19189\")\n  @@index([UserID], map: \"public_UserUsedLimit_IX_UserUsedLimit\")\n  @@index([UserID], map: \"public_UserUsedLimit_IX_UserUsedLimit_UserID\")\n}\n\nmodel User_Audit_Table {\n  AuditID       Int       @id @default(autoincrement())\n  TableName     String\n  OperationType String\n  TStamp        DateTime? @default(now()) @db.Timestamp(6)\n  OldID         Int?\n  NewID         Int?\n\n  @@index([AuditID], map: \"IDX_PK_AuditID\")\n  @@index([TableName, NewID(sort: Desc), AuditID(sort: Desc)], map: \"IDX_VV_TableName_NewID\")\n}\n\n/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.\nmodel indexupdated {\n  table_name      Unsupported(\"name\")?\n  index_type      Unsupported(\"name\")?\n  duplicate_count BigInt?\n  indexes         Unsupported(\"_name\")[]\n\n  @@ignore\n}\n",
+  "inlineSchemaHash": "9a333099f3c98cfa491ab00c653e706eaa20cea0779730c1cc25b8a79a24234e",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"ActiveSchoolList\":{\"fields\":[{\"name\":\"nCompany\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sCompany\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"ApplicationURLData\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApplicationType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ProdURL\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DevURL\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Tstamp\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UatURL\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"AlphaURL\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"JabjaiUserClaims\":{\"fields\":[{\"name\":\"UserID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UserName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"AuthorizationKey\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"OldAuthorizationKey\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ExpiredDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Tstamp\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"GeneratedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UserType\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"LINERichMenu\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RichMenuID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Status\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"LINEUser\":{\"fields\":[{\"name\":\"StudentID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"LINEUserID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RichMenuID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RegisterDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"OS\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"LogScanFCTemp\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"LogData\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Tstamp\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"LogStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MethodName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ErrorLog\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"SchoolTEmployees\":{\"fields\":[{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nStudentStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sStudentID\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"SchoolTUser\":{\"fields\":[{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nStudentStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sStudentID\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"ShortenUrl\":{\"fields\":[{\"name\":\"UrlID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UrlString\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ShortUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Tstamp\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TAccountJournal\":{\"fields\":[{\"name\":\"AccountJournalId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RefID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Code\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DebitCredit\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"Description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DeleteDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"DeleteBy\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TAccountRoleGroup\":{\"fields\":[{\"name\":\"AccountRoleGroupId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RoleGroupName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Note\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TAccountRoleUser\":{\"fields\":[{\"name\":\"AccountRoleUserId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"AccountRoleGroupId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UserId\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TAdmin\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"picture\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"del\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"id2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RoleID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"OfficerID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Code\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"FirstName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LastName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NickName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Position\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"BacklogEmailAccount\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TAttach\":{\"fields\":[{\"name\":\"AttachId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"EventName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"EventId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"AttachUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"AttachName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ContentType\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TAverment\":{\"fields\":[{\"name\":\"nAvermentID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sAverment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nCompany\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMac\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dAdd\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nStatus\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TB_APILog\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Info\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Tstamp\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TB_AppVersion\":{\"fields\":[{\"name\":\"Fd_ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_Name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_AppID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_URL\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_Prod\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Fd_Dev\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Fd_Environment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_IsLastestVersion\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TB_Application\":{\"fields\":[{\"name\":\"AppID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Fd_AppID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_AppName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_AppType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TB_BehaviorJob\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"JobName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"JobValues\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"JobStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"LogDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TB_ChangePasswordHistory\":{\"fields\":[{\"name\":\"Fd_ChangePasswordID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Fd_UserID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Fd_ResetDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Fd_OldPasswrod\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_NewPassword\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TB_FCM\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Imei\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"System\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_Lang\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"isDelete\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Fd_MBBrand\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_LoginDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Fd_VerifyStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IPAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_FirstLoginDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Fd_Location\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TB_IPBlockList\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"IPAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"BlockReason\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"BlockType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"BlockedFrom\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"BlockedUntil\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RelatedIncidentID\",\"kind\":\"scalar\",\"type\":\"BigInt\"}],\"dbName\":null},\"TB_JobsQueue\":{\"fields\":[{\"name\":\"JobId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MessageID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"JobName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"JobValues\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StateName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"FetchedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"SchedulerDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CompleteDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ErrorMessage\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ResponseTime\",\"kind\":\"scalar\",\"type\":\"Float\"}],\"dbName\":null},\"TB_LoginAttempts\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"UserID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"AttemptDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"IsSuccess\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"FailureReason\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsAccountLocked\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"RequirePasswordChange\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"IPAddress\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TB_LoginHistory\":{\"fields\":[{\"name\":\"Fd_LoginHistoryID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_LoginDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Fd_Token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_UserID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Fd_SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Imei\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"System\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_Version\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_MBBrand\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TB_Logoffline\":{\"fields\":[{\"name\":\"LogOfflineID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"LogText\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TB_PaymentGateway\":{\"fields\":[{\"name\":\"Fd_PaymentGatewayID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Fd_SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Fd_PublicKey\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_SecretKey\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_Active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Fd_ActiveInvoice\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Fd_PartnerID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_PartnerSecret\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_MerchantMID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_PromptPayActive\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Fd_ConsumerID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_ConsumerSecret\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_Campaign_ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_CGA_Merchant_CreditCard_Full_ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_CGA_Terminal_CreditCard_Full_ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_CGA_Merchant_CreditCard_Installment_ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_CGA_Terminal_CreditCard_Installment_ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_CGA_SmartPay_CreditCard_Installment_ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DisableNormalCard\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Fd_PublicKeyInvoice\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_SecretKeyInvoice\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_FeePayment\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"Fd_FeeInvoice\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"Fd_BBLPayment\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Fd_Suffix\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_KTBPayment\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Fd_PaymentType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Fd_BeamMerchant\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_BeamSecretKey\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TB_PaymentMethods\":{\"fields\":[{\"name\":\"Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PublicKey\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PaymentMethod\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PaymentChannel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"MerchantID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SecretKey\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"ActiveInvoice\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"PartnerID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PartnerSecret\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PromptPayActive\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ConsumerID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ConsumerSecret\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Campaign_ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CGA_Merchant_CreditCard_Full_ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CGA_Terminal_CreditCard_Full_ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CGA_Merchant_CreditCard_Installment_ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CGA_Terminal_CreditCard_Installment_ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CGA_SmartPay_CreditCard_Installment_ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DisableNormalCard\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"PublicKeyInvoice\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SecretKeyInvoice\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UpdateAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreateAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DeleteAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"SchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TB_PaymentSetting\":{\"fields\":[{\"name\":\"SystemID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Bank\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SystemName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TB_Policy\":{\"fields\":[{\"name\":\"Fd_PolicyID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_Message\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_Version\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Fd_IsDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Fd_IsStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Fd_Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Fd_Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Fd_CreateBy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_ModifyBy\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TB_PolicyApprove\":{\"fields\":[{\"name\":\"Fd_ApproveID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_PolicyID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_UserID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Fd_ApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Fd_UserType\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TB_RecoverUserData\":{\"fields\":[{\"name\":\"RecoverID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Imei\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"System\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"AppvoreStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"AppvoreUserID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"AppvoreDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"student_picture_0\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"student_picture_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"parent_picture_0\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"parent_picture_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"teacher_picture_0\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"teacher_picture_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"EmailPin\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_ChangePasswordID\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TB_SchoolAppVersion\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"AppVersion\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"AppID\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TB_SecurityIncidents\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"IncidentType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Severity\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SourceIP\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TargetUserID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TargetUsername\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ThreatLevel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"AttemptsCount\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TimeWindow\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"BlockDuration\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DetectedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"IsResolved\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"ResolvedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ResolvedBy\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TB_Server\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Message\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Status\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"ServerName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Url\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TB_VerifierDevice\":{\"fields\":[{\"name\":\"Fd_VerifierID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_Data\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_ChanelMessage\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Fd_UserID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Fd_SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Fd_Status\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TCompany\":{\"fields\":[{\"name\":\"nCompany\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sCompany\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSchoolPass\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sTel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sServer\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sDatabases\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sUser\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPassword\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sEntities\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sImage\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"admin1\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"admin2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"single_authen\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"double_authen\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"nfc\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"sotfware\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"latitude\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"longitude\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"schoolHeadPicture\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"serverAdminPicture\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"schoolCoverPicture\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sNameEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPhoneOne\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPhoneTwo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMobilePhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFax\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sEmailOne\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sEmailTwo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sWebsite\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sHomeNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSoy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMuu\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sRoad\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sTumbon\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sAumpher\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPost\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolHeadName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolHeadLastname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolHeadEmail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolHeadPhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ServerAdminName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ServerAdminLastname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ServerAdminEmail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ServerAdminPhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"checker\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sProvince\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sOwner\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"settingTimePeriod\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"settingPlanTeacher\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"settingGradeAdmin\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"settingReportView\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TaxId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nSchoolHeadid\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nAcademicDirectorid\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nRegistraDirectorid\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nAcademicSubDirectorid\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nAccountingDirectorid\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nStudentDevelopmentDirectorid\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nWebAdminid\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nGM\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nPersonnel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sShortSchoolName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSchoolHistory\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSchoolVision\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSchoolMission\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"EducationArea\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"uID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PaymentAPIUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CostGradeRepairMid\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"CostGradeRepair\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"CostGradeRepairFinal\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"SchoolAreaCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"GradeViewFor100\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"GradeViewAutoBlock\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"sAumpherEng\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sProvinceEng\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolClass\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserSupportID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UserSaleID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolGrade\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ActiveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"InactiveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"IsActiveSendMessageToLINE\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"TumbonID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"AumpherID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ProvinceID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ClassNameDisable\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CrmGrade\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolDataType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ActiveStatus\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TComputer\":{\"fields\":[{\"name\":\"nComputerID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sComputerName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMac\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nCompany\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cStatus\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TConnect\":{\"fields\":[{\"name\":\"nConnectID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sMacPC\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMacMoblie\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sValue\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sDisplay\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cTypeConnect\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sList\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dList\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dUpdate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CustomerID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"EmployessID\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TContact\":{\"fields\":[{\"name\":\"ContactID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SaleID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SupportID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StudentFree\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StudentPay\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StudentCount\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PackageID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Remark\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ModifyBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsDelete\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"ServiceType\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TContactList\":{\"fields\":[{\"name\":\"ContactListID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Episode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ContactNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StartDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"EndDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Period\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RemainDay\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StatusOther\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ServiceCharge\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"VAT\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StudentAmount\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ModifyBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsDelete\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TContactListAttach\":{\"fields\":[{\"name\":\"AttachID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ContactListID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"AttachUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsDelete\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ModifyBy\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TContactLog\":{\"fields\":[{\"name\":\"LogID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ContactID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ContactListID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ModifyBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"JsonLog\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DataModel\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TCrmActivity\":{\"fields\":[{\"name\":\"CrmActivityId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ActivityType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MeetingType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ActivityTitle\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ActivityDescription\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ActivityStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StartDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"EndDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"IsRecurring\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Map\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LatLng\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"AttachUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DeleteDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"DeleteBy\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TCrmAssignContact\":{\"fields\":[{\"name\":\"CrmAssignContactId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CrmContactId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SaleId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TCrmAssignSupport\":{\"fields\":[{\"name\":\"CrmAssignSupportId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CrmSupportId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StaffId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TCrmBacklog\":{\"fields\":[{\"name\":\"CrmBacklogId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Json\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"HasUpdate\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TCrmContact\":{\"fields\":[{\"name\":\"CrmContactId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Address\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Province\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"District\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SubDistrict\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StudentQty\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolGroup\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolEducation\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"KnowFrom\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Score\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"EventName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DeleteDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"DeleteBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TaxNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SignName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SignPosition\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"WitnessName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"WitnessPosition\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ContactPhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Zipcode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SaleAreaId\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TCrmFeedback\":{\"fields\":[{\"name\":\"CrmFeedbackId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CrmSupportId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Score\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Reasons\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Comment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TCrmReminder\":{\"fields\":[{\"name\":\"CrmReminderId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Subject\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Body\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StartDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"EndDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DeleteDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"DeleteBy\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TCrmSubActivity\":{\"fields\":[{\"name\":\"CrmSubActivityId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CrmActivityId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ContactID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CrmContactId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CrmSubContactId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ImportDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ImportBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Position\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Tel\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TCrmSubContact\":{\"fields\":[{\"name\":\"CrmSubContactId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CrmContactId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Position\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Tel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Email\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TCrmSupport\":{\"fields\":[{\"name\":\"CrmSupportId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IssueDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"SchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Channel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ContactId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SubType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RefCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SupportDetail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Subject\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Question\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Answer\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsFollowUp\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"FollowUpDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Priority\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"BacklogProjectID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"BacklogIssueID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DeleteDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"DeleteBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"LineInfo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Session\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"HasRemindFollowUp\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"FollowUpEndDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"FollowUpFrequency\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CustomerFollowUpDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CustomerFollowUpEndDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CustomerFollowUpFrequency\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CustomerNotifyMessage\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"AssignStaffId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Note\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Onboarding\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ReferenceKey\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ReferenceValue\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"BacklogModel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StartDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"DueDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TCrmSupportBacklogAuth\":{\"fields\":[{\"name\":\"CrmSupportBacklogAuthId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StaffId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"AccessToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RefreshToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ExpireDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TCrmSupportComment\":{\"fields\":[{\"name\":\"CrmSupportCommentId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CrmSupportId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Comment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DeleteDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"DeleteBy\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TCrmSurvey\":{\"fields\":[{\"name\":\"CrmSurveyId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SenderName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SenderType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SenderCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Tel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Note\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TopupDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Session\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TDashboardSummaries\":{\"fields\":[{\"name\":\"DashboardSummaryId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolSummary\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StudentSummary\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TeacherSummary\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TDelivery\":{\"fields\":[{\"name\":\"DeliveryId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RecipientType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TransmissionType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TransmissionDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"TransportationName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TrackingNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RecipientName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RecipientTel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RefNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Note\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"AttachUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DeleteDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"DeleteBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"NotifyMessage\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NotifyDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TDeliveryAttach\":{\"fields\":[{\"name\":\"DeliveryAttachId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DeliveryId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"AttachUrl\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TDiscordGroup\":{\"fields\":[{\"name\":\"DiscordGroupId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"GroupName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"WebhookUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TEmailQueue\":{\"fields\":[{\"name\":\"EmailQueueId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"EmailSubject\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"EmailBody\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ProcessDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Retry\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TEventLog\":{\"fields\":[{\"name\":\"EventLogId\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"SchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UserId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"EventName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TableName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ColumnName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"KeyValue\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"OldValue\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NewValue\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TExceptionLog\":{\"fields\":[{\"name\":\"ExceptionLogId\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"MethodName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Parameter\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Application\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ExceptionMsg\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ExceptionType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ExceptionSource\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ExceptionURL\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Logdate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"SchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TExpense\":{\"fields\":[{\"name\":\"ExpenseId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Year\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Month\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"AccountChartId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"AccountChartType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"BillingType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IssueBy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IssueDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Qty\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PriceBeforeVat\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"Vat\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"TotalPrice\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"RawTotalPrice\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"AttachUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DeleteDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"DeleteBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PaidType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"VehicleCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CheckIn\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CheckOut\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ExpenseRefID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ExpenseCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ExpenseUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ExpenseCreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ExpenseRefIDFleetcard\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ExpenseCodeFleetcard\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ExpenseUrlFleetcard\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ExpenseCreateDateFleetcard\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TExpenseVehicle\":{\"fields\":[{\"name\":\"ExpenseVehicleId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StaffId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"VehicleCode\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TFeature\":{\"fields\":[{\"name\":\"FeatureId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"GroupName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"FeatureName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"QueryParams\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Keyword\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Active\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TGroupMenu\":{\"fields\":[{\"name\":\"groupmenuid\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"groupmenu\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"class\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"group_order\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"actvice\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"new_order\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"icon\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsDev\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TGroupMenu_Lang\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"GroupMenuName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"groupmenuid\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Lang\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TGroupPermission\":{\"fields\":[{\"name\":\"GroupID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"GroupName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ModifyBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsEditable\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TGroupPermissionMenu\":{\"fields\":[{\"name\":\"MenuID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"GroupID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Role\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TGroupPermissionUser\":{\"fields\":[{\"name\":\"GroupID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UserID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TGroupPermission_Log\":{\"fields\":[{\"name\":\"Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Date\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Text\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ByUser\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TInvoice\":{\"fields\":[{\"name\":\"InvoiceId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PriceType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CalculationType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ServiceType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CurrentYear\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TaxStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Term1Day\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Term1Month\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Term2Day\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Term2Month\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"YearDay\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"YearMonth\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IssueDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"DueDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"NoOfDueDate\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ContactID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Note\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StudentQuantity\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StudentAllowUsing\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StudentPay\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TotalPrice\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"InvoiceCreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"InvoiceUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"InvoiceCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"InvoiceRef\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsSuccess\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"SentEmailDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"SentLineNotificationDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RecordDelete\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"DeleteBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PeakModel\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TInvoiceDetail\":{\"fields\":[{\"name\":\"InvoiceDetailId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"InvoiceId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ProductId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"EducationType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CurrentTerm\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Year\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StartDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"EndDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"DueDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Price\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"StudentCount\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TotalPrice\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"InvoiceCreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"InvoiceUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"InvoiceCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"InvoiceRef\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SentEmailDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"SentLineNotificationDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"IsSuccess\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"RecordDelete\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"DeleteBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RecieptRef\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RecieptCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RecieptUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RecieptCreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"PayStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"OverduePrice\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"RecieptSentEmailDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"RecieptSentLineNotificationDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TLineGroup\":{\"fields\":[{\"name\":\"LineGroupId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"GroupId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LineNotificationAccessToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"GroupType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TLineMessage\":{\"fields\":[{\"name\":\"LineMessageId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"GroupId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Text\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Session\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ReferenceKey\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ReferenceValue\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Model\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TLogDebug\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StudentID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"EmployeeID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"LogMessage\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LogDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"IP\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TLogError\":{\"fields\":[{\"name\":\"dLogError\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sLogError\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFunction\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TMenu\":{\"fields\":[{\"name\":\"MenuId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"MenuName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"urlDev\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"class\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MenuMode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MenuType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"MenuIndex\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"groupmenuid\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nMenuOrder\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"showmenu\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"demo\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"target\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Submenu\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"actvice\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"SegmentID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nMenuOrder2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsExceptAuth\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TMenuPermission\":{\"fields\":[{\"name\":\"Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"MenuID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"MenuName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MenuUrl\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TMenu_Lang\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MenuName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MenuId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Lang\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TMessage\":{\"fields\":[{\"name\":\"nMessageID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UserID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sMessage\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sTitle\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"dSend\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"nStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scheduled_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"push_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"homework_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sell_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"topup_id\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TMessageSystem\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Message\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"AddDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"AddBy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsDelete\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TMessageTemplate\":{\"fields\":[{\"name\":\"MessageTemplateId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Message\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TMobileMenu\":{\"fields\":[{\"name\":\"Menu_Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Menu_Name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Menu_NameEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Actvie\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Demo\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"SubMenu_Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsExceptAuth\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"OrderNo\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"MenuUrl\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TNews\":{\"fields\":[{\"name\":\"NewsID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Type\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ToType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Detail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Remark\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StartDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"EndDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"IsEmail\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsBroadcast\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsPopup\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"PopupUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsBanner\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"BannerUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ModifyBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsDelete\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsDone\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TNews2\":{\"fields\":[{\"name\":\"NewsID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SystemType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SendType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ToType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StartDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"EndDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"IsSystemLogin\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"SystemLogin\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsStudentLogin\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"StudentLogin\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsNoteHead\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"NoteHead\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsNoteAppWeb\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"NoteAppWeb\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsPopup\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Popup\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsBanner\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Banner\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsEmail\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ToSID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsSMS\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"SMS\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsLine\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Line\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsLineGroup\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"LineGroup\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ModifyBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsDelete\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsDone\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TNewsAttachFile\":{\"fields\":[{\"name\":\"AttachID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"NewsID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"AttachUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ModifyBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsDelete\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TNewsPushNotify\":{\"fields\":[{\"name\":\"PushID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"NewsID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UserID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UserType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SendDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ReadDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ModifyBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsDelete\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TNotificationSetting\":{\"fields\":[{\"name\":\"NotificationSettingId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StaffID\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"LineNotificationAccessToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TOfficer\":{\"fields\":[{\"name\":\"OfficerID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Code\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"FirstName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LastName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NickName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Position\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsDelete\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ModifyBy\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TPackage\":{\"fields\":[{\"name\":\"PackageID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PackageName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsDelete\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ModifyBy\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TParent_Card\":{\"fields\":[{\"name\":\"Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"No\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Type\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ParentName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NFC\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NFCEncrypt\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ModifyBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Barcode\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TPeakData\":{\"fields\":[{\"name\":\"PeakDataId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Value\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TPosDevices\":{\"fields\":[{\"name\":\"PosID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TTabletID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TerminalID\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TProduct\":{\"fields\":[{\"name\":\"ProductId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ProductCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TResetPassword\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sUerID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"dExpUpdate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dExpActive\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"OTP\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cStatus\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TSaleArea\":{\"fields\":[{\"name\":\"SaleAreaId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Text\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Mapping\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TSchoolArea\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Code\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Area\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TSegmentMenu\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"GroupMenuID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Class\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"nOrder\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TSegmentMenu_Lang\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SegmentMenuName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SegmentMenuID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Lang\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TSound_Student\":{\"fields\":[{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTermSubLevel2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"FullName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Code\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NickName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Receiver\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Base64Sound\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ModifyBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Gate\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TermID\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TStudentCall\":{\"fields\":[{\"name\":\"CallDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CardNo\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Status\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Announced\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Completed\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"IsResend\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"ScanType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Remark\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"GateToken\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TStudentCall_Config\":{\"fields\":[{\"name\":\"SchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Gate\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"BgCard\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Radius\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ModifyBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"IsShowLevel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsShowLastName\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsShowParent\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CardType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"NameType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsEng\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TStudentCall_Gate\":{\"fields\":[{\"name\":\"Token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Gate\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"GateName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SelectedRoom\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"FullUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ShortUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ModifyBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TStudentCall_Log\":{\"fields\":[{\"name\":\"LogId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"LogDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"LogText\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Type\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IPAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ConnectionID\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TSubDelivery\":{\"fields\":[{\"name\":\"SubDeliveryId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DeliveryId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ProductName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Qty\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SerialNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StartDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"InsuranceNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"EndDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"DeliveryNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ClaimNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Note\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TSubInsurance\":{\"fields\":[{\"name\":\"SubInsuranceId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"InsuranceId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ProductName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Qty\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SerialNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"InsuranceNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StartDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"EndDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TSystemSetting\":{\"fields\":[{\"name\":\"nSystemID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"bScanOut\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"MenuID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DocumentID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Config\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsOpenApproveUserProfile\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"ApproveOption\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApproveStartDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveEndDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"MaxTopup\",\"kind\":\"scalar\",\"type\":\"Float\"}],\"dbName\":null},\"TToken\":{\"fields\":[{\"name\":\"Token_Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Client_Token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"User_Token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"School_Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Client_Time_Stamp\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"JabJai_Token\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TTopuphistory\":{\"fields\":[{\"name\":\"History_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"order_no\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"trade_mony\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Hash_data\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"pay_type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"site_cd\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ret_url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"good_name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"order_first_name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"order_last_name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"order_email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"currency\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"fee\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"res_cd\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"res_msg\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tno\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"money\",\"kind\":\"scalar\",\"type\":\"Decimal\"}],\"dbName\":null},\"TUser\":{\"fields\":[{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sLastname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sIdentification\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dUpdatePass\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userpassword\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dBirth\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cSex\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sEmail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPassword\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PROVINCE_ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"AMPHUR_ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DISTRICT_ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nSystemID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sCity\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPostalcode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sCountry\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dCreate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dUpdate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sFinger\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFinger2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFinger3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NFC\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nCompany\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ContactPeak\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"pin\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Secret_Key\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nMoney\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"uID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserSignature\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UseBiometric\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"sPicture\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LineID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PasswordHash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UseEncryptPassword\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsFirstLogin\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CurrentFailedAttempts\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"AccountLockedUntil\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"IsAccountVerified\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TUser_Card\":{\"fields\":[{\"name\":\"Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"No\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"NFC\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NFCReverse\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NFCEncrypt\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NFCEncryptReverse\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ModifyBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"FreeText\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TrackingData\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ChVer\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"ChCrVer\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"ChOp\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPID\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"User_Audit_Table\":{\"fields\":[{\"name\":\"AuditID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TableName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"OperationType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TStamp\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"OldID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"NewID\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"amphur\":{\"fields\":[{\"name\":\"AMPHUR_ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"AMPHUR_CODE\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"AMPHUR_NAME\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"POSTCODE\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"GEO_ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PROVINCE_ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"AMPHUR_NAME_EN\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"district\":{\"fields\":[{\"name\":\"DISTRICT_ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DISTRICT_CODE\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DISTRICT_NAME_EN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DISTRICT_NAME\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"AMPHUR_ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PROVINCE_ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"GEO_ID\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"favorites\":{\"fields\":[{\"name\":\"favoritesid\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"tabletid\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"productid\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"permission\":{\"fields\":[{\"name\":\"user_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"menu_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"actvice\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"province\":{\"fields\":[{\"name\":\"PROVINCE_ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PROVINCE_CODE\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PROVINCE_NAME\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"GEO_ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PROVINCE_NAME_EN\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"APIConfiguration\":{\"fields\":[{\"name\":\"ConfigurationID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Value\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"ActiveSchoolList\":{\"fields\":[{\"name\":\"nCompany\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sCompany\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"BBLTransaction\":{\"fields\":[{\"name\":\"TransactionID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"payeeId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"transDate\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"transTime\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"transRef\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"channel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"termId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"amount\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"reference1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"reference2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"fromBank\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"retryFlag\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"InvoiceID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ErrorCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ErrorMessage\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"VerifyDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"VerifyCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"VerifyStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NotifyDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"NotifyCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NotifyStatus\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"DeviceDailyStatus\":{\"fields\":[{\"name\":\"DeviceStatusID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DeviceID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Online\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"OnlineTime\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Login\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"LoginTime\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"LogOut\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"LogoutTime\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Tstamp\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"BusinessDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"AppVersion\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"AppName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Note\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserLoginID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DeviceTypeID\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"DeviceType\":{\"fields\":[{\"name\":\"DeviceTypeID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TypeNameEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TypeNameTH\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"ExcelExportData\":{\"fields\":[{\"name\":\"ExportID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StudentID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nMoney\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"Status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Tstamp\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Success\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"RecordExists\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Remarks\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"MasterDBTUserCard\":{\"fields\":[{\"name\":\"Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"No\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"NFC\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NFCReverse\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NFCEncrypt\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NFCEncryptReverse\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ModifyBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"FreeText\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"SBLoginHistory\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nStudentID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sFirstName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sLastName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"schoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sIMEI\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sDeviceOS\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sAppName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sAppVersion\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sIPAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"loginAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TApproveEmployeeContactAddress\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Version\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"EmployeeID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsPermanentAddress\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"HouseNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Moo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Village\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Soi\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Building\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Road\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Province\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"District\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SubDistrict\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PostalCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RequestApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApproveStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ApproveComment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserAcknowledge\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"EndDateShowResult\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TApproveEmployeeEducation\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Version\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"EmployeeID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"No\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"EducationInstitution\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"GraduateStartDate\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"GraduateEndDate\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Education\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Major\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Minor\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RequestApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApproveStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ApproveComment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserAcknowledge\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"EndDateShowResult\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TApproveEmployeeFamily\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Version\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"EmployeeID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"No\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"FamilyRelationship\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Title\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Surname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Birthday\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"MaritalStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"LivingStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DeathStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"FamilyOccupation\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Education\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RequestApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApproveStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ApproveComment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserAcknowledge\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"EndDateShowResult\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TApproveEmployeeHistoryReceivingRoyalDecoration\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Version\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"EmployeeID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"No\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"YearReceived\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RoyalDecorationClass\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Position\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RoyalGovernmentVolumeNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RoyalGovernmentPart\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RoyalGovernmentNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Dated\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"RequestApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApproveStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ApproveComment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserAcknowledge\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"EndDateShowResult\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TApproveEmployeeHonor\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Version\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"EmployeeID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"No\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"HonorType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DonatingAgency\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"YearReceived\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RequestApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApproveStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ApproveComment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserAcknowledge\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"EndDateShowResult\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TApproveEmployeeOccupationalLicense\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Version\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"EmployeeID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"No\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ProfessionalLicenseType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ProfessionalLicenseNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ProfessionalLicenseName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CertificateIssueDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CertificateExpireDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"OrganizationIssuingCertificate\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RequestApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApproveStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ApproveComment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserAcknowledge\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"EndDateShowResult\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TApproveEmployeePermanentAddress\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Version\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"EmployeeID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"HouseNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Moo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Village\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Soi\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Building\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Road\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Province\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"District\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SubDistrict\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PostalCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RequestApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApproveStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ApproveComment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserAcknowledge\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"EndDateShowResult\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TApproveEmployeeProfile\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Version\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"EmployeeID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Gender\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Title\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Surname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NameEn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SurnameEn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IDCardNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PassportNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PassportCountry\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"BirthDay\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"BloodType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Nationality\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Race\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Religion\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MaritalStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SpouseName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SpouseSurname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PhoneNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RequestApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApproveStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ApproveComment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserAcknowledge\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"EndDateShowResult\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TApproveEmployeeTraining\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Version\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"EmployeeID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"No\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Type\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Project\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TrainingCourseName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TrainingStartDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"TrainingEndDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"NumberHours\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"Location\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Country\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Province\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Expenses\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"RequestApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApproveStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ApproveComment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserAcknowledge\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"EndDateShowResult\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TApproveStudentContactAddress\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Version\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StudentID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsPermanentAddress\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"HouseNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Soi\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Moo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Road\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Province\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"District\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SubDistrict\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PostalCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"HousePhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LiveWithTitle\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"LiveWithName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LiveWithSurname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"EmergencyPhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LiveWithEmail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NeighborName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NeighborSurname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NeighborPhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"HouseStyle\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RequestApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApproveStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ApproveComment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserAcknowledge\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"EndDateShowResult\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"RecoveryScript\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RecoveryDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"RecoveryBy\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TApproveStudentFatherInfo\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Version\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StudentID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Title\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Surname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NameEn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SurnameEn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"BirthDay\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"IDCardNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Race\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Nationality\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Religion\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Education\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"HouseNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Soi\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Moo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Road\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Province\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"District\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SubDistrict\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PostalCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Career\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MonthlyIncome\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"WorkPlaces\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PhoneNumberHouse\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PhoneNumberMobile\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PhoneNumberWorkPlace\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RequestApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApproveStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ApproveComment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserAcknowledge\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"EndDateShowResult\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"RecoveryScript\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RecoveryDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"RecoveryBy\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TApproveStudentMotherInfo\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Version\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StudentID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Title\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Surname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NameEn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SurnameEn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"BirthDay\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"IDCardNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Race\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Nationality\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Religion\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Education\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsFatherAddress\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"HouseNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Soi\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Moo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Road\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Province\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"District\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SubDistrict\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PostalCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Career\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MonthlyIncome\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"WorkPlaces\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PhoneNumberHouse\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PhoneNumberMobile\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PhoneNumberWorkPlace\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RequestApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApproveStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ApproveComment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserAcknowledge\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"EndDateShowResult\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"RecoveryScript\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RecoveryDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"RecoveryBy\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TApproveStudentParentInfo\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Version\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StudentID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CopyFrom\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Relationship\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Title\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Surname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NameEn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SurnameEn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"BirthDay\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"IDCardNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Race\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Nationality\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Religion\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Education\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"HouseNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Soi\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Moo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Road\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Province\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"District\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SubDistrict\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PostalCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TuitionFee\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"FamilyStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Career\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MonthlyIncome\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"WorkPlaces\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PhoneNumberHouse\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PhoneNumberMobile\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PhoneNumberWorkPlace\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RequestApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApproveStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ApproveComment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserAcknowledge\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"EndDateShowResult\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"RecoveryScript\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RecoveryDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"RecoveryBy\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TApproveStudentPermanentAddress\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Version\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StudentID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"HouseCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"HouseNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Soi\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Moo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Road\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Province\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"District\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SubDistrict\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PostalCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"HomePhoneNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"BirthPlace\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"BirthPlaceProvince\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"BirthPlaceDistrict\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"BirthPlaceSubDistrict\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RequestApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApproveStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ApproveComment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserAcknowledge\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"EndDateShowResult\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"RecoveryScript\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RecoveryDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"RecoveryBy\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TApproveStudentProfile\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Version\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StudentID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Gender\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Title\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Surname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NameEn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SurnameEn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NameOther\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SurnameOther\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Nickname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NicknameEn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"BirthDay\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Race\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Nationality\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Religion\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Disability\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Disadvantaged\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PhoneNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NumberMemberInFamily\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"YouAreChildOfFamily\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"HaveBrotherStudyInSchool\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Other\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RequestApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApproveBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApproveStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ApproveComment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserAcknowledge\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"EndDateShowResult\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"RecoveryScript\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RecoveryDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"RecoveryBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SpendingPerDay\",\"kind\":\"scalar\",\"type\":\"Decimal\"}],\"dbName\":null},\"TB_EQ_Answer\":{\"fields\":[{\"name\":\"TB_EQ_Answer_Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TB_EQ_Question_Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TB_EQ_Point_Point\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TB_EQ_Data\":{\"fields\":[{\"name\":\"TB_EQ_Data_Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TB_EQ_Data_Datetime\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TB_EQ_Group\":{\"fields\":[{\"name\":\"TB_EQ_Group_Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TB_EQ_Group_Des\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TB_EQ_Question_Group\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TB_EQ_Point\":{\"fields\":[{\"name\":\"TB_EQ_Point_Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TB_EQ_Point_Point\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TB_EQ_Question_Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TB_EQ_Question\":{\"fields\":[{\"name\":\"TB_EQ_Question_Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TB_EQ_Question_Des\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TB_EQ_Question_Group\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TB_HistorySetting\":{\"fields\":[{\"name\":\"Fd_HistoryID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_FunctionName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_SettingData\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Fd_SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Fd_UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Fd_UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TBackupCard\":{\"fields\":[{\"name\":\"CardID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CardName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"BarCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NFC\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NFCReverse\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NFCEncrypt\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"NFCEncryptReverse\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Money\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Insurance\",\"kind\":\"scalar\",\"type\":\"Decimal\"}],\"dbName\":null},\"TBackupCardHistory\":{\"fields\":[{\"name\":\"CardHistoryID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CardID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UserType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UserID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UserName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"BorrowingDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ReturnDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Insurance\",\"kind\":\"scalar\",\"type\":\"Decimal\"}],\"dbName\":null},\"TBranch\":{\"fields\":[{\"name\":\"BranchId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTLevel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"BranchName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TBranchSpec\":{\"fields\":[{\"name\":\"BranchSpecId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"BranchSubjectId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"BranchSpecName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TBranchSubject\":{\"fields\":[{\"name\":\"BranchSubjectId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"BranchId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"BranchSubjectName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TClass\":{\"fields\":[{\"name\":\"sClassID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sClass\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sClassIP\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TClassMember\":{\"fields\":[{\"name\":\"nClassMemberid\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTeacherHeadid\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTeacherAssistOne\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTeacherAssistTwo\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTermSubLevel2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTerm\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TClassOnline\":{\"fields\":[{\"name\":\"OnlineId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TermId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LevelId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PlanId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TitleName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TeacherId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SelectedRoom\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"ShareId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ModifyBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Modfied\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TCourseAbbreviation\":{\"fields\":[{\"name\":\"CourseAbbreviationId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ShortName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sPlaneID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TCourseGroup\":{\"fields\":[{\"name\":\"courseGroupId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"MasterCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DescriptionEn\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TCourseType\":{\"fields\":[{\"name\":\"courseTypeId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"nOrder\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"MasterCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DescriptionEn\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TCurriculum\":{\"fields\":[{\"name\":\"CurriculumId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CurriculumName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nYear\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TDepartment\":{\"fields\":[{\"name\":\"DepID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"userHeadId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"userApproveOne\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"userApproveTwo\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"departmentName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"deleted\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TDocumentStampDate\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DocType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DocDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TEmpAddress\":{\"fields\":[{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Type\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"No\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"VillageNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Village\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Building\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Alley\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Road\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SubdistrictID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DistrictID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ProvinceID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Postcode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TEmpEducationInfo\":{\"fields\":[{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Institution\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StudyYear\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"GraduationYear\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"LevelID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Major\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MinorSubject\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TEmpFamily\":{\"fields\":[{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"FamilyRelation\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TitleID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"FirstName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LastName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Birthday\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"PersonalStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"LiveStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DeathStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"FamilyCareer\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LevelID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"EducationBackground\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TEmpHonor\":{\"fields\":[{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Department\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Year\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TEmpInsignia\":{\"fields\":[{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Year\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Grade\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Position\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"BookNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Part\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Duty\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Number\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Date\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TEmpProfessionalLicense\":{\"fields\":[{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"LicenseType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"LicenseNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LicenseName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IssuedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ExpireDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"AgencyIssued\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TEmpSalary\":{\"fields\":[{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"WorkStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"WorkInEducationDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Salary\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"PositionMoney\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"RetirementDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"RemainGovernmentYear\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RemainGovernmentMonth\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RemainGovernmentDay\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Degree\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"GovernmentOrderDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"WorkStartDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"AcademicStandingMoney\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"NetSalary\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"DayQuit\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TEmpSigner\":{\"fields\":[{\"name\":\"SignerID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"YearID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TermID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Position\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PositionEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DefaultID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"EmpID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Signer\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsDefault\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ModifyBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"OldSigner\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TEmpTOEIC\":{\"fields\":[{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TOEICScore\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"InstitutionAnnouncement\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ExpirationDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TEmpTeaching\":{\"fields\":[{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nYear\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTerm\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"courseTypeId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SUBJECT_ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sClassID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sRoomID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"HoursPerWeek\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DirectTeaching\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CompetentTeaching\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"WantTrain\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TEmpTraining\":{\"fields\":[{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ProjectName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TrainingName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StartDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"EndDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Place\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ProvinceID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Country\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Expenses\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Province\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"TrainingType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TrainingHours\",\"kind\":\"scalar\",\"type\":\"Decimal\"}],\"dbName\":null},\"TEmployeeInfo\":{\"fields\":[{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Code\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"FirstNameEn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LastNameEn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PassportNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PassportCountry\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PassportExpirationDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"VisaNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"VisaExpirationDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"WorkPermitNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"WorkPermitExpirationDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"BloodType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Nationality\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Ethnicity\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Religion\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PersonalStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SpouseFirstName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SpouseLastName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TEmployeeType\":{\"fields\":[{\"name\":\"nTypeId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTypeId2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"MasterCode\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TEmployees\":{\"fields\":[{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sLastname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sIdentification\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dBirth\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cSex\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sEmail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPassword\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSubtopic\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sCity\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPostalcode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sCountry\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dUpdate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sFinger\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nMoney\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"sFinger2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sClaim\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStatusReport\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nTimeType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPicture\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sProvince\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sTumbon\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSoy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sHomeNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMuu\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sRoad\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sAumpher\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPost\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sTitle\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dPicUpdate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"nPicversion\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"leavecheck\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nJobid\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nDepartmentId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"gradeSystemAdmin\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Village\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Building\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"DailyUsageLimit\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"nMax\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"sNameEng\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sLastNameEng\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TFamilyProfile\":{\"fields\":[{\"name\":\"sFamilyTitle\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyLast\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyRace\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyNation\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyReligion\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyIdCardNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyRelate\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyHomeNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilySoy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyTumbon\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyProvince\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyMuu\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyRoad\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyAumpher\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyPost\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPhoneOne\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPhoneTwo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPhoneThree\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPhoneMail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sDeleted\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherTitle\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherFirstName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherLastName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherNation\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherRace\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherReligion\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherIdCardNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherTitle\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherFirstName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherLastName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherNation\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherRace\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherReligion\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherIdCardNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherTumbon\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherSoy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherRoad\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherProvince\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherPost\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherPhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherMuu\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherHomeNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherAumpher\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherTumbon\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherSoy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherRoad\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherProvince\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherPost\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherPhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherMuu\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherHomeNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherAumpher\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nFamilyID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sFamilyNameEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyLastEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dFamilyBirthDay\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"nFamilyRequestStudyMoney\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sFamilyGraduated\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sFamilyJob\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyWorkPlace\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nFamilyIncome\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"sFatherNameEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherLastEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dFatherBirthDay\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sFatherGraduated\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sFatherJob\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherWorkPlace\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherPhone2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherPhone3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nFatherIncome\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"sMotherNameEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherLastEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dMotherBirthDay\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sMotherGraduated\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sMotherJob\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherWorkPlace\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherPhone2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherPhone3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nMotherIncome\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"nSonTotal\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nRelativeStudyHere\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"stayWithTitle\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"stayWithName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"stayWithLast\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"stayWithEmergencyCall\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"stayWithEmail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"HomeType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"friendSID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"houseRegistrationNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"houseRegistrationMuu\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"houseRegistrationSoy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"houseRegistrationRoad\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"houseRegistrationProvince\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"houseRegistrationAumpher\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"houseRegistrationTumbon\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"houseRegistrationPost\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"houseRegistrationPhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"bornFrom\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"bornFromProvince\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"bornFromAumpher\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"bornFromTumbon\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"friendName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"friendLastName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"friendSubLevel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"friendPhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"familyStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"bornFromEn\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TGradeAttendance\":{\"fields\":[{\"name\":\"nGradeAttendanceId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nGradeId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"week1_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week1_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week1_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week1_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week1_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week1_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week1_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week2_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week2_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week2_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week2_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week2_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week2_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week2_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week3_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week3_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week3_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week3_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week3_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week3_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week3_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week4_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week4_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week4_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week4_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week4_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week4_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week4_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week5_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week5_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week5_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week5_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week5_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week5_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week5_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week6_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week6_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week6_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week6_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week6_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week6_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week6_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week7_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week7_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week7_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week7_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week7_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week7_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week7_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week8_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week8_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week8_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week8_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week8_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week8_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week8_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week9_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week9_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week9_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week9_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week9_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week9_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week9_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week10_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week10_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week10_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week10_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week10_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week10_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week10_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week11_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week11_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week11_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week11_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week11_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week11_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week11_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week12_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week12_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week12_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week12_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week12_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week12_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week12_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week13_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week13_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week13_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week13_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week13_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week13_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week13_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week14_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week14_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week14_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week14_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week14_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week14_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week14_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week15_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week15_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week15_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week15_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week15_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week15_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week15_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week16_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week16_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week16_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week16_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week16_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week16_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week16_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week17_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week17_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week17_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week17_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week17_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week17_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week17_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week18_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week18_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week18_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week18_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week18_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week18_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week18_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week19_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week19_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week19_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week19_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week19_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week19_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week19_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week20_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week20_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week20_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week20_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week20_5\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week20_6\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"week20_7\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"totalcome\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"totalskip\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"totalsick\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"totalleave\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TGradeCheck\":{\"fields\":[{\"name\":\"nGradeCheckId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"teacherId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PlanId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Deleted\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TGradeLock\":{\"fields\":[{\"name\":\"nGradeLock\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nGradeId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade1\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade3\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade4\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade5\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade6\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade7\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade8\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade9\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade10\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade11\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade12\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade13\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade14\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade15\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade16\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade17\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade18\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade19\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreGrade20\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreBehavior1\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreBehavior2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreBehavior3\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreBehavior4\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreBehavior5\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreBehavior6\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreBehavior7\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreBehavior8\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreBehavior9\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreBehavior10\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreMidTerm\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreFinalTerm\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat1\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat3\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat4\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat5\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat6\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat7\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat8\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat9\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat10\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat11\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat12\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat13\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat14\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat15\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat16\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat17\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat18\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat19\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreCheewat20\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreMid1\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreMid2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreMid3\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreMid4\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreMid5\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreMid6\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreMid7\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreMid8\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreMid9\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreMid10\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreFinal1\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreFinal2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreFinal3\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreFinal4\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreFinal5\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreFinal6\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreFinal7\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreFinal8\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreFinal9\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"scoreFinal10\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"lastUpdate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updateByEMP\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TGradeMigration\":{\"fields\":[{\"name\":\"GradeMigrationId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nGradeId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"AssessmentId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ExamID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTermSubLevel2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"ApplicationName\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TGradeRegisterPeriod\":{\"fields\":[{\"name\":\"nGradeRegisterPeriod\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTerm\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"beforeMidtermStart\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"beforeMidtermEnd\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"duringMidtermStart\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"duringMidtermEnd\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"afterMidtermStart\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"afterMidtermEnd\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"FinaltermStart\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"FinaltermEnd\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ExtraStart\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ExtraEnd\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"lastUpdate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updateByEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TGradeShareInfo\":{\"fields\":[{\"name\":\"nGradeShareInfoId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTerm\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPlaneID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"from_nTSubLevel2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"to_nTSubLevel2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TGradeTeacherDescribe\":{\"fields\":[{\"name\":\"nGradeTeacherDescribe\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Describe\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TGradeViewRoomListSetting\":{\"fields\":[{\"name\":\"RoomListSettingId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"GradeViewSettingId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTermSubLevel2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApprovedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApprovedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsRoomBlocked\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TGradeViewSetting\":{\"fields\":[{\"name\":\"GradeViewSettingId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTerm\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsTermApproved\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsAllRoomApproved\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"SchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ApprovedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ApprovedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"GradeViewFor100\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsMidTermApproved\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsFinalTermApproved\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TGradeViewStudentBlockListSetting\":{\"fields\":[{\"name\":\"StudentBlockListSettingId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"GradeViewSettingId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"BlockedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"BlockedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsStudentBlocked\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"THealtProfile\":{\"fields\":[{\"name\":\"nWeight\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"nHeight\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"sBlood\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSickFood\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSickDrug\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSickOther\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSickNormal\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSickDanger\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sDeleted\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight1_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight1_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight1_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight1_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight2_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight2_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight2_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight2_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight3_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight3_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight3_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight3_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight4_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight4_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight4_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight4_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight5_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight5_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight5_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight5_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight6_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight6_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight6_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Weight6_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height1_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height1_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height1_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height1_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height2_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height2_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height2_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height2_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height3_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height3_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height3_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height3_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height4_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height4_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height4_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height4_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height5_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height5_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height5_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height5_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height6_1\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height6_2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height6_3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Height6_4\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nHealthID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"THistoryLog\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Date\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"MenuID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"FunctionName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"JsonDetail\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"THoliday\":{\"fields\":[{\"name\":\"nHoliday\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sHoliday\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sHolidayEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TimeType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sHolidayType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dHolidayStart\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dHolidayEnd\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sHolidayAll\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sWhoSeeThis\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sColor\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sGroupTarget\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cStatusActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"THolidayLog\":{\"fields\":[{\"name\":\"LogID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Detail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Creator\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"HolidayID\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"THolidaySome\":{\"fields\":[{\"name\":\"nHolidaySomeID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nHoliday\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nTSubLevel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTimeType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Deleted\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"THomeWorkFile\":{\"fields\":[{\"name\":\"nHomeWorkId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sFileName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ContentType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nFileId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Title\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"THomeWorkLearning\":{\"fields\":[{\"name\":\"LearnId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"OnlineId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sPlaneID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TitleName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LinkYT\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"SchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SelectedRoom\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SelectedStudent\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"AssignType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"DisplayDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"DisplayType\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"THomeWorkLearningFile\":{\"fields\":[{\"name\":\"AttachId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"LearnId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sFileName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ContentType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"THomeWorkReply\":{\"fields\":[{\"name\":\"ReplyId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"HomeWorkId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UserId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ReplyRefId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Comment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Type\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"tID\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"THomeWorkReply_File\":{\"fields\":[{\"name\":\"FileID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"HomeWorkID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ReplyID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"FileUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"FileTitle\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ContentType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"THomework\":{\"fields\":[{\"name\":\"nHomeWork\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"OnlineId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sPlaneID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"dStart\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dEnd\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dNotification\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dOrder\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sHomeworkDetail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"TitleName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MaxScore\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"AssignType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"LinkYT\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SelectedRoom\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SelectedStudent\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"DisplayDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"DisplayType\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"THomework_User\":{\"fields\":[{\"name\":\"nHomeWork\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cStatusHomeWork\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsRead\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsSend\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsLate\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsManual\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Score\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"AttachFile\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"AttachTitle\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"AttachFileContentType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LinkUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Remark\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"THomework_User_File\":{\"fields\":[{\"name\":\"FileId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nHomeWorkId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"FileUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"FileTitle\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"FileContentType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TJobList\":{\"fields\":[{\"name\":\"nSchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"jobDescription\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"deleted\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"workStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nJobid\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"empType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TLearningCenter\":{\"fields\":[{\"name\":\"LearningCenterID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Type\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Detail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Admin\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TLevel\":{\"fields\":[{\"name\":\"LevelID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"LevelName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nTimeType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sortValue\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"MasterCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LevelNameEng\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TMasterDBUser\":{\"fields\":[{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nSystemID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nCompany\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"NFC\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userpassword\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nMoney\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"sName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sLastname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sIdentification\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"pin\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPicture\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PasswordHash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sEmail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nStudentStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UseEncryptPassword\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"sStudentID\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TMasterData\":{\"fields\":[{\"name\":\"MasterID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"MasterCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MasterDes\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MasterType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"MasterOrder\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"MasterDesEn\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TMasterType\":{\"fields\":[{\"name\":\"MasterTypeID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"MasterTypeNameTH\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MasterTypeNameEN\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TMessageLINEMulticast\":{\"fields\":[{\"name\":\"MessageID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"GroupID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StreamID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TONETScore\":{\"fields\":[{\"name\":\"Year\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Identification\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nTSubLevel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Class\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SeatNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SubjectScore61\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"SubjectScore64\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"SubjectScore65\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"SubjectScore63\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"SubjectScore91\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"SubjectScore94\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"SubjectScore95\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"SubjectScore93\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"SubjectScore01\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"SubjectScore04\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"SubjectScore05\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"SubjectScore02\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"SubjectScore03\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"Result30Percent\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"ResultPercent\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"Multiplier\",\"kind\":\"scalar\",\"type\":\"Decimal\"}],\"dbName\":null},\"TParent\":{\"fields\":[{\"name\":\"parent_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"parent_title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"parent_name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"parent_lastname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password_hash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_by\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_by\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"TParentStudents\",\"kind\":\"object\",\"type\":\"TParentStudents\",\"relationName\":\"TParentToTParentStudents\"}],\"dbName\":null},\"TParentStudents\":{\"fields\":[{\"name\":\"parent_student_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"parent_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"parent_code\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"relation\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"relation_other_text\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"linked_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"linked_by\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"unlinked_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"unlinked_by\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TParent\",\"kind\":\"object\",\"type\":\"TParent\",\"relationName\":\"TParentToTParentStudents\"}],\"dbName\":null},\"TPeriod\":{\"fields\":[{\"name\":\"sPeriodID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sScheduleID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPlaneID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sClassID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nDay\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sPeriodName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dStart\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dEnd\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dTimeStart_IN\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dTimeStart_OUT\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dTimeEnd_IN\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dTimeEnd_OUT\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TPeriod_TSubLevel\":{\"fields\":[{\"name\":\"nTSubLevel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sPeriodID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TPermissionCard\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RefNo\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StudentID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TypeID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Time\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsAttach\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"AttachUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StartDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"EndDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Cause\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Note\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Creator\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Modifier\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TPermissionCardType\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Permission\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Created\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Creator\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Modifier\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TPlan\":{\"fields\":[{\"name\":\"PlanId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CurriculumId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTSubLevel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PlanName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"TPlanCourse\",\"kind\":\"object\",\"type\":\"TPlanCourse\",\"relationName\":\"TPlanToTPlanCourse\"}],\"dbName\":null},\"TPlanCourse\":{\"fields\":[{\"name\":\"PlanCourseId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PlanId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sPlaneID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nCredit\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"CourseHour\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"CourseTotalHour\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"CourseStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SortNumber\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nYear\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RB1DisplayOrder\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsActiveForGrade\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"RatioQuiz\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"RatioBeforeMidTerm\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"RatioAfterMidTerm\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"RatioMidTerm\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"RatioLateTerm\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"RatioQuizPass\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"IsUserAllowedToEditRatio\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"TPlan\",\"kind\":\"object\",\"type\":\"TPlan\",\"relationName\":\"TPlanToTPlanCourse\"}],\"dbName\":null},\"TPlanCourseAdjustedTerm\":{\"fields\":[{\"name\":\"PlanCourseAdjustedTermId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PlanCourseId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTerm\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TPlanCourseStudent\":{\"fields\":[{\"name\":\"PlanCourseStudentId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PlanCourseId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Updatedby\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTerm\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"nTermSubLevel2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTSubLevel\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TPlanCourseTeacher\":{\"fields\":[{\"name\":\"PlanCourseTeacherId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PlanCourseId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TPlanCourseTerm\":{\"fields\":[{\"name\":\"PlanCourseTermId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PlanCourseId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTerm\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TPlanOwner\":{\"fields\":[{\"name\":\"nPlanOwnerID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sEMP\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"changeScoreAnytime\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sPlaneID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TPlanTermSubLevel2\":{\"fields\":[{\"name\":\"PlanTermSubLevel2Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PlanId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTermSubLevel2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TPlane\":{\"fields\":[{\"name\":\"sPlaneID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sPlaneName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nCredit\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"courseCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"courseType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"courseHour\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"courseTotalHour\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"courseGroup\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTSubLevel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nTerm\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"courseStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sortNumber\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CourseCodeEn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CourseNameEn\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TPreRegister\":{\"fields\":[{\"name\":\"preRegisterId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StudentTitle\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sLastname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sIdentification\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dBirth\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cSex\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sEmail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sCity\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPostalcode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sCountry\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTermSubLevel2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sStudentID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentNameEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentLastEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentRace\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentNation\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentReligion\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentIdCardNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentHomeNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentSoy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentTumbon\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentProvince\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentMuu\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentRoad\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentAumpher\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentPost\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentPicture\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sNickName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nSonNumber\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"dPicUpdate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"nPicversion\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nStudentNumber\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nStudentStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"oldSchoolName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"oldSchoolProvince\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"oldSchoolAumpher\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"oldSchoolTumbon\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"oldSchoolGPA\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"oldSchoolGraduated\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nFamilyTitle\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sFamilyName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyLast\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyRace\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyNation\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyReligion\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyIdCardNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyRelate\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyHomeNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilySoy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyTumbon\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyProvince\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyMuu\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyRoad\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyAumpher\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyPost\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPhoneOne\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPhoneTwo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPhoneThree\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPhoneMail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"FatherTitle\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sFatherFirstName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherLastName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherNation\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherRace\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherReligion\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherIdCardNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherHomeNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherSoy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherTumbon\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherProvince\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherMuu\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherRoad\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherAumpher\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherPost\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherPhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MotherTitle\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sMotherFirstName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherLastName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherNation\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherRace\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherReligion\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherIdCardNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherHomeNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherSoy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherTumbon\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherProvince\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherMuu\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherRoad\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherAumpher\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherPost\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherPhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nWeight\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"nHeight\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"sBlood\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSickFood\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSickDrug\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSickOther\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSickNormal\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSickDanger\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"registerStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"paymentStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"registerYear\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"registerCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"addressLat\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"addressLng\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"moveInDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"optionCourse\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"optionLevel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"optionTime\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"optionBranch\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"saveAsSID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"knowFrom9txt\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"knowFrom9\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"knowFrom8txt\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"knowFrom8\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"knowFrom7txt\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"knowFrom7\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"knowFrom6\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"knowFrom5txt\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"knowFrom5\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"knowFrom4\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"knowFrom3\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"knowFrom2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"knowFrom1\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"motherIncome\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"fatherIncome\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"knowFrom10\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"knowFrom11\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"addDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sFamilyNameEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyLastEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dFamilyBirthDay\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"nFamilyRequestStudyMoney\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sFamilyGraduated\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sFamilyJob\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFamilyWorkPlace\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nFamilyIncome\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"sFatherNameEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherLastEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dFatherBirthDay\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sFatherGraduated\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sFatherJob\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherWorkPlace\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherPhone2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sFatherPhone3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nFatherIncome\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"sMotherNameEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherLastEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dMotherBirthDay\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sMotherGraduated\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sMotherJob\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherWorkPlace\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherPhone2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sMotherPhone3\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nMotherIncome\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"nSonTotal\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nRelativeStudyHere\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sNickNameEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentHomeRegisterCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"stayWithTitle\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"stayWithName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"stayWithLast\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"stayWithEmergencyCall\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"stayWithEmail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"HomeType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"friendSID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"houseRegistrationNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"houseRegistrationMuu\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"houseRegistrationSoy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"houseRegistrationRoad\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"houseRegistrationProvince\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"houseRegistrationAumpher\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"houseRegistrationTumbon\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"houseRegistrationPost\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"houseRegistrationPhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"bornFrom\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"bornFromProvince\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"bornFromAumpher\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"bornFromTumbon\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"moveOutReason\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentHousePhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"friendName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"friendLastName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"friendSubLevel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"friendPhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"familyStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sStudentNameOther\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentLastOther\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StudentType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RegisterPlanSetupID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ExamCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StudentCategory\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"FatherAnnualIncome\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"FatherEmail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MotherAnnualIncome\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MotherEmail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ParentAnnualIncome\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ParentEmail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ExamResults\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ExamResultsUpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ExamResultsUpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ExamSeatNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RegisterExamRoomID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CompleteDocuments\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CompleteDocumentsUpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CompleteDocumentsUpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CompleteDocumentsInfo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MainPlan\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"BackupPlans\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TPreRegisterDocument\":{\"fields\":[{\"name\":\"PreRegisterDocumentID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"preRegisterId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DocumentID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Type\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"VFIID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"FileName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ContentType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"FilePath\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TPreRegisterRequiredCategory\":{\"fields\":[{\"name\":\"CategoryID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CategoryName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CategoryNameEn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Order\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TPreRegisterRequiredField\":{\"fields\":[{\"name\":\"VFIID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CategoryID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Status\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TPreRegisterRequiredFieldInitiate\":{\"fields\":[{\"name\":\"VFIID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CategoryID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"No\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"IsHead\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"FieldName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"FieldNameEn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"InputFieldName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DefaultStatus\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Order\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TPreRegisterSendMail\":{\"fields\":[{\"name\":\"SendMailID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"preRegisterId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SendTo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SendFrom\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Message\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SendDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"SendBy\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TRegisterExamRoom\":{\"fields\":[{\"name\":\"RegisterExamRoomID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTSubLevel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RegisterPlanSetupID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ExamRoomName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Seats\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TRegisterExplanation\":{\"fields\":[{\"name\":\"RegisterExplanationID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TRegisterPlanSetup\":{\"fields\":[{\"name\":\"RegPlanID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RegisterPlanSetupID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTSubLevel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PlanName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PlanCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TRegisterRegularity\":{\"fields\":[{\"name\":\"RegisterRegularityID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTSubLevel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Filename\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TRegisterSetup\":{\"fields\":[{\"name\":\"RegisterSetupID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nYear\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Year\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StudentType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nTSubLevel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"RegisterPlanSetupID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StudentMax\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SubmitDocumentDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"StartDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"EndDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Fee\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ExamAnnounce\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"MeetingDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"MeetingTime\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MeetingPlace\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"AttachmentsPassExam\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"AttachmentsFailExam\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PlanID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PaymentGroupID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsActiveBackupPlan\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"OrderPlans\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"BackupPlans\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"AttachmentsSubstitute\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TRoom\":{\"fields\":[{\"name\":\"sRoomID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sRoomName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TRoomChange\":{\"fields\":[{\"name\":\"RoomChangeID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Level2Old\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Level2New\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DayChange\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TSchedule\":{\"fields\":[{\"name\":\"sScheduleID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nPlaneDay\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"tStart\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"tEnd\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dTimeStart_IN\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dTimeStart_OUT\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dTimeEnd_IN\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dTimeEnd_OUT\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"nTimeLate\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"dTimeHalf\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sClassID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPlaneID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTermTable\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"calculate\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CourseAbbreviationId\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TScheduleTeacher\":{\"fields\":[{\"name\":\"ScheduleTeacherId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sScheduleID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TSchoolRecord\":{\"fields\":[{\"name\":\"nSchoolRecordId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTerm\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nTsudentId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"dAdd\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dUpdate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UserAdd\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UserUpdate\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TSchoolRecord_Detail\":{\"fields\":[{\"name\":\"nSchoolRecordId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sPlaneID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Grade\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ReGrade\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Note\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Score\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MaxScore\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TSendDataPSIS\":{\"fields\":[{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nYear\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SendDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"StatusCode\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ResponseContent\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SendDate2\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"StatusCode2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ResponseContent2\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TSendGradePSIS\":{\"fields\":[{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nYear\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Year\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTerm\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Term\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sPlaneID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CourseCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Grade\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SendDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"StatusCode\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ResponseContent\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TSendSubjectPSIS\":{\"fields\":[{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sPlaneID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SendDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"StatusCode\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ResponseContent\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TSettingExtraTime\":{\"fields\":[{\"name\":\"nSettingExtraTime\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sEMP\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTermSubLevel2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTerm\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"addDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sPlaneID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"useToken\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TStudentCardInfo\":{\"fields\":[{\"name\":\"nStudentCardInfoId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"elementValue\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"elementName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"date\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TStudentClassroomHistory\":{\"fields\":[{\"name\":\"nHistoryId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTerm\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nTermSubLevel2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nStudentNumber\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"nStudentStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"MoveInDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"MoveOutDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"DropOutType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IsActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"Note\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TStudentHIstory\":{\"fields\":[{\"name\":\"StudentHistory_ID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nTermSubLevel2_OLD\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTermSubLevel2_NEW\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DayStart\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DayEnd\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StudentStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DayAdd\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"USERADDID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTerm\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"dProfessionalStandard\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"DiplomaCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TStudentHealthGrowth\":{\"fields\":[{\"name\":\"nHealthID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTSubLevel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nMonth\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Weight\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"Height\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TStudentHealthInfo\":{\"fields\":[{\"name\":\"StudentHealthID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nHealthID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sBlood\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSickFood\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSickDrug\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSickOther\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSickNormal\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSickDanger\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sDeleted\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TStudentLevel\":{\"fields\":[{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTermSubLevel2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nYear\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nStdLvID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TStudentType\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StudentTypeTH\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StudentTypeEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Status\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TSubLevel\":{\"fields\":[{\"name\":\"nTSubLevel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SubLevel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nTLevel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTimeType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nDeleted\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"fullName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SubLevelEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"fullNameEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nWorkingStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"isGraduate\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"MasterCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SubLevelNameEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SubLevelNameTH\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TTeacherCardInfo\":{\"fields\":[{\"name\":\"TeacherCardInfoId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"elementValue\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"elementName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"date\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TTeacherStudentType\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"StudentTypeID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Status\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"IsDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CreateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CreateBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdateDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdateBy\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TTempScanCameraIPStatus\":{\"fields\":[{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IP\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MAC\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MachineName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CameraNo\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CameraIP\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CameraStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LastUpdate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TTempScanStatusOnline\":{\"fields\":[{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"IP\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MAC\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"MachineName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LastOnline\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CameraNo\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CameraIP\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CameraStatus\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TTerm\":{\"fields\":[{\"name\":\"nTerm\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nYear\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"numberTerm\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TermStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sTerm\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dStart\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dEnd\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TTermSubLevel2\":{\"fields\":[{\"name\":\"nTermSubLevel2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTerm\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nTSubLevel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTSubLevel2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nTermSubLevel2Status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nTimeType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nWorkingStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nBranchSpecId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TTermTimeTable\":{\"fields\":[{\"name\":\"nTermTable\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTermSubLevel2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTeacher\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTerm\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TTime\":{\"fields\":[{\"name\":\"TimeID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"dTimeStart_IN\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dTimeEnd_IN\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dTimeStart_OUT\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"dTimeEnd_OUT\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"nDay\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nTimeType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTimeLate\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"dTimeHalf\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TTimetype\":{\"fields\":[{\"name\":\"nTimeType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sTimeType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cUserType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TTitleList\":{\"fields\":[{\"name\":\"nSchoolId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"titleDescription\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"titleDescriptionEn\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"deleted\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"workStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nTitleid\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"MasterCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nTitleIdStr\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TTranscriptNumber\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTerm\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nTSubLevel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nTermSubLevel2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TranscriptSetNumber\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TranscriptNumber\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TType\":{\"fields\":[{\"name\":\"nTypeID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"shop_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TUser\":{\"fields\":[{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sStudentTitle\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sLastname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sIdentification\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dBirth\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cSex\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sEmail\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPassword\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sSubtopic\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sCity\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPostalcode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sCountry\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"dUpdate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sFinger\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nMoney\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"sFinger2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nMax\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"cType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cSMS\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"baseSalary\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cTelSMS\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nTermSubLevel2\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentNameEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentLastEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentRace\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentNation\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentReligion\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentIdCardNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentHomeNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentSoy\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentTumbon\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentProvince\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentMuu\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentRoad\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentAumpher\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentPost\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentPicture\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sNickName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"nSonNumber\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"dPicUpdate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"nPicversion\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nStudentNumber\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nStudentStatus\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ContactPeak\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DayQuit\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Note\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"oldSchoolName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"oldSchoolProvince\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"oldSchoolAumpher\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"oldSchoolTumbon\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"oldSchoolGPA\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"oldSchoolGraduated\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"moveInDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"addressLng\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"addressLat\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"moveOutReason\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sNickNameEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentHomeRegisterCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentHousePhone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentNameOther\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentLastOther\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Note2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Credit\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"DiplomaCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TranscriptSetNumber\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TranscriptNumber\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"oldSchoolGPA2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"DisabilityCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DisadvantageCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"DailyUsageLimit\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"JourneyType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"DormitoryName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"OldSchoolDateGraduated\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"PassportNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PassportCountry\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PassportExpirationDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"CountryType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CountryNameTH\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"CountryNameEN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"StudentTypeID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"parent_code\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"oldSchoolName2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"oldSchoolGPA3\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"Credit2\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"OldSchoolDateGraduated2\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"oldSchoolGraduated2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"moveOutReason2\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"oldSchoolGPA4\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"TUserAttendance\":{\"fields\":[{\"name\":\"AttendanceID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"cType\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"MacAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ShopID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"NFCEncrypt\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sLastName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sStudentPicture\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"AttendanceDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"TStamp\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"TUserVerify\":{\"fields\":[{\"name\":\"VerifyID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UserID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Type\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"No\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"Email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"PhoneNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RequestNo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"EmailPin\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Ref\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"RequestDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"RequestResponse\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"VerifyPin\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"VerifyDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"VerifyResponse\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Status\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TUserVerifyLINEConnect\":{\"fields\":[{\"name\":\"ConnectID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UserID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"LINEAuthorizeCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"LINEToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ConnectDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Status\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"TYear\":{\"fields\":[{\"name\":\"nYear\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"numberYear\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"YearStatus\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"T_FSDQ_Answer\":{\"fields\":[{\"name\":\"T_FSDQ_Answer_Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"T_FSDQ_Question_Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"T_FSDQ_Point_Point\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"T_FSDQ_Data\":{\"fields\":[{\"name\":\"T_FSDQ_Data_Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"T_FSDQ_Data_Datetime\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"T_FSDQ_Point\":{\"fields\":[{\"name\":\"T_FSDQ_Point_Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"T_FSDQ_Point_Point\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"T_FSDQ_Question_Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"T_FSDQ_Question\":{\"fields\":[{\"name\":\"T_FSDQ_Question_Id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"T_FSDQ_Question_Des\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"T_FSDQ_Question_Group\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UpdatedBy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"CreatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"UpdatedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cDel\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"TrackingData\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"PID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"ChVer\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"ChCrVer\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"ChOp\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sPID\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"UpdateBalance\":{\"fields\":[{\"name\":\"LogID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nMoney\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"Tstamp\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Source\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"UpdateBalanceLog\":{\"fields\":[{\"name\":\"LogID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"OldBalance\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"NewBalance\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"Source\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TStatmp\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"UpdateBalanceMemory\":{\"fields\":[{\"name\":\"LogID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sEmp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"SchoolID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nMoney\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"Tstamp\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"Source\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"UserUsedLimit\":{\"fields\":[{\"name\":\"ID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UserID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"UserType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"UsedAmount\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"Tstamp\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"User_Audit_Table\":{\"fields\":[{\"name\":\"AuditID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"TableName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"OperationType\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"TStamp\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"OldID\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"NewID\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

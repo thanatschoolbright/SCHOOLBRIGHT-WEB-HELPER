@@ -121,6 +121,12 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.APIConfigurationScalarFieldEnum = {
+  ConfigurationID: 'ConfigurationID',
+  Name: 'Name',
+  Value: 'Value'
+};
+
 exports.Prisma.ActiveSchoolListScalarFieldEnum = {
   nCompany: 'nCompany',
   sCompany: 'sCompany',
@@ -129,1638 +135,70 @@ exports.Prisma.ActiveSchoolListScalarFieldEnum = {
   isActive: 'isActive'
 };
 
-exports.Prisma.ApplicationURLDataScalarFieldEnum = {
-  ID: 'ID',
-  ApplicationType: 'ApplicationType',
-  ProdURL: 'ProdURL',
-  DevURL: 'DevURL',
-  Tstamp: 'Tstamp',
-  UatURL: 'UatURL',
-  AlphaURL: 'AlphaURL'
-};
-
-exports.Prisma.JabjaiUserClaimsScalarFieldEnum = {
-  UserID: 'UserID',
+exports.Prisma.BBLTransactionScalarFieldEnum = {
+  TransactionID: 'TransactionID',
+  payeeId: 'payeeId',
+  transDate: 'transDate',
+  transTime: 'transTime',
+  transRef: 'transRef',
+  channel: 'channel',
+  termId: 'termId',
+  amount: 'amount',
+  reference1: 'reference1',
+  reference2: 'reference2',
+  fromBank: 'fromBank',
+  retryFlag: 'retryFlag',
+  InvoiceID: 'InvoiceID',
   SchoolID: 'SchoolID',
-  UserName: 'UserName',
-  Password: 'Password',
-  Email: 'Email',
-  AuthorizationKey: 'AuthorizationKey',
-  OldAuthorizationKey: 'OldAuthorizationKey',
-  ExpiredDate: 'ExpiredDate',
-  Tstamp: 'Tstamp',
-  GeneratedDate: 'GeneratedDate',
-  UserType: 'UserType'
-};
-
-exports.Prisma.LINERichMenuScalarFieldEnum = {
-  ID: 'ID',
-  RichMenuID: 'RichMenuID',
-  Status: 'Status'
-};
-
-exports.Prisma.LINEUserScalarFieldEnum = {
-  StudentID: 'StudentID',
-  LINEUserID: 'LINEUserID',
-  RichMenuID: 'RichMenuID',
-  SchoolID: 'SchoolID',
-  RegisterDate: 'RegisterDate',
-  Status: 'Status',
-  OS: 'OS',
-  UpdateDate: 'UpdateDate'
-};
-
-exports.Prisma.LogScanFCTempScalarFieldEnum = {
-  ID: 'ID',
-  SchoolID: 'SchoolID',
-  LogData: 'LogData',
-  Tstamp: 'Tstamp',
-  LogStatus: 'LogStatus',
-  MethodName: 'MethodName',
-  ErrorLog: 'ErrorLog'
-};
-
-exports.Prisma.SchoolTEmployeesScalarFieldEnum = {
-  SchoolID: 'SchoolID',
-  sEmp: 'sEmp',
-  nStudentStatus: 'nStudentStatus',
-  sStudentID: 'sStudentID'
-};
-
-exports.Prisma.SchoolTUserScalarFieldEnum = {
-  SchoolID: 'SchoolID',
-  sID: 'sID',
-  nStudentStatus: 'nStudentStatus',
-  sStudentID: 'sStudentID'
-};
-
-exports.Prisma.ShortenUrlScalarFieldEnum = {
-  UrlID: 'UrlID',
-  UrlString: 'UrlString',
-  ShortUrl: 'ShortUrl',
-  Tstamp: 'Tstamp'
-};
-
-exports.Prisma.TAccountJournalScalarFieldEnum = {
-  AccountJournalId: 'AccountJournalId',
-  RefID: 'RefID',
-  Code: 'Code',
-  Url: 'Url',
-  Type: 'Type',
-  Status: 'Status',
-  DebitCredit: 'DebitCredit',
-  Description: 'Description',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  DeleteDate: 'DeleteDate',
-  DeleteBy: 'DeleteBy'
-};
-
-exports.Prisma.TAccountRoleGroupScalarFieldEnum = {
-  AccountRoleGroupId: 'AccountRoleGroupId',
-  RoleGroupName: 'RoleGroupName',
-  Note: 'Note'
-};
-
-exports.Prisma.TAccountRoleUserScalarFieldEnum = {
-  AccountRoleUserId: 'AccountRoleUserId',
-  AccountRoleGroupId: 'AccountRoleGroupId',
-  UserId: 'UserId'
-};
-
-exports.Prisma.TAdminScalarFieldEnum = {
-  id: 'id',
-  username: 'username',
-  password: 'password',
-  picture: 'picture',
-  del: 'del',
-  name: 'name',
-  active: 'active',
-  email: 'email',
-  tel: 'tel',
-  id2: 'id2',
-  RoleID: 'RoleID',
-  OfficerID: 'OfficerID',
-  Code: 'Code',
-  FirstName: 'FirstName',
-  LastName: 'LastName',
-  NickName: 'NickName',
-  Position: 'Position',
-  IsActive: 'IsActive',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  BacklogEmailAccount: 'BacklogEmailAccount'
-};
-
-exports.Prisma.TAttachScalarFieldEnum = {
-  AttachId: 'AttachId',
-  EventName: 'EventName',
-  EventId: 'EventId',
-  AttachUrl: 'AttachUrl',
-  CreateDate: 'CreateDate',
-  AttachName: 'AttachName',
-  ContentType: 'ContentType'
-};
-
-exports.Prisma.TAvermentScalarFieldEnum = {
-  nAvermentID: 'nAvermentID',
-  sAverment: 'sAverment',
-  nCompany: 'nCompany',
-  sMac: 'sMac',
-  dAdd: 'dAdd',
-  cType: 'cType',
-  nStatus: 'nStatus'
-};
-
-exports.Prisma.TB_APILogScalarFieldEnum = {
-  ID: 'ID',
-  Info: 'Info',
-  Tstamp: 'Tstamp'
-};
-
-exports.Prisma.TB_AppVersionScalarFieldEnum = {
-  Fd_ID: 'Fd_ID',
-  Fd_Name: 'Fd_Name',
-  Fd_AppID: 'Fd_AppID',
-  Fd_URL: 'Fd_URL',
-  Fd_Prod: 'Fd_Prod',
-  Fd_Dev: 'Fd_Dev',
-  Fd_Environment: 'Fd_Environment',
-  Fd_IsLastestVersion: 'Fd_IsLastestVersion',
-  CreatedBy: 'CreatedBy',
-  UpdatedBy: 'UpdatedBy',
-  CreatedDate: 'CreatedDate',
-  UpdatedDate: 'UpdatedDate'
-};
-
-exports.Prisma.TB_ApplicationScalarFieldEnum = {
-  AppID: 'AppID',
-  Fd_AppID: 'Fd_AppID',
-  Fd_AppName: 'Fd_AppName',
-  Fd_AppType: 'Fd_AppType',
-  CreatedBy: 'CreatedBy',
-  UpdatedBy: 'UpdatedBy',
-  CreatedDate: 'CreatedDate',
-  UpdatedDate: 'UpdatedDate'
-};
-
-exports.Prisma.TB_BehaviorJobScalarFieldEnum = {
-  ID: 'ID',
-  CreatedDate: 'CreatedDate',
-  JobName: 'JobName',
-  JobValues: 'JobValues',
-  JobStatus: 'JobStatus',
-  SchoolID: 'SchoolID',
-  LogDate: 'LogDate'
-};
-
-exports.Prisma.TB_ChangePasswordHistoryScalarFieldEnum = {
-  Fd_ChangePasswordID: 'Fd_ChangePasswordID',
-  Fd_CreateDate: 'Fd_CreateDate',
-  Fd_UserID: 'Fd_UserID',
-  Fd_ResetDate: 'Fd_ResetDate',
-  Fd_OldPasswrod: 'Fd_OldPasswrod',
-  Fd_NewPassword: 'Fd_NewPassword',
-  Fd_SchoolID: 'Fd_SchoolID'
-};
-
-exports.Prisma.TB_FCMScalarFieldEnum = {
-  ID: 'ID',
-  Token: 'Token',
-  UserID: 'UserID',
-  SchoolID: 'SchoolID',
-  Imei: 'Imei',
-  System: 'System',
-  Fd_Lang: 'Fd_Lang',
-  isActive: 'isActive',
-  isDelete: 'isDelete',
-  CreatedBy: 'CreatedBy',
-  UpdatedBy: 'UpdatedBy',
-  CreatedDate: 'CreatedDate',
-  UpdatedDate: 'UpdatedDate',
-  Fd_MBBrand: 'Fd_MBBrand',
-  Fd_LoginDate: 'Fd_LoginDate',
-  Fd_VerifyStatus: 'Fd_VerifyStatus',
-  IPAddress: 'IPAddress',
-  Fd_FirstLoginDate: 'Fd_FirstLoginDate',
-  Fd_Location: 'Fd_Location'
-};
-
-exports.Prisma.TB_IPBlockListScalarFieldEnum = {
-  ID: 'ID',
-  IPAddress: 'IPAddress',
-  SchoolID: 'SchoolID',
-  BlockReason: 'BlockReason',
-  BlockType: 'BlockType',
-  BlockedFrom: 'BlockedFrom',
-  BlockedUntil: 'BlockedUntil',
-  IsActive: 'IsActive',
-  CreatedDate: 'CreatedDate',
-  CreatedBy: 'CreatedBy',
-  RelatedIncidentID: 'RelatedIncidentID'
-};
-
-exports.Prisma.TB_JobsQueueScalarFieldEnum = {
-  JobId: 'JobId',
-  MessageID: 'MessageID',
-  JobName: 'JobName',
-  JobValues: 'JobValues',
-  StateName: 'StateName',
-  CreatedDate: 'CreatedDate',
-  FetchedDate: 'FetchedDate',
-  SchedulerDate: 'SchedulerDate',
-  CompleteDate: 'CompleteDate',
+  ErrorCode: 'ErrorCode',
   ErrorMessage: 'ErrorMessage',
-  ResponseTime: 'ResponseTime'
+  VerifyDate: 'VerifyDate',
+  VerifyCode: 'VerifyCode',
+  VerifyStatus: 'VerifyStatus',
+  NotifyDate: 'NotifyDate',
+  NotifyCode: 'NotifyCode',
+  NotifyStatus: 'NotifyStatus'
 };
 
-exports.Prisma.TB_LoginAttemptsScalarFieldEnum = {
-  ID: 'ID',
-  UserID: 'UserID',
+exports.Prisma.DeviceDailyStatusScalarFieldEnum = {
+  DeviceStatusID: 'DeviceStatusID',
   SchoolID: 'SchoolID',
-  Username: 'Username',
-  AttemptDate: 'AttemptDate',
-  IsSuccess: 'IsSuccess',
-  FailureReason: 'FailureReason',
-  IsAccountLocked: 'IsAccountLocked',
-  RequirePasswordChange: 'RequirePasswordChange',
-  CreatedDate: 'CreatedDate',
-  IPAddress: 'IPAddress'
-};
-
-exports.Prisma.TB_LoginHistoryScalarFieldEnum = {
-  Fd_LoginHistoryID: 'Fd_LoginHistoryID',
-  Fd_LoginDate: 'Fd_LoginDate',
-  Fd_Token: 'Fd_Token',
-  Fd_UserID: 'Fd_UserID',
-  Fd_SchoolID: 'Fd_SchoolID',
-  Imei: 'Imei',
-  System: 'System',
-  Fd_Version: 'Fd_Version',
-  Fd_MBBrand: 'Fd_MBBrand'
-};
-
-exports.Prisma.TB_LogofflineScalarFieldEnum = {
-  LogOfflineID: 'LogOfflineID',
-  SchoolID: 'SchoolID',
-  LogText: 'LogText',
-  Created: 'Created'
-};
-
-exports.Prisma.TB_PaymentGatewayScalarFieldEnum = {
-  Fd_PaymentGatewayID: 'Fd_PaymentGatewayID',
-  Fd_SchoolID: 'Fd_SchoolID',
-  Fd_PublicKey: 'Fd_PublicKey',
-  Fd_SecretKey: 'Fd_SecretKey',
-  Fd_Active: 'Fd_Active',
-  Fd_ActiveInvoice: 'Fd_ActiveInvoice',
-  Fd_PartnerID: 'Fd_PartnerID',
-  Fd_PartnerSecret: 'Fd_PartnerSecret',
-  Fd_MerchantMID: 'Fd_MerchantMID',
-  Fd_PromptPayActive: 'Fd_PromptPayActive',
-  Fd_ConsumerID: 'Fd_ConsumerID',
-  Fd_ConsumerSecret: 'Fd_ConsumerSecret',
-  Fd_Campaign_ID: 'Fd_Campaign_ID',
-  Fd_CGA_Merchant_CreditCard_Full_ID: 'Fd_CGA_Merchant_CreditCard_Full_ID',
-  Fd_CGA_Terminal_CreditCard_Full_ID: 'Fd_CGA_Terminal_CreditCard_Full_ID',
-  Fd_CGA_Merchant_CreditCard_Installment_ID: 'Fd_CGA_Merchant_CreditCard_Installment_ID',
-  Fd_CGA_Terminal_CreditCard_Installment_ID: 'Fd_CGA_Terminal_CreditCard_Installment_ID',
-  Fd_CGA_SmartPay_CreditCard_Installment_ID: 'Fd_CGA_SmartPay_CreditCard_Installment_ID',
-  DisableNormalCard: 'DisableNormalCard',
-  Fd_PublicKeyInvoice: 'Fd_PublicKeyInvoice',
-  Fd_SecretKeyInvoice: 'Fd_SecretKeyInvoice',
-  Fd_FeePayment: 'Fd_FeePayment',
-  Fd_FeeInvoice: 'Fd_FeeInvoice',
-  Fd_BBLPayment: 'Fd_BBLPayment',
-  Fd_Suffix: 'Fd_Suffix',
-  Fd_KTBPayment: 'Fd_KTBPayment',
-  Fd_PaymentType: 'Fd_PaymentType',
-  Fd_BeamMerchant: 'Fd_BeamMerchant',
-  Fd_BeamSecretKey: 'Fd_BeamSecretKey'
-};
-
-exports.Prisma.TB_PaymentMethodsScalarFieldEnum = {
-  Id: 'Id',
-  PublicKey: 'PublicKey',
-  PaymentMethod: 'PaymentMethod',
-  PaymentChannel: 'PaymentChannel',
-  MerchantID: 'MerchantID',
-  SecretKey: 'SecretKey',
-  IsActive: 'IsActive',
-  ActiveInvoice: 'ActiveInvoice',
-  PartnerID: 'PartnerID',
-  PartnerSecret: 'PartnerSecret',
-  PromptPayActive: 'PromptPayActive',
-  ConsumerID: 'ConsumerID',
-  ConsumerSecret: 'ConsumerSecret',
-  Campaign_ID: 'Campaign_ID',
-  CGA_Merchant_CreditCard_Full_ID: 'CGA_Merchant_CreditCard_Full_ID',
-  CGA_Terminal_CreditCard_Full_ID: 'CGA_Terminal_CreditCard_Full_ID',
-  CGA_Merchant_CreditCard_Installment_ID: 'CGA_Merchant_CreditCard_Installment_ID',
-  CGA_Terminal_CreditCard_Installment_ID: 'CGA_Terminal_CreditCard_Installment_ID',
-  CGA_SmartPay_CreditCard_Installment_ID: 'CGA_SmartPay_CreditCard_Installment_ID',
-  DisableNormalCard: 'DisableNormalCard',
-  PublicKeyInvoice: 'PublicKeyInvoice',
-  SecretKeyInvoice: 'SecretKeyInvoice',
-  UpdateAt: 'UpdateAt',
-  UpdateBy: 'UpdateBy',
-  CreateAt: 'CreateAt',
-  CreateBy: 'CreateBy',
-  DeleteAt: 'DeleteAt',
-  SchoolId: 'SchoolId'
-};
-
-exports.Prisma.TB_PaymentSettingScalarFieldEnum = {
-  SystemID: 'SystemID',
-  Bank: 'Bank',
-  SystemName: 'SystemName',
-  isActive: 'isActive',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy'
-};
-
-exports.Prisma.TB_PolicyScalarFieldEnum = {
-  Fd_PolicyID: 'Fd_PolicyID',
-  Fd_Message: 'Fd_Message',
-  Fd_Version: 'Fd_Version',
-  Fd_IsActive: 'Fd_IsActive',
-  Fd_IsDel: 'Fd_IsDel',
-  Fd_IsStatus: 'Fd_IsStatus',
-  Fd_Created: 'Fd_Created',
-  Fd_Modified: 'Fd_Modified',
-  Fd_CreateBy: 'Fd_CreateBy',
-  Fd_ModifyBy: 'Fd_ModifyBy'
-};
-
-exports.Prisma.TB_PolicyApproveScalarFieldEnum = {
-  Fd_ApproveID: 'Fd_ApproveID',
-  Fd_PolicyID: 'Fd_PolicyID',
-  Fd_UserID: 'Fd_UserID',
-  Fd_ApproveDate: 'Fd_ApproveDate',
-  Fd_UserType: 'Fd_UserType'
-};
-
-exports.Prisma.TB_RecoverUserDataScalarFieldEnum = {
-  RecoverID: 'RecoverID',
-  Token: 'Token',
-  UserID: 'UserID',
-  SchoolID: 'SchoolID',
-  Imei: 'Imei',
-  System: 'System',
-  CreatedDate: 'CreatedDate',
-  AppvoreStatus: 'AppvoreStatus',
-  AppvoreUserID: 'AppvoreUserID',
-  AppvoreDate: 'AppvoreDate',
-  Email: 'Email',
-  student_picture_0: 'student_picture_0',
-  student_picture_1: 'student_picture_1',
-  parent_picture_0: 'parent_picture_0',
-  parent_picture_1: 'parent_picture_1',
-  teacher_picture_0: 'teacher_picture_0',
-  teacher_picture_1: 'teacher_picture_1',
-  EmailPin: 'EmailPin',
-  UserType: 'UserType',
-  Fd_ChangePasswordID: 'Fd_ChangePasswordID'
-};
-
-exports.Prisma.TB_SchoolAppVersionScalarFieldEnum = {
-  ID: 'ID',
-  SchoolID: 'SchoolID',
+  DeviceID: 'DeviceID',
+  Online: 'Online',
+  OnlineTime: 'OnlineTime',
+  Login: 'Login',
+  LoginTime: 'LoginTime',
+  LogOut: 'LogOut',
+  LogoutTime: 'LogoutTime',
+  Tstamp: 'Tstamp',
+  BusinessDate: 'BusinessDate',
   AppVersion: 'AppVersion',
-  CreatedBy: 'CreatedBy',
-  UpdatedBy: 'UpdatedBy',
-  CreatedDate: 'CreatedDate',
-  UpdatedDate: 'UpdatedDate',
-  AppID: 'AppID'
+  AppName: 'AppName',
+  Note: 'Note',
+  UserLoginID: 'UserLoginID',
+  DeviceTypeID: 'DeviceTypeID'
 };
 
-exports.Prisma.TB_SecurityIncidentsScalarFieldEnum = {
-  ID: 'ID',
-  IncidentType: 'IncidentType',
-  Severity: 'Severity',
-  SchoolID: 'SchoolID',
-  SourceIP: 'SourceIP',
-  TargetUserID: 'TargetUserID',
-  TargetUsername: 'TargetUsername',
-  ThreatLevel: 'ThreatLevel',
-  AttemptsCount: 'AttemptsCount',
-  TimeWindow: 'TimeWindow',
-  BlockDuration: 'BlockDuration',
-  Description: 'Description',
-  DetectedDate: 'DetectedDate',
-  CreatedDate: 'CreatedDate',
-  IsResolved: 'IsResolved',
-  ResolvedDate: 'ResolvedDate',
-  ResolvedBy: 'ResolvedBy'
+exports.Prisma.DeviceTypeScalarFieldEnum = {
+  DeviceTypeID: 'DeviceTypeID',
+  TypeNameEN: 'TypeNameEN',
+  TypeNameTH: 'TypeNameTH'
 };
 
-exports.Prisma.TB_ServerScalarFieldEnum = {
-  ID: 'ID',
-  Message: 'Message',
-  Status: 'Status',
-  ServerName: 'ServerName',
-  Url: 'Url'
-};
-
-exports.Prisma.TB_VerifierDeviceScalarFieldEnum = {
-  Fd_VerifierID: 'Fd_VerifierID',
-  Fd_Data: 'Fd_Data',
-  Fd_ChanelMessage: 'Fd_ChanelMessage',
-  Fd_UserID: 'Fd_UserID',
-  Fd_SchoolID: 'Fd_SchoolID',
-  CreatedDate: 'CreatedDate',
-  Fd_Status: 'Fd_Status'
-};
-
-exports.Prisma.TCompanyScalarFieldEnum = {
-  nCompany: 'nCompany',
-  sCompany: 'sCompany',
-  sSchoolPass: 'sSchoolPass',
-  sAddress: 'sAddress',
-  sTel: 'sTel',
-  sServer: 'sServer',
-  sDatabases: 'sDatabases',
-  sUser: 'sUser',
-  sPassword: 'sPassword',
-  sEntities: 'sEntities',
-  nType: 'nType',
-  sImage: 'sImage',
-  admin1: 'admin1',
-  admin2: 'admin2',
-  single_authen: 'single_authen',
-  double_authen: 'double_authen',
-  nfc: 'nfc',
-  sotfware: 'sotfware',
-  latitude: 'latitude',
-  longitude: 'longitude',
-  schoolHeadPicture: 'schoolHeadPicture',
-  serverAdminPicture: 'serverAdminPicture',
-  schoolCoverPicture: 'schoolCoverPicture',
-  sCode: 'sCode',
-  sNameEN: 'sNameEN',
-  sPhoneOne: 'sPhoneOne',
-  sPhoneTwo: 'sPhoneTwo',
-  sMobilePhone: 'sMobilePhone',
-  sFax: 'sFax',
-  sEmailOne: 'sEmailOne',
-  sEmailTwo: 'sEmailTwo',
-  sWebsite: 'sWebsite',
-  sHomeNumber: 'sHomeNumber',
-  sSoy: 'sSoy',
-  sMuu: 'sMuu',
-  sRoad: 'sRoad',
-  sTumbon: 'sTumbon',
-  sAumpher: 'sAumpher',
-  sPost: 'sPost',
-  SchoolHeadName: 'SchoolHeadName',
-  SchoolHeadLastname: 'SchoolHeadLastname',
-  SchoolHeadEmail: 'SchoolHeadEmail',
-  SchoolHeadPhone: 'SchoolHeadPhone',
-  ServerAdminName: 'ServerAdminName',
-  ServerAdminLastname: 'ServerAdminLastname',
-  ServerAdminEmail: 'ServerAdminEmail',
-  ServerAdminPhone: 'ServerAdminPhone',
-  checker: 'checker',
-  sProvince: 'sProvince',
-  sOwner: 'sOwner',
-  Active: 'Active',
-  settingTimePeriod: 'settingTimePeriod',
-  settingPlanTeacher: 'settingPlanTeacher',
-  settingGradeAdmin: 'settingGradeAdmin',
-  settingReportView: 'settingReportView',
-  TaxId: 'TaxId',
-  nSchoolHeadid: 'nSchoolHeadid',
-  nAcademicDirectorid: 'nAcademicDirectorid',
-  nRegistraDirectorid: 'nRegistraDirectorid',
-  nAcademicSubDirectorid: 'nAcademicSubDirectorid',
-  nAccountingDirectorid: 'nAccountingDirectorid',
-  nStudentDevelopmentDirectorid: 'nStudentDevelopmentDirectorid',
-  nWebAdminid: 'nWebAdminid',
-  nGM: 'nGM',
-  nPersonnel: 'nPersonnel',
-  sShortSchoolName: 'sShortSchoolName',
-  sSchoolHistory: 'sSchoolHistory',
-  sSchoolVision: 'sSchoolVision',
-  sSchoolMission: 'sSchoolMission',
-  EducationArea: 'EducationArea',
-  uID: 'uID',
-  PaymentAPIUrl: 'PaymentAPIUrl',
-  isActive: 'isActive',
-  cDel: 'cDel',
-  CostGradeRepairMid: 'CostGradeRepairMid',
-  CostGradeRepair: 'CostGradeRepair',
-  CostGradeRepairFinal: 'CostGradeRepairFinal',
-  SchoolAreaCode: 'SchoolAreaCode',
-  GradeViewFor100: 'GradeViewFor100',
-  GradeViewAutoBlock: 'GradeViewAutoBlock',
-  sAumpherEng: 'sAumpherEng',
-  sProvinceEng: 'sProvinceEng',
-  SchoolClass: 'SchoolClass',
-  UserSupportID: 'UserSupportID',
-  UserSaleID: 'UserSaleID',
-  SchoolGrade: 'SchoolGrade',
-  ActiveDate: 'ActiveDate',
-  InactiveDate: 'InactiveDate',
-  IsActiveSendMessageToLINE: 'IsActiveSendMessageToLINE',
-  TumbonID: 'TumbonID',
-  AumpherID: 'AumpherID',
-  ProvinceID: 'ProvinceID',
-  ClassNameDisable: 'ClassNameDisable',
-  CrmGrade: 'CrmGrade',
-  SchoolDataType: 'SchoolDataType',
-  ActiveStatus: 'ActiveStatus'
-};
-
-exports.Prisma.TComputerScalarFieldEnum = {
-  nComputerID: 'nComputerID',
-  sComputerName: 'sComputerName',
-  sMac: 'sMac',
-  nCompany: 'nCompany',
-  cType: 'cType',
-  sToken: 'sToken',
-  cStatus: 'cStatus'
-};
-
-exports.Prisma.TConnectScalarFieldEnum = {
-  nConnectID: 'nConnectID',
-  sMacPC: 'sMacPC',
-  sMacMoblie: 'sMacMoblie',
-  cStatus: 'cStatus',
-  sValue: 'sValue',
-  sDisplay: 'sDisplay',
-  cTypeConnect: 'cTypeConnect',
-  sList: 'sList',
-  dList: 'dList',
-  dUpdate: 'dUpdate',
-  CustomerID: 'CustomerID',
-  EmployessID: 'EmployessID'
-};
-
-exports.Prisma.TContactScalarFieldEnum = {
-  ContactID: 'ContactID',
-  SchoolID: 'SchoolID',
-  SaleID: 'SaleID',
-  SupportID: 'SupportID',
-  StudentFree: 'StudentFree',
-  StudentPay: 'StudentPay',
-  StudentCount: 'StudentCount',
-  PackageID: 'PackageID',
-  Remark: 'Remark',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  IsDelete: 'IsDelete',
-  ServiceType: 'ServiceType'
-};
-
-exports.Prisma.TContactListScalarFieldEnum = {
-  ContactListID: 'ContactListID',
-  SchoolID: 'SchoolID',
-  Episode: 'Episode',
-  ContactNo: 'ContactNo',
-  StartDate: 'StartDate',
-  EndDate: 'EndDate',
-  Period: 'Period',
-  RemainDay: 'RemainDay',
-  Status: 'Status',
-  StatusOther: 'StatusOther',
-  ServiceCharge: 'ServiceCharge',
-  VAT: 'VAT',
-  StudentAmount: 'StudentAmount',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  IsDelete: 'IsDelete'
-};
-
-exports.Prisma.TContactListAttachScalarFieldEnum = {
-  AttachID: 'AttachID',
-  ContactListID: 'ContactListID',
-  SchoolID: 'SchoolID',
-  AttachUrl: 'AttachUrl',
-  IsDelete: 'IsDelete',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy'
-};
-
-exports.Prisma.TContactLogScalarFieldEnum = {
-  LogID: 'LogID',
-  SchoolID: 'SchoolID',
-  ContactID: 'ContactID',
-  ContactListID: 'ContactListID',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  JsonLog: 'JsonLog',
-  DataModel: 'DataModel'
-};
-
-exports.Prisma.TCrmActivityScalarFieldEnum = {
-  CrmActivityId: 'CrmActivityId',
-  SchoolID: 'SchoolID',
-  SchoolName: 'SchoolName',
-  Type: 'Type',
-  ActivityType: 'ActivityType',
-  MeetingType: 'MeetingType',
-  ActivityTitle: 'ActivityTitle',
-  ActivityDescription: 'ActivityDescription',
-  ActivityStatus: 'ActivityStatus',
-  StartDate: 'StartDate',
-  EndDate: 'EndDate',
-  IsRecurring: 'IsRecurring',
-  Map: 'Map',
-  LatLng: 'LatLng',
-  AttachUrl: 'AttachUrl',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  DeleteDate: 'DeleteDate',
-  DeleteBy: 'DeleteBy'
-};
-
-exports.Prisma.TCrmAssignContactScalarFieldEnum = {
-  CrmAssignContactId: 'CrmAssignContactId',
-  CrmContactId: 'CrmContactId',
-  SaleId: 'SaleId',
-  CreateDate: 'CreateDate'
-};
-
-exports.Prisma.TCrmAssignSupportScalarFieldEnum = {
-  CrmAssignSupportId: 'CrmAssignSupportId',
-  CrmSupportId: 'CrmSupportId',
-  StaffId: 'StaffId',
-  CreateDate: 'CreateDate'
-};
-
-exports.Prisma.TCrmBacklogScalarFieldEnum = {
-  CrmBacklogId: 'CrmBacklogId',
-  Json: 'Json',
-  CreateDate: 'CreateDate',
-  HasUpdate: 'HasUpdate'
-};
-
-exports.Prisma.TCrmContactScalarFieldEnum = {
-  CrmContactId: 'CrmContactId',
-  Type: 'Type',
-  SchoolName: 'SchoolName',
-  Address: 'Address',
-  Province: 'Province',
-  District: 'District',
-  SubDistrict: 'SubDistrict',
-  StudentQty: 'StudentQty',
-  SchoolGroup: 'SchoolGroup',
-  SchoolEducation: 'SchoolEducation',
-  KnowFrom: 'KnowFrom',
-  Score: 'Score',
-  EventName: 'EventName',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  DeleteDate: 'DeleteDate',
-  DeleteBy: 'DeleteBy',
-  TaxNo: 'TaxNo',
-  SignName: 'SignName',
-  SignPosition: 'SignPosition',
-  WitnessName: 'WitnessName',
-  WitnessPosition: 'WitnessPosition',
-  ContactPhone: 'ContactPhone',
-  Zipcode: 'Zipcode',
-  SaleAreaId: 'SaleAreaId'
-};
-
-exports.Prisma.TCrmFeedbackScalarFieldEnum = {
-  CrmFeedbackId: 'CrmFeedbackId',
-  CrmSupportId: 'CrmSupportId',
-  Score: 'Score',
-  Reasons: 'Reasons',
-  Comment: 'Comment',
-  CreateDate: 'CreateDate'
-};
-
-exports.Prisma.TCrmReminderScalarFieldEnum = {
-  CrmReminderId: 'CrmReminderId',
-  Subject: 'Subject',
-  Body: 'Body',
-  StartDate: 'StartDate',
-  EndDate: 'EndDate',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  DeleteDate: 'DeleteDate',
-  DeleteBy: 'DeleteBy'
-};
-
-exports.Prisma.TCrmSubActivityScalarFieldEnum = {
-  CrmSubActivityId: 'CrmSubActivityId',
-  CrmActivityId: 'CrmActivityId',
-  SchoolID: 'SchoolID',
-  ContactID: 'ContactID',
-  CrmContactId: 'CrmContactId',
-  CrmSubContactId: 'CrmSubContactId',
-  ImportDate: 'ImportDate',
-  ImportBy: 'ImportBy',
-  SchoolName: 'SchoolName',
-  Position: 'Position',
+exports.Prisma.ExcelExportDataScalarFieldEnum = {
+  ExportID: 'ExportID',
   Name: 'Name',
-  Tel: 'Tel'
-};
-
-exports.Prisma.TCrmSubContactScalarFieldEnum = {
-  CrmSubContactId: 'CrmSubContactId',
-  CrmContactId: 'CrmContactId',
-  Position: 'Position',
-  Name: 'Name',
-  Tel: 'Tel',
-  Email: 'Email'
-};
-
-exports.Prisma.TCrmSupportScalarFieldEnum = {
-  CrmSupportId: 'CrmSupportId',
-  IssueDate: 'IssueDate',
-  SchoolId: 'SchoolId',
-  Channel: 'Channel',
-  ContactId: 'ContactId',
-  Type: 'Type',
-  SubType: 'SubType',
-  RefCode: 'RefCode',
-  SupportDetail: 'SupportDetail',
-  Subject: 'Subject',
-  Question: 'Question',
-  Answer: 'Answer',
-  IsFollowUp: 'IsFollowUp',
-  FollowUpDate: 'FollowUpDate',
-  Status: 'Status',
-  Priority: 'Priority',
-  BacklogProjectID: 'BacklogProjectID',
-  BacklogIssueID: 'BacklogIssueID',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  DeleteDate: 'DeleteDate',
-  DeleteBy: 'DeleteBy',
-  LineInfo: 'LineInfo',
-  Session: 'Session',
-  HasRemindFollowUp: 'HasRemindFollowUp',
-  FollowUpEndDate: 'FollowUpEndDate',
-  FollowUpFrequency: 'FollowUpFrequency',
-  CustomerFollowUpDate: 'CustomerFollowUpDate',
-  CustomerFollowUpEndDate: 'CustomerFollowUpEndDate',
-  CustomerFollowUpFrequency: 'CustomerFollowUpFrequency',
-  CustomerNotifyMessage: 'CustomerNotifyMessage',
-  AssignStaffId: 'AssignStaffId',
-  Note: 'Note',
-  Onboarding: 'Onboarding',
-  ReferenceKey: 'ReferenceKey',
-  ReferenceValue: 'ReferenceValue',
-  BacklogModel: 'BacklogModel',
-  StartDate: 'StartDate',
-  DueDate: 'DueDate'
-};
-
-exports.Prisma.TCrmSupportBacklogAuthScalarFieldEnum = {
-  CrmSupportBacklogAuthId: 'CrmSupportBacklogAuthId',
-  StaffId: 'StaffId',
-  AccessToken: 'AccessToken',
-  RefreshToken: 'RefreshToken',
-  CreateDate: 'CreateDate',
-  ExpireDate: 'ExpireDate'
-};
-
-exports.Prisma.TCrmSupportCommentScalarFieldEnum = {
-  CrmSupportCommentId: 'CrmSupportCommentId',
-  CrmSupportId: 'CrmSupportId',
-  Comment: 'Comment',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  DeleteDate: 'DeleteDate',
-  DeleteBy: 'DeleteBy'
-};
-
-exports.Prisma.TCrmSurveyScalarFieldEnum = {
-  CrmSurveyId: 'CrmSurveyId',
-  SchoolId: 'SchoolId',
-  SenderName: 'SenderName',
-  SenderType: 'SenderType',
-  SenderCode: 'SenderCode',
-  Tel: 'Tel',
-  Email: 'Email',
-  Note: 'Note',
-  TopupDate: 'TopupDate',
-  Session: 'Session',
-  CreateDate: 'CreateDate'
-};
-
-exports.Prisma.TDashboardSummariesScalarFieldEnum = {
-  DashboardSummaryId: 'DashboardSummaryId',
-  SchoolSummary: 'SchoolSummary',
-  StudentSummary: 'StudentSummary',
-  TeacherSummary: 'TeacherSummary',
-  UpdateDate: 'UpdateDate'
-};
-
-exports.Prisma.TDeliveryScalarFieldEnum = {
-  DeliveryId: 'DeliveryId',
-  SchoolId: 'SchoolId',
-  RecipientType: 'RecipientType',
-  TransmissionType: 'TransmissionType',
-  TransmissionDate: 'TransmissionDate',
-  TransportationName: 'TransportationName',
-  TrackingNo: 'TrackingNo',
-  RecipientName: 'RecipientName',
-  RecipientTel: 'RecipientTel',
-  RefNo: 'RefNo',
-  Note: 'Note',
-  AttachUrl: 'AttachUrl',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  DeleteDate: 'DeleteDate',
-  DeleteBy: 'DeleteBy',
-  NotifyMessage: 'NotifyMessage',
-  NotifyDate: 'NotifyDate'
-};
-
-exports.Prisma.TDeliveryAttachScalarFieldEnum = {
-  DeliveryAttachId: 'DeliveryAttachId',
-  DeliveryId: 'DeliveryId',
-  AttachUrl: 'AttachUrl'
-};
-
-exports.Prisma.TDiscordGroupScalarFieldEnum = {
-  DiscordGroupId: 'DiscordGroupId',
-  SchoolId: 'SchoolId',
-  GroupName: 'GroupName',
-  WebhookUrl: 'WebhookUrl',
-  CreateDate: 'CreateDate'
-};
-
-exports.Prisma.TEmailQueueScalarFieldEnum = {
-  EmailQueueId: 'EmailQueueId',
-  Email: 'Email',
-  EmailSubject: 'EmailSubject',
-  EmailBody: 'EmailBody',
-  ProcessDate: 'ProcessDate',
-  Status: 'Status',
-  Retry: 'Retry'
-};
-
-exports.Prisma.TEventLogScalarFieldEnum = {
-  EventLogId: 'EventLogId',
-  SchoolId: 'SchoolId',
-  UserId: 'UserId',
-  EventName: 'EventName',
-  TableName: 'TableName',
-  ColumnName: 'ColumnName',
-  KeyValue: 'KeyValue',
-  OldValue: 'OldValue',
-  NewValue: 'NewValue',
-  CreateDate: 'CreateDate'
-};
-
-exports.Prisma.TExceptionLogScalarFieldEnum = {
-  ExceptionLogId: 'ExceptionLogId',
-  MethodName: 'MethodName',
-  Parameter: 'Parameter',
-  Application: 'Application',
-  ExceptionMsg: 'ExceptionMsg',
-  ExceptionType: 'ExceptionType',
-  ExceptionSource: 'ExceptionSource',
-  ExceptionURL: 'ExceptionURL',
-  Logdate: 'Logdate',
-  SchoolId: 'SchoolId',
-  sEmp: 'sEmp'
-};
-
-exports.Prisma.TExpenseScalarFieldEnum = {
-  ExpenseId: 'ExpenseId',
-  Year: 'Year',
-  Month: 'Month',
-  AccountChartId: 'AccountChartId',
-  AccountChartType: 'AccountChartType',
-  BillingType: 'BillingType',
-  IssueBy: 'IssueBy',
-  IssueDate: 'IssueDate',
-  Description: 'Description',
-  Qty: 'Qty',
-  PriceBeforeVat: 'PriceBeforeVat',
-  Vat: 'Vat',
-  TotalPrice: 'TotalPrice',
-  RawTotalPrice: 'RawTotalPrice',
-  AttachUrl: 'AttachUrl',
-  Status: 'Status',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  DeleteDate: 'DeleteDate',
-  DeleteBy: 'DeleteBy',
-  ApproveDate: 'ApproveDate',
-  ApproveBy: 'ApproveBy',
-  PaidType: 'PaidType',
-  VehicleCode: 'VehicleCode',
-  CheckIn: 'CheckIn',
-  CheckOut: 'CheckOut',
-  ExpenseRefID: 'ExpenseRefID',
-  ExpenseCode: 'ExpenseCode',
-  ExpenseUrl: 'ExpenseUrl',
-  ExpenseCreateDate: 'ExpenseCreateDate',
-  ExpenseRefIDFleetcard: 'ExpenseRefIDFleetcard',
-  ExpenseCodeFleetcard: 'ExpenseCodeFleetcard',
-  ExpenseUrlFleetcard: 'ExpenseUrlFleetcard',
-  ExpenseCreateDateFleetcard: 'ExpenseCreateDateFleetcard'
-};
-
-exports.Prisma.TExpenseVehicleScalarFieldEnum = {
-  ExpenseVehicleId: 'ExpenseVehicleId',
-  StaffId: 'StaffId',
-  VehicleCode: 'VehicleCode'
-};
-
-exports.Prisma.TFeatureScalarFieldEnum = {
-  FeatureId: 'FeatureId',
-  GroupName: 'GroupName',
-  FeatureName: 'FeatureName',
-  Type: 'Type',
-  QueryParams: 'QueryParams',
-  Keyword: 'Keyword',
-  Active: 'Active'
-};
-
-exports.Prisma.TGroupMenuScalarFieldEnum = {
-  groupmenuid: 'groupmenuid',
-  groupmenu: 'groupmenu',
-  class: 'class',
-  title: 'title',
-  active: 'active',
-  group_order: 'group_order',
-  actvice: 'actvice',
-  new_order: 'new_order',
-  icon: 'icon',
-  IsDev: 'IsDev'
-};
-
-exports.Prisma.TGroupMenu_LangScalarFieldEnum = {
-  ID: 'ID',
-  GroupMenuName: 'GroupMenuName',
-  groupmenuid: 'groupmenuid',
-  Lang: 'Lang'
-};
-
-exports.Prisma.TGroupPermissionScalarFieldEnum = {
-  GroupID: 'GroupID',
-  GroupName: 'GroupName',
-  IsDel: 'IsDel',
-  IsActive: 'IsActive',
-  SchoolID: 'SchoolID',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  IsEditable: 'IsEditable'
-};
-
-exports.Prisma.TGroupPermissionMenuScalarFieldEnum = {
-  MenuID: 'MenuID',
-  GroupID: 'GroupID',
-  Type: 'Type',
-  Role: 'Role',
-  SchoolID: 'SchoolID',
-  IsDel: 'IsDel',
-  IsActive: 'IsActive'
-};
-
-exports.Prisma.TGroupPermissionUserScalarFieldEnum = {
-  GroupID: 'GroupID',
-  UserID: 'UserID',
-  IsDel: 'IsDel',
-  IsActive: 'IsActive',
-  SchoolID: 'SchoolID'
-};
-
-exports.Prisma.TGroupPermission_LogScalarFieldEnum = {
-  Id: 'Id',
-  SchoolID: 'SchoolID',
-  Date: 'Date',
-  Text: 'Text',
-  ByUser: 'ByUser'
-};
-
-exports.Prisma.TInvoiceScalarFieldEnum = {
-  InvoiceId: 'InvoiceId',
-  SchoolId: 'SchoolId',
-  PriceType: 'PriceType',
-  CalculationType: 'CalculationType',
-  ServiceType: 'ServiceType',
-  CurrentYear: 'CurrentYear',
-  TaxStatus: 'TaxStatus',
-  Term1Day: 'Term1Day',
-  Term1Month: 'Term1Month',
-  Term2Day: 'Term2Day',
-  Term2Month: 'Term2Month',
-  YearDay: 'YearDay',
-  YearMonth: 'YearMonth',
-  IssueDate: 'IssueDate',
-  DueDate: 'DueDate',
-  NoOfDueDate: 'NoOfDueDate',
-  ContactID: 'ContactID',
-  Note: 'Note',
-  StudentQuantity: 'StudentQuantity',
-  StudentAllowUsing: 'StudentAllowUsing',
-  StudentPay: 'StudentPay',
-  TotalPrice: 'TotalPrice',
-  InvoiceCreateDate: 'InvoiceCreateDate',
-  InvoiceUrl: 'InvoiceUrl',
-  InvoiceCode: 'InvoiceCode',
-  InvoiceRef: 'InvoiceRef',
-  IsActive: 'IsActive',
-  IsSuccess: 'IsSuccess',
-  SentEmailDate: 'SentEmailDate',
-  SentLineNotificationDate: 'SentLineNotificationDate',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  RecordDelete: 'RecordDelete',
-  DeleteBy: 'DeleteBy',
-  PeakModel: 'PeakModel'
-};
-
-exports.Prisma.TInvoiceDetailScalarFieldEnum = {
-  InvoiceDetailId: 'InvoiceDetailId',
-  InvoiceId: 'InvoiceId',
-  ProductId: 'ProductId',
-  EducationType: 'EducationType',
-  CurrentTerm: 'CurrentTerm',
-  Year: 'Year',
-  StartDate: 'StartDate',
-  EndDate: 'EndDate',
-  DueDate: 'DueDate',
-  Price: 'Price',
-  StudentCount: 'StudentCount',
-  TotalPrice: 'TotalPrice',
-  InvoiceCreateDate: 'InvoiceCreateDate',
-  InvoiceUrl: 'InvoiceUrl',
-  InvoiceCode: 'InvoiceCode',
-  InvoiceRef: 'InvoiceRef',
-  SentEmailDate: 'SentEmailDate',
-  SentLineNotificationDate: 'SentLineNotificationDate',
-  IsSuccess: 'IsSuccess',
-  RecordDelete: 'RecordDelete',
-  DeleteBy: 'DeleteBy',
-  RecieptRef: 'RecieptRef',
-  RecieptCode: 'RecieptCode',
-  RecieptUrl: 'RecieptUrl',
-  RecieptCreateDate: 'RecieptCreateDate',
-  PayStatus: 'PayStatus',
-  OverduePrice: 'OverduePrice',
-  RecieptSentEmailDate: 'RecieptSentEmailDate',
-  RecieptSentLineNotificationDate: 'RecieptSentLineNotificationDate',
-  CreateBy: 'CreateBy',
-  UpdateBy: 'UpdateBy',
-  UpdateDate: 'UpdateDate'
-};
-
-exports.Prisma.TLineGroupScalarFieldEnum = {
-  LineGroupId: 'LineGroupId',
-  SchoolId: 'SchoolId',
-  GroupId: 'GroupId',
-  LineNotificationAccessToken: 'LineNotificationAccessToken',
-  GroupType: 'GroupType',
-  CreateDate: 'CreateDate'
-};
-
-exports.Prisma.TLineMessageScalarFieldEnum = {
-  LineMessageId: 'LineMessageId',
-  SchoolId: 'SchoolId',
-  Type: 'Type',
-  UserId: 'UserId',
-  GroupId: 'GroupId',
-  Text: 'Text',
-  CreateDate: 'CreateDate',
-  Session: 'Session',
-  ReferenceKey: 'ReferenceKey',
-  ReferenceValue: 'ReferenceValue',
-  Model: 'Model'
-};
-
-exports.Prisma.TLogDebugScalarFieldEnum = {
-  ID: 'ID',
-  SchoolID: 'SchoolID',
   StudentID: 'StudentID',
-  EmployeeID: 'EmployeeID',
-  LogMessage: 'LogMessage',
-  LogDate: 'LogDate',
-  IP: 'IP'
-};
-
-exports.Prisma.TLogErrorScalarFieldEnum = {
-  dLogError: 'dLogError',
-  sLogError: 'sLogError',
-  sFunction: 'sFunction'
-};
-
-exports.Prisma.TMenuScalarFieldEnum = {
-  MenuId: 'MenuId',
-  MenuName: 'MenuName',
-  url: 'url',
-  title: 'title',
-  urlDev: 'urlDev',
-  class: 'class',
-  MenuMode: 'MenuMode',
-  MenuType: 'MenuType',
-  MenuIndex: 'MenuIndex',
-  groupmenuid: 'groupmenuid',
-  nMenuOrder: 'nMenuOrder',
-  showmenu: 'showmenu',
-  demo: 'demo',
-  target: 'target',
-  Submenu: 'Submenu',
-  active: 'active',
-  actvice: 'actvice',
-  SegmentID: 'SegmentID',
-  nMenuOrder2: 'nMenuOrder2',
-  IsExceptAuth: 'IsExceptAuth'
-};
-
-exports.Prisma.TMenuPermissionScalarFieldEnum = {
-  Id: 'Id',
-  MenuID: 'MenuID',
-  MenuName: 'MenuName',
-  MenuUrl: 'MenuUrl'
-};
-
-exports.Prisma.TMenu_LangScalarFieldEnum = {
-  ID: 'ID',
-  MenuName: 'MenuName',
-  MenuId: 'MenuId',
-  Lang: 'Lang'
-};
-
-exports.Prisma.TMessageScalarFieldEnum = {
-  nMessageID: 'nMessageID',
-  UserID: 'UserID',
-  sMessage: 'sMessage',
-  sTitle: 'sTitle',
-  nType: 'nType',
-  dSend: 'dSend',
-  nStatus: 'nStatus',
-  scheduled_id: 'scheduled_id',
-  push_id: 'push_id',
-  homework_id: 'homework_id',
-  cDel: 'cDel',
-  sell_id: 'sell_id',
-  topup_id: 'topup_id'
-};
-
-exports.Prisma.TMessageSystemScalarFieldEnum = {
-  ID: 'ID',
-  Title: 'Title',
-  Message: 'Message',
-  AddDate: 'AddDate',
-  AddBy: 'AddBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy',
-  IsDelete: 'IsDelete'
-};
-
-exports.Prisma.TMessageTemplateScalarFieldEnum = {
-  MessageTemplateId: 'MessageTemplateId',
-  Message: 'Message'
-};
-
-exports.Prisma.TMobileMenuScalarFieldEnum = {
-  Menu_Id: 'Menu_Id',
-  Menu_Name: 'Menu_Name',
-  Menu_NameEN: 'Menu_NameEN',
-  Actvie: 'Actvie',
-  Demo: 'Demo',
-  SubMenu_Id: 'SubMenu_Id',
-  IsExceptAuth: 'IsExceptAuth',
-  OrderNo: 'OrderNo',
-  MenuUrl: 'MenuUrl'
-};
-
-exports.Prisma.TNewsScalarFieldEnum = {
-  NewsID: 'NewsID',
-  Type: 'Type',
-  ToType: 'ToType',
-  Title: 'Title',
-  Detail: 'Detail',
-  Remark: 'Remark',
-  StartDate: 'StartDate',
-  EndDate: 'EndDate',
-  IsEmail: 'IsEmail',
-  IsBroadcast: 'IsBroadcast',
-  IsPopup: 'IsPopup',
-  PopupUrl: 'PopupUrl',
-  IsBanner: 'IsBanner',
-  BannerUrl: 'BannerUrl',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  IsDelete: 'IsDelete',
-  IsDone: 'IsDone',
-  SchoolID: 'SchoolID'
-};
-
-exports.Prisma.TNews2ScalarFieldEnum = {
-  NewsID: 'NewsID',
-  SystemType: 'SystemType',
-  SendType: 'SendType',
-  Title: 'Title',
   SchoolID: 'SchoolID',
-  ToType: 'ToType',
-  StartDate: 'StartDate',
-  EndDate: 'EndDate',
-  IsSystemLogin: 'IsSystemLogin',
-  SystemLogin: 'SystemLogin',
-  IsStudentLogin: 'IsStudentLogin',
-  StudentLogin: 'StudentLogin',
-  IsNoteHead: 'IsNoteHead',
-  NoteHead: 'NoteHead',
-  IsNoteAppWeb: 'IsNoteAppWeb',
-  NoteAppWeb: 'NoteAppWeb',
-  IsPopup: 'IsPopup',
-  Popup: 'Popup',
-  IsBanner: 'IsBanner',
-  Banner: 'Banner',
-  IsEmail: 'IsEmail',
-  Email: 'Email',
-  ToSID: 'ToSID',
-  IsSMS: 'IsSMS',
-  SMS: 'SMS',
-  IsLine: 'IsLine',
-  Line: 'Line',
-  IsLineGroup: 'IsLineGroup',
-  LineGroup: 'LineGroup',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  IsDelete: 'IsDelete',
-  IsDone: 'IsDone'
-};
-
-exports.Prisma.TNewsAttachFileScalarFieldEnum = {
-  AttachID: 'AttachID',
-  NewsID: 'NewsID',
-  AttachUrl: 'AttachUrl',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  IsDelete: 'IsDelete'
-};
-
-exports.Prisma.TNewsPushNotifyScalarFieldEnum = {
-  PushID: 'PushID',
-  NewsID: 'NewsID',
-  UserID: 'UserID',
-  UserType: 'UserType',
-  SendDate: 'SendDate',
-  ReadDate: 'ReadDate',
-  SchoolID: 'SchoolID',
-  Created: 'Created',
-  CreatedBy: 'CreatedBy',
-  Modified: 'Modified',
-  ModifyBy: 'ModifyBy',
-  IsDelete: 'IsDelete'
-};
-
-exports.Prisma.TNotificationSettingScalarFieldEnum = {
-  NotificationSettingId: 'NotificationSettingId',
-  SchoolId: 'SchoolId',
-  StaffID: 'StaffID',
-  LineNotificationAccessToken: 'LineNotificationAccessToken',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy'
-};
-
-exports.Prisma.TOfficerScalarFieldEnum = {
-  OfficerID: 'OfficerID',
-  Code: 'Code',
-  FirstName: 'FirstName',
-  LastName: 'LastName',
-  NickName: 'NickName',
-  Position: 'Position',
-  IsActive: 'IsActive',
-  IsDelete: 'IsDelete',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy'
-};
-
-exports.Prisma.TPackageScalarFieldEnum = {
-  PackageID: 'PackageID',
-  PackageName: 'PackageName',
-  IsActive: 'IsActive',
-  IsDelete: 'IsDelete',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy'
-};
-
-exports.Prisma.TParent_CardScalarFieldEnum = {
-  Id: 'Id',
-  sID: 'sID',
-  SchoolID: 'SchoolID',
-  No: 'No',
-  Type: 'Type',
-  ParentName: 'ParentName',
-  NFC: 'NFC',
-  NFCEncrypt: 'NFCEncrypt',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  IsDel: 'IsDel',
-  IsActive: 'IsActive',
-  Barcode: 'Barcode'
-};
-
-exports.Prisma.TPeakDataScalarFieldEnum = {
-  PeakDataId: 'PeakDataId',
-  Name: 'Name',
-  Value: 'Value',
-  UpdateDate: 'UpdateDate'
-};
-
-exports.Prisma.TPosDevicesScalarFieldEnum = {
-  PosID: 'PosID',
-  TTabletID: 'TTabletID',
-  TerminalID: 'TerminalID'
-};
-
-exports.Prisma.TProductScalarFieldEnum = {
-  ProductId: 'ProductId',
-  ProductCode: 'ProductCode',
-  Name: 'Name',
-  IsActive: 'IsActive'
-};
-
-exports.Prisma.TResetPasswordScalarFieldEnum = {
-  ID: 'ID',
-  sUerID: 'sUerID',
-  dExpUpdate: 'dExpUpdate',
-  dExpActive: 'dExpActive',
-  OTP: 'OTP',
-  cStatus: 'cStatus'
-};
-
-exports.Prisma.TSaleAreaScalarFieldEnum = {
-  SaleAreaId: 'SaleAreaId',
-  Name: 'Name',
-  Text: 'Text',
-  Mapping: 'Mapping'
-};
-
-exports.Prisma.TSchoolAreaScalarFieldEnum = {
-  ID: 'ID',
-  Code: 'Code',
-  Area: 'Area'
-};
-
-exports.Prisma.TSegmentMenuScalarFieldEnum = {
-  ID: 'ID',
-  GroupMenuID: 'GroupMenuID',
-  Name: 'Name',
-  Class: 'Class',
-  Title: 'Title',
-  Active: 'Active',
-  nOrder: 'nOrder'
-};
-
-exports.Prisma.TSegmentMenu_LangScalarFieldEnum = {
-  ID: 'ID',
-  SegmentMenuName: 'SegmentMenuName',
-  SegmentMenuID: 'SegmentMenuID',
-  Lang: 'Lang'
-};
-
-exports.Prisma.TSound_StudentScalarFieldEnum = {
-  SchoolID: 'SchoolID',
-  sID: 'sID',
-  nTermSubLevel2: 'nTermSubLevel2',
-  FullName: 'FullName',
-  Code: 'Code',
-  NickName: 'NickName',
-  Receiver: 'Receiver',
-  Base64Sound: 'Base64Sound',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  IsDel: 'IsDel',
-  Gate: 'Gate',
-  TermID: 'TermID'
-};
-
-exports.Prisma.TStudentCallScalarFieldEnum = {
-  CallDate: 'CallDate',
-  sID: 'sID',
-  SchoolID: 'SchoolID',
-  CardNo: 'CardNo',
-  Status: 'Status',
-  Created: 'Created',
-  Announced: 'Announced',
-  Completed: 'Completed',
-  IsResend: 'IsResend',
-  ScanType: 'ScanType',
-  Token: 'Token',
-  Remark: 'Remark',
-  GateToken: 'GateToken'
-};
-
-exports.Prisma.TStudentCall_ConfigScalarFieldEnum = {
-  SchoolId: 'SchoolId',
-  Gate: 'Gate',
-  BgCard: 'BgCard',
-  IsActive: 'IsActive',
-  Radius: 'Radius',
-  Created: 'Created',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  Modified: 'Modified',
-  IsShowLevel: 'IsShowLevel',
-  IsShowLastName: 'IsShowLastName',
-  IsShowParent: 'IsShowParent',
-  CardType: 'CardType',
-  NameType: 'NameType',
-  IsEng: 'IsEng'
-};
-
-exports.Prisma.TStudentCall_GateScalarFieldEnum = {
-  Token: 'Token',
-  SchoolID: 'SchoolID',
-  Gate: 'Gate',
-  GateName: 'GateName',
-  SelectedRoom: 'SelectedRoom',
-  FullUrl: 'FullUrl',
-  ShortUrl: 'ShortUrl',
-  Created: 'Created',
-  Modified: 'Modified',
-  CreateBy: 'CreateBy',
-  ModifyBy: 'ModifyBy',
-  IsDel: 'IsDel'
-};
-
-exports.Prisma.TStudentCall_LogScalarFieldEnum = {
-  LogId: 'LogId',
-  LogDate: 'LogDate',
-  LogText: 'LogText',
-  SchoolID: 'SchoolID',
-  sID: 'sID',
-  Type: 'Type',
-  IPAddress: 'IPAddress',
-  Token: 'Token',
-  ConnectionID: 'ConnectionID'
-};
-
-exports.Prisma.TSubDeliveryScalarFieldEnum = {
-  SubDeliveryId: 'SubDeliveryId',
-  DeliveryId: 'DeliveryId',
-  ProductName: 'ProductName',
-  Qty: 'Qty',
-  SerialNo: 'SerialNo',
-  StartDate: 'StartDate',
-  InsuranceNo: 'InsuranceNo',
-  EndDate: 'EndDate',
-  DeliveryNo: 'DeliveryNo',
-  ClaimNo: 'ClaimNo',
-  Note: 'Note'
-};
-
-exports.Prisma.TSubInsuranceScalarFieldEnum = {
-  SubInsuranceId: 'SubInsuranceId',
-  InsuranceId: 'InsuranceId',
-  ProductName: 'ProductName',
-  Qty: 'Qty',
-  SerialNo: 'SerialNo',
-  InsuranceNo: 'InsuranceNo',
-  StartDate: 'StartDate',
-  EndDate: 'EndDate'
-};
-
-exports.Prisma.TSystemSettingScalarFieldEnum = {
-  nSystemID: 'nSystemID',
-  SchoolID: 'SchoolID',
-  bScanOut: 'bScanOut',
-  CreatedBy: 'CreatedBy',
-  UpdatedBy: 'UpdatedBy',
-  CreatedDate: 'CreatedDate',
-  UpdatedDate: 'UpdatedDate',
-  MenuID: 'MenuID',
-  DocumentID: 'DocumentID',
-  Config: 'Config',
-  IsOpenApproveUserProfile: 'IsOpenApproveUserProfile',
-  ApproveOption: 'ApproveOption',
-  ApproveStartDate: 'ApproveStartDate',
-  ApproveEndDate: 'ApproveEndDate',
-  MaxTopup: 'MaxTopup'
-};
-
-exports.Prisma.TTokenScalarFieldEnum = {
-  Token_Id: 'Token_Id',
-  Client_Token: 'Client_Token',
-  User_Token: 'User_Token',
-  School_Id: 'School_Id',
-  Client_Time_Stamp: 'Client_Time_Stamp',
-  JabJai_Token: 'JabJai_Token'
-};
-
-exports.Prisma.TTopuphistoryScalarFieldEnum = {
-  History_id: 'History_id',
-  order_no: 'order_no',
-  user_id: 'user_id',
-  trade_mony: 'trade_mony',
-  Hash_data: 'Hash_data',
-  pay_type: 'pay_type',
-  site_cd: 'site_cd',
-  ret_url: 'ret_url',
-  good_name: 'good_name',
-  order_first_name: 'order_first_name',
-  order_last_name: 'order_last_name',
-  order_email: 'order_email',
-  currency: 'currency',
-  fee: 'fee',
-  res_cd: 'res_cd',
-  res_msg: 'res_msg',
-  tno: 'tno',
-  money: 'money'
-};
-
-exports.Prisma.TUserScalarFieldEnum = {
-  sID: 'sID',
-  sName: 'sName',
-  sLastname: 'sLastname',
-  sIdentification: 'sIdentification',
-  dUpdatePass: 'dUpdatePass',
-  username: 'username',
-  userpassword: 'userpassword',
-  dBirth: 'dBirth',
-  cSex: 'cSex',
-  sPhone: 'sPhone',
-  sEmail: 'sEmail',
-  sPassword: 'sPassword',
-  sAddress: 'sAddress',
-  PROVINCE_ID: 'PROVINCE_ID',
-  AMPHUR_ID: 'AMPHUR_ID',
-  DISTRICT_ID: 'DISTRICT_ID',
-  nSystemID: 'nSystemID',
-  sCity: 'sCity',
-  sPostalcode: 'sPostalcode',
-  sCountry: 'sCountry',
-  dCreate: 'dCreate',
-  dUpdate: 'dUpdate',
-  sFinger: 'sFinger',
-  sFinger2: 'sFinger2',
-  sFinger3: 'sFinger3',
-  NFC: 'NFC',
-  cType: 'cType',
-  cDel: 'cDel',
-  nCompany: 'nCompany',
-  ContactPeak: 'ContactPeak',
-  pin: 'pin',
-  Token: 'Token',
-  Secret_Key: 'Secret_Key',
   nMoney: 'nMoney',
-  uID: 'uID',
-  UserSignature: 'UserSignature',
-  UseBiometric: 'UseBiometric',
-  sPicture: 'sPicture',
-  LineID: 'LineID',
-  PasswordHash: 'PasswordHash',
-  UseEncryptPassword: 'UseEncryptPassword',
-  IsFirstLogin: 'IsFirstLogin',
-  CurrentFailedAttempts: 'CurrentFailedAttempts',
-  AccountLockedUntil: 'AccountLockedUntil',
-  IsAccountVerified: 'IsAccountVerified'
+  Status: 'Status',
+  Tstamp: 'Tstamp',
+  Success: 'Success',
+  RecordExists: 'RecordExists',
+  Remarks: 'Remarks'
 };
 
-exports.Prisma.TUser_CardScalarFieldEnum = {
+exports.Prisma.MasterDBTUserCardScalarFieldEnum = {
   Id: 'Id',
   sID: 'sID',
   SchoolID: 'SchoolID',
@@ -1778,6 +216,3161 @@ exports.Prisma.TUser_CardScalarFieldEnum = {
   FreeText: 'FreeText'
 };
 
+exports.Prisma.SBLoginHistoryScalarFieldEnum = {
+  id: 'id',
+  nStudentID: 'nStudentID',
+  sFirstName: 'sFirstName',
+  sLastName: 'sLastName',
+  schoolID: 'schoolID',
+  sIMEI: 'sIMEI',
+  sDeviceOS: 'sDeviceOS',
+  sAppName: 'sAppName',
+  sAppVersion: 'sAppVersion',
+  sIPAddress: 'sIPAddress',
+  loginAt: 'loginAt'
+};
+
+exports.Prisma.TApproveEmployeeContactAddressScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  EmployeeID: 'EmployeeID',
+  SchoolID: 'SchoolID',
+  IsPermanentAddress: 'IsPermanentAddress',
+  HouseNo: 'HouseNo',
+  Moo: 'Moo',
+  Village: 'Village',
+  Soi: 'Soi',
+  Building: 'Building',
+  Road: 'Road',
+  Province: 'Province',
+  District: 'District',
+  SubDistrict: 'SubDistrict',
+  PostalCode: 'PostalCode',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult'
+};
+
+exports.Prisma.TApproveEmployeeEducationScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  EmployeeID: 'EmployeeID',
+  SchoolID: 'SchoolID',
+  No: 'No',
+  EducationInstitution: 'EducationInstitution',
+  GraduateStartDate: 'GraduateStartDate',
+  GraduateEndDate: 'GraduateEndDate',
+  Education: 'Education',
+  Major: 'Major',
+  Minor: 'Minor',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult'
+};
+
+exports.Prisma.TApproveEmployeeFamilyScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  EmployeeID: 'EmployeeID',
+  SchoolID: 'SchoolID',
+  No: 'No',
+  FamilyRelationship: 'FamilyRelationship',
+  Title: 'Title',
+  Name: 'Name',
+  Surname: 'Surname',
+  Birthday: 'Birthday',
+  MaritalStatus: 'MaritalStatus',
+  LivingStatus: 'LivingStatus',
+  DeathStatus: 'DeathStatus',
+  FamilyOccupation: 'FamilyOccupation',
+  Education: 'Education',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult'
+};
+
+exports.Prisma.TApproveEmployeeHistoryReceivingRoyalDecorationScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  EmployeeID: 'EmployeeID',
+  SchoolID: 'SchoolID',
+  No: 'No',
+  YearReceived: 'YearReceived',
+  RoyalDecorationClass: 'RoyalDecorationClass',
+  Position: 'Position',
+  RoyalGovernmentVolumeNo: 'RoyalGovernmentVolumeNo',
+  RoyalGovernmentPart: 'RoyalGovernmentPart',
+  RoyalGovernmentNo: 'RoyalGovernmentNo',
+  Dated: 'Dated',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult'
+};
+
+exports.Prisma.TApproveEmployeeHonorScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  EmployeeID: 'EmployeeID',
+  SchoolID: 'SchoolID',
+  No: 'No',
+  HonorType: 'HonorType',
+  DonatingAgency: 'DonatingAgency',
+  YearReceived: 'YearReceived',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult'
+};
+
+exports.Prisma.TApproveEmployeeOccupationalLicenseScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  EmployeeID: 'EmployeeID',
+  SchoolID: 'SchoolID',
+  No: 'No',
+  ProfessionalLicenseType: 'ProfessionalLicenseType',
+  ProfessionalLicenseNumber: 'ProfessionalLicenseNumber',
+  ProfessionalLicenseName: 'ProfessionalLicenseName',
+  CertificateIssueDate: 'CertificateIssueDate',
+  CertificateExpireDate: 'CertificateExpireDate',
+  OrganizationIssuingCertificate: 'OrganizationIssuingCertificate',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult'
+};
+
+exports.Prisma.TApproveEmployeePermanentAddressScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  EmployeeID: 'EmployeeID',
+  SchoolID: 'SchoolID',
+  HouseNo: 'HouseNo',
+  Moo: 'Moo',
+  Village: 'Village',
+  Soi: 'Soi',
+  Building: 'Building',
+  Road: 'Road',
+  Province: 'Province',
+  District: 'District',
+  SubDistrict: 'SubDistrict',
+  PostalCode: 'PostalCode',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult'
+};
+
+exports.Prisma.TApproveEmployeeProfileScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  EmployeeID: 'EmployeeID',
+  SchoolID: 'SchoolID',
+  Gender: 'Gender',
+  Title: 'Title',
+  Name: 'Name',
+  Surname: 'Surname',
+  NameEn: 'NameEn',
+  SurnameEn: 'SurnameEn',
+  IDCardNumber: 'IDCardNumber',
+  PassportNumber: 'PassportNumber',
+  PassportCountry: 'PassportCountry',
+  BirthDay: 'BirthDay',
+  BloodType: 'BloodType',
+  Nationality: 'Nationality',
+  Race: 'Race',
+  Religion: 'Religion',
+  MaritalStatus: 'MaritalStatus',
+  SpouseName: 'SpouseName',
+  SpouseSurname: 'SpouseSurname',
+  PhoneNumber: 'PhoneNumber',
+  Email: 'Email',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult'
+};
+
+exports.Prisma.TApproveEmployeeTrainingScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  EmployeeID: 'EmployeeID',
+  SchoolID: 'SchoolID',
+  No: 'No',
+  Type: 'Type',
+  Project: 'Project',
+  TrainingCourseName: 'TrainingCourseName',
+  TrainingStartDate: 'TrainingStartDate',
+  TrainingEndDate: 'TrainingEndDate',
+  NumberHours: 'NumberHours',
+  Location: 'Location',
+  Country: 'Country',
+  Province: 'Province',
+  Expenses: 'Expenses',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult'
+};
+
+exports.Prisma.TApproveStudentContactAddressScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  StudentID: 'StudentID',
+  SchoolID: 'SchoolID',
+  IsPermanentAddress: 'IsPermanentAddress',
+  HouseNo: 'HouseNo',
+  Soi: 'Soi',
+  Moo: 'Moo',
+  Road: 'Road',
+  Province: 'Province',
+  District: 'District',
+  SubDistrict: 'SubDistrict',
+  PostalCode: 'PostalCode',
+  HousePhone: 'HousePhone',
+  LiveWithTitle: 'LiveWithTitle',
+  LiveWithName: 'LiveWithName',
+  LiveWithSurname: 'LiveWithSurname',
+  EmergencyPhone: 'EmergencyPhone',
+  LiveWithEmail: 'LiveWithEmail',
+  NeighborName: 'NeighborName',
+  NeighborSurname: 'NeighborSurname',
+  NeighborPhone: 'NeighborPhone',
+  HouseStyle: 'HouseStyle',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult',
+  RecoveryScript: 'RecoveryScript',
+  RecoveryDate: 'RecoveryDate',
+  RecoveryBy: 'RecoveryBy'
+};
+
+exports.Prisma.TApproveStudentFatherInfoScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  StudentID: 'StudentID',
+  SchoolID: 'SchoolID',
+  Title: 'Title',
+  Name: 'Name',
+  Surname: 'Surname',
+  NameEn: 'NameEn',
+  SurnameEn: 'SurnameEn',
+  BirthDay: 'BirthDay',
+  IDCardNumber: 'IDCardNumber',
+  Race: 'Race',
+  Nationality: 'Nationality',
+  Religion: 'Religion',
+  Education: 'Education',
+  HouseNo: 'HouseNo',
+  Soi: 'Soi',
+  Moo: 'Moo',
+  Road: 'Road',
+  Province: 'Province',
+  District: 'District',
+  SubDistrict: 'SubDistrict',
+  PostalCode: 'PostalCode',
+  Career: 'Career',
+  MonthlyIncome: 'MonthlyIncome',
+  WorkPlaces: 'WorkPlaces',
+  PhoneNumberHouse: 'PhoneNumberHouse',
+  PhoneNumberMobile: 'PhoneNumberMobile',
+  PhoneNumberWorkPlace: 'PhoneNumberWorkPlace',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult',
+  RecoveryScript: 'RecoveryScript',
+  RecoveryDate: 'RecoveryDate',
+  RecoveryBy: 'RecoveryBy'
+};
+
+exports.Prisma.TApproveStudentMotherInfoScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  StudentID: 'StudentID',
+  SchoolID: 'SchoolID',
+  Title: 'Title',
+  Name: 'Name',
+  Surname: 'Surname',
+  NameEn: 'NameEn',
+  SurnameEn: 'SurnameEn',
+  BirthDay: 'BirthDay',
+  IDCardNumber: 'IDCardNumber',
+  Race: 'Race',
+  Nationality: 'Nationality',
+  Religion: 'Religion',
+  Education: 'Education',
+  IsFatherAddress: 'IsFatherAddress',
+  HouseNo: 'HouseNo',
+  Soi: 'Soi',
+  Moo: 'Moo',
+  Road: 'Road',
+  Province: 'Province',
+  District: 'District',
+  SubDistrict: 'SubDistrict',
+  PostalCode: 'PostalCode',
+  Career: 'Career',
+  MonthlyIncome: 'MonthlyIncome',
+  WorkPlaces: 'WorkPlaces',
+  PhoneNumberHouse: 'PhoneNumberHouse',
+  PhoneNumberMobile: 'PhoneNumberMobile',
+  PhoneNumberWorkPlace: 'PhoneNumberWorkPlace',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult',
+  RecoveryScript: 'RecoveryScript',
+  RecoveryDate: 'RecoveryDate',
+  RecoveryBy: 'RecoveryBy'
+};
+
+exports.Prisma.TApproveStudentParentInfoScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  StudentID: 'StudentID',
+  SchoolID: 'SchoolID',
+  CopyFrom: 'CopyFrom',
+  Relationship: 'Relationship',
+  Title: 'Title',
+  Name: 'Name',
+  Surname: 'Surname',
+  NameEn: 'NameEn',
+  SurnameEn: 'SurnameEn',
+  BirthDay: 'BirthDay',
+  IDCardNumber: 'IDCardNumber',
+  Race: 'Race',
+  Nationality: 'Nationality',
+  Religion: 'Religion',
+  Education: 'Education',
+  HouseNo: 'HouseNo',
+  Soi: 'Soi',
+  Moo: 'Moo',
+  Road: 'Road',
+  Province: 'Province',
+  District: 'District',
+  SubDistrict: 'SubDistrict',
+  PostalCode: 'PostalCode',
+  TuitionFee: 'TuitionFee',
+  FamilyStatus: 'FamilyStatus',
+  Career: 'Career',
+  MonthlyIncome: 'MonthlyIncome',
+  WorkPlaces: 'WorkPlaces',
+  PhoneNumberHouse: 'PhoneNumberHouse',
+  PhoneNumberMobile: 'PhoneNumberMobile',
+  PhoneNumberWorkPlace: 'PhoneNumberWorkPlace',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult',
+  RecoveryScript: 'RecoveryScript',
+  RecoveryDate: 'RecoveryDate',
+  RecoveryBy: 'RecoveryBy'
+};
+
+exports.Prisma.TApproveStudentPermanentAddressScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  StudentID: 'StudentID',
+  SchoolID: 'SchoolID',
+  HouseCode: 'HouseCode',
+  HouseNo: 'HouseNo',
+  Soi: 'Soi',
+  Moo: 'Moo',
+  Road: 'Road',
+  Province: 'Province',
+  District: 'District',
+  SubDistrict: 'SubDistrict',
+  PostalCode: 'PostalCode',
+  HomePhoneNumber: 'HomePhoneNumber',
+  BirthPlace: 'BirthPlace',
+  BirthPlaceProvince: 'BirthPlaceProvince',
+  BirthPlaceDistrict: 'BirthPlaceDistrict',
+  BirthPlaceSubDistrict: 'BirthPlaceSubDistrict',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult',
+  RecoveryScript: 'RecoveryScript',
+  RecoveryDate: 'RecoveryDate',
+  RecoveryBy: 'RecoveryBy'
+};
+
+exports.Prisma.TApproveStudentProfileScalarFieldEnum = {
+  ID: 'ID',
+  Version: 'Version',
+  StudentID: 'StudentID',
+  SchoolID: 'SchoolID',
+  Gender: 'Gender',
+  Title: 'Title',
+  Name: 'Name',
+  Surname: 'Surname',
+  NameEn: 'NameEn',
+  SurnameEn: 'SurnameEn',
+  NameOther: 'NameOther',
+  SurnameOther: 'SurnameOther',
+  Nickname: 'Nickname',
+  NicknameEn: 'NicknameEn',
+  BirthDay: 'BirthDay',
+  Race: 'Race',
+  Nationality: 'Nationality',
+  Religion: 'Religion',
+  Disability: 'Disability',
+  Disadvantaged: 'Disadvantaged',
+  PhoneNumber: 'PhoneNumber',
+  Email: 'Email',
+  NumberMemberInFamily: 'NumberMemberInFamily',
+  YouAreChildOfFamily: 'YouAreChildOfFamily',
+  HaveBrotherStudyInSchool: 'HaveBrotherStudyInSchool',
+  Other: 'Other',
+  RequestApproveDate: 'RequestApproveDate',
+  ApproveDate: 'ApproveDate',
+  ApproveBy: 'ApproveBy',
+  ApproveStatus: 'ApproveStatus',
+  ApproveComment: 'ApproveComment',
+  UserAcknowledge: 'UserAcknowledge',
+  EndDateShowResult: 'EndDateShowResult',
+  RecoveryScript: 'RecoveryScript',
+  RecoveryDate: 'RecoveryDate',
+  RecoveryBy: 'RecoveryBy',
+  SpendingPerDay: 'SpendingPerDay'
+};
+
+exports.Prisma.TB_EQ_AnswerScalarFieldEnum = {
+  TB_EQ_Answer_Id: 'TB_EQ_Answer_Id',
+  TB_EQ_Question_Id: 'TB_EQ_Question_Id',
+  TB_EQ_Point_Point: 'TB_EQ_Point_Point',
+  sID: 'sID',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TB_EQ_DataScalarFieldEnum = {
+  TB_EQ_Data_Id: 'TB_EQ_Data_Id',
+  TB_EQ_Data_Datetime: 'TB_EQ_Data_Datetime',
+  sID: 'sID',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TB_EQ_GroupScalarFieldEnum = {
+  TB_EQ_Group_Id: 'TB_EQ_Group_Id',
+  TB_EQ_Group_Des: 'TB_EQ_Group_Des',
+  TB_EQ_Question_Group: 'TB_EQ_Question_Group',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TB_EQ_PointScalarFieldEnum = {
+  TB_EQ_Point_Id: 'TB_EQ_Point_Id',
+  TB_EQ_Point_Point: 'TB_EQ_Point_Point',
+  TB_EQ_Question_Id: 'TB_EQ_Question_Id',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TB_EQ_QuestionScalarFieldEnum = {
+  TB_EQ_Question_Id: 'TB_EQ_Question_Id',
+  TB_EQ_Question_Des: 'TB_EQ_Question_Des',
+  TB_EQ_Question_Group: 'TB_EQ_Question_Group',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TB_HistorySettingScalarFieldEnum = {
+  Fd_HistoryID: 'Fd_HistoryID',
+  Fd_FunctionName: 'Fd_FunctionName',
+  Fd_SettingData: 'Fd_SettingData',
+  Fd_SchoolID: 'Fd_SchoolID',
+  Fd_UpdatedDate: 'Fd_UpdatedDate',
+  Fd_UpdatedBy: 'Fd_UpdatedBy'
+};
+
+exports.Prisma.TBackupCardScalarFieldEnum = {
+  CardID: 'CardID',
+  SchoolID: 'SchoolID',
+  CardName: 'CardName',
+  BarCode: 'BarCode',
+  NFC: 'NFC',
+  NFCReverse: 'NFCReverse',
+  NFCEncrypt: 'NFCEncrypt',
+  NFCEncryptReverse: 'NFCEncryptReverse',
+  Money: 'Money',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  Insurance: 'Insurance'
+};
+
+exports.Prisma.TBackupCardHistoryScalarFieldEnum = {
+  CardHistoryID: 'CardHistoryID',
+  SchoolID: 'SchoolID',
+  CardID: 'CardID',
+  UserType: 'UserType',
+  UserID: 'UserID',
+  UserName: 'UserName',
+  BorrowingDate: 'BorrowingDate',
+  ReturnDate: 'ReturnDate',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  Insurance: 'Insurance'
+};
+
+exports.Prisma.TBranchScalarFieldEnum = {
+  BranchId: 'BranchId',
+  nTLevel: 'nTLevel',
+  BranchName: 'BranchName',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TBranchSpecScalarFieldEnum = {
+  BranchSpecId: 'BranchSpecId',
+  BranchSubjectId: 'BranchSubjectId',
+  BranchSpecName: 'BranchSpecName',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TBranchSubjectScalarFieldEnum = {
+  BranchSubjectId: 'BranchSubjectId',
+  BranchId: 'BranchId',
+  BranchSubjectName: 'BranchSubjectName',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TClassScalarFieldEnum = {
+  sClassID: 'sClassID',
+  sClass: 'sClass',
+  sClassIP: 'sClassIP',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TClassMemberScalarFieldEnum = {
+  nClassMemberid: 'nClassMemberid',
+  nTeacherHeadid: 'nTeacherHeadid',
+  nTeacherAssistOne: 'nTeacherAssistOne',
+  nTeacherAssistTwo: 'nTeacherAssistTwo',
+  nTermSubLevel2: 'nTermSubLevel2',
+  nTerm: 'nTerm',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TClassOnlineScalarFieldEnum = {
+  OnlineId: 'OnlineId',
+  TermId: 'TermId',
+  LevelId: 'LevelId',
+  PlanId: 'PlanId',
+  TitleName: 'TitleName',
+  TeacherId: 'TeacherId',
+  SchoolId: 'SchoolId',
+  SelectedRoom: 'SelectedRoom',
+  cDel: 'cDel',
+  ShareId: 'ShareId',
+  CreateBy: 'CreateBy',
+  Created: 'Created',
+  ModifyBy: 'ModifyBy',
+  Modfied: 'Modfied'
+};
+
+exports.Prisma.TCourseAbbreviationScalarFieldEnum = {
+  CourseAbbreviationId: 'CourseAbbreviationId',
+  ShortName: 'ShortName',
+  cDel: 'cDel',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedBy: 'UpdatedBy',
+  UpdatedDate: 'UpdatedDate',
+  sPlaneID: 'sPlaneID',
+  SchoolID: 'SchoolID'
+};
+
+exports.Prisma.TCourseGroupScalarFieldEnum = {
+  courseGroupId: 'courseGroupId',
+  Description: 'Description',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  MasterCode: 'MasterCode',
+  DescriptionEn: 'DescriptionEn'
+};
+
+exports.Prisma.TCourseTypeScalarFieldEnum = {
+  courseTypeId: 'courseTypeId',
+  Description: 'Description',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  nOrder: 'nOrder',
+  MasterCode: 'MasterCode',
+  DescriptionEn: 'DescriptionEn'
+};
+
+exports.Prisma.TCurriculumScalarFieldEnum = {
+  CurriculumId: 'CurriculumId',
+  CurriculumName: 'CurriculumName',
+  CreatedDate: 'CreatedDate',
+  CreatedBy: 'CreatedBy',
+  UpdatedDate: 'UpdatedDate',
+  UpdatedBy: 'UpdatedBy',
+  nYear: 'nYear',
+  SchoolId: 'SchoolId',
+  IsActive: 'IsActive',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TDepartmentScalarFieldEnum = {
+  DepID: 'DepID',
+  userHeadId: 'userHeadId',
+  userApproveOne: 'userApproveOne',
+  userApproveTwo: 'userApproveTwo',
+  departmentName: 'departmentName',
+  deleted: 'deleted',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TDocumentStampDateScalarFieldEnum = {
+  ID: 'ID',
+  SchoolID: 'SchoolID',
+  DocType: 'DocType',
+  DocDate: 'DocDate'
+};
+
+exports.Prisma.TEmpAddressScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  Type: 'Type',
+  No: 'No',
+  VillageNo: 'VillageNo',
+  Village: 'Village',
+  Building: 'Building',
+  Alley: 'Alley',
+  Road: 'Road',
+  SubdistrictID: 'SubdistrictID',
+  DistrictID: 'DistrictID',
+  ProvinceID: 'ProvinceID',
+  Postcode: 'Postcode',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TEmpEducationInfoScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  Institution: 'Institution',
+  StudyYear: 'StudyYear',
+  GraduationYear: 'GraduationYear',
+  LevelID: 'LevelID',
+  Major: 'Major',
+  MinorSubject: 'MinorSubject',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TEmpFamilyScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  FamilyRelation: 'FamilyRelation',
+  TitleID: 'TitleID',
+  FirstName: 'FirstName',
+  LastName: 'LastName',
+  Birthday: 'Birthday',
+  PersonalStatus: 'PersonalStatus',
+  LiveStatus: 'LiveStatus',
+  DeathStatus: 'DeathStatus',
+  FamilyCareer: 'FamilyCareer',
+  LevelID: 'LevelID',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel',
+  EducationBackground: 'EducationBackground'
+};
+
+exports.Prisma.TEmpHonorScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  Type: 'Type',
+  Department: 'Department',
+  Year: 'Year',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TEmpInsigniaScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  Year: 'Year',
+  Grade: 'Grade',
+  Position: 'Position',
+  BookNumber: 'BookNumber',
+  Part: 'Part',
+  Duty: 'Duty',
+  Number: 'Number',
+  Date: 'Date',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TEmpProfessionalLicenseScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  LicenseType: 'LicenseType',
+  LicenseNo: 'LicenseNo',
+  LicenseName: 'LicenseName',
+  IssuedDate: 'IssuedDate',
+  ExpireDate: 'ExpireDate',
+  AgencyIssued: 'AgencyIssued',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TEmpSalaryScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  WorkStatus: 'WorkStatus',
+  WorkInEducationDate: 'WorkInEducationDate',
+  Salary: 'Salary',
+  PositionMoney: 'PositionMoney',
+  RetirementDate: 'RetirementDate',
+  RemainGovernmentYear: 'RemainGovernmentYear',
+  RemainGovernmentMonth: 'RemainGovernmentMonth',
+  RemainGovernmentDay: 'RemainGovernmentDay',
+  Degree: 'Degree',
+  GovernmentOrderDate: 'GovernmentOrderDate',
+  WorkStartDate: 'WorkStartDate',
+  AcademicStandingMoney: 'AcademicStandingMoney',
+  NetSalary: 'NetSalary',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  DayQuit: 'DayQuit'
+};
+
+exports.Prisma.TEmpSignerScalarFieldEnum = {
+  SignerID: 'SignerID',
+  SchoolID: 'SchoolID',
+  YearID: 'YearID',
+  TermID: 'TermID',
+  Position: 'Position',
+  PositionEN: 'PositionEN',
+  DefaultID: 'DefaultID',
+  EmpID: 'EmpID',
+  Signer: 'Signer',
+  IsDefault: 'IsDefault',
+  IsDel: 'IsDel',
+  IsActive: 'IsActive',
+  Created: 'Created',
+  Modified: 'Modified',
+  CreateBy: 'CreateBy',
+  ModifyBy: 'ModifyBy',
+  OldSigner: 'OldSigner'
+};
+
+exports.Prisma.TEmpTOEICScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  TOEICScore: 'TOEICScore',
+  InstitutionAnnouncement: 'InstitutionAnnouncement',
+  ExpirationDate: 'ExpirationDate',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdateBy: 'UpdateBy',
+  UpdateDate: 'UpdateDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TEmpTeachingScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  nYear: 'nYear',
+  nTerm: 'nTerm',
+  courseTypeId: 'courseTypeId',
+  SUBJECT_ID: 'SUBJECT_ID',
+  sClassID: 'sClassID',
+  sRoomID: 'sRoomID',
+  HoursPerWeek: 'HoursPerWeek',
+  DirectTeaching: 'DirectTeaching',
+  CompetentTeaching: 'CompetentTeaching',
+  WantTrain: 'WantTrain',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TEmpTrainingScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  ProjectName: 'ProjectName',
+  TrainingName: 'TrainingName',
+  StartDate: 'StartDate',
+  EndDate: 'EndDate',
+  Place: 'Place',
+  ProvinceID: 'ProvinceID',
+  Country: 'Country',
+  Expenses: 'Expenses',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  Province: 'Province',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel',
+  TrainingType: 'TrainingType',
+  TrainingHours: 'TrainingHours'
+};
+
+exports.Prisma.TEmployeeInfoScalarFieldEnum = {
+  sEmp: 'sEmp',
+  ID: 'ID',
+  Code: 'Code',
+  FirstNameEn: 'FirstNameEn',
+  LastNameEn: 'LastNameEn',
+  PassportNumber: 'PassportNumber',
+  PassportCountry: 'PassportCountry',
+  PassportExpirationDate: 'PassportExpirationDate',
+  VisaNo: 'VisaNo',
+  VisaExpirationDate: 'VisaExpirationDate',
+  WorkPermitNo: 'WorkPermitNo',
+  WorkPermitExpirationDate: 'WorkPermitExpirationDate',
+  BloodType: 'BloodType',
+  Nationality: 'Nationality',
+  Ethnicity: 'Ethnicity',
+  Religion: 'Religion',
+  PersonalStatus: 'PersonalStatus',
+  SpouseFirstName: 'SpouseFirstName',
+  SpouseLastName: 'SpouseLastName',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TEmployeeTypeScalarFieldEnum = {
+  nTypeId: 'nTypeId',
+  nTypeId2: 'nTypeId2',
+  Title: 'Title',
+  SchoolID: 'SchoolID',
+  IsDel: 'IsDel',
+  IsActive: 'IsActive',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  MasterCode: 'MasterCode'
+};
+
+exports.Prisma.TEmployeesScalarFieldEnum = {
+  sEmp: 'sEmp',
+  sName: 'sName',
+  sLastname: 'sLastname',
+  sIdentification: 'sIdentification',
+  dBirth: 'dBirth',
+  cSex: 'cSex',
+  sPhone: 'sPhone',
+  sEmail: 'sEmail',
+  sPassword: 'sPassword',
+  sSubtopic: 'sSubtopic',
+  sAddress: 'sAddress',
+  sCity: 'sCity',
+  sPostalcode: 'sPostalcode',
+  sCountry: 'sCountry',
+  dUpdate: 'dUpdate',
+  sFinger: 'sFinger',
+  nMoney: 'nMoney',
+  sFinger2: 'sFinger2',
+  sClaim: 'sClaim',
+  cDel: 'cDel',
+  sStatusReport: 'sStatusReport',
+  nTimeType: 'nTimeType',
+  cType: 'cType',
+  sToken: 'sToken',
+  sPicture: 'sPicture',
+  sProvince: 'sProvince',
+  sTumbon: 'sTumbon',
+  sSoy: 'sSoy',
+  sHomeNumber: 'sHomeNumber',
+  sMuu: 'sMuu',
+  sRoad: 'sRoad',
+  sAumpher: 'sAumpher',
+  sPost: 'sPost',
+  sTitle: 'sTitle',
+  dPicUpdate: 'dPicUpdate',
+  nPicversion: 'nPicversion',
+  leavecheck: 'leavecheck',
+  nJobid: 'nJobid',
+  nDepartmentId: 'nDepartmentId',
+  gradeSystemAdmin: 'gradeSystemAdmin',
+  Village: 'Village',
+  Building: 'Building',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  DailyUsageLimit: 'DailyUsageLimit',
+  nMax: 'nMax',
+  sNameEng: 'sNameEng',
+  sLastNameEng: 'sLastNameEng'
+};
+
+exports.Prisma.TFamilyProfileScalarFieldEnum = {
+  sFamilyTitle: 'sFamilyTitle',
+  sFamilyName: 'sFamilyName',
+  sFamilyLast: 'sFamilyLast',
+  sFamilyRace: 'sFamilyRace',
+  sFamilyNation: 'sFamilyNation',
+  sFamilyReligion: 'sFamilyReligion',
+  sFamilyIdCardNumber: 'sFamilyIdCardNumber',
+  sFamilyRelate: 'sFamilyRelate',
+  sFamilyHomeNumber: 'sFamilyHomeNumber',
+  sFamilySoy: 'sFamilySoy',
+  sFamilyTumbon: 'sFamilyTumbon',
+  sFamilyProvince: 'sFamilyProvince',
+  sFamilyMuu: 'sFamilyMuu',
+  sFamilyRoad: 'sFamilyRoad',
+  sFamilyAumpher: 'sFamilyAumpher',
+  sFamilyPost: 'sFamilyPost',
+  sPhoneOne: 'sPhoneOne',
+  sPhoneTwo: 'sPhoneTwo',
+  sPhoneThree: 'sPhoneThree',
+  sPhoneMail: 'sPhoneMail',
+  sID: 'sID',
+  sDeleted: 'sDeleted',
+  sFatherTitle: 'sFatherTitle',
+  sFatherFirstName: 'sFatherFirstName',
+  sFatherLastName: 'sFatherLastName',
+  sFatherNation: 'sFatherNation',
+  sFatherRace: 'sFatherRace',
+  sFatherReligion: 'sFatherReligion',
+  sFatherIdCardNumber: 'sFatherIdCardNumber',
+  sMotherTitle: 'sMotherTitle',
+  sMotherFirstName: 'sMotherFirstName',
+  sMotherLastName: 'sMotherLastName',
+  sMotherNation: 'sMotherNation',
+  sMotherRace: 'sMotherRace',
+  sMotherReligion: 'sMotherReligion',
+  sMotherIdCardNumber: 'sMotherIdCardNumber',
+  sMotherTumbon: 'sMotherTumbon',
+  sMotherSoy: 'sMotherSoy',
+  sMotherRoad: 'sMotherRoad',
+  sMotherProvince: 'sMotherProvince',
+  sMotherPost: 'sMotherPost',
+  sMotherPhone: 'sMotherPhone',
+  sMotherMuu: 'sMotherMuu',
+  sMotherHomeNumber: 'sMotherHomeNumber',
+  sMotherAumpher: 'sMotherAumpher',
+  sFatherTumbon: 'sFatherTumbon',
+  sFatherSoy: 'sFatherSoy',
+  sFatherRoad: 'sFatherRoad',
+  sFatherProvince: 'sFatherProvince',
+  sFatherPost: 'sFatherPost',
+  sFatherPhone: 'sFatherPhone',
+  sFatherMuu: 'sFatherMuu',
+  sFatherHomeNumber: 'sFatherHomeNumber',
+  sFatherAumpher: 'sFatherAumpher',
+  nFamilyID: 'nFamilyID',
+  sFamilyNameEN: 'sFamilyNameEN',
+  sFamilyLastEN: 'sFamilyLastEN',
+  dFamilyBirthDay: 'dFamilyBirthDay',
+  nFamilyRequestStudyMoney: 'nFamilyRequestStudyMoney',
+  sFamilyGraduated: 'sFamilyGraduated',
+  sFamilyJob: 'sFamilyJob',
+  sFamilyWorkPlace: 'sFamilyWorkPlace',
+  nFamilyIncome: 'nFamilyIncome',
+  sFatherNameEN: 'sFatherNameEN',
+  sFatherLastEN: 'sFatherLastEN',
+  dFatherBirthDay: 'dFatherBirthDay',
+  sFatherGraduated: 'sFatherGraduated',
+  sFatherJob: 'sFatherJob',
+  sFatherWorkPlace: 'sFatherWorkPlace',
+  sFatherPhone2: 'sFatherPhone2',
+  sFatherPhone3: 'sFatherPhone3',
+  nFatherIncome: 'nFatherIncome',
+  sMotherNameEN: 'sMotherNameEN',
+  sMotherLastEN: 'sMotherLastEN',
+  dMotherBirthDay: 'dMotherBirthDay',
+  sMotherGraduated: 'sMotherGraduated',
+  sMotherJob: 'sMotherJob',
+  sMotherWorkPlace: 'sMotherWorkPlace',
+  sMotherPhone2: 'sMotherPhone2',
+  sMotherPhone3: 'sMotherPhone3',
+  nMotherIncome: 'nMotherIncome',
+  nSonTotal: 'nSonTotal',
+  nRelativeStudyHere: 'nRelativeStudyHere',
+  stayWithTitle: 'stayWithTitle',
+  stayWithName: 'stayWithName',
+  stayWithLast: 'stayWithLast',
+  stayWithEmergencyCall: 'stayWithEmergencyCall',
+  stayWithEmail: 'stayWithEmail',
+  HomeType: 'HomeType',
+  friendSID: 'friendSID',
+  houseRegistrationNumber: 'houseRegistrationNumber',
+  houseRegistrationMuu: 'houseRegistrationMuu',
+  houseRegistrationSoy: 'houseRegistrationSoy',
+  houseRegistrationRoad: 'houseRegistrationRoad',
+  houseRegistrationProvince: 'houseRegistrationProvince',
+  houseRegistrationAumpher: 'houseRegistrationAumpher',
+  houseRegistrationTumbon: 'houseRegistrationTumbon',
+  houseRegistrationPost: 'houseRegistrationPost',
+  houseRegistrationPhone: 'houseRegistrationPhone',
+  bornFrom: 'bornFrom',
+  bornFromProvince: 'bornFromProvince',
+  bornFromAumpher: 'bornFromAumpher',
+  bornFromTumbon: 'bornFromTumbon',
+  friendName: 'friendName',
+  friendLastName: 'friendLastName',
+  friendSubLevel: 'friendSubLevel',
+  friendPhone: 'friendPhone',
+  familyStatus: 'familyStatus',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  bornFromEn: 'bornFromEn'
+};
+
+exports.Prisma.TGradeAttendanceScalarFieldEnum = {
+  nGradeAttendanceId: 'nGradeAttendanceId',
+  nGradeId: 'nGradeId',
+  sID: 'sID',
+  week1_1: 'week1_1',
+  week1_2: 'week1_2',
+  week1_3: 'week1_3',
+  week1_4: 'week1_4',
+  week1_5: 'week1_5',
+  week1_6: 'week1_6',
+  week1_7: 'week1_7',
+  week2_1: 'week2_1',
+  week2_2: 'week2_2',
+  week2_3: 'week2_3',
+  week2_4: 'week2_4',
+  week2_5: 'week2_5',
+  week2_6: 'week2_6',
+  week2_7: 'week2_7',
+  week3_1: 'week3_1',
+  week3_2: 'week3_2',
+  week3_3: 'week3_3',
+  week3_4: 'week3_4',
+  week3_5: 'week3_5',
+  week3_6: 'week3_6',
+  week3_7: 'week3_7',
+  week4_1: 'week4_1',
+  week4_2: 'week4_2',
+  week4_3: 'week4_3',
+  week4_4: 'week4_4',
+  week4_5: 'week4_5',
+  week4_6: 'week4_6',
+  week4_7: 'week4_7',
+  week5_1: 'week5_1',
+  week5_2: 'week5_2',
+  week5_3: 'week5_3',
+  week5_4: 'week5_4',
+  week5_5: 'week5_5',
+  week5_6: 'week5_6',
+  week5_7: 'week5_7',
+  week6_1: 'week6_1',
+  week6_2: 'week6_2',
+  week6_3: 'week6_3',
+  week6_4: 'week6_4',
+  week6_5: 'week6_5',
+  week6_6: 'week6_6',
+  week6_7: 'week6_7',
+  week7_1: 'week7_1',
+  week7_2: 'week7_2',
+  week7_3: 'week7_3',
+  week7_4: 'week7_4',
+  week7_5: 'week7_5',
+  week7_6: 'week7_6',
+  week7_7: 'week7_7',
+  week8_1: 'week8_1',
+  week8_2: 'week8_2',
+  week8_3: 'week8_3',
+  week8_4: 'week8_4',
+  week8_5: 'week8_5',
+  week8_6: 'week8_6',
+  week8_7: 'week8_7',
+  week9_1: 'week9_1',
+  week9_2: 'week9_2',
+  week9_3: 'week9_3',
+  week9_4: 'week9_4',
+  week9_5: 'week9_5',
+  week9_6: 'week9_6',
+  week9_7: 'week9_7',
+  week10_1: 'week10_1',
+  week10_2: 'week10_2',
+  week10_3: 'week10_3',
+  week10_4: 'week10_4',
+  week10_5: 'week10_5',
+  week10_6: 'week10_6',
+  week10_7: 'week10_7',
+  week11_1: 'week11_1',
+  week11_2: 'week11_2',
+  week11_3: 'week11_3',
+  week11_4: 'week11_4',
+  week11_5: 'week11_5',
+  week11_6: 'week11_6',
+  week11_7: 'week11_7',
+  week12_1: 'week12_1',
+  week12_2: 'week12_2',
+  week12_3: 'week12_3',
+  week12_4: 'week12_4',
+  week12_5: 'week12_5',
+  week12_6: 'week12_6',
+  week12_7: 'week12_7',
+  week13_1: 'week13_1',
+  week13_2: 'week13_2',
+  week13_3: 'week13_3',
+  week13_4: 'week13_4',
+  week13_5: 'week13_5',
+  week13_6: 'week13_6',
+  week13_7: 'week13_7',
+  week14_1: 'week14_1',
+  week14_2: 'week14_2',
+  week14_3: 'week14_3',
+  week14_4: 'week14_4',
+  week14_5: 'week14_5',
+  week14_6: 'week14_6',
+  week14_7: 'week14_7',
+  week15_1: 'week15_1',
+  week15_2: 'week15_2',
+  week15_3: 'week15_3',
+  week15_4: 'week15_4',
+  week15_5: 'week15_5',
+  week15_6: 'week15_6',
+  week15_7: 'week15_7',
+  week16_1: 'week16_1',
+  week16_2: 'week16_2',
+  week16_3: 'week16_3',
+  week16_4: 'week16_4',
+  week16_5: 'week16_5',
+  week16_6: 'week16_6',
+  week16_7: 'week16_7',
+  week17_1: 'week17_1',
+  week17_2: 'week17_2',
+  week17_3: 'week17_3',
+  week17_4: 'week17_4',
+  week17_5: 'week17_5',
+  week17_6: 'week17_6',
+  week17_7: 'week17_7',
+  week18_1: 'week18_1',
+  week18_2: 'week18_2',
+  week18_3: 'week18_3',
+  week18_4: 'week18_4',
+  week18_5: 'week18_5',
+  week18_6: 'week18_6',
+  week18_7: 'week18_7',
+  week19_1: 'week19_1',
+  week19_2: 'week19_2',
+  week19_3: 'week19_3',
+  week19_4: 'week19_4',
+  week19_5: 'week19_5',
+  week19_6: 'week19_6',
+  week19_7: 'week19_7',
+  week20_1: 'week20_1',
+  week20_2: 'week20_2',
+  week20_3: 'week20_3',
+  week20_4: 'week20_4',
+  week20_5: 'week20_5',
+  week20_6: 'week20_6',
+  week20_7: 'week20_7',
+  totalcome: 'totalcome',
+  totalskip: 'totalskip',
+  totalsick: 'totalsick',
+  totalleave: 'totalleave',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TGradeCheckScalarFieldEnum = {
+  nGradeCheckId: 'nGradeCheckId',
+  teacherId: 'teacherId',
+  PlanId: 'PlanId',
+  Deleted: 'Deleted',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TGradeLockScalarFieldEnum = {
+  nGradeLock: 'nGradeLock',
+  nGradeId: 'nGradeId',
+  scoreGrade1: 'scoreGrade1',
+  scoreGrade2: 'scoreGrade2',
+  scoreGrade3: 'scoreGrade3',
+  scoreGrade4: 'scoreGrade4',
+  scoreGrade5: 'scoreGrade5',
+  scoreGrade6: 'scoreGrade6',
+  scoreGrade7: 'scoreGrade7',
+  scoreGrade8: 'scoreGrade8',
+  scoreGrade9: 'scoreGrade9',
+  scoreGrade10: 'scoreGrade10',
+  scoreGrade11: 'scoreGrade11',
+  scoreGrade12: 'scoreGrade12',
+  scoreGrade13: 'scoreGrade13',
+  scoreGrade14: 'scoreGrade14',
+  scoreGrade15: 'scoreGrade15',
+  scoreGrade16: 'scoreGrade16',
+  scoreGrade17: 'scoreGrade17',
+  scoreGrade18: 'scoreGrade18',
+  scoreGrade19: 'scoreGrade19',
+  scoreGrade20: 'scoreGrade20',
+  scoreBehavior1: 'scoreBehavior1',
+  scoreBehavior2: 'scoreBehavior2',
+  scoreBehavior3: 'scoreBehavior3',
+  scoreBehavior4: 'scoreBehavior4',
+  scoreBehavior5: 'scoreBehavior5',
+  scoreBehavior6: 'scoreBehavior6',
+  scoreBehavior7: 'scoreBehavior7',
+  scoreBehavior8: 'scoreBehavior8',
+  scoreBehavior9: 'scoreBehavior9',
+  scoreBehavior10: 'scoreBehavior10',
+  scoreMidTerm: 'scoreMidTerm',
+  scoreFinalTerm: 'scoreFinalTerm',
+  scoreCheewat1: 'scoreCheewat1',
+  scoreCheewat2: 'scoreCheewat2',
+  scoreCheewat3: 'scoreCheewat3',
+  scoreCheewat4: 'scoreCheewat4',
+  scoreCheewat5: 'scoreCheewat5',
+  scoreCheewat6: 'scoreCheewat6',
+  scoreCheewat7: 'scoreCheewat7',
+  scoreCheewat8: 'scoreCheewat8',
+  scoreCheewat9: 'scoreCheewat9',
+  scoreCheewat10: 'scoreCheewat10',
+  scoreCheewat11: 'scoreCheewat11',
+  scoreCheewat12: 'scoreCheewat12',
+  scoreCheewat13: 'scoreCheewat13',
+  scoreCheewat14: 'scoreCheewat14',
+  scoreCheewat15: 'scoreCheewat15',
+  scoreCheewat16: 'scoreCheewat16',
+  scoreCheewat17: 'scoreCheewat17',
+  scoreCheewat18: 'scoreCheewat18',
+  scoreCheewat19: 'scoreCheewat19',
+  scoreCheewat20: 'scoreCheewat20',
+  scoreMid1: 'scoreMid1',
+  scoreMid2: 'scoreMid2',
+  scoreMid3: 'scoreMid3',
+  scoreMid4: 'scoreMid4',
+  scoreMid5: 'scoreMid5',
+  scoreMid6: 'scoreMid6',
+  scoreMid7: 'scoreMid7',
+  scoreMid8: 'scoreMid8',
+  scoreMid9: 'scoreMid9',
+  scoreMid10: 'scoreMid10',
+  scoreFinal1: 'scoreFinal1',
+  scoreFinal2: 'scoreFinal2',
+  scoreFinal3: 'scoreFinal3',
+  scoreFinal4: 'scoreFinal4',
+  scoreFinal5: 'scoreFinal5',
+  scoreFinal6: 'scoreFinal6',
+  scoreFinal7: 'scoreFinal7',
+  scoreFinal8: 'scoreFinal8',
+  scoreFinal9: 'scoreFinal9',
+  scoreFinal10: 'scoreFinal10',
+  lastUpdate: 'lastUpdate',
+  updateByEMP: 'updateByEMP',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TGradeMigrationScalarFieldEnum = {
+  GradeMigrationId: 'GradeMigrationId',
+  nGradeId: 'nGradeId',
+  sID: 'sID',
+  AssessmentId: 'AssessmentId',
+  ExamID: 'ExamID',
+  nTermSubLevel2: 'nTermSubLevel2',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  ApplicationName: 'ApplicationName'
+};
+
+exports.Prisma.TGradeRegisterPeriodScalarFieldEnum = {
+  nGradeRegisterPeriod: 'nGradeRegisterPeriod',
+  nTerm: 'nTerm',
+  beforeMidtermStart: 'beforeMidtermStart',
+  beforeMidtermEnd: 'beforeMidtermEnd',
+  duringMidtermStart: 'duringMidtermStart',
+  duringMidtermEnd: 'duringMidtermEnd',
+  afterMidtermStart: 'afterMidtermStart',
+  afterMidtermEnd: 'afterMidtermEnd',
+  FinaltermStart: 'FinaltermStart',
+  FinaltermEnd: 'FinaltermEnd',
+  ExtraStart: 'ExtraStart',
+  ExtraEnd: 'ExtraEnd',
+  lastUpdate: 'lastUpdate',
+  updateByEmp: 'updateByEmp',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TGradeShareInfoScalarFieldEnum = {
+  nGradeShareInfoId: 'nGradeShareInfoId',
+  nTerm: 'nTerm',
+  sPlaneID: 'sPlaneID',
+  from_nTSubLevel2: 'from_nTSubLevel2',
+  to_nTSubLevel2: 'to_nTSubLevel2',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TGradeTeacherDescribeScalarFieldEnum = {
+  nGradeTeacherDescribe: 'nGradeTeacherDescribe',
+  Describe: 'Describe',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TGradeViewRoomListSettingScalarFieldEnum = {
+  RoomListSettingId: 'RoomListSettingId',
+  GradeViewSettingId: 'GradeViewSettingId',
+  nTermSubLevel2: 'nTermSubLevel2',
+  ApprovedDate: 'ApprovedDate',
+  ApprovedBy: 'ApprovedBy',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  SchoolID: 'SchoolID',
+  cDel: 'cDel',
+  IsRoomBlocked: 'IsRoomBlocked'
+};
+
+exports.Prisma.TGradeViewSettingScalarFieldEnum = {
+  GradeViewSettingId: 'GradeViewSettingId',
+  nTerm: 'nTerm',
+  IsTermApproved: 'IsTermApproved',
+  IsAllRoomApproved: 'IsAllRoomApproved',
+  SchoolId: 'SchoolId',
+  ApprovedDate: 'ApprovedDate',
+  ApprovedBy: 'ApprovedBy',
+  UpdatedDate: 'UpdatedDate',
+  UpdatedBy: 'UpdatedBy',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel',
+  GradeViewFor100: 'GradeViewFor100',
+  IsMidTermApproved: 'IsMidTermApproved',
+  IsFinalTermApproved: 'IsFinalTermApproved'
+};
+
+exports.Prisma.TGradeViewStudentBlockListSettingScalarFieldEnum = {
+  StudentBlockListSettingId: 'StudentBlockListSettingId',
+  GradeViewSettingId: 'GradeViewSettingId',
+  sID: 'sID',
+  BlockedDate: 'BlockedDate',
+  BlockedBy: 'BlockedBy',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  IsStudentBlocked: 'IsStudentBlocked',
+  SchoolID: 'SchoolID'
+};
+
+exports.Prisma.THealtProfileScalarFieldEnum = {
+  nWeight: 'nWeight',
+  nHeight: 'nHeight',
+  sBlood: 'sBlood',
+  sSickFood: 'sSickFood',
+  sSickDrug: 'sSickDrug',
+  sSickOther: 'sSickOther',
+  sSickNormal: 'sSickNormal',
+  sSickDanger: 'sSickDanger',
+  sID: 'sID',
+  sDeleted: 'sDeleted',
+  Weight1_1: 'Weight1_1',
+  Weight1_2: 'Weight1_2',
+  Weight1_3: 'Weight1_3',
+  Weight1_4: 'Weight1_4',
+  Weight2_1: 'Weight2_1',
+  Weight2_2: 'Weight2_2',
+  Weight2_3: 'Weight2_3',
+  Weight2_4: 'Weight2_4',
+  Weight3_1: 'Weight3_1',
+  Weight3_2: 'Weight3_2',
+  Weight3_3: 'Weight3_3',
+  Weight3_4: 'Weight3_4',
+  Weight4_1: 'Weight4_1',
+  Weight4_2: 'Weight4_2',
+  Weight4_3: 'Weight4_3',
+  Weight4_4: 'Weight4_4',
+  Weight5_1: 'Weight5_1',
+  Weight5_2: 'Weight5_2',
+  Weight5_3: 'Weight5_3',
+  Weight5_4: 'Weight5_4',
+  Weight6_1: 'Weight6_1',
+  Weight6_2: 'Weight6_2',
+  Weight6_3: 'Weight6_3',
+  Weight6_4: 'Weight6_4',
+  Height1_1: 'Height1_1',
+  Height1_2: 'Height1_2',
+  Height1_3: 'Height1_3',
+  Height1_4: 'Height1_4',
+  Height2_1: 'Height2_1',
+  Height2_2: 'Height2_2',
+  Height2_3: 'Height2_3',
+  Height2_4: 'Height2_4',
+  Height3_1: 'Height3_1',
+  Height3_2: 'Height3_2',
+  Height3_3: 'Height3_3',
+  Height3_4: 'Height3_4',
+  Height4_1: 'Height4_1',
+  Height4_2: 'Height4_2',
+  Height4_3: 'Height4_3',
+  Height4_4: 'Height4_4',
+  Height5_1: 'Height5_1',
+  Height5_2: 'Height5_2',
+  Height5_3: 'Height5_3',
+  Height5_4: 'Height5_4',
+  Height6_1: 'Height6_1',
+  Height6_2: 'Height6_2',
+  Height6_3: 'Height6_3',
+  Height6_4: 'Height6_4',
+  nHealthID: 'nHealthID',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.THistoryLogScalarFieldEnum = {
+  ID: 'ID',
+  SchoolID: 'SchoolID',
+  Date: 'Date',
+  MenuID: 'MenuID',
+  FunctionName: 'FunctionName',
+  sID: 'sID',
+  sEmp: 'sEmp',
+  UpdateBy: 'UpdateBy',
+  JsonDetail: 'JsonDetail'
+};
+
+exports.Prisma.THolidayScalarFieldEnum = {
+  nHoliday: 'nHoliday',
+  sEmp: 'sEmp',
+  sHoliday: 'sHoliday',
+  sHolidayEN: 'sHolidayEN',
+  TimeType: 'TimeType',
+  sHolidayType: 'sHolidayType',
+  dHolidayStart: 'dHolidayStart',
+  dHolidayEnd: 'dHolidayEnd',
+  cDel: 'cDel',
+  sHolidayAll: 'sHolidayAll',
+  sWhoSeeThis: 'sWhoSeeThis',
+  sColor: 'sColor',
+  sGroupTarget: 'sGroupTarget',
+  cStatusActive: 'cStatusActive',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.THolidayLogScalarFieldEnum = {
+  LogID: 'LogID',
+  SchoolID: 'SchoolID',
+  Detail: 'Detail',
+  Creator: 'Creator',
+  Created: 'Created',
+  HolidayID: 'HolidayID'
+};
+
+exports.Prisma.THolidaySomeScalarFieldEnum = {
+  nHolidaySomeID: 'nHolidaySomeID',
+  nHoliday: 'nHoliday',
+  nTSubLevel: 'nTSubLevel',
+  nTimeType: 'nTimeType',
+  Deleted: 'Deleted',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.THomeWorkFileScalarFieldEnum = {
+  nHomeWorkId: 'nHomeWorkId',
+  sFileName: 'sFileName',
+  ContentType: 'ContentType',
+  nFileId: 'nFileId',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  Title: 'Title'
+};
+
+exports.Prisma.THomeWorkLearningScalarFieldEnum = {
+  LearnId: 'LearnId',
+  OnlineId: 'OnlineId',
+  sPlaneID: 'sPlaneID',
+  sEmp: 'sEmp',
+  TitleName: 'TitleName',
+  Description: 'Description',
+  LinkYT: 'LinkYT',
+  Created: 'Created',
+  Modified: 'Modified',
+  SchoolId: 'SchoolId',
+  SelectedRoom: 'SelectedRoom',
+  SelectedStudent: 'SelectedStudent',
+  AssignType: 'AssignType',
+  cDel: 'cDel',
+  DisplayDate: 'DisplayDate',
+  DisplayType: 'DisplayType'
+};
+
+exports.Prisma.THomeWorkLearningFileScalarFieldEnum = {
+  AttachId: 'AttachId',
+  LearnId: 'LearnId',
+  sFileName: 'sFileName',
+  ContentType: 'ContentType',
+  Title: 'Title',
+  SchoolId: 'SchoolId',
+  cDel: 'cDel'
+};
+
+exports.Prisma.THomeWorkReplyScalarFieldEnum = {
+  ReplyId: 'ReplyId',
+  HomeWorkId: 'HomeWorkId',
+  UserId: 'UserId',
+  ReplyRefId: 'ReplyRefId',
+  Comment: 'Comment',
+  Created: 'Created',
+  Modified: 'Modified',
+  Type: 'Type',
+  SchoolId: 'SchoolId',
+  sID: 'sID',
+  tID: 'tID'
+};
+
+exports.Prisma.THomeWorkReply_FileScalarFieldEnum = {
+  FileID: 'FileID',
+  HomeWorkID: 'HomeWorkID',
+  ReplyID: 'ReplyID',
+  FileUrl: 'FileUrl',
+  FileTitle: 'FileTitle',
+  ContentType: 'ContentType',
+  SchoolID: 'SchoolID',
+  cDel: 'cDel',
+  CreateDate: 'CreateDate'
+};
+
+exports.Prisma.THomeworkScalarFieldEnum = {
+  nHomeWork: 'nHomeWork',
+  SchoolID: 'SchoolID',
+  OnlineId: 'OnlineId',
+  sPlaneID: 'sPlaneID',
+  dStart: 'dStart',
+  dEnd: 'dEnd',
+  dNotification: 'dNotification',
+  dOrder: 'dOrder',
+  sEmp: 'sEmp',
+  sHomeworkDetail: 'sHomeworkDetail',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  TitleName: 'TitleName',
+  MaxScore: 'MaxScore',
+  AssignType: 'AssignType',
+  LinkYT: 'LinkYT',
+  SelectedRoom: 'SelectedRoom',
+  SelectedStudent: 'SelectedStudent',
+  Created: 'Created',
+  Modified: 'Modified',
+  DisplayDate: 'DisplayDate',
+  DisplayType: 'DisplayType'
+};
+
+exports.Prisma.THomework_UserScalarFieldEnum = {
+  nHomeWork: 'nHomeWork',
+  sID: 'sID',
+  cStatusHomeWork: 'cStatusHomeWork',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  IsRead: 'IsRead',
+  IsSend: 'IsSend',
+  IsLate: 'IsLate',
+  IsManual: 'IsManual',
+  Score: 'Score',
+  AttachFile: 'AttachFile',
+  AttachTitle: 'AttachTitle',
+  AttachFileContentType: 'AttachFileContentType',
+  LinkUrl: 'LinkUrl',
+  Remark: 'Remark'
+};
+
+exports.Prisma.THomework_User_FileScalarFieldEnum = {
+  FileId: 'FileId',
+  nHomeWorkId: 'nHomeWorkId',
+  sID: 'sID',
+  SchoolID: 'SchoolID',
+  FileUrl: 'FileUrl',
+  FileTitle: 'FileTitle',
+  FileContentType: 'FileContentType',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TJobListScalarFieldEnum = {
+  nSchoolId: 'nSchoolId',
+  jobDescription: 'jobDescription',
+  deleted: 'deleted',
+  workStatus: 'workStatus',
+  nJobid: 'nJobid',
+  empType: 'empType',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TLearningCenterScalarFieldEnum = {
+  LearningCenterID: 'LearningCenterID',
+  Type: 'Type',
+  Name: 'Name',
+  Detail: 'Detail',
+  Admin: 'Admin',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TLevelScalarFieldEnum = {
+  LevelID: 'LevelID',
+  LevelName: 'LevelName',
+  nTimeType: 'nTimeType',
+  sortValue: 'sortValue',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  MasterCode: 'MasterCode',
+  LevelNameEng: 'LevelNameEng'
+};
+
+exports.Prisma.TMasterDBUserScalarFieldEnum = {
+  sID: 'sID',
+  nSystemID: 'nSystemID',
+  nCompany: 'nCompany',
+  NFC: 'NFC',
+  cDel: 'cDel',
+  username: 'username',
+  userpassword: 'userpassword',
+  cType: 'cType',
+  nMoney: 'nMoney',
+  sName: 'sName',
+  sLastname: 'sLastname',
+  sIdentification: 'sIdentification',
+  pin: 'pin',
+  sPicture: 'sPicture',
+  PasswordHash: 'PasswordHash',
+  sEmail: 'sEmail',
+  nStudentStatus: 'nStudentStatus',
+  UseEncryptPassword: 'UseEncryptPassword',
+  sStudentID: 'sStudentID'
+};
+
+exports.Prisma.TMasterDataScalarFieldEnum = {
+  MasterID: 'MasterID',
+  MasterCode: 'MasterCode',
+  MasterDes: 'MasterDes',
+  MasterType: 'MasterType',
+  isActive: 'isActive',
+  MasterOrder: 'MasterOrder',
+  MasterDesEn: 'MasterDesEn'
+};
+
+exports.Prisma.TMasterTypeScalarFieldEnum = {
+  MasterTypeID: 'MasterTypeID',
+  MasterTypeNameTH: 'MasterTypeNameTH',
+  MasterTypeNameEN: 'MasterTypeNameEN'
+};
+
+exports.Prisma.TMessageLINEMulticastScalarFieldEnum = {
+  MessageID: 'MessageID',
+  GroupID: 'GroupID',
+  StreamID: 'StreamID',
+  UpdateDate: 'UpdateDate',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TONETScoreScalarFieldEnum = {
+  Year: 'Year',
+  sID: 'sID',
+  Identification: 'Identification',
+  nTSubLevel: 'nTSubLevel',
+  Class: 'Class',
+  SeatNo: 'SeatNo',
+  SubjectScore61: 'SubjectScore61',
+  SubjectScore64: 'SubjectScore64',
+  SubjectScore65: 'SubjectScore65',
+  SubjectScore63: 'SubjectScore63',
+  SubjectScore91: 'SubjectScore91',
+  SubjectScore94: 'SubjectScore94',
+  SubjectScore95: 'SubjectScore95',
+  SubjectScore93: 'SubjectScore93',
+  SubjectScore01: 'SubjectScore01',
+  SubjectScore04: 'SubjectScore04',
+  SubjectScore05: 'SubjectScore05',
+  SubjectScore02: 'SubjectScore02',
+  SubjectScore03: 'SubjectScore03',
+  Result30Percent: 'Result30Percent',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel',
+  ResultPercent: 'ResultPercent',
+  Multiplier: 'Multiplier'
+};
+
+exports.Prisma.TParentScalarFieldEnum = {
+  parent_id: 'parent_id',
+  parent_title: 'parent_title',
+  parent_name: 'parent_name',
+  parent_lastname: 'parent_lastname',
+  tel: 'tel',
+  email: 'email',
+  password_hash: 'password_hash',
+  created_at: 'created_at',
+  created_by: 'created_by',
+  updated_at: 'updated_at',
+  updated_by: 'updated_by',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TParentStudentsScalarFieldEnum = {
+  parent_student_id: 'parent_student_id',
+  parent_id: 'parent_id',
+  SchoolID: 'SchoolID',
+  sID: 'sID',
+  parent_code: 'parent_code',
+  relation: 'relation',
+  relation_other_text: 'relation_other_text',
+  linked_at: 'linked_at',
+  linked_by: 'linked_by',
+  unlinked_at: 'unlinked_at',
+  unlinked_by: 'unlinked_by'
+};
+
+exports.Prisma.TPeriodScalarFieldEnum = {
+  sPeriodID: 'sPeriodID',
+  sScheduleID: 'sScheduleID',
+  sPlaneID: 'sPlaneID',
+  sClassID: 'sClassID',
+  nDay: 'nDay',
+  sPeriodName: 'sPeriodName',
+  dStart: 'dStart',
+  dEnd: 'dEnd',
+  dTimeStart_IN: 'dTimeStart_IN',
+  dTimeStart_OUT: 'dTimeStart_OUT',
+  dTimeEnd_IN: 'dTimeEnd_IN',
+  dTimeEnd_OUT: 'dTimeEnd_OUT',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TPeriod_TSubLevelScalarFieldEnum = {
+  nTSubLevel: 'nTSubLevel',
+  sPeriodID: 'sPeriodID',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TPermissionCardScalarFieldEnum = {
+  ID: 'ID',
+  RefNo: 'RefNo',
+  SchoolID: 'SchoolID',
+  StudentID: 'StudentID',
+  TypeID: 'TypeID',
+  Time: 'Time',
+  IsAttach: 'IsAttach',
+  AttachUrl: 'AttachUrl',
+  StartDate: 'StartDate',
+  EndDate: 'EndDate',
+  Cause: 'Cause',
+  Note: 'Note',
+  Created: 'Created',
+  Modified: 'Modified',
+  Creator: 'Creator',
+  Modifier: 'Modifier',
+  IsDel: 'IsDel'
+};
+
+exports.Prisma.TPermissionCardTypeScalarFieldEnum = {
+  ID: 'ID',
+  SchoolID: 'SchoolID',
+  Permission: 'Permission',
+  Created: 'Created',
+  Modified: 'Modified',
+  Creator: 'Creator',
+  Modifier: 'Modifier',
+  IsDel: 'IsDel'
+};
+
+exports.Prisma.TPlanScalarFieldEnum = {
+  PlanId: 'PlanId',
+  CurriculumId: 'CurriculumId',
+  nTSubLevel: 'nTSubLevel',
+  PlanName: 'PlanName',
+  CreatedDate: 'CreatedDate',
+  CreatedBy: 'CreatedBy',
+  UpdatedDate: 'UpdatedDate',
+  UpdatedBy: 'UpdatedBy',
+  IsActive: 'IsActive',
+  SchoolID: 'SchoolID',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TPlanCourseScalarFieldEnum = {
+  PlanCourseId: 'PlanCourseId',
+  PlanId: 'PlanId',
+  sPlaneID: 'sPlaneID',
+  nCredit: 'nCredit',
+  CourseHour: 'CourseHour',
+  CourseTotalHour: 'CourseTotalHour',
+  CourseStatus: 'CourseStatus',
+  SortNumber: 'SortNumber',
+  CreatedDate: 'CreatedDate',
+  CreatedBy: 'CreatedBy',
+  UpdatedDate: 'UpdatedDate',
+  UpdatedBy: 'UpdatedBy',
+  IsActive: 'IsActive',
+  SchoolID: 'SchoolID',
+  nYear: 'nYear',
+  RB1DisplayOrder: 'RB1DisplayOrder',
+  IsActiveForGrade: 'IsActiveForGrade',
+  cDel: 'cDel',
+  RatioQuiz: 'RatioQuiz',
+  RatioBeforeMidTerm: 'RatioBeforeMidTerm',
+  RatioAfterMidTerm: 'RatioAfterMidTerm',
+  RatioMidTerm: 'RatioMidTerm',
+  RatioLateTerm: 'RatioLateTerm',
+  RatioQuizPass: 'RatioQuizPass',
+  IsUserAllowedToEditRatio: 'IsUserAllowedToEditRatio'
+};
+
+exports.Prisma.TPlanCourseAdjustedTermScalarFieldEnum = {
+  PlanCourseAdjustedTermId: 'PlanCourseAdjustedTermId',
+  PlanCourseId: 'PlanCourseId',
+  nTerm: 'nTerm',
+  IsActive: 'IsActive',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TPlanCourseStudentScalarFieldEnum = {
+  PlanCourseStudentId: 'PlanCourseStudentId',
+  PlanCourseId: 'PlanCourseId',
+  sID: 'sID',
+  cDel: 'cDel',
+  CreatedBy: 'CreatedBy',
+  Updatedby: 'Updatedby',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  SchoolID: 'SchoolID',
+  nTerm: 'nTerm',
+  IsActive: 'IsActive',
+  nTermSubLevel2: 'nTermSubLevel2',
+  nTSubLevel: 'nTSubLevel'
+};
+
+exports.Prisma.TPlanCourseTeacherScalarFieldEnum = {
+  PlanCourseTeacherId: 'PlanCourseTeacherId',
+  PlanCourseId: 'PlanCourseId',
+  sEmp: 'sEmp',
+  IsActive: 'IsActive',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TPlanCourseTermScalarFieldEnum = {
+  PlanCourseTermId: 'PlanCourseTermId',
+  PlanCourseId: 'PlanCourseId',
+  nTerm: 'nTerm',
+  IsActive: 'IsActive',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TPlanOwnerScalarFieldEnum = {
+  nPlanOwnerID: 'nPlanOwnerID',
+  sEMP: 'sEMP',
+  changeScoreAnytime: 'changeScoreAnytime',
+  cDel: 'cDel',
+  sPlaneID: 'sPlaneID',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TPlanTermSubLevel2ScalarFieldEnum = {
+  PlanTermSubLevel2Id: 'PlanTermSubLevel2Id',
+  PlanId: 'PlanId',
+  nTermSubLevel2: 'nTermSubLevel2',
+  CreatedDate: 'CreatedDate',
+  CreatedBy: 'CreatedBy',
+  UpdatedDate: 'UpdatedDate',
+  UpdatedBy: 'UpdatedBy',
+  IsActive: 'IsActive',
+  SchoolID: 'SchoolID',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TPlaneScalarFieldEnum = {
+  sPlaneID: 'sPlaneID',
+  sPlaneName: 'sPlaneName',
+  cDel: 'cDel',
+  nCredit: 'nCredit',
+  courseCode: 'courseCode',
+  courseType: 'courseType',
+  courseHour: 'courseHour',
+  courseTotalHour: 'courseTotalHour',
+  courseGroup: 'courseGroup',
+  nTSubLevel: 'nTSubLevel',
+  nTerm: 'nTerm',
+  courseStatus: 'courseStatus',
+  sortNumber: 'sortNumber',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  CourseCodeEn: 'CourseCodeEn',
+  CourseNameEn: 'CourseNameEn'
+};
+
+exports.Prisma.TPreRegisterScalarFieldEnum = {
+  preRegisterId: 'preRegisterId',
+  StudentTitle: 'StudentTitle',
+  sName: 'sName',
+  sLastname: 'sLastname',
+  sIdentification: 'sIdentification',
+  dBirth: 'dBirth',
+  cSex: 'cSex',
+  sPhone: 'sPhone',
+  sEmail: 'sEmail',
+  sAddress: 'sAddress',
+  sCity: 'sCity',
+  sPostalcode: 'sPostalcode',
+  sCountry: 'sCountry',
+  cType: 'cType',
+  cDel: 'cDel',
+  nTermSubLevel2: 'nTermSubLevel2',
+  sStudentID: 'sStudentID',
+  sStudentNameEN: 'sStudentNameEN',
+  sStudentLastEN: 'sStudentLastEN',
+  sStudentRace: 'sStudentRace',
+  sStudentNation: 'sStudentNation',
+  sStudentReligion: 'sStudentReligion',
+  sStudentIdCardNumber: 'sStudentIdCardNumber',
+  sStudentHomeNumber: 'sStudentHomeNumber',
+  sStudentSoy: 'sStudentSoy',
+  sStudentTumbon: 'sStudentTumbon',
+  sStudentProvince: 'sStudentProvince',
+  sStudentMuu: 'sStudentMuu',
+  sStudentRoad: 'sStudentRoad',
+  sStudentAumpher: 'sStudentAumpher',
+  sStudentPost: 'sStudentPost',
+  sStudentPicture: 'sStudentPicture',
+  sNickName: 'sNickName',
+  nSonNumber: 'nSonNumber',
+  dPicUpdate: 'dPicUpdate',
+  nPicversion: 'nPicversion',
+  nStudentNumber: 'nStudentNumber',
+  nStudentStatus: 'nStudentStatus',
+  oldSchoolName: 'oldSchoolName',
+  oldSchoolProvince: 'oldSchoolProvince',
+  oldSchoolAumpher: 'oldSchoolAumpher',
+  oldSchoolTumbon: 'oldSchoolTumbon',
+  oldSchoolGPA: 'oldSchoolGPA',
+  oldSchoolGraduated: 'oldSchoolGraduated',
+  nFamilyTitle: 'nFamilyTitle',
+  sFamilyName: 'sFamilyName',
+  sFamilyLast: 'sFamilyLast',
+  sFamilyRace: 'sFamilyRace',
+  sFamilyNation: 'sFamilyNation',
+  sFamilyReligion: 'sFamilyReligion',
+  sFamilyIdCardNumber: 'sFamilyIdCardNumber',
+  sFamilyRelate: 'sFamilyRelate',
+  sFamilyHomeNumber: 'sFamilyHomeNumber',
+  sFamilySoy: 'sFamilySoy',
+  sFamilyTumbon: 'sFamilyTumbon',
+  sFamilyProvince: 'sFamilyProvince',
+  sFamilyMuu: 'sFamilyMuu',
+  sFamilyRoad: 'sFamilyRoad',
+  sFamilyAumpher: 'sFamilyAumpher',
+  sFamilyPost: 'sFamilyPost',
+  sPhoneOne: 'sPhoneOne',
+  sPhoneTwo: 'sPhoneTwo',
+  sPhoneThree: 'sPhoneThree',
+  sPhoneMail: 'sPhoneMail',
+  FatherTitle: 'FatherTitle',
+  sFatherFirstName: 'sFatherFirstName',
+  sFatherLastName: 'sFatherLastName',
+  sFatherNation: 'sFatherNation',
+  sFatherRace: 'sFatherRace',
+  sFatherReligion: 'sFatherReligion',
+  sFatherIdCardNumber: 'sFatherIdCardNumber',
+  sFatherHomeNumber: 'sFatherHomeNumber',
+  sFatherSoy: 'sFatherSoy',
+  sFatherTumbon: 'sFatherTumbon',
+  sFatherProvince: 'sFatherProvince',
+  sFatherMuu: 'sFatherMuu',
+  sFatherRoad: 'sFatherRoad',
+  sFatherAumpher: 'sFatherAumpher',
+  sFatherPost: 'sFatherPost',
+  sFatherPhone: 'sFatherPhone',
+  MotherTitle: 'MotherTitle',
+  sMotherFirstName: 'sMotherFirstName',
+  sMotherLastName: 'sMotherLastName',
+  sMotherNation: 'sMotherNation',
+  sMotherRace: 'sMotherRace',
+  sMotherReligion: 'sMotherReligion',
+  sMotherIdCardNumber: 'sMotherIdCardNumber',
+  sMotherHomeNumber: 'sMotherHomeNumber',
+  sMotherSoy: 'sMotherSoy',
+  sMotherTumbon: 'sMotherTumbon',
+  sMotherProvince: 'sMotherProvince',
+  sMotherMuu: 'sMotherMuu',
+  sMotherRoad: 'sMotherRoad',
+  sMotherAumpher: 'sMotherAumpher',
+  sMotherPost: 'sMotherPost',
+  sMotherPhone: 'sMotherPhone',
+  nWeight: 'nWeight',
+  nHeight: 'nHeight',
+  sBlood: 'sBlood',
+  sSickFood: 'sSickFood',
+  sSickDrug: 'sSickDrug',
+  sSickOther: 'sSickOther',
+  sSickNormal: 'sSickNormal',
+  sSickDanger: 'sSickDanger',
+  registerStatus: 'registerStatus',
+  paymentStatus: 'paymentStatus',
+  registerYear: 'registerYear',
+  registerCode: 'registerCode',
+  addressLat: 'addressLat',
+  addressLng: 'addressLng',
+  moveInDate: 'moveInDate',
+  optionCourse: 'optionCourse',
+  optionLevel: 'optionLevel',
+  optionTime: 'optionTime',
+  optionBranch: 'optionBranch',
+  saveAsSID: 'saveAsSID',
+  knowFrom9txt: 'knowFrom9txt',
+  knowFrom9: 'knowFrom9',
+  knowFrom8txt: 'knowFrom8txt',
+  knowFrom8: 'knowFrom8',
+  knowFrom7txt: 'knowFrom7txt',
+  knowFrom7: 'knowFrom7',
+  knowFrom6: 'knowFrom6',
+  knowFrom5txt: 'knowFrom5txt',
+  knowFrom5: 'knowFrom5',
+  knowFrom4: 'knowFrom4',
+  knowFrom3: 'knowFrom3',
+  knowFrom2: 'knowFrom2',
+  knowFrom1: 'knowFrom1',
+  motherIncome: 'motherIncome',
+  fatherIncome: 'fatherIncome',
+  knowFrom10: 'knowFrom10',
+  knowFrom11: 'knowFrom11',
+  addDate: 'addDate',
+  sFamilyNameEN: 'sFamilyNameEN',
+  sFamilyLastEN: 'sFamilyLastEN',
+  dFamilyBirthDay: 'dFamilyBirthDay',
+  nFamilyRequestStudyMoney: 'nFamilyRequestStudyMoney',
+  sFamilyGraduated: 'sFamilyGraduated',
+  sFamilyJob: 'sFamilyJob',
+  sFamilyWorkPlace: 'sFamilyWorkPlace',
+  nFamilyIncome: 'nFamilyIncome',
+  sFatherNameEN: 'sFatherNameEN',
+  sFatherLastEN: 'sFatherLastEN',
+  dFatherBirthDay: 'dFatherBirthDay',
+  sFatherGraduated: 'sFatherGraduated',
+  sFatherJob: 'sFatherJob',
+  sFatherWorkPlace: 'sFatherWorkPlace',
+  sFatherPhone2: 'sFatherPhone2',
+  sFatherPhone3: 'sFatherPhone3',
+  nFatherIncome: 'nFatherIncome',
+  sMotherNameEN: 'sMotherNameEN',
+  sMotherLastEN: 'sMotherLastEN',
+  dMotherBirthDay: 'dMotherBirthDay',
+  sMotherGraduated: 'sMotherGraduated',
+  sMotherJob: 'sMotherJob',
+  sMotherWorkPlace: 'sMotherWorkPlace',
+  sMotherPhone2: 'sMotherPhone2',
+  sMotherPhone3: 'sMotherPhone3',
+  nMotherIncome: 'nMotherIncome',
+  nSonTotal: 'nSonTotal',
+  nRelativeStudyHere: 'nRelativeStudyHere',
+  sNickNameEN: 'sNickNameEN',
+  sStudentHomeRegisterCode: 'sStudentHomeRegisterCode',
+  stayWithTitle: 'stayWithTitle',
+  stayWithName: 'stayWithName',
+  stayWithLast: 'stayWithLast',
+  stayWithEmergencyCall: 'stayWithEmergencyCall',
+  stayWithEmail: 'stayWithEmail',
+  HomeType: 'HomeType',
+  friendSID: 'friendSID',
+  houseRegistrationNumber: 'houseRegistrationNumber',
+  houseRegistrationMuu: 'houseRegistrationMuu',
+  houseRegistrationSoy: 'houseRegistrationSoy',
+  houseRegistrationRoad: 'houseRegistrationRoad',
+  houseRegistrationProvince: 'houseRegistrationProvince',
+  houseRegistrationAumpher: 'houseRegistrationAumpher',
+  houseRegistrationTumbon: 'houseRegistrationTumbon',
+  houseRegistrationPost: 'houseRegistrationPost',
+  houseRegistrationPhone: 'houseRegistrationPhone',
+  bornFrom: 'bornFrom',
+  bornFromProvince: 'bornFromProvince',
+  bornFromAumpher: 'bornFromAumpher',
+  bornFromTumbon: 'bornFromTumbon',
+  moveOutReason: 'moveOutReason',
+  sStudentHousePhone: 'sStudentHousePhone',
+  friendName: 'friendName',
+  friendLastName: 'friendLastName',
+  friendSubLevel: 'friendSubLevel',
+  friendPhone: 'friendPhone',
+  familyStatus: 'familyStatus',
+  sStudentNameOther: 'sStudentNameOther',
+  sStudentLastOther: 'sStudentLastOther',
+  StudentType: 'StudentType',
+  RegisterPlanSetupID: 'RegisterPlanSetupID',
+  ExamCode: 'ExamCode',
+  StudentCategory: 'StudentCategory',
+  FatherAnnualIncome: 'FatherAnnualIncome',
+  FatherEmail: 'FatherEmail',
+  MotherAnnualIncome: 'MotherAnnualIncome',
+  MotherEmail: 'MotherEmail',
+  ParentAnnualIncome: 'ParentAnnualIncome',
+  ParentEmail: 'ParentEmail',
+  ExamResults: 'ExamResults',
+  ExamResultsUpdateBy: 'ExamResultsUpdateBy',
+  ExamResultsUpdateDate: 'ExamResultsUpdateDate',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  ExamSeatNo: 'ExamSeatNo',
+  RegisterExamRoomID: 'RegisterExamRoomID',
+  CompleteDocuments: 'CompleteDocuments',
+  CompleteDocumentsUpdateBy: 'CompleteDocumentsUpdateBy',
+  CompleteDocumentsUpdateDate: 'CompleteDocumentsUpdateDate',
+  CompleteDocumentsInfo: 'CompleteDocumentsInfo',
+  MainPlan: 'MainPlan',
+  BackupPlans: 'BackupPlans'
+};
+
+exports.Prisma.TPreRegisterDocumentScalarFieldEnum = {
+  PreRegisterDocumentID: 'PreRegisterDocumentID',
+  preRegisterId: 'preRegisterId',
+  DocumentID: 'DocumentID',
+  Type: 'Type',
+  VFIID: 'VFIID',
+  FileName: 'FileName',
+  ContentType: 'ContentType',
+  FilePath: 'FilePath',
+  SchoolID: 'SchoolID',
+  UpdateDate: 'UpdateDate'
+};
+
+exports.Prisma.TPreRegisterRequiredCategoryScalarFieldEnum = {
+  CategoryID: 'CategoryID',
+  CategoryName: 'CategoryName',
+  CategoryNameEn: 'CategoryNameEn',
+  Order: 'Order',
+  IsDel: 'IsDel',
+  CreateDate: 'CreateDate'
+};
+
+exports.Prisma.TPreRegisterRequiredFieldScalarFieldEnum = {
+  VFIID: 'VFIID',
+  CategoryID: 'CategoryID',
+  SchoolID: 'SchoolID',
+  Status: 'Status',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy'
+};
+
+exports.Prisma.TPreRegisterRequiredFieldInitiateScalarFieldEnum = {
+  VFIID: 'VFIID',
+  CategoryID: 'CategoryID',
+  No: 'No',
+  IsHead: 'IsHead',
+  FieldName: 'FieldName',
+  FieldNameEn: 'FieldNameEn',
+  InputFieldName: 'InputFieldName',
+  DefaultStatus: 'DefaultStatus',
+  Order: 'Order',
+  IsDel: 'IsDel',
+  CreateDate: 'CreateDate'
+};
+
+exports.Prisma.TPreRegisterSendMailScalarFieldEnum = {
+  SendMailID: 'SendMailID',
+  preRegisterId: 'preRegisterId',
+  SendTo: 'SendTo',
+  SendFrom: 'SendFrom',
+  Title: 'Title',
+  Message: 'Message',
+  SendDate: 'SendDate',
+  SendBy: 'SendBy'
+};
+
+exports.Prisma.TRegisterExamRoomScalarFieldEnum = {
+  RegisterExamRoomID: 'RegisterExamRoomID',
+  nTSubLevel: 'nTSubLevel',
+  RegisterPlanSetupID: 'RegisterPlanSetupID',
+  ExamRoomName: 'ExamRoomName',
+  Seats: 'Seats',
+  SchoolID: 'SchoolID',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  IsDel: 'IsDel'
+};
+
+exports.Prisma.TRegisterExplanationScalarFieldEnum = {
+  RegisterExplanationID: 'RegisterExplanationID',
+  Description: 'Description',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TRegisterPlanSetupScalarFieldEnum = {
+  RegPlanID: 'RegPlanID',
+  RegisterPlanSetupID: 'RegisterPlanSetupID',
+  nTSubLevel: 'nTSubLevel',
+  PlanName: 'PlanName',
+  PlanCode: 'PlanCode',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TRegisterRegularityScalarFieldEnum = {
+  RegisterRegularityID: 'RegisterRegularityID',
+  nTSubLevel: 'nTSubLevel',
+  Filename: 'Filename',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TRegisterSetupScalarFieldEnum = {
+  RegisterSetupID: 'RegisterSetupID',
+  nYear: 'nYear',
+  Year: 'Year',
+  StudentType: 'StudentType',
+  nTSubLevel: 'nTSubLevel',
+  RegisterPlanSetupID: 'RegisterPlanSetupID',
+  StudentMax: 'StudentMax',
+  SubmitDocumentDate: 'SubmitDocumentDate',
+  StartDate: 'StartDate',
+  EndDate: 'EndDate',
+  Fee: 'Fee',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy',
+  ExamAnnounce: 'ExamAnnounce',
+  MeetingDate: 'MeetingDate',
+  MeetingTime: 'MeetingTime',
+  MeetingPlace: 'MeetingPlace',
+  AttachmentsPassExam: 'AttachmentsPassExam',
+  AttachmentsFailExam: 'AttachmentsFailExam',
+  SchoolID: 'SchoolID',
+  PlanID: 'PlanID',
+  PaymentGroupID: 'PaymentGroupID',
+  IsActiveBackupPlan: 'IsActiveBackupPlan',
+  OrderPlans: 'OrderPlans',
+  BackupPlans: 'BackupPlans',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  cDel: 'cDel',
+  AttachmentsSubstitute: 'AttachmentsSubstitute'
+};
+
+exports.Prisma.TRoomScalarFieldEnum = {
+  sRoomID: 'sRoomID',
+  sRoomName: 'sRoomName',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TRoomChangeScalarFieldEnum = {
+  RoomChangeID: 'RoomChangeID',
+  sID: 'sID',
+  Level2Old: 'Level2Old',
+  Level2New: 'Level2New',
+  DayChange: 'DayChange',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TScheduleScalarFieldEnum = {
+  sScheduleID: 'sScheduleID',
+  nPlaneDay: 'nPlaneDay',
+  tStart: 'tStart',
+  tEnd: 'tEnd',
+  dTimeStart_IN: 'dTimeStart_IN',
+  dTimeStart_OUT: 'dTimeStart_OUT',
+  dTimeEnd_IN: 'dTimeEnd_IN',
+  dTimeEnd_OUT: 'dTimeEnd_OUT',
+  nTimeLate: 'nTimeLate',
+  dTimeHalf: 'dTimeHalf',
+  sClassID: 'sClassID',
+  sPlaneID: 'sPlaneID',
+  sEmp: 'sEmp',
+  nTermTable: 'nTermTable',
+  cActive: 'cActive',
+  cDel: 'cDel',
+  calculate: 'calculate',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  CourseAbbreviationId: 'CourseAbbreviationId'
+};
+
+exports.Prisma.TScheduleTeacherScalarFieldEnum = {
+  ScheduleTeacherId: 'ScheduleTeacherId',
+  sScheduleID: 'sScheduleID',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  sEmp: 'sEmp'
+};
+
+exports.Prisma.TSchoolRecordScalarFieldEnum = {
+  nSchoolRecordId: 'nSchoolRecordId',
+  nTerm: 'nTerm',
+  nTsudentId: 'nTsudentId',
+  dAdd: 'dAdd',
+  dUpdate: 'dUpdate',
+  UserAdd: 'UserAdd',
+  UserUpdate: 'UserUpdate',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TSchoolRecord_DetailScalarFieldEnum = {
+  nSchoolRecordId: 'nSchoolRecordId',
+  sPlaneID: 'sPlaneID',
+  Grade: 'Grade',
+  ReGrade: 'ReGrade',
+  Note: 'Note',
+  Score: 'Score',
+  MaxScore: 'MaxScore',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TSendDataPSISScalarFieldEnum = {
+  SchoolID: 'SchoolID',
+  nYear: 'nYear',
+  sID: 'sID',
+  SendDate: 'SendDate',
+  StatusCode: 'StatusCode',
+  ResponseContent: 'ResponseContent',
+  SendDate2: 'SendDate2',
+  StatusCode2: 'StatusCode2',
+  ResponseContent2: 'ResponseContent2'
+};
+
+exports.Prisma.TSendGradePSISScalarFieldEnum = {
+  SchoolID: 'SchoolID',
+  nYear: 'nYear',
+  Year: 'Year',
+  nTerm: 'nTerm',
+  Term: 'Term',
+  sID: 'sID',
+  sPlaneID: 'sPlaneID',
+  CourseCode: 'CourseCode',
+  Grade: 'Grade',
+  SendDate: 'SendDate',
+  StatusCode: 'StatusCode',
+  ResponseContent: 'ResponseContent'
+};
+
+exports.Prisma.TSendSubjectPSISScalarFieldEnum = {
+  SchoolID: 'SchoolID',
+  sPlaneID: 'sPlaneID',
+  SendDate: 'SendDate',
+  StatusCode: 'StatusCode',
+  ResponseContent: 'ResponseContent'
+};
+
+exports.Prisma.TSettingExtraTimeScalarFieldEnum = {
+  nSettingExtraTime: 'nSettingExtraTime',
+  sEMP: 'sEMP',
+  nTermSubLevel2: 'nTermSubLevel2',
+  nTerm: 'nTerm',
+  addDate: 'addDate',
+  sPlaneID: 'sPlaneID',
+  useToken: 'useToken',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TStudentCardInfoScalarFieldEnum = {
+  nStudentCardInfoId: 'nStudentCardInfoId',
+  elementValue: 'elementValue',
+  elementName: 'elementName',
+  date: 'date',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TStudentClassroomHistoryScalarFieldEnum = {
+  nHistoryId: 'nHistoryId',
+  sID: 'sID',
+  nTerm: 'nTerm',
+  nTermSubLevel2: 'nTermSubLevel2',
+  nStudentNumber: 'nStudentNumber',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  nStudentStatus: 'nStudentStatus',
+  MoveInDate: 'MoveInDate',
+  MoveOutDate: 'MoveOutDate',
+  DropOutType: 'DropOutType',
+  IsActive: 'IsActive',
+  Note: 'Note'
+};
+
+exports.Prisma.TStudentHIstoryScalarFieldEnum = {
+  StudentHistory_ID: 'StudentHistory_ID',
+  nTermSubLevel2_OLD: 'nTermSubLevel2_OLD',
+  nTermSubLevel2_NEW: 'nTermSubLevel2_NEW',
+  DayStart: 'DayStart',
+  DayEnd: 'DayEnd',
+  StudentStatus: 'StudentStatus',
+  DayAdd: 'DayAdd',
+  USERADDID: 'USERADDID',
+  nTerm: 'nTerm',
+  sID: 'sID',
+  SchoolID: 'SchoolID',
+  dProfessionalStandard: 'dProfessionalStandard',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  DiplomaCode: 'DiplomaCode',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TStudentHealthGrowthScalarFieldEnum = {
+  nHealthID: 'nHealthID',
+  nTSubLevel: 'nTSubLevel',
+  nMonth: 'nMonth',
+  Weight: 'Weight',
+  Height: 'Height',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TStudentHealthInfoScalarFieldEnum = {
+  StudentHealthID: 'StudentHealthID',
+  nHealthID: 'nHealthID',
+  sID: 'sID',
+  sBlood: 'sBlood',
+  sSickFood: 'sSickFood',
+  sSickDrug: 'sSickDrug',
+  sSickOther: 'sSickOther',
+  sSickNormal: 'sSickNormal',
+  sSickDanger: 'sSickDanger',
+  sDeleted: 'sDeleted',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TStudentLevelScalarFieldEnum = {
+  sID: 'sID',
+  nTermSubLevel2: 'nTermSubLevel2',
+  nYear: 'nYear',
+  nStdLvID: 'nStdLvID',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TStudentTypeScalarFieldEnum = {
+  ID: 'ID',
+  SchoolID: 'SchoolID',
+  StudentTypeTH: 'StudentTypeTH',
+  StudentTypeEN: 'StudentTypeEN',
+  Status: 'Status',
+  IsDel: 'IsDel',
+  CreatedDate: 'CreatedDate',
+  CreatedBy: 'CreatedBy',
+  UpdatedDate: 'UpdatedDate',
+  UpdatedBy: 'UpdatedBy'
+};
+
+exports.Prisma.TSubLevelScalarFieldEnum = {
+  nTSubLevel: 'nTSubLevel',
+  SubLevel: 'SubLevel',
+  nTLevel: 'nTLevel',
+  nTimeType: 'nTimeType',
+  nDeleted: 'nDeleted',
+  fullName: 'fullName',
+  SubLevelEN: 'SubLevelEN',
+  fullNameEN: 'fullNameEN',
+  nWorkingStatus: 'nWorkingStatus',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  isGraduate: 'isGraduate',
+  MasterCode: 'MasterCode',
+  SubLevelNameEN: 'SubLevelNameEN',
+  SubLevelNameTH: 'SubLevelNameTH'
+};
+
+exports.Prisma.TTeacherCardInfoScalarFieldEnum = {
+  TeacherCardInfoId: 'TeacherCardInfoId',
+  elementValue: 'elementValue',
+  elementName: 'elementName',
+  date: 'date',
+  cDel: 'cDel',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TTeacherStudentTypeScalarFieldEnum = {
+  ID: 'ID',
+  StudentTypeID: 'StudentTypeID',
+  SchoolID: 'SchoolID',
+  sEmp: 'sEmp',
+  Status: 'Status',
+  IsDel: 'IsDel',
+  CreateDate: 'CreateDate',
+  CreateBy: 'CreateBy',
+  UpdateDate: 'UpdateDate',
+  UpdateBy: 'UpdateBy'
+};
+
+exports.Prisma.TTempScanCameraIPStatusScalarFieldEnum = {
+  SchoolID: 'SchoolID',
+  IP: 'IP',
+  MAC: 'MAC',
+  MachineName: 'MachineName',
+  CameraNo: 'CameraNo',
+  CameraIP: 'CameraIP',
+  CameraStatus: 'CameraStatus',
+  LastUpdate: 'LastUpdate'
+};
+
+exports.Prisma.TTempScanStatusOnlineScalarFieldEnum = {
+  SchoolID: 'SchoolID',
+  IP: 'IP',
+  MAC: 'MAC',
+  MachineName: 'MachineName',
+  LastOnline: 'LastOnline',
+  CameraNo: 'CameraNo',
+  CameraIP: 'CameraIP',
+  CameraStatus: 'CameraStatus'
+};
+
+exports.Prisma.TTermScalarFieldEnum = {
+  nTerm: 'nTerm',
+  nYear: 'nYear',
+  numberTerm: 'numberTerm',
+  TermStatus: 'TermStatus',
+  cDel: 'cDel',
+  sTerm: 'sTerm',
+  dStart: 'dStart',
+  dEnd: 'dEnd',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TTermSubLevel2ScalarFieldEnum = {
+  nTermSubLevel2: 'nTermSubLevel2',
+  nTerm: 'nTerm',
+  nTSubLevel: 'nTSubLevel',
+  nTSubLevel2: 'nTSubLevel2',
+  nTermSubLevel2Status: 'nTermSubLevel2Status',
+  nTimeType: 'nTimeType',
+  nWorkingStatus: 'nWorkingStatus',
+  nBranchSpecId: 'nBranchSpecId',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TTermTimeTableScalarFieldEnum = {
+  nTermTable: 'nTermTable',
+  nTermSubLevel2: 'nTermSubLevel2',
+  nTeacher: 'nTeacher',
+  nTerm: 'nTerm',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.TTimeScalarFieldEnum = {
+  TimeID: 'TimeID',
+  dTimeStart_IN: 'dTimeStart_IN',
+  dTimeEnd_IN: 'dTimeEnd_IN',
+  dTimeStart_OUT: 'dTimeStart_OUT',
+  dTimeEnd_OUT: 'dTimeEnd_OUT',
+  nDay: 'nDay',
+  cDel: 'cDel',
+  nTimeType: 'nTimeType',
+  nTimeLate: 'nTimeLate',
+  dTimeHalf: 'dTimeHalf',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TTimetypeScalarFieldEnum = {
+  nTimeType: 'nTimeType',
+  sTimeType: 'sTimeType',
+  cDel: 'cDel',
+  cType: 'cType',
+  cUserType: 'cUserType',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TTitleListScalarFieldEnum = {
+  nSchoolId: 'nSchoolId',
+  titleDescription: 'titleDescription',
+  titleDescriptionEn: 'titleDescriptionEn',
+  deleted: 'deleted',
+  workStatus: 'workStatus',
+  nTitleid: 'nTitleid',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel',
+  MasterCode: 'MasterCode',
+  nTitleIdStr: 'nTitleIdStr'
+};
+
+exports.Prisma.TTranscriptNumberScalarFieldEnum = {
+  ID: 'ID',
+  SchoolID: 'SchoolID',
+  nTerm: 'nTerm',
+  nTSubLevel: 'nTSubLevel',
+  nTermSubLevel2: 'nTermSubLevel2',
+  sID: 'sID',
+  TranscriptSetNumber: 'TranscriptSetNumber',
+  TranscriptNumber: 'TranscriptNumber',
+  cDel: 'cDel',
+  CreatedBy: 'CreatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedBy: 'UpdatedBy',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TTypeScalarFieldEnum = {
+  nTypeID: 'nTypeID',
+  sType: 'sType',
+  cDel: 'cDel',
+  shop_id: 'shop_id',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate'
+};
+
+exports.Prisma.TUserScalarFieldEnum = {
+  sID: 'sID',
+  sStudentTitle: 'sStudentTitle',
+  sName: 'sName',
+  sLastname: 'sLastname',
+  sIdentification: 'sIdentification',
+  dBirth: 'dBirth',
+  cSex: 'cSex',
+  sPhone: 'sPhone',
+  sEmail: 'sEmail',
+  sPassword: 'sPassword',
+  sSubtopic: 'sSubtopic',
+  sAddress: 'sAddress',
+  sCity: 'sCity',
+  sPostalcode: 'sPostalcode',
+  sCountry: 'sCountry',
+  dUpdate: 'dUpdate',
+  sFinger: 'sFinger',
+  nMoney: 'nMoney',
+  sFinger2: 'sFinger2',
+  nMax: 'nMax',
+  cType: 'cType',
+  cDel: 'cDel',
+  cSMS: 'cSMS',
+  baseSalary: 'baseSalary',
+  cTelSMS: 'cTelSMS',
+  nTermSubLevel2: 'nTermSubLevel2',
+  sToken: 'sToken',
+  sStudentID: 'sStudentID',
+  sStudentNameEN: 'sStudentNameEN',
+  sStudentLastEN: 'sStudentLastEN',
+  sStudentRace: 'sStudentRace',
+  sStudentNation: 'sStudentNation',
+  sStudentReligion: 'sStudentReligion',
+  sStudentIdCardNumber: 'sStudentIdCardNumber',
+  sStudentHomeNumber: 'sStudentHomeNumber',
+  sStudentSoy: 'sStudentSoy',
+  sStudentTumbon: 'sStudentTumbon',
+  sStudentProvince: 'sStudentProvince',
+  sStudentMuu: 'sStudentMuu',
+  sStudentRoad: 'sStudentRoad',
+  sStudentAumpher: 'sStudentAumpher',
+  sStudentPost: 'sStudentPost',
+  sStudentPicture: 'sStudentPicture',
+  sNickName: 'sNickName',
+  nSonNumber: 'nSonNumber',
+  dPicUpdate: 'dPicUpdate',
+  nPicversion: 'nPicversion',
+  nStudentNumber: 'nStudentNumber',
+  nStudentStatus: 'nStudentStatus',
+  ContactPeak: 'ContactPeak',
+  DayQuit: 'DayQuit',
+  Note: 'Note',
+  oldSchoolName: 'oldSchoolName',
+  oldSchoolProvince: 'oldSchoolProvince',
+  oldSchoolAumpher: 'oldSchoolAumpher',
+  oldSchoolTumbon: 'oldSchoolTumbon',
+  oldSchoolGPA: 'oldSchoolGPA',
+  oldSchoolGraduated: 'oldSchoolGraduated',
+  moveInDate: 'moveInDate',
+  addressLng: 'addressLng',
+  addressLat: 'addressLat',
+  moveOutReason: 'moveOutReason',
+  sNickNameEN: 'sNickNameEN',
+  sStudentHomeRegisterCode: 'sStudentHomeRegisterCode',
+  sStudentHousePhone: 'sStudentHousePhone',
+  sStudentNameOther: 'sStudentNameOther',
+  sStudentLastOther: 'sStudentLastOther',
+  SchoolID: 'SchoolID',
+  Note2: 'Note2',
+  Credit: 'Credit',
+  DiplomaCode: 'DiplomaCode',
+  TranscriptSetNumber: 'TranscriptSetNumber',
+  TranscriptNumber: 'TranscriptNumber',
+  oldSchoolGPA2: 'oldSchoolGPA2',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  DisabilityCode: 'DisabilityCode',
+  DisadvantageCode: 'DisadvantageCode',
+  DailyUsageLimit: 'DailyUsageLimit',
+  JourneyType: 'JourneyType',
+  DormitoryName: 'DormitoryName',
+  OldSchoolDateGraduated: 'OldSchoolDateGraduated',
+  PassportNumber: 'PassportNumber',
+  PassportCountry: 'PassportCountry',
+  PassportExpirationDate: 'PassportExpirationDate',
+  CountryType: 'CountryType',
+  CountryNameTH: 'CountryNameTH',
+  CountryNameEN: 'CountryNameEN',
+  StudentTypeID: 'StudentTypeID',
+  parent_code: 'parent_code',
+  oldSchoolName2: 'oldSchoolName2',
+  oldSchoolGPA3: 'oldSchoolGPA3',
+  Credit2: 'Credit2',
+  OldSchoolDateGraduated2: 'OldSchoolDateGraduated2',
+  oldSchoolGraduated2: 'oldSchoolGraduated2',
+  moveOutReason2: 'moveOutReason2',
+  oldSchoolGPA4: 'oldSchoolGPA4'
+};
+
+exports.Prisma.TUserAttendanceScalarFieldEnum = {
+  AttendanceID: 'AttendanceID',
+  SchoolID: 'SchoolID',
+  sID: 'sID',
+  cType: 'cType',
+  MacAddress: 'MacAddress',
+  ShopID: 'ShopID',
+  NFCEncrypt: 'NFCEncrypt',
+  sName: 'sName',
+  sLastName: 'sLastName',
+  sStudentID: 'sStudentID',
+  sStudentPicture: 'sStudentPicture',
+  AttendanceDate: 'AttendanceDate',
+  TStamp: 'TStamp'
+};
+
+exports.Prisma.TUserVerifyScalarFieldEnum = {
+  VerifyID: 'VerifyID',
+  SchoolID: 'SchoolID',
+  UserID: 'UserID',
+  Type: 'Type',
+  No: 'No',
+  Email: 'Email',
+  PhoneNumber: 'PhoneNumber',
+  RequestNo: 'RequestNo',
+  Token: 'Token',
+  EmailPin: 'EmailPin',
+  Ref: 'Ref',
+  RequestDate: 'RequestDate',
+  RequestResponse: 'RequestResponse',
+  VerifyPin: 'VerifyPin',
+  VerifyDate: 'VerifyDate',
+  VerifyResponse: 'VerifyResponse',
+  Status: 'Status'
+};
+
+exports.Prisma.TUserVerifyLINEConnectScalarFieldEnum = {
+  ConnectID: 'ConnectID',
+  SchoolID: 'SchoolID',
+  UserID: 'UserID',
+  LINEAuthorizeCode: 'LINEAuthorizeCode',
+  LINEToken: 'LINEToken',
+  ConnectDate: 'ConnectDate',
+  Status: 'Status'
+};
+
+exports.Prisma.TYearScalarFieldEnum = {
+  nYear: 'nYear',
+  numberYear: 'numberYear',
+  YearStatus: 'YearStatus',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.T_FSDQ_AnswerScalarFieldEnum = {
+  T_FSDQ_Answer_Id: 'T_FSDQ_Answer_Id',
+  T_FSDQ_Question_Id: 'T_FSDQ_Question_Id',
+  T_FSDQ_Point_Point: 'T_FSDQ_Point_Point',
+  sId: 'sId',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.T_FSDQ_DataScalarFieldEnum = {
+  T_FSDQ_Data_Id: 'T_FSDQ_Data_Id',
+  T_FSDQ_Data_Datetime: 'T_FSDQ_Data_Datetime',
+  sID: 'sID',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.T_FSDQ_PointScalarFieldEnum = {
+  T_FSDQ_Point_Id: 'T_FSDQ_Point_Id',
+  T_FSDQ_Point_Point: 'T_FSDQ_Point_Point',
+  T_FSDQ_Question_Id: 'T_FSDQ_Question_Id',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
+exports.Prisma.T_FSDQ_QuestionScalarFieldEnum = {
+  T_FSDQ_Question_Id: 'T_FSDQ_Question_Id',
+  T_FSDQ_Question_Des: 'T_FSDQ_Question_Des',
+  T_FSDQ_Question_Group: 'T_FSDQ_Question_Group',
+  SchoolID: 'SchoolID',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy',
+  CreatedDate: 'CreatedDate',
+  UpdatedDate: 'UpdatedDate',
+  cDel: 'cDel'
+};
+
 exports.Prisma.TrackingDataScalarFieldEnum = {
   ID: 'ID',
   PID: 'PID',
@@ -1787,6 +3380,43 @@ exports.Prisma.TrackingDataScalarFieldEnum = {
   sPID: 'sPID'
 };
 
+exports.Prisma.UpdateBalanceScalarFieldEnum = {
+  LogID: 'LogID',
+  sID: 'sID',
+  sEmp: 'sEmp',
+  SchoolID: 'SchoolID',
+  nMoney: 'nMoney',
+  Tstamp: 'Tstamp',
+  Source: 'Source'
+};
+
+exports.Prisma.UpdateBalanceLogScalarFieldEnum = {
+  LogID: 'LogID',
+  sID: 'sID',
+  OldBalance: 'OldBalance',
+  NewBalance: 'NewBalance',
+  Source: 'Source',
+  TStatmp: 'TStatmp'
+};
+
+exports.Prisma.UpdateBalanceMemoryScalarFieldEnum = {
+  LogID: 'LogID',
+  sID: 'sID',
+  sEmp: 'sEmp',
+  SchoolID: 'SchoolID',
+  nMoney: 'nMoney',
+  Tstamp: 'Tstamp',
+  Source: 'Source'
+};
+
+exports.Prisma.UserUsedLimitScalarFieldEnum = {
+  ID: 'ID',
+  UserID: 'UserID',
+  UserType: 'UserType',
+  UsedAmount: 'UsedAmount',
+  Tstamp: 'Tstamp'
+};
+
 exports.Prisma.User_Audit_TableScalarFieldEnum = {
   AuditID: 'AuditID',
   TableName: 'TableName',
@@ -1794,51 +3424,6 @@ exports.Prisma.User_Audit_TableScalarFieldEnum = {
   TStamp: 'TStamp',
   OldID: 'OldID',
   NewID: 'NewID'
-};
-
-exports.Prisma.AmphurScalarFieldEnum = {
-  AMPHUR_ID: 'AMPHUR_ID',
-  AMPHUR_CODE: 'AMPHUR_CODE',
-  AMPHUR_NAME: 'AMPHUR_NAME',
-  POSTCODE: 'POSTCODE',
-  GEO_ID: 'GEO_ID',
-  PROVINCE_ID: 'PROVINCE_ID',
-  AMPHUR_NAME_EN: 'AMPHUR_NAME_EN'
-};
-
-exports.Prisma.DistrictScalarFieldEnum = {
-  DISTRICT_ID: 'DISTRICT_ID',
-  DISTRICT_CODE: 'DISTRICT_CODE',
-  DISTRICT_NAME_EN: 'DISTRICT_NAME_EN',
-  DISTRICT_NAME: 'DISTRICT_NAME',
-  AMPHUR_ID: 'AMPHUR_ID',
-  PROVINCE_ID: 'PROVINCE_ID',
-  GEO_ID: 'GEO_ID'
-};
-
-exports.Prisma.FavoritesScalarFieldEnum = {
-  favoritesid: 'favoritesid',
-  tabletid: 'tabletid',
-  productid: 'productid'
-};
-
-exports.Prisma.PermissionScalarFieldEnum = {
-  user_id: 'user_id',
-  menu_id: 'menu_id',
-  type: 'type',
-  actvice: 'actvice',
-  CreatedBy: 'CreatedBy',
-  UpdatedBy: 'UpdatedBy',
-  CreatedDate: 'CreatedDate',
-  UpdatedDate: 'UpdatedDate'
-};
-
-exports.Prisma.ProvinceScalarFieldEnum = {
-  PROVINCE_ID: 'PROVINCE_ID',
-  PROVINCE_CODE: 'PROVINCE_CODE',
-  PROVINCE_NAME: 'PROVINCE_NAME',
-  GEO_ID: 'GEO_ID',
-  PROVINCE_NAME_EN: 'PROVINCE_NAME_EN'
 };
 
 exports.Prisma.SortOrder = {
@@ -1858,126 +3443,166 @@ exports.Prisma.NullsOrder = {
 
 
 exports.Prisma.ModelName = {
+  APIConfiguration: 'APIConfiguration',
   ActiveSchoolList: 'ActiveSchoolList',
-  ApplicationURLData: 'ApplicationURLData',
-  JabjaiUserClaims: 'JabjaiUserClaims',
-  LINERichMenu: 'LINERichMenu',
-  LINEUser: 'LINEUser',
-  LogScanFCTemp: 'LogScanFCTemp',
-  SchoolTEmployees: 'SchoolTEmployees',
-  SchoolTUser: 'SchoolTUser',
-  ShortenUrl: 'ShortenUrl',
-  TAccountJournal: 'TAccountJournal',
-  TAccountRoleGroup: 'TAccountRoleGroup',
-  TAccountRoleUser: 'TAccountRoleUser',
-  TAdmin: 'TAdmin',
-  TAttach: 'TAttach',
-  TAverment: 'TAverment',
-  TB_APILog: 'TB_APILog',
-  TB_AppVersion: 'TB_AppVersion',
-  TB_Application: 'TB_Application',
-  TB_BehaviorJob: 'TB_BehaviorJob',
-  TB_ChangePasswordHistory: 'TB_ChangePasswordHistory',
-  TB_FCM: 'TB_FCM',
-  TB_IPBlockList: 'TB_IPBlockList',
-  TB_JobsQueue: 'TB_JobsQueue',
-  TB_LoginAttempts: 'TB_LoginAttempts',
-  TB_LoginHistory: 'TB_LoginHistory',
-  TB_Logoffline: 'TB_Logoffline',
-  TB_PaymentGateway: 'TB_PaymentGateway',
-  TB_PaymentMethods: 'TB_PaymentMethods',
-  TB_PaymentSetting: 'TB_PaymentSetting',
-  TB_Policy: 'TB_Policy',
-  TB_PolicyApprove: 'TB_PolicyApprove',
-  TB_RecoverUserData: 'TB_RecoverUserData',
-  TB_SchoolAppVersion: 'TB_SchoolAppVersion',
-  TB_SecurityIncidents: 'TB_SecurityIncidents',
-  TB_Server: 'TB_Server',
-  TB_VerifierDevice: 'TB_VerifierDevice',
-  TCompany: 'TCompany',
-  TComputer: 'TComputer',
-  TConnect: 'TConnect',
-  TContact: 'TContact',
-  TContactList: 'TContactList',
-  TContactListAttach: 'TContactListAttach',
-  TContactLog: 'TContactLog',
-  TCrmActivity: 'TCrmActivity',
-  TCrmAssignContact: 'TCrmAssignContact',
-  TCrmAssignSupport: 'TCrmAssignSupport',
-  TCrmBacklog: 'TCrmBacklog',
-  TCrmContact: 'TCrmContact',
-  TCrmFeedback: 'TCrmFeedback',
-  TCrmReminder: 'TCrmReminder',
-  TCrmSubActivity: 'TCrmSubActivity',
-  TCrmSubContact: 'TCrmSubContact',
-  TCrmSupport: 'TCrmSupport',
-  TCrmSupportBacklogAuth: 'TCrmSupportBacklogAuth',
-  TCrmSupportComment: 'TCrmSupportComment',
-  TCrmSurvey: 'TCrmSurvey',
-  TDashboardSummaries: 'TDashboardSummaries',
-  TDelivery: 'TDelivery',
-  TDeliveryAttach: 'TDeliveryAttach',
-  TDiscordGroup: 'TDiscordGroup',
-  TEmailQueue: 'TEmailQueue',
-  TEventLog: 'TEventLog',
-  TExceptionLog: 'TExceptionLog',
-  TExpense: 'TExpense',
-  TExpenseVehicle: 'TExpenseVehicle',
-  TFeature: 'TFeature',
-  TGroupMenu: 'TGroupMenu',
-  TGroupMenu_Lang: 'TGroupMenu_Lang',
-  TGroupPermission: 'TGroupPermission',
-  TGroupPermissionMenu: 'TGroupPermissionMenu',
-  TGroupPermissionUser: 'TGroupPermissionUser',
-  TGroupPermission_Log: 'TGroupPermission_Log',
-  TInvoice: 'TInvoice',
-  TInvoiceDetail: 'TInvoiceDetail',
-  TLineGroup: 'TLineGroup',
-  TLineMessage: 'TLineMessage',
-  TLogDebug: 'TLogDebug',
-  TLogError: 'TLogError',
-  TMenu: 'TMenu',
-  TMenuPermission: 'TMenuPermission',
-  TMenu_Lang: 'TMenu_Lang',
-  TMessage: 'TMessage',
-  TMessageSystem: 'TMessageSystem',
-  TMessageTemplate: 'TMessageTemplate',
-  TMobileMenu: 'TMobileMenu',
-  TNews: 'TNews',
-  TNews2: 'TNews2',
-  TNewsAttachFile: 'TNewsAttachFile',
-  TNewsPushNotify: 'TNewsPushNotify',
-  TNotificationSetting: 'TNotificationSetting',
-  TOfficer: 'TOfficer',
-  TPackage: 'TPackage',
-  TParent_Card: 'TParent_Card',
-  TPeakData: 'TPeakData',
-  TPosDevices: 'TPosDevices',
-  TProduct: 'TProduct',
-  TResetPassword: 'TResetPassword',
-  TSaleArea: 'TSaleArea',
-  TSchoolArea: 'TSchoolArea',
-  TSegmentMenu: 'TSegmentMenu',
-  TSegmentMenu_Lang: 'TSegmentMenu_Lang',
-  TSound_Student: 'TSound_Student',
-  TStudentCall: 'TStudentCall',
-  TStudentCall_Config: 'TStudentCall_Config',
-  TStudentCall_Gate: 'TStudentCall_Gate',
-  TStudentCall_Log: 'TStudentCall_Log',
-  TSubDelivery: 'TSubDelivery',
-  TSubInsurance: 'TSubInsurance',
-  TSystemSetting: 'TSystemSetting',
-  TToken: 'TToken',
-  TTopuphistory: 'TTopuphistory',
+  BBLTransaction: 'BBLTransaction',
+  DeviceDailyStatus: 'DeviceDailyStatus',
+  DeviceType: 'DeviceType',
+  ExcelExportData: 'ExcelExportData',
+  MasterDBTUserCard: 'MasterDBTUserCard',
+  SBLoginHistory: 'SBLoginHistory',
+  TApproveEmployeeContactAddress: 'TApproveEmployeeContactAddress',
+  TApproveEmployeeEducation: 'TApproveEmployeeEducation',
+  TApproveEmployeeFamily: 'TApproveEmployeeFamily',
+  TApproveEmployeeHistoryReceivingRoyalDecoration: 'TApproveEmployeeHistoryReceivingRoyalDecoration',
+  TApproveEmployeeHonor: 'TApproveEmployeeHonor',
+  TApproveEmployeeOccupationalLicense: 'TApproveEmployeeOccupationalLicense',
+  TApproveEmployeePermanentAddress: 'TApproveEmployeePermanentAddress',
+  TApproveEmployeeProfile: 'TApproveEmployeeProfile',
+  TApproveEmployeeTraining: 'TApproveEmployeeTraining',
+  TApproveStudentContactAddress: 'TApproveStudentContactAddress',
+  TApproveStudentFatherInfo: 'TApproveStudentFatherInfo',
+  TApproveStudentMotherInfo: 'TApproveStudentMotherInfo',
+  TApproveStudentParentInfo: 'TApproveStudentParentInfo',
+  TApproveStudentPermanentAddress: 'TApproveStudentPermanentAddress',
+  TApproveStudentProfile: 'TApproveStudentProfile',
+  TB_EQ_Answer: 'TB_EQ_Answer',
+  TB_EQ_Data: 'TB_EQ_Data',
+  TB_EQ_Group: 'TB_EQ_Group',
+  TB_EQ_Point: 'TB_EQ_Point',
+  TB_EQ_Question: 'TB_EQ_Question',
+  TB_HistorySetting: 'TB_HistorySetting',
+  TBackupCard: 'TBackupCard',
+  TBackupCardHistory: 'TBackupCardHistory',
+  TBranch: 'TBranch',
+  TBranchSpec: 'TBranchSpec',
+  TBranchSubject: 'TBranchSubject',
+  TClass: 'TClass',
+  TClassMember: 'TClassMember',
+  TClassOnline: 'TClassOnline',
+  TCourseAbbreviation: 'TCourseAbbreviation',
+  TCourseGroup: 'TCourseGroup',
+  TCourseType: 'TCourseType',
+  TCurriculum: 'TCurriculum',
+  TDepartment: 'TDepartment',
+  TDocumentStampDate: 'TDocumentStampDate',
+  TEmpAddress: 'TEmpAddress',
+  TEmpEducationInfo: 'TEmpEducationInfo',
+  TEmpFamily: 'TEmpFamily',
+  TEmpHonor: 'TEmpHonor',
+  TEmpInsignia: 'TEmpInsignia',
+  TEmpProfessionalLicense: 'TEmpProfessionalLicense',
+  TEmpSalary: 'TEmpSalary',
+  TEmpSigner: 'TEmpSigner',
+  TEmpTOEIC: 'TEmpTOEIC',
+  TEmpTeaching: 'TEmpTeaching',
+  TEmpTraining: 'TEmpTraining',
+  TEmployeeInfo: 'TEmployeeInfo',
+  TEmployeeType: 'TEmployeeType',
+  TEmployees: 'TEmployees',
+  TFamilyProfile: 'TFamilyProfile',
+  TGradeAttendance: 'TGradeAttendance',
+  TGradeCheck: 'TGradeCheck',
+  TGradeLock: 'TGradeLock',
+  TGradeMigration: 'TGradeMigration',
+  TGradeRegisterPeriod: 'TGradeRegisterPeriod',
+  TGradeShareInfo: 'TGradeShareInfo',
+  TGradeTeacherDescribe: 'TGradeTeacherDescribe',
+  TGradeViewRoomListSetting: 'TGradeViewRoomListSetting',
+  TGradeViewSetting: 'TGradeViewSetting',
+  TGradeViewStudentBlockListSetting: 'TGradeViewStudentBlockListSetting',
+  THealtProfile: 'THealtProfile',
+  THistoryLog: 'THistoryLog',
+  THoliday: 'THoliday',
+  THolidayLog: 'THolidayLog',
+  THolidaySome: 'THolidaySome',
+  THomeWorkFile: 'THomeWorkFile',
+  THomeWorkLearning: 'THomeWorkLearning',
+  THomeWorkLearningFile: 'THomeWorkLearningFile',
+  THomeWorkReply: 'THomeWorkReply',
+  THomeWorkReply_File: 'THomeWorkReply_File',
+  THomework: 'THomework',
+  THomework_User: 'THomework_User',
+  THomework_User_File: 'THomework_User_File',
+  TJobList: 'TJobList',
+  TLearningCenter: 'TLearningCenter',
+  TLevel: 'TLevel',
+  TMasterDBUser: 'TMasterDBUser',
+  TMasterData: 'TMasterData',
+  TMasterType: 'TMasterType',
+  TMessageLINEMulticast: 'TMessageLINEMulticast',
+  TONETScore: 'TONETScore',
+  TParent: 'TParent',
+  TParentStudents: 'TParentStudents',
+  TPeriod: 'TPeriod',
+  TPeriod_TSubLevel: 'TPeriod_TSubLevel',
+  TPermissionCard: 'TPermissionCard',
+  TPermissionCardType: 'TPermissionCardType',
+  TPlan: 'TPlan',
+  TPlanCourse: 'TPlanCourse',
+  TPlanCourseAdjustedTerm: 'TPlanCourseAdjustedTerm',
+  TPlanCourseStudent: 'TPlanCourseStudent',
+  TPlanCourseTeacher: 'TPlanCourseTeacher',
+  TPlanCourseTerm: 'TPlanCourseTerm',
+  TPlanOwner: 'TPlanOwner',
+  TPlanTermSubLevel2: 'TPlanTermSubLevel2',
+  TPlane: 'TPlane',
+  TPreRegister: 'TPreRegister',
+  TPreRegisterDocument: 'TPreRegisterDocument',
+  TPreRegisterRequiredCategory: 'TPreRegisterRequiredCategory',
+  TPreRegisterRequiredField: 'TPreRegisterRequiredField',
+  TPreRegisterRequiredFieldInitiate: 'TPreRegisterRequiredFieldInitiate',
+  TPreRegisterSendMail: 'TPreRegisterSendMail',
+  TRegisterExamRoom: 'TRegisterExamRoom',
+  TRegisterExplanation: 'TRegisterExplanation',
+  TRegisterPlanSetup: 'TRegisterPlanSetup',
+  TRegisterRegularity: 'TRegisterRegularity',
+  TRegisterSetup: 'TRegisterSetup',
+  TRoom: 'TRoom',
+  TRoomChange: 'TRoomChange',
+  TSchedule: 'TSchedule',
+  TScheduleTeacher: 'TScheduleTeacher',
+  TSchoolRecord: 'TSchoolRecord',
+  TSchoolRecord_Detail: 'TSchoolRecord_Detail',
+  TSendDataPSIS: 'TSendDataPSIS',
+  TSendGradePSIS: 'TSendGradePSIS',
+  TSendSubjectPSIS: 'TSendSubjectPSIS',
+  TSettingExtraTime: 'TSettingExtraTime',
+  TStudentCardInfo: 'TStudentCardInfo',
+  TStudentClassroomHistory: 'TStudentClassroomHistory',
+  TStudentHIstory: 'TStudentHIstory',
+  TStudentHealthGrowth: 'TStudentHealthGrowth',
+  TStudentHealthInfo: 'TStudentHealthInfo',
+  TStudentLevel: 'TStudentLevel',
+  TStudentType: 'TStudentType',
+  TSubLevel: 'TSubLevel',
+  TTeacherCardInfo: 'TTeacherCardInfo',
+  TTeacherStudentType: 'TTeacherStudentType',
+  TTempScanCameraIPStatus: 'TTempScanCameraIPStatus',
+  TTempScanStatusOnline: 'TTempScanStatusOnline',
+  TTerm: 'TTerm',
+  TTermSubLevel2: 'TTermSubLevel2',
+  TTermTimeTable: 'TTermTimeTable',
+  TTime: 'TTime',
+  TTimetype: 'TTimetype',
+  TTitleList: 'TTitleList',
+  TTranscriptNumber: 'TTranscriptNumber',
+  TType: 'TType',
   TUser: 'TUser',
-  TUser_Card: 'TUser_Card',
+  TUserAttendance: 'TUserAttendance',
+  TUserVerify: 'TUserVerify',
+  TUserVerifyLINEConnect: 'TUserVerifyLINEConnect',
+  TYear: 'TYear',
+  T_FSDQ_Answer: 'T_FSDQ_Answer',
+  T_FSDQ_Data: 'T_FSDQ_Data',
+  T_FSDQ_Point: 'T_FSDQ_Point',
+  T_FSDQ_Question: 'T_FSDQ_Question',
   TrackingData: 'TrackingData',
-  User_Audit_Table: 'User_Audit_Table',
-  amphur: 'amphur',
-  district: 'district',
-  favorites: 'favorites',
-  permission: 'permission',
-  province: 'province'
+  UpdateBalance: 'UpdateBalance',
+  UpdateBalanceLog: 'UpdateBalanceLog',
+  UpdateBalanceMemory: 'UpdateBalanceMemory',
+  UserUsedLimit: 'UserUsedLimit',
+  User_Audit_Table: 'User_Audit_Table'
 };
 
 /**

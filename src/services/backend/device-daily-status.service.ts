@@ -4,10 +4,6 @@ import {
   FindAllDeviceStatusOptions
 } from "@/types/device-daily-status.types";
 
-// ตรวจสอบว่า model DeviceDailyStatus มีอยู่ใน Prisma client หรือไม่
-// (อาจหายไปหลัง migrate DB จาก SQL Server → PostgreSQL)
-const hasDeviceDailyStatus = typeof (PrismaORM as any).deviceDailyStatus !== "undefined";
-
 export const DeviceDailyStatusService = {
   // ค้นหา device status ตาม SchoolID
   async findBySchoolId(
@@ -16,9 +12,8 @@ export const DeviceDailyStatusService = {
       limit?: string;
     } = { limit: "10" }
   ) {
-    if (!hasDeviceDailyStatus) return [];
     const take = opts.limit ?? "10";
-    return await (PrismaORM as any).deviceDailyStatus.findMany({
+    return await PrismaORM.deviceDailyStatus.findMany({
       where: {
         SchoolID: Number(schoolId),
       },
@@ -36,9 +31,8 @@ export const DeviceDailyStatusService = {
       limit?: string;
     } = { limit: "10" }
   ) {
-    if (!hasDeviceDailyStatus) return [];
     const take = opts.limit ?? "10";
-    return await (PrismaORM as any).deviceDailyStatus.findMany({
+    return await PrismaORM.deviceDailyStatus.findMany({
       where: {
         DeviceID: deviceId,
       },
@@ -55,13 +49,12 @@ export const DeviceDailyStatusService = {
     schoolId,
     limit = "25",
   }: RequestDeviceDailyStatusTypes) {
-    if (!hasDeviceDailyStatus) return [];
     if (!deviceId && !schoolId) return [];
     const take = Number(limit);
     const where: any = {};
     if (deviceId) where.DeviceID = deviceId;
     if (schoolId) where.SchoolID = Number(schoolId);
-    return await (PrismaORM as any).deviceDailyStatus.findMany({
+    return await PrismaORM.deviceDailyStatus.findMany({
       where,
       take,
       distinct: ["DeviceID"],
@@ -80,19 +73,6 @@ export const DeviceDailyStatusService = {
       endDate,
       keyword,
     } = options;
-
-    // กรณีที่ table ไม่มีใน DB ปัจจุบัน — คืนค่า empty result แทนการ crash
-    if (!hasDeviceDailyStatus) {
-      return {
-        data: [],
-        meta: {
-          total: 0,
-          page: Number(page),
-          limit: Number(limit),
-          totalPages: 0,
-        },
-      };
-    }
 
     // คำนวณ pagination
     const pageNum = Number(page) > 0 ? Number(page) : 1;
@@ -124,8 +104,8 @@ export const DeviceDailyStatusService = {
 
     // ดึงข้อมูลและนับจำนวนแบบ parallel
     const [total, data] = await Promise.all([
-      (PrismaORM as any).deviceDailyStatus.count({ where }),
-      (PrismaORM as any).deviceDailyStatus.findMany({
+      PrismaORM.deviceDailyStatus.count({ where }),
+      PrismaORM.deviceDailyStatus.findMany({
         where,
         take,
         skip,
