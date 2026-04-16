@@ -115,10 +115,24 @@ The session JWT carries: `id`, `admin_id`, `username`, `employee_code`, `role_id
 ### Databases
 
 Two Prisma instances (singleton pattern, global cached in dev):
-- `src/helpers/prisma.ts` — main SQL Server DB → `generated/prisma/`
-- `src/helpers/prisma-timesheet.ts` — separate timesheet SQL Server DB → `generated/prisma-timesheet/`
 
-Use transactions when writing to multiple tables. Always close or release connections correctly.
+| Helper | DB | Schema | Models |
+|---|---|---|---|
+| `src/helpers/prisma.ts` | SQL Server (main) | `prisma/schema.prisma` | 400+ models — school, canteen, hardware, device, sales |
+| `src/helpers/prisma-timesheet.ts` | PostgreSQL (timesheet) | `prisma/timesheet/schema.prisma` | User, Department, Position, Role, Permission, RolePermission, Project, Feature, ProjectAssignee, ProjectStatus, Group, TimesheetEntry, Overtime, OvertimeDescription, OvertimeStatusLog, ApiLog, CrmSupportAuthentication |
+
+**Import pattern — สำคัญมาก, สองแบบนี้ต่างกัน:**
+```ts
+// Timesheet DB — named export (capital P)
+import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
+await PrismaTimesheet.overtime.findMany({ ... });
+
+// Main DB — default export
+import prisma from "@helpers/prisma";
+await prisma.userList.findMany({ ... });
+```
+
+Use `$transaction` when writing to multiple tables. Never mix models across instances (timesheet models do not exist in main DB and vice versa).
 
 ### Key services
 
