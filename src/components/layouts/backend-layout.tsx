@@ -3,7 +3,8 @@
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import "@ant-design/v5-patch-for-react-19";
 import { Button, Drawer, Flex, Grid, Layout, theme } from "antd";
-import React, { Suspense, useCallback, useEffect, useState } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
 
 import BreadcrumbComponent from "@components/breadcrump/breadcrumb-component";
 import BackendFooter from "@components/layouts/backend/footer";
@@ -30,7 +31,7 @@ export default function BackendLayout({
   children,
 }: {
   children: React.ReactNode;
-}): JSX.Element {
+}): React.JSX.Element {
   const { token } = theme.useToken();
   const { Sider, Content, Header } = Layout;
   const screens = Grid.useBreakpoint();
@@ -38,6 +39,29 @@ export default function BackendLayout({
   const [collapsed, setCollapsed] = useState<boolean>(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isFloating, setIsFloating] = useState(false);
+  const scrollRef = useRef<number>(0);
+
+  // Motion values สำหรับ floating navbar — spring ทำให้ลื่นไหลเหมือนก้อนเมฆ
+  const rawWidth     = useMotionValue(100);   // % ของ container
+  const rawY         = useMotionValue(0);
+  const rawRadius    = useMotionValue(0);
+  const rawBlur      = useMotionValue(12);
+  const rawShadowOpa = useMotionValue(0.03);
+
+  const springCfg = { stiffness: 180, damping: 28, mass: 1 };
+  const width     = useSpring(rawWidth,     springCfg);
+  const y         = useSpring(rawY,         springCfg);
+  const radius    = useSpring(rawRadius,    springCfg);
+  const blur      = useSpring(rawBlur,      springCfg);
+  const shadowOpa = useSpring(rawShadowOpa, springCfg);
+
+  // แปลง blur motion value เป็น css string
+  const backdropFilter = useTransform(blur, (v) => `blur(${v}px) saturate(180%)`);
+  const boxShadow = useTransform(
+    shadowOpa,
+    (v) => `0 8px 40px -8px rgba(0,0,0,${v}), 0 2px 12px -4px rgba(0,0,0,${v * 0.5})`,
+  );
 
   // Initialize sidebar state from localStorage
   useEffect(() => {
@@ -47,6 +71,41 @@ export default function BackendLayout({
       setCollapsed(savedSidebarState === "true");
     }
   }, []);
+
+  // ตรวจ scroll — เมื่อเลื่อนเกิน threshold เปลี่ยนเป็น floating pill
+  useEffect(() => {
+    const THRESHOLD = 80;
+
+    const onScroll = () => {
+      const scrollY = window.scrollY;
+      const wasFloating = scrollRef.current > THRESHOLD;
+      const nowFloating = scrollY > THRESHOLD;
+      scrollRef.current = scrollY;
+
+      if (nowFloating === wasFloating) return;
+
+      setIsFloating(nowFloating);
+
+      if (nowFloating) {
+        // floating — หดเหลือ pill กลางจอ ลอยขึ้นเล็กน้อย
+        rawWidth.set(70);
+        rawY.set(12);
+        rawRadius.set(9999);
+        rawBlur.set(20);
+        rawShadowOpa.set(0.18);
+      } else {
+        // docked — กลับเต็มความกว้าง
+        rawWidth.set(100);
+        rawY.set(0);
+        rawRadius.set(0);
+        rawBlur.set(12);
+        rawShadowOpa.set(0.03);
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [rawBlur, rawRadius, rawShadowOpa, rawWidth, rawY]);
 
   const handleToggleSidebar = useCallback(() => {
     setCollapsed((prev) => {
@@ -207,45 +266,89 @@ export default function BackendLayout({
           minWidth: 0,
         }}
       >
+        {/* Sticky wrapper — จอง space ให้ content ไม่กระโดด */}
         <Header
-          className="modern-glass layout-transition"
           style={{
-            padding: "0 24px",
+            padding: 0,
             height: HEADER_HEIGHT,
             position: "sticky",
             top: 0,
             zIndex: 90,
             width: "100%",
+            background: "transparent",
             display: "flex",
             alignItems: "center",
-            borderBottom: `1px solid ${token.colorBorderSecondary}`,
-            boxShadow: "0 4px 20px -10px rgba(0,0,0,0.03)",
+            justifyContent: "center",
+            border: "none",
+            boxShadow: "none",
           }}
         >
-          <Flex align="center" gap="middle" style={{ width: "100%" }}>
-            {!isDesktop && (
-              <Button
-                type="text"
-                icon={
-                  mobileDrawerOpen ? (
-                    <MenuFoldOutlined />
-                  ) : (
-                    <MenuUnfoldOutlined />
-                  )
-                }
-                onClick={toggleMobileDrawer}
-                style={{
-                  fontSize: 20,
-                  width: 44,
-                  height: 44,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              />
-            )}
-            <MemoMainHeader />
-          </Flex>
+          {/* Floating pill — animate ตาม scroll */}
+          <motion.div
+            style={{
+              y,
+              borderRadius: radius,
+              backdropFilter,
+              WebkitBackdropFilter: backdropFilter,
+              boxShadow,
+              height: HEADER_HEIGHT,
+            }}
+            animate={{
+              width: isFloating ? "min(780px, 72%)" : "100%",
+              y: isFloating ? 12 : 0,
+              borderRadius: isFloating ? 9999 : 0,
+            }}
+            transition={{ type: "spring", stiffness: 180, damping: 28, mass: 1 }}
+            className={[
+              "relative flex items-center overflow-hidden",
+              isFloating
+                ? "px-4 bg-white/70 dark:bg-black/40 border border-white/60 dark:border-white/10"
+                : "px-6 bg-white/50 dark:bg-black/20 border-b border-black/[0.06] dark:border-white/[0.06]",
+            ].join(" ")}
+          >
+            {/* Shimmer ริ้วแสงที่ขอบบน */}
+            <motion.div
+              className="pointer-events-none absolute inset-x-0 top-0 h-px"
+              animate={{
+                opacity: isFloating ? 1 : 0,
+                background: isFloating
+                  ? "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.8) 50%, transparent 100%)"
+                  : "transparent",
+              }}
+              transition={{ duration: 0.4 }}
+            />
+
+            {/* Subtle inner glow เมื่อ floating */}
+            <motion.div
+              className="pointer-events-none absolute inset-0"
+              animate={{
+                background: isFloating
+                  ? "radial-gradient(ellipse at 50% -20%, rgba(255,255,255,0.25) 0%, transparent 70%)"
+                  : "transparent",
+              }}
+              transition={{ duration: 0.5 }}
+            />
+
+            <Flex align="center" gap="middle" style={{ width: "100%", position: "relative" }}>
+              {!isDesktop && (
+                <Button
+                  type="text"
+                  icon={mobileDrawerOpen ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
+                  onClick={toggleMobileDrawer}
+                  style={{
+                    fontSize: 20,
+                    width: 44,
+                    height: 44,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                />
+              )}
+              <MemoMainHeader />
+            </Flex>
+          </motion.div>
         </Header>
 
         <Content

@@ -558,34 +558,56 @@ export default function UserProfileDropdown(): React.JSX.Element {
       <motion.button
         type="button"
         onClick={() => setIsOpen(true)}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.97 }}
-        className="flex items-center gap-4 px-4 py-2 rounded-2xl cursor-pointer border outline-none transition-all duration-200"
-        style={{
-          borderColor: isOpen ? token.colorBorder : token.colorBorderSecondary,
-          background: isOpen ? token.colorBgContainer : token.colorBgElevated,
-          boxShadow: isOpen ? token.boxShadow : token.boxShadowSecondary,
+        whileHover="hover"
+        whileTap={{ scale: 0.96 }}
+        initial="idle"
+        animate={isOpen ? "open" : "idle"}
+        variants={{
+          idle: { scale: 1 },
+          hover: { scale: 1.02 },
+          open: { scale: 1 },
         }}
+        className="relative flex items-center gap-3 px-1 py-1 pr-3 rounded-full cursor-pointer outline-none border-0 bg-transparent group"
       >
+        {/* Glow ring — ปรากฏเมื่อ hover หรือ open */}
+        <motion.span
+          className="pointer-events-none absolute inset-0 rounded-full"
+          style={{ boxShadow: `0 0 0 0px ${cfg.color}55` }}
+          variants={{
+            idle: { opacity: 0, boxShadow: `0 0 0 0px ${cfg.color}44` },
+            hover: { opacity: 1, boxShadow: `0 0 0 3px ${cfg.color}33` },
+            open:  { opacity: 1, boxShadow: `0 0 0 3px ${cfg.color}55` },
+          }}
+          transition={{ duration: 0.22, ease: "easeOut" }}
+        />
+
+        <Avatar userProfile={userProfile} rankLetter={rankLetter} size={42} />
+
         {/* Name + rank badge */}
-        <div className="flex flex-col items-end gap-1">
-          <span className="text-[15px] font-bold leading-none" style={{ color: token.colorText }}>
+        <div className="flex flex-col items-start gap-1">
+          <motion.span
+            className="text-[14px] font-bold leading-none"
+            style={{ color: token.colorText }}
+            variants={{
+              idle:  { opacity: 0.85 },
+              hover: { opacity: 1 },
+              open:  { opacity: 1 },
+            }}
+          >
             {userProfile.firstname} {userProfile.lastname}
-          </span>
+          </motion.span>
           <span
-            className="text-[11px] font-black px-2.5 py-1 rounded-lg leading-none uppercase tracking-wide"
-            style={{ background: cfg.color, color: "#fff" }}
+            className="text-[10px] font-black px-2 py-0.5 rounded-md leading-none uppercase tracking-wide"
+            style={{ background: `${cfg.color}22`, color: cfg.color }}
           >
             {t(cfg.labelKey)}
           </span>
         </div>
 
-        <Avatar userProfile={userProfile} rankLetter={rankLetter} size={48} />
-
         <motion.span
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.25, ease: "easeInOut" }}
-          className="text-[12px] flex-shrink-0"
+          className="text-[11px] flex-shrink-0 ml-1"
           style={{ color: token.colorTextQuaternary }}
         >
           <DownOutlined />
