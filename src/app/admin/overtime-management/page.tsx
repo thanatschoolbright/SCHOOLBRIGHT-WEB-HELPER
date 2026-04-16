@@ -10,12 +10,14 @@ import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 import { useAppSelector } from "@/stores/store";
 import {
   BarChartOutlined,
+  DollarOutlined,
   FileExcelOutlined,
   ReloadOutlined,
   SolutionOutlined,
 } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { Button, Flex, Space } from "antd";
+import dayjs from "dayjs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import AnalyticsModal from "@/app/timesheet/overtime/_components/analytics-modal";
@@ -26,6 +28,9 @@ import AdminOtFilter from "./_components/admin-ot-filter";
 import AdminOtSummary from "./_components/admin-ot-summary";
 import AdminOtTable from "./_components/admin-ot-table";
 import BulkActionBar from "./_components/bulk-action-bar";
+import DepartmentBreakdown from "./_components/department-breakdown";
+import MarkPaidModal from "./_components/mark-paid-modal";
+import OverdueAlert from "./_components/overdue-alert";
 import StatusLogDrawer from "./_components/status-log-drawer";
 import { useAdminOvertimeStore } from "./_state/admin-overtime-store";
 
@@ -70,6 +75,7 @@ export default function AdminOvertimeManagementPage() {
   const [isDetailVisible, setIsDetailVisible] = useState(false);
   const [isAnalyticsVisible, setIsAnalyticsVisible] = useState(false);
   const [isExportVisible, setIsExportVisible] = useState(false);
+  const [isMarkPaidVisible, setIsMarkPaidVisible] = useState(false);
   const [rejectModal, setRejectModal] = useState<{
     open: boolean;
     overtimeId: string | number | null;
@@ -379,6 +385,20 @@ export default function AdminOvertimeManagementPage() {
     [loadOvertimeData],
   );
 
+  // B1 — กรองดูเฉพาะรายการ pending เกินกำหนด (> 3 วัน) ด้วยช่วงวันที่
+  const { setFilterStatus, setFilterDateRange } = useAdminOvertimeStore();
+  const handleFilterOverdue = useCallback(() => {
+    const overdueFrom = dayjs().subtract(365, "day").startOf("day").toISOString();
+    const overdueTo = dayjs().subtract(3, "day").endOf("day").toISOString();
+    setFilterStatus("pending");
+    setFilterDateRange([overdueFrom, overdueTo]);
+    loadOvertimeData({
+      page: 1,
+      status: "pending",
+      dateRange: [overdueFrom, overdueTo],
+    });
+  }, [loadOvertimeData, setFilterStatus, setFilterDateRange]);
+
   // โหลดข้อมูลเมื่อเข้าหน้า
   useEffect(() => {
     loadOvertimeData();
@@ -401,6 +421,13 @@ export default function AdminOvertimeManagementPage() {
             subTitle="อนุมัติ ปฏิเสธ และติดตามคำขอ OT ของพนักงานทุกคน"
             extra={
               <Space>
+                <Button
+                  icon={<DollarOutlined />}
+                  size="large"
+                  onClick={() => setIsMarkPaidVisible(true)}
+                >
+                  ทำเครื่องหมายจ่ายแล้ว
+                </Button>
                 <Button
                   icon={<FileExcelOutlined />}
                   size="large"
@@ -428,6 +455,9 @@ export default function AdminOvertimeManagementPage() {
 
           {/* การ์ดสรุปสถิติ */}
           <AdminOtSummary />
+
+          {/* B1 — Banner แจ้งเตือน OT รออนุมัติเกินกำหนด */}
+          <OverdueAlert onFilterOverdue={handleFilterOverdue} />
 
           {/* ส่วนกรองข้อมูล */}
           <AdminOtFilter
@@ -472,6 +502,9 @@ export default function AdminOvertimeManagementPage() {
             onSelectionChange={setSelectedKeys}
           />
 
+          {/* B3 — Department Breakdown */}
+          <DepartmentBreakdown />
+
           {/* Modal ดูรายละเอียด */}
           <DetailModal
             visible={isDetailVisible}
@@ -499,6 +532,14 @@ export default function AdminOvertimeManagementPage() {
             open={logDrawer.open}
             overtimeId={logDrawer.overtimeId}
             onClose={() => setLogDrawer({ open: false, overtimeId: null })}
+          />
+
+          {/* B2 — Modal Mark as Paid Batch */}
+          <MarkPaidModal
+            open={isMarkPaidVisible}
+            onClose={() => setIsMarkPaidVisible(false)}
+            currentUserId={currentUserId}
+            onSuccess={() => loadOvertimeData({ page: currentPageRef.current })}
           />
 
           {/* A2 — Modal Export Excel */}
