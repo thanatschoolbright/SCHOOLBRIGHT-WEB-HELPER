@@ -10,12 +10,9 @@ import {
   MoreOutlined,
   ProjectOutlined,
   TeamOutlined,
-  UserOutlined,
 } from "@ant-design/icons";
-import { getUserById } from "@helpers/local_storage/user.storage";
 import type { MenuProps } from "antd";
 import {
-  Avatar,
   Badge,
   Button,
   Card,
@@ -37,7 +34,6 @@ import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { Project, ProjectStatus } from "../types/project.types";
-
 
 const { Text } = Typography;
 
@@ -296,68 +292,6 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
               </Flex>
             </Flex>
           </Flex>
-        );
-      },
-    },
-    {
-      title: "ผู้รับผิดชอบ",
-      key: "assignees",
-      width: 180,
-      render: (_, record) => {
-        const assignees = record.projectAssignees || [];
-        if (assignees.length === 0) {
-          return (
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              ยังไม่มีคนรับผิดชอบ
-            </Text>
-          );
-        }
-
-        return (
-          <Avatar.Group
-            max={{
-              count: 4,
-              style: {
-                color: token.colorWhite,
-                backgroundColor: token.colorPrimary,
-                cursor: "pointer",
-              },
-            }}
-            size="middle"
-          >
-            {assignees.map((a, i) => {
-              const u = getUserById(a.userId);
-              return (
-                <Tooltip
-                  key={i}
-                  title={
-                    <div style={{ textAlign: "center" }}>
-                      <Text strong style={{ color: "white" }}>
-                        {u?.firstname} {u?.lastname}
-                      </Text>
-                      <br />
-                      <Text
-                        style={{ color: "rgba(255,255,255,0.8)", fontSize: 11 }}
-                      >
-                        {a.position || "Member"}
-                      </Text>
-                    </div>
-                  }
-                >
-                  <Avatar
-                    src={u?.profile_image}
-                    size="small"
-                    style={{
-                      backgroundColor: token.colorPrimary,
-                      border: `1px solid ${token.colorBgContainer}`,
-                    }}
-                  >
-                    {u?.firstname?.[0] || <UserOutlined />}
-                  </Avatar>
-                </Tooltip>
-              );
-            })}
-          </Avatar.Group>
         );
       },
     },
