@@ -10,6 +10,7 @@ import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 import { useAppSelector } from "@/stores/store";
 import {
   BarChartOutlined,
+  FileExcelOutlined,
   ReloadOutlined,
   SolutionOutlined,
 } from "@ant-design/icons";
@@ -20,9 +21,12 @@ import { toast } from "sonner";
 import AnalyticsModal from "@/app/timesheet/overtime/_components/analytics-modal";
 import DetailModal from "@/app/timesheet/overtime/_components/detail-modal";
 import RejectReasonModal from "@/app/timesheet/overtime/_components/reject-reason-modal";
+import AdminExportModal from "./_components/export-modal";
 import AdminOtFilter from "./_components/admin-ot-filter";
 import AdminOtSummary from "./_components/admin-ot-summary";
 import AdminOtTable from "./_components/admin-ot-table";
+import BulkActionBar from "./_components/bulk-action-bar";
+import StatusLogDrawer from "./_components/status-log-drawer";
 import { useAdminOvertimeStore } from "./_state/admin-overtime-store";
 
 interface PaginationState {
@@ -33,6 +37,7 @@ interface PaginationState {
 
 /**
  * หน้าจัดการ OT สำหรับผู้ดูแลระบบ — แสดงทุกรายการพร้อมสิทธิ์เต็ม
+ * รองรับ: Bulk Approve/Reject/Paid, Export Excel, Audit Trail
  */
 export default function AdminOvertimeManagementPage() {
   const authState = useAppSelector((state) => state.callAdminLogin);
@@ -40,24 +45,37 @@ export default function AdminOvertimeManagementPage() {
     authState?.response?.data?.user_data?.id ?? "",
   );
 
-  const {
-    setDataSource,
-    setIsLoading,
-    setTotalRecords,
-  } = useAdminOvertimeStore();
+  const { setDataSource, setIsLoading, setTotalRecords, dataSource } =
+    useAdminOvertimeStore();
 
+  // --- Pagination ---
   const [pagination, setPagination] = useState<PaginationState>({
     current: 1,
     pageSize: 20,
     total: 0,
   });
+  const currentPageRef = useRef(1);
+
+  // --- Dropdown Options ---
   const [userOptions, setUserOptions] = useState<
     { label: string; value: string }[]
   >([]);
+
+  // --- Row Selection (A1: Bulk Actions) ---
+  const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
+  const [isBulkLoading, setIsBulkLoading] = useState(false);
+
+  // --- Modal / Drawer States ---
   const [selectedDetail, setSelectedDetail] = useState<any>(null);
   const [isDetailVisible, setIsDetailVisible] = useState(false);
   const [isAnalyticsVisible, setIsAnalyticsVisible] = useState(false);
+  const [isExportVisible, setIsExportVisible] = useState(false);
   const [rejectModal, setRejectModal] = useState<{
+    open: boolean;
+    overtimeId: string | number | null;
+    isBulk: boolean;
+  }>({ open: false, overtimeId: null, isBulk: false });
+  const [logDrawer, setLogDrawer] = useState<{
     open: boolean;
     overtimeId: string | number | null;
   }>({ open: false, overtimeId: null });
@@ -69,15 +87,9 @@ export default function AdminOvertimeManagementPage() {
   });
   const [isActionLoading, setIsActionLoading] = useState(false);
 
-  // ref สำหรับเก็บหน้าปัจจุบัน ป้องกัน stale closure ใน useCallback
-  const currentPageRef = useRef(1);
-
-  // สำหรับ AnalyticsModal ที่ต้องการ dataSource จาก store
-  const { dataSource } = useAdminOvertimeStore();
-
-  /**
-   * โหลดรายการผู้ใช้งานสำหรับ dropdown กรอง
-   */
+  // -----------------------------------------------------------------------
+  // โหลดรายการผู้ใช้งานสำหรับ dropdown กรอง
+  // -----------------------------------------------------------------------
   const loadUserOptions = useCallback(async () => {
     try {
       const res = await callApiService.get("/api/v1/timesheet/overtime/users");
@@ -86,18 +98,21 @@ export default function AdminOvertimeManagementPage() {
           const name =
             `${u.firstname_th || u.firstname || ""} ${u.lastname_th || u.lastname || ""}`.trim();
           const code = u.employee_code ? ` (${u.employee_code})` : "";
-          return { label: `${name}${code}` || `User #${u.id}`, value: String(u.id) };
+          return {
+            label: `${name}${code}` || `User #${u.id}`,
+            value: String(u.id),
+          };
         });
         setUserOptions(opts);
       }
     } catch {
-      // ไม่แสดง error เพราะ user options เป็นแค่ตัวช่วย
+      // user options เป็นตัวช่วย — ไม่แสดง error
     }
   }, []);
 
-  /**
-   * โหลดข้อมูล OT ทั้งหมด (admin เห็นทุกคน)
-   */
+  // -----------------------------------------------------------------------
+  // โหลดข้อมูล OT ทั้งหมด (admin เห็นทุกคน)
+  // -----------------------------------------------------------------------
   const loadOvertimeData = useCallback(
     async (params?: {
       page?: number;
@@ -130,14 +145,12 @@ export default function AdminOvertimeManagementPage() {
         );
 
         if (!res?.data || res.data.status !== 200) {
-          throw new Error(
-            res?.data?.message_th || "ไม่สามารถโหลดข้อมูลได้",
-          );
+          throw new Error(res?.data?.message_th || "ไม่สามารถโหลดข้อมูลได้");
         }
 
         let records: any[] = Array.isArray(res.data.data) ? res.data.data : [];
 
-        // client-side text search
+        // client-side text search (API ไม่รองรับค้นหาด้วยชื่อ)
         if (params?.searchText) {
           const q = params.searchText.toLowerCase();
           records = records.filter((r) => {
@@ -180,22 +193,39 @@ export default function AdminOvertimeManagementPage() {
     [pagination.pageSize, setDataSource, setIsLoading, setTotalRecords],
   );
 
-  /**
-   * อนุมัติคำขอ OT ที่เลือก
-   */
+  // -----------------------------------------------------------------------
+  // A1 — เปลี่ยนสถานะรายการเดี่ยว
+  // -----------------------------------------------------------------------
+  const changeStatus = useCallback(
+    async (
+      id: string | number,
+      status: string,
+      note?: string,
+    ): Promise<boolean> => {
+      const res = await callApiService.post(
+        `/api/v1/timesheet/overtime/change-status?id=${id}`,
+        {
+          status,
+          updated_by: Number(currentUserId),
+          ...(note ? { note } : {}),
+        },
+      );
+      return res?.data?.status === 200;
+    },
+    [currentUserId],
+  );
+
+  // อนุมัติคำขอ OT รายการเดียว
   const handleApprove = useCallback(
     async (id: string | number) => {
       setIsActionLoading(true);
       try {
-        const res = await callApiService.post(
-          `/api/v1/timesheet/overtime/change-status?id=${id}`,
-          { status: "approved", updated_by: Number(currentUserId) },
-        );
-        if (res?.data?.status === 200) {
+        const ok = await changeStatus(id, "approved");
+        if (ok) {
           toast.success(`อนุมัติคำขอ OT #${id} เรียบร้อยแล้ว`);
           loadOvertimeData({ page: currentPageRef.current });
         } else {
-          toast.error(res?.data?.message_th || "ไม่สามารถอนุมัติได้");
+          toast.error("ไม่สามารถอนุมัติได้");
         }
       } catch {
         toast.error("เกิดข้อผิดพลาดในการอนุมัติ OT");
@@ -203,45 +233,126 @@ export default function AdminOvertimeManagementPage() {
         setIsActionLoading(false);
       }
     },
-    [currentUserId, loadOvertimeData],
+    [changeStatus, loadOvertimeData],
   );
 
-  /**
-   * ปฏิเสธคำขอ OT พร้อมเหตุผล
-   */
+  // -----------------------------------------------------------------------
+  // A1 — Bulk Actions
+  // -----------------------------------------------------------------------
+
+  // อนุมัติทุกรายการที่เลือก
+  const handleBulkApprove = useCallback(async () => {
+    setIsBulkLoading(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const key of selectedKeys) {
+      try {
+        const ok = await changeStatus(key as string | number, "approved");
+        if (ok) successCount++;
+        else failCount++;
+      } catch {
+        failCount++;
+      }
+    }
+
+    if (successCount > 0)
+      toast.success(`อนุมัติสำเร็จ ${successCount} รายการ`);
+    if (failCount > 0)
+      toast.error(`ไม่สามารถอนุมัติได้ ${failCount} รายการ`);
+
+    setSelectedKeys([]);
+    setIsBulkLoading(false);
+    loadOvertimeData({ page: currentPageRef.current });
+  }, [selectedKeys, changeStatus, loadOvertimeData]);
+
+  // เปิด modal ระบุเหตุผล เพื่อปฏิเสธทุกรายการที่เลือก
+  const handleBulkRejectOpen = useCallback(() => {
+    setRejectModal({ open: true, overtimeId: null, isBulk: true });
+  }, []);
+
+  // เปลี่ยนสถานะเป็น paid ทุกรายการที่เลือก
+  const handleBulkMarkPaid = useCallback(async () => {
+    setIsBulkLoading(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const key of selectedKeys) {
+      try {
+        const ok = await changeStatus(key as string | number, "paid");
+        if (ok) successCount++;
+        else failCount++;
+      } catch {
+        failCount++;
+      }
+    }
+
+    if (successCount > 0)
+      toast.success(`ทำเครื่องหมายจ่ายเงินแล้ว ${successCount} รายการ`);
+    if (failCount > 0)
+      toast.error(`ไม่สามารถดำเนินการได้ ${failCount} รายการ`);
+
+    setSelectedKeys([]);
+    setIsBulkLoading(false);
+    loadOvertimeData({ page: currentPageRef.current });
+  }, [selectedKeys, changeStatus, loadOvertimeData]);
+
+  // -----------------------------------------------------------------------
+  // ปฏิเสธ — รองรับทั้งรายการเดียวและ bulk
+  // -----------------------------------------------------------------------
   const handleRejectConfirm = useCallback(
     async (reason: string) => {
-      const id = rejectModal.overtimeId;
-      if (!id) return;
       setIsActionLoading(true);
       try {
-        const res = await callApiService.post(
-          `/api/v1/timesheet/overtime/change-status?id=${id}`,
-          {
-            status: "rejected",
-            updated_by: Number(currentUserId),
-            note: reason,
-          },
-        );
-        if (res?.data?.status === 200) {
-          toast.success(`ปฏิเสธคำขอ OT #${id} เรียบร้อยแล้ว`);
-          setRejectModal({ open: false, overtimeId: null });
-          loadOvertimeData({ page: currentPageRef.current });
+        if (rejectModal.isBulk) {
+          // bulk reject
+          setIsBulkLoading(true);
+          let successCount = 0;
+          let failCount = 0;
+
+          for (const key of selectedKeys) {
+            try {
+              const ok = await changeStatus(key as string | number, "rejected", reason);
+              if (ok) successCount++;
+              else failCount++;
+            } catch {
+              failCount++;
+            }
+          }
+
+          if (successCount > 0)
+            toast.success(`ปฏิเสธสำเร็จ ${successCount} รายการ`);
+          if (failCount > 0)
+            toast.error(`ไม่สามารถปฏิเสธได้ ${failCount} รายการ`);
+
+          setSelectedKeys([]);
+          setIsBulkLoading(false);
         } else {
-          toast.error(res?.data?.message_th || "ไม่สามารถปฏิเสธได้");
+          // รายการเดียว
+          const id = rejectModal.overtimeId;
+          if (!id) return;
+          const ok = await changeStatus(id, "rejected", reason);
+          if (ok) {
+            toast.success(`ปฏิเสธคำขอ OT #${id} เรียบร้อยแล้ว`);
+          } else {
+            toast.error("ไม่สามารถปฏิเสธได้");
+          }
         }
+
+        setRejectModal({ open: false, overtimeId: null, isBulk: false });
+        loadOvertimeData({ page: currentPageRef.current });
       } catch {
         toast.error("เกิดข้อผิดพลาดในการปฏิเสธ OT");
       } finally {
         setIsActionLoading(false);
       }
     },
-    [rejectModal.overtimeId, currentUserId, loadOvertimeData],
+    [rejectModal, selectedKeys, changeStatus, loadOvertimeData],
   );
 
-  /**
-   * ส่งอีเมลแจ้งเตือน HR
-   */
+  // -----------------------------------------------------------------------
+  // ส่งอีเมลแจ้งเตือน HR
+  // -----------------------------------------------------------------------
   const handleSendMail = useCallback(async (record: any) => {
     try {
       const res = await callApiService.post(
@@ -258,15 +369,12 @@ export default function AdminOvertimeManagementPage() {
     }
   }, []);
 
-  /**
-   * จัดการการเปลี่ยนหน้า/เรียงลำดับจากตาราง
-   */
+  // -----------------------------------------------------------------------
+  // จัดการ pagination / sorting จากตาราง
+  // -----------------------------------------------------------------------
   const handleTableChange = useCallback(
     (pag: any, _filters: any, _sorter: any) => {
-      loadOvertimeData({
-        page: pag.current,
-        pageSize: pag.pageSize,
-      });
+      loadOvertimeData({ page: pag.current, pageSize: pag.pageSize });
     },
     [loadOvertimeData],
   );
@@ -277,15 +385,15 @@ export default function AdminOvertimeManagementPage() {
     loadUserOptions();
   }, [loadOvertimeData, loadUserOptions]);
 
+  // -----------------------------------------------------------------------
+  // Render
+  // -----------------------------------------------------------------------
   return (
     <PermissionLayout
-      permission={[
-        PERMISSIONS.ADMIN_ACCESS,
-        PERMISSIONS.MENU_OT_MANAGEMENT,
-      ]}
+      permission={[PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.MENU_OT_MANAGEMENT]}
     >
       <DashboardLayout>
-        <Flex vertical gap={32} style={{ paddingBottom: 60 }}>
+        <Flex vertical gap={24} style={{ paddingBottom: 60 }}>
           {/* ส่วนหัว */}
           <HeaderBar
             icon={<SolutionOutlined />}
@@ -293,6 +401,13 @@ export default function AdminOvertimeManagementPage() {
             subTitle="อนุมัติ ปฏิเสธ และติดตามคำขอ OT ของพนักงานทุกคน"
             extra={
               <Space>
+                <Button
+                  icon={<FileExcelOutlined />}
+                  size="large"
+                  onClick={() => setIsExportVisible(true)}
+                >
+                  Export Excel
+                </Button>
                 <Button
                   icon={<BarChartOutlined />}
                   size="large"
@@ -329,17 +444,32 @@ export default function AdminOvertimeManagementPage() {
             isLoading={isActionLoading}
           />
 
-          {/* ตารางข้อมูล OT */}
+          {/* A1 — แถบ Bulk Actions (แสดงเมื่อเลือกรายการ) */}
+          <BulkActionBar
+            selectedKeys={selectedKeys}
+            onClearSelection={() => setSelectedKeys([])}
+            onBulkApprove={handleBulkApprove}
+            onBulkReject={handleBulkRejectOpen}
+            onBulkMarkPaid={handleBulkMarkPaid}
+            isLoading={isBulkLoading}
+          />
+
+          {/* ตารางข้อมูล OT พร้อม row selection */}
           <AdminOtTable
             onViewDetail={(record) => {
               setSelectedDetail(record);
               setIsDetailVisible(true);
             }}
             onApprove={handleApprove}
-            onReject={(id) => setRejectModal({ open: true, overtimeId: id })}
+            onReject={(id) =>
+              setRejectModal({ open: true, overtimeId: id, isBulk: false })
+            }
             onSendMail={handleSendMail}
+            onViewLog={(id) => setLogDrawer({ open: true, overtimeId: id })}
             pagination={pagination}
             onTableChange={handleTableChange}
+            selectedKeys={selectedKeys}
+            onSelectionChange={setSelectedKeys}
           />
 
           {/* Modal ดูรายละเอียด */}
@@ -349,16 +479,36 @@ export default function AdminOvertimeManagementPage() {
             selectedDetail={selectedDetail}
           />
 
-          {/* Modal ระบุเหตุผลปฏิเสธ */}
+          {/* Modal ระบุเหตุผลปฏิเสธ (รองรับทั้งรายการเดียวและ bulk) */}
           <RejectReasonModal
             open={rejectModal.open}
-            overtimeId={rejectModal.overtimeId ?? undefined}
-            loading={isActionLoading}
-            onClose={() => setRejectModal({ open: false, overtimeId: null })}
+            overtimeId={
+              rejectModal.isBulk
+                ? undefined
+                : (rejectModal.overtimeId ?? undefined)
+            }
+            loading={isActionLoading || isBulkLoading}
+            onClose={() =>
+              setRejectModal({ open: false, overtimeId: null, isBulk: false })
+            }
             onConfirm={handleRejectConfirm}
           />
 
-          {/* Modal วิเคราะห์สถิติ (ใช้ component เดิม) */}
+          {/* A3 — Drawer ประวัติการเปลี่ยนสถานะ (Audit Trail) */}
+          <StatusLogDrawer
+            open={logDrawer.open}
+            overtimeId={logDrawer.overtimeId}
+            onClose={() => setLogDrawer({ open: false, overtimeId: null })}
+          />
+
+          {/* A2 — Modal Export Excel */}
+          <AdminExportModal
+            open={isExportVisible}
+            onClose={() => setIsExportVisible(false)}
+            userOptions={userOptions}
+          />
+
+          {/* Modal วิเคราะห์สถิติ */}
           <AnalyticsModal
             visible={isAnalyticsVisible}
             setVisible={setIsAnalyticsVisible}
@@ -368,9 +518,7 @@ export default function AdminOvertimeManagementPage() {
           {/* Modal แจ้งเตือนสถานะ */}
           <StatusModalComponent
             {...modalState}
-            onClose={() =>
-              setModalState((prev) => ({ ...prev, open: false }))
-            }
+            onClose={() => setModalState((prev) => ({ ...prev, open: false }))}
           />
         </Flex>
       </DashboardLayout>

@@ -7,6 +7,7 @@ import {
   DollarOutlined,
   EyeOutlined,
   FileTextOutlined,
+  HistoryOutlined,
   MailOutlined,
   UnorderedListOutlined,
   UserOutlined,
@@ -66,20 +67,27 @@ interface AdminOtTableProps {
   onApprove: (id: string | number) => void;
   onReject: (id: string | number) => void;
   onSendMail: (record: any) => void;
+  onViewLog: (id: string | number) => void;
   pagination: { current: number; pageSize: number; total: number };
   onTableChange: (pagination: any, filters: any, sorter: any) => void;
+  selectedKeys: React.Key[];
+  onSelectionChange: (keys: React.Key[]) => void;
 }
 
 /**
- * ตาราง OT ฝั่งผู้ดูแลระบบ — แสดงทุกรายการพร้อมปุ่มอนุมัติ/ปฏิเสธ/ส่งเมล
+ * ตาราง OT ฝั่งผู้ดูแลระบบ — แสดงทุกรายการพร้อมปุ่มอนุมัติ/ปฏิเสธ/ส่งเมล/ประวัติสถานะ
+ * รองรับ row selection สำหรับ bulk actions
  */
 const AdminOtTable: React.FC<AdminOtTableProps> = ({
   onViewDetail,
   onApprove,
   onReject,
   onSendMail,
+  onViewLog,
   pagination,
   onTableChange,
+  selectedKeys,
+  onSelectionChange,
 }) => {
   const { dataSource, isLoading } = useAdminOvertimeStore();
 
@@ -189,7 +197,7 @@ const AdminOtTable: React.FC<AdminOtTableProps> = ({
       {
         title: "การดำเนินการ",
         key: "actions",
-        width: 200,
+        width: 220,
         fixed: "right" as const,
         render: (_: any, record: any) => {
           const isPending = record.status === "pending";
@@ -200,6 +208,14 @@ const AdminOtTable: React.FC<AdminOtTableProps> = ({
                   size="small"
                   icon={<EyeOutlined />}
                   onClick={() => onViewDetail(record)}
+                />
+              </Tooltip>
+
+              <Tooltip title="ประวัติสถานะ">
+                <Button
+                  size="small"
+                  icon={<HistoryOutlined />}
+                  onClick={() => onViewLog(record.id)}
                 />
               </Tooltip>
 
@@ -244,7 +260,7 @@ const AdminOtTable: React.FC<AdminOtTableProps> = ({
         },
       },
     ],
-    [onViewDetail, onApprove, onReject, onSendMail],
+    [onViewDetail, onApprove, onReject, onSendMail, onViewLog],
   );
 
   return (
@@ -256,6 +272,9 @@ const AdminOtTable: React.FC<AdminOtTableProps> = ({
           <Text type="secondary" style={{ fontSize: 12 }}>
             (แสดงทุกพนักงาน)
           </Text>
+          {selectedKeys.length > 0 && (
+            <Tag color="blue">เลือกแล้ว {selectedKeys.length} รายการ</Tag>
+          )}
         </Flex>
 
         <Table
@@ -263,9 +282,14 @@ const AdminOtTable: React.FC<AdminOtTableProps> = ({
           columns={columns}
           loading={isLoading}
           rowKey="id"
-          scroll={{ x: 900 }}
+          scroll={{ x: 950 }}
           size="small"
           onChange={onTableChange}
+          rowSelection={{
+            selectedRowKeys: selectedKeys,
+            onChange: onSelectionChange,
+            preserveSelectedRowKeys: true,
+          }}
           pagination={{
             current: pagination.current,
             pageSize: pagination.pageSize,
