@@ -15,7 +15,7 @@ import {
 } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { Button, Flex, Space } from "antd";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import AnalyticsModal from "@/app/timesheet/overtime/_components/analytics-modal";
 import DetailModal from "@/app/timesheet/overtime/_components/detail-modal";
@@ -68,6 +68,9 @@ export default function AdminOvertimeManagementPage() {
     message: "",
   });
   const [isActionLoading, setIsActionLoading] = useState(false);
+
+  // ref สำหรับเก็บหน้าปัจจุบัน ป้องกัน stale closure ใน useCallback
+  const currentPageRef = useRef(1);
 
   // สำหรับ AnalyticsModal ที่ต้องการ dataSource จาก store
   const { dataSource } = useAdminOvertimeStore();
@@ -154,11 +157,12 @@ export default function AdminOvertimeManagementPage() {
 
         const mapped = records.map((r) => ({ key: r.id, ...r }));
         setDataSource(mapped);
-        const total =
-          res.data.pagination?.total ?? records.length;
+        const total = res.data.pagination?.total ?? records.length;
+        const newPage = res.data.pagination?.page ?? page;
         setTotalRecords(total);
+        currentPageRef.current = newPage;
         setPagination({
-          current: res.data.pagination?.page ?? page,
+          current: newPage,
           pageSize: res.data.pagination?.page_size ?? pageSize,
           total,
         });
@@ -189,7 +193,7 @@ export default function AdminOvertimeManagementPage() {
         );
         if (res?.data?.status === 200) {
           toast.success(`อนุมัติคำขอ OT #${id} เรียบร้อยแล้ว`);
-          loadOvertimeData({ page: pagination.current });
+          loadOvertimeData({ page: currentPageRef.current });
         } else {
           toast.error(res?.data?.message_th || "ไม่สามารถอนุมัติได้");
         }
@@ -199,7 +203,7 @@ export default function AdminOvertimeManagementPage() {
         setIsActionLoading(false);
       }
     },
-    [currentUserId, loadOvertimeData, pagination.current],
+    [currentUserId, loadOvertimeData],
   );
 
   /**
@@ -222,7 +226,7 @@ export default function AdminOvertimeManagementPage() {
         if (res?.data?.status === 200) {
           toast.success(`ปฏิเสธคำขอ OT #${id} เรียบร้อยแล้ว`);
           setRejectModal({ open: false, overtimeId: null });
-          loadOvertimeData({ page: pagination.current });
+          loadOvertimeData({ page: currentPageRef.current });
         } else {
           toast.error(res?.data?.message_th || "ไม่สามารถปฏิเสธได้");
         }
@@ -232,7 +236,7 @@ export default function AdminOvertimeManagementPage() {
         setIsActionLoading(false);
       }
     },
-    [rejectModal.overtimeId, currentUserId, loadOvertimeData, pagination.current],
+    [rejectModal.overtimeId, currentUserId, loadOvertimeData],
   );
 
   /**

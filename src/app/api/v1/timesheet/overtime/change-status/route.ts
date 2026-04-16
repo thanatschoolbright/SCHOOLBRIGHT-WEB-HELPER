@@ -7,7 +7,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { updateOvertimeStatusWithNotification } from "../_service/overtime-service";
 
+// user_id ที่มีสิทธิ์อนุมัติ OT โดยตรง (ผู้รับผิดชอบ OT หลัก)
 const APPROVER_USER_ID = "49";
+// admin_id ของ super admin (bypass สิทธิ์ทุกอย่าง)
+const SUPER_ADMIN_ID = 117;
 
 // Schema for change-status body (accept snake_case updated_by)
 const ChangeStatusSchema = z.object({
@@ -35,7 +38,13 @@ export async function POST(request: NextRequest) {
     }
 
     const sessionUserId = String((session.user as any).id ?? "");
-    if (sessionUserId !== APPROVER_USER_ID) {
+    const sessionAdminId = Number((session.user as any).admin_id ?? 0);
+
+    // อนุญาตให้: (1) user_id === APPROVER_USER_ID หรือ (2) super admin (admin_id === 117)
+    const isApprover = sessionUserId === APPROVER_USER_ID;
+    const isSuperAdmin = sessionAdminId === SUPER_ADMIN_ID;
+
+    if (!isApprover && !isSuperAdmin) {
       return NextResponse.json(
         errorResponse({
           message_en: "Forbidden: you do not have permission to change OT status",
@@ -89,7 +98,9 @@ export async function POST(request: NextRequest) {
         select: { status: true },
       });
       fromStatus = current?.status ?? null;
-    } catch (_) {}
+    } catch {
+      // ไม่มีผลต่อการทำงานหากดึงสถานะเดิมไม่สำเร็จ
+    }
 
     const updated = await updateOvertimeStatusWithNotification(
       id,
