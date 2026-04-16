@@ -45,6 +45,7 @@ import {
   UnlockOutlined,
   UserOutlined,
   WifiOutlined,
+  SolutionOutlined,
 } from "@ant-design/icons";
 import { useSession } from "next-auth/react";
 import { useCallback, useMemo } from "react";
@@ -146,6 +147,16 @@ export const useSidebarMenu = (): SidebarItem[] => {
                 href: "/admin/department-management",
                 icon: <ClusterOutlined />,
                 permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.ROLE_MANAGE],
+              },
+              {
+                label: t("admin_system.children.ot_management"),
+                href: "/admin/overtime-management",
+                icon: <SolutionOutlined />,
+                news: true,
+                permission: [
+                  PERMISSIONS.ADMIN_ACCESS,
+                  PERMISSIONS.MENU_OT_MANAGEMENT,
+                ],
               },
             ],
           },

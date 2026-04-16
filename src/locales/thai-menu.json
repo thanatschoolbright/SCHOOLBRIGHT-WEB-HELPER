@@ -14,7 +14,8 @@
       "role_management": "จัดการบทบาทและสิทธิ์ (RBAC)",
       "position_management": "ตำแหน่ง",
       "department_management": "แผนก",
-      "system_log": "ประวัติระบบ"
+      "system_log": "ประวัติระบบ",
+      "ot_management": "จัดการ OT (แอดมิน)"
     }
   },
   "testing": {

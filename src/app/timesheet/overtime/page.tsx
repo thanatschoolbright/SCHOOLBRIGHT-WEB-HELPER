@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next";
 
 import {
   BellOutlined,
+  CalculatorOutlined,
   CalendarOutlined,
   ClockCircleOutlined,
   FileTextOutlined,
@@ -38,6 +39,7 @@ import CreateModal from "./_components/create-modal";
 import DetailModal from "./_components/detail-modal";
 import ExportModal from "./_components/export-modal";
 import FilterSection from "./_components/filter-section";
+import PayCalculatorModal from "./_components/pay-calculator-modal";
 import PersonalOtSummary from "./_components/personal-ot-summary";
 import RejectReasonModal from "./_components/reject-reason-modal";
 import RemindModal from "./_components/remind-modal";
@@ -166,6 +168,7 @@ const OvertimeManagementPage = () => {
     open: boolean;
     overtimeId: string | number | null;
   }>({ open: false, overtimeId: null });
+  const [isPayCalculatorVisible, setIsPayCalculatorVisible] = useState(false);
 
   // --- สถานะการส่งคำขอ OT (Submission Tracking) ---
   const [isSubmissionLoading, setIsSubmissionLoading] = useState(false);
@@ -1496,6 +1499,13 @@ const OvertimeManagementPage = () => {
           extra={
             <Space size="middle">
               <Button
+                icon={<CalculatorOutlined />}
+                size="large"
+                onClick={() => setIsPayCalculatorVisible(true)}
+              >
+                คำนวณเงินที่ได้รับ
+              </Button>
+              <Button
                 icon={<FileTextOutlined />}
                 size="large"
                 onClick={() => setIsRulesModalVisible(true)}
@@ -1537,10 +1547,10 @@ const OvertimeManagementPage = () => {
         <SummarySection />
 
         {/* สรุป OT ส่วนตัว — แสดงเฉพาะ user ทั่วไป ซ่อนเมื่อเป็น admin */}
-        {currentUserIdForPersonal && (
+        {!isCurrentUserAdmin && (
           <PersonalOtSummary
             userId={currentUserIdForPersonal}
-            isAdmin={isCurrentUserAdmin}
+            isAdmin={false}
             fetchFn={fetchPersonalOtData}
           />
         )}
@@ -1694,6 +1704,12 @@ const OvertimeManagementPage = () => {
           setIsExportOperationSuccess={setIsExportOperationSuccess}
           exportSelectedDateRange={exportSelectedDateRange}
           setExportSelectedDateRange={setExportSelectedDateRange}
+        />
+
+        {/* Modal คำนวณเงินค่าล่วงเวลา (ไม่บันทึกข้อมูล) */}
+        <PayCalculatorModal
+          open={isPayCalculatorVisible}
+          onClose={() => setIsPayCalculatorVisible(false)}
         />
 
         {/* Modal แจ้งเตือนสถานะการทำงาน (Success/Error) */}

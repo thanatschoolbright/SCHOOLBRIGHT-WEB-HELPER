@@ -14,7 +14,8 @@
       "role_management": "Role & Permission Management",
       "position_management": "Position Management",
       "department_management": "Department Management",
-      "system_log": "System Logs"
+      "system_log": "System Logs",
+      "ot_management": "OT Management (Admin)"
     }
   },
   "testing": {
