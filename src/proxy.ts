@@ -1,7 +1,7 @@
-import NextAuth from "next-auth";
-import { authConfig } from "./auth.config";
+import { auth } from "./auth";
 
-export default NextAuth(authConfig).auth;
+export { auth as proxy };
+export default auth;
 
 export const config = {
   // ปรับปรุง Matcher เพื่อข้ามไฟล์ static ทั้งหมด ป้องกัน Middleware ทำงานซ้ำซ้อน
