@@ -4,6 +4,11 @@ export interface RequestDeviceDailyStatusTypes {
   limit?: string;
 }
 
+export interface RequestGetUserBySchoolId {
+  school_id?: string | number;
+  user_id?: string | number;
+}
+
 // เพิ่ม Type สำหรับการค้นหาแบบละเอียด
 export interface FindAllDeviceStatusOptions {
   page?: string | number;       // หน้าปัจจุบัน (default: 1)

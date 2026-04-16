@@ -306,26 +306,23 @@ export default function BackendLayout({
                 : "px-6 bg-white/50 dark:bg-black/20 border-b border-black/[0.06] dark:border-white/[0.06]",
             ].join(" ")}
           >
-            {/* Shimmer ริ้วแสงที่ขอบบน */}
+            {/* Shimmer ริ้วแสงที่ขอบบน — animate opacity เท่านั้น background เป็น static */}
             <motion.div
               className="pointer-events-none absolute inset-x-0 top-0 h-px"
-              animate={{
-                opacity: isFloating ? 1 : 0,
-                background: isFloating
-                  ? "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.8) 50%, transparent 100%)"
-                  : "transparent",
+              style={{
+                background: "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%)",
               }}
+              animate={{ opacity: isFloating ? 1 : 0 }}
               transition={{ duration: 0.4 }}
             />
 
-            {/* Subtle inner glow เมื่อ floating */}
+            {/* Subtle inner glow เมื่อ floating — animate opacity เท่านั้น background เป็น static */}
             <motion.div
               className="pointer-events-none absolute inset-0"
-              animate={{
-                background: isFloating
-                  ? "radial-gradient(ellipse at 50% -20%, rgba(255,255,255,0.25) 0%, transparent 70%)"
-                  : "transparent",
+              style={{
+                background: "radial-gradient(ellipse at 50% -20%, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 70%)",
               }}
+              animate={{ opacity: isFloating ? 1 : 0 }}
               transition={{ duration: 0.5 }}
             />
 

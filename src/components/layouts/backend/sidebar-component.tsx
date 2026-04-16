@@ -477,7 +477,7 @@ function SectionItem({
         whileTap={{ scale: 0.98 }}
         className="relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer border-0 outline-none overflow-hidden"
         animate={{
-          background: isActive ? `${token.colorPrimary}10` : "transparent",
+          background: isActive ? `${token.colorPrimary}10` : "rgba(0,0,0,0)",
         }}
         transition={{ duration: 0.25 }}
         style={{
@@ -597,7 +597,7 @@ function CollapsedRail({
               <motion.span
                 className="absolute inset-0 rounded-xl"
                 animate={{
-                  background: isActive ? `${token.colorPrimary}15` : "transparent",
+                  background: isActive ? `${token.colorPrimary}15` : "rgba(0,0,0,0)",
                   border: isActive
                     ? `1px solid ${token.colorPrimary}35`
                     : "1px solid transparent",
