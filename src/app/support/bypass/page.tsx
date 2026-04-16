@@ -12,10 +12,10 @@ import {
   LoginOutlined,
   SearchOutlined,
   StarFilled,
-  TableOutlined,
   TeamOutlined,
   ThunderboltOutlined,
   TrophyOutlined,
+  UnorderedListOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
@@ -28,7 +28,6 @@ import {
   Divider,
   Flex,
   Input,
-  message,
   Row,
   Select,
   Table,
@@ -41,6 +40,7 @@ import type { ColumnsType } from "antd/es/table";
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import BypassSelectionModal from "./components/bypass-selection-modal.component";
 import { useBypassPageData } from "./hooks/bypass.data";
 import type { SchoolDetail } from "./types/bypass.types";
@@ -61,7 +61,7 @@ const SaleRankingModal = dynamic(
   },
 );
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const generateAvatarBackgroundColor = (
   institutionName: string,
@@ -142,7 +142,7 @@ export default function BypassPage(): JSX.Element {
             bordered={false}
             style={{
               margin: 0,
-              fontWeight: "bold",
+              fontWeight: 600,
               fontSize: 14,
               padding: "4px 12px",
             }}
@@ -411,7 +411,7 @@ export default function BypassPage(): JSX.Element {
               onClick={() => {
                 const text = `[${record.school_id}] ${record.company_name ?? ""} · ${record.province ?? ""}`.trim();
                 void navigator.clipboard.writeText(text).then(() => {
-                  void message.success(translate("bypass_page.copy_success"));
+                  toast.success(translate("bypass_page.copy_success"));
                 });
               }}
             />
@@ -431,7 +431,7 @@ export default function BypassPage(): JSX.Element {
             onClick={() => {
               setBypassSelectionModalState({ open: true, school: record });
             }}
-            style={{ borderRadius: 8, fontWeight: 600 }}
+            style={{ fontWeight: 600 }}
           >
             {translate("bypass_page.btn_login")}
           </Button>
@@ -489,18 +489,16 @@ export default function BypassPage(): JSX.Element {
           </Col>
         </Row>
 
-        <Card variant="borderless" styles={{ body: { padding: 24 } }}>
-          <Flex vertical gap={24}>
+        <Card styles={{ body: { padding: 16 } }}>
+          <Flex vertical gap={16}>
             <Flex align="center" gap={8}>
-              <FilterOutlined
-                style={{ color: token.colorPrimary, fontSize: 18 }}
-              />
-              <Title level={5} style={{ margin: 0 }}>
+              <FilterOutlined style={{ fontSize: "1rem" }} />
+              <Text strong style={{ fontSize: 14 }}>
                 {translate("bypass_page.filter_title")}
-              </Title>
+              </Text>
             </Flex>
 
-            <Row gutter={[24, 16]}>
+            <Row gutter={[16, 12]}>
               {/* Dropdown ค้นหาโรงเรียน — full width */}
               <Col xs={24}>
                 <Flex vertical gap={8}>
@@ -669,8 +667,7 @@ export default function BypassPage(): JSX.Element {
                 type="primary"
                 size="large"
                 icon={<SearchOutlined />}
-                style={{ padding: "0 32px" }}
-              >
+                >
                 {translate("bypass_page.btn_search")}
               </Button>
             </Flex>
@@ -685,12 +682,10 @@ export default function BypassPage(): JSX.Element {
           <Flex vertical gap={16}>
             <Flex justify="space-between" align="center">
               <Flex align="center" gap={12}>
-                <TableOutlined
-                  style={{ color: token.colorPrimary, fontSize: 18 }}
-                />
-                <Title level={5} style={{ margin: 0 }}>
+                <UnorderedListOutlined style={{ fontSize: "1rem" }} />
+                <Text strong style={{ fontSize: 14, margin: 0 }}>
                   {translate("bypass_page.table_title")}
-                </Title>
+                </Text>
                 <Badge
                   count={bypassState.filteredSchools.length}
                   overflowCount={9999}
@@ -728,16 +723,6 @@ export default function BypassPage(): JSX.Element {
               dataSource={bypassState.filteredSchools}
               loading={bypassState.loading}
               rowKey={(schoolRecord) => String(schoolRecord.school_id)}
-              rowClassName={(record) => {
-                if (!record.active_date) return "";
-                const daysSince = Math.floor(
-                  (Date.now() - new Date(record.active_date).getTime()) /
-                    (1000 * 60 * 60 * 24),
-                );
-                return !Number.isNaN(daysSince) && daysSince <= 30
-                  ? "new-school-row"
-                  : "";
-              }}
               pagination={{
                 pageSize: bypassState.pageSize,
                 showSizeChanger: true,
@@ -749,14 +734,6 @@ export default function BypassPage(): JSX.Element {
               scroll={{ x: 2000 }}
               onChange={bypassHandlers.handleTableChange}
             />
-            <style>{`
-              .new-school-row td {
-                background-color: ${token.colorSuccessBg} !important;
-              }
-              .new-school-row:hover td {
-                background-color: ${token.colorSuccessBgHover} !important;
-              }
-            `}</style>
           </Flex>
         </Card>
 
