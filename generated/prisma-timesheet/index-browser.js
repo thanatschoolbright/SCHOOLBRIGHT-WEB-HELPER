@@ -160,6 +160,7 @@ exports.Prisma.UserScalarFieldEnum = {
   backlog_email: 'backlog_email',
   phone: 'phone',
   profile_image_path: 'profile_image_path',
+  signature_path: 'signature_path',
   joined_date: 'joined_date',
   resigned_date: 'resigned_date',
   employment_type: 'employment_type',

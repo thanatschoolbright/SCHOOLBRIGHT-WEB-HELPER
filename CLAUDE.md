@@ -17,9 +17,22 @@ bun start
 bun lint          # ESLint
 ```
 
-No test suite is configured. Type-checking is implicit via TypeScript strict mode (`noImplicitAny`, `strictNullChecks`, `noImplicitReturns`, `noUnusedLocals`).
+No test suite is configured. Type-checking is implicit via TypeScript strict mode (`noImplicitAny`, `strictNullChecks`, `noImplicitReturns`, `noUnusedLocals`). Note: `typescript.ignoreBuildErrors: true` — TS errors surface during dev, not at build time.
 
-**Path aliases** (defined in `tsconfig.json`):
+## Slash Commands
+
+Project-specific scaffolding commands in `.claude/commands/`:
+
+| Command | Purpose |
+|---|---|
+| `/new-feature` | Scaffold a full feature page (frontend + backend) |
+| `/new-api` | Create a single API endpoint with service, schema, and spec doc |
+| `/export-feature` | Add Excel/PDF export to an existing table |
+| `/db-query` | Generate a typed Prisma query with Thai comments |
+| `/review-feature` | Audit a feature against project standards |
+| `/commit` | Create a git commit in the project's Thai-language format |
+
+## Path Aliases (defined in `tsconfig.json`)
 
 | Alias | Resolves to |
 |---|---|
@@ -55,11 +68,13 @@ This is a **Next.js 16 (App Router) back-office admin tool** for SchoolBright, c
 
 ### API route conventions
 
-All internal API routes live under `src/app/api/v1/`. The pattern is:
+API routes are versioned under `src/app/api/`:
 
-```
-/api/v1/{domain}/{resource}/{action}
-```
+- **`v1/`** — primary internal routes (timesheet, backlog, hardware, mobile, health-check, admin, support, etc.)
+- **`v2/`** — newer routes (admin user-management, hardware device status, server)
+- **`v3/`** — authentication
+
+URL pattern: `/api/{version}/{domain}/{resource}/{action}`
 
 Within each feature, files are organized by operation:
 
@@ -68,12 +83,10 @@ Within each feature, files are organized by operation:
 {feature}/read/route.ts                # GET handler
 {feature}/service/{feature}-service.ts # Business logic & Prisma queries
 {feature}/validation/{feature}-schema.ts # Zod schema
-{feature}/docs/{operation}-spec.md     # API documentation (required for create/update)
+{feature}/docs/{operation}-spec.md     # Required for create/update routes
 ```
 
 All files and folders use **kebab-case**. API payload fields (request/response) use **snake_case**. Variables and functions use **camelCase**.
-
-Routes proxy to the external SchoolBright backend via `src/services/api-gateway.tsx`, which handles token injection and 401-triggered refresh. Response helpers live in `src/helpers/api/response.ts` (`successResponse`, `errorResponse`). Input validation uses Zod via `src/helpers/api/validate.request.ts`.
 
 **Authentication in API routes**: Use `await auth()` from `@/auth` to verify session. Check `session.user` for `id`, `admin_id`, `role_id`, `role_name`, and `permissions[]`.
 
@@ -82,16 +95,43 @@ Routes proxy to the external SchoolBright backend via `src/services/api-gateway.
 { "status_code": 200, "message_th": "...", "message_en": "...", "data": {} }
 ```
 
+Response helpers: `successResponse` / `errorResponse` from `src/helpers/api/response.ts`.
+
+### API helper utilities (`src/helpers/controller/`)
+
+Use these in route handlers instead of writing custom logic:
+
+| File | Function | Purpose |
+|---|---|---|
+| `handle-error.params.ts` | `handleError(err, context?)` | Catches unknown errors → returns `NextResponse` with correct status code + Thai message |
+| `build-pagination.params.ts` | `buildPagination(offset, limit, total)` | Returns `{ page, page_size, total, total_pages }` |
+| `validate.params.ts` | `validateParams(schema, body)` | Zod parse + throws `{ status: 400, validationErrors }` on failure |
+| `safe-parse.params.ts` | `safeParseRequestBody(request)` | `request.json()` with empty-object fallback |
+| `format-date.params.ts` | `formatDate(date)` | Any date → ISO string or `null` |
+
+Input validation uses Zod via `src/helpers/api/validate.request.ts`.
+
 ### State management
 
 Two patterns coexist:
 
 1. **Redux Toolkit** (`src/stores/`) — for global cross-feature state (auth, school list, server status, notifications). Slice + `createAsyncThunk` pattern. The store is configured in `src/stores/store.ts` with 25+ reducers.
-2. **Zustand** — for local feature-scoped state. Store files live alongside the feature, typically in `_state/use-*-store.ts`.
+2. **Zustand** — for local feature-scoped state. Store files live alongside the feature in `_state/use-*-store.ts`.
 
 ### Page component pattern
 
-Pages prefer RSC (React Server Components) — push data fetching and logic server-side. Only extract `"use client"` components for interactive elements (forms, modals, buttons). Client components that do exist pull from Redux via `useAppSelector`, use local `useState`/`useCallback` for UI state, and call internal `/api/v1/...` endpoints via `callApiService` from `src/services/api-gateway.tsx`. Sub-components in `_components/` receive handlers as props.
+Pages prefer RSC (React Server Components) — push data fetching and logic server-side. Only extract `"use client"` components for interactive elements (forms, modals, buttons). Client components pull from Redux via `useAppSelector`, use local `useState`/`useCallback` for UI state, and call internal API endpoints via `callApiService` from `src/services/api-gateway.tsx`. Sub-components in `_components/` receive handlers as props.
+
+Feature frontend layout:
+```
+src/app/{domain}/{feature}/
+├── page.tsx                   # Orchestrator (RSC or client)
+├── _components/               # Feature-scoped components
+├── _state/
+│   └── use-{feature}-store.ts # Zustand store
+└── _api/
+    └── {feature}-service.ts   # callApiService wrapper
+```
 
 ### UI standards
 
@@ -103,8 +143,8 @@ Pages prefer RSC (React Server Components) — push data fetching and logic serv
 - **Filter sections**: 2 columns per row (`Col`/`Row`), "ค้นหา" and "ล้างการค้นหา" buttons right-aligned with icons.
 - **Tables**: Wrap content in `<Card styles={{ body: { padding: 16 } }}>`. Use `<UnorderedListOutlined />` (1rem) for table headings. Add sort to all sortable columns. Never use `maxWidth` on columns.
 - **Font weight**: Maximum 600.
-- **Language**: All UI text must be 100% Thai — no mixing Thai and English words in labels, buttons, or toast messages (e.g., "เตรียมส่งออกข้อมูล" not "เตรียมส่งออกข้อมูล (Excel)").
-- **No emojis**: Strictly forbidden in code, comments, strings, and UI.
+- **Language**: All UI text must be 100% Thai — no mixing Thai and English words in labels, buttons, or toast messages.
+- **No emojis**: Strictly forbidden in code, comments, strings, and UI. Exception: commit messages use `✨` prefix only.
 
 ### Authentication
 
@@ -138,25 +178,13 @@ Use `$transaction` when writing to multiple tables. Never mix models across inst
 
 | File | Purpose |
 |---|---|
-| `src/services/api-gateway.tsx` | Main API proxy, handles auth headers + token refresh |
+| `src/services/api-gateway.tsx` | Main API proxy — use `callApiService` for client→internal API calls; handles auth headers + token refresh |
 | `src/services/api-url.tsx` | Centralized endpoint URL constants |
 | `src/services/canteen-api.ts` | Hardware canteen device API |
 | `src/helpers/logger.server.ts` | Winston server-side logging |
 | `src/helpers/api-log.helper.ts` | Request/response logging middleware |
 
-The gateway reads `school_id`, `user_id`, and `token` from the Redux store and injects a custom header (`JabjaiKey-{school_id}-{user_id}`). On 401, it auto-refreshes the token and retries the original request.
-
-### API helper utilities (`src/helpers/controller/`)
-
-Use these in route handlers instead of writing custom logic:
-
-| File | Function | Purpose |
-|---|---|---|
-| `handle-error.params.ts` | `handleError(err, context?)` | Catches unknown errors → returns `NextResponse` with correct status code + Thai message |
-| `build-pagination.params.ts` | `buildPagination(offset, limit, total)` | Returns `{ page, page_size, total, total_pages }` |
-| `validate.params.ts` | `validateParams(schema, body)` | Zod parse + throws `{ status: 400, validationErrors }` on failure |
-| `safe-parse.params.ts` | `safeParseRequestBody(request)` | `request.json()` with empty-object fallback |
-| `format-date.params.ts` | `formatDate(date)` | Any date → ISO string or `null` |
+The gateway reads `school_id`, `user_id`, and `token` from the Redux store and injects a custom header (`JabjaiKey-{school_id}-{user_id}`). On 401, it auto-refreshes the token and retries the original request. Use Axios for all HTTP calls — not `fetch`.
 
 ### Permission system
 
@@ -186,9 +214,15 @@ i18next + next-intl with Thai as primary language. Locale files in `src/locales/
 
 - Console logs are stripped in production builds (except `error`/`warn`), configured in `next.config.mjs`.
 - File uploads go to Huawei OBS (`esdk-obs-nodejs`); image remote pattern is configured in `next.config.mjs`.
-- `next.config.mjs` sets `typescript.ignoreBuildErrors: true` — TypeScript errors surface during development, not at build time.
 - The `BYPASS_USER_ID = "49"` constant in the timesheet/overtime page identifies the sole user with OT approval rights. This check **must** be enforced both on the frontend and at the API layer (`src/app/api/v1/timesheet/overtime/change-status/route.ts`) using `await auth()`.
 - Never delete or overwrite existing functions — only extend or add alongside them.
-- Use Axios for all HTTP calls (not `fetch`).
 - Write a Thai-language comment above every function describing its purpose (no emojis in comments).
 - Every Create/Update API route requires a `docs/{operation}-spec.md` documenting purpose, request/response schema, and key business logic notes.
+
+### Commit message format
+
+```
+✨ ระบบ {SystemName} : {Thai description} ({รายการไฟล์ที่แก้ไข})
+```
+
+File list categories: `หน้าที่แก้ไข` for `src/app/` pages, `API ที่แก้ไข` for `src/app/api/`, `ไฟล์ที่แก้ไข` for services/helpers/stores. If more than 3 items per category, summarize as `และไฟล์ที่เกี่ยวข้อง`. Use `/commit` to generate this automatically.

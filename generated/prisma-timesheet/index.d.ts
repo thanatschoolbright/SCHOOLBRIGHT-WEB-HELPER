@@ -5031,6 +5031,7 @@ export namespace Prisma {
     backlog_email: string | null
     phone: string | null
     profile_image_path: string | null
+    signature_path: string | null
     joined_date: Date | null
     resigned_date: Date | null
     employment_type: string | null
@@ -5066,6 +5067,7 @@ export namespace Prisma {
     backlog_email: string | null
     phone: string | null
     profile_image_path: string | null
+    signature_path: string | null
     joined_date: Date | null
     resigned_date: Date | null
     employment_type: string | null
@@ -5101,6 +5103,7 @@ export namespace Prisma {
     backlog_email: number
     phone: number
     profile_image_path: number
+    signature_path: number
     joined_date: number
     resigned_date: number
     employment_type: number
@@ -5160,6 +5163,7 @@ export namespace Prisma {
     backlog_email?: true
     phone?: true
     profile_image_path?: true
+    signature_path?: true
     joined_date?: true
     resigned_date?: true
     employment_type?: true
@@ -5195,6 +5199,7 @@ export namespace Prisma {
     backlog_email?: true
     phone?: true
     profile_image_path?: true
+    signature_path?: true
     joined_date?: true
     resigned_date?: true
     employment_type?: true
@@ -5230,6 +5235,7 @@ export namespace Prisma {
     backlog_email?: true
     phone?: true
     profile_image_path?: true
+    signature_path?: true
     joined_date?: true
     resigned_date?: true
     employment_type?: true
@@ -5352,6 +5358,7 @@ export namespace Prisma {
     backlog_email: string | null
     phone: string | null
     profile_image_path: string | null
+    signature_path: string | null
     joined_date: Date | null
     resigned_date: Date | null
     employment_type: string | null
@@ -5406,6 +5413,7 @@ export namespace Prisma {
     backlog_email?: boolean
     phone?: boolean
     profile_image_path?: boolean
+    signature_path?: boolean
     joined_date?: boolean
     resigned_date?: boolean
     employment_type?: boolean
@@ -5448,6 +5456,7 @@ export namespace Prisma {
     backlog_email?: boolean
     phone?: boolean
     profile_image_path?: boolean
+    signature_path?: boolean
     joined_date?: boolean
     resigned_date?: boolean
     employment_type?: boolean
@@ -5486,6 +5495,7 @@ export namespace Prisma {
     backlog_email?: boolean
     phone?: boolean
     profile_image_path?: boolean
+    signature_path?: boolean
     joined_date?: boolean
     resigned_date?: boolean
     employment_type?: boolean
@@ -5524,6 +5534,7 @@ export namespace Prisma {
     backlog_email?: boolean
     phone?: boolean
     profile_image_path?: boolean
+    signature_path?: boolean
     joined_date?: boolean
     resigned_date?: boolean
     employment_type?: boolean
@@ -5541,7 +5552,7 @@ export namespace Prisma {
     gender?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "username" | "password" | "admin_id" | "employee_code" | "firstname_th" | "lastname_th" | "firstname_en" | "lastname_en" | "nickname" | "position_id" | "department_id" | "status" | "email" | "backlog_email" | "phone" | "profile_image_path" | "joined_date" | "resigned_date" | "employment_type" | "last_login" | "failed_login_attempts" | "refresh_token" | "role_id" | "is_deleted" | "created_at" | "created_by" | "updated_at" | "updated_by" | "deleted_at" | "birth_date" | "gender", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "username" | "password" | "admin_id" | "employee_code" | "firstname_th" | "lastname_th" | "firstname_en" | "lastname_en" | "nickname" | "position_id" | "department_id" | "status" | "email" | "backlog_email" | "phone" | "profile_image_path" | "signature_path" | "joined_date" | "resigned_date" | "employment_type" | "last_login" | "failed_login_attempts" | "refresh_token" | "role_id" | "is_deleted" | "created_at" | "created_by" | "updated_at" | "updated_by" | "deleted_at" | "birth_date" | "gender", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     overtime_created?: boolean | User$overtime_createdArgs<ExtArgs>
     overtime_requests?: boolean | User$overtime_requestsArgs<ExtArgs>
@@ -5590,6 +5601,7 @@ export namespace Prisma {
       backlog_email: string | null
       phone: string | null
       profile_image_path: string | null
+      signature_path: string | null
       joined_date: Date | null
       resigned_date: Date | null
       employment_type: string | null
@@ -6051,6 +6063,7 @@ export namespace Prisma {
     readonly backlog_email: FieldRef<"User", 'String'>
     readonly phone: FieldRef<"User", 'String'>
     readonly profile_image_path: FieldRef<"User", 'String'>
+    readonly signature_path: FieldRef<"User", 'String'>
     readonly joined_date: FieldRef<"User", 'DateTime'>
     readonly resigned_date: FieldRef<"User", 'DateTime'>
     readonly employment_type: FieldRef<"User", 'String'>
@@ -23206,6 +23219,7 @@ export namespace Prisma {
     backlog_email: 'backlog_email',
     phone: 'phone',
     profile_image_path: 'profile_image_path',
+    signature_path: 'signature_path',
     joined_date: 'joined_date',
     resigned_date: 'resigned_date',
     employment_type: 'employment_type',
@@ -23772,6 +23786,7 @@ export namespace Prisma {
     backlog_email?: StringNullableFilter<"User"> | string | null
     phone?: StringNullableFilter<"User"> | string | null
     profile_image_path?: StringNullableFilter<"User"> | string | null
+    signature_path?: StringNullableFilter<"User"> | string | null
     joined_date?: DateTimeNullableFilter<"User"> | Date | string | null
     resigned_date?: DateTimeNullableFilter<"User"> | Date | string | null
     employment_type?: StringNullableFilter<"User"> | string | null
@@ -23813,6 +23828,7 @@ export namespace Prisma {
     backlog_email?: SortOrderInput | SortOrder
     phone?: SortOrderInput | SortOrder
     profile_image_path?: SortOrderInput | SortOrder
+    signature_path?: SortOrderInput | SortOrder
     joined_date?: SortOrderInput | SortOrder
     resigned_date?: SortOrderInput | SortOrder
     employment_type?: SortOrderInput | SortOrder
@@ -23857,6 +23873,7 @@ export namespace Prisma {
     backlog_email?: StringNullableFilter<"User"> | string | null
     phone?: StringNullableFilter<"User"> | string | null
     profile_image_path?: StringNullableFilter<"User"> | string | null
+    signature_path?: StringNullableFilter<"User"> | string | null
     joined_date?: DateTimeNullableFilter<"User"> | Date | string | null
     resigned_date?: DateTimeNullableFilter<"User"> | Date | string | null
     employment_type?: StringNullableFilter<"User"> | string | null
@@ -23898,6 +23915,7 @@ export namespace Prisma {
     backlog_email?: SortOrderInput | SortOrder
     phone?: SortOrderInput | SortOrder
     profile_image_path?: SortOrderInput | SortOrder
+    signature_path?: SortOrderInput | SortOrder
     joined_date?: SortOrderInput | SortOrder
     resigned_date?: SortOrderInput | SortOrder
     employment_type?: SortOrderInput | SortOrder
@@ -23941,6 +23959,7 @@ export namespace Prisma {
     backlog_email?: StringNullableWithAggregatesFilter<"User"> | string | null
     phone?: StringNullableWithAggregatesFilter<"User"> | string | null
     profile_image_path?: StringNullableWithAggregatesFilter<"User"> | string | null
+    signature_path?: StringNullableWithAggregatesFilter<"User"> | string | null
     joined_date?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     resigned_date?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     employment_type?: StringNullableWithAggregatesFilter<"User"> | string | null
@@ -25277,6 +25296,7 @@ export namespace Prisma {
     backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
+    signature_path?: string | null
     joined_date?: Date | string | null
     resigned_date?: Date | string | null
     employment_type?: string | null
@@ -25317,6 +25337,7 @@ export namespace Prisma {
     backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
+    signature_path?: string | null
     joined_date?: Date | string | null
     resigned_date?: Date | string | null
     employment_type?: string | null
@@ -25352,6 +25373,7 @@ export namespace Prisma {
     backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    signature_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employment_type?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25392,6 +25414,7 @@ export namespace Prisma {
     backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    signature_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employment_type?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25430,6 +25453,7 @@ export namespace Prisma {
     backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
+    signature_path?: string | null
     joined_date?: Date | string | null
     resigned_date?: Date | string | null
     employment_type?: string | null
@@ -25462,6 +25486,7 @@ export namespace Prisma {
     backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    signature_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employment_type?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25496,6 +25521,7 @@ export namespace Prisma {
     backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    signature_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employment_type?: NullableStringFieldUpdateOperationsInput | string | null
@@ -27057,6 +27083,7 @@ export namespace Prisma {
     backlog_email?: SortOrder
     phone?: SortOrder
     profile_image_path?: SortOrder
+    signature_path?: SortOrder
     joined_date?: SortOrder
     resigned_date?: SortOrder
     employment_type?: SortOrder
@@ -27103,6 +27130,7 @@ export namespace Prisma {
     backlog_email?: SortOrder
     phone?: SortOrder
     profile_image_path?: SortOrder
+    signature_path?: SortOrder
     joined_date?: SortOrder
     resigned_date?: SortOrder
     employment_type?: SortOrder
@@ -27138,6 +27166,7 @@ export namespace Prisma {
     backlog_email?: SortOrder
     phone?: SortOrder
     profile_image_path?: SortOrder
+    signature_path?: SortOrder
     joined_date?: SortOrder
     resigned_date?: SortOrder
     employment_type?: SortOrder
@@ -29507,6 +29536,7 @@ export namespace Prisma {
     backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
+    signature_path?: string | null
     joined_date?: Date | string | null
     resigned_date?: Date | string | null
     employment_type?: string | null
@@ -29545,6 +29575,7 @@ export namespace Prisma {
     backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
+    signature_path?: string | null
     joined_date?: Date | string | null
     resigned_date?: Date | string | null
     employment_type?: string | null
@@ -29612,6 +29643,7 @@ export namespace Prisma {
     backlog_email?: StringNullableFilter<"User"> | string | null
     phone?: StringNullableFilter<"User"> | string | null
     profile_image_path?: StringNullableFilter<"User"> | string | null
+    signature_path?: StringNullableFilter<"User"> | string | null
     joined_date?: DateTimeNullableFilter<"User"> | Date | string | null
     resigned_date?: DateTimeNullableFilter<"User"> | Date | string | null
     employment_type?: StringNullableFilter<"User"> | string | null
@@ -29644,6 +29676,7 @@ export namespace Prisma {
     backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
+    signature_path?: string | null
     joined_date?: Date | string | null
     resigned_date?: Date | string | null
     employment_type?: string | null
@@ -29682,6 +29715,7 @@ export namespace Prisma {
     backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
+    signature_path?: string | null
     joined_date?: Date | string | null
     resigned_date?: Date | string | null
     employment_type?: string | null
@@ -30104,6 +30138,7 @@ export namespace Prisma {
     backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
+    signature_path?: string | null
     joined_date?: Date | string | null
     resigned_date?: Date | string | null
     employment_type?: string | null
@@ -30143,6 +30178,7 @@ export namespace Prisma {
     backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
+    signature_path?: string | null
     joined_date?: Date | string | null
     resigned_date?: Date | string | null
     employment_type?: string | null
@@ -31680,6 +31716,7 @@ export namespace Prisma {
     backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
+    signature_path?: string | null
     joined_date?: Date | string | null
     resigned_date?: Date | string | null
     employment_type?: string | null
@@ -31719,6 +31756,7 @@ export namespace Prisma {
     backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
+    signature_path?: string | null
     joined_date?: Date | string | null
     resigned_date?: Date | string | null
     employment_type?: string | null
@@ -31758,6 +31796,7 @@ export namespace Prisma {
     backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
+    signature_path?: string | null
     joined_date?: Date | string | null
     resigned_date?: Date | string | null
     employment_type?: string | null
@@ -31797,6 +31836,7 @@ export namespace Prisma {
     backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
+    signature_path?: string | null
     joined_date?: Date | string | null
     resigned_date?: Date | string | null
     employment_type?: string | null
@@ -31878,6 +31918,7 @@ export namespace Prisma {
     backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    signature_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employment_type?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31917,6 +31958,7 @@ export namespace Prisma {
     backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    signature_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employment_type?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31962,6 +32004,7 @@ export namespace Prisma {
     backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    signature_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employment_type?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32001,6 +32044,7 @@ export namespace Prisma {
     backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    signature_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employment_type?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32097,6 +32141,7 @@ export namespace Prisma {
     backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
+    signature_path?: string | null
     joined_date?: Date | string | null
     resigned_date?: Date | string | null
     employment_type?: string | null
@@ -32136,6 +32181,7 @@ export namespace Prisma {
     backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
+    signature_path?: string | null
     joined_date?: Date | string | null
     resigned_date?: Date | string | null
     employment_type?: string | null
@@ -32186,6 +32232,7 @@ export namespace Prisma {
     backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    signature_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employment_type?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32225,6 +32272,7 @@ export namespace Prisma {
     backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    signature_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employment_type?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32261,6 +32309,7 @@ export namespace Prisma {
     backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
+    signature_path?: string | null
     joined_date?: Date | string | null
     resigned_date?: Date | string | null
     employment_type?: string | null
@@ -32293,6 +32342,7 @@ export namespace Prisma {
     backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    signature_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employment_type?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32331,6 +32381,7 @@ export namespace Prisma {
     backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    signature_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employment_type?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32368,6 +32419,7 @@ export namespace Prisma {
     backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    signature_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employment_type?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32402,6 +32454,7 @@ export namespace Prisma {
     backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
+    signature_path?: string | null
     joined_date?: Date | string | null
     resigned_date?: Date | string | null
     employment_type?: string | null
@@ -32434,6 +32487,7 @@ export namespace Prisma {
     backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    signature_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employment_type?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32472,6 +32526,7 @@ export namespace Prisma {
     backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    signature_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employment_type?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32509,6 +32564,7 @@ export namespace Prisma {
     backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    signature_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employment_type?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32675,6 +32731,7 @@ export namespace Prisma {
     backlog_email?: string | null
     phone?: string | null
     profile_image_path?: string | null
+    signature_path?: string | null
     joined_date?: Date | string | null
     resigned_date?: Date | string | null
     employment_type?: string | null
@@ -32724,6 +32781,7 @@ export namespace Prisma {
     backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    signature_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employment_type?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32763,6 +32821,7 @@ export namespace Prisma {
     backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    signature_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employment_type?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32800,6 +32859,7 @@ export namespace Prisma {
     backlog_email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     profile_image_path?: NullableStringFieldUpdateOperationsInput | string | null
+    signature_path?: NullableStringFieldUpdateOperationsInput | string | null
     joined_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resigned_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     employment_type?: NullableStringFieldUpdateOperationsInput | string | null
