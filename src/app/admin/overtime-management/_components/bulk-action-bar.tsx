@@ -5,8 +5,10 @@ import {
   CloseCircleOutlined,
   CloseOutlined,
   DollarOutlined,
+  FilePdfOutlined,
 } from "@ant-design/icons";
 import { Alert, Button, Flex, Popconfirm, Space, Tag, Typography } from "antd";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 const { Text } = Typography;
@@ -32,7 +34,15 @@ const BulkActionBar: React.FC<BulkActionBarProps> = ({
   onBulkMarkPaid,
   isLoading,
 }) => {
+  const router = useRouter();
+
   if (selectedKeys.length === 0) return null;
+
+  // นำทางไปยังหน้า bulk preview เพื่อพิมพ์ PDF ทุกรายการที่เลือก
+  const handleBulkPdf = () => {
+    const ids = selectedKeys.map((k) => String(k)).join(",");
+    router.push(`/timesheet/overtime/preview/bulk?ids=${ids}`);
+  };
 
   return (
     <Alert
@@ -92,6 +102,15 @@ const BulkActionBar: React.FC<BulkActionBarProps> = ({
                 ทำเครื่องหมายจ่ายแล้ว
               </Button>
             </Popconfirm>
+
+            <Button
+              icon={<FilePdfOutlined />}
+              onClick={handleBulkPdf}
+              disabled={isLoading}
+              size="small"
+            >
+              พิมพ์ PDF ({selectedKeys.length})
+            </Button>
 
             <Button
               icon={<CloseOutlined />}

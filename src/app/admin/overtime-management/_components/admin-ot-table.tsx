@@ -6,6 +6,7 @@ import {
   CloseCircleOutlined,
   DollarOutlined,
   EyeOutlined,
+  FilePdfOutlined,
   FileTextOutlined,
   HistoryOutlined,
   MailOutlined,
@@ -26,6 +27,7 @@ import {
   Typography,
 } from "antd";
 import dayjs from "dayjs";
+import { useRouter } from "next/navigation";
 import React, { useMemo } from "react";
 import { useAdminOvertimeStore } from "../_state/admin-overtime-store";
 
@@ -90,6 +92,7 @@ const AdminOtTable: React.FC<AdminOtTableProps> = ({
   onSelectionChange,
 }) => {
   const { dataSource, isLoading } = useAdminOvertimeStore();
+  const router = useRouter();
 
   const columns = useMemo(
     () => [
@@ -225,6 +228,16 @@ const AdminOtTable: React.FC<AdminOtTableProps> = ({
                 />
               </Tooltip>
 
+              <Tooltip title="พิมพ์ / ดาวน์โหลด PDF">
+                <Button
+                  size="small"
+                  icon={<FilePdfOutlined />}
+                  onClick={() =>
+                    router.push(`/timesheet/overtime/preview/${record.id}`)
+                  }
+                />
+              </Tooltip>
+
               <Tooltip title="ประวัติสถานะ">
                 <Button
                   size="small"
@@ -274,7 +287,7 @@ const AdminOtTable: React.FC<AdminOtTableProps> = ({
         },
       },
     ],
-    [onViewDetail, onApprove, onReject, onSendMail, onViewLog],
+    [onViewDetail, onApprove, onReject, onSendMail, onViewLog, router],
   );
 
   return (
