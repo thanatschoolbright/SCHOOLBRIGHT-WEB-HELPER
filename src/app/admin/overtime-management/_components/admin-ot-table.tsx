@@ -133,6 +133,20 @@ const AdminOtTable: React.FC<AdminOtTableProps> = ({
         },
       },
       {
+        title: "แผนก",
+        key: "department",
+        sorter: false,
+        width: 140,
+        render: (_: any, record: any) => {
+          const dept = record.requester_department || "-";
+          return (
+            <Text style={{ fontSize: 12 }} type={dept === "-" ? "secondary" : undefined}>
+              {dept}
+            </Text>
+          );
+        },
+      },
+      {
         title: "วันที่ขอ",
         dataIndex: "request_date",
         key: "request_date",

@@ -107,6 +107,7 @@ function transformUser(u: any) {
     lastname_en: u.lastname_en,
     nickname: u.nickname,
     position_th: u.position_ref?.name_th || u.position_th || null,
+    department_th: u.department?.name_th || null,
     profile_image:
       u.profile_image_path || u.profile_image || u.image_profile || null,
   };
@@ -120,6 +121,7 @@ function transformOvertimeToSnakeCase(overtime: any) {
     requester_name: overtime.requester_name,
     requester_employee_code: overtime.requester_employee_code,
     requester_position: overtime.requester_position,
+    requester_department: overtime.requester_department || null,
     requester_user: transformUser(overtime.requester_user),
     request_date: formatDate(overtime.requestDate),
     status: overtime.status,

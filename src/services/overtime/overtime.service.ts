@@ -96,7 +96,7 @@ const mapUsersToOvertime = async (overtimeItems: any[]) => {
     }
   });
 
-  let userMap = new Map();
+  const userMap = new Map();
   if (userIds.size > 0) {
     const users = await (PrismaTimesheet as any).user.findMany({
       where: { id: { in: Array.from(userIds) } },
@@ -109,7 +109,8 @@ const mapUsersToOvertime = async (overtimeItems: any[]) => {
         nickname: true,
         employee_code: true,
         email: true,
-        department: { select: { name_th: true } },
+        department_id: true,
+        department: { select: { id: true, name_th: true } },
         position_ref: { select: { name_th: true } },
       },
     });
@@ -149,6 +150,7 @@ const mapUsersToOvertime = async (overtimeItems: any[]) => {
       requester_name: formatName(requester),
       requester_employee_code: requester?.employee_code || null,
       requester_position: requester?.position_ref?.name_th || null,
+      requester_department: requester?.department?.name_th || null,
       creator_name: formatName(creator),
       updater_name: formatName(updater),
       descriptions: enrichedDescriptions,
@@ -179,10 +181,16 @@ export const Service = {
         include: {
           descriptions: true,
           requester: {
-            include: { position_ref: { select: { name_th: true } } },
+            include: {
+              position_ref: { select: { name_th: true } },
+              department: { select: { name_th: true } },
+            },
           },
           creator: {
-            include: { position_ref: { select: { name_th: true } } },
+            include: {
+              position_ref: { select: { name_th: true } },
+              department: { select: { name_th: true } },
+            },
           },
         },
       }),
@@ -199,10 +207,16 @@ export const Service = {
       include: {
         descriptions: true,
         requester: {
-          include: { position_ref: { select: { name_th: true } } },
+          include: {
+            position_ref: { select: { name_th: true } },
+            department: { select: { name_th: true } },
+          },
         },
         creator: {
-          include: { position_ref: { select: { name_th: true } } },
+          include: {
+            position_ref: { select: { name_th: true } },
+            department: { select: { name_th: true } },
+          },
         },
       },
     });
