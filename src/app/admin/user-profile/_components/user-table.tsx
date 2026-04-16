@@ -4,6 +4,7 @@ import {
   ApartmentOutlined,
   CalendarOutlined,
   ControlOutlined,
+  CopyOutlined,
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
@@ -21,6 +22,7 @@ import {
   TeamOutlined,
   UnlockOutlined,
   UnorderedListOutlined,
+  UserOutlined,
   WarningOutlined,
 } from "@ant-design/icons";
 import {
@@ -43,6 +45,7 @@ import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { useMemo } from "react";
+import { toast } from "sonner";
 
 import { UserProfile } from "@stores/type";
 import { useUserProfileStore } from "../_stores/user-profile-store";
@@ -84,6 +87,83 @@ const getEmpType = (type?: string) => {
     default:
       return { color: "gray", label: "ไม่ระบุ" };
   }
+};
+
+// คัดลอกข้อความไปยังคลิปบอร์ดพร้อม fallback สำหรับ browser ที่ไม่รองรับโดยตรง
+const copyTextToClipboard = async (valueToCopy: string) => {
+  if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(valueToCopy);
+    return;
+  }
+
+  if (typeof document === "undefined") {
+    throw new Error("Clipboard not available");
+  }
+
+  const temporaryTextArea = document.createElement("textarea");
+  temporaryTextArea.value = valueToCopy;
+  temporaryTextArea.setAttribute("readonly", "true");
+  temporaryTextArea.style.position = "absolute";
+  temporaryTextArea.style.left = "-9999px";
+  document.body.appendChild(temporaryTextArea);
+  temporaryTextArea.select();
+  document.execCommand("copy");
+  document.body.removeChild(temporaryTextArea);
+};
+
+interface CopyableValueProps {
+  value: string;
+  textType?: "secondary";
+  icon?: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+// แสดงข้อความพร้อมปุ่มคัดลอกที่ปรากฏเมื่อ hover เพื่อใช้งานได้ทันทีจากตาราง
+const CopyableValue = ({
+  value,
+  textType,
+  icon,
+  className,
+  style,
+}: CopyableValueProps) => {
+  const handleCopyValue = async () => {
+    if (!value || value === "-") return;
+
+    try {
+      await copyTextToClipboard(value);
+      toast.success("คัดลอกข้อมูลเรียบร้อยแล้ว");
+    } catch {
+      toast.error("ไม่สามารถคัดลอกข้อมูลได้");
+    }
+  };
+
+  return (
+    <Flex align="center" gap={4} className="group w-fit max-w-full">
+      <Typography.Text
+        type={textType}
+        className={className}
+        style={{ ...style, margin: 0 }}
+      >
+        <Flex align="center" gap={4} wrap="wrap">
+          {icon}
+          <span>{value || "-"}</span>
+        </Flex>
+      </Typography.Text>
+      {value && value !== "-" ? (
+        <Tooltip title="คัดลอกข้อมูล">
+          <Button
+            type="text"
+            size="small"
+            icon={<CopyOutlined />}
+            onClick={handleCopyValue}
+            className="opacity-0 transition-opacity group-hover:opacity-100"
+            style={{ color: "inherit" }}
+          />
+        </Tooltip>
+      ) : null}
+    </Flex>
+  );
 };
 
 export const UserTable = () => {
@@ -279,15 +359,16 @@ export const UserTable = () => {
           />
           <div className="flex flex-col">
             <Space size={4} align="center">
-              <span
+              <CopyableValue
+                value={
+                  `${r.firstname_th || ""} ${r.lastname_th || ""}`.trim() || "-"
+                }
                 style={{
                   color: token.colorText,
                   fontWeight: 600,
                   fontSize: 14,
                 }}
-              >
-                {r.firstname_th} {r.lastname_th}
-              </span>
+              />
               {r.nickname && (
                 <Tag
                   color="warning"
@@ -297,20 +378,18 @@ export const UserTable = () => {
                 </Tag>
               )}
             </Space>
-            <Typography.Text
-              type="secondary"
-              className="text-[11px] flex items-center gap-1 mt-0.5"
-            >
-              <MailOutlined style={{ fontSize: 10 }} />
-              {r.email || "-"}
-            </Typography.Text>
-            <Typography.Text
-              type="secondary"
-              className="text-[11px] flex items-center gap-1"
-            >
-              <PhoneOutlined style={{ fontSize: 10 }} />
-              {r.phone || "-"}
-            </Typography.Text>
+            <CopyableValue
+              value={r.email || "-"}
+              textType="secondary"
+              className="text-[11px] mt-0.5"
+              icon={<MailOutlined style={{ fontSize: 10 }} />}
+            />
+            <CopyableValue
+              value={r.phone || "-"}
+              textType="secondary"
+              className="text-[11px]"
+              icon={<PhoneOutlined style={{ fontSize: 10 }} />}
+            />
             {!r.phone && (
               <div className="mt-1">
                 <Badge
@@ -702,6 +781,3 @@ export const UserTable = () => {
     </Card>
   );
 };
-
-// ต้อง import UserOutlined แยกเพราะใช้ใน Avatar
-import { UserOutlined } from "@ant-design/icons";
