@@ -72,7 +72,17 @@ export const extractFilterOptions = (
     if (school.school_group) schoolGroups.add(school.school_group);
   });
 
+  // สร้าง option list ของโรงเรียนพร้อม school_id สำหรับ Dropdown ค้นหา
+  const schoolOptions = schools
+    .filter((school) => school.company_name)
+    .map((school) => ({
+      label: `[${school.school_id}] ${school.company_name ?? ""}`,
+      value: String(school.school_id),
+    }))
+    .sort((a, b) => THAI_COLLATOR.compare(a.label, b.label));
+
   return {
+    schools: schoolOptions,
     provinces: Array.from(provinces)
       .sort()
       .map((province) => ({ label: province, value: province })),
@@ -96,6 +106,10 @@ export const filterSchools = (
   filters: FilterState,
 ): SchoolDetail[] => {
   return schools.filter((school) => {
+    // กรองด้วย Dropdown โรงเรียน (ตรง school_id)
+    if (filters.school && String(school.school_id) !== filters.school) return false;
+
+    // กรองด้วย Input ค้นหาอิสระ (ชื่อ, รหัสโรงเรียน, school_code)
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
       const matchesSearch =

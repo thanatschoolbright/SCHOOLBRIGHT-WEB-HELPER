@@ -43,6 +43,7 @@ export type BypassLinkParams = {
 
 export type FilterState = {
   search: string;
+  school: string | undefined;
   province: string | undefined;
   schoolType: string | undefined;
   grade: string | undefined;
@@ -51,6 +52,7 @@ export type FilterState = {
 };
 
 export type FilterOptions = {
+  schools: Array<{ label: string; value: string }>;
   provinces: Array<{ label: string; value: string }>;
   schoolTypes: Array<{ label: string; value: string }>;
   grades: Array<{ label: string; value: string }>;

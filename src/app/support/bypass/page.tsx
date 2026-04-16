@@ -501,6 +501,36 @@ export default function BypassPage(): JSX.Element {
             </Flex>
 
             <Row gutter={[24, 16]}>
+              {/* Dropdown ค้นหาโรงเรียน — full width */}
+              <Col xs={24}>
+                <Flex vertical gap={8}>
+                  <Text strong style={{ fontSize: 13 }}>
+                    ค้นหาโรงเรียน
+                  </Text>
+                  <Select
+                    style={{ width: "100%" }}
+                    size="large"
+                    placeholder="พิมพ์ชื่อโรงเรียนหรือรหัสโรงเรียน..."
+                    showSearch
+                    allowClear
+                    options={bypassState.filterOptions.schools}
+                    value={bypassState.filters.school}
+                    onChange={(selectedValue) => {
+                      bypassHandlers.handleFilterChange("school", selectedValue);
+                    }}
+                    filterOption={(inputValue, option) => {
+                      if (!option) return false;
+                      return option.label
+                        .toLowerCase()
+                        .includes(inputValue.toLowerCase());
+                    }}
+                    notFoundContent="ไม่พบโรงเรียน"
+                    loading={bypassState.loading}
+                    virtual
+                  />
+                </Flex>
+              </Col>
+
               <Col xs={24} lg={12}>
                 <Flex vertical gap={16}>
                   <Flex vertical gap={8}>

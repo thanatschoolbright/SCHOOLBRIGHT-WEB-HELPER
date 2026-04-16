@@ -52,6 +52,7 @@ export const useBypassPageData = () => {
    */
   const [filters, setFilters] = useState<FilterState>({
     search: "",
+    school: undefined,
     province: undefined,
     schoolType: undefined,
     grade: undefined,
@@ -196,6 +197,7 @@ export const useBypassPageData = () => {
   const handleClearFilters = useCallback((): void => {
     setFilters({
       search: "",
+      school: undefined,
       province: undefined,
       schoolType: undefined,
       grade: undefined,
