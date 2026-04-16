@@ -28,8 +28,10 @@ import AdminOtFilter from "./_components/admin-ot-filter";
 import AdminOtSummary from "./_components/admin-ot-summary";
 import AdminOtTable from "./_components/admin-ot-table";
 import BulkActionBar from "./_components/bulk-action-bar";
+import ApprovalSlaDashboard from "./_components/approval-sla-dashboard";
 import DepartmentBreakdown from "./_components/department-breakdown";
 import MarkPaidModal from "./_components/mark-paid-modal";
+import MonthlyCostReport from "./_components/monthly-cost-report";
 import OverdueAlert from "./_components/overdue-alert";
 import StatusLogDrawer from "./_components/status-log-drawer";
 import { useAdminOvertimeStore } from "./_state/admin-overtime-store";
@@ -504,6 +506,12 @@ export default function AdminOvertimeManagementPage() {
 
           {/* B3 — Department Breakdown */}
           <DepartmentBreakdown />
+
+          {/* C1 — Monthly OT Cost Report */}
+          <MonthlyCostReport />
+
+          {/* C2 — Approval SLA Dashboard */}
+          <ApprovalSlaDashboard />
 
           {/* Modal ดูรายละเอียด */}
           <DetailModal

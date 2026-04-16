@@ -227,7 +227,7 @@ const OvertimeManagementPage = () => {
       const userId = authenticationState?.response?.data?.user_data?.id;
       if (userId) return String(userId);
 
-      const users = (getUserData()) as UserProfile[] | null;
+      const users = getUserData() as UserProfile[] | null;
       if (Array.isArray(users) && users.length > 0) {
         return String(users[0]?.id ?? "system");
       }
@@ -684,7 +684,8 @@ const OvertimeManagementPage = () => {
       setIsLoadingOvertimeData(true);
       const currentApproverToken = await requestCurrentLocalUserID();
       if (currentApproverToken !== BYPASS_USER_ID) {
-        toast.error("คุณไม่มีสิทธิ์ปรับสถานะ"); return;
+        toast.error("คุณไม่มีสิทธิ์ปรับสถานะ");
+        return;
       }
       const apiResponseResultObject = await callApiService.post(
         `/api/v1/timesheet/overtime/change-status?id=${overtimeSubmissionIdentifier}`,
@@ -753,11 +754,15 @@ const OvertimeManagementPage = () => {
   const requestBatchApproveOvertimeSubmissions = async (
     targetStatusString: string | null = "approved",
   ): Promise<void> => {
-    if (selectedRowKeys.length === 0) { toast.error("กรุณาเลือกรายการ"); return; }
+    if (selectedRowKeys.length === 0) {
+      toast.error("กรุณาเลือกรายการ");
+      return;
+    }
 
     const currentUserTokenIdentifier = await requestCurrentLocalUserID();
     if (currentUserTokenIdentifier !== BYPASS_USER_ID) {
-      toast.error("คุณไม่มีสิทธิ์ปรับสถานะ"); return;
+      toast.error("คุณไม่มีสิทธิ์ปรับสถานะ");
+      return;
     }
 
     setIsBatchProcessing(true);
@@ -780,7 +785,9 @@ const OvertimeManagementPage = () => {
 
         const operatingApproverToken = await requestCurrentLocalUserID();
         const apiResponseResultObject = await callApiService.post(
-          `/api/v1/timesheet/overtime/change-status?id=${String(recordIdentifier)}`,
+          `/api/v1/timesheet/overtime/change-status?id=${String(
+            recordIdentifier,
+          )}`,
           {
             status: targetStatusString ?? "approved",
             updated_by: Number(operatingApproverToken),
@@ -820,11 +827,15 @@ const OvertimeManagementPage = () => {
 
   // ส่งอีเมลแจ้งเตือน HR สำหรับคำขอ OT หลายรายการพร้อมกัน (Batch Email)
   const requestBatchSendOvertimeMailToHR = async (): Promise<void> => {
-    if (selectedRowKeys.length === 0) { toast.error("กรุณาเลือกรายการ"); return; }
+    if (selectedRowKeys.length === 0) {
+      toast.error("กรุณาเลือกรายการ");
+      return;
+    }
 
     const currentUserTokenIdentifier = await requestCurrentLocalUserID();
     if (currentUserTokenIdentifier !== BYPASS_USER_ID) {
-      toast.error("คุณไม่มีสิทธิ์ส่งอีเมล"); return;
+      toast.error("คุณไม่มีสิทธิ์ส่งอีเมล");
+      return;
     }
 
     setIsBatchProcessing(true);
@@ -833,7 +844,9 @@ const OvertimeManagementPage = () => {
 
     for (const recordIdentifier of selectedRowKeys) {
       try {
-        const documentPreviewURL = `${window.location.origin}/timesheet/overtime/preview/${String(recordIdentifier)}`;
+        const documentPreviewURL = `${
+          window.location.origin
+        }/timesheet/overtime/preview/${String(recordIdentifier)}`;
         const emailBodyPayload = {
           id: String(recordIdentifier),
           link: documentPreviewURL,
@@ -918,7 +931,9 @@ const OvertimeManagementPage = () => {
       const finalizedFromDate = dayjs(exportRequestParameters.from);
       const finalizedToDate = dayjs(exportRequestParameters.to);
 
-      const finalResultFileName = `รายงานการทำงานล่วงเวลา_${finalizedFromDate.format("DDMMBBBB")}_ถึง_${finalizedToDate.format("DDMMBBBB")}.xlsx`;
+      const finalResultFileName = `รายงานการทำงานล่วงเวลา_${finalizedFromDate.format(
+        "DDMMBBBB",
+      )}_ถึง_${finalizedToDate.format("DDMMBBBB")}.xlsx`;
       fileDownloadAnchorElement.setAttribute("download", finalResultFileName);
       document.body.appendChild(fileDownloadAnchorElement);
       fileDownloadAnchorElement.click();
@@ -944,8 +959,9 @@ const OvertimeManagementPage = () => {
     formSubmissionValues: any,
   ): Promise<boolean> => {
     try {
-      const responseContentData =
-        await requestCreateOvertimeSubmission(formSubmissionValues);
+      const responseContentData = await requestCreateOvertimeSubmission(
+        formSubmissionValues,
+      );
       if (responseContentData) {
         setIsCreateModalVisible(false);
         overtimeForm.resetFields();
@@ -963,8 +979,9 @@ const OvertimeManagementPage = () => {
    * แยกโฟลเดอร์ตามรหัสพนักงาน
    */
   const handleBulkPdfDownloadZip = async () => {
-    const { bulkPdfDownloadService } =
-      await import("@/helpers/bulk-pdf-download.helper");
+    const { bulkPdfDownloadService } = await import(
+      "@/helpers/bulk-pdf-download.helper"
+    );
     const fetchImageAsBase64 = async (url: string): Promise<string> => {
       try {
         // local paths (public folder) ดึงตรง, external URLs ผ่าน proxy เพื่อแก้ CORS
@@ -1193,11 +1210,23 @@ const OvertimeManagementPage = () => {
         tempDiv.className = "ot-print-temp";
         tempDiv.innerHTML = `
           <div class="ot-header-temp">
-            <div class="ot-logo" style="width:140px">${logoBase64 ? `<img src="${logoBase64}" style="max-height:45px">` : ""}</div>
+            <div class="ot-logo" style="width:140px">${
+              logoBase64
+                ? `<img src="${logoBase64}" style="max-height:45px">`
+                : ""
+            }</div>
             <div class="ot-doc-title-temp">แบบคำขอทำงานล่วงเวลา (OT)</div>
             <div class="ot-doc-meta-temp">
-              <div><strong>ประจำเดือน:</strong> ${headerDate ? `${dayjs(headerDate).format("MM")}/${dayjs(headerDate).year() + 543}` : "-"}</div>
-              <div><strong>วันที่พิมพ์:</strong> ${formatDateThai(headerDate)}</div>
+              <div><strong>ประจำเดือน:</strong> ${
+                headerDate
+                  ? `${dayjs(headerDate).format("MM")}/${
+                      dayjs(headerDate).year() + 543
+                    }`
+                  : "-"
+              }</div>
+              <div><strong>วันที่พิมพ์:</strong> ${formatDateThai(
+                headerDate,
+              )}</div>
             </div>
           </div>
 
@@ -1237,9 +1266,17 @@ const OvertimeManagementPage = () => {
                     <td>${i + 1}</td>
                     <td>${d.date ? formatDateThai(d.date) : "-"}</td>
                     <td style="text-align:left">${d.description || "-"}</td>
-                    <td>${d.start_date ? dayjs(d.start_date).format("HH:00") : "-"}</td>
-                    <td>${d.end_date ? dayjs(d.end_date).add(1, "hour").format("HH:00") : "-"}</td>
-                    <td style="font-weight:600">${formatDurationToDecimal(diffMinutes)}</td>
+                    <td>${
+                      d.start_date ? dayjs(d.start_date).format("HH:00") : "-"
+                    }</td>
+                    <td>${
+                      d.end_date
+                        ? dayjs(d.end_date).add(1, "hour").format("HH:00")
+                        : "-"
+                    }</td>
+                    <td style="font-weight:600">${formatDurationToDecimal(
+                      diffMinutes,
+                    )}</td>
                     <td>-</td>
                   </tr>`;
                 })
@@ -1248,31 +1285,51 @@ const OvertimeManagementPage = () => {
           </table>
 
           <div class="ot-summary-temp">
-            <div style="margin-right:auto; color: #64748b;">เหตุผลการขอ: <span style="color:#1e293b">${data.reason || "-"}</span></div>
+            <div style="margin-right:auto; color: #64748b;">เหตุผลการขอ: <span style="color:#1e293b">${
+              data.reason || "-"
+            }</span></div>
             <div class="ot-total-label">รวมเวลาทั้งหมด (Plan):</div>
-            <div class="ot-total-value">${formatDurationToDecimal(totalBudgetHours * 60)} ชม.</div>
+            <div class="ot-total-value">${formatDurationToDecimal(
+              totalBudgetHours * 60,
+            )} ชม.</div>
           </div>
 
           <div class="ot-sign-container-temp">
             <div class="ot-sign-box-temp">
               <div class="ot-sign-title-temp">ผู้ขออนุมัติ</div>
               <div style="height:45px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:2px;">
-                ${sig1Base64 ? `<img src="${sig1Base64}" style="max-height:40px;">` : ""}
+                ${
+                  sig1Base64
+                    ? `<img src="${sig1Base64}" style="max-height:40px;">`
+                    : ""
+                }
               </div>
               <div class="ot-sign-line-temp"></div>
-              <div style="font-size:11px; font-weight:600; color:#334155;">(${reqName.replace(/\s*\([^)]*\)/g, "").trim()})</div>
+              <div style="font-size:11px; font-weight:600; color:#334155;">(${reqName
+                .replace(/\s*\([^)]*\)/g, "")
+                .trim()})</div>
               <div style="font-size:9px; color:#64748b; margin-top:1px;">${position}</div>
-              <div style="font-size:9px; color:#94a3b8; margin-top:2px;">วันที่ ${formatDateThai(headerDate, " / ")}</div>
+              <div style="font-size:9px; color:#94a3b8; margin-top:2px;">วันที่ ${formatDateThai(
+                headerDate,
+                " / ",
+              )}</div>
             </div>
             <div class="ot-sign-box-temp">
               <div class="ot-sign-title-temp">ผู้ตรวจสอบ / รับทราบ</div>
               <div style="height:45px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:2px;">
-                ${thanatBase64 ? `<img src="${thanatBase64}" style="max-height:40px;">` : ""}
+                ${
+                  thanatBase64
+                    ? `<img src="${thanatBase64}" style="max-height:40px;">`
+                    : ""
+                }
               </div>
               <div class="ot-sign-line-temp"></div>
               <div style="font-size:11px; font-weight:600; color:#334155;">ธนัท พรหมพิริยา</div>
               <div style="font-size:9px; color:#64748b; margin-top:1px;">หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ</div>
-              <div style="font-size:9px; color:#94a3b8; margin-top:2px;">วันที่ ${formatDateThai(headerDate, " / ")}</div>
+              <div style="font-size:9px; color:#94a3b8; margin-top:2px;">วันที่ ${formatDateThai(
+                headerDate,
+                " / ",
+              )}</div>
             </div>
           </div>
 
@@ -1302,9 +1359,15 @@ const OvertimeManagementPage = () => {
                       <td>${i + 1}</td>
                       <td>${d.date ? formatDateThai(d.date) : "-"}</td>
                       <td style="text-align:left">${d.description || "-"}</td>
-                      <td>${d.start_date ? dayjs(d.start_date).format("HH:mm") : "-"}</td>
-                      <td>${d.end_date ? dayjs(d.end_date).format("HH:mm") : "-"}</td>
-                      <td style="font-weight:600">${formatDurationToDecimal(diffM)}</td>
+                      <td>${
+                        d.start_date ? dayjs(d.start_date).format("HH:mm") : "-"
+                      }</td>
+                      <td>${
+                        d.end_date ? dayjs(d.end_date).format("HH:mm") : "-"
+                      }</td>
+                      <td style="font-weight:600">${formatDurationToDecimal(
+                        diffM,
+                      )}</td>
                       <td>-</td>
                     </tr>`;
                   })
@@ -1313,29 +1376,47 @@ const OvertimeManagementPage = () => {
             </table>
             <div class="ot-summary-temp">
               <div style="margin-left:auto" class="ot-total-label">รวมเวลาปฏิบัติงานจริง (Actual):</div>
-              <div class="ot-total-value">${formatDurationToDecimal(totalActualMinutes)} ชม.</div>
+              <div class="ot-total-value">${formatDurationToDecimal(
+                totalActualMinutes,
+              )} ชม.</div>
             </div>
 
             <div class="ot-sign-container-temp">
               <div class="ot-sign-box-temp">
                 <div class="ot-sign-title-temp">ผู้บันทึกการทำงาน</div>
                 <div style="height:45px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:2px;">
-                  ${sig1Base64 ? `<img src="${sig1Base64}" style="max-height:40px;">` : ""}
+                  ${
+                    sig1Base64
+                      ? `<img src="${sig1Base64}" style="max-height:40px;">`
+                      : ""
+                  }
                 </div>
                 <div class="ot-sign-line-temp"></div>
-                <div style="font-size:11px; font-weight:600; color:#334155;">(${reqName.replace(/\s*\([^)]*\)/g, "").trim()})</div>
+                <div style="font-size:11px; font-weight:600; color:#334155;">(${reqName
+                  .replace(/\s*\([^)]*\)/g, "")
+                  .trim()})</div>
                 <div style="font-size:9px; color:#64748b; margin-top:1px;">${position}</div>
-                <div style="font-size:9px; color:#94a3b8; margin-top:2px;">วันที่ ${formatDateThai(headerDate, " / ")}</div>
+                <div style="font-size:9px; color:#94a3b8; margin-top:2px;">วันที่ ${formatDateThai(
+                  headerDate,
+                  " / ",
+                )}</div>
               </div>
               <div class="ot-sign-box-temp">
                 <div class="ot-sign-title-temp">ผู้รับรองการทำงาน</div>
                 <div style="height:45px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:2px;">
-                  ${thanatBase64 ? `<img src="${thanatBase64}" style="max-height:40px;">` : ""}
+                  ${
+                    thanatBase64
+                      ? `<img src="${thanatBase64}" style="max-height:40px;">`
+                      : ""
+                  }
                 </div>
                 <div class="ot-sign-line-temp"></div>
                 <div style="font-size:11px; font-weight:600; color:#334155;">ธนัท พรหมพิริยา</div>
                 <div style="font-size:9px; color:#64748b; margin-top:1px;">หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ</div>
-                <div style="font-size:9px; color:#94a3b8; margin-top:2px;">วันที่ ${formatDateThai(headerDate, " / ")}</div>
+                <div style="font-size:9px; color:#94a3b8; margin-top:2px;">วันที่ ${formatDateThai(
+                  headerDate,
+                  " / ",
+                )}</div>
               </div>
             </div>
           </div>
@@ -1356,7 +1437,11 @@ const OvertimeManagementPage = () => {
                 <div class="evidence-item-temp">
                   <div class="evidence-label-temp">หลักฐาน #${idx + 1}</div>
                   <div class="evidence-img-wrapper-temp">
-                    ${evidenceBase64[idx] ? `<img src="${evidenceBase64[idx]}" class="evidence-img-temp">` : `<div style="color:#999">ไม่มีรูปภาพ</div>`}
+                    ${
+                      evidenceBase64[idx]
+                        ? `<img src="${evidenceBase64[idx]}" class="evidence-img-temp">`
+                        : `<div style="color:#999">ไม่มีรูปภาพ</div>`
+                    }
                   </div>
                 </div>
               `,
@@ -1369,7 +1454,9 @@ const OvertimeManagementPage = () => {
 
         itemsForZip.push({
           employeeCode: empCode,
-          fileName: `OT_${empCode}_${reqName}_${dayjs(data.request_date).format("DD-MM-YYYY")}_${data.id}.pdf`,
+          fileName: `OT_${empCode}_${reqName}_${dayjs(data.request_date).format(
+            "DD-MM-YYYY",
+          )}_${data.id}.pdf`,
           element: [tempDiv, evidenceDiv],
         });
       }
@@ -1498,13 +1585,15 @@ const OvertimeManagementPage = () => {
           showBackButton={true}
           extra={
             <Space size="middle">
-              <Button
-                icon={<CalculatorOutlined />}
-                size="large"
-                onClick={() => setIsPayCalculatorVisible(true)}
-              >
-                คำนวณเงินที่ได้รับ
-              </Button>
+              <Badge count="ใหม่" color="red" offset={[-2, 4]}>
+                <Button
+                  icon={<CalculatorOutlined />}
+                  size="large"
+                  onClick={() => setIsPayCalculatorVisible(true)}
+                >
+                  คำนวณเงินที่ได้รับ
+                </Button>
+              </Badge>
               <Button
                 icon={<FileTextOutlined />}
                 size="large"
@@ -1587,7 +1676,9 @@ const OvertimeManagementPage = () => {
             setSelectedOvertimeDetail(record);
             overtimeForm.setFieldsValue({
               ...record,
-              request_date: record.request_date ? dayjs(record.request_date) : dayjs(),
+              request_date: record.request_date
+                ? dayjs(record.request_date)
+                : dayjs(),
               descriptions: (record.descriptions || []).map((desc: any) => ({
                 ...desc,
                 startDate: desc.startDate ? dayjs(desc.startDate) : undefined,
