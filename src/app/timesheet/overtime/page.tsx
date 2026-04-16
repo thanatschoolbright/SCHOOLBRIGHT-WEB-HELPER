@@ -38,9 +38,10 @@ import CreateModal from "./_components/create-modal";
 import DetailModal from "./_components/detail-modal";
 import ExportModal from "./_components/export-modal";
 import FilterSection from "./_components/filter-section";
+import PersonalOtSummary from "./_components/personal-ot-summary";
+import RemindModal from "./_components/remind-modal";
 import RulesModal from "./_components/rules-modal";
 import SummarySection from "./_components/summary-section";
-import RemindModal from "./_components/remind-modal";
 import TimelineModal from "./_components/timeline-modal";
 import UserTable from "./_components/user-table";
 
@@ -117,6 +118,37 @@ const OvertimeManagementPage = () => {
   const pendingCount = React.useMemo(
     () => storeOvertimeDataSource.filter((r) => r.status === "pending").length,
     [storeOvertimeDataSource],
+  );
+
+  // ตรวจสอบว่า user ปัจจุบันคือ admin (bypass user) หรือไม่
+  const currentUserIdForPersonal = String(
+    authenticationState?.response?.data?.user_data?.id ?? "",
+  );
+  const isCurrentUserAdmin = currentUserIdForPersonal === BYPASS_USER_ID;
+
+  // ฟังก์ชันดึงข้อมูล OT ส่วนตัว สำหรับ PersonalOtSummary
+  const fetchPersonalOtData = useCallback(
+    async (params: { from: string; to: string; request_id: string }) => {
+      try {
+        const response = await callApiService.post(
+          "/api/v1/timesheet/overtime/read",
+          {
+            limit: 200,
+            offset: 0,
+            request_id: params.request_id,
+            from: params.from,
+            to: params.to,
+          },
+        );
+        if (response?.data?.status === 200) {
+          return Array.isArray(response.data.data) ? response.data.data : [];
+        }
+        return [];
+      } catch {
+        return [];
+      }
+    },
+    [],
   );
 
   // --- สถานะการแสดงผล UI (Visibility State) ---
@@ -1496,6 +1528,15 @@ const OvertimeManagementPage = () => {
 
         {/* ส่วนแสดงข้อมูลสรุปทางสถิติในรูปแบบ Card */}
         <SummarySection />
+
+        {/* สรุป OT ส่วนตัว — แสดงเฉพาะ user ทั่วไป ซ่อนเมื่อเป็น admin */}
+        {currentUserIdForPersonal && (
+          <PersonalOtSummary
+            userId={currentUserIdForPersonal}
+            isAdmin={isCurrentUserAdmin}
+            fetchFn={fetchPersonalOtData}
+          />
+        )}
 
         {/* ส่วนของแถบเครื่องมือดักกรองข้อมูลและการค้นหา */}
         <FilterSection
