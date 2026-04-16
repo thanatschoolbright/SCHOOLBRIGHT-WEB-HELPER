@@ -7,6 +7,7 @@ import {
   HistoryOutlined,
   InfoCircleOutlined,
   ReloadOutlined,
+  SafetyCertificateOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import {
@@ -31,6 +32,7 @@ import { useCallback, useEffect, useState } from "react";
 import { GET_API_LOGS } from "@/helpers/api-log.helper";
 import { ApiLogItem, ApiLogPagination } from "@/types/api-log.type";
 import { useUserProfileStore } from "../_stores/user-profile-store";
+import { SignatureModal } from "./signature-modal";
 
 // columns สำหรับ Activity Log table
 const activityColumns: ColumnsType<ApiLogItem> = [
@@ -111,6 +113,7 @@ const UserInfoTab = () => {
   const { token } = theme.useToken();
   const router = useRouter();
   const { selectedUser, closeDetailModal } = useUserProfileStore();
+  const [signatureModalOpen, setSignatureModalOpen] = useState(false);
   if (!selectedUser) return null;
 
   return (
@@ -179,10 +182,27 @@ const UserInfoTab = () => {
 
       <div className="flex justify-end gap-2 mt-4">
         <Button onClick={closeDetailModal}>ปิดหน้าต่าง</Button>
-        <Button type="primary" icon={<EditOutlined />} onClick={() => router.push(`/admin/user-profile/${selectedUser.id}`)}>
+        <Button
+          icon={<SafetyCertificateOutlined />}
+          onClick={() => setSignatureModalOpen(true)}
+        >
+          จัดการลายเซ็น
+        </Button>
+        <Button
+          type="primary"
+          icon={<EditOutlined />}
+          onClick={() => router.push(`/admin/user-profile/${selectedUser.id}`)}
+        >
           แก้ไขข้อมูล
         </Button>
       </div>
+
+      <SignatureModal
+        open={signatureModalOpen}
+        userId={selectedUser.id}
+        userName={`${selectedUser.firstname_th} ${selectedUser.lastname_th}`}
+        onClose={() => setSignatureModalOpen(false)}
+      />
     </div>
   );
 };

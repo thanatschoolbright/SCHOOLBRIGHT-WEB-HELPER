@@ -27,6 +27,7 @@ import { useEffect, useState } from "react";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
 import { HuaweiBucketStorageService } from "@/services/huawei-bucket-storage.service";
+import { SignatureModal } from "@/app/admin/user-profile/_components/signature-modal";
 import {
   ArrowLeftOutlined,
   CalendarOutlined,
@@ -40,6 +41,7 @@ import {
   LockOutlined,
   MailOutlined,
   PhoneOutlined,
+  SafetyCertificateOutlined,
   SaveOutlined,
   SolutionOutlined,
   UserOutlined,
@@ -73,6 +75,7 @@ const UserEditPage = () => {
   const [positions, setPositions] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [signatureModalOpen, setSignatureModalOpen] = useState(false);
 
   const sessionUser = session?.user as any;
   const isAdmin =
@@ -484,6 +487,28 @@ const UserEditPage = () => {
                     },
                   ]}
                 />
+
+                <Divider />
+
+                {/* ส่วนจัดการลายเซ็นประจำตัว */}
+                <Flex vertical align="center" gap={12}>
+                  <Flex align="center" gap={8}>
+                    <SafetyCertificateOutlined
+                      style={{ color: token.colorTextSecondary }}
+                    />
+                    <Text type="secondary" style={{ fontSize: 13 }}>
+                      ลายเซ็นประจำตัว
+                    </Text>
+                  </Flex>
+                  <Button
+                    icon={<SafetyCertificateOutlined />}
+                    onClick={() => setSignatureModalOpen(true)}
+                    disabled={loading}
+                    block
+                  >
+                    จัดการลายเซ็น
+                  </Button>
+                </Flex>
               </Card>
             </Col>
 
@@ -712,6 +737,13 @@ const UserEditPage = () => {
             </Col>
           </Row>
         </Flex>
+
+        <SignatureModal
+          open={signatureModalOpen}
+          userId={Number(sessionUser?.id)}
+          userName={`${userData?.firstname_th ?? ""} ${userData?.lastname_th ?? ""}`.trim()}
+          onClose={() => setSignatureModalOpen(false)}
+        />
       </DashboardLayout>
     </PermissionLayout>
   );

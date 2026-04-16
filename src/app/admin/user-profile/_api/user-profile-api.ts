@@ -106,5 +106,41 @@ export const responseExportUserExcel = async () => {
   });
 };
 
+// ดึง URL ลายเซ็นปัจจุบันของ user ตาม user_id
+export const responseUserSignature = async (user_id: number) => {
+  return await axios.get(
+    `/api/v2/admin/user-management/signature/read?user_id=${user_id}`,
+  );
+};
+
+// อัปโหลดลายเซ็นของ user ไปยัง OBS
+export const requestUploadSignature = async (
+  file: File,
+  user_id: number,
+  old_signature_path?: string,
+) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("user_id", String(user_id));
+  if (old_signature_path) {
+    formData.append("old_signature_path", old_signature_path);
+  }
+  return await axios.post(
+    "/api/v2/admin/user-management/signature/upload",
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+};
+
+// ลบลายเซ็นของ user ออกจาก OBS และฐานข้อมูล
+export const requestDeleteSignature = async (
+  user_id: number,
+  signature_path: string,
+) => {
+  return await axios.delete("/api/v2/admin/user-management/signature/delete", {
+    data: { user_id, signature_path },
+  });
+};
+
 // จำเป็นต้อง import เพราะใช้ React.Key
 import type React from "react";

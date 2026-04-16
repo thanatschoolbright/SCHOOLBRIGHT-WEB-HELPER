@@ -146,6 +146,38 @@ Use `$transaction` when writing to multiple tables. Never mix models across inst
 
 The gateway reads `school_id`, `user_id`, and `token` from the Redux store and injects a custom header (`JabjaiKey-{school_id}-{user_id}`). On 401, it auto-refreshes the token and retries the original request.
 
+### API helper utilities (`src/helpers/controller/`)
+
+Use these in route handlers instead of writing custom logic:
+
+| File | Function | Purpose |
+|---|---|---|
+| `handle-error.params.ts` | `handleError(err, context?)` | Catches unknown errors → returns `NextResponse` with correct status code + Thai message |
+| `build-pagination.params.ts` | `buildPagination(offset, limit, total)` | Returns `{ page, page_size, total, total_pages }` |
+| `validate.params.ts` | `validateParams(schema, body)` | Zod parse + throws `{ status: 400, validationErrors }` on failure |
+| `safe-parse.params.ts` | `safeParseRequestBody(request)` | `request.json()` with empty-object fallback |
+| `format-date.params.ts` | `formatDate(date)` | Any date → ISO string or `null` |
+
+### Permission system
+
+**Frontend:**
+```ts
+const { can, isAdmin } = useHasPermission();   // src/hooks/use-has-permission.ts
+can("PERMISSION_CODE")        // single check
+can(["CODE_A", "CODE_B"])     // OR logic
+```
+- `isAdmin` is `true` when `session.user.admin_id === 117` — bypasses all permission checks.
+
+**API routes:**
+```ts
+const session = await auth();
+const permissions: string[] = (session?.user as any)?.permissions || [];
+```
+
+**Hardcoded IDs (do not remove):**
+- `admin_id === 117` → super admin, bypasses all permissions
+- `user_id === "49"` → sole OT approver (checked in overtime change-status route and page)
+
 ### Localization
 
 i18next + next-intl with Thai as primary language. Locale files in `src/locales/`. Config at `config/next-i18next.config.js`.
