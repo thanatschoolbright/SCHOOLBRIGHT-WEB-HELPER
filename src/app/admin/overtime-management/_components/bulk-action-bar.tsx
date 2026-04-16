@@ -8,7 +8,6 @@ import {
   FilePdfOutlined,
 } from "@ant-design/icons";
 import { Alert, Button, Flex, Popconfirm, Space, Tag, Typography } from "antd";
-import { useRouter } from "next/navigation";
 import React from "react";
 
 const { Text } = Typography;
@@ -19,6 +18,7 @@ interface BulkActionBarProps {
   onBulkApprove: () => void;
   onBulkReject: () => void;
   onBulkMarkPaid: () => void;
+  onBulkPdfDownloadZip: () => void;
   isLoading: boolean;
 }
 
@@ -32,17 +32,10 @@ const BulkActionBar: React.FC<BulkActionBarProps> = ({
   onBulkApprove,
   onBulkReject,
   onBulkMarkPaid,
+  onBulkPdfDownloadZip,
   isLoading,
 }) => {
-  const router = useRouter();
-
   if (selectedKeys.length === 0) return null;
-
-  // นำทางไปยังหน้า bulk preview เพื่อพิมพ์ PDF ทุกรายการที่เลือก
-  const handleBulkPdf = () => {
-    const ids = selectedKeys.map((k) => String(k)).join(",");
-    router.push(`/timesheet/overtime/preview/bulk?ids=${ids}`);
-  };
 
   return (
     <Alert
@@ -105,11 +98,11 @@ const BulkActionBar: React.FC<BulkActionBarProps> = ({
 
             <Button
               icon={<FilePdfOutlined />}
-              onClick={handleBulkPdf}
+              onClick={onBulkPdfDownloadZip}
               disabled={isLoading}
               size="small"
             >
-              พิมพ์ PDF ({selectedKeys.length})
+              ดาวน์โหลด PDF (ZIP)
             </Button>
 
             <Button

@@ -1,5 +1,9 @@
 "use client";
 
+import AnalyticsModal from "@/app/timesheet/overtime/_components/analytics-modal";
+import BulkDownloadTrackingModal from "@/app/timesheet/overtime/_components/bulk-download-tracking-modal";
+import DetailModal from "@/app/timesheet/overtime/_components/detail-modal";
+import RejectReasonModal from "@/app/timesheet/overtime/_components/reject-reason-modal";
 import PermissionLayout from "@/components/layouts/permission-layout";
 import StatusModalComponent, {
   type StatusModalProps,
@@ -20,16 +24,13 @@ import { Button, Flex, Space } from "antd";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import AnalyticsModal from "@/app/timesheet/overtime/_components/analytics-modal";
-import DetailModal from "@/app/timesheet/overtime/_components/detail-modal";
-import RejectReasonModal from "@/app/timesheet/overtime/_components/reject-reason-modal";
-import AdminExportModal from "./_components/export-modal";
 import AdminOtFilter from "./_components/admin-ot-filter";
 import AdminOtSummary from "./_components/admin-ot-summary";
 import AdminOtTable from "./_components/admin-ot-table";
-import BulkActionBar from "./_components/bulk-action-bar";
 import ApprovalSlaDashboard from "./_components/approval-sla-dashboard";
+import BulkActionBar from "./_components/bulk-action-bar";
 import DepartmentBreakdown from "./_components/department-breakdown";
+import AdminExportModal from "./_components/export-modal";
 import MarkPaidModal from "./_components/mark-paid-modal";
 import MonthlyCostReport from "./_components/monthly-cost-report";
 import OverdueAlert from "./_components/overdue-alert";
@@ -48,9 +49,7 @@ interface PaginationState {
  */
 export default function AdminOvertimeManagementPage() {
   const authState = useAppSelector((state) => state.callAdminLogin);
-  const currentUserId = String(
-    authState?.response?.data?.user_data?.id ?? "",
-  );
+  const currentUserId = String(authState?.response?.data?.user_data?.id ?? "");
 
   const { setDataSource, setIsLoading, setTotalRecords, dataSource } =
     useAdminOvertimeStore();
@@ -71,6 +70,10 @@ export default function AdminOvertimeManagementPage() {
   // --- Row Selection (A1: Bulk Actions) ---
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
   const [isBulkLoading, setIsBulkLoading] = useState(false);
+  const [isBulkTrackingModalVisible, setIsBulkTrackingModalVisible] =
+    useState(false);
+  const [bulkDownloadProgress, setBulkDownloadProgress] = useState(0);
+  const [bulkTrackingData, setBulkTrackingData] = useState<any[]>([]);
 
   // --- Modal / Drawer States ---
   const [selectedDetail, setSelectedDetail] = useState<any>(null);
@@ -103,8 +106,9 @@ export default function AdminOvertimeManagementPage() {
       const res = await callApiService.get("/api/v1/timesheet/overtime/users");
       if (res?.data?.status === 200 && Array.isArray(res.data.data)) {
         const opts = res.data.data.map((u: any) => {
-          const name =
-            `${u.firstname_th || u.firstname || ""} ${u.lastname_th || u.lastname || ""}`.trim();
+          const name = `${u.firstname_th || u.firstname || ""} ${
+            u.lastname_th || u.lastname || ""
+          }`.trim();
           const code = u.employee_code ? ` (${u.employee_code})` : "";
           return {
             label: `${name}${code}` || `User #${u.id}`,
@@ -264,10 +268,8 @@ export default function AdminOvertimeManagementPage() {
       }
     }
 
-    if (successCount > 0)
-      toast.success(`อนุมัติสำเร็จ ${successCount} รายการ`);
-    if (failCount > 0)
-      toast.error(`ไม่สามารถอนุมัติได้ ${failCount} รายการ`);
+    if (successCount > 0) toast.success(`อนุมัติสำเร็จ ${successCount} รายการ`);
+    if (failCount > 0) toast.error(`ไม่สามารถอนุมัติได้ ${failCount} รายการ`);
 
     setSelectedKeys([]);
     setIsBulkLoading(false);
@@ -297,13 +299,589 @@ export default function AdminOvertimeManagementPage() {
 
     if (successCount > 0)
       toast.success(`ทำเครื่องหมายจ่ายเงินแล้ว ${successCount} รายการ`);
-    if (failCount > 0)
-      toast.error(`ไม่สามารถดำเนินการได้ ${failCount} รายการ`);
+    if (failCount > 0) toast.error(`ไม่สามารถดำเนินการได้ ${failCount} รายการ`);
 
     setSelectedKeys([]);
     setIsBulkLoading(false);
     loadOvertimeData({ page: currentPageRef.current });
   }, [selectedKeys, changeStatus, loadOvertimeData]);
+
+  // ดาวน์โหลด PDF เป็น ZIP สำหรับรายการที่เลือกทั้งหมด
+  const handleBulkPdfDownloadZip = useCallback(async () => {
+    const { bulkPdfDownloadService } = await import(
+      "@/helpers/bulk-pdf-download.helper"
+    );
+
+    const fetchImageAsBase64 = async (url: string): Promise<string> => {
+      try {
+        const fetchUrl = url.startsWith("/")
+          ? url
+          : `/api/v1/proxy/image?url=${encodeURIComponent(url)}`;
+        const response = await fetch(fetchUrl);
+        const blob = await response.blob();
+        return await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      } catch {
+        return "";
+      }
+    };
+
+    const formatDateThai = (date: string | null | undefined, sep = "/") => {
+      if (!date) return "-";
+      const dateValue = dayjs(date);
+      return `${dateValue.format("DD")}${sep}${dateValue.format("MM")}${sep}${
+        dateValue.year() + 543
+      }`;
+    };
+
+    try {
+      setIsBulkLoading(true);
+      setBulkDownloadProgress(0);
+
+      const dataItems: any[] = [];
+      for (const overtimeId of selectedKeys) {
+        try {
+          const response = await callApiService.post(
+            "/api/v1/timesheet/overtime/read",
+            { id: String(overtimeId) },
+          );
+          if (response?.data?.status === 200 && response.data.data?.[0]) {
+            dataItems.push(response.data.data[0]);
+          }
+        } catch (error) {
+          console.error(`Failed to fetch OT ${String(overtimeId)}:`, error);
+        }
+      }
+
+      if (dataItems.length === 0) {
+        toast.error("ไม่พบข้อมูลที่จะดาวน์โหลด");
+        return;
+      }
+
+      const temporaryContainer = document.createElement("div");
+      temporaryContainer.style.position = "fixed";
+      temporaryContainer.style.left = "-9999px";
+      temporaryContainer.style.top = "0";
+      temporaryContainer.id = "bulk-pdf-render-container-admin";
+      document.body.appendChild(temporaryContainer);
+
+      const styleElement = document.createElement("style");
+      styleElement.innerHTML = `
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
+        .ot-print-temp {
+          font-family: 'Sarabun', sans-serif;
+          color: #1a1a1b;
+          background: #fff;
+          width: 210mm;
+          padding: 24px 32px;
+          box-sizing: border-box;
+          line-height: 1.3;
+        }
+        .ot-header-temp {
+          display: flex;
+          align-items: center;
+          border: 1px solid #fed7aa;
+          padding: 10px;
+          margin-bottom: 12px;
+          border-radius: 8px;
+          background: #fff7ed;
+        }
+        .ot-doc-title-temp {
+          flex: 1;
+          text-align: center;
+          font-size: 16px;
+          font-weight: 700;
+          color: #9a3412;
+        }
+        .ot-doc-meta-temp {
+          font-size: 10px;
+          display: flex;
+          flex-direction: column;
+          gap: 1px;
+          color: #c2410c;
+          text-align: right;
+        }
+        .ot-info-temp {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 6px 24px;
+          margin-bottom: 12px;
+          padding: 12px;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          background: #ffffff;
+        }
+        .ot-label-temp { font-weight: 600; color: #475569; min-width: 80px; font-size: 11px; }
+        .ot-value-temp { flex: 1; border-bottom: 1px solid #f1f5f9; padding-bottom: 1px; color: #1e293b; font-size: 11px; }
+        .ot-table-temp { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 10px; border-radius: 6px; overflow: hidden; border: 1px solid #e2e8f0; }
+        .ot-table-temp th, .ot-table-temp td { padding: 6px 8px; vertical-align: middle; text-align: center; border: 1px solid #e2e8f0; }
+        .ot-table-temp th { background-color: #f8fafc; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 9px; }
+        .ot-table-temp td { color: #334155; }
+        .ot-section-header {
+          margin-bottom: 8px;
+          padding: 6px 10px;
+          background: #f8fafc;
+          border-left: 4px solid #475569;
+          color: #1e293b;
+          font-size: 11px;
+          font-weight: 700;
+        }
+        .ot-summary-temp {
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+          gap: 16px;
+          font-weight: 600;
+          font-size: 11px;
+          margin-bottom: 16px;
+          padding: 8px 12px;
+          background: #fcfcfc;
+          border: 1px solid #f1f5f9;
+          border-radius: 6px;
+        }
+        .ot-total-label { color: #64748b; }
+        .ot-total-value { font-size: 14px; color: #1e293b; font-weight: 700; }
+        .ot-sign-container-temp { display: flex; justify-content: space-between; margin-top: 12px; gap: 12px; }
+        .ot-sign-box-temp { text-align: center; width: 48%; padding: 8px; border: 1px solid #f8fafc; border-radius: 6px; background: #fafafa; }
+        .ot-sign-title-temp { font-weight: 700; margin-bottom: 4px; font-size: 11px; color: #475569; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px; }
+        .ot-sign-line-temp { border-bottom: 1px solid #e2e8f0; margin: 4px auto 4px; width: 70%; }
+        .ot-sub-form-temp { margin-top: 20px; border-top: 1px dashed #e2e8f0; padding-top: 12px; }
+        .evidence-page-temp { padding: 24px 32px; }
+        .evidence-grid-temp { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .evidence-item-temp { border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; height: 500px; display: flex; flex-direction: column; align-items: center; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .evidence-label-temp { font-weight: 700; color: #1e293b; margin-bottom: 12px; text-align: center; font-size: 13px; }
+        .evidence-img-wrapper-temp { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; border-radius: 8px; background: #f8fafc; padding: 8px; overflow: hidden; }
+        .evidence-img-temp { max-width: 100%; max-height: 100%; object-fit: contain; }
+      `;
+      temporaryContainer.appendChild(styleElement);
+
+      const itemsForZip: Array<{
+        employeeCode: string;
+        fileName: string;
+        element: HTMLElement[];
+      }> = [];
+
+      for (const data of dataItems) {
+        const employeeCode = data?.requester_employee_code || "UNKNOWN";
+        const requesterName = data?.requester_name || "-";
+        const requesterPosition = data?.requester_position || "-";
+        const requesterDepartment = data?.department || "IT";
+
+        const totalBudgetHours =
+          data.descriptions?.reduce((accumulator: number, item: any) => {
+            if (!item?.start_date || !item?.end_date) {
+              return accumulator + (Number(item?.duration) || 0);
+            }
+            const budgetStart = dayjs(item.start_date).startOf("hour");
+            const budgetEnd = dayjs(item.end_date)
+              .add(1, "hour")
+              .startOf("hour");
+            const hourDiff = budgetEnd.diff(budgetStart, "hour");
+            return accumulator + (hourDiff > 0 ? hourDiff : 0);
+          }, 0) || 0;
+
+        const totalActualMinutes =
+          data.descriptions?.reduce((accumulator: number, item: any) => {
+            if (!item?.start_date || !item?.end_date) return accumulator;
+            const minuteDiff = dayjs(item.end_date).diff(
+              dayjs(item.start_date),
+              "minute",
+            );
+            return accumulator + (minuteDiff > 0 ? minuteDiff : 0);
+          }, 0) || 0;
+
+        const firstDescription = data.descriptions?.[0] || {};
+        const proofData = firstDescription.proof || {};
+        const headerDate = data.request_date || data.created_at;
+
+        const formatDurationToDecimal = (minutes: number) => {
+          if (!minutes || minutes <= 0) return "0.00";
+          return (minutes / 60).toFixed(2);
+        };
+
+        const [
+          logoBase64,
+          signatureBase64,
+          approverSignatureBase64,
+          image1Base64,
+          image2Base64,
+          image3Base64,
+          image4Base64,
+        ] = await Promise.all([
+          fetchImageAsBase64("/sb_logo.webp"),
+          proofData.signature_1
+            ? fetchImageAsBase64(proofData.signature_1)
+            : Promise.resolve(""),
+          fetchImageAsBase64("/signatures/THANAT.png"),
+          proofData.image_1
+            ? fetchImageAsBase64(proofData.image_1)
+            : Promise.resolve(""),
+          proofData.image_2
+            ? fetchImageAsBase64(proofData.image_2)
+            : Promise.resolve(""),
+          proofData.image_3
+            ? fetchImageAsBase64(proofData.image_3)
+            : Promise.resolve(""),
+          proofData.image_4
+            ? fetchImageAsBase64(proofData.image_4)
+            : Promise.resolve(""),
+        ]);
+
+        const evidenceBase64 = [
+          image1Base64,
+          image2Base64,
+          image3Base64,
+          image4Base64,
+        ];
+
+        const printableElement = document.createElement("div");
+        printableElement.className = "ot-print-temp";
+        printableElement.innerHTML = `
+          <div class="ot-header-temp">
+            <div class="ot-logo" style="width:140px">${
+              logoBase64
+                ? `<img src="${logoBase64}" style="max-height:45px">`
+                : ""
+            }</div>
+            <div class="ot-doc-title-temp">แบบคำขอทำงานล่วงเวลา (OT)</div>
+            <div class="ot-doc-meta-temp">
+              <div><strong>ประจำเดือน:</strong> ${
+                headerDate
+                  ? `${dayjs(headerDate).format("MM")}/${
+                      dayjs(headerDate).year() + 543
+                    }`
+                  : "-"
+              }</div>
+              <div><strong>วันที่พิมพ์:</strong> ${formatDateThai(
+                headerDate,
+              )}</div>
+            </div>
+          </div>
+
+          <div class="ot-info-temp">
+            <div style="display:flex"><span class="ot-label-temp">ชื่อ - สกุล:</span><span class="ot-value-temp">${requesterName}</span></div>
+            <div style="display:flex"><span class="ot-label-temp">รหัสพนักงาน:</span><span class="ot-value-temp">${employeeCode}</span></div>
+            <div style="display:flex"><span class="ot-label-temp">ตำแหน่ง:</span><span class="ot-value-temp">${requesterPosition}</span></div>
+            <div style="display:flex"><span class="ot-label-temp">ฝ่าย/แผนก:</span><span class="ot-value-temp">${requesterDepartment}</span></div>
+          </div>
+
+          <div class="ot-section-header">รายละเอียดการทำงานล่วงเวลา (ตามแผน)</div>
+          <table class="ot-table-temp">
+            <thead>
+              <tr>
+                <th style="width:5%">ลำดับ</th>
+                <th style="width:12%">วันที่</th>
+                <th>รายละเอียดงานที่ปฏิบัติจริง</th>
+                <th style="width:12%">เวลาเริ่ม</th>
+                <th style="width:12%">เวลาสิ้นสุด</th>
+                <th style="width:10%">รวม (ชม.)</th>
+                <th style="width:15%">หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(data.descriptions || [])
+                .map((descriptionItem: any, itemIndex: number) => {
+                  const diffMinutes =
+                    descriptionItem.start_date && descriptionItem.end_date
+                      ? dayjs(descriptionItem.end_date)
+                          .add(1, "hour")
+                          .startOf("hour")
+                          .diff(
+                            dayjs(descriptionItem.start_date).startOf("hour"),
+                            "minute",
+                          )
+                      : (Number(descriptionItem.duration) || 0) * 60;
+
+                  return `<tr>
+                    <td>${itemIndex + 1}</td>
+                    <td>${
+                      descriptionItem.date
+                        ? formatDateThai(descriptionItem.date)
+                        : "-"
+                    }</td>
+                    <td style="text-align:left">${
+                      descriptionItem.description || "-"
+                    }</td>
+                    <td>${
+                      descriptionItem.start_date
+                        ? dayjs(descriptionItem.start_date).format("HH:00")
+                        : "-"
+                    }</td>
+                    <td>${
+                      descriptionItem.end_date
+                        ? dayjs(descriptionItem.end_date)
+                            .add(1, "hour")
+                            .format("HH:00")
+                        : "-"
+                    }</td>
+                    <td style="font-weight:600">${formatDurationToDecimal(
+                      diffMinutes,
+                    )}</td>
+                    <td>-</td>
+                  </tr>`;
+                })
+                .join("")}
+            </tbody>
+          </table>
+
+          <div class="ot-summary-temp">
+            <div style="margin-right:auto; color: #64748b;">เหตุผลการขอ: <span style="color:#1e293b">${
+              data.reason || "-"
+            }</span></div>
+            <div class="ot-total-label">รวมเวลาทั้งหมด (Plan):</div>
+            <div class="ot-total-value">${formatDurationToDecimal(
+              totalBudgetHours * 60,
+            )} ชม.</div>
+          </div>
+
+          <div class="ot-sign-container-temp">
+            <div class="ot-sign-box-temp">
+              <div class="ot-sign-title-temp">ผู้ขออนุมัติ</div>
+              <div style="height:45px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:2px;">
+                ${
+                  signatureBase64
+                    ? `<img src="${signatureBase64}" style="max-height:40px;">`
+                    : ""
+                }
+              </div>
+              <div class="ot-sign-line-temp"></div>
+              <div style="font-size:11px; font-weight:600; color:#334155;">(${requesterName
+                .replace(/\s*\([^)]*\)/g, "")
+                .trim()})</div>
+              <div style="font-size:9px; color:#64748b; margin-top:1px;">${requesterPosition}</div>
+              <div style="font-size:9px; color:#94a3b8; margin-top:2px;">วันที่ ${formatDateThai(
+                headerDate,
+                " / ",
+              )}</div>
+            </div>
+            <div class="ot-sign-box-temp">
+              <div class="ot-sign-title-temp">ผู้ตรวจสอบ / รับทราบ</div>
+              <div style="height:45px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:2px;">
+                ${
+                  approverSignatureBase64
+                    ? `<img src="${approverSignatureBase64}" style="max-height:40px;">`
+                    : ""
+                }
+              </div>
+              <div class="ot-sign-line-temp"></div>
+              <div style="font-size:11px; font-weight:600; color:#334155;">ธนัท พรหมพิริยา</div>
+              <div style="font-size:9px; color:#64748b; margin-top:1px;">หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ</div>
+              <div style="font-size:9px; color:#94a3b8; margin-top:2px;">วันที่ ${formatDateThai(
+                headerDate,
+                " / ",
+              )}</div>
+            </div>
+          </div>
+
+          <div class="ot-sub-form-temp">
+            <div class="ot-section-header">ส่วนสำหรับบันทึกการปฏิบัติงานจริง (Actual)</div>
+            <table class="ot-table-temp">
+              <thead>
+                <tr>
+                  <th style="width:5%">ลำดับ</th>
+                  <th style="width:12%">วันที่</th>
+                  <th>รายละเอียดงานที่ปฏิบัติจริง</th>
+                  <th style="width:12%">เวลาเริ่ม</th>
+                  <th style="width:12%">เวลาสิ้นสุด</th>
+                  <th style="width:10%">รวม (ชม.)</th>
+                  <th style="width:15%">หมายเหตุ</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${(data.descriptions || [])
+                  .map((descriptionItem: any, itemIndex: number) => {
+                    const diffMinutes =
+                      descriptionItem.start_date && descriptionItem.end_date
+                        ? dayjs(descriptionItem.end_date).diff(
+                            dayjs(descriptionItem.start_date),
+                            "minute",
+                          )
+                        : 0;
+
+                    return `<tr>
+                      <td>${itemIndex + 1}</td>
+                      <td>${
+                        descriptionItem.date
+                          ? formatDateThai(descriptionItem.date)
+                          : "-"
+                      }</td>
+                      <td style="text-align:left">${
+                        descriptionItem.description || "-"
+                      }</td>
+                      <td>${
+                        descriptionItem.start_date
+                          ? dayjs(descriptionItem.start_date).format("HH:mm")
+                          : "-"
+                      }</td>
+                      <td>${
+                        descriptionItem.end_date
+                          ? dayjs(descriptionItem.end_date).format("HH:mm")
+                          : "-"
+                      }</td>
+                      <td style="font-weight:600">${formatDurationToDecimal(
+                        diffMinutes,
+                      )}</td>
+                      <td>-</td>
+                    </tr>`;
+                  })
+                  .join("")}
+              </tbody>
+            </table>
+            <div class="ot-summary-temp">
+              <div style="margin-left:auto" class="ot-total-label">รวมเวลาปฏิบัติงานจริง (Actual):</div>
+              <div class="ot-total-value">${formatDurationToDecimal(
+                totalActualMinutes,
+              )} ชม.</div>
+            </div>
+
+            <div class="ot-sign-container-temp">
+              <div class="ot-sign-box-temp">
+                <div class="ot-sign-title-temp">ผู้บันทึกการทำงาน</div>
+                <div style="height:45px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:2px;">
+                  ${
+                    signatureBase64
+                      ? `<img src="${signatureBase64}" style="max-height:40px;">`
+                      : ""
+                  }
+                </div>
+                <div class="ot-sign-line-temp"></div>
+                <div style="font-size:11px; font-weight:600; color:#334155;">(${requesterName
+                  .replace(/\s*\([^)]*\)/g, "")
+                  .trim()})</div>
+                <div style="font-size:9px; color:#64748b; margin-top:1px;">${requesterPosition}</div>
+                <div style="font-size:9px; color:#94a3b8; margin-top:2px;">วันที่ ${formatDateThai(
+                  headerDate,
+                  " / ",
+                )}</div>
+              </div>
+              <div class="ot-sign-box-temp">
+                <div class="ot-sign-title-temp">ผู้รับรองการทำงาน</div>
+                <div style="height:45px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:2px;">
+                  ${
+                    approverSignatureBase64
+                      ? `<img src="${approverSignatureBase64}" style="max-height:40px;">`
+                      : ""
+                  }
+                </div>
+                <div class="ot-sign-line-temp"></div>
+                <div style="font-size:11px; font-weight:600; color:#334155;">ธนัท พรหมพิริยา</div>
+                <div style="font-size:9px; color:#64748b; margin-top:1px;">หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ</div>
+                <div style="font-size:9px; color:#94a3b8; margin-top:2px;">วันที่ ${formatDateThai(
+                  headerDate,
+                  " / ",
+                )}</div>
+              </div>
+            </div>
+          </div>
+        `;
+        temporaryContainer.appendChild(printableElement);
+
+        const evidenceElement = document.createElement("div");
+        evidenceElement.className = "ot-print-temp";
+        evidenceElement.innerHTML = `
+          <div class="evidence-page-temp">
+            <div style="font-size:16px; font-weight:700; text-align:center; border:2px solid #000; padding:8px; border-radius:4px;">หลักฐานการทำงาน</div>
+            <div class="evidence-grid-temp">
+              ${[0, 1, 2, 3]
+                .map(
+                  (index) => `
+                <div class="evidence-item-temp">
+                  <div class="evidence-label-temp">หลักฐาน #${index + 1}</div>
+                  <div class="evidence-img-wrapper-temp">
+                    ${
+                      evidenceBase64[index]
+                        ? `<img src="${evidenceBase64[index]}" class="evidence-img-temp">`
+                        : `<div style="color:#999">ไม่มีรูปภาพ</div>`
+                    }
+                  </div>
+                </div>
+              `,
+                )
+                .join("")}
+            </div>
+          </div>
+        `;
+        temporaryContainer.appendChild(evidenceElement);
+
+        itemsForZip.push({
+          employeeCode,
+          fileName: `OT_${employeeCode}_${requesterName}_${dayjs(
+            data.request_date,
+          ).format("DD-MM-YYYY")}_${data.id}.pdf`,
+          element: [printableElement, evidenceElement],
+        });
+      }
+
+      setBulkTrackingData(
+        itemsForZip.map((item, index) => ({
+          key: `${item.fileName}_${index}`,
+          fileName: item.fileName,
+          status: "waiting",
+          progress: 0,
+        })),
+      );
+      setIsBulkTrackingModalVisible(true);
+
+      await bulkPdfDownloadService.generateZip(
+        itemsForZip,
+        `SB_OT_Bulk_${dayjs().format("YYYYMMDD_HHmm")}.zip`,
+        (index: number, total: number, status: string, fileName: string) => {
+          setBulkDownloadProgress(
+            Math.round(
+              ((index + (status === "completed" ? 1 : 0)) / total) * 100,
+            ),
+          );
+
+          setBulkTrackingData((previousData) => {
+            const nextData = [...previousData];
+            if (
+              nextData[index] &&
+              (nextData[index].fileName === fileName || status === "zipping")
+            ) {
+              nextData[index] = {
+                ...nextData[index],
+                status,
+              };
+              return nextData;
+            }
+
+            const targetIndex = nextData.findIndex(
+              (item) => item.fileName === fileName,
+            );
+            if (status === "zipping") {
+              return previousData.map((item) => ({
+                ...item,
+                status: item.status === "completed" ? "completed" : "failed",
+              }));
+            }
+
+            if (targetIndex !== -1) {
+              nextData[targetIndex] = {
+                ...nextData[targetIndex],
+                status,
+              };
+            }
+            return nextData;
+          });
+        },
+      );
+
+      document.body.removeChild(temporaryContainer);
+      toast.success("ดาวน์โหลดไฟล์ ZIP สำเร็จ");
+      setTimeout(() => setIsBulkTrackingModalVisible(false), 3000);
+    } catch (error) {
+      console.error("Bulk Download Error:", error);
+      toast.error("เกิดข้อผิดพลาดในการดาวน์โหลด กรุณาลองใหม่");
+      setIsBulkTrackingModalVisible(false);
+    } finally {
+      setIsBulkLoading(false);
+      setBulkDownloadProgress(0);
+    }
+  }, [selectedKeys]);
 
   // -----------------------------------------------------------------------
   // ปฏิเสธ — รองรับทั้งรายการเดียวและ bulk
@@ -320,7 +898,11 @@ export default function AdminOvertimeManagementPage() {
 
           for (const key of selectedKeys) {
             try {
-              const ok = await changeStatus(key as string | number, "rejected", reason);
+              const ok = await changeStatus(
+                key as string | number,
+                "rejected",
+                reason,
+              );
               if (ok) successCount++;
               else failCount++;
             } catch {
@@ -390,7 +972,10 @@ export default function AdminOvertimeManagementPage() {
   // B1 — กรองดูเฉพาะรายการ pending เกินกำหนด (> 3 วัน) ด้วยช่วงวันที่
   const { setFilterStatus, setFilterDateRange } = useAdminOvertimeStore();
   const handleFilterOverdue = useCallback(() => {
-    const overdueFrom = dayjs().subtract(365, "day").startOf("day").toISOString();
+    const overdueFrom = dayjs()
+      .subtract(365, "day")
+      .startOf("day")
+      .toISOString();
     const overdueTo = dayjs().subtract(3, "day").endOf("day").toISOString();
     setFilterStatus("pending");
     setFilterDateRange([overdueFrom, overdueTo]);
@@ -416,6 +1001,13 @@ export default function AdminOvertimeManagementPage() {
     >
       <DashboardLayout>
         <Flex vertical gap={24} style={{ paddingBottom: 60 }}>
+          <BulkDownloadTrackingModal
+            visible={isBulkTrackingModalVisible}
+            onClose={() => setIsBulkTrackingModalVisible(false)}
+            bulkDownloadProgress={bulkDownloadProgress}
+            bulkTrackingData={bulkTrackingData}
+          />
+
           {/* ส่วนหัว */}
           <HeaderBar
             icon={<SolutionOutlined />}
@@ -483,6 +1075,7 @@ export default function AdminOvertimeManagementPage() {
             onBulkApprove={handleBulkApprove}
             onBulkReject={handleBulkRejectOpen}
             onBulkMarkPaid={handleBulkMarkPaid}
+            onBulkPdfDownloadZip={handleBulkPdfDownloadZip}
             isLoading={isBulkLoading}
           />
 
@@ -526,7 +1119,7 @@ export default function AdminOvertimeManagementPage() {
             overtimeId={
               rejectModal.isBulk
                 ? undefined
-                : (rejectModal.overtimeId ?? undefined)
+                : rejectModal.overtimeId ?? undefined
             }
             loading={isActionLoading || isBulkLoading}
             onClose={() =>
