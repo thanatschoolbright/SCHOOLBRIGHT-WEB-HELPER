@@ -153,8 +153,9 @@ export async function createOvertimeWithNotification(
   const managerEmail = process.env.NEXT_PUBLIC_EMAIL_NOTIFICATION;
   if (managerEmail) {
     // 3. เตรียมข้อมูลผู้ขอ (Requester) สำหรับใส่ใน Email
-    let fullName =
-      `${payload.firstname ?? ""} ${payload.lastname ?? ""}`.trim();
+    let fullName = `${payload.firstname ?? ""} ${
+      payload.lastname ?? ""
+    }`.trim();
     if (!fullName) fullName = "-";
     let employeeCode = payload.employee_code ?? "-";
     let department = payload.department ?? "-";
@@ -175,8 +176,9 @@ export async function createOvertimeWithNotification(
           email?: string | null;
           department?: { name_th?: string | null } | null;
         };
-        const dbFullName =
-          `${u.firstname_th ?? ""} ${u.lastname_th ?? ""}`.trim();
+        const dbFullName = `${u.firstname_th ?? ""} ${
+          u.lastname_th ?? ""
+        }`.trim();
         if (dbFullName) fullName = dbFullName;
         employeeCode = u.employee_code ?? employeeCode;
         department = u.department?.name_th ?? department;
@@ -218,7 +220,9 @@ export async function createOvertimeWithNotification(
             ${dayjs(desc.date).format("DD/MM/YYYY")}
           </td>
           <td style="padding: 14px 16px; font-size: 13px; color: #374151; border-bottom: 1px solid #f1f5f9; white-space: nowrap;">
-            ${dayjs(desc.startDate).format("HH:mm")} — ${dayjs(desc.endDate).format("HH:mm")}
+            ${dayjs(desc.startDate).format("HH:mm")} — ${dayjs(
+          desc.endDate,
+        ).format("HH:mm")}
           </td>
           <td style="padding: 14px 16px; font-size: 13px; font-weight: 700; color: #ea580c; border-bottom: 1px solid #f1f5f9; text-align: center; white-space: nowrap;">
             ${String(desc.duration)} ชม.
@@ -250,7 +254,9 @@ export async function createOvertimeWithNotification(
             ${descriptionRows}
             <tr style="background-color: #fff7ed;">
               <td colspan="2" style="padding: 12px 16px; font-size: 13px; font-weight: 700; color: #7c2d12; text-align: right; border-top: 2px solid #fed7aa;">รวมทั้งหมด</td>
-              <td style="padding: 12px 16px; font-size: 14px; font-weight: 800; color: #ea580c; text-align: center; border-top: 2px solid #fed7aa;">${totalHours.toFixed(1)} ชม.</td>
+              <td style="padding: 12px 16px; font-size: 14px; font-weight: 800; color: #ea580c; text-align: center; border-top: 2px solid #fed7aa;">${totalHours.toFixed(
+                1,
+              )} ชม.</td>
               <td colspan="2" style="border-top: 2px solid #fed7aa;"></td>
             </tr>
           </tbody>
@@ -294,15 +300,21 @@ export async function createOvertimeWithNotification(
         <table style="width:100%;border-collapse:collapse;">
           <tr>
             <td style="padding:9px 0;color:#9a3412;font-size:12px;font-weight:600;width:38%;vertical-align:middle;">ชื่อ-นามสกุล</td>
-            <td style="padding:9px 0;color:#111827;font-size:14px;font-weight:600;">: ${requesterInfo.fullName}</td>
+            <td style="padding:9px 0;color:#111827;font-size:14px;font-weight:600;">: ${
+              requesterInfo.fullName
+            }</td>
           </tr>
           <tr>
             <td style="padding:9px 0;color:#9a3412;font-size:12px;font-weight:600;vertical-align:middle;border-top:1px solid #fff7ed;">รหัสพนักงาน</td>
-            <td style="padding:9px 0;color:#374151;font-size:13px;border-top:1px solid #fff7ed;">: ${requesterInfo.employeeCode}</td>
+            <td style="padding:9px 0;color:#374151;font-size:13px;border-top:1px solid #fff7ed;">: ${
+              requesterInfo.employeeCode
+            }</td>
           </tr>
           <tr>
             <td style="padding:9px 0;color:#9a3412;font-size:12px;font-weight:600;vertical-align:middle;border-top:1px solid #fff7ed;">แผนก</td>
-            <td style="padding:9px 0;color:#374151;font-size:13px;border-top:1px solid #fff7ed;">: ${requesterInfo.department}</td>
+            <td style="padding:9px 0;color:#374151;font-size:13px;border-top:1px solid #fff7ed;">: ${
+              requesterInfo.department
+            }</td>
           </tr>
           <tr>
             <td style="padding:9px 0;color:#9a3412;font-size:12px;font-weight:600;vertical-align:middle;border-top:1px solid #fff7ed;">วันที่ขออนุมัติ</td>
@@ -325,7 +337,9 @@ export async function createOvertimeWithNotification(
           <div style="width:4px;height:20px;background:linear-gradient(180deg,#f97316,#ea580c);border-radius:2px;margin-right:10px;flex-shrink:0;"></div>
           <span style="color:#111827;font-size:15px;font-weight:700;">รายการงานที่ปฏิบัติ</span>
           <span style="margin-left:10px;padding:2px 10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:999px;font-size:11px;font-weight:600;color:#ea580c;">
-            ${(payload.descriptions ?? []).length} รายการ · ${totalHours.toFixed(1)} ชม.
+            ${
+              (payload.descriptions ?? []).length
+            } รายการ · ${totalHours.toFixed(1)} ชม.
           </span>
         </div>
         <div style="border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
@@ -435,19 +449,58 @@ export async function updateOvertimeStatusWithNotification(
       };
 
       const fullName = `${u.firstname_th ?? ""} ${u.lastname_th ?? ""}`.trim();
-      const fullNameEn = `${u.firstname_en ?? ""} ${u.lastname_en ?? ""}`.trim();
+      const fullNameEn = `${u.firstname_en ?? ""} ${
+        u.lastname_en ?? ""
+      }`.trim();
 
-      const STATUS_MAP: Record<string, { label: string; color: string; bg: string; headerColor: string }> = {
-        approved:        { label: "อนุมัติแล้ว",        color: "#15803d", bg: "#dcfce7", headerColor: "#16a34a" },
-        paid:            { label: "จ่าย OT สำเร็จ",     color: "#1d4ed8", bg: "#dbeafe", headerColor: "#2563eb" },
-        rejected:        { label: "ไม่อนุมัติ",          color: "#b91c1c", bg: "#fee2e2", headerColor: "#dc2626" },
-        payment_failed:  { label: "จ่าย OT ล้มเหลว",    color: "#92400e", bg: "#fef3c7", headerColor: "#d97706" },
-        pending:         { label: "รออนุมัติ",           color: "#7c3aed", bg: "#ede9fe", headerColor: "#7c3aed" },
+      const STATUS_MAP: Record<
+        string,
+        { label: string; color: string; bg: string; headerColor: string }
+      > = {
+        approved: {
+          label: "อนุมัติแล้ว",
+          color: "#15803d",
+          bg: "#dcfce7",
+          headerColor: "#16a34a",
+        },
+        paid: {
+          label: "จ่าย OT สำเร็จ",
+          color: "#1d4ed8",
+          bg: "#dbeafe",
+          headerColor: "#2563eb",
+        },
+        rejected: {
+          label: "ไม่อนุมัติ",
+          color: "#b91c1c",
+          bg: "#fee2e2",
+          headerColor: "#dc2626",
+        },
+        payment_failed: {
+          label: "จ่าย OT ล้มเหลว",
+          color: "#92400e",
+          bg: "#fef3c7",
+          headerColor: "#d97706",
+        },
+        pending: {
+          label: "รออนุมัติ",
+          color: "#7c3aed",
+          bg: "#ede9fe",
+          headerColor: "#7c3aed",
+        },
       };
-      const st = STATUS_MAP[status] ?? { label: status, color: "#374151", bg: "#f3f4f6", headerColor: "#6b7280" };
+      const st = STATUS_MAP[status] ?? {
+        label: status,
+        color: "#374151",
+        bg: "#f3f4f6",
+        headerColor: "#6b7280",
+      };
 
-      const baseUrl = process.env.NEXT_PUBLIC_SB_HELPER_URL || "http://localhost:3000";
-      const emailSubject = `[OT Notification] #OT-${String(id).padStart(5, "0")} · ${fullName} · ${st.label}`;
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SB_HELPER_URL || "http://localhost:3000";
+      const emailSubject = `[แจ้งเตือน OT] #OT-${String(id).padStart(
+        5,
+        "0",
+      )} · ${fullName} · ${st.label}`;
 
       // สร้าง rows ตาราง OvertimeDescription
       const descs = (overtime.descriptions ?? []) as unknown as Array<{
@@ -461,26 +514,44 @@ export async function updateOvertimeStatusWithNotification(
       }>;
 
       const totalHours = descs.reduce((sum, d) => {
-        const h = typeof d.duration === "object" && d.duration?.toNumber ? d.duration.toNumber() : Number(d.duration ?? 0);
+        const h =
+          typeof d.duration === "object" && d.duration?.toNumber
+            ? d.duration.toNumber()
+            : Number(d.duration ?? 0);
         return sum + h;
       }, 0);
 
-      const descRows = descs.map((d, idx) => {
-        const dateStr = d.date ? dayjs(d.date).format("DD/MM/YYYY") : "-";
-        const startStr = d.startDate ? dayjs(d.startDate).format("HH:mm") : "-";
-        const endStr = d.endDate ? dayjs(d.endDate).format("HH:mm") : "-";
-        const dur = typeof d.duration === "object" && d.duration?.toNumber ? d.duration.toNumber() : Number(d.duration ?? 0);
-        const isEven = idx % 2 === 0;
-        return `
+      const descRows = descs
+        .map((d, idx) => {
+          const dateStr = d.date ? dayjs(d.date).format("DD/MM/YYYY") : "-";
+          const startStr = d.startDate
+            ? dayjs(d.startDate).format("HH:mm")
+            : "-";
+          const endStr = d.endDate ? dayjs(d.endDate).format("HH:mm") : "-";
+          const dur =
+            typeof d.duration === "object" && d.duration?.toNumber
+              ? d.duration.toNumber()
+              : Number(d.duration ?? 0);
+          const isEven = idx % 2 === 0;
+          return `
           <tr style="background-color:${isEven ? "#ffffff" : "#f8fafc"};">
-            <td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;color:#374151;font-size:13px;text-align:center;font-weight:600;color:#6366f1;">${String(idx + 1).padStart(2, "0")}</td>
+            <td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;color:#374151;font-size:13px;text-align:center;font-weight:600;color:#6366f1;">${String(
+              idx + 1,
+            ).padStart(2, "0")}</td>
             <td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;color:#374151;font-size:13px;">${dateStr}</td>
             <td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;color:#374151;font-size:13px;text-align:center;">${startStr} – ${endStr}</td>
-            <td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;color:#374151;font-size:13px;">${d.description || "-"}</td>
-            <td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;color:#374151;font-size:13px;">${d.assignee || "-"}</td>
-            <td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;text-align:center;font-weight:700;color:${st.color};">${dur.toFixed(1)} ชม.</td>
+            <td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;color:#374151;font-size:13px;">${
+              d.description || "-"
+            }</td>
+            <td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;color:#374151;font-size:13px;">${
+              d.assignee || "-"
+            }</td>
+            <td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;text-align:center;font-weight:700;color:${
+              st.color
+            };">${dur.toFixed(1)} ชม.</td>
           </tr>`;
-      }).join("");
+        })
+        .join("");
 
       const requestDateStr = overtime.requestDate
         ? dayjs(overtime.requestDate).format("DD/MM/YYYY")
@@ -497,7 +568,7 @@ export async function updateOvertimeStatusWithNotification(
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
   <meta name="supported-color-schemes" content="light dark">
-  <title>OT Notification</title>
+  <title>แจ้งเตือน OT</title>
   <style>
     @media (prefers-color-scheme: dark) {
       body { background-color: #0f172a !important; }
@@ -526,12 +597,16 @@ export async function updateOvertimeStatusWithNotification(
 
         <!-- ═══ HEADER BANNER ═══ -->
         <tr>
-          <td style="background:linear-gradient(135deg,${st.headerColor} 0%,${st.headerColor}cc 100%);padding:40px 40px 32px;text-align:center;position:relative;">
+          <td style="background:linear-gradient(135deg,${st.headerColor} 0%,${
+        st.headerColor
+      }cc 100%);padding:40px 40px 32px;text-align:center;position:relative;">
             <!-- Badge ID -->
             <div style="display:inline-block;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:9999px;padding:5px 14px;margin-bottom:16px;">
-              <span style="color:#ffffff;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;">OT REQUEST · #OT-${String(id).padStart(5, "0")}</span>
+              <span style="color:#ffffff;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;">คำขอ OT · #OT-${String(
+                id,
+              ).padStart(5, "0")}</span>
             </div>
-            <h1 style="margin:0 0 8px;color:#ffffff;font-size:26px;font-weight:800;letter-spacing:-0.5px;">Overtime Notification</h1>
+            <h1 style="margin:0 0 8px;color:#ffffff;font-size:26px;font-weight:800;letter-spacing:-0.5px;">การแจ้งเตือนสถานะทำงานล่วงเวลา</h1>
             <p style="margin:0;color:rgba(255,255,255,0.85);font-size:14px;">แจ้งผลการอนุมัติคำขอทำงานล่วงเวลา</p>
             <!-- Status Pill -->
             <div style="margin-top:24px;">
@@ -547,7 +622,9 @@ export async function updateOvertimeStatusWithNotification(
           <td style="padding:36px 40px 0;">
 
             <!-- Greeting -->
-            <p class="greeting" style="margin:0 0 6px;font-size:17px;font-weight:700;color:#0f172a;">เรียนคุณ ${fullName}${fullNameEn ? ` (${fullNameEn})` : ""},</p>
+            <p class="greeting" style="margin:0 0 6px;font-size:17px;font-weight:700;color:#0f172a;">เรียนคุณ ${fullName}${
+        fullNameEn ? ` (${fullNameEn})` : ""
+      },</p>
             <p class="body-text" style="margin:0 0 28px;font-size:14px;color:#64748b;line-height:1.75;">
               คำขออนุมัติทำงานล่วงเวลา (OT) ของคุณได้รับการประมวลผลเรียบร้อยแล้ว กรุณาตรวจสอบรายละเอียดด้านล่างนี้
             </p>
@@ -561,15 +638,34 @@ export async function updateOvertimeStatusWithNotification(
                   ["ชื่อ (ภาษาอังกฤษ)", fullNameEn || "-"],
                   ["อีเมล", u.email],
                   ["รหัสพนักงาน", u.employee_code || "-"],
-                  ["แผนก", (u.department as { name?: string | null } | null)?.name || "-"],
-                  ["ตำแหน่ง", (u.position_ref as { name?: string | null } | null)?.name || "-"],
+                  [
+                    "แผนก",
+                    (u.department as { name?: string | null } | null)?.name ||
+                      "-",
+                  ],
+                  [
+                    "ตำแหน่ง",
+                    (u.position_ref as { name?: string | null } | null)?.name ||
+                      "-",
+                  ],
                   ["เบอร์โทร", u.phone || "-"],
-                  ["ประเภทพนักงาน", u.employment_type === "FULL_TIME" ? "พนักงานประจำ" : u.employment_type === "PART_TIME" ? "พนักงานพาร์ทไทม์" : u.employment_type || "-"],
-                ].map(([label, val]) => `
+                  [
+                    "ประเภทพนักงาน",
+                    u.employment_type === "FULL_TIME"
+                      ? "พนักงานประจำ"
+                      : u.employment_type === "PART_TIME"
+                      ? "พนักงานพาร์ทไทม์"
+                      : u.employment_type || "-",
+                  ],
+                ]
+                  .map(
+                    ([label, val]) => `
                   <tr class="info-row" style="border-bottom:1px solid #e2e8f0;">
                     <td class="info-row-label" style="padding:10px 16px;font-size:12px;font-weight:600;color:#94a3b8;white-space:nowrap;width:36%;border-right:1px solid #e2e8f0;">${label}</td>
                     <td style="padding:10px 16px;font-size:13px;font-weight:500;color:#1e293b;">${val}</td>
-                  </tr>`).join("")}
+                  </tr>`,
+                  )
+                  .join("")}
               </table>
             </div>
 
@@ -581,30 +677,48 @@ export async function updateOvertimeStatusWithNotification(
                   ["รหัส OT", `#OT-${String(id).padStart(5, "0")}`],
                   ["วันที่ขอ OT", requestDateStr],
                   ["อัปเดตล่าสุด", updatedAtStr],
-                  ["สถานะ", `<span style="display:inline-block;padding:3px 12px;border-radius:9999px;font-weight:700;font-size:12px;background:${st.bg};color:${st.color};">${st.label}</span>`],
-                  ["รวมชั่วโมง OT ทั้งหมด", `<strong style="color:${st.color};font-size:15px;">${totalHours.toFixed(1)} ชั่วโมง</strong>`],
-                ].map(([label, val]) => `
+                  [
+                    "สถานะ",
+                    `<span style="display:inline-block;padding:3px 12px;border-radius:9999px;font-weight:700;font-size:12px;background:${st.bg};color:${st.color};">${st.label}</span>`,
+                  ],
+                  [
+                    "รวมชั่วโมง OT ทั้งหมด",
+                    `<strong style="color:${
+                      st.color
+                    };font-size:15px;">${totalHours.toFixed(
+                      1,
+                    )} ชั่วโมง</strong>`,
+                  ],
+                ]
+                  .map(
+                    ([label, val]) => `
                   <tr class="info-row" style="border-bottom:1px solid #e2e8f0;">
                     <td class="info-row-label" style="padding:10px 16px;font-size:12px;font-weight:600;color:#94a3b8;white-space:nowrap;width:36%;border-right:1px solid #e2e8f0;">${label}</td>
                     <td style="padding:10px 16px;font-size:13px;font-weight:500;color:#1e293b;">${val}</td>
-                  </tr>`).join("")}
+                  </tr>`,
+                  )
+                  .join("")}
               </table>
             </div>
 
             <!-- ── OT Items Table ── -->
-            ${descs.length > 0 ? `
+            ${
+              descs.length > 0
+                ? `
             <div style="margin-bottom:28px;">
-              <p class="section-label" style="margin:0 0 10px;font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:0.14em;text-transform:uppercase;">รายการ OT ที่ได้รับการอนุมัติ (${descs.length} รายการ)</p>
+              <p class="section-label" style="margin:0 0 10px;font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:0.14em;text-transform:uppercase;">รายการ OT ที่ได้รับการอนุมัติ (${
+                descs.length
+              } รายการ)</p>
               <div style="border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;">
                 <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
                   <thead>
                     <tr class="table-head">
-                      <th style="padding:12px 14px;background:#1e40af;color:#bfdbfe;font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;text-align:center;white-space:nowrap;">#</th>
-                      <th style="padding:12px 14px;background:#1e40af;color:#bfdbfe;font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;">วันที่</th>
-                      <th style="padding:12px 14px;background:#1e40af;color:#bfdbfe;font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;text-align:center;">เวลา</th>
-                      <th style="padding:12px 14px;background:#1e40af;color:#bfdbfe;font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;">รายละเอียดงาน</th>
-                      <th style="padding:12px 14px;background:#1e40af;color:#bfdbfe;font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;">ผู้รับผิดชอบ</th>
-                      <th style="padding:12px 14px;background:#1e40af;color:#bfdbfe;font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;text-align:center;white-space:nowrap;">ชม. OT</th>
+                      <th style="padding:12px 14px;background:#1e40af;color:#bfdbfe;font-size:10px;font-weight:800;letter-spacing:0.1em;text-align:center;white-space:nowrap;">#</th>
+                      <th style="padding:12px 14px;background:#1e40af;color:#bfdbfe;font-size:10px;font-weight:800;letter-spacing:0.1em;white-space:nowrap;">วันที่</th>
+                      <th style="padding:12px 14px;background:#1e40af;color:#bfdbfe;font-size:10px;font-weight:800;letter-spacing:0.1em;white-space:nowrap;text-align:center;">เวลา</th>
+                      <th style="padding:12px 14px;background:#1e40af;color:#bfdbfe;font-size:10px;font-weight:800;letter-spacing:0.1em;">รายละเอียดงาน</th>
+                      <th style="padding:12px 14px;background:#1e40af;color:#bfdbfe;font-size:10px;font-weight:800;letter-spacing:0.1em;">ผู้รับผิดชอบ</th>
+                      <th style="padding:12px 14px;background:#1e40af;color:#bfdbfe;font-size:10px;font-weight:800;letter-spacing:0.1em;text-align:center;white-space:nowrap;">ชม. OT</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -612,18 +726,28 @@ export async function updateOvertimeStatusWithNotification(
                     <!-- Total Row -->
                     <tr class="total-row">
                       <td colspan="5" style="padding:13px 14px;background:#eff6ff;border-top:2px solid #3b82f6;font-size:13px;font-weight:800;color:#1e40af;text-align:right;letter-spacing:0.02em;">รวมชั่วโมง OT ทั้งหมด</td>
-                      <td style="padding:13px 14px;background:#eff6ff;border-top:2px solid #3b82f6;font-size:15px;font-weight:900;color:#1e40af;text-align:center;">${totalHours.toFixed(1)} ชม.</td>
+                      <td style="padding:13px 14px;background:#eff6ff;border-top:2px solid #3b82f6;font-size:15px;font-weight:900;color:#1e40af;text-align:center;">${totalHours.toFixed(
+                        1,
+                      )} ชม.</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
             </div>
-            ` : ""}
+            `
+                : ""
+            }
 
             <!-- CTA Button -->
             <div style="text-align:center;margin-bottom:32px;">
               <a href="${baseUrl}/timesheet/overtime"
-                 style="display:inline-block;background:linear-gradient(135deg,${st.headerColor},${st.headerColor}cc);color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:9999px;font-size:14px;font-weight:700;letter-spacing:0.02em;box-shadow:0 4px 14px ${st.headerColor}55;">
+                 style="display:inline-block;background:linear-gradient(135deg,${
+                   st.headerColor
+                 },${
+        st.headerColor
+      }cc);color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:9999px;font-size:14px;font-weight:700;letter-spacing:0.02em;box-shadow:0 4px 14px ${
+        st.headerColor
+      }55;">
                 ดูรายละเอียดในระบบ
               </a>
             </div>
@@ -637,16 +761,16 @@ export async function updateOvertimeStatusWithNotification(
           <td class="footer-card" style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:28px 40px;text-align:center;">
             <!-- Logo / Brand -->
             <p style="margin:0 0 4px;font-size:13px;font-weight:800;color:#0f172a;letter-spacing:0.04em;">SCHOOL BRIGHT</p>
-            <p style="margin:0 0 16px;font-size:11px;color:#94a3b8;">SB Web Helper · Overtime Management System</p>
+            <p style="margin:0 0 16px;font-size:11px;color:#94a3b8;">ระบบผู้ช่วย SB · ระบบจัดการทำงานล่วงเวลา</p>
             <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 16px;">
             <p class="footer-text" style="margin:0 0 4px;font-size:11px;color:#94a3b8;line-height:1.7;">
               นี่คืออีเมลแจ้งเตือนอัตโนมัติจากระบบ · กรุณาอย่าตอบกลับอีเมลฉบับนี้
             </p>
             <p class="footer-text" style="margin:0 0 14px;font-size:11px;color:#94a3b8;">
-              © ${new Date().getFullYear()} SCHOOLBRIGHT. All rights reserved.
+              © ${new Date().getFullYear()} สคูลไบรท์ จำกัด. สงวนลิขสิทธิ์ทั้งหมด.
             </p>
-            <p style="margin:0;font-size:10px;font-weight:700;color:#64748b;letter-spacing:0.08em;text-transform:uppercase;">
-              SYSTEM BY THANAT PROMPIRIYA · HEAD OF TECHNOLOGY @SCHOOL BRIGHT
+            <p style="margin:0;font-size:10px;font-weight:700;color:#64748b;letter-spacing:0.08em;">
+              พัฒนาระบบโดย ธนัท พรมปิริยา · หัวหน้าฝ่ายเทคโนโลยี · สคูลไบรท์
             </p>
           </td>
         </tr>
