@@ -19,7 +19,6 @@ jobs:
           echo "Sending device status report to LINE..."
           response=$(curl -s -o /tmp/response_body.txt -w "%{http_code}" \
             -X GET \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             "https://sb-helper.schoolbright.co/api/v1/application/line/cron-report")
 
           body=$(cat /tmp/response_body.txt)
