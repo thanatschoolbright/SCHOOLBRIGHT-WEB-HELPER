@@ -74,18 +74,44 @@ function shortenAppName(appName: string): string {
     .trim();
 }
 
+// เปรียบเทียบเวอร์ชันแบบตัวเลขเพื่อเรียงลำดับได้ถูกต้อง (เช่น 1.10 มากกว่า 1.2)
+function compareVersionByNumber(versionA: string, versionB: string): number {
+  const normalizeVersion = (version: string): number[] => {
+    const matches = version.match(/\d+/g);
+    if (!matches) return [0];
+    return matches.map((part) => Number(part));
+  };
+
+  const numbersA = normalizeVersion(versionA);
+  const numbersB = normalizeVersion(versionB);
+  const maxLength = Math.max(numbersA.length, numbersB.length);
+
+  for (let index = 0; index < maxLength; index++) {
+    const valueA = numbersA[index] ?? 0;
+    const valueB = numbersB[index] ?? 0;
+    if (valueA !== valueB) {
+      return valueB - valueA;
+    }
+  }
+
+  return versionB.localeCompare(versionA);
+}
+
 // นับสถิติ online/offline/login พร้อมแยกกลุ่ม AppName+AppVersion
 export function calculateDeviceStats(devices: DeviceStatusData[]): DeviceStats {
   const total = devices.length;
   const onlineDevices = devices.filter((d) => d.Online === true);
   const offlineDevices = devices.filter((d) => d.Online === false);
   const loginDevices = devices.filter((d) => d.Login === true);
-  const onlineRate = total === 0 ? 0 : Math.round((onlineDevices.length / total) * 100);
+  const onlineRate =
+    total === 0 ? 0 : Math.round((onlineDevices.length / total) * 100);
 
   // จัดกลุ่มตาม AppName + AppVersion
   const groupMap = new Map<string, DeviceStatusData[]>();
   for (const device of devices) {
-    const key = `${device.AppName ?? "ไม่ระบุแอป"}|||${device.AppVersion ?? "-"}`;
+    const key = `${device.AppName ?? "ไม่ระบุแอป"}|||${
+      device.AppVersion ?? "-"
+    }`;
     if (!groupMap.has(key)) groupMap.set(key, []);
     groupMap.get(key)!.push(device);
   }
@@ -106,7 +132,8 @@ export function calculateDeviceStats(devices: DeviceStatusData[]): DeviceStats {
       online: groupOnline,
       offline: groupOffline,
       login: groupLogin,
-      onlineRate: groupTotal === 0 ? 0 : Math.round((groupOnline / groupTotal) * 100),
+      onlineRate:
+        groupTotal === 0 ? 0 : Math.round((groupOnline / groupTotal) * 100),
       offlineDevices: groupDevices.filter((d) => !d.Online),
     });
   }
@@ -157,7 +184,10 @@ function formatBusinessDate(raw: string | Date): string {
 }
 
 // ค้นหาชื่อโรงเรียนจาก SchoolID โดยใช้ school_map
-function resolveSchoolName(schoolId: number, schoolMap: SchoolMapEntry[]): string {
+function resolveSchoolName(
+  schoolId: number,
+  schoolMap: SchoolMapEntry[],
+): string {
   const found = schoolMap.find((s) => s.SchoolID === schoolId);
   return found ? found.SchoolName : `โรงเรียน ID:${schoolId}`;
 }
@@ -170,7 +200,10 @@ function buildProgressBar(rate: number, length = 10): string {
 }
 
 // สร้าง text รายละเอียดเครื่อง offline 1 เครื่องในรูปแบบ Discord quote block
-function formatOfflineDeviceEntry(device: DeviceStatusData, schoolMap: SchoolMapEntry[]): string {
+function formatOfflineDeviceEntry(
+  device: DeviceStatusData,
+  schoolMap: SchoolMapEntry[],
+): string {
   const schoolName = resolveSchoolName(device.SchoolID, schoolMap);
   const lastOnline = formatThaiDateTime(device.OnlineTime);
   const businessDate = formatBusinessDate(device.BusinessDate);
@@ -201,7 +234,10 @@ function chunkOfflineDeviceFields(
     if ((currentChunk + entry).length > DISCORD_FIELD_CHAR_LIMIT) {
       if (currentChunk.trim()) {
         fields.push({
-          name: chunkIndex === 1 ? headerLabel : `${headerLabel} (ต่อ ${chunkIndex})`,
+          name:
+            chunkIndex === 1
+              ? headerLabel
+              : `${headerLabel} (ต่อ ${chunkIndex})`,
           value: currentChunk.trim(),
           inline: false,
         });
@@ -215,7 +251,8 @@ function chunkOfflineDeviceFields(
 
   if (currentChunk.trim()) {
     fields.push({
-      name: chunkIndex === 1 ? headerLabel : `${headerLabel} (ต่อ ${chunkIndex})`,
+      name:
+        chunkIndex === 1 ? headerLabel : `${headerLabel} (ต่อ ${chunkIndex})`,
       value: currentChunk.trim(),
       inline: false,
     });
@@ -242,34 +279,47 @@ export function buildDiscordPayload(
 
   // field ภาพรวมระบบ
   const overallStatusIcon =
-    stats.offline === 0 ? "🟢" : stats.offline < OFFLINE_CRITICAL_THRESHOLD ? "🟡" : "🔴";
+    stats.offline === 0
+      ? "🟢"
+      : stats.offline < OFFLINE_CRITICAL_THRESHOLD
+      ? "🟡"
+      : "🔴";
 
-  const summaryFields: Array<{ name: string; value: string; inline: boolean }> = [
-    {
-      name: `${overallStatusIcon}  ภาพรวมระบบทั้งหมด`,
-      value: [
-        "```",
-        `ทั้งหมด   : ${stats.total} เครื่อง`,
-        `ออนไลน์  : ${stats.online} เครื่อง`,
-        `ออฟไลน์  : ${stats.offline} เครื่อง`,
-        `กำลังใช้  : ${stats.login} เครื่อง`,
-        "```",
-        `**อัตราออนไลน์** ${progressBar} **${stats.onlineRate}%**`,
-        fetchedNote ? `\n> ${fetchedNote}` : "",
-      ]
-        .filter(Boolean)
-        .join("\n"),
-      inline: false,
-    },
-  ];
+  const summaryFields: Array<{ name: string; value: string; inline: boolean }> =
+    [
+      {
+        name: `${overallStatusIcon}  ภาพรวมระบบทั้งหมด`,
+        value: [
+          "```",
+          `ทั้งหมด   : ${stats.total} เครื่อง`,
+          `ออนไลน์  : ${stats.online} เครื่อง`,
+          `ออฟไลน์  : ${stats.offline} เครื่อง`,
+          `กำลังใช้  : ${stats.login} เครื่อง`,
+          "```",
+          `**อัตราออนไลน์** ${progressBar} **${stats.onlineRate}%**`,
+          fetchedNote ? `\n> ${fetchedNote}` : "",
+        ]
+          .filter(Boolean)
+          .join("\n"),
+        inline: false,
+      },
+    ];
 
   // fields แยกตาม AppName + AppVersion (inline 2 คอลัมน์)
-  const appGroupFields: Array<{ name: string; value: string; inline: boolean }> = [];
+  const appGroupFields: Array<{
+    name: string;
+    value: string;
+    inline: boolean;
+  }> = [];
   for (const group of stats.appGroups) {
     const shortName = shortenAppName(group.appName);
     const groupBar = buildProgressBar(group.onlineRate, 8);
     const statusDot =
-      group.offline === 0 ? "🟢" : group.offline < OFFLINE_CRITICAL_THRESHOLD ? "🟡" : "🔴";
+      group.offline === 0
+        ? "🟢"
+        : group.offline < OFFLINE_CRITICAL_THRESHOLD
+        ? "🟡"
+        : "🔴";
 
     appGroupFields.push({
       name: `${statusDot}  ${shortName}  v${group.appVersion}`,
@@ -286,18 +336,30 @@ export function buildDiscordPayload(
   }
 
   // แทรก zero-width space เพื่อ break inline layout ทุก 2 คอลัมน์
-  const appGroupFieldsWithSpacer: Array<{ name: string; value: string; inline: boolean }> = [];
+  const appGroupFieldsWithSpacer: Array<{
+    name: string;
+    value: string;
+    inline: boolean;
+  }> = [];
   for (let i = 0; i < appGroupFields.length; i++) {
     const field = appGroupFields[i];
     if (!field) continue;
     appGroupFieldsWithSpacer.push(field);
     if ((i + 1) % 2 === 0 && i + 1 < appGroupFields.length) {
-      appGroupFieldsWithSpacer.push({ name: "\u200b", value: "\u200b", inline: false });
+      appGroupFieldsWithSpacer.push({
+        name: "\u200b",
+        value: "\u200b",
+        inline: false,
+      });
     }
   }
 
   // fields รายละเอียดเครื่อง offline แยกตามกลุ่ม
-  const offlineDetailFields: Array<{ name: string; value: string; inline: boolean }> = [];
+  const offlineDetailFields: Array<{
+    name: string;
+    value: string;
+    inline: boolean;
+  }> = [];
 
   if (stats.offline > 0) {
     offlineDetailFields.push({
@@ -310,7 +372,11 @@ export function buildDiscordPayload(
       if (group.offline === 0) continue;
       const shortName = shortenAppName(group.appName);
       const label = `${shortName} v${group.appVersion}  (${group.offline} เครื่อง)`;
-      const chunks = chunkOfflineDeviceFields(group.offlineDevices, schoolMap, label);
+      const chunks = chunkOfflineDeviceFields(
+        group.offlineDevices,
+        schoolMap,
+        label,
+      );
       offlineDetailFields.push(...chunks);
     }
   } else {
@@ -321,7 +387,11 @@ export function buildDiscordPayload(
     });
   }
 
-  const allFields = [...summaryFields, ...appGroupFieldsWithSpacer, ...offlineDetailFields];
+  const allFields = [
+    ...summaryFields,
+    ...appGroupFieldsWithSpacer,
+    ...offlineDetailFields,
+  ];
 
   return {
     embeds: [
@@ -338,33 +408,67 @@ export function buildDiscordPayload(
 }
 
 // ส่ง Discord webhook notification ไปยัง channel ที่กำหนด
-export async function sendDiscordWebhook(payload: object, webhookUrl: string): Promise<void> {
+export async function sendDiscordWebhook(
+  payload: object,
+  webhookUrl: string,
+): Promise<void> {
   await axios.post(webhookUrl, payload, {
     headers: { "Content-Type": "application/json" },
   });
 }
 
 // สร้าง HTML email รายงานสถานะเครื่อง POS แยกตาม AppGroup
-function buildEmailHtml(stats: DeviceStats, schoolMap: SchoolMapEntry[], reportTime: string): string {
+function buildEmailHtml(
+  stats: DeviceStats,
+  schoolMap: SchoolMapEntry[],
+  reportTime: string,
+): string {
   const statusColor =
-    stats.offline === 0 ? "#16a34a" : stats.offline < OFFLINE_CRITICAL_THRESHOLD ? "#d97706" : "#dc2626";
+    stats.offline === 0
+      ? "#16a34a"
+      : stats.offline < OFFLINE_CRITICAL_THRESHOLD
+      ? "#d97706"
+      : "#dc2626";
   const statusLabel =
-    stats.offline === 0 ? "ปกติ" : stats.offline < OFFLINE_CRITICAL_THRESHOLD ? "ต้องระวัง" : "วิกฤต";
+    stats.offline === 0
+      ? "ปกติ"
+      : stats.offline < OFFLINE_CRITICAL_THRESHOLD
+      ? "ต้องระวัง"
+      : "วิกฤต";
 
-  const appGroupRows = stats.appGroups
+  const sortedAppGroups = [...stats.appGroups].sort((groupA, groupB) => {
+    const versionCompare = compareVersionByNumber(
+      groupA.appVersion,
+      groupB.appVersion,
+    );
+    if (versionCompare !== 0) return versionCompare;
+    return groupA.appName.localeCompare(groupB.appName);
+  });
+
+  const appGroupRows = sortedAppGroups
     .map((group) => {
       const rowColor =
-        group.offline === 0 ? "#f0fdf4" : group.offline < OFFLINE_CRITICAL_THRESHOLD ? "#fffbeb" : "#fff1f2";
+        group.offline === 0
+          ? "#f0fdf4"
+          : group.offline < OFFLINE_CRITICAL_THRESHOLD
+          ? "#fffbeb"
+          : "#fff1f2";
       const badgeColor =
-        group.offline === 0 ? "#16a34a" : group.offline < OFFLINE_CRITICAL_THRESHOLD ? "#d97706" : "#dc2626";
+        group.offline === 0
+          ? "#16a34a"
+          : group.offline < OFFLINE_CRITICAL_THRESHOLD
+          ? "#d97706"
+          : "#dc2626";
       const badgeText =
-        group.offline === 0 ? "ปกติ" : group.offline < OFFLINE_CRITICAL_THRESHOLD ? "ระวัง" : "วิกฤต";
+        group.offline === 0
+          ? "ปกติ"
+          : group.offline < OFFLINE_CRITICAL_THRESHOLD
+          ? "ระวัง"
+          : "วิกฤต";
       return `
         <tr style="background:${rowColor};">
-          <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#111827;">
-            <strong>${group.appName}</strong><br/>
-            <span style="color:#6b7280;font-size:11px;">v${group.appVersion}</span>
-          </td>
+          <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#111827;font-weight:600;">${group.appName}</td>
+          <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:center;font-size:12px;color:#6b7280;">v${group.appVersion}</td>
           <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:center;font-size:13px;color:#111827;">${group.total}</td>
           <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:center;font-size:13px;color:#16a34a;font-weight:600;">${group.online}</td>
           <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:center;font-size:13px;color:#dc2626;font-weight:600;">${group.offline}</td>
@@ -376,7 +480,7 @@ function buildEmailHtml(stats: DeviceStats, schoolMap: SchoolMapEntry[], reportT
     })
     .join("");
 
-  const offlineGroupsHtml = stats.appGroups
+  const offlineGroupsHtml = sortedAppGroups
     .filter((g) => g.offline > 0)
     .map((group) => {
       const deviceRows = group.offlineDevices
@@ -387,9 +491,13 @@ function buildEmailHtml(stats: DeviceStats, schoolMap: SchoolMapEntry[], reportT
           const rowBg = idx % 2 === 0 ? "#ffffff" : "#f9fafb";
           return `
             <tr style="background:${rowBg};">
-              <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-size:12px;color:#374151;">${idx + 1}</td>
+              <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-size:12px;color:#374151;">${
+                idx + 1
+              }</td>
               <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-size:12px;color:#111827;font-weight:600;">${schoolName}</td>
-              <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-size:12px;color:#6b7280;font-family:monospace;">${device.DeviceID}</td>
+              <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-size:12px;color:#6b7280;font-family:monospace;">${
+                device.DeviceID
+              }</td>
               <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-size:12px;color:#dc2626;">${lastOnline}</td>
               <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-size:12px;color:#374151;">${businessDate}</td>
             </tr>`;
@@ -492,6 +600,7 @@ function buildEmailHtml(stats: DeviceStats, schoolMap: SchoolMapEntry[], reportT
           <thead>
             <tr style="background:#f8fafc;">
               <th style="padding:10px 14px;font-size:12px;color:#374151;text-align:left;border-bottom:2px solid #e5e7eb;">แอปพลิเคชัน</th>
+              <th style="padding:10px 14px;font-size:12px;color:#374151;text-align:center;border-bottom:2px solid #e5e7eb;">เวอร์ชัน</th>
               <th style="padding:10px 14px;font-size:12px;color:#374151;text-align:center;border-bottom:2px solid #e5e7eb;">ทั้งหมด</th>
               <th style="padding:10px 14px;font-size:12px;color:#374151;text-align:center;border-bottom:2px solid #e5e7eb;">ออนไลน์</th>
               <th style="padding:10px 14px;font-size:12px;color:#374151;text-align:center;border-bottom:2px solid #e5e7eb;">ออฟไลน์</th>

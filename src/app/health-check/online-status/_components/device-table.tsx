@@ -124,24 +124,23 @@ const DeviceTable: React.FC = () => {
   const { isFetching, deviceList, pagination, fetchData } =
     useOnlineStatusStore();
 
-  const schoolListState = useAppSelector((state) => state.callSchoolList);
+  const schoolListState = useAppSelector((state) => state.callGetSchoolListDetail);
   const schoolList = useMemo(() => {
-    if (Array.isArray(schoolListState.response))
-      return schoolListState.response;
-    if (
-      schoolListState.response &&
-      Array.isArray((schoolListState.response as any).data)
-    ) {
-      return (schoolListState.response as any).data;
-    }
-    return [];
+    const raw = schoolListState.response?.data?.data;
+    return Array.isArray(raw) ? raw : [];
   }, [schoolListState]);
 
   // ค้นหาชื่อโรงเรียนจาก SchoolID
   const getSchoolName = useCallback(
     (schoolId: number) => {
       if (!Array.isArray(schoolList) || schoolList.length === 0) return null;
-      return schoolList.find((s: any) => s.SchoolID === schoolId) ?? null;
+      const found = schoolList.find(
+        (s: any) => Number(s.school_id ?? s.SchoolID) === schoolId,
+      );
+      if (!found) return null;
+      return {
+        SchoolName: found.company_name ?? found.SchoolName ?? `โรงเรียน #${schoolId}`,
+      };
     },
     [schoolList],
   );
