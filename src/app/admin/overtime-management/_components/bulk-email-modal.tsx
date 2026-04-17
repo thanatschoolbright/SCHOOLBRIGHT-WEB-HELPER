@@ -282,18 +282,18 @@ const BulkEmailModal: React.FC<BulkEmailModalProps> = ({
 
         const totalBudgetHours =
           data.descriptions?.reduce((acc: number, item: any) => {
-            if (!item?.start_date || !item?.end_date)
+            if (!item?.startDate || !item?.endDate)
               return acc + (Number(item?.duration) || 0);
-            const bStart = dayjs(item.start_date).startOf("hour");
-            const bEnd = dayjs(item.end_date).add(1, "hour").startOf("hour");
+            const bStart = dayjs(item.startDate).startOf("hour");
+            const bEnd = dayjs(item.endDate).add(1, "hour").startOf("hour");
             const diff = bEnd.diff(bStart, "hour");
             return acc + (diff > 0 ? diff : 0);
           }, 0) || 0;
 
         const totalActualMinutes =
           data.descriptions?.reduce((acc: number, item: any) => {
-            if (!item?.start_date || !item?.end_date) return acc;
-            const diff = dayjs(item.end_date).diff(dayjs(item.start_date), "minute");
+            if (!item?.startDate || !item?.endDate) return acc;
+            const diff = dayjs(item.endDate).diff(dayjs(item.startDate), "minute");
             return acc + (diff > 0 ? diff : 0);
           }, 0) || 0;
 
@@ -347,16 +347,16 @@ const BulkEmailModal: React.FC<BulkEmailModalProps> = ({
             </thead>
             <tbody>
               ${(data.descriptions || []).map((d: any, i: number) => {
-                const diffMinutes = d.start_date && d.end_date
-                  ? dayjs(d.end_date).add(1, "hour").startOf("hour").diff(dayjs(d.start_date).startOf("hour"), "minute")
+                const diffMinutes = d.startDate && d.endDate
+                  ? dayjs(d.endDate).add(1, "hour").startOf("hour").diff(dayjs(d.startDate).startOf("hour"), "minute")
                   : (Number(d.duration) || 0) * 60;
                 return `
                 <tr>
                   <td>${i + 1}</td>
                   <td>${d.date ? formatDateThai(d.date) : "-"}</td>
                   <td style="text-align:left">${d.description || "-"}</td>
-                  <td>${d.start_date ? dayjs(d.start_date).format("HH:00") : "-"}</td>
-                  <td>${d.end_date ? dayjs(d.end_date).add(1, "hour").format("HH:00") : "-"}</td>
+                  <td>${d.startDate ? dayjs(d.startDate).format("HH:00") : "-"}</td>
+                  <td>${d.endDate ? dayjs(d.endDate).add(1, "hour").format("HH:00") : "-"}</td>
                   <td style="font-weight:600">${formatDurationToDecimal(diffMinutes)}</td>
                   <td>-</td>
                 </tr>`;
@@ -409,16 +409,16 @@ const BulkEmailModal: React.FC<BulkEmailModalProps> = ({
               </thead>
               <tbody>
                 ${(data.descriptions || []).map((d: any, i: number) => {
-                  const diffM = d.start_date && d.end_date
-                    ? dayjs(d.end_date).diff(dayjs(d.start_date), "minute")
+                  const diffM = d.startDate && d.endDate
+                    ? dayjs(d.endDate).diff(dayjs(d.startDate), "minute")
                     : 0;
                   return `
                   <tr>
                     <td>${i + 1}</td>
                     <td>${d.date ? formatDateThai(d.date) : "-"}</td>
                     <td style="text-align:left">${d.description || "-"}</td>
-                    <td>${d.start_date ? dayjs(d.start_date).format("HH:mm") : "-"}</td>
-                    <td>${d.end_date ? dayjs(d.end_date).format("HH:mm") : "-"}</td>
+                    <td>${d.startDate ? dayjs(d.startDate).format("HH:mm") : "-"}</td>
+                    <td>${d.endDate ? dayjs(d.endDate).format("HH:mm") : "-"}</td>
                     <td style="font-weight:600">${formatDurationToDecimal(diffM)}</td>
                     <td>-</td>
                   </tr>`;
@@ -497,10 +497,10 @@ const BulkEmailModal: React.FC<BulkEmailModalProps> = ({
       const otSummary = dataItems.map((d) => {
         const totalHours =
           d.descriptions?.reduce((acc: number, item: any) => {
-            if (!item?.start_date || !item?.end_date)
+            if (!item?.startDate || !item?.endDate)
               return acc + (Number(item?.duration) || 0);
-            const diff = dayjs(item.end_date).add(1, "hour").startOf("hour")
-              .diff(dayjs(item.start_date).startOf("hour"), "hour");
+            const diff = dayjs(item.endDate).add(1, "hour").startOf("hour")
+              .diff(dayjs(item.startDate).startOf("hour"), "hour");
             return acc + (diff > 0 ? diff : 0);
           }, 0) || 0;
         return {
