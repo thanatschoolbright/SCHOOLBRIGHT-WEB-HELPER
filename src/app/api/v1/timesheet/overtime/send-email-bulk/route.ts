@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { errorResponse, successResponse } from "@/helpers/api/response";
-import { handleError } from "@helpers/controller/handle-error.params";
 import { sendMailWithAttachment } from "@/server/mailer";
+import { handleError } from "@helpers/controller/handle-error.params";
 import { NextRequest, NextResponse } from "next/server";
 
 interface OtSummaryItem {
@@ -16,15 +16,23 @@ interface OtSummaryItem {
 }
 
 // แปลง status เป็นภาษาไทยพร้อม badge color
-const statusLabel = (status: string): { text: string; color: string; bg: string } => {
+const statusLabel = (
+  status: string,
+): { text: string; color: string; bg: string } => {
   const map: Record<string, { text: string; color: string; bg: string }> = {
-    APPROVED:  { text: "อนุมัติแล้ว",    color: "#166534", bg: "#dcfce7" },
-    PENDING:   { text: "รอการอนุมัติ",   color: "#92400e", bg: "#fef3c7" },
-    REJECTED:  { text: "ไม่อนุมัติ",     color: "#991b1b", bg: "#fee2e2" },
-    PAID:      { text: "จ่ายแล้ว",       color: "#1e40af", bg: "#dbeafe" },
-    DRAFT:     { text: "ฉบับร่าง",       color: "#374151", bg: "#f3f4f6" },
+    APPROVED: { text: "อนุมัติแล้ว", color: "#166534", bg: "#dcfce7" },
+    PENDING: { text: "รอการอนุมัติ", color: "#92400e", bg: "#fef3c7" },
+    REJECTED: { text: "ไม่อนุมัติ", color: "#991b1b", bg: "#fee2e2" },
+    PAID: { text: "จ่ายแล้ว", color: "#1e40af", bg: "#dbeafe" },
+    DRAFT: { text: "ฉบับร่าง", color: "#374151", bg: "#f3f4f6" },
   };
-  return map[status?.toUpperCase()] ?? { text: status || "-", color: "#374151", bg: "#f3f4f6" };
+  return (
+    map[status?.toUpperCase()] ?? {
+      text: status || "-",
+      color: "#374151",
+      bg: "#f3f4f6",
+    }
+  );
 };
 
 // แปลงวันที่เป็นรูปแบบ dd/mm/yyyy ภาษาไทย
@@ -47,20 +55,33 @@ const buildEmailHtml = (
   zipFileName: string,
   generatedAt: string,
 ): string => {
-  const tableRows = otSummary.map((row, idx) => {
-    const { text, color, bg } = statusLabel(row.status);
-    const rowBg = idx % 2 === 0 ? "#ffffff" : "#f8fafc";
-    const hoursDisplay = Number(row.total_hours).toFixed(2);
-    return `
+  const tableRows = otSummary
+    .map((row, idx) => {
+      const { text, color, bg } = statusLabel(row.status);
+      const rowBg = idx % 2 === 0 ? "#ffffff" : "#f8fafc";
+      const hoursDisplay = Number(row.total_hours).toFixed(2);
+      return `
       <tr style="background:${rowBg};">
-        <td style="padding:12px 14px;text-align:center;font-weight:600;color:#64748b;font-size:13px;border-bottom:1px solid #f1f5f9;">${idx + 1}</td>
-        <td style="padding:12px 14px;font-family:monospace;font-size:12px;color:#1677ff;font-weight:700;border-bottom:1px solid #f1f5f9;">${row.employee_code}</td>
+        <td style="padding:12px 14px;text-align:center;font-weight:600;color:#64748b;font-size:13px;border-bottom:1px solid #f1f5f9;">${
+          idx + 1
+        }</td>
+        <td style="padding:12px 14px;font-family:monospace;font-size:12px;color:#1677ff;font-weight:700;border-bottom:1px solid #f1f5f9;">${
+          row.employee_code
+        }</td>
         <td style="padding:12px 14px;border-bottom:1px solid #f1f5f9;">
-          <div style="font-weight:600;color:#1e293b;font-size:13px;">${row.name}</div>
-          <div style="font-size:11px;color:#94a3b8;margin-top:2px;">${row.position}</div>
+          <div style="font-weight:600;color:#1e293b;font-size:13px;">${
+            row.name
+          }</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px;">${
+            row.position
+          }</div>
         </td>
-        <td style="padding:12px 14px;font-size:12px;color:#475569;border-bottom:1px solid #f1f5f9;">${row.department}</td>
-        <td style="padding:12px 14px;text-align:center;font-size:12px;color:#475569;border-bottom:1px solid #f1f5f9;">${formatDate(row.request_date)}</td>
+        <td style="padding:12px 14px;font-size:12px;color:#475569;border-bottom:1px solid #f1f5f9;">${
+          row.department
+        }</td>
+        <td style="padding:12px 14px;text-align:center;font-size:12px;color:#475569;border-bottom:1px solid #f1f5f9;">${formatDate(
+          row.request_date,
+        )}</td>
         <td style="padding:12px 14px;text-align:center;border-bottom:1px solid #f1f5f9;">
           <span style="font-weight:700;font-size:15px;color:#f97316;">${hoursDisplay}</span>
           <span style="font-size:11px;color:#94a3b8;margin-left:2px;">ชม.</span>
@@ -69,7 +90,8 @@ const buildEmailHtml = (
           <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;color:${color};background:${bg};">${text}</span>
         </td>
       </tr>`;
-  }).join("");
+    })
+    .join("");
 
   return `<!DOCTYPE html>
 <html lang="th">
@@ -107,11 +129,11 @@ const buildEmailHtml = (
               </p>
 
               <!-- stat pills -->
-              <div style="margin-top:28px;display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center;">
-                <span style="display:inline-block;background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.3);border-radius:20px;padding:6px 18px;font-size:13px;font-weight:700;color:#fb923c;">
+              <div style="margin-top:28px;text-align:center;">
+                <span style="display:inline-block;background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.3);border-radius:20px;padding:6px 18px;font-size:13px;font-weight:700;color:#fb923c;margin:4px 8px;">
                   ${otSummary.length} รายการ
                 </span>
-                <span style="display:inline-block;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:20px;padding:6px 18px;font-size:13px;font-weight:700;color:#86efac;">
+                <span style="display:inline-block;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:20px;padding:6px 18px;font-size:13px;font-weight:700;color:#86efac;margin:4px 8px;">
                   ${generatedAt}
                 </span>
               </div>
@@ -125,7 +147,9 @@ const buildEmailHtml = (
               <!-- greeting -->
               <p style="margin:0 0 24px;font-size:15px;color:#334155;line-height:1.7;">
                 สวัสดี — อีเมลนี้ส่งโดยระบบอัตโนมัติจาก <strong style="color:#f97316;">SchoolBright Helper</strong><br>
-                ไฟล์ ZIP แนบท้ายอีเมลนี้บรรจุใบคำขอ OT จำนวน <strong>${otSummary.length} รายการ</strong> พร้อมเอกสารหลักฐาน<br>
+                ไฟล์ ZIP แนบท้ายอีเมลนี้บรรจุใบคำขอ OT จำนวน <strong>${
+                  otSummary.length
+                } รายการ</strong> พร้อมเอกสารหลักฐาน<br>
                 กรุณาตรวจสอบและบันทึกเข้าระบบ Payroll ต่อไป
               </p>
 
@@ -251,7 +275,11 @@ export async function POST(request: NextRequest) {
     const session = await auth();
     if (!session?.user) {
       return NextResponse.json(
-        errorResponse({ status: 401, message_th: "กรุณาเข้าสู่ระบบก่อน", message_en: "Unauthorized" }),
+        errorResponse({
+          status: 401,
+          message_th: "กรุณาเข้าสู่ระบบก่อน",
+          message_en: "Unauthorized",
+        }),
         { status: 401 },
       );
     }
@@ -260,12 +288,17 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const zipFile = formData.get("zip") as File | null;
     const recipientsRaw = formData.get("recipients") as string | null;
-    const zipFileName = (formData.get("zip_filename") as string) || "SB_OT_Bulk.zip";
+    const zipFileName =
+      (formData.get("zip_filename") as string) || "SB_OT_Bulk.zip";
     const otSummaryRaw = formData.get("ot_summary") as string | null;
 
     if (!zipFile) {
       return NextResponse.json(
-        errorResponse({ status: 400, message_th: "ไม่พบไฟล์ ZIP", message_en: "ZIP file is required" }),
+        errorResponse({
+          status: 400,
+          message_th: "ไม่พบไฟล์ ZIP",
+          message_en: "ZIP file is required",
+        }),
         { status: 400 },
       );
     }
@@ -275,14 +308,22 @@ export async function POST(request: NextRequest) {
       recipients = JSON.parse(recipientsRaw || "[]");
     } catch {
       return NextResponse.json(
-        errorResponse({ status: 400, message_th: "รูปแบบรายชื่อผู้รับไม่ถูกต้อง", message_en: "Invalid recipients format" }),
+        errorResponse({
+          status: 400,
+          message_th: "รูปแบบรายชื่อผู้รับไม่ถูกต้อง",
+          message_en: "Invalid recipients format",
+        }),
         { status: 400 },
       );
     }
 
     if (!Array.isArray(recipients) || recipients.length === 0) {
       return NextResponse.json(
-        errorResponse({ status: 400, message_th: "ต้องระบุผู้รับอย่างน้อย 1 คน", message_en: "At least one recipient required" }),
+        errorResponse({
+          status: 400,
+          message_th: "ต้องระบุผู้รับอย่างน้อย 1 คน",
+          message_en: "At least one recipient required",
+        }),
         { status: 400 },
       );
     }
@@ -300,8 +341,11 @@ export async function POST(request: NextRequest) {
     // สร้าง timestamp ภาษาไทย
     const now = new Date();
     const generatedAt = now.toLocaleDateString("th-TH", {
-      year: "numeric", month: "long", day: "numeric",
-      hour: "2-digit", minute: "2-digit",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
 
     const subject = `[OT Report] ใบคำขอ OT จำนวน ${otSummary.length} รายการ — SchoolBright Helper`;
@@ -327,7 +371,10 @@ export async function POST(request: NextRequest) {
         });
         sentResults.push(recipient);
       } catch (mailErr) {
-        console.error(`[send-email-bulk] ส่งอีเมล ${recipient} ล้มเหลว:`, mailErr);
+        console.error(
+          `[send-email-bulk] ส่งอีเมล ${recipient} ล้มเหลว:`,
+          mailErr,
+        );
         failedResults.push(recipient);
       }
     }
