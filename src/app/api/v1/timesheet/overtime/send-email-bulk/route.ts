@@ -11,7 +11,7 @@ interface OtSummaryItem {
   position: string;
   department: string;
   request_date: string | null;
-  total_hours: number;
+  total_hours: string | number;
   status: string;
 }
 
@@ -47,11 +47,10 @@ const buildEmailHtml = (
   zipFileName: string,
   generatedAt: string,
 ): string => {
-  const totalHours = otSummary.reduce((s, r) => s + (r.total_hours || 0), 0);
-
   const tableRows = otSummary.map((row, idx) => {
     const { text, color, bg } = statusLabel(row.status);
     const rowBg = idx % 2 === 0 ? "#ffffff" : "#f8fafc";
+    const hoursDisplay = Number(row.total_hours).toFixed(2);
     return `
       <tr style="background:${rowBg};">
         <td style="padding:12px 14px;text-align:center;font-weight:600;color:#64748b;font-size:13px;border-bottom:1px solid #f1f5f9;">${idx + 1}</td>
@@ -63,7 +62,7 @@ const buildEmailHtml = (
         <td style="padding:12px 14px;font-size:12px;color:#475569;border-bottom:1px solid #f1f5f9;">${row.department}</td>
         <td style="padding:12px 14px;text-align:center;font-size:12px;color:#475569;border-bottom:1px solid #f1f5f9;">${formatDate(row.request_date)}</td>
         <td style="padding:12px 14px;text-align:center;border-bottom:1px solid #f1f5f9;">
-          <span style="font-weight:700;font-size:15px;color:#f97316;">${row.total_hours}</span>
+          <span style="font-weight:700;font-size:15px;color:#f97316;">${hoursDisplay}</span>
           <span style="font-size:11px;color:#94a3b8;margin-left:2px;">ชม.</span>
         </td>
         <td style="padding:12px 14px;text-align:center;border-bottom:1px solid #f1f5f9;">
@@ -111,9 +110,6 @@ const buildEmailHtml = (
               <div style="margin-top:28px;display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center;">
                 <span style="display:inline-block;background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.3);border-radius:20px;padding:6px 18px;font-size:13px;font-weight:700;color:#fb923c;">
                   ${otSummary.length} รายการ
-                </span>
-                <span style="display:inline-block;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);border-radius:20px;padding:6px 18px;font-size:13px;font-weight:700;color:#a5b4fc;">
-                  รวม ${totalHours} ชั่วโมง
                 </span>
                 <span style="display:inline-block;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:20px;padding:6px 18px;font-size:13px;font-weight:700;color:#86efac;">
                   ${generatedAt}
@@ -175,15 +171,6 @@ const buildEmailHtml = (
                 </thead>
                 <tbody>
                   ${tableRows}
-                  <!-- summary row -->
-                  <tr style="background:linear-gradient(135deg,#fff7ed,#ffedd5);">
-                    <td colspan="5" style="padding:14px;text-align:right;font-size:13px;font-weight:700;color:#9a3412;border-top:2px solid #fed7aa;">รวมชั่วโมงทั้งหมด</td>
-                    <td style="padding:14px;text-align:center;border-top:2px solid #fed7aa;">
-                      <span style="font-size:18px;font-weight:800;color:#f97316;">${totalHours}</span>
-                      <span style="font-size:11px;color:#c2410c;margin-left:2px;">ชม.</span>
-                    </td>
-                    <td style="border-top:2px solid #fed7aa;"></td>
-                  </tr>
                 </tbody>
               </table>
 

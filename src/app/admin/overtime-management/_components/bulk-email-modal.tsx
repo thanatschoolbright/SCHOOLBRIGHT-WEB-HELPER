@@ -278,7 +278,7 @@ const BulkEmailModal: React.FC<BulkEmailModalProps> = ({
         const empCode = data?.requester_employee_code || "UNKNOWN";
         const reqName = data?.requester_name || "-";
         const position = data?.requester_position || "-";
-        const department = data?.department || "IT";
+        const department = data?.requester_department || data?.requester_user?.department?.name_th || "-";
 
         const totalBudgetHours =
           data.descriptions?.reduce((acc: number, item: any) => {
@@ -495,12 +495,12 @@ const BulkEmailModal: React.FC<BulkEmailModalProps> = ({
 
       // สร้าง summary สำหรับแสดงในตาราง email
       const otSummary = dataItems.map((d) => {
-        const totalHours =
+        const totalMinutes =
           d.descriptions?.reduce((acc: number, item: any) => {
             if (!item?.startDate || !item?.endDate)
-              return acc + (Number(item?.duration) || 0);
+              return acc + (Number(item?.duration) || 0) * 60;
             const diff = dayjs(item.endDate).add(1, "hour").startOf("hour")
-              .diff(dayjs(item.startDate).startOf("hour"), "hour");
+              .diff(dayjs(item.startDate).startOf("hour"), "minute");
             return acc + (diff > 0 ? diff : 0);
           }, 0) || 0;
         return {
@@ -508,9 +508,9 @@ const BulkEmailModal: React.FC<BulkEmailModalProps> = ({
           employee_code: d.requester_employee_code || "-",
           name: d.requester_name || "-",
           position: d.requester_position || "-",
-          department: d.department || "-",
+          department: d.requester_department || d.requester_user?.department?.name_th || "-",
           request_date: d.request_date || d.created_at || null,
-          total_hours: totalHours,
+          total_hours: (totalMinutes / 60).toFixed(2),
           status: d.status || "-",
         };
       });
