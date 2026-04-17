@@ -6,7 +6,11 @@ import "dayjs/locale/th";
 dayjs.locale("th");
 
 // อีเมลที่รับรายงานสถานะเครื่อง POS
-const REPORT_EMAIL = "narin@schoolbright.co";
+const REPORT_EMAILS = [
+  "narin@schoolbright.co",
+  "tantawan.tawan@schoolbright.co",
+  "ariya.goff@schoolbright.co",
+] as const;
 
 // Discord field limit สูงสุด 1024 ตัวอักษรต่อ 1 field
 const DISCORD_FIELD_CHAR_LIMIT = 1024;
@@ -627,7 +631,7 @@ function buildEmailHtml(
 </html>`;
 }
 
-// ส่ง Email รายงานสถานะเครื่อง POS ไปยัง narin@schoolbright.co
+// ส่ง Email รายงานสถานะเครื่อง POS ไปยังรายชื่อผู้รับที่กำหนด
 export async function sendMonitoringEmail(
   stats: DeviceStats,
   schoolMap: SchoolMapEntry[],
@@ -636,7 +640,8 @@ export async function sendMonitoringEmail(
   try {
     const subject = `[SchoolBright] รายงานสถานะเครื่อง POS - ออนไลน์ ${stats.online}/${stats.total} เครื่อง (${stats.onlineRate}%)`;
     const html = buildEmailHtml(stats, schoolMap, reportTime);
-    await sendMail(REPORT_EMAIL, subject, "รายงานสถานะเครื่อง POS", html);
+    const recipientList = REPORT_EMAILS.join(", ");
+    await sendMail(recipientList, subject, "รายงานสถานะเครื่อง POS", html);
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "ส่งอีเมลไม่สำเร็จ";
