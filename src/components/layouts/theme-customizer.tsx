@@ -6,9 +6,29 @@ import {
   useFont,
 } from "@components/providers/font-provider";
 import { AnimatePresence, motion } from "framer-motion";
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+
+// hook อ่าน dark mode ปัจจุบันจาก DOM class และติดตาม class changes บน <html>
+function useDarkMode() {
+  const [isDark, setIsDark] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const checkDark = () => document.documentElement.classList.contains("dark");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsDark(checkDark());
+    setMounted(true);
+    const observer = new MutationObserver(() => setIsDark(checkDark()));
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  return { isDark, mounted };
+}
 
 // ข้อมูลฟอนต์ทั้ง 5 ตัว
 const FONT_OPTIONS: {
@@ -80,48 +100,6 @@ function IconSettings() {
   );
 }
 
-function IconSun() {
-  return (
-    <svg
-      width="15"
-      height="15"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="5" />
-      <line x1="12" y1="1" x2="12" y2="3" />
-      <line x1="12" y1="21" x2="12" y2="23" />
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-      <line x1="1" y1="12" x2="3" y2="12" />
-      <line x1="21" y1="12" x2="23" y2="12" />
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-    </svg>
-  );
-}
-
-function IconMoon() {
-  return (
-    <svg
-      width="15"
-      height="15"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-    </svg>
-  );
-}
-
 function IconType() {
   return (
     <svg
@@ -177,15 +155,9 @@ function IconClose() {
 }
 
 export default function ThemeCustomizer() {
-  const { theme: currentTheme, setTheme } = useTheme();
+  const { isDark, mounted } = useDarkMode();
   const { fontFamily, setFontFamily } = useFont();
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // ESC ปิด drawer
   useEffect(() => {
@@ -288,7 +260,9 @@ export default function ThemeCustomizer() {
                 <motion.div
                   className="fixed inset-0 z-[1199]"
                   style={{
-                    background: "rgba(12,15,20,0.35)",
+                    background: isDark
+                      ? "rgba(6,10,18,0.7)"
+                      : "rgba(12,15,20,0.35)",
                     backdropFilter: "blur(4px)",
                   }}
                   initial={{ opacity: 0 }}
@@ -300,27 +274,49 @@ export default function ThemeCustomizer() {
 
                 {/* Drawer */}
                 <motion.div
-                  className="fixed top-0 right-0 h-full z-[1200] bg-white dark:bg-slate-900 w-[380px] flex flex-col"
-                  style={{ boxShadow: "-8px 0 40px rgba(0,0,0,0.1)" }}
+                  className="fixed top-0 right-0 h-full z-[1200] w-[380px] flex flex-col"
+                  style={{
+                    background: isDark ? "#1E293B" : "#ffffff",
+                    boxShadow: isDark
+                      ? "-12px 0 60px rgba(0,0,0,0.5)"
+                      : "-8px 0 40px rgba(0,0,0,0.1)",
+                    borderLeft: `1px solid ${isDark ? "#334155" : "#f1f5f9"}`,
+                  }}
                   initial={{ x: "100%" }}
                   animate={{ x: 0 }}
                   exit={{ x: "100%" }}
                   transition={{ type: "spring", stiffness: 320, damping: 32 }}
                 >
                   {/* Header */}
-                  <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-white/8 flex-shrink-0">
+                  <div
+                    className="flex items-center justify-between px-6 py-5 flex-shrink-0"
+                    style={{
+                      borderBottom: `1px solid ${
+                        isDark ? "#334155" : "#f1f5f9"
+                      }`,
+                    }}
+                  >
                     <div className="flex items-center gap-2.5">
-                      <span className="text-orange-500">
+                      <span style={{ color: "#f97316" }}>
                         <IconSettings />
                       </span>
-                      <h2 className="text-[15px] font-bold text-slate-800 dark:text-white m-0">
+                      <h2
+                        className="text-[15px] font-bold m-0"
+                        style={{ color: isDark ? "#f1f5f9" : "#0f172a" }}
+                      >
                         ปรับแต่งหน้าเว็บไซต์
                       </h2>
                     </div>
                     <button
                       type="button"
                       onClick={() => setOpen(false)}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/8 transition-colors border-none bg-transparent cursor-pointer"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors border-none cursor-pointer outline-none"
+                      style={{
+                        background: isDark
+                          ? "rgba(255,255,255,0.06)"
+                          : "#f1f5f9",
+                        color: isDark ? "#94a3b8" : "#64748b",
+                      }}
                     >
                       <IconClose />
                     </button>
@@ -328,83 +324,23 @@ export default function ThemeCustomizer() {
 
                   {/* Body */}
                   <div className="flex-1 overflow-y-auto px-6 py-6">
-                    {/* Section: Appearance (Dark/Light mode) */}
-                    <div className="mb-8">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-orange-500">
-                          {currentTheme === "dark" ? <IconMoon /> : <IconSun />}
-                        </span>
-                        <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 m-0 uppercase tracking-widest">
-                          การแสดงผล
-                        </h3>
-                      </div>
-                      <p className="text-[12px] text-slate-400 dark:text-slate-500 mb-4 m-0">
-                        เลือกโหมดหน้าจอที่เหมาะสมกับสายตาของคุณ
-                      </p>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        {[
-                          {
-                            value: "light",
-                            label: "โหมดสว่าง",
-                            icon: <IconSun />,
-                          },
-                          {
-                            value: "dark",
-                            label: "โหมดมืด",
-                            icon: <IconMoon />,
-                          },
-                        ].map((mode) => {
-                          const isActive = currentTheme === mode.value;
-                          return (
-                            <motion.button
-                              key={mode.value}
-                              type="button"
-                              onClick={() => setTheme(mode.value)}
-                              className={`flex flex-col items-center gap-2.5 p-4 rounded-xl border-[1.5px] transition-all cursor-pointer bg-transparent
-                            ${
-                              isActive
-                                ? "border-orange-400 bg-orange-50/50 dark:bg-orange-500/10"
-                                : "border-slate-100 dark:border-white/8 hover:border-slate-300 dark:hover:border-white/20"
-                            }`}
-                              whileTap={{ scale: 0.97 }}
-                            >
-                              <div
-                                className={`w-9 h-9 rounded-lg flex items-center justify-center ${
-                                  isActive
-                                    ? "bg-orange-500 text-white"
-                                    : "bg-slate-100 dark:bg-white/8 text-slate-500 dark:text-slate-400"
-                                }`}
-                              >
-                                {mode.icon}
-                              </div>
-                              <span
-                                className={`text-[12px] font-bold ${
-                                  isActive
-                                    ? "text-orange-600 dark:text-orange-400"
-                                    : "text-slate-600 dark:text-slate-400"
-                                }`}
-                              >
-                                {mode.label}
-                              </span>
-                            </motion.button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Section: "flex-1 overflow-y-auto px-6 py-6">
-                {/* Section: Font */}
+                    {/* Section: Font */}
                     <div className="mb-2">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-orange-500">
+                        <span style={{ color: "#f97316" }}>
                           <IconType />
                         </span>
-                        <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 m-0 uppercase tracking-widest">
+                        <h3
+                          className="text-[13px] font-bold m-0 uppercase tracking-widest"
+                          style={{ color: isDark ? "#cbd5e1" : "#475569" }}
+                        >
                           รูปแบบตัวอักษร
                         </h3>
                       </div>
-                      <p className="text-[12px] text-slate-400 dark:text-slate-500 mb-5 m-0">
+                      <p
+                        className="text-[12px] mb-5 m-0"
+                        style={{ color: isDark ? "#64748b" : "#94a3b8" }}
+                      >
                         ฟอนต์ทั้งหมดรองรับภาษาไทยและภาษาอังกฤษ
                       </p>
 
@@ -416,12 +352,26 @@ export default function ThemeCustomizer() {
                               key={font.value}
                               type="button"
                               onClick={() => setFontFamily(font.value)}
-                              className={`w-full text-left rounded-xl border-[1.5px] transition-all duration-150 cursor-pointer overflow-hidden
-                            ${
-                              isActive
-                                ? "border-orange-400 bg-orange-50 dark:bg-orange-500/10"
-                                : "border-slate-100 dark:border-white/8 bg-white dark:bg-white/4 hover:border-slate-300 dark:hover:border-white/20"
-                            }`}
+                              className="w-full text-left rounded-xl transition-all duration-150 cursor-pointer overflow-hidden border-none outline-none"
+                              style={{
+                                background: isActive
+                                  ? isDark
+                                    ? "rgba(249,115,22,0.12)"
+                                    : "rgba(249,115,22,0.06)"
+                                  : isDark
+                                  ? "rgba(255,255,255,0.04)"
+                                  : "#ffffff",
+                                border: `1.5px solid ${
+                                  isActive
+                                    ? "#f97316"
+                                    : isDark
+                                    ? "rgba(255,255,255,0.1)"
+                                    : "#e2e8f0"
+                                }`,
+                                boxShadow: isActive
+                                  ? "0 0 0 3px rgba(249,115,22,0.1)"
+                                  : "none",
+                              }}
                               whileTap={{ scale: 0.99 }}
                             >
                               <div className="px-4 py-3.5 flex items-center justify-between gap-3">
@@ -429,18 +379,32 @@ export default function ThemeCustomizer() {
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2 mb-1">
                                     <span
-                                      className={`text-[14px] font-semibold truncate ${
-                                        isActive
-                                          ? "text-orange-600 dark:text-orange-400"
-                                          : "text-slate-700 dark:text-slate-200"
-                                      }`}
+                                      className="text-[14px] font-semibold truncate"
                                       style={{
                                         fontFamily: FONT_CSS_VAR[font.value],
+                                        color: isActive
+                                          ? "#f97316"
+                                          : isDark
+                                          ? "#e2e8f0"
+                                          : "#334155",
                                       }}
                                     >
                                       {font.label}
                                     </span>
-                                    <span className="text-[10px] text-slate-400 border border-slate-200 dark:border-white/10 rounded px-1.5 py-0.5 font-medium flex-shrink-0">
+                                    <span
+                                      className="text-[10px] rounded px-1.5 py-0.5 font-medium flex-shrink-0"
+                                      style={{
+                                        background: isDark
+                                          ? "rgba(255,255,255,0.06)"
+                                          : "#f1f5f9",
+                                        border: `1px solid ${
+                                          isDark
+                                            ? "rgba(255,255,255,0.1)"
+                                            : "#e2e8f0"
+                                        }`,
+                                        color: isDark ? "#94a3b8" : "#64748b",
+                                      }}
+                                    >
                                       {font.desc}
                                     </span>
                                   </div>
@@ -451,10 +415,20 @@ export default function ThemeCustomizer() {
                                       fontFamily: FONT_CSS_VAR[font.value],
                                     }}
                                   >
-                                    <span className="text-[18px] font-medium text-slate-600 dark:text-slate-300 leading-tight">
+                                    <span
+                                      className="text-[18px] font-medium leading-tight"
+                                      style={{
+                                        color: isDark ? "#cbd5e1" : "#475569",
+                                      }}
+                                    >
                                       {font.sampleTh}
                                     </span>
-                                    <span className="text-[13px] text-slate-400 dark:text-slate-500 leading-tight">
+                                    <span
+                                      className="text-[13px] leading-tight"
+                                      style={{
+                                        color: isDark ? "#64748b" : "#94a3b8",
+                                      }}
+                                    >
                                       {font.sampleEn}
                                     </span>
                                   </div>
@@ -462,11 +436,18 @@ export default function ThemeCustomizer() {
 
                                 {/* Right: Check */}
                                 <div
-                                  className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
-                                    isActive
-                                      ? "bg-orange-500 text-white"
-                                      : "bg-slate-100 dark:bg-white/8 text-transparent"
-                                  }`}
+                                  className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
+                                  style={{
+                                    background: isActive
+                                      ? "#f97316"
+                                      : isDark
+                                      ? "rgba(255,255,255,0.08)"
+                                      : "#f1f5f9",
+                                    color: isActive ? "#ffffff" : "transparent",
+                                    boxShadow: isActive
+                                      ? "0 2px 8px rgba(249,115,22,0.35)"
+                                      : "none",
+                                  }}
                                 >
                                   <IconCheck />
                                 </div>
@@ -479,8 +460,16 @@ export default function ThemeCustomizer() {
                   </div>
 
                   {/* Footer */}
-                  <div className="px-6 py-4 border-t border-slate-100 dark:border-white/8 flex-shrink-0">
-                    <p className="text-center text-[11px] text-slate-300 dark:text-slate-600 m-0">
+                  <div
+                    className="px-6 py-4 flex-shrink-0"
+                    style={{
+                      borderTop: `1px solid ${isDark ? "#334155" : "#f1f5f9"}`,
+                    }}
+                  >
+                    <p
+                      className="text-center text-[11px] m-0"
+                      style={{ color: isDark ? "#475569" : "#cbd5e1" }}
+                    >
                       SchoolBright Web Helper · Customizer v2.0
                     </p>
                   </div>

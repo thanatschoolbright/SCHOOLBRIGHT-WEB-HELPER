@@ -449,6 +449,15 @@ function buildEmailHtml(
     return groupA.appName.localeCompare(groupB.appName);
   });
 
+  // หา version ล่าสุดของแต่ละ AppName เพื่อใช้เปรียบเทียบ "แจ้งให้อัพเดท"
+  const latestVersionByApp = new Map<string, string>();
+  for (const group of sortedAppGroups) {
+    const current = latestVersionByApp.get(group.appName);
+    if (!current || compareVersionByNumber(current, group.appVersion) > 0) {
+      latestVersionByApp.set(group.appName, group.appVersion);
+    }
+  }
+
   const appGroupRows = sortedAppGroups
     .map((group) => {
       const rowColor =
@@ -469,10 +478,18 @@ function buildEmailHtml(
           : group.offline < OFFLINE_CRITICAL_THRESHOLD
           ? "ระวัง"
           : "วิกฤต";
+
+      const latestVersion = latestVersionByApp.get(group.appName) ?? group.appVersion;
+      const needsUpdate = compareVersionByNumber(group.appVersion, latestVersion) > 0;
+      const updateCell = needsUpdate
+        ? `<span style="background:#f59e0b;color:#fff;border-radius:999px;padding:2px 10px;font-size:11px;font-weight:600;">แจ้งให้อัพเดท</span>`
+        : `<span style="color:#6b7280;font-size:12px;">—</span>`;
+
       return `
         <tr style="background:${rowColor};">
           <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-size:13px;color:#111827;font-weight:600;">${group.appName}</td>
           <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:center;font-size:12px;color:#6b7280;">v${group.appVersion}</td>
+          <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:center;">${updateCell}</td>
           <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:center;font-size:13px;color:#111827;">${group.total}</td>
           <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:center;font-size:13px;color:#16a34a;font-weight:600;">${group.online}</td>
           <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:center;font-size:13px;color:#dc2626;font-weight:600;">${group.offline}</td>
@@ -605,6 +622,7 @@ function buildEmailHtml(
             <tr style="background:#f8fafc;">
               <th style="padding:10px 14px;font-size:12px;color:#374151;text-align:left;border-bottom:2px solid #e5e7eb;">แอปพลิเคชัน</th>
               <th style="padding:10px 14px;font-size:12px;color:#374151;text-align:center;border-bottom:2px solid #e5e7eb;">เวอร์ชัน</th>
+              <th style="padding:10px 14px;font-size:12px;color:#374151;text-align:center;border-bottom:2px solid #e5e7eb;">แจ้งให้อัพเดท</th>
               <th style="padding:10px 14px;font-size:12px;color:#374151;text-align:center;border-bottom:2px solid #e5e7eb;">ทั้งหมด</th>
               <th style="padding:10px 14px;font-size:12px;color:#374151;text-align:center;border-bottom:2px solid #e5e7eb;">ออนไลน์</th>
               <th style="padding:10px 14px;font-size:12px;color:#374151;text-align:center;border-bottom:2px solid #e5e7eb;">ออฟไลน์</th>
