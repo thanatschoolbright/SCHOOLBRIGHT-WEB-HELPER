@@ -14,18 +14,9 @@ import {
 import DashboardLayout from "@components/layouts/backend-layout";
 import { StatusModalComponent } from "@components/modal/status-modal-component";
 import { HeaderBar } from "@components/typhography/header-bar-component";
-import { CallAPI as fetchSchoolList } from "@stores/actions/call-school-list";
+import { CallAPI as fetchSchoolList } from "@stores/actions/support/call-get-school-list-detail";
 import { AppDispatch, useAppSelector } from "@stores/store";
-import {
-  Col,
-  Collapse,
-  Flex,
-  Row,
-  Space,
-  Tag,
-  Typography,
-  theme,
-} from "antd";
+import { Col, Collapse, Flex, Row, Space, Tag, Typography, theme } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
@@ -50,7 +41,9 @@ export default function OnlineDeviceDashboard() {
   const { isFetching, deviceList, pagination, fetchData } =
     useOnlineStatusStore();
   const dispatch = useDispatch<AppDispatch>();
-  const schoolListState = useAppSelector((state) => state.callSchoolList);
+  const schoolListState = useAppSelector(
+    (state) => state.callGetSchoolListDetail,
+  );
 
   const [statusModal, setStatusModal] = useState<{
     open: boolean;
@@ -64,8 +57,8 @@ export default function OnlineDeviceDashboard() {
 
     // โหลดรายชื่อโรงเรียนเข้า Redux เพื่อให้ FilterSection ใช้งาน Dropdown ได้
     const hasSchoolData =
-      Array.isArray(schoolListState.response?.data) &&
-      (schoolListState.response.data as any[]).length > 0;
+      Array.isArray(schoolListState.response?.data?.data) &&
+      schoolListState.response.data.data.length > 0;
     if (!hasSchoolData && !schoolListState.loading) {
       void dispatch(fetchSchoolList());
     }
@@ -74,11 +67,14 @@ export default function OnlineDeviceDashboard() {
 
   // หมายเหตุ: onlineCount และ loginCount นับจากรายการในหน้าปัจจุบันเท่านั้น
   // เนื่องจาก API ยังไม่คืน aggregate total สำหรับ online/login
-  const summaryStatistics = useMemo(() => ({
-    totalDevices: pagination.total,
-    onlineCount: deviceList.filter((d) => d.Online).length,
-    loginCount: deviceList.filter((d) => d.Login).length,
-  }), [deviceList, pagination.total]);
+  const summaryStatistics = useMemo(
+    () => ({
+      totalDevices: pagination.total,
+      onlineCount: deviceList.filter((d) => d.Online).length,
+      loginCount: deviceList.filter((d) => d.Login).length,
+    }),
+    [deviceList, pagination.total],
+  );
 
   const collapseItems = [
     {

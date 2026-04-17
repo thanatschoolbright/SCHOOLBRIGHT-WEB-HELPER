@@ -2,9 +2,9 @@
 
 import {
   AppstoreOutlined,
+  ClearOutlined,
   ClockCircleOutlined,
   CodeOutlined,
-  ClearOutlined,
   FilterFilled,
   InfoCircleOutlined,
   SearchOutlined,
@@ -28,10 +28,9 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import dayjs from "dayjs";
 import { useMemo } from "react";
-import { useOnlineStatusStore } from "../_state/online-status-store";
 import { DeviceStatusData } from "../_services/online-status-service";
+import { useOnlineStatusStore } from "../_state/online-status-store";
 
 const { RangePicker } = DatePicker;
 const { Text: AntText } = Typography;
@@ -45,7 +44,9 @@ interface FilterSectionProps {
  */
 const FilterSection: React.FC<FilterSectionProps> = ({ deviceList }) => {
   const [searchForm] = Form.useForm();
-  const schoolListState = useAppSelector((state) => state.callSchoolList);
+  const schoolListState = useAppSelector(
+    (state) => state.callGetSchoolListDetail,
+  );
 
   const {
     fetchData,
@@ -61,21 +62,14 @@ const FilterSection: React.FC<FilterSectionProps> = ({ deviceList }) => {
   } = useOnlineStatusStore();
 
   const schoolList = useMemo(() => {
-    if (Array.isArray(schoolListState.response)) return schoolListState.response;
-    if (
-      schoolListState.response &&
-      Array.isArray((schoolListState.response as any).data)
-    ) {
-      return (schoolListState.response as any).data;
-    }
-    return [];
+    return (schoolListState.response?.data?.data as any[]) ?? [];
   }, [schoolListState]);
 
   const schoolOptions = useMemo(
     () =>
       schoolList.map((school: any) => ({
-        label: `${school.SchoolName} (${school.SchoolID})`,
-        value: school.SchoolID,
+        label: `${school.company_name} (${school.school_id})`,
+        value: school.school_id,
       })),
     [schoolList],
   );
