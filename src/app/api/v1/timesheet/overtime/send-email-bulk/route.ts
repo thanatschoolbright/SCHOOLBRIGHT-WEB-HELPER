@@ -20,7 +20,7 @@ const statusLabel = (
   status: string,
 ): { text: string; color: string; bg: string } => {
   const map: Record<string, { text: string; color: string; bg: string }> = {
-    APPROVED: { text: "อนุมัติแล้ว", color: "#166534", bg: "#dcfce7" },
+    APPROVED: { text: "อนุมัติ", color: "#166534", bg: "#dcfce7" },
     PENDING: { text: "รอการอนุมัติ", color: "#92400e", bg: "#fef3c7" },
     REJECTED: { text: "ไม่อนุมัติ", color: "#991b1b", bg: "#fee2e2" },
     PAID: { text: "จ่ายแล้ว", color: "#1e40af", bg: "#dbeafe" },
