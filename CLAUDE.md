@@ -203,6 +203,7 @@ can("PERMISSION_CODE")        // single check
 can(["CODE_A", "CODE_B"])     // OR logic
 ```
 - `isAdmin` is `true` when `session.user.admin_id === 117` — bypasses all permission checks.
+- Use named constants from `src/constants/permission.constant.ts` (`PERMISSIONS.MENU_HEALTH_CHECK`, etc.) — pattern is `{module}.{resource}.{action}`.
 
 **API routes:**
 ```ts
@@ -229,9 +230,13 @@ Gemini and ChatGPT are available via internal API routes:
 
 These routes proxy to Google Generative AI / OpenAI — API keys are in env vars.
 
+Swagger/OpenAPI spec is auto-generated from `/src/app/api` and served at `/api-doc` (OpenAPI 3.1.0 with bearer auth, via `lib/swagger.ts`).
+
 ### Notable constraints
 
 - Console logs are stripped in production builds (except `error`/`warn`), configured in `next.config.mjs`.
+- Server Actions body size limit is **5mb** (`experimental.serverActions.bodySizeLimit`).
+- File uploads target Huawei OBS only — `next.config.mjs` remotePatterns restrict image optimization to OBS domain.
 - File uploads go to Huawei OBS (`esdk-obs-nodejs`); image remote pattern is configured in `next.config.mjs`.
 - The `BYPASS_USER_ID = "49"` constant in the timesheet/overtime page identifies the sole user with OT approval rights. This check **must** be enforced both on the frontend and at the API layer (`src/app/api/v1/timesheet/overtime/change-status/route.ts`) using `await auth()`.
 - Never delete or overwrite existing functions — only extend or add alongside them.

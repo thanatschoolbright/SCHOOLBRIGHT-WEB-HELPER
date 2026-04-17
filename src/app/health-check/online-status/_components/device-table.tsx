@@ -437,7 +437,7 @@ const DeviceTable: React.FC = () => {
 
   return (
     <Card
-      styles={{ body: { padding: 0 } }}
+      styles={{ body: { padding: "16px" } }}
       style={{
         borderRadius: 16,
         overflow: "hidden",
@@ -445,10 +445,7 @@ const DeviceTable: React.FC = () => {
       }}
     >
       {/* Header */}
-      <div
-        className="flex items-center justify-between px-5 py-4"
-        style={{ borderBottom: `1px solid ${token.colorBorderSecondary}` }}
-      >
+      <div className="flex items-center justify-between px-1 py-1 mb-5">
         <div className="flex items-center gap-3">
           <div
             className="w-9 h-9 rounded-xl flex items-center justify-center"
@@ -507,73 +504,81 @@ const DeviceTable: React.FC = () => {
       </div>
 
       {/* Table */}
-      <Table<DeviceStatusData>
-        columns={columns}
-        dataSource={deviceList}
-        rowKey="DeviceStatusID"
-        loading={isFetching}
-        pagination={{
-          ...pagination,
-          showSizeChanger: true,
-          pageSizeOptions: ["10", "20", "50", "100", "500", "1000"],
-          style: { padding: "12px 20px", margin: 0 },
-          showTotal: (total, range) => (
-            <span style={{ fontSize: 12, color: token.colorTextSecondary }}>
-              แสดง {range[0].toLocaleString()}–{range[1].toLocaleString()} จาก{" "}
-              {total.toLocaleString()} รายการ
-            </span>
-          ),
+      <div
+        style={{
+          borderRadius: 12,
+          border: `1px solid ${token.colorBorderSecondary}`,
+          overflow: "hidden",
         }}
-        onChange={(newPagination) =>
-          fetchData(newPagination.current, newPagination.pageSize)
-        }
-        scroll={{ x: 1200 }}
-        size="middle"
-        rowClassName={(record) => {
-          const isOnlineDynamic =
-            record.Online ||
-            (record.OnlineTime
-              ? dayjs().diff(dayjs(record.OnlineTime), "minute") <= 15
-              : false);
-          return isOnlineDynamic
-            ? "hover:bg-green-50/30 transition-colors"
-            : "hover:bg-red-50/30 transition-colors";
-        }}
-        locale={{
-          emptyText: (
-            <Flex
-              vertical
-              align="center"
-              gap={12}
-              style={{ padding: "48px 0" }}
-            >
-              <div
-                className="w-16 h-16 rounded-2xl flex items-center justify-center"
-                style={{ background: token.colorFillAlter }}
+      >
+        <Table<DeviceStatusData>
+          columns={columns}
+          dataSource={deviceList}
+          rowKey="DeviceStatusID"
+          loading={isFetching}
+          pagination={{
+            ...pagination,
+            showSizeChanger: true,
+            pageSizeOptions: ["10", "20", "50", "100", "500", "1000"],
+            style: { padding: "12px 20px", margin: 0 },
+            showTotal: (total, range) => (
+              <span style={{ fontSize: 12, color: token.colorTextSecondary }}>
+                แสดง {range[0].toLocaleString()}–{range[1].toLocaleString()} จาก{" "}
+                {total.toLocaleString()} รายการ
+              </span>
+            ),
+          }}
+          onChange={(newPagination) =>
+            fetchData(newPagination.current, newPagination.pageSize)
+          }
+          scroll={{ x: 1200 }}
+          size="middle"
+          rowClassName={(record) => {
+            const isOnlineDynamic =
+              record.Online ||
+              (record.OnlineTime
+                ? dayjs().diff(dayjs(record.OnlineTime), "minute") <= 15
+                : false);
+            return isOnlineDynamic
+              ? "hover:bg-green-50/30 transition-colors"
+              : "hover:bg-red-50/30 transition-colors";
+          }}
+          locale={{
+            emptyText: (
+              <Flex
+                vertical
+                align="center"
+                gap={12}
+                style={{ padding: "48px 0" }}
               >
-                <PoweroffOutlined
-                  style={{ fontSize: 28, color: token.colorBorder }}
-                />
-              </div>
-              <div className="flex flex-col items-center gap-1">
-                <AntText strong style={{ color: token.colorTextSecondary }}>
-                  ไม่พบอุปกรณ์
-                </AntText>
-                <AntText type="secondary" style={{ fontSize: 12 }}>
-                  ลองปรับตัวกรองหรือรีเฟรชข้อมูล
-                </AntText>
-              </div>
-              <Button
-                size="small"
-                icon={<ReloadOutlined />}
-                onClick={() => fetchData(1, pagination.pageSize)}
-              >
-                รีเฟรช
-              </Button>
-            </Flex>
-          ),
-        }}
-      />
+                <div
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center"
+                  style={{ background: token.colorFillAlter }}
+                >
+                  <PoweroffOutlined
+                    style={{ fontSize: 28, color: token.colorBorder }}
+                  />
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <AntText strong style={{ color: token.colorTextSecondary }}>
+                    ไม่พบอุปกรณ์
+                  </AntText>
+                  <AntText type="secondary" style={{ fontSize: 12 }}>
+                    ลองปรับตัวกรองหรือรีเฟรชข้อมูล
+                  </AntText>
+                </div>
+                <Button
+                  size="small"
+                  icon={<ReloadOutlined />}
+                  onClick={() => fetchData(1, pagination.pageSize)}
+                >
+                  รีเฟรช
+                </Button>
+              </Flex>
+            ),
+          }}
+        />
+      </div>
     </Card>
   );
 };

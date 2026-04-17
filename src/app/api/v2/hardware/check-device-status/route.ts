@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { errorResponse, successResponse } from "@/helpers/api/response";
 import { DeviceDailyStatusService } from "@/services/backend/device-daily-status.service";
 import { FindAllDeviceStatusOptions } from "@/types/device-daily-status.types";
-import { successResponse, errorResponse } from "@/helpers/api/response";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,14 +28,13 @@ export async function POST(request: NextRequest) {
           page: Number(result.meta.page),
           page_size: Number(result.meta.limit), // Service ใช้ limit แต่ Helper ใช้ page_size
           total: result.meta.total,
-          total_pages: result.meta.totalPages,  // Service ใช้ totalPages แต่ Helper ใช้ total_pages
+          total_pages: result.meta.totalPages, // Service ใช้ totalPages แต่ Helper ใช้ total_pages
         },
         message_th: "ดึงข้อมูลสถานะอุปกรณ์สำเร็จ",
         message_en: "Device status retrieved successfully",
       }),
-      { status: 200 }
+      { status: 200 },
     );
-
   } catch (error: any) {
     console.error("Check Device Status Error:", error);
 
@@ -46,7 +45,7 @@ export async function POST(request: NextRequest) {
         message_en: "Internal Server Error",
         error: error.message || error,
       }),
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

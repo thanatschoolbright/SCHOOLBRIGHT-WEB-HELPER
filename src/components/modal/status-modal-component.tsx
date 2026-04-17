@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 export type StatusModalType = "success" | "error" | "confirm" | "delete";
 
@@ -21,7 +22,16 @@ interface StatusModalComponentProps {
 // ---- SVG Icons ----
 function IconSuccess() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="28"
+      height="28"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
       <polyline points="22 4 12 14.01 9 11.01" />
     </svg>
@@ -30,7 +40,16 @@ function IconSuccess() {
 
 function IconError() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="28"
+      height="28"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <circle cx="12" cy="12" r="10" />
       <line x1="15" y1="9" x2="9" y2="15" />
       <line x1="9" y1="9" x2="15" y2="15" />
@@ -40,7 +59,16 @@ function IconError() {
 
 function IconWarning() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="28"
+      height="28"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
       <line x1="12" y1="9" x2="12" y2="13" />
       <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -50,7 +78,16 @@ function IconWarning() {
 
 function IconDelete() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="28"
+      height="28"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <polyline points="3 6 5 6 21 6" />
       <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
       <path d="M10 11v6M14 11v6" />
@@ -61,7 +98,16 @@ function IconDelete() {
 
 function IconClose() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <line x1="18" y1="6" x2="6" y2="18" />
       <line x1="6" y1="6" x2="18" y2="18" />
     </svg>
@@ -70,7 +116,16 @@ function IconClose() {
 
 function IconChevron() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <polyline points="6 9 12 15 18 9" />
     </svg>
   );
@@ -147,6 +202,7 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
 }) => {
   const [confirmInput, setConfirmInput] = useState("");
   const [debugExpanded, setDebugExpanded] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   const isSuccess = type === "success";
   const isError = type === "error";
@@ -159,19 +215,41 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
     onClose();
   };
 
+  // ยืนยันว่า render ฝั่ง client ก่อนใช้งาน portal
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   // ล็อก scroll เมื่อ modal เปิด
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [open]);
+    if (!isMounted) return;
+
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = open ? "hidden" : previousBodyOverflow;
+    document.documentElement.style.overflow = open
+      ? "hidden"
+      : previousHtmlOverflow;
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, [isMounted, open]);
 
   // ESC ปิด modal
   useEffect(() => {
     if (!open) return;
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") handleClose(); };
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") handleClose();
+    };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const handleConfirm = () => {
@@ -189,14 +267,21 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
   // ขนาด modal
   const maxWidth = isError ? "max-w-[560px]" : "max-w-[400px]";
 
-  return (
+  if (!isMounted) {
+    return null;
+  }
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <>
           {/* Backdrop */}
           <motion.div
             className="fixed inset-0 z-[9998]"
-            style={{ background: "rgba(12,15,20,0.5)", backdropFilter: "blur(6px)" }}
+            style={{
+              background: "rgba(12,15,20,0.5)",
+              backdropFilter: "blur(6px)",
+            }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -204,11 +289,14 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
             onClick={handleClose}
           />
 
-          {/* Modal */}
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          {/* Modal Overlay Container - ใช้ fixed inset-0 flex items-center justify-center เพื่อให้กลาง Viewport เสมอ */}
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none p-4">
             <motion.div
-              className={`bg-white rounded-2xl w-full ${maxWidth} relative overflow-hidden`}
-              style={{ boxShadow: "0 24px 60px -8px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04)" }}
+              className={`bg-white dark:bg-slate-900 rounded-2xl w-full ${maxWidth} relative overflow-hidden pointer-events-auto shadow-2xl`}
+              style={{
+                boxShadow:
+                  "0 24px 60px -8px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.05)",
+              }}
               initial={{ opacity: 0, scale: 0.96, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 12 }}
@@ -216,7 +304,10 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
               onClick={(e) => e.stopPropagation()}
             >
               {/* Accent bar ด้านบน */}
-              <div className="h-[3px] w-full" style={{ background: cfg.accentColor }} />
+              <div
+                className="h-[3px] w-full"
+                style={{ background: cfg.accentColor }}
+              />
 
               <div className="p-8">
                 {/* ปุ่มปิด */}
@@ -240,13 +331,13 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
 
                   <div>
                     <h2
-                      className="text-[18px] font-bold text-slate-900 m-0 mb-2"
+                      className="text-[18px] font-bold text-slate-900 dark:text-white m-0 mb-2"
                       style={{ letterSpacing: "-0.01em" }}
                     >
                       {title ?? cfg.defaultTitle}
                     </h2>
                     {message ? (
-                      <p className="text-[14px] text-slate-500 m-0 leading-relaxed max-w-[320px]">
+                      <p className="text-[14px] text-slate-500 dark:text-slate-400 m-0 leading-relaxed max-w-[320px]">
                         {message}
                       </p>
                     ) : null}
@@ -270,14 +361,20 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
                     </p>
                     <div
                       className={`flex items-center gap-2 py-2.5 px-0 border-b transition-colors duration-200
-                        ${confirmInput === "Delete" ? "border-red-500" : "border-slate-200 focus-within:border-slate-700"}`}
+                        ${
+                          confirmInput === "Delete"
+                            ? "border-red-500"
+                            : "border-slate-200 focus-within:border-slate-700"
+                        }`}
                     >
                       <input
                         type="text"
                         placeholder="Delete"
                         value={confirmInput}
                         onChange={(e) => setConfirmInput(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === "Enter") handleConfirm(); }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleConfirm();
+                        }}
                         className="flex-1 bg-transparent outline-none text-[14px] text-slate-800 placeholder-slate-300 font-medium"
                         autoFocus
                       />
@@ -319,9 +416,15 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
                           className="overflow-hidden"
                         >
                           <pre className="text-[11px] text-slate-600 bg-slate-50 px-4 pb-4 m-0 overflow-auto max-h-[160px] font-mono leading-relaxed border-t border-slate-100">
-                            {(typeof errorDetails === "string"
-                              ? errorDetails
-                              : JSON.stringify(errorDetails, null, 2)) as string}
+                            {
+                              (typeof errorDetails === "string"
+                                ? errorDetails
+                                : JSON.stringify(
+                                    errorDetails,
+                                    null,
+                                    2,
+                                  )) as string
+                            }
                           </pre>
                         </motion.div>
                       )}
@@ -343,7 +446,9 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
                     disabled={loading || !canConfirmDelete}
                     className="w-full h-[48px] rounded-xl text-[14px] font-semibold text-white flex items-center justify-center gap-2 border-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
                     style={{ background: cfg.confirmBg }}
-                    whileHover={{ opacity: (loading || !canConfirmDelete) ? 0.4 : 0.88 }}
+                    whileHover={{
+                      opacity: loading || !canConfirmDelete ? 0.4 : 0.88,
+                    }}
                     whileTap={{ scale: 0.99 }}
                     transition={{ duration: 0.12 }}
                   >
@@ -352,12 +457,23 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
                         <motion.div
                           className="w-4 h-4 border-[1.5px] border-white/30 border-t-white rounded-full"
                           animate={{ rotate: 360 }}
-                          transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+                          transition={{
+                            duration: 0.7,
+                            repeat: Infinity,
+                            ease: "linear",
+                          }}
                         />
                         <span>กำลังดำเนินการ...</span>
                       </>
                     ) : (
-                      <span>{confirmLabel ?? (isDelete ? "ลบรายการ" : isSuccess ? "ตกลง" : "ยืนยัน")}</span>
+                      <span>
+                        {confirmLabel ??
+                          (isDelete
+                            ? "ลบรายการ"
+                            : isSuccess
+                            ? "ตกลง"
+                            : "ยืนยัน")}
+                      </span>
                     )}
                   </motion.button>
 
@@ -378,6 +494,7 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
           </div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 };
