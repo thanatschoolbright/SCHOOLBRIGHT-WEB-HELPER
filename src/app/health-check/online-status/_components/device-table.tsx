@@ -50,20 +50,18 @@ const getSessionStatus = (isLogin: boolean) =>
     ? { label: "กำลังใช้งาน", color: "#2563eb", bg: "#dbeafe", border: "#93c5fd" }
     : { label: "ออกระบบแล้ว", color: "#6b7280", bg: "#f3f4f6", border: "#d1d5db" };
 
-// แสดงเวลาสัมพัทธ์พร้อม tooltip วันที่จริง
-const RelativeTime: React.FC<{ time: string | null; prefix?: string }> = ({ time, prefix = "" }) => {
+// แสดงเวลาในรูปแบบ dd/mm/yyyy HH:mm
+const FormatDateTime: React.FC<{ time: string | null; prefix?: string }> = ({ time, prefix = "" }) => {
   const { token } = theme.useToken();
   if (!time) return <AntText type="secondary" style={{ fontSize: 11 }}>—</AntText>;
   return (
-    <Tooltip title={`${prefix}${dayjs(time).format("DD/MM/YYYY HH:mm:ss น.")}`}>
-      <span
-        className="inline-flex items-center gap-1 cursor-help"
-        style={{ fontSize: 11, color: token.colorTextTertiary }}
-      >
-        <ClockCircleOutlined style={{ fontSize: 10 }} />
-        {dayjs(time).fromNow()}
-      </span>
-    </Tooltip>
+    <span
+      className="inline-flex items-center gap-1"
+      style={{ fontSize: 11, color: token.colorTextTertiary }}
+    >
+      <ClockCircleOutlined style={{ fontSize: 10 }} />
+      {prefix}{dayjs(time).format("DD/MM/YYYY HH:mm")}
+    </span>
   );
 };
 
@@ -262,7 +260,7 @@ const DeviceTable: React.FC = () => {
               )}
               {net.label}
             </div>
-            <RelativeTime time={record.OnlineTime} prefix="อัปเดต: " />
+            <FormatDateTime time={record.OnlineTime} prefix="อัปเดต: " />
           </div>
         );
       },
@@ -298,7 +296,7 @@ const DeviceTable: React.FC = () => {
               )}
               {sess.label}
             </div>
-            <RelativeTime
+            <FormatDateTime
               time={isLogin ? record.LoginTime : record.LogoutTime}
               prefix={isLogin ? "เข้าใช้: " : "ออกระบบ: "}
             />
@@ -320,11 +318,8 @@ const DeviceTable: React.FC = () => {
       render: (tstamp: string) => (
         <div className="flex flex-col gap-0.5">
           <AntText style={{ fontSize: 13 }}>
-            {tstamp ? dayjs(tstamp).format("D MMM BBBB") : "—"}
+            {tstamp ? dayjs(tstamp).format("DD/MM/YYYY HH:mm") : "—"}
           </AntText>
-          <span style={{ fontSize: 11, color: token.colorTextTertiary }}>
-            {tstamp ? dayjs(tstamp).format("HH:mm:ss น.") : ""}
-          </span>
         </div>
       ),
     },

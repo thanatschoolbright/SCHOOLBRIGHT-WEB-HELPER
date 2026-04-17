@@ -5,7 +5,6 @@ import {
   ClearOutlined,
   ClockCircleOutlined,
   CodeOutlined,
-  FilterFilled,
   InfoCircleOutlined,
   SearchOutlined,
   ShopOutlined,
@@ -19,7 +18,6 @@ import {
   Col,
   DatePicker,
   Divider,
-  Flex,
   Form,
   Input,
   Row,
@@ -120,13 +118,6 @@ const FilterSection: React.FC<FilterSectionProps> = ({ deviceList }) => {
       onFinish={handleSearch}
       initialValues={{ isOnline: true }}
     >
-      <Flex align="center" gap={8} style={{ marginBottom: 16 }}>
-        <FilterFilled style={{ fontSize: "1rem" }} />
-        <AntText strong style={{ fontSize: "1rem", fontWeight: 600 }}>
-          ตัวกรอง
-        </AntText>
-      </Flex>
-
       <Row gutter={[24, 16]}>
         <Col xs={24} md={12}>
           <Form.Item
