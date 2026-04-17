@@ -49,9 +49,7 @@ const getNetworkStatus = (isOnline: boolean, onlineTime: string | null) => {
   // คำนวณแบบ Dynamic: ถ้า Online เป็น true หรือมีการส่ง Heartbeat มาใน 15 นาทีล่าสุด (ปรับตาม API)
   const isOnlineDynamic =
     isOnline ||
-    (onlineTime
-      ? dayjs().diff(dayjs.utc(onlineTime).local(), "minute") <= 15
-      : false);
+    (onlineTime ? dayjs().diff(dayjs(onlineTime), "minute") <= 15 : false);
 
   return isOnlineDynamic
     ? {
@@ -86,7 +84,7 @@ const getSessionStatus = (isLogin: boolean) =>
         border: "#d1d5db",
       };
 
-// แสดงเวลาในรูปแบบ dd/mm/yyyy HH:mm
+// แสดงค่าวันที่และเวลาจาก String ตรงๆ (Raw String)
 const FormatDateTime: React.FC<{ time: string | null; prefix?: string }> = ({
   time,
   prefix = "",
@@ -98,6 +96,14 @@ const FormatDateTime: React.FC<{ time: string | null; prefix?: string }> = ({
         —
       </AntText>
     );
+
+  // ดึงเฉพาะส่วนวันที่และเวลา (YYYY-MM-DD HH:mm:ss) จาก ISO String
+  // ตัวอย่าง: 2026-04-17T11:57:25.017Z -> 17/04/2026 11:57
+  const rawDate = time.split("T")[0];
+  const rawTime = time.split("T")[1]?.split(".")[0]?.substring(0, 5);
+  const [year, month, day] = rawDate.split("-");
+  const formatted = `${day}/${month}/${year} ${rawTime}`;
+
   return (
     <span
       className="inline-flex items-center gap-1"
@@ -105,7 +111,7 @@ const FormatDateTime: React.FC<{ time: string | null; prefix?: string }> = ({
     >
       <ClockCircleOutlined style={{ fontSize: 10 }} />
       {prefix}
-      {dayjs.utc(time).local().format("DD/MM/YYYY HH:mm")}
+      {formatted}
     </span>
   );
 };
@@ -150,7 +156,7 @@ const DeviceTable: React.FC = () => {
     const calcOnline = (d: DeviceStatusData) =>
       d.Online ||
       (d.OnlineTime
-        ? dayjs().diff(dayjs.utc(d.OnlineTime).local(), "minute") <= 15
+        ? dayjs().diff(dayjs(d.OnlineTime), "minute") <= 15
         : false);
 
     return {
@@ -185,7 +191,7 @@ const DeviceTable: React.FC = () => {
         const isOnlineDynamic =
           record.Online ||
           (record.OnlineTime
-            ? dayjs().diff(dayjs.utc(record.OnlineTime).local(), "minute") <= 15
+            ? dayjs().diff(dayjs(record.OnlineTime), "minute") <= 15
             : false);
         return (
           <div className="flex items-center gap-3">
@@ -321,7 +327,7 @@ const DeviceTable: React.FC = () => {
         const isOnlineDynamic =
           isOnline ||
           (record.OnlineTime
-            ? dayjs().diff(dayjs.utc(record.OnlineTime).local(), "minute") <= 15
+            ? dayjs().diff(dayjs(record.OnlineTime), "minute") <= 15
             : false);
         return (
           <div className="flex flex-col items-center gap-1.5">
@@ -395,15 +401,19 @@ const DeviceTable: React.FC = () => {
       key: "Tstamp",
       width: 180,
       sorter: (a, b) => dayjs(a.Tstamp).valueOf() - dayjs(b.Tstamp).valueOf(),
-      render: (tstamp: string) => (
-        <div className="flex flex-col gap-0.5">
-          <AntText style={{ fontSize: 13 }}>
-            {tstamp
-              ? dayjs.utc(tstamp).local().format("DD/MM/YYYY HH:mm")
-              : "—"}
-          </AntText>
-        </div>
-      ),
+      render: (tstamp: string) => {
+        if (!tstamp) return "—";
+        const rawDate = tstamp.split("T")[0];
+        const rawTime = tstamp.split("T")[1]?.split(".")[0]?.substring(0, 5);
+        const [year, month, day] = rawDate.split("-");
+        return (
+          <div className="flex flex-col gap-0.5">
+            <AntText style={{ fontSize: 13 }}>
+              {`${day}/${month}/${year} ${rawTime}`}
+            </AntText>
+          </div>
+        );
+      },
     },
     {
       title: "",
@@ -523,8 +533,7 @@ const DeviceTable: React.FC = () => {
           const isOnlineDynamic =
             record.Online ||
             (record.OnlineTime
-              ? dayjs().diff(dayjs.utc(record.OnlineTime).local(), "minute") <=
-                15
+              ? dayjs().diff(dayjs(record.OnlineTime), "minute") <= 15
               : false);
           return isOnlineDynamic
             ? "hover:bg-green-50/30 transition-colors"
