@@ -18,11 +18,26 @@ export interface DeviceStatusData {
 
 export interface DeviceStatusApiResponse {
   status: number;
+  status_code?: number;
   message_th: string;
   data: DeviceStatusData[];
   pagination?: {
     total: number;
   };
+}
+
+export interface DashboardSummary {
+  total: number;
+  online: number;
+  offline: number;
+  login: number;
+  onlineRate: number;
+  totalSchools: number;
+}
+
+export interface DashboardSummaryApiResponse {
+  status_code: number;
+  data: DashboardSummary;
 }
 
 export interface FetchDeviceStatusParams {
@@ -49,5 +64,12 @@ export const onlineStatusService = {
       { headers: { "Content-Type": "application/json" } },
     );
     return response.data;
+  },
+
+  fetchDashboardSummary: async (): Promise<DashboardSummary> => {
+    const response = await callApiService.get<DashboardSummaryApiResponse>(
+      "/api/v2/hardware/device-dashboard-summary",
+    );
+    return response.data.data;
   },
 };

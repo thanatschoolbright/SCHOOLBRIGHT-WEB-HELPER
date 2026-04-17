@@ -38,6 +38,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import DeviceTable from "./_components/device-table";
 import FilterSection from "./_components/filter-section";
+import { DashboardSummary, onlineStatusService } from "./_services/online-status-service";
 import { useOnlineStatusStore } from "./_state/online-status-store";
 
 dayjs.extend(relativeTime);
@@ -64,7 +65,7 @@ const DiscordIcon = () => (
  */
 export default function OnlineDeviceDashboard() {
   const { token } = theme.useToken();
-  const { isFetching, deviceList, pagination, fetchData } =
+  const { isFetching, deviceList, fetchData } =
     useOnlineStatusStore();
   const dispatch = useDispatch<AppDispatch>();
   const schoolListState = useAppSelector(
@@ -79,9 +80,22 @@ export default function OnlineDeviceDashboard() {
   }>({ open: false, type: "success", title: "", message: "" });
 
   const [isNotifying, setIsNotifying] = useState(false);
+  const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
+  const [isDashboardLoading, setIsDashboardLoading] = useState(false);
+
+  const loadDashboard = async () => {
+    setIsDashboardLoading(true);
+    try {
+      const data = await onlineStatusService.fetchDashboardSummary();
+      setDashboard(data);
+    } finally {
+      setIsDashboardLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchData(1, 20);
+    void loadDashboard();
 
     // โหลดรายชื่อโรงเรียนเข้า Redux เพื่อให้ FilterSection ใช้งาน Dropdown ได้
     const hasSchoolData =
@@ -93,16 +107,8 @@ export default function OnlineDeviceDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // สรุปสถิติจากข้อมูลที่ดึงมา
-  const summaryStatistics = useMemo(
-    () => ({
-      totalDevices: pagination.total,
-      onlineCount: deviceList.filter((d) => d.Online).length,
-      offlineCount: deviceList.filter((d) => !d.Online).length,
-      loginCount: deviceList.filter((d) => d.Login).length,
-    }),
-    [deviceList, pagination.total],
-  );
+  // สถิติ Dashboard มาจาก API แยก ไม่ขึ้นกับ filter ปัจจุบัน
+  const offlineCount = dashboard?.offline ?? 0;
 
   // สร้าง school_map จาก Redux สำหรับส่งไปพร้อม Discord payload
   const schoolMap = useMemo(() => {
@@ -258,7 +264,7 @@ export default function OnlineDeviceDashboard() {
                 }}
               >
                 <span>ส่งรายงานไปยัง Discord</span>
-                {summaryStatistics.offlineCount > 0 && (
+                {offlineCount > 0 && (
                   <div
                     className="flex items-center justify-center"
                     style={{
@@ -273,7 +279,7 @@ export default function OnlineDeviceDashboard() {
                     <NotificationOutlined
                       style={{ marginRight: 4, fontSize: 10 }}
                     />
-                    {summaryStatistics.offlineCount} ออฟไลน์
+                    {offlineCount} ออฟไลน์
                   </div>
                 )}
               </Button>
@@ -298,46 +304,61 @@ export default function OnlineDeviceDashboard() {
           <Col xs={24} sm={6}>
             <SummaryCard
               title="อุปกรณ์ทั้งหมด"
-              value={summaryStatistics.totalDevices}
+              value={dashboard?.total ?? 0}
               unit="เครื่อง"
               icon={<DesktopOutlined />}
-              isLoading={isFetching}
+              color="#6366f1"
+              subtitle={dashboard ? `${dashboard.totalSchools} โรงเรียน` : undefined}
+              isLoading={isDashboardLoading}
             />
           </Col>
           <Col xs={24} sm={6}>
             <SummaryCard
-              title="ออนไลน์พร้อมใช้งาน"
-              value={summaryStatistics.onlineCount}
+              title="ออนไลน์"
+              value={dashboard?.online ?? 0}
               unit="เครื่อง"
               icon={<WifiOutlined />}
-              color={token.colorSuccess}
-              isLoading={isFetching}
+              color="#16a34a"
+              subtitle={dashboard ? `${dashboard.onlineRate}% ของทั้งหมด` : undefined}
+              isLoading={isDashboardLoading}
             />
           </Col>
           <Col xs={24} sm={6}>
             <SummaryCard
               title="ออฟไลน์"
-              value={summaryStatistics.offlineCount}
+              value={dashboard?.offline ?? 0}
               unit="เครื่อง"
               icon={<AlertOutlined />}
               color={
-                summaryStatistics.offlineCount >= 5
-                  ? token.colorError
-                  : summaryStatistics.offlineCount > 0
-                  ? token.colorWarning
-                  : token.colorSuccess
+                (dashboard?.offline ?? 0) >= 5
+                  ? "#dc2626"
+                  : (dashboard?.offline ?? 0) > 0
+                  ? "#d97706"
+                  : "#16a34a"
               }
-              isLoading={isFetching}
+              subtitle={
+                (dashboard?.offline ?? 0) >= 5
+                  ? "ระดับวิกฤต"
+                  : (dashboard?.offline ?? 0) > 0
+                  ? "ต้องระวัง"
+                  : "ปกติทุกเครื่อง"
+              }
+              isLoading={isDashboardLoading}
             />
           </Col>
           <Col xs={24} sm={6}>
             <SummaryCard
               title="กำลังใช้งาน"
-              value={summaryStatistics.loginCount}
+              value={dashboard?.login ?? 0}
               unit="เครื่อง"
               icon={<ThunderboltFilled />}
-              color={token.colorPrimary}
-              isLoading={isFetching}
+              color="#2563eb"
+              subtitle={
+                dashboard
+                  ? `${Math.round((dashboard.login / (dashboard.total || 1)) * 100)}% ของออนไลน์`
+                  : undefined
+              }
+              isLoading={isDashboardLoading}
             />
           </Col>
         </Row>
