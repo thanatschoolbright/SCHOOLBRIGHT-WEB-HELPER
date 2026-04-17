@@ -350,7 +350,11 @@ export function buildDiscordPayload(
     appGroupFields.push({
       name: `${statusDot} ${shortName}  \`v${group.appVersion}\`${updateTag}`,
       value: [
-        `🖥️ ทั้งหมด **${group.total}** · 🟢 **${group.online}** · 🔴 **${group.offline}** · ⚡ **${group.login}**`,
+        `· ทั้งหมด **${group.total}** เครื่อง`,
+        `· 🟢 ออนไลน์ **${group.online}** เครื่อง`,
+        `· 🔴 ออฟไลน์ **${group.offline}** เครื่อง`,
+        `· ⚡ ใช้งาน **${group.login}** เครื่อง`,
+        ``,
         `${groupBar}  **${group.onlineRate}%**`,
       ].join("\n"),
       inline: true,
