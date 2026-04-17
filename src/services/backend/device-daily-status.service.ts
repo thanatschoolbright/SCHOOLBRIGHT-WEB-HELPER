@@ -82,10 +82,9 @@ export const DeviceDailyStatusService = {
     // สร้าง where clause ตาม filter ที่ได้รับ
     const where: any = {};
 
-    if (isOnline !== undefined && isOnline !== "") {
-      where.Online = String(isOnline) === "true";
-    }
-
+    // หมายเหตุ: การกรอง Online จะทำที่ Memory หลังจากดึงข้อมูลมาแล้ว 
+    // เพราะต้องคำนวณสถานะ Dynamic (Heartbeat 15 นาที) ซึ่ง Prisma กรองด้วย Logic นี้ตรงๆ ไม่ได้เหมาะสมที่สุด
+    
     if (isLogin !== undefined && isLogin !== "") {
       where.Login = String(isLogin) === "true";
     }
@@ -102,42 +101,86 @@ export const DeviceDailyStatusService = {
       if (isNumber) where.OR.push({ SchoolID: Number(keyword) });
     }
 
-    // ดึงข้อมูลและนับจำนวนแบบ parallel
-    const [total, rawData] = await Promise.all([
-      PrismaORM.deviceDailyStatus.count({ where }),
-      PrismaORM.deviceDailyStatus.findMany({
-        where,
-        take,
-        skip,
-        orderBy: { Tstamp: "desc" },
-      }),
-    ]);
+    // ดึงข้อมูลทั้งหมดที่เข้าข่าย (ยกเว้น Online Filter) เพื่อมาคำนวณ Online แบบ Dynamic
+    // หากมีการกรอง Online เราจะดึงข้อมูลมาทั้งหมดก่อน (หรือก้อนใหญ่ขึ้น) แล้วค่อย Filter + Paginate
+    
+    // ถ้าไม่มีการกรอง Online ให้ทำงานแบบปกติ (Paginate ที่ DB)
+    if (isOnline === undefined || isOnline === "") {
+      const [total, rawData] = await Promise.all([
+        PrismaORM.deviceDailyStatus.count({ where }),
+        PrismaORM.deviceDailyStatus.findMany({
+          where,
+          take,
+          skip,
+          orderBy: { Tstamp: "desc" },
+        }),
+      ]);
 
-    // คำนวณสถานะ Online แบบ Dynamic (OnlineTime ไม่เกิน 15 นาที)
-    const now = new Date();
-    const FIFTEEN_MIN_IN_MS = 15 * 60 * 1000;
+      const now = new Date();
+      const FIFTEEN_MIN_IN_MS = 15 * 60 * 1000;
 
-    const data = rawData.map((device) => {
-      const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
-      const isOnlineDynamic =
-        device.Online === true ||
-        (onlineTime
-          ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
-          : false);
+      const data = rawData.map((device) => {
+        const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
+        const isOnlineDynamic =
+          device.Online === true ||
+          (onlineTime
+            ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
+            : false);
+
+        return {
+          ...device,
+          Online: isOnlineDynamic,
+        };
+      });
 
       return {
-        ...device,
-        Online: isOnlineDynamic, // Override ค่า Online ด้วย Logic ใหม่
+        data,
+        meta: {
+          total,
+          page: pageNum,
+          limit: take,
+          totalPages: Math.ceil(total / take),
+        },
       };
+    }
+
+    // กรณีมีการกรอง Online (isOnline = true/false)
+    // จำเป็นต้องดึงข้อมูลเพื่อมาคำนวณก่อน เพราะสถานะ Online ขึ้นอยู่กับเวลาปัจจุบัน (Heartbeat 15 min)
+    const allMatchingDevices = await PrismaORM.deviceDailyStatus.findMany({
+      where,
+      orderBy: { Tstamp: "desc" },
     });
 
+    const now = new Date();
+    const FIFTEEN_MIN_IN_MS = 15 * 60 * 1000;
+    const filterIsOnline = String(isOnline) === "true";
+
+    const filteredData = allMatchingDevices
+      .map((device) => {
+        const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
+        const isOnlineDynamic =
+          device.Online === true ||
+          (onlineTime
+            ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
+            : false);
+
+        return {
+          ...device,
+          Online: isOnlineDynamic,
+        };
+      })
+      .filter((device) => device.Online === filterIsOnline);
+
+    const totalCount = filteredData.length;
+    const paginatedData = filteredData.slice(skip, skip + take);
+
     return {
-      data,
+      data: paginatedData,
       meta: {
-        total,
+        total: totalCount,
         page: pageNum,
         limit: take,
-        totalPages: Math.ceil(total / take),
+        totalPages: Math.ceil(totalCount / take),
       },
     };
   },
