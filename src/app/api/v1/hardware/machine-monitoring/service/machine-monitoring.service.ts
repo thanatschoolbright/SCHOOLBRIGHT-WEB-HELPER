@@ -211,13 +211,13 @@ function formatOfflineDeviceEntry(
   const schoolName = resolveSchoolName(device.SchoolID, schoolMap);
   const lastOnline = formatThaiDateTime(device.OnlineTime);
   const businessDate = formatBusinessDate(device.BusinessDate);
-  const loginStatus = device.Login ? "เข้าสู่ระบบอยู่" : "ออกจากระบบ";
+  const loginStatus = device.Login ? "🟡 ยังล็อกอินอยู่" : "⚫ ออกจากระบบแล้ว";
 
   return [
-    `> **${schoolName}**`,
-    `> รหัสเครื่อง: \`${device.DeviceID}\`  |  ${loginStatus}`,
-    `> ออฟไลน์ล่าสุด: ${lastOnline}`,
-    `> วันทำรายการ: ${businessDate}`,
+    `> 🏫 **${schoolName}**`,
+    `> 🖥️ \`${device.DeviceID}\`  ·  ${loginStatus}`,
+    `> 📡 ออฟไลน์ล่าสุด: ${lastOnline}`,
+    `> 📅 วันทำรายการ: ${businessDate}`,
     ``,
   ].join("\n");
 }
@@ -278,10 +278,9 @@ export function buildDiscordPayload(
 
   const fetchedNote =
     totalInDb !== undefined && totalInDb !== stats.total
-      ? `ดึงมา ${stats.total} จาก DB ทั้งหมด ${totalInDb} เครื่อง`
+      ? `> 📦 ดึงมา **${stats.total}** จาก DB ทั้งหมด **${totalInDb}** เครื่อง`
       : "";
 
-  // field ภาพรวมระบบ
   const overallStatusIcon =
     stats.offline === 0
       ? "🟢"
@@ -289,19 +288,27 @@ export function buildDiscordPayload(
       ? "🟡"
       : "🔴";
 
+  const vibeLabel =
+    stats.offline === 0
+      ? "✅ ระบบทุกอย่าง OK เลย!"
+      : stats.offline < OFFLINE_CRITICAL_THRESHOLD
+      ? "⚠️ มีบางเครื่องต้องดูแล"
+      : "🚨 วิกฤต! หลายเครื่องออฟไลน์";
+
+  // field ภาพรวมระบบ
   const summaryFields: Array<{ name: string; value: string; inline: boolean }> =
     [
       {
-        name: `${overallStatusIcon}  ภาพรวมระบบทั้งหมด`,
+        name: `${overallStatusIcon} ภาพรวมระบบ  ·  ${vibeLabel}`,
         value: [
+          "```ansi",
+          `\u001b[1;37m📊 ทั้งหมด    \u001b[0m\u001b[1;36m${stats.total}\u001b[0m เครื่อง`,
+          `\u001b[1;37m🟢 ออนไลน์   \u001b[0m\u001b[1;32m${stats.online}\u001b[0m เครื่อง`,
+          `\u001b[1;37m🔴 ออฟไลน์   \u001b[0m\u001b[1;31m${stats.offline}\u001b[0m เครื่อง`,
+          `\u001b[1;37m⚡ กำลังใช้   \u001b[0m\u001b[1;33m${stats.login}\u001b[0m เครื่อง`,
           "```",
-          `ทั้งหมด   : ${stats.total} เครื่อง`,
-          `ออนไลน์  : ${stats.online} เครื่อง`,
-          `ออฟไลน์  : ${stats.offline} เครื่อง`,
-          `กำลังใช้  : ${stats.login} เครื่อง`,
-          "```",
-          `**อัตราออนไลน์** ${progressBar} **${stats.onlineRate}%**`,
-          fetchedNote ? `\n> ${fetchedNote}` : "",
+          `📶 **อัตราออนไลน์**  ${progressBar}  **${stats.onlineRate}%**`,
+          fetchedNote,
         ]
           .filter(Boolean)
           .join("\n"),
@@ -315,6 +322,16 @@ export function buildDiscordPayload(
     value: string;
     inline: boolean;
   }> = [];
+
+  // หา version ล่าสุดของแต่ละ AppName เพื่อแสดง badge อัพเดท
+  const latestVersionByApp = new Map<string, string>();
+  for (const group of stats.appGroups) {
+    const current = latestVersionByApp.get(group.appName);
+    if (!current || compareVersionByNumber(current, group.appVersion) > 0) {
+      latestVersionByApp.set(group.appName, group.appVersion);
+    }
+  }
+
   for (const group of stats.appGroups) {
     const shortName = shortenAppName(group.appName);
     const groupBar = buildProgressBar(group.onlineRate, 8);
@@ -324,15 +341,16 @@ export function buildDiscordPayload(
         : group.offline < OFFLINE_CRITICAL_THRESHOLD
         ? "🟡"
         : "🔴";
+    const latestVer = latestVersionByApp.get(group.appName) ?? group.appVersion;
+    const needsUpdate = compareVersionByNumber(group.appVersion, latestVer) > 0;
+    const updateTag = needsUpdate
+      ? "  🔔 **ควรอัพเดท**"
+      : "  ✨ **เวอร์ชันล่าสุด**";
 
     appGroupFields.push({
-      name: `${statusDot}  ${shortName}  v${group.appVersion}`,
+      name: `${statusDot} ${shortName}  \`v${group.appVersion}\`${updateTag}`,
       value: [
-        `· ทั้งหมด **${group.total}** เครื่อง`,
-        `· ออนไลน์ **${group.online}** เครื่อง`,
-        `· ออฟไลน์ **${group.offline}** เครื่อง`,
-        `· ใช้งาน **${group.login}** เครื่อง`,
-        ``,
+        `🖥️ ทั้งหมด **${group.total}** · 🟢 **${group.online}** · 🔴 **${group.offline}** · ⚡ **${group.login}**`,
         `${groupBar}  **${group.onlineRate}%**`,
       ].join("\n"),
       inline: true,
@@ -367,15 +385,15 @@ export function buildDiscordPayload(
 
   if (stats.offline > 0) {
     offlineDetailFields.push({
-      name: "รายละเอียดเครื่องออฟไลน์",
-      value: `พบ **${stats.offline}** เครื่องที่ต้องตรวจสอบ แยกตามแอปพลิเคชัน`,
+      name: `🚨 เครื่องออฟไลน์ที่ต้องตรวจสอบ (${stats.offline} เครื่อง)`,
+      value: `> พบ **${stats.offline}** เครื่องออฟไลน์ กรุณาตรวจสอบด่วน! 👇`,
       inline: false,
     });
 
     for (const group of stats.appGroups) {
       if (group.offline === 0) continue;
       const shortName = shortenAppName(group.appName);
-      const label = `${shortName} v${group.appVersion}  (${group.offline} เครื่อง)`;
+      const label = `📱 ${shortName}  \`v${group.appVersion}\`  —  ${group.offline} เครื่องออฟไลน์`;
       const chunks = chunkOfflineDeviceFields(
         group.offlineDevices,
         schoolMap,
@@ -385,8 +403,8 @@ export function buildDiscordPayload(
     }
   } else {
     offlineDetailFields.push({
-      name: "สถานะระบบ",
-      value: "ทุกเครื่องออนไลน์และพร้อมใช้งาน",
+      name: "🎉 สถานะระบบ",
+      value: "> ✅ ทุกเครื่องออนไลน์ครบ ไม่มีปัญหาใดๆ เลย 🔥",
       inline: false,
     });
   }
@@ -397,14 +415,27 @@ export function buildDiscordPayload(
     ...offlineDetailFields,
   ];
 
+  const titleEmoji =
+    stats.offline === 0
+      ? "🟢"
+      : stats.offline < OFFLINE_CRITICAL_THRESHOLD
+      ? "🟡"
+      : "🔴";
+
   return {
+    content:
+      stats.offline >= OFFLINE_CRITICAL_THRESHOLD
+        ? "🚨 **@here** มีเครื่องออฟไลน์เกินเกณฑ์วิกฤต!"
+        : undefined,
     embeds: [
       {
-        title: "รายงานสถานะเครื่อง POS · SchoolBright",
-        description: `วันเวลาที่รายงาน: **${reportTime}**`,
+        title: `${titleEmoji} รายงานสถานะเครื่อง POS · SchoolBright`,
+        description: `🕐 **${reportTime}**  ·  ระบบตรวจสอบอัตโนมัติ`,
         color: embedColor,
         fields: allFields,
-        footer: { text: "SchoolBright Helper · Machine Monitoring System" },
+        footer: {
+          text: "SchoolBright Helper · Machine Monitoring  |  ส่งอัตโนมัติโดยระบบ",
+        },
         timestamp: now.toISOString(),
       },
     ],
@@ -479,10 +510,12 @@ function buildEmailHtml(
           ? "ระวัง"
           : "วิกฤต";
 
-      const latestVersion = latestVersionByApp.get(group.appName) ?? group.appVersion;
-      const needsUpdate = compareVersionByNumber(group.appVersion, latestVersion) > 0;
+      const latestVersion =
+        latestVersionByApp.get(group.appName) ?? group.appVersion;
+      const needsUpdate =
+        compareVersionByNumber(group.appVersion, latestVersion) > 0;
       const updateCell = needsUpdate
-        ? `<span style="background:#f59e0b;color:#fff;border-radius:999px;padding:2px 10px;font-size:11px;font-weight:600;">แจ้งให้อัพเดท</span>`
+        ? `<span style="border-radius:999px;padding:2px 10px;font-size:11px;font-weight:600;">✅</span>`
         : `<span style="color:#6b7280;font-size:12px;">—</span>`;
 
       return `
