@@ -1,20 +1,23 @@
 "use client";
 
 import {
+  ApiOutlined,
   AppstoreOutlined,
   BarcodeOutlined,
   CheckCircleFilled,
   ClockCircleOutlined,
   CloseCircleFilled,
+  CopyOutlined,
   DesktopOutlined,
   DisconnectOutlined,
+  PoweroffOutlined,
   ReloadOutlined,
   ShopOutlined,
+  ThunderboltFilled,
   WifiOutlined,
 } from "@ant-design/icons";
 import { useAppSelector } from "@stores/store";
 import {
-  Avatar,
   Badge,
   Button,
   Card,
@@ -26,6 +29,7 @@ import {
   Typography,
   theme,
 } from "antd";
+import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import { useCallback, useMemo } from "react";
 import { toast } from "sonner";
@@ -34,234 +38,308 @@ import { useOnlineStatusStore } from "../_state/online-status-store";
 
 const { Text: AntText } = Typography;
 
+// คืนค่าสีและ label ตามสถานะ Online/Offline
+const getNetworkStatus = (isOnline: boolean) =>
+  isOnline
+    ? { label: "ออนไลน์", color: "#16a34a", bg: "#dcfce7", border: "#86efac", dot: "success" as const }
+    : { label: "ออฟไลน์", color: "#dc2626", bg: "#fee2e2", border: "#fca5a5", dot: "error" as const };
+
+// คืนค่าสีและ label ตามสถานะ Login
+const getSessionStatus = (isLogin: boolean) =>
+  isLogin
+    ? { label: "กำลังใช้งาน", color: "#2563eb", bg: "#dbeafe", border: "#93c5fd" }
+    : { label: "ออกระบบแล้ว", color: "#6b7280", bg: "#f3f4f6", border: "#d1d5db" };
+
+// แสดงเวลาสัมพัทธ์พร้อม tooltip วันที่จริง
+const RelativeTime: React.FC<{ time: string | null; prefix?: string }> = ({ time, prefix = "" }) => {
+  const { token } = theme.useToken();
+  if (!time) return <AntText type="secondary" style={{ fontSize: 11 }}>—</AntText>;
+  return (
+    <Tooltip title={`${prefix}${dayjs(time).format("DD/MM/YYYY HH:mm:ss น.")}`}>
+      <span
+        className="inline-flex items-center gap-1 cursor-help"
+        style={{ fontSize: 11, color: token.colorTextTertiary }}
+      >
+        <ClockCircleOutlined style={{ fontSize: 10 }} />
+        {dayjs(time).fromNow()}
+      </span>
+    </Tooltip>
+  );
+};
+
 /**
- * คอมโพเนนต์ตารางแสดงรายการสถานะอุปกรณ์พร้อม pagination
+ * คอมโพเนนต์ตารางแสดงรายการสถานะอุปกรณ์แบบ Enterprise พร้อม pagination
  */
 const DeviceTable: React.FC = () => {
   const { token } = theme.useToken();
-  const { isFetching, deviceList, pagination, fetchData } =
-    useOnlineStatusStore();
+  const { isFetching, deviceList, pagination, fetchData } = useOnlineStatusStore();
 
   const schoolListState = useAppSelector((state) => state.callSchoolList);
   const schoolList = useMemo(() => {
     if (Array.isArray(schoolListState.response)) return schoolListState.response;
-    if (
-      schoolListState.response &&
-      Array.isArray((schoolListState.response as any).data)
-    ) {
+    if (schoolListState.response && Array.isArray((schoolListState.response as any).data)) {
       return (schoolListState.response as any).data;
     }
     return [];
   }, [schoolListState]);
 
-  /**
-   * ค้นหาชื่อโรงเรียนจาก SchoolID
-   */
+  // ค้นหาชื่อโรงเรียนจาก SchoolID
   const getSchoolName = useCallback(
     (schoolId: number) => {
-      if (!Array.isArray(schoolList) || schoolList.length === 0)
-        return "โรงเรียน #" + schoolId;
-      const found = schoolList.find((s: any) => s.SchoolID === schoolId);
-      return found
-        ? found.SchoolName + " (" + found.SchoolID + ")"
-        : "ไม่พบชื่อโรงเรียน (" + schoolId + ")";
+      if (!Array.isArray(schoolList) || schoolList.length === 0) return null;
+      return schoolList.find((s: any) => s.SchoolID === schoolId) ?? null;
     },
     [schoolList],
   );
 
-  const columns = [
+  const handleCopy = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success(`คัดลอก${label}เรียบร้อย`);
+  };
+
+  // สถิติรวมจาก deviceList ปัจจุบัน
+  const stats = useMemo(() => ({
+    online: deviceList.filter((d) => d.Online).length,
+    offline: deviceList.filter((d) => !d.Online).length,
+    active: deviceList.filter((d) => d.Login).length,
+  }), [deviceList]);
+
+  const columns: ColumnsType<DeviceStatusData> = [
     {
-      title: "โรงเรียน",
+      title: (
+        <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide">
+          <ShopOutlined />
+          โรงเรียน
+        </span>
+      ),
       dataIndex: "SchoolID",
       key: "SchoolID",
-      width: 300,
-      sorter: (a: DeviceStatusData, b: DeviceStatusData) =>
-        getSchoolName(a.SchoolID).localeCompare(getSchoolName(b.SchoolID), "th"),
-      render: (schoolId: number, record: DeviceStatusData) => (
-        <Space align="start">
-          <Avatar
-            shape="square"
-            size={40}
-            icon={<ShopOutlined />}
-            style={{
-              backgroundColor: record.Online
-                ? token.colorSuccessBg
-                : token.colorErrorBg,
-              color: record.Online ? token.colorSuccess : token.colorError,
-            }}
-          />
-          <Flex vertical>
-            <AntText strong style={{ fontSize: 14 }}>
-              {getSchoolName(schoolId)}
-            </AntText>
-            <Space size={4}>
-              <Badge status={record.Online ? "success" : "error"} />
-              <AntText type="secondary" style={{ fontSize: 11 }}>
-                สถานะ: {record.Online ? "ออนไลน์" : "ออฟไลน์"}
+      width: 280,
+      sorter: (a, b) => {
+        const aName = getSchoolName(a.SchoolID)?.SchoolName ?? String(a.SchoolID);
+        const bName = getSchoolName(b.SchoolID)?.SchoolName ?? String(b.SchoolID);
+        return aName.localeCompare(bName, "th");
+      },
+      render: (schoolId: number, record: DeviceStatusData) => {
+        const school = getSchoolName(schoolId);
+        const net = getNetworkStatus(record.Online);
+        const initials = school?.SchoolName?.charAt(0) ?? "#";
+        return (
+          <div className="flex items-center gap-3">
+            <div
+              className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm relative"
+              style={{ background: net.bg, color: net.color, border: `1px solid ${net.border}` }}
+            >
+              {initials}
+              <span
+                className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
+                style={{
+                  background: record.Online ? "#22c55e" : "#ef4444",
+                  borderColor: token.colorBgContainer,
+                }}
+              />
+            </div>
+            <div className="flex flex-col min-w-0">
+              <AntText
+                strong
+                ellipsis={{ tooltip: school?.SchoolName ?? `โรงเรียน #${schoolId}` }}
+                style={{ fontSize: 13, maxWidth: 190 }}
+              >
+                {school?.SchoolName ?? `โรงเรียน #${schoolId}`}
               </AntText>
-            </Space>
-          </Flex>
-        </Space>
-      ),
+              <span
+                className="inline-flex items-center gap-1 mt-0.5"
+                style={{ fontSize: 11, color: token.colorTextTertiary }}
+              >
+                <ShopOutlined style={{ fontSize: 10 }} />
+                ID: {schoolId}
+              </span>
+            </div>
+          </div>
+        );
+      },
     },
     {
-      title: "รหัสเครื่อง",
+      title: (
+        <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide">
+          <BarcodeOutlined />
+          รหัสเครื่อง
+        </span>
+      ),
       dataIndex: "DeviceID",
       key: "DeviceID",
-      width: 180,
-      sorter: (a: DeviceStatusData, b: DeviceStatusData) =>
-        a.DeviceID.localeCompare(b.DeviceID),
+      width: 200,
+      sorter: (a, b) => a.DeviceID.localeCompare(b.DeviceID),
       render: (deviceId: string) => (
-        <Tooltip title="คลิกเพื่อคัดลอก">
-          <Flex
-            vertical
-            gap={2}
-            style={{ cursor: "pointer" }}
-            onClick={() => {
-              navigator.clipboard.writeText(deviceId);
-              toast.success("คัดลอกรหัสเครื่องเรียบร้อย");
+        <div className="flex flex-col gap-1">
+          <div
+            className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg cursor-pointer group transition-all"
+            style={{
+              background: token.colorFillAlter,
+              border: `1px solid ${token.colorBorderSecondary}`,
             }}
+            onClick={() => handleCopy(deviceId, "รหัสเครื่อง")}
           >
-            <Space>
-              <BarcodeOutlined style={{ color: token.colorPrimary }} />
-              <AntText strong>{deviceId}</AntText>
-            </Space>
-            <AntText type="secondary" style={{ fontSize: 11 }}>
-              {deviceId.substring(0, 8)}...
-            </AntText>
-          </Flex>
-        </Tooltip>
+            <BarcodeOutlined style={{ color: token.colorPrimary, fontSize: 13 }} />
+            <code
+              className="text-xs font-mono flex-1 truncate group-hover:text-blue-500 transition-colors"
+              style={{ color: token.colorText }}
+            >
+              {deviceId}
+            </code>
+            <CopyOutlined
+              className="opacity-0 group-hover:opacity-100 transition-opacity"
+              style={{ fontSize: 11, color: token.colorPrimary }}
+            />
+          </div>
+        </div>
       ),
     },
     {
-      title: "ข้อมูลแอปพลิเคชัน",
+      title: (
+        <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide">
+          <AppstoreOutlined />
+          แอปพลิเคชัน
+        </span>
+      ),
       key: "AppInfo",
-      width: 200,
-      sorter: (a: DeviceStatusData, b: DeviceStatusData) =>
-        (a.AppName || "").localeCompare(b.AppName || ""),
+      width: 180,
+      sorter: (a, b) => (a.AppName ?? "").localeCompare(b.AppName ?? ""),
       render: (_: any, record: DeviceStatusData) => (
-        <Flex vertical gap={2}>
-          <Space>
-            <AppstoreOutlined style={{ color: token.colorTextTertiary }} />
-            <AntText style={{ fontSize: 13 }}>{record.AppName || "-"}</AntText>
-          </Space>
+        <div className="flex flex-col gap-1.5">
+          <span className="flex items-center gap-1.5" style={{ fontSize: 13 }}>
+            <AppstoreOutlined style={{ color: token.colorTextQuaternary, fontSize: 12 }} />
+            <AntText style={{ fontSize: 13 }}>{record.AppName || "—"}</AntText>
+          </span>
           {record.AppVersion && (
-            <Tag style={{ width: "fit-content", margin: 0, fontSize: 10 }}>
+            <Tag
+              style={{
+                margin: 0,
+                fontSize: 10,
+                fontWeight: 600,
+                borderRadius: 6,
+                padding: "1px 8px",
+                width: "fit-content",
+                background: token.colorPrimaryBg,
+                borderColor: token.colorPrimaryBorder,
+                color: token.colorPrimary,
+              }}
+            >
               v.{record.AppVersion}
             </Tag>
           )}
-        </Flex>
+        </div>
       ),
     },
     {
-      title: "สถานะเครือข่าย",
+      title: (
+        <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide">
+          <WifiOutlined />
+          สถานะเครือข่าย
+        </span>
+      ),
       dataIndex: "Online",
       key: "Online",
-      width: 140,
-      align: "center" as const,
-      sorter: (a: DeviceStatusData, b: DeviceStatusData) =>
-        a.Online === b.Online ? 0 : a.Online ? 1 : -1,
-      render: (isOnline: boolean, record: DeviceStatusData) => (
-        <Flex vertical align="center" gap={4}>
-          <Tag
-            color={isOnline ? "success" : "error"}
-            style={{
-              borderRadius: 20,
-              width: "100%",
-              textAlign: "center",
-              fontWeight: 600,
-            }}
-          >
-            {isOnline ? <WifiOutlined /> : <DisconnectOutlined />}{" "}
-            {isOnline ? "ออนไลน์" : "ขาดการเชื่อมต่อ"}
-          </Tag>
-          {record.OnlineTime && (
-            <Tooltip
-              title={
-                "อัปเดตล่าสุด: " +
-                dayjs(record.OnlineTime).format("DD/MM/YYYY HH:mm:ss")
-              }
+      width: 160,
+      align: "center",
+      sorter: (a, b) => Number(b.Online) - Number(a.Online),
+      render: (isOnline: boolean, record: DeviceStatusData) => {
+        const net = getNetworkStatus(isOnline);
+        return (
+          <div className="flex flex-col items-center gap-1.5">
+            <div
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-semibold text-xs"
+              style={{
+                background: net.bg,
+                color: net.color,
+                border: `1px solid ${net.border}`,
+              }}
             >
-              <AntText type="secondary" style={{ fontSize: 10, cursor: "help" }}>
-                <ClockCircleOutlined /> {dayjs(record.OnlineTime).fromNow()}
-              </AntText>
-            </Tooltip>
-          )}
-        </Flex>
-      ),
+              {isOnline ? (
+                <WifiOutlined style={{ fontSize: 11 }} />
+              ) : (
+                <DisconnectOutlined style={{ fontSize: 11 }} />
+              )}
+              {net.label}
+            </div>
+            <RelativeTime time={record.OnlineTime} prefix="อัปเดต: " />
+          </div>
+        );
+      },
     },
     {
-      title: "สถานะการใช้งาน",
+      title: (
+        <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide">
+          <ThunderboltFilled />
+          สถานะการใช้งาน
+        </span>
+      ),
       dataIndex: "Login",
       key: "Login",
-      width: 140,
-      align: "center" as const,
-      sorter: (a: DeviceStatusData, b: DeviceStatusData) =>
-        a.Login === b.Login ? 0 : a.Login ? 1 : -1,
-      render: (isLoggedIn: boolean, record: DeviceStatusData) => (
-        <Flex vertical align="center" gap={4}>
-          <Tag
-            color={isLoggedIn ? "processing" : "default"}
-            style={{
-              borderRadius: 20,
-              width: "100%",
-              textAlign: "center",
-              border: isLoggedIn
-                ? "1px solid " + token.colorPrimary
-                : undefined,
-            }}
-          >
-            {isLoggedIn ? <CheckCircleFilled /> : <CloseCircleFilled />}{" "}
-            {isLoggedIn ? "กำลังใช้งาน" : "ออกระบบ"}
-          </Tag>
-          {(isLoggedIn ? record.LoginTime : record.LogoutTime) && (
-            <Tooltip
-              title={
-                (isLoggedIn ? "เข้าใช้งาน" : "ออกระบบ") +
-                ": " +
-                dayjs(
-                  isLoggedIn ? record.LoginTime! : record.LogoutTime!,
-                ).format("DD/MM/YYYY HH:mm:ss")
-              }
+      width: 160,
+      align: "center",
+      sorter: (a, b) => Number(b.Login) - Number(a.Login),
+      render: (isLogin: boolean, record: DeviceStatusData) => {
+        const sess = getSessionStatus(isLogin);
+        return (
+          <div className="flex flex-col items-center gap-1.5">
+            <div
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-semibold text-xs"
+              style={{
+                background: sess.bg,
+                color: sess.color,
+                border: `1px solid ${sess.border}`,
+              }}
             >
-              <AntText type="secondary" style={{ fontSize: 10, cursor: "help" }}>
-                {dayjs(
-                  isLoggedIn ? record.LoginTime! : record.LogoutTime!,
-                ).fromNow()}
-              </AntText>
-            </Tooltip>
-          )}
-        </Flex>
-      ),
+              {isLogin ? (
+                <CheckCircleFilled style={{ fontSize: 11 }} />
+              ) : (
+                <CloseCircleFilled style={{ fontSize: 11 }} />
+              )}
+              {sess.label}
+            </div>
+            <RelativeTime
+              time={isLogin ? record.LoginTime : record.LogoutTime}
+              prefix={isLogin ? "เข้าใช้: " : "ออกระบบ: "}
+            />
+          </div>
+        );
+      },
     },
     {
-      title: "วันที่ทำรายการ",
-      dataIndex: "BusinessDate",
-      key: "BusinessDate",
+      title: (
+        <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide">
+          <ClockCircleOutlined />
+          วันที่ทำรายการ
+        </span>
+      ),
+      dataIndex: "Tstamp",
+      key: "Tstamp",
       width: 180,
-      sorter: (a: DeviceStatusData, b: DeviceStatusData) =>
-        dayjs(a.Tstamp).valueOf() - dayjs(b.Tstamp).valueOf(),
-      render: (_: string, record: DeviceStatusData) => (
-        <Flex align="center" gap={8}>
-          <AntText>
-            {record.Tstamp
-              ? dayjs(record.Tstamp).format("D MMM BBBB - HH:mm น.")
-              : "-"}
+      sorter: (a, b) => dayjs(a.Tstamp).valueOf() - dayjs(b.Tstamp).valueOf(),
+      render: (tstamp: string) => (
+        <div className="flex flex-col gap-0.5">
+          <AntText style={{ fontSize: 13 }}>
+            {tstamp ? dayjs(tstamp).format("D MMM BBBB") : "—"}
           </AntText>
-        </Flex>
+          <span style={{ fontSize: 11, color: token.colorTextTertiary }}>
+            {tstamp ? dayjs(tstamp).format("HH:mm:ss น.") : ""}
+          </span>
+        </div>
       ),
     },
     {
       title: "",
       key: "action",
-      width: 60,
-      align: "center" as const,
-      render: (_: any, record: DeviceStatusData) => (
-        <Tooltip title="ตรวจสอบสถานะล่าสุด">
+      width: 56,
+      align: "center",
+      render: () => (
+        <Tooltip title="รีเฟรชข้อมูล">
           <Button
             type="text"
             shape="circle"
-            icon={<ReloadOutlined />}
+            size="small"
+            icon={<ReloadOutlined style={{ fontSize: 13 }} />}
             onClick={() => fetchData(pagination.current, pagination.pageSize)}
             style={{ color: token.colorPrimary }}
           />
@@ -271,28 +349,70 @@ const DeviceTable: React.FC = () => {
   ];
 
   return (
-    <Card styles={{ body: { padding: 16 } }}>
-      <Flex
-        justify="space-between"
-        align="center"
-        style={{ marginBottom: 16 }}
+    <Card
+      styles={{ body: { padding: 0 } }}
+      style={{ borderRadius: 16, overflow: "hidden", border: `1px solid ${token.colorBorderSecondary}` }}
+    >
+      {/* Header */}
+      <div
+        className="flex items-center justify-between px-5 py-4"
+        style={{ borderBottom: `1px solid ${token.colorBorderSecondary}` }}
       >
-        <Space>
-          <DesktopOutlined style={{ fontSize: "1rem" }} />
-          <AntText strong style={{ fontSize: "1rem" }}>
-            รายการอุปกรณ์
-          </AntText>
-        </Space>
-        <Button
-          icon={<ReloadOutlined />}
-          onClick={() => fetchData(pagination.current, pagination.pageSize)}
-          loading={isFetching}
-        >
-          รีเฟรช
-        </Button>
-      </Flex>
+        <div className="flex items-center gap-3">
+          <div
+            className="w-9 h-9 rounded-xl flex items-center justify-center"
+            style={{ background: token.colorPrimaryBg }}
+          >
+            <DesktopOutlined style={{ color: token.colorPrimary, fontSize: 16 }} />
+          </div>
+          <div>
+            <AntText strong style={{ fontSize: 15 }}>
+              รายการอุปกรณ์
+            </AntText>
+            <div className="flex items-center gap-2 mt-0.5">
+              <Badge status="success" />
+              <AntText type="secondary" style={{ fontSize: 11 }}>
+                {stats.online} ออนไลน์
+              </AntText>
+              <span style={{ color: token.colorBorderSecondary }}>·</span>
+              <Badge status="error" />
+              <AntText type="secondary" style={{ fontSize: 11 }}>
+                {stats.offline} ออฟไลน์
+              </AntText>
+              <span style={{ color: token.colorBorderSecondary }}>·</span>
+              <ThunderboltFilled style={{ fontSize: 10, color: token.colorPrimary }} />
+              <AntText type="secondary" style={{ fontSize: 11 }}>
+                {stats.active} กำลังใช้งาน
+              </AntText>
+            </div>
+          </div>
+        </div>
 
-      <Table
+        <Space size={8}>
+          <div
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold"
+            style={{
+              background: token.colorFillAlter,
+              border: `1px solid ${token.colorBorderSecondary}`,
+              color: token.colorTextSecondary,
+            }}
+          >
+            <ApiOutlined style={{ fontSize: 12 }} />
+            {pagination.total.toLocaleString()} รายการ
+          </div>
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={() => fetchData(pagination.current, pagination.pageSize)}
+            loading={isFetching}
+            style={{ borderRadius: 10 }}
+          >
+            รีเฟรช
+          </Button>
+        </Space>
+      </div>
+
+      {/* Table */}
+      <Table<DeviceStatusData>
         columns={columns}
         dataSource={deviceList}
         rowKey="DeviceStatusID"
@@ -301,9 +421,10 @@ const DeviceTable: React.FC = () => {
           ...pagination,
           showSizeChanger: true,
           pageSizeOptions: ["10", "20", "50", "100", "500", "1000"],
+          style: { padding: "12px 20px", margin: 0 },
           showTotal: (total, range) => (
-            <span style={{ color: token.colorTextSecondary }}>
-              แสดง {range[0]}-{range[1]} จาก {total} รายการ
+            <span style={{ fontSize: 12, color: token.colorTextSecondary }}>
+              แสดง {range[0].toLocaleString()}–{range[1].toLocaleString()} จาก {total.toLocaleString()} รายการ
             </span>
           ),
         }}
@@ -311,23 +432,39 @@ const DeviceTable: React.FC = () => {
           fetchData(newPagination.current, newPagination.pageSize)
         }
         scroll={{ x: 1200 }}
+        size="middle"
+        rowClassName={(record) =>
+          record.Online
+            ? "hover:bg-green-50/30 transition-colors"
+            : "hover:bg-red-50/30 transition-colors"
+        }
         locale={{
           emptyText: (
-            <Flex vertical align="center" style={{ padding: 32 }}>
-              <DesktopOutlined
-                style={{
-                  fontSize: 48,
-                  color: token.colorBorder,
-                  marginBottom: 16,
-                }}
-              />
-              <AntText type="secondary">
-                ไม่พบข้อมูลอุปกรณ์ตามเงื่อนไขที่กำหนด
-              </AntText>
+            <Flex vertical align="center" gap={12} style={{ padding: "48px 0" }}>
+              <div
+                className="w-16 h-16 rounded-2xl flex items-center justify-center"
+                style={{ background: token.colorFillAlter }}
+              >
+                <PoweroffOutlined style={{ fontSize: 28, color: token.colorBorder }} />
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <AntText strong style={{ color: token.colorTextSecondary }}>
+                  ไม่พบอุปกรณ์
+                </AntText>
+                <AntText type="secondary" style={{ fontSize: 12 }}>
+                  ลองปรับตัวกรองหรือรีเฟรชข้อมูล
+                </AntText>
+              </div>
+              <Button
+                size="small"
+                icon={<ReloadOutlined />}
+                onClick={() => fetchData(1, pagination.pageSize)}
+              >
+                รีเฟรช
+              </Button>
             </Flex>
           ),
         }}
-        size="middle"
       />
     </Card>
   );

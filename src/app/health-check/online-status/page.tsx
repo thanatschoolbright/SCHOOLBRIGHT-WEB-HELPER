@@ -14,6 +14,8 @@ import {
 import DashboardLayout from "@components/layouts/backend-layout";
 import { StatusModalComponent } from "@components/modal/status-modal-component";
 import { HeaderBar } from "@components/typhography/header-bar-component";
+import { CallAPI as fetchSchoolList } from "@stores/actions/call-school-list";
+import { AppDispatch, useAppSelector } from "@stores/store";
 import {
   Col,
   Collapse,
@@ -29,6 +31,7 @@ import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
 import DeviceTable from "./_components/device-table";
 import FilterSection from "./_components/filter-section";
 import { useOnlineStatusStore } from "./_state/online-status-store";
@@ -46,6 +49,8 @@ export default function OnlineDeviceDashboard() {
   const { token } = theme.useToken();
   const { isFetching, deviceList, pagination, fetchData } =
     useOnlineStatusStore();
+  const dispatch = useDispatch<AppDispatch>();
+  const schoolListState = useAppSelector((state) => state.callSchoolList);
 
   const [statusModal, setStatusModal] = useState<{
     open: boolean;
@@ -56,6 +61,14 @@ export default function OnlineDeviceDashboard() {
 
   useEffect(() => {
     fetchData(1, 20);
+
+    // โหลดรายชื่อโรงเรียนเข้า Redux เพื่อให้ FilterSection ใช้งาน Dropdown ได้
+    const hasSchoolData =
+      Array.isArray(schoolListState.response?.data) &&
+      (schoolListState.response.data as any[]).length > 0;
+    if (!hasSchoolData && !schoolListState.loading) {
+      void dispatch(fetchSchoolList());
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
