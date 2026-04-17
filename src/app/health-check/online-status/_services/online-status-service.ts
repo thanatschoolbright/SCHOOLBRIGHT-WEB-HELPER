@@ -40,6 +40,14 @@ export interface DashboardSummaryApiResponse {
   data: DashboardSummary;
 }
 
+export interface LineGroup {
+  id: number;
+  group_id: string;
+  group_name: string | null;
+  is_active: boolean;
+  created_at: string;
+}
+
 export interface FetchDeviceStatusParams {
   page: number;
   limit: number;
@@ -71,5 +79,16 @@ export const onlineStatusService = {
       "/api/v2/hardware/device-dashboard-summary",
     );
     return response.data.data;
+  },
+
+  fetchLineGroups: async (): Promise<{ groups: LineGroup[]; active_group_id: string | null }> => {
+    const response = await callApiService.get<{ status_code: number; data: { groups: LineGroup[]; active_group_id: string | null } }>(
+      "/api/v1/application/line/groups",
+    );
+    return response.data.data;
+  },
+
+  setActiveLineGroup: async (group_id: string): Promise<void> => {
+    await callApiService.put("/api/v1/application/line/groups", { group_id });
   },
 };

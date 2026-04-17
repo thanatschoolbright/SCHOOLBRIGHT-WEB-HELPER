@@ -98,6 +98,11 @@ export type ApiLog = $Result.DefaultSelection<Prisma.$ApiLogPayload>
  * 
  */
 export type CrmSupportAuthentication = $Result.DefaultSelection<Prisma.$CrmSupportAuthenticationPayload>
+/**
+ * Model LineGroup
+ * 
+ */
+export type LineGroup = $Result.DefaultSelection<Prisma.$LineGroupPayload>
 
 /**
  * Enums
@@ -403,6 +408,16 @@ export class PrismaClient<
     * ```
     */
   get crmSupportAuthentication(): Prisma.CrmSupportAuthenticationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.lineGroup`: Exposes CRUD operations for the **LineGroup** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LineGroups
+    * const lineGroups = await prisma.lineGroup.findMany()
+    * ```
+    */
+  get lineGroup(): Prisma.LineGroupDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -860,7 +875,8 @@ export namespace Prisma {
     OvertimeDescription: 'OvertimeDescription',
     OvertimeStatusLog: 'OvertimeStatusLog',
     ApiLog: 'ApiLog',
-    CrmSupportAuthentication: 'CrmSupportAuthentication'
+    CrmSupportAuthentication: 'CrmSupportAuthentication',
+    LineGroup: 'LineGroup'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -879,7 +895,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "position" | "department" | "user" | "role" | "permission" | "rolePermission" | "group" | "projectStatus" | "project" | "feature" | "projectAssignee" | "timesheetEntry" | "overtime" | "overtimeDescription" | "overtimeStatusLog" | "apiLog" | "crmSupportAuthentication"
+      modelProps: "position" | "department" | "user" | "role" | "permission" | "rolePermission" | "group" | "projectStatus" | "project" | "feature" | "projectAssignee" | "timesheetEntry" | "overtime" | "overtimeDescription" | "overtimeStatusLog" | "apiLog" | "crmSupportAuthentication" | "lineGroup"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2141,6 +2157,80 @@ export namespace Prisma {
           }
         }
       }
+      LineGroup: {
+        payload: Prisma.$LineGroupPayload<ExtArgs>
+        fields: Prisma.LineGroupFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LineGroupFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LineGroupPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LineGroupFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LineGroupPayload>
+          }
+          findFirst: {
+            args: Prisma.LineGroupFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LineGroupPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LineGroupFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LineGroupPayload>
+          }
+          findMany: {
+            args: Prisma.LineGroupFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LineGroupPayload>[]
+          }
+          create: {
+            args: Prisma.LineGroupCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LineGroupPayload>
+          }
+          createMany: {
+            args: Prisma.LineGroupCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LineGroupCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LineGroupPayload>[]
+          }
+          delete: {
+            args: Prisma.LineGroupDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LineGroupPayload>
+          }
+          update: {
+            args: Prisma.LineGroupUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LineGroupPayload>
+          }
+          deleteMany: {
+            args: Prisma.LineGroupDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LineGroupUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LineGroupUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LineGroupPayload>[]
+          }
+          upsert: {
+            args: Prisma.LineGroupUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LineGroupPayload>
+          }
+          aggregate: {
+            args: Prisma.LineGroupAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLineGroup>
+          }
+          groupBy: {
+            args: Prisma.LineGroupGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LineGroupGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LineGroupCountArgs<ExtArgs>
+            result: $Utils.Optional<LineGroupCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2254,6 +2344,7 @@ export namespace Prisma {
     overtimeStatusLog?: OvertimeStatusLogOmit
     apiLog?: ApiLogOmit
     crmSupportAuthentication?: CrmSupportAuthenticationOmit
+    lineGroup?: LineGroupOmit
   }
 
   /* Types for Logging */
@@ -23161,6 +23252,1048 @@ export namespace Prisma {
 
 
   /**
+   * Model LineGroup
+   */
+
+  export type AggregateLineGroup = {
+    _count: LineGroupCountAggregateOutputType | null
+    _avg: LineGroupAvgAggregateOutputType | null
+    _sum: LineGroupSumAggregateOutputType | null
+    _min: LineGroupMinAggregateOutputType | null
+    _max: LineGroupMaxAggregateOutputType | null
+  }
+
+  export type LineGroupAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type LineGroupSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type LineGroupMinAggregateOutputType = {
+    id: number | null
+    group_id: string | null
+    group_name: string | null
+    is_active: boolean | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type LineGroupMaxAggregateOutputType = {
+    id: number | null
+    group_id: string | null
+    group_name: string | null
+    is_active: boolean | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type LineGroupCountAggregateOutputType = {
+    id: number
+    group_id: number
+    group_name: number
+    is_active: number
+    created_at: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type LineGroupAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type LineGroupSumAggregateInputType = {
+    id?: true
+  }
+
+  export type LineGroupMinAggregateInputType = {
+    id?: true
+    group_id?: true
+    group_name?: true
+    is_active?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type LineGroupMaxAggregateInputType = {
+    id?: true
+    group_id?: true
+    group_name?: true
+    is_active?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type LineGroupCountAggregateInputType = {
+    id?: true
+    group_id?: true
+    group_name?: true
+    is_active?: true
+    created_at?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type LineGroupAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LineGroup to aggregate.
+     */
+    where?: LineGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LineGroups to fetch.
+     */
+    orderBy?: LineGroupOrderByWithRelationInput | LineGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LineGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LineGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LineGroups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned LineGroups
+    **/
+    _count?: true | LineGroupCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: LineGroupAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: LineGroupSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LineGroupMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LineGroupMaxAggregateInputType
+  }
+
+  export type GetLineGroupAggregateType<T extends LineGroupAggregateArgs> = {
+        [P in keyof T & keyof AggregateLineGroup]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLineGroup[P]>
+      : GetScalarType<T[P], AggregateLineGroup[P]>
+  }
+
+
+
+
+  export type LineGroupGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LineGroupWhereInput
+    orderBy?: LineGroupOrderByWithAggregationInput | LineGroupOrderByWithAggregationInput[]
+    by: LineGroupScalarFieldEnum[] | LineGroupScalarFieldEnum
+    having?: LineGroupScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LineGroupCountAggregateInputType | true
+    _avg?: LineGroupAvgAggregateInputType
+    _sum?: LineGroupSumAggregateInputType
+    _min?: LineGroupMinAggregateInputType
+    _max?: LineGroupMaxAggregateInputType
+  }
+
+  export type LineGroupGroupByOutputType = {
+    id: number
+    group_id: string
+    group_name: string | null
+    is_active: boolean
+    created_at: Date
+    updated_at: Date | null
+    _count: LineGroupCountAggregateOutputType | null
+    _avg: LineGroupAvgAggregateOutputType | null
+    _sum: LineGroupSumAggregateOutputType | null
+    _min: LineGroupMinAggregateOutputType | null
+    _max: LineGroupMaxAggregateOutputType | null
+  }
+
+  type GetLineGroupGroupByPayload<T extends LineGroupGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LineGroupGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LineGroupGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LineGroupGroupByOutputType[P]>
+            : GetScalarType<T[P], LineGroupGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LineGroupSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    group_id?: boolean
+    group_name?: boolean
+    is_active?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["lineGroup"]>
+
+  export type LineGroupSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    group_id?: boolean
+    group_name?: boolean
+    is_active?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["lineGroup"]>
+
+  export type LineGroupSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    group_id?: boolean
+    group_name?: boolean
+    is_active?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["lineGroup"]>
+
+  export type LineGroupSelectScalar = {
+    id?: boolean
+    group_id?: boolean
+    group_name?: boolean
+    is_active?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }
+
+  export type LineGroupOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "group_id" | "group_name" | "is_active" | "created_at" | "updated_at", ExtArgs["result"]["lineGroup"]>
+
+  export type $LineGroupPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LineGroup"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      group_id: string
+      group_name: string | null
+      is_active: boolean
+      created_at: Date
+      updated_at: Date | null
+    }, ExtArgs["result"]["lineGroup"]>
+    composites: {}
+  }
+
+  type LineGroupGetPayload<S extends boolean | null | undefined | LineGroupDefaultArgs> = $Result.GetResult<Prisma.$LineGroupPayload, S>
+
+  type LineGroupCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LineGroupFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LineGroupCountAggregateInputType | true
+    }
+
+  export interface LineGroupDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LineGroup'], meta: { name: 'LineGroup' } }
+    /**
+     * Find zero or one LineGroup that matches the filter.
+     * @param {LineGroupFindUniqueArgs} args - Arguments to find a LineGroup
+     * @example
+     * // Get one LineGroup
+     * const lineGroup = await prisma.lineGroup.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LineGroupFindUniqueArgs>(args: SelectSubset<T, LineGroupFindUniqueArgs<ExtArgs>>): Prisma__LineGroupClient<$Result.GetResult<Prisma.$LineGroupPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one LineGroup that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LineGroupFindUniqueOrThrowArgs} args - Arguments to find a LineGroup
+     * @example
+     * // Get one LineGroup
+     * const lineGroup = await prisma.lineGroup.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LineGroupFindUniqueOrThrowArgs>(args: SelectSubset<T, LineGroupFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LineGroupClient<$Result.GetResult<Prisma.$LineGroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LineGroup that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LineGroupFindFirstArgs} args - Arguments to find a LineGroup
+     * @example
+     * // Get one LineGroup
+     * const lineGroup = await prisma.lineGroup.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LineGroupFindFirstArgs>(args?: SelectSubset<T, LineGroupFindFirstArgs<ExtArgs>>): Prisma__LineGroupClient<$Result.GetResult<Prisma.$LineGroupPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LineGroup that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LineGroupFindFirstOrThrowArgs} args - Arguments to find a LineGroup
+     * @example
+     * // Get one LineGroup
+     * const lineGroup = await prisma.lineGroup.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LineGroupFindFirstOrThrowArgs>(args?: SelectSubset<T, LineGroupFindFirstOrThrowArgs<ExtArgs>>): Prisma__LineGroupClient<$Result.GetResult<Prisma.$LineGroupPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more LineGroups that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LineGroupFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all LineGroups
+     * const lineGroups = await prisma.lineGroup.findMany()
+     * 
+     * // Get first 10 LineGroups
+     * const lineGroups = await prisma.lineGroup.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const lineGroupWithIdOnly = await prisma.lineGroup.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LineGroupFindManyArgs>(args?: SelectSubset<T, LineGroupFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LineGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a LineGroup.
+     * @param {LineGroupCreateArgs} args - Arguments to create a LineGroup.
+     * @example
+     * // Create one LineGroup
+     * const LineGroup = await prisma.lineGroup.create({
+     *   data: {
+     *     // ... data to create a LineGroup
+     *   }
+     * })
+     * 
+     */
+    create<T extends LineGroupCreateArgs>(args: SelectSubset<T, LineGroupCreateArgs<ExtArgs>>): Prisma__LineGroupClient<$Result.GetResult<Prisma.$LineGroupPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many LineGroups.
+     * @param {LineGroupCreateManyArgs} args - Arguments to create many LineGroups.
+     * @example
+     * // Create many LineGroups
+     * const lineGroup = await prisma.lineGroup.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LineGroupCreateManyArgs>(args?: SelectSubset<T, LineGroupCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many LineGroups and returns the data saved in the database.
+     * @param {LineGroupCreateManyAndReturnArgs} args - Arguments to create many LineGroups.
+     * @example
+     * // Create many LineGroups
+     * const lineGroup = await prisma.lineGroup.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many LineGroups and only return the `id`
+     * const lineGroupWithIdOnly = await prisma.lineGroup.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LineGroupCreateManyAndReturnArgs>(args?: SelectSubset<T, LineGroupCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LineGroupPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a LineGroup.
+     * @param {LineGroupDeleteArgs} args - Arguments to delete one LineGroup.
+     * @example
+     * // Delete one LineGroup
+     * const LineGroup = await prisma.lineGroup.delete({
+     *   where: {
+     *     // ... filter to delete one LineGroup
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LineGroupDeleteArgs>(args: SelectSubset<T, LineGroupDeleteArgs<ExtArgs>>): Prisma__LineGroupClient<$Result.GetResult<Prisma.$LineGroupPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one LineGroup.
+     * @param {LineGroupUpdateArgs} args - Arguments to update one LineGroup.
+     * @example
+     * // Update one LineGroup
+     * const lineGroup = await prisma.lineGroup.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LineGroupUpdateArgs>(args: SelectSubset<T, LineGroupUpdateArgs<ExtArgs>>): Prisma__LineGroupClient<$Result.GetResult<Prisma.$LineGroupPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more LineGroups.
+     * @param {LineGroupDeleteManyArgs} args - Arguments to filter LineGroups to delete.
+     * @example
+     * // Delete a few LineGroups
+     * const { count } = await prisma.lineGroup.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LineGroupDeleteManyArgs>(args?: SelectSubset<T, LineGroupDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LineGroups.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LineGroupUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many LineGroups
+     * const lineGroup = await prisma.lineGroup.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LineGroupUpdateManyArgs>(args: SelectSubset<T, LineGroupUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LineGroups and returns the data updated in the database.
+     * @param {LineGroupUpdateManyAndReturnArgs} args - Arguments to update many LineGroups.
+     * @example
+     * // Update many LineGroups
+     * const lineGroup = await prisma.lineGroup.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more LineGroups and only return the `id`
+     * const lineGroupWithIdOnly = await prisma.lineGroup.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LineGroupUpdateManyAndReturnArgs>(args: SelectSubset<T, LineGroupUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LineGroupPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one LineGroup.
+     * @param {LineGroupUpsertArgs} args - Arguments to update or create a LineGroup.
+     * @example
+     * // Update or create a LineGroup
+     * const lineGroup = await prisma.lineGroup.upsert({
+     *   create: {
+     *     // ... data to create a LineGroup
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the LineGroup we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LineGroupUpsertArgs>(args: SelectSubset<T, LineGroupUpsertArgs<ExtArgs>>): Prisma__LineGroupClient<$Result.GetResult<Prisma.$LineGroupPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of LineGroups.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LineGroupCountArgs} args - Arguments to filter LineGroups to count.
+     * @example
+     * // Count the number of LineGroups
+     * const count = await prisma.lineGroup.count({
+     *   where: {
+     *     // ... the filter for the LineGroups we want to count
+     *   }
+     * })
+    **/
+    count<T extends LineGroupCountArgs>(
+      args?: Subset<T, LineGroupCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LineGroupCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a LineGroup.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LineGroupAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LineGroupAggregateArgs>(args: Subset<T, LineGroupAggregateArgs>): Prisma.PrismaPromise<GetLineGroupAggregateType<T>>
+
+    /**
+     * Group by LineGroup.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LineGroupGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LineGroupGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LineGroupGroupByArgs['orderBy'] }
+        : { orderBy?: LineGroupGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LineGroupGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLineGroupGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the LineGroup model
+   */
+  readonly fields: LineGroupFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for LineGroup.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LineGroupClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the LineGroup model
+   */
+  interface LineGroupFieldRefs {
+    readonly id: FieldRef<"LineGroup", 'Int'>
+    readonly group_id: FieldRef<"LineGroup", 'String'>
+    readonly group_name: FieldRef<"LineGroup", 'String'>
+    readonly is_active: FieldRef<"LineGroup", 'Boolean'>
+    readonly created_at: FieldRef<"LineGroup", 'DateTime'>
+    readonly updated_at: FieldRef<"LineGroup", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * LineGroup findUnique
+   */
+  export type LineGroupFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LineGroup
+     */
+    select?: LineGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LineGroup
+     */
+    omit?: LineGroupOmit<ExtArgs> | null
+    /**
+     * Filter, which LineGroup to fetch.
+     */
+    where: LineGroupWhereUniqueInput
+  }
+
+  /**
+   * LineGroup findUniqueOrThrow
+   */
+  export type LineGroupFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LineGroup
+     */
+    select?: LineGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LineGroup
+     */
+    omit?: LineGroupOmit<ExtArgs> | null
+    /**
+     * Filter, which LineGroup to fetch.
+     */
+    where: LineGroupWhereUniqueInput
+  }
+
+  /**
+   * LineGroup findFirst
+   */
+  export type LineGroupFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LineGroup
+     */
+    select?: LineGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LineGroup
+     */
+    omit?: LineGroupOmit<ExtArgs> | null
+    /**
+     * Filter, which LineGroup to fetch.
+     */
+    where?: LineGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LineGroups to fetch.
+     */
+    orderBy?: LineGroupOrderByWithRelationInput | LineGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LineGroups.
+     */
+    cursor?: LineGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LineGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LineGroups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LineGroups.
+     */
+    distinct?: LineGroupScalarFieldEnum | LineGroupScalarFieldEnum[]
+  }
+
+  /**
+   * LineGroup findFirstOrThrow
+   */
+  export type LineGroupFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LineGroup
+     */
+    select?: LineGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LineGroup
+     */
+    omit?: LineGroupOmit<ExtArgs> | null
+    /**
+     * Filter, which LineGroup to fetch.
+     */
+    where?: LineGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LineGroups to fetch.
+     */
+    orderBy?: LineGroupOrderByWithRelationInput | LineGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LineGroups.
+     */
+    cursor?: LineGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LineGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LineGroups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LineGroups.
+     */
+    distinct?: LineGroupScalarFieldEnum | LineGroupScalarFieldEnum[]
+  }
+
+  /**
+   * LineGroup findMany
+   */
+  export type LineGroupFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LineGroup
+     */
+    select?: LineGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LineGroup
+     */
+    omit?: LineGroupOmit<ExtArgs> | null
+    /**
+     * Filter, which LineGroups to fetch.
+     */
+    where?: LineGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LineGroups to fetch.
+     */
+    orderBy?: LineGroupOrderByWithRelationInput | LineGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing LineGroups.
+     */
+    cursor?: LineGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LineGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LineGroups.
+     */
+    skip?: number
+    distinct?: LineGroupScalarFieldEnum | LineGroupScalarFieldEnum[]
+  }
+
+  /**
+   * LineGroup create
+   */
+  export type LineGroupCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LineGroup
+     */
+    select?: LineGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LineGroup
+     */
+    omit?: LineGroupOmit<ExtArgs> | null
+    /**
+     * The data needed to create a LineGroup.
+     */
+    data: XOR<LineGroupCreateInput, LineGroupUncheckedCreateInput>
+  }
+
+  /**
+   * LineGroup createMany
+   */
+  export type LineGroupCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many LineGroups.
+     */
+    data: LineGroupCreateManyInput | LineGroupCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LineGroup createManyAndReturn
+   */
+  export type LineGroupCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LineGroup
+     */
+    select?: LineGroupSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LineGroup
+     */
+    omit?: LineGroupOmit<ExtArgs> | null
+    /**
+     * The data used to create many LineGroups.
+     */
+    data: LineGroupCreateManyInput | LineGroupCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LineGroup update
+   */
+  export type LineGroupUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LineGroup
+     */
+    select?: LineGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LineGroup
+     */
+    omit?: LineGroupOmit<ExtArgs> | null
+    /**
+     * The data needed to update a LineGroup.
+     */
+    data: XOR<LineGroupUpdateInput, LineGroupUncheckedUpdateInput>
+    /**
+     * Choose, which LineGroup to update.
+     */
+    where: LineGroupWhereUniqueInput
+  }
+
+  /**
+   * LineGroup updateMany
+   */
+  export type LineGroupUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update LineGroups.
+     */
+    data: XOR<LineGroupUpdateManyMutationInput, LineGroupUncheckedUpdateManyInput>
+    /**
+     * Filter which LineGroups to update
+     */
+    where?: LineGroupWhereInput
+    /**
+     * Limit how many LineGroups to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LineGroup updateManyAndReturn
+   */
+  export type LineGroupUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LineGroup
+     */
+    select?: LineGroupSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LineGroup
+     */
+    omit?: LineGroupOmit<ExtArgs> | null
+    /**
+     * The data used to update LineGroups.
+     */
+    data: XOR<LineGroupUpdateManyMutationInput, LineGroupUncheckedUpdateManyInput>
+    /**
+     * Filter which LineGroups to update
+     */
+    where?: LineGroupWhereInput
+    /**
+     * Limit how many LineGroups to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LineGroup upsert
+   */
+  export type LineGroupUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LineGroup
+     */
+    select?: LineGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LineGroup
+     */
+    omit?: LineGroupOmit<ExtArgs> | null
+    /**
+     * The filter to search for the LineGroup to update in case it exists.
+     */
+    where: LineGroupWhereUniqueInput
+    /**
+     * In case the LineGroup found by the `where` argument doesn't exist, create a new LineGroup with this data.
+     */
+    create: XOR<LineGroupCreateInput, LineGroupUncheckedCreateInput>
+    /**
+     * In case the LineGroup was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LineGroupUpdateInput, LineGroupUncheckedUpdateInput>
+  }
+
+  /**
+   * LineGroup delete
+   */
+  export type LineGroupDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LineGroup
+     */
+    select?: LineGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LineGroup
+     */
+    omit?: LineGroupOmit<ExtArgs> | null
+    /**
+     * Filter which LineGroup to delete.
+     */
+    where: LineGroupWhereUniqueInput
+  }
+
+  /**
+   * LineGroup deleteMany
+   */
+  export type LineGroupDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LineGroups to delete
+     */
+    where?: LineGroupWhereInput
+    /**
+     * Limit how many LineGroups to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * LineGroup without action
+   */
+  export type LineGroupDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LineGroup
+     */
+    select?: LineGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LineGroup
+     */
+    omit?: LineGroupOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -23456,6 +24589,18 @@ export namespace Prisma {
   };
 
   export type CrmSupportAuthenticationScalarFieldEnum = (typeof CrmSupportAuthenticationScalarFieldEnum)[keyof typeof CrmSupportAuthenticationScalarFieldEnum]
+
+
+  export const LineGroupScalarFieldEnum: {
+    id: 'id',
+    group_id: 'group_id',
+    group_name: 'group_name',
+    is_active: 'is_active',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+  };
+
+  export type LineGroupScalarFieldEnum = (typeof LineGroupScalarFieldEnum)[keyof typeof LineGroupScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -25132,6 +26277,65 @@ export namespace Prisma {
     updated_at?: DateTimeNullableWithAggregatesFilter<"CrmSupportAuthentication"> | Date | string | null
   }
 
+  export type LineGroupWhereInput = {
+    AND?: LineGroupWhereInput | LineGroupWhereInput[]
+    OR?: LineGroupWhereInput[]
+    NOT?: LineGroupWhereInput | LineGroupWhereInput[]
+    id?: IntFilter<"LineGroup"> | number
+    group_id?: StringFilter<"LineGroup"> | string
+    group_name?: StringNullableFilter<"LineGroup"> | string | null
+    is_active?: BoolFilter<"LineGroup"> | boolean
+    created_at?: DateTimeFilter<"LineGroup"> | Date | string
+    updated_at?: DateTimeNullableFilter<"LineGroup"> | Date | string | null
+  }
+
+  export type LineGroupOrderByWithRelationInput = {
+    id?: SortOrder
+    group_id?: SortOrder
+    group_name?: SortOrderInput | SortOrder
+    is_active?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrderInput | SortOrder
+  }
+
+  export type LineGroupWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    group_id?: string
+    AND?: LineGroupWhereInput | LineGroupWhereInput[]
+    OR?: LineGroupWhereInput[]
+    NOT?: LineGroupWhereInput | LineGroupWhereInput[]
+    group_name?: StringNullableFilter<"LineGroup"> | string | null
+    is_active?: BoolFilter<"LineGroup"> | boolean
+    created_at?: DateTimeFilter<"LineGroup"> | Date | string
+    updated_at?: DateTimeNullableFilter<"LineGroup"> | Date | string | null
+  }, "id" | "group_id">
+
+  export type LineGroupOrderByWithAggregationInput = {
+    id?: SortOrder
+    group_id?: SortOrder
+    group_name?: SortOrderInput | SortOrder
+    is_active?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrderInput | SortOrder
+    _count?: LineGroupCountOrderByAggregateInput
+    _avg?: LineGroupAvgOrderByAggregateInput
+    _max?: LineGroupMaxOrderByAggregateInput
+    _min?: LineGroupMinOrderByAggregateInput
+    _sum?: LineGroupSumOrderByAggregateInput
+  }
+
+  export type LineGroupScalarWhereWithAggregatesInput = {
+    AND?: LineGroupScalarWhereWithAggregatesInput | LineGroupScalarWhereWithAggregatesInput[]
+    OR?: LineGroupScalarWhereWithAggregatesInput[]
+    NOT?: LineGroupScalarWhereWithAggregatesInput | LineGroupScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"LineGroup"> | number
+    group_id?: StringWithAggregatesFilter<"LineGroup"> | string
+    group_name?: StringNullableWithAggregatesFilter<"LineGroup"> | string | null
+    is_active?: BoolWithAggregatesFilter<"LineGroup"> | boolean
+    created_at?: DateTimeWithAggregatesFilter<"LineGroup"> | Date | string
+    updated_at?: DateTimeNullableWithAggregatesFilter<"LineGroup"> | Date | string | null
+  }
+
   export type PositionCreateInput = {
     name_th: string
     name_en?: string | null
@@ -26769,6 +27973,66 @@ export namespace Prisma {
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type LineGroupCreateInput = {
+    group_id: string
+    group_name?: string | null
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string | null
+  }
+
+  export type LineGroupUncheckedCreateInput = {
+    id?: number
+    group_id: string
+    group_name?: string | null
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string | null
+  }
+
+  export type LineGroupUpdateInput = {
+    group_id?: StringFieldUpdateOperationsInput | string
+    group_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LineGroupUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    group_id?: StringFieldUpdateOperationsInput | string
+    group_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LineGroupCreateManyInput = {
+    id?: number
+    group_id: string
+    group_name?: string | null
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string | null
+  }
+
+  export type LineGroupUpdateManyMutationInput = {
+    group_id?: StringFieldUpdateOperationsInput | string
+    group_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LineGroupUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    group_id?: StringFieldUpdateOperationsInput | string
+    group_name?: NullableStringFieldUpdateOperationsInput | string | null
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -28163,6 +29427,41 @@ export namespace Prisma {
   export type CrmSupportAuthenticationSumOrderByAggregateInput = {
     id?: SortOrder
     user_id?: SortOrder
+  }
+
+  export type LineGroupCountOrderByAggregateInput = {
+    id?: SortOrder
+    group_id?: SortOrder
+    group_name?: SortOrder
+    is_active?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type LineGroupAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type LineGroupMaxOrderByAggregateInput = {
+    id?: SortOrder
+    group_id?: SortOrder
+    group_name?: SortOrder
+    is_active?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type LineGroupMinOrderByAggregateInput = {
+    id?: SortOrder
+    group_id?: SortOrder
+    group_name?: SortOrder
+    is_active?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type LineGroupSumOrderByAggregateInput = {
+    id?: SortOrder
   }
 
   export type UserCreateNestedManyWithoutPosition_refInput = {

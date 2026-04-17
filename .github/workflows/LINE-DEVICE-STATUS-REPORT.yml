@@ -1,0 +1,41 @@
+name: LINE - DEVICE STATUS REPORT
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+
+  workflow_dispatch:
+
+jobs:
+  send-line-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Device Status Report to LINE
+        run: |
+          echo "Sending device status report to LINE..."
+          response=$(curl -s -o /tmp/response_body.txt -w "%{http_code}" \
+            -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "https://sb-helper.schoolbright.co/api/v1/application/line/cron-report")
+
+          body=$(cat /tmp/response_body.txt)
+          echo "HTTP Status: $response"
+          echo "Response: $body"
+
+          if [ "$response" -eq 200 ]; then
+            echo "LINE report sent successfully"
+            exit 0
+          else
+            echo "Failed to send LINE report (status: $response)"
+            exit 1
+          fi
+
+      - name: Log timestamp
+        if: always()
+        run: |
+          echo "Executed at: $(date)"
+          echo "Timezone: $(date +%Z)"

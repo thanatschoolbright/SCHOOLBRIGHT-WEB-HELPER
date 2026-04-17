@@ -354,6 +354,15 @@ exports.Prisma.CrmSupportAuthenticationScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.LineGroupScalarFieldEnum = {
+  id: 'id',
+  group_id: 'group_id',
+  group_name: 'group_name',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -401,7 +410,8 @@ exports.Prisma.ModelName = {
   OvertimeDescription: 'OvertimeDescription',
   OvertimeStatusLog: 'OvertimeStatusLog',
   ApiLog: 'ApiLog',
-  CrmSupportAuthentication: 'CrmSupportAuthentication'
+  CrmSupportAuthentication: 'CrmSupportAuthentication',
+  LineGroup: 'LineGroup'
 };
 
 /**

@@ -338,3 +338,14 @@ enum ProjectAssetCaptureType {
   CAPTUREABLE
   UN_CAPTUREABLE
 }
+
+model LineGroup {
+  id         Int       @id @default(autoincrement()) @map("id")
+  group_id   String    @unique @map("group_id") @timesheet.VarChar(100)
+  group_name String?   @map("group_name") @timesheet.VarChar(255)
+  is_active  Boolean   @default(true) @map("is_active")
+  created_at DateTime  @default(now()) @map("created_at")
+  updated_at DateTime? @updatedAt @map("updated_at")
+
+  @@map("line_group")
+}

@@ -6,10 +6,12 @@ import SummaryCard from "@/components/card/summary-card";
 import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 import {
   AlertOutlined,
+  CheckOutlined,
   DesktopOutlined,
   FilterFilled,
   GlobalOutlined,
   NotificationOutlined,
+  SettingOutlined,
   SyncOutlined,
   ThunderboltFilled,
   WifiOutlined,
@@ -23,10 +25,12 @@ import {
   Button,
   Col,
   Collapse,
+  Dropdown,
   Flex,
   Row,
   Space,
   Tag,
+  Tooltip,
   Typography,
   theme,
 } from "antd";
@@ -38,7 +42,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import DeviceTable from "./_components/device-table";
 import FilterSection from "./_components/filter-section";
-import { DashboardSummary, onlineStatusService } from "./_services/online-status-service";
+import { DashboardSummary, LineGroup, onlineStatusService } from "./_services/online-status-service";
 import { useOnlineStatusStore } from "./_state/online-status-store";
 
 dayjs.extend(relativeTime);
@@ -46,6 +50,19 @@ dayjs.extend(buddhistEra);
 dayjs.locale("th");
 
 const { Text: AntText } = Typography;
+
+// ไอคอน LINE (SVG) สำหรับใช้ในปุ่ม
+const LineIcon = () => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    style={{ marginBottom: -2 }}
+  >
+    <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314" />
+  </svg>
+);
 
 // ไอคอน Discord (SVG) สำหรับใช้ในปุ่ม
 const DiscordIcon = () => (
@@ -80,6 +97,9 @@ export default function OnlineDeviceDashboard() {
   }>({ open: false, type: "success", title: "", message: "" });
 
   const [isNotifying, setIsNotifying] = useState(false);
+  const [isNotifyingLine, setIsNotifyingLine] = useState(false);
+  const [lineGroups, setLineGroups] = useState<LineGroup[]>([]);
+  const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
   const [isDashboardLoading, setIsDashboardLoading] = useState(false);
 
@@ -93,9 +113,41 @@ export default function OnlineDeviceDashboard() {
     }
   };
 
+  const loadLineGroups = async () => {
+    try {
+      const result = await onlineStatusService.fetchLineGroups();
+      setLineGroups(result.groups);
+      setActiveGroupId(result.active_group_id);
+    } catch {
+      // ไม่แสดง error ถ้า LINE ยังไม่ได้ตั้งค่า
+    }
+  };
+
+  const handleSelectLineGroup = async (groupId: string) => {
+    try {
+      await onlineStatusService.setActiveLineGroup(groupId);
+      setActiveGroupId(groupId);
+      const found = lineGroups.find((g) => g.group_id === groupId);
+      setStatusModal({
+        open: true,
+        type: "success",
+        title: "เลือกกลุ่ม LINE สำเร็จ",
+        message: `ตั้งค่าส่งรายงานไปยัง "${found?.group_name ?? groupId}" แล้ว`,
+      });
+    } catch {
+      setStatusModal({
+        open: true,
+        type: "error",
+        title: "เลือกกลุ่ม LINE ไม่สำเร็จ",
+        message: "ไม่สามารถตั้งค่ากลุ่มได้ กรุณาลองใหม่อีกครั้ง",
+      });
+    }
+  };
+
   useEffect(() => {
     fetchData(1, 20);
     void loadDashboard();
+    void loadLineGroups();
 
     // โหลดรายชื่อโรงเรียนเข้า Redux เพื่อให้ FilterSection ใช้งาน Dropdown ได้
     const hasSchoolData =
@@ -120,6 +172,38 @@ export default function OnlineDeviceDashboard() {
         }))
       : [];
   }, [schoolListState.response?.data?.data]);
+
+  // ส่งรายงานสถานะอุปกรณ์ไปยัง LINE Group ทันที
+  const handleNotifyLine = async () => {
+    try {
+      setIsNotifyingLine(true);
+      const res = await callApiService.get("/api/v1/application/line/cron-report");
+      const data = res?.data;
+      if (data?.status_code === 200) {
+        const d = data.data;
+        setStatusModal({
+          open: true,
+          type: "success",
+          title: "ส่งแจ้งเตือน LINE สำเร็จ",
+          message: `รายงานสถานะ ${d?.total ?? 0} เครื่อง · ออนไลน์ ${d?.online} · ออฟไลน์ ${d?.offline} เครื่อง ส่งไปยัง LINE แล้ว`,
+        });
+      } else {
+        throw new Error(data?.message_th ?? "ส่งไม่สำเร็จ");
+      }
+    } catch (err: any) {
+      setStatusModal({
+        open: true,
+        type: "error",
+        title: "ส่งแจ้งเตือน LINE ไม่สำเร็จ",
+        message:
+          err?.response?.data?.message_th ??
+          err?.message ??
+          "ไม่สามารถส่งรายงานไปยัง LINE ได้ในขณะนี้",
+      });
+    } finally {
+      setIsNotifyingLine(false);
+    }
+  };
 
   // ดึงข้อมูลอุปกรณ์ทั้งหมดจาก DB (ไม่ใช้ pagination) แล้วส่งรายงานไปยัง Discord webhook
   const handleNotifyDiscord = async () => {
@@ -226,6 +310,132 @@ export default function OnlineDeviceDashboard() {
           subTitle="ติดตามสถานะการเชื่อมต่อและการใช้งานของเครื่อง POS แบบเรียลไทม์"
           extra={
             <Space size={12} wrap>
+              {/* ปุ่มแจ้งเตือน LINE + Dropdown เลือกกลุ่ม */}
+              <Dropdown
+                trigger={["contextMenu"]}
+                menu={{
+                  items: [
+                    {
+                      key: "header",
+                      type: "group",
+                      label: (
+                        <span style={{ fontSize: 11, color: token.colorTextTertiary }}>
+                          <SettingOutlined style={{ marginRight: 6 }} />
+                          เลือกกลุ่มสำหรับส่งรายงาน
+                        </span>
+                      ),
+                    },
+                    ...(lineGroups.length === 0
+                      ? [
+                          {
+                            key: "empty",
+                            disabled: true,
+                            label: (
+                              <span style={{ fontSize: 12, color: token.colorTextTertiary }}>
+                                ยังไม่มีกลุ่ม — เพิ่ม Bot เข้ากลุ่มก่อน
+                              </span>
+                            ),
+                          },
+                        ]
+                      : lineGroups.map((g) => ({
+                          key: g.group_id,
+                          label: (
+                            <Flex align="center" gap={8}>
+                              {g.group_id === activeGroupId ? (
+                                <CheckOutlined style={{ color: "#06C755", fontSize: 12 }} />
+                              ) : (
+                                <span style={{ width: 12, display: "inline-block" }} />
+                              )}
+                              <span style={{ fontSize: 13 }}>
+                                {g.group_name ?? g.group_id}
+                              </span>
+                              {g.group_id === activeGroupId && (
+                                <Tag color="green" style={{ fontSize: 10, margin: 0 }}>
+                                  ใช้งานอยู่
+                                </Tag>
+                              )}
+                            </Flex>
+                          ),
+                          onClick: () => handleSelectLineGroup(g.group_id),
+                        }))),
+                    { type: "divider" as const },
+                    {
+                      key: "hint",
+                      disabled: true,
+                      label: (
+                        <span style={{ fontSize: 11, color: token.colorTextTertiary }}>
+                          คลิกขวาที่ปุ่มเพื่อเปลี่ยนกลุ่ม
+                        </span>
+                      ),
+                    },
+                  ],
+                }}
+              >
+                <Tooltip
+                  title={
+                    activeGroupId
+                      ? `กลุ่ม: ${lineGroups.find((g) => g.group_id === activeGroupId)?.group_name ?? activeGroupId}`
+                      : "คลิกขวาเพื่อเลือกกลุ่ม LINE"
+                  }
+                >
+                  <Button
+                    icon={<LineIcon />}
+                    onClick={handleNotifyLine}
+                    loading={isNotifyingLine}
+                    disabled={!activeGroupId}
+                    style={{
+                      height: 44,
+                      padding: "0 20px",
+                      borderRadius: 12,
+                      fontWeight: 600,
+                      fontSize: 14,
+                      backgroundColor: !activeGroupId
+                        ? token.colorFillTertiary
+                        : isNotifyingLine
+                        ? token.colorFillTertiary
+                        : "#06C755",
+                      color: !activeGroupId ? token.colorTextDisabled : "#FFFFFF",
+                      border: "none",
+                      boxShadow: activeGroupId
+                        ? "0 4px 14px 0 rgba(6, 199, 85, 0.35)"
+                        : "none",
+                      transition: "all 0.3s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (activeGroupId && !isNotifyingLine) {
+                        e.currentTarget.style.backgroundColor = "#05a847";
+                        e.currentTarget.style.transform = "translateY(-1px)";
+                        e.currentTarget.style.boxShadow = "0 6px 20px rgba(6, 199, 85, 0.45)";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (activeGroupId && !isNotifyingLine) {
+                        e.currentTarget.style.backgroundColor = "#06C755";
+                        e.currentTarget.style.transform = "translateY(0)";
+                        e.currentTarget.style.boxShadow = "0 4px 14px 0 rgba(6, 199, 85, 0.35)";
+                      }
+                    }}
+                  >
+                    <span>ส่งรายงานไปยัง LINE</span>
+                    {offlineCount > 0 && activeGroupId && (
+                      <div
+                        style={{
+                          background: "rgba(255,255,255,0.2)",
+                          padding: "2px 8px",
+                          borderRadius: 6,
+                          fontSize: 11,
+                          marginLeft: 4,
+                          border: "1px solid rgba(255,255,255,0.4)",
+                        }}
+                      >
+                        <NotificationOutlined style={{ marginRight: 4, fontSize: 10 }} />
+                        {offlineCount} ออฟไลน์
+                      </div>
+                    )}
+                  </Button>
+                </Tooltip>
+              </Dropdown>
+
               {/* ปุ่มแจ้งเตือน Discord แบบตกแต่งพิเศษ */}
               <Button
                 icon={<DiscordIcon />}
