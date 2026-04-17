@@ -627,6 +627,27 @@ const OvertimeManagementPage = () => {
               await uploadBinaryImage(job.files[0], firstId, job.key);
             }
           }
+
+          // กรณีผู้ใช้เลือกใช้ลายเซ็นในระบบ (default) — ดึงรูปจาก URL แล้วอัปโหลดขึ้น server
+          if (
+            formSubmissionPayload.signature_mode === "default" &&
+            formSubmissionPayload.signature_default_url &&
+            !formSubmissionPayload.signature_file?.[0]
+          ) {
+            try {
+              const signatureUrl = formSubmissionPayload.signature_default_url as string;
+              const fetchUrl = signatureUrl.startsWith("/")
+                ? signatureUrl
+                : `/api/v1/proxy/image?url=${encodeURIComponent(signatureUrl)}`;
+              const res = await fetch(fetchUrl);
+              const blob = await res.blob();
+              const ext = blob.type.includes("png") ? "png" : "jpg";
+              const file = new File([blob], `signature_default.${ext}`, { type: blob.type });
+              await uploadBinaryImage({ originFileObj: file }, firstId, "signature_1");
+            } catch (err) {
+              console.error("ไม่สามารถอัปโหลดลายเซ็น default ได้:", err);
+            }
+          }
         }
 
         setCurrentSubmissionStep(3); // ขั้นตอนที่ 4: เสร็จสมบูรณ์
