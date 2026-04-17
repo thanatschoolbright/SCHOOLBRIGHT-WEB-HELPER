@@ -126,4 +126,39 @@ export const bulkPdfDownloadService = {
       onProgress(total, total, "finished", zipFileName);
     }
   },
+
+  /**
+   * สร้างไฟล์ ZIP และคืนเป็น Blob โดยไม่ดาวน์โหลด (สำหรับส่งผ่าน API)
+   */
+  async generateZipBlob(
+    items: Array<{
+      employeeCode: string;
+      fileName: string;
+      element: HTMLElement | HTMLElement[];
+    }>,
+    onProgress?: (index: number, total: number, status: string, fileName: string) => void,
+  ): Promise<Blob> {
+    const zip = new JSZip();
+    const total = items.length;
+
+    for (let i = 0; i < total; i++) {
+      const item = items[i];
+      if (!item) continue;
+      const { employeeCode, fileName, element } = item;
+
+      if (onProgress) onProgress(i, total, "processing", fileName);
+
+      try {
+        const pdfBlob = await this.generatePdfBlob(element);
+        const folder = zip.folder(employeeCode);
+        if (folder) folder.file(fileName, pdfBlob);
+        if (onProgress) onProgress(i, total, "completed", fileName);
+      } catch (error) {
+        console.error(`Failed to generate PDF for ${employeeCode}:`, error);
+        if (onProgress) onProgress(i, total, "failed", fileName);
+      }
+    }
+
+    return zip.generateAsync({ type: "blob" });
+  },
 };

@@ -29,6 +29,7 @@ import AdminOtSummary from "./_components/admin-ot-summary";
 import AdminOtTable from "./_components/admin-ot-table";
 import ApprovalSlaDashboard from "./_components/approval-sla-dashboard";
 import BulkActionBar from "./_components/bulk-action-bar";
+import BulkEmailModal from "./_components/bulk-email-modal";
 import DepartmentBreakdown from "./_components/department-breakdown";
 import AdminExportModal from "./_components/export-modal";
 import MarkPaidModal from "./_components/mark-paid-modal";
@@ -97,6 +98,7 @@ export default function AdminOvertimeManagementPage() {
     message: "",
   });
   const [isActionLoading, setIsActionLoading] = useState(false);
+  const [isBulkEmailVisible, setIsBulkEmailVisible] = useState(false);
 
   // -----------------------------------------------------------------------
   // โหลดรายการผู้ใช้งานสำหรับ dropdown กรอง
@@ -1076,6 +1078,7 @@ export default function AdminOvertimeManagementPage() {
             onBulkReject={handleBulkRejectOpen}
             onBulkMarkPaid={handleBulkMarkPaid}
             onBulkPdfDownloadZip={handleBulkPdfDownloadZip}
+            onBulkSendEmail={() => setIsBulkEmailVisible(true)}
             isLoading={isBulkLoading}
           />
 
@@ -1155,6 +1158,16 @@ export default function AdminOvertimeManagementPage() {
             visible={isAnalyticsVisible}
             setVisible={setIsAnalyticsVisible}
             dataSource={dataSource}
+          />
+
+          {/* Modal ส่ง OT PDF ทางอีเมลแบบ Bulk */}
+          <BulkEmailModal
+            open={isBulkEmailVisible}
+            onClose={() => setIsBulkEmailVisible(false)}
+            selectedKeys={selectedKeys}
+            selectedRecords={dataSource.filter((r) =>
+              selectedKeys.includes(r.id ?? r.key),
+            )}
           />
 
           {/* Modal แจ้งเตือนสถานะ */}

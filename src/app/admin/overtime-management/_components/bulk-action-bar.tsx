@@ -6,6 +6,7 @@ import {
   CloseOutlined,
   DollarOutlined,
   FilePdfOutlined,
+  MailOutlined,
 } from "@ant-design/icons";
 import { Alert, Button, Flex, Popconfirm, Space, Tag, Typography } from "antd";
 import React from "react";
@@ -19,6 +20,7 @@ interface BulkActionBarProps {
   onBulkReject: () => void;
   onBulkMarkPaid: () => void;
   onBulkPdfDownloadZip: () => void;
+  onBulkSendEmail: () => void;
   isLoading: boolean;
 }
 
@@ -33,6 +35,7 @@ const BulkActionBar: React.FC<BulkActionBarProps> = ({
   onBulkReject,
   onBulkMarkPaid,
   onBulkPdfDownloadZip,
+  onBulkSendEmail,
   isLoading,
 }) => {
   if (selectedKeys.length === 0) return null;
@@ -103,6 +106,15 @@ const BulkActionBar: React.FC<BulkActionBarProps> = ({
               size="small"
             >
               ดาวน์โหลด PDF (ZIP)
+            </Button>
+
+            <Button
+              icon={<MailOutlined />}
+              onClick={onBulkSendEmail}
+              disabled={isLoading}
+              size="small"
+            >
+              ส่งทางอีเมล
             </Button>
 
             <Button
