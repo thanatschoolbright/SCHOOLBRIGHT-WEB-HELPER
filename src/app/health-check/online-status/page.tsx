@@ -179,7 +179,7 @@ export default function OnlineDeviceDashboard() {
       setIsNotifyingLine(true);
       const res = await callApiService.get("/api/v1/application/line/cron-report");
       const data = res?.data;
-      if (data?.status_code === 200) {
+      if (data?.status_code === 200 || data?.status === 200) {
         const d = data.data;
         setStatusModal({
           open: true,
@@ -310,72 +310,13 @@ export default function OnlineDeviceDashboard() {
           subTitle="ติดตามสถานะการเชื่อมต่อและการใช้งานของเครื่อง POS แบบเรียลไทม์"
           extra={
             <Space size={12} wrap>
-              {/* ปุ่มแจ้งเตือน LINE + Dropdown เลือกกลุ่ม */}
-              <Dropdown
-                trigger={["contextMenu"]}
-                menu={{
-                  items: [
-                    {
-                      key: "header",
-                      type: "group",
-                      label: (
-                        <span style={{ fontSize: 11, color: token.colorTextTertiary }}>
-                          <SettingOutlined style={{ marginRight: 6 }} />
-                          เลือกกลุ่มสำหรับส่งรายงาน
-                        </span>
-                      ),
-                    },
-                    ...(lineGroups.length === 0
-                      ? [
-                          {
-                            key: "empty",
-                            disabled: true,
-                            label: (
-                              <span style={{ fontSize: 12, color: token.colorTextTertiary }}>
-                                ยังไม่มีกลุ่ม — เพิ่ม Bot เข้ากลุ่มก่อน
-                              </span>
-                            ),
-                          },
-                        ]
-                      : lineGroups.map((g) => ({
-                          key: g.group_id,
-                          label: (
-                            <Flex align="center" gap={8}>
-                              {g.group_id === activeGroupId ? (
-                                <CheckOutlined style={{ color: "#06C755", fontSize: 12 }} />
-                              ) : (
-                                <span style={{ width: 12, display: "inline-block" }} />
-                              )}
-                              <span style={{ fontSize: 13 }}>
-                                {g.group_name ?? g.group_id}
-                              </span>
-                              {g.group_id === activeGroupId && (
-                                <Tag color="green" style={{ fontSize: 10, margin: 0 }}>
-                                  ใช้งานอยู่
-                                </Tag>
-                              )}
-                            </Flex>
-                          ),
-                          onClick: () => handleSelectLineGroup(g.group_id),
-                        }))),
-                    { type: "divider" as const },
-                    {
-                      key: "hint",
-                      disabled: true,
-                      label: (
-                        <span style={{ fontSize: 11, color: token.colorTextTertiary }}>
-                          คลิกขวาที่ปุ่มเพื่อเปลี่ยนกลุ่ม
-                        </span>
-                      ),
-                    },
-                  ],
-                }}
-              >
+              {/* ปุ่มส่งรายงาน LINE + Dropdown เลือกกลุ่มจาก DB */}
+              <Flex style={{ height: 44 }}>
                 <Tooltip
                   title={
                     activeGroupId
-                      ? `กลุ่ม: ${lineGroups.find((g) => g.group_id === activeGroupId)?.group_name ?? activeGroupId}`
-                      : "คลิกขวาเพื่อเลือกกลุ่ม LINE"
+                      ? `ส่งไปยัง: ${lineGroups.find((g) => g.group_id === activeGroupId)?.group_name ?? activeGroupId}`
+                      : "กรุณาเลือกกลุ่ม LINE ก่อนส่ง"
                   }
                 >
                   <Button
@@ -385,8 +326,8 @@ export default function OnlineDeviceDashboard() {
                     disabled={!activeGroupId}
                     style={{
                       height: 44,
-                      padding: "0 20px",
-                      borderRadius: 12,
+                      padding: "0 16px",
+                      borderRadius: "12px 0 0 12px",
                       fontWeight: 600,
                       fontSize: 14,
                       backgroundColor: !activeGroupId
@@ -396,45 +337,102 @@ export default function OnlineDeviceDashboard() {
                         : "#06C755",
                       color: !activeGroupId ? token.colorTextDisabled : "#FFFFFF",
                       border: "none",
-                      boxShadow: activeGroupId
-                        ? "0 4px 14px 0 rgba(6, 199, 85, 0.35)"
-                        : "none",
-                      transition: "all 0.3s ease",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (activeGroupId && !isNotifyingLine) {
-                        e.currentTarget.style.backgroundColor = "#05a847";
-                        e.currentTarget.style.transform = "translateY(-1px)";
-                        e.currentTarget.style.boxShadow = "0 6px 20px rgba(6, 199, 85, 0.45)";
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (activeGroupId && !isNotifyingLine) {
-                        e.currentTarget.style.backgroundColor = "#06C755";
-                        e.currentTarget.style.transform = "translateY(0)";
-                        e.currentTarget.style.boxShadow = "0 4px 14px 0 rgba(6, 199, 85, 0.35)";
-                      }
+                      borderRight: "1px solid rgba(255,255,255,0.25)",
+                      boxShadow: activeGroupId ? "0 4px 14px 0 rgba(6, 199, 85, 0.35)" : "none",
                     }}
                   >
                     <span>ส่งรายงานไปยัง LINE</span>
                     {offlineCount > 0 && activeGroupId && (
-                      <div
+                      <span
                         style={{
-                          background: "rgba(255,255,255,0.2)",
-                          padding: "2px 8px",
+                          background: "rgba(255,255,255,0.25)",
+                          padding: "1px 7px",
                           borderRadius: 6,
                           fontSize: 11,
                           marginLeft: 4,
                           border: "1px solid rgba(255,255,255,0.4)",
                         }}
                       >
-                        <NotificationOutlined style={{ marginRight: 4, fontSize: 10 }} />
+                        <NotificationOutlined style={{ fontSize: 10, marginRight: 4 }} />
                         {offlineCount} ออฟไลน์
-                      </div>
+                      </span>
                     )}
                   </Button>
                 </Tooltip>
-              </Dropdown>
+                <Dropdown
+                  trigger={["click"]}
+                  menu={{
+                    items: [
+                      {
+                        key: "group-header",
+                        type: "group",
+                        label: (
+                          <Flex align="center" gap={6}>
+                            <SettingOutlined style={{ fontSize: 11 }} />
+                            <span style={{ fontSize: 11 }}>เลือกกลุ่ม LINE สำหรับส่งรายงาน</span>
+                          </Flex>
+                        ),
+                      },
+                      ...(lineGroups.length === 0
+                        ? [
+                            {
+                              key: "empty",
+                              disabled: true,
+                              label: (
+                                <span style={{ fontSize: 12, color: token.colorTextTertiary }}>
+                                  ยังไม่มีกลุ่มในระบบ — เพิ่ม Bot เข้ากลุ่มก่อน
+                                </span>
+                              ),
+                            },
+                          ]
+                        : lineGroups.map((g) => ({
+                            key: g.group_id,
+                            label: (
+                              <Flex align="center" gap={8}>
+                                {g.group_id === activeGroupId ? (
+                                  <CheckOutlined style={{ color: "#06C755", fontSize: 12 }} />
+                                ) : (
+                                  <span style={{ width: 12, display: "inline-block" }} />
+                                )}
+                                <Flex vertical gap={1} flex={1}>
+                                  <span style={{ fontSize: 13, fontWeight: 500 }}>
+                                    {g.group_name ?? "ไม่ระบุชื่อกลุ่ม"}
+                                  </span>
+                                  <span style={{ fontSize: 10, color: token.colorTextTertiary, fontFamily: "monospace" }}>
+                                    {g.group_id}
+                                  </span>
+                                </Flex>
+                                {g.group_id === activeGroupId && (
+                                  <Tag color="green" style={{ fontSize: 10, margin: 0 }}>
+                                    ใช้งานอยู่
+                                  </Tag>
+                                )}
+                              </Flex>
+                            ),
+                            onClick: () => handleSelectLineGroup(g.group_id),
+                          }))),
+                    ],
+                  }}
+                >
+                  <Button
+                    style={{
+                      height: 44,
+                      width: 36,
+                      padding: 0,
+                      borderRadius: "0 12px 12px 0",
+                      backgroundColor: activeGroupId ? "#05b84a" : token.colorFillTertiary,
+                      color: activeGroupId ? "#FFFFFF" : token.colorTextTertiary,
+                      border: "none",
+                      boxShadow: activeGroupId ? "0 4px 14px 0 rgba(6, 199, 85, 0.35)" : "none",
+                    }}
+                    icon={
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
+                        <path d="M5 7L1 3h8z" />
+                      </svg>
+                    }
+                  />
+                </Dropdown>
+              </Flex>
 
               {/* ปุ่มแจ้งเตือน Discord แบบตกแต่งพิเศษ */}
               <Button

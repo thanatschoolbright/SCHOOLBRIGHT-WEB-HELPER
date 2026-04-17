@@ -22,8 +22,35 @@ export async function linePushMessage(
   );
 }
 
-// สร้าง Flex Message รายงานสถานะอุปกรณ์สำหรับ LINE
-export function buildDeviceStatusFlexMessage(stats: {
+// กำหนดสีและ label ตามจำนวนอุปกรณ์ออฟไลน์
+function resolveStatusStyle(offline: number): { color: string; label: string; headerBg: string } {
+  if (offline === 0) return { color: "#16a34a", label: "ระบบปกติ", headerBg: "#14532d" };
+  if (offline < 5) return { color: "#d97706", label: "ต้องระวัง", headerBg: "#78350f" };
+  return { color: "#dc2626", label: "วิกฤต", headerBg: "#7f1d1d" };
+}
+
+// สร้าง progress bar จากเปอร์เซ็นต์ (0–100)
+function buildProgressBar(rate: number): string {
+  const filled = Math.round(rate / 10);
+  return "█".repeat(filled) + "░".repeat(10 - filled);
+}
+
+// สร้าง stat row แบบ horizontal (label ซ้าย, value ขวา)
+function buildStatRow(label: string, value: string, valueColor: string): object {
+  return {
+    type: "box",
+    layout: "horizontal",
+    paddingTop: "4px",
+    paddingBottom: "4px",
+    contents: [
+      { type: "text", text: label, size: "sm", color: "#94a3b8", flex: 3 },
+      { type: "text", text: value, size: "sm", color: valueColor, weight: "bold", align: "end", flex: 2 },
+    ],
+  };
+}
+
+// สร้าง bubble สรุปภาพรวมทั้งหมด (card แรก)
+function buildSummaryBubble(stats: {
   total: number;
   online: number;
   offline: number;
@@ -33,182 +60,200 @@ export function buildDeviceStatusFlexMessage(stats: {
   reportTime: string;
 }): object {
   const { total, online, offline, login, onlineRate, totalSchools, reportTime } = stats;
-
-  const statusColor = offline === 0 ? "#16a34a" : offline < 5 ? "#d97706" : "#dc2626";
-  const statusLabel = offline === 0 ? "ปกติ ✅" : offline < 5 ? "ต้องระวัง ⚠️" : "วิกฤต 🚨";
-  const barFilled = Math.round(onlineRate / 10);
-  const progressBar = "█".repeat(barFilled) + "░".repeat(10 - barFilled);
+  const { color, label, headerBg } = resolveStatusStyle(offline);
+  const progressBar = buildProgressBar(onlineRate);
 
   return {
-    type: "flex",
-    altText: `[SchoolBright] รายงานสถานะ POS · ออนไลน์ ${online}/${total} (${onlineRate}%)`,
-    contents: {
-      type: "bubble",
-      size: "kilo",
-      header: {
-        type: "box",
-        layout: "vertical",
-        backgroundColor: "#0f172a",
-        paddingAll: "16px",
-        contents: [
-          {
-            type: "text",
-            text: "SchoolBright Helper",
-            size: "xs",
-            color: "#64748b",
-            weight: "bold",
-          },
-          {
-            type: "text",
-            text: "รายงานสถานะเครื่อง POS",
-            size: "lg",
-            color: "#f8fafc",
-            weight: "bold",
-            margin: "xs",
-          },
-          {
-            type: "text",
-            text: `🕐 ${reportTime}`,
-            size: "xs",
-            color: "#94a3b8",
-            margin: "xs",
-          },
-        ],
-      },
-      hero: {
-        type: "box",
-        layout: "vertical",
-        backgroundColor: statusColor,
-        paddingAll: "10px",
-        contents: [
-          {
-            type: "text",
-            text: `สถานะระบบ: ${statusLabel}`,
-            color: "#ffffff",
-            size: "sm",
-            weight: "bold",
-            align: "center",
-          },
-        ],
-      },
-      body: {
-        type: "box",
-        layout: "vertical",
-        paddingAll: "16px",
-        spacing: "md",
-        contents: [
-          {
-            type: "box",
-            layout: "horizontal",
-            spacing: "sm",
-            contents: [
-              buildStatBox("📊 ทั้งหมด", `${total}`, "#6366f1", "#eef2ff"),
-              buildStatBox("🟢 ออนไลน์", `${online}`, "#16a34a", "#f0fdf4"),
-              buildStatBox("🔴 ออฟไลน์", `${offline}`, offline >= 5 ? "#dc2626" : offline > 0 ? "#d97706" : "#16a34a", offline >= 5 ? "#fff1f2" : offline > 0 ? "#fffbeb" : "#f0fdf4"),
-              buildStatBox("⚡ ใช้งาน", `${login}`, "#2563eb", "#eff6ff"),
-            ],
-          },
-          {
-            type: "separator",
-          },
-          {
-            type: "box",
-            layout: "vertical",
-            spacing: "xs",
-            contents: [
-              {
-                type: "text",
-                text: "อัตราออนไลน์",
-                size: "xs",
-                color: "#6b7280",
-                weight: "bold",
-              },
-              {
-                type: "box",
-                layout: "horizontal",
-                contents: [
-                  {
-                    type: "text",
-                    text: progressBar,
-                    size: "xs",
-                    color: statusColor,
-                    flex: 4,
-                    weight: "bold",
-                  },
-                  {
-                    type: "text",
-                    text: `${onlineRate}%`,
-                    size: "sm",
-                    color: statusColor,
-                    weight: "bold",
-                    align: "end",
-                    flex: 1,
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            type: "separator",
-          },
-          {
-            type: "box",
-            layout: "horizontal",
-            contents: [
-              {
-                type: "text",
-                text: `🏫 ${totalSchools} โรงเรียน`,
-                size: "xs",
-                color: "#6b7280",
-                flex: 1,
-              },
-              {
-                type: "text",
-                text: "SchoolBright · Auto Report",
-                size: "xs",
-                color: "#9ca3af",
-                align: "end",
-                flex: 2,
-              },
-            ],
-          },
-        ],
-      },
+    type: "bubble",
+    size: "kilo",
+    header: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: "#0f172a",
+      paddingAll: "16px",
+      contents: [
+        { type: "text", text: "SchoolBright Helper", size: "xxs", color: "#64748b", weight: "bold" },
+        { type: "text", text: "รายงานสถานะเครื่อง POS", size: "md", color: "#f8fafc", weight: "bold", margin: "xs" },
+        { type: "text", text: reportTime, size: "xxs", color: "#94a3b8", margin: "xs" },
+      ],
+    },
+    hero: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: headerBg,
+      paddingAll: "10px",
+      contents: [
+        {
+          type: "text",
+          text: `สถานะ: ${label}`,
+          color: "#ffffff",
+          size: "sm",
+          weight: "bold",
+          align: "center",
+        },
+      ],
+    },
+    body: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: "#1e293b",
+      paddingAll: "16px",
+      spacing: "sm",
+      contents: [
+        buildStatRow("📊 ทั้งหมด", `${total} เครื่อง`, "#e2e8f0"),
+        buildStatRow("🟢 ออนไลน์", `${online} เครื่อง`, "#4ade80"),
+        buildStatRow("🔴 ออฟไลน์", `${offline} เครื่อง`, offline > 0 ? "#f87171" : "#4ade80"),
+        buildStatRow("⚡ ใช้งานอยู่", `${login} เครื่อง`, "#60a5fa"),
+        buildStatRow("🏫 โรงเรียน", `${totalSchools} แห่ง`, "#c084fc"),
+        { type: "separator", margin: "sm", color: "#334155" },
+        {
+          type: "box",
+          layout: "vertical",
+          margin: "sm",
+          spacing: "xs",
+          contents: [
+            {
+              type: "box",
+              layout: "horizontal",
+              contents: [
+                { type: "text", text: "อัตราออนไลน์", size: "xs", color: "#94a3b8", flex: 3 },
+                { type: "text", text: `${onlineRate}%`, size: "xs", color, weight: "bold", align: "end", flex: 2 },
+              ],
+            },
+            { type: "text", text: progressBar, size: "xs", color, margin: "xs" },
+          ],
+        },
+      ],
+    },
+    footer: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: "#0f172a",
+      paddingAll: "8px",
+      contents: [
+        { type: "text", text: "Auto Report · SchoolBright", size: "xxs", color: "#475569", align: "center" },
+      ],
     },
   };
 }
 
-// สร้าง box สถิติแต่ละตัวใน Flex Message
-function buildStatBox(
-  label: string,
-  value: string,
-  color: string,
-  bg: string,
-): object {
+// สร้าง bubble สำหรับแต่ละ AppGroup (card ที่ 2 เป็นต้นไป)
+function buildAppGroupBubble(group: {
+  appName: string;
+  appVersion: string;
+  online: number;
+  offline: number;
+  login: number;
+  total: number;
+  onlineRate: number;
+}): object {
+  const { appName, appVersion, online, offline, login, total, onlineRate } = group;
+  const { color, label, headerBg } = resolveStatusStyle(offline);
+  const progressBar = buildProgressBar(onlineRate);
+
   return {
-    type: "box",
-    layout: "vertical",
-    backgroundColor: bg,
-    cornerRadius: "8px",
-    paddingAll: "8px",
-    flex: 1,
-    contents: [
-      {
-        type: "text",
-        text: value,
-        size: "xl",
-        weight: "bold",
-        color,
-        align: "center",
-      },
-      {
-        type: "text",
-        text: label,
-        size: "xxs",
-        color: "#6b7280",
-        align: "center",
-        wrap: true,
-      },
-    ],
+    type: "bubble",
+    size: "kilo",
+    header: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: "#0f172a",
+      paddingAll: "14px",
+      contents: [
+        { type: "text", text: appName, size: "sm", color: "#f8fafc", weight: "bold", wrap: true },
+        {
+          type: "box",
+          layout: "horizontal",
+          margin: "xs",
+          contents: [
+            {
+              type: "box",
+              layout: "vertical",
+              backgroundColor: "#1e40af",
+              cornerRadius: "4px",
+              paddingTop: "2px",
+              paddingBottom: "2px",
+              paddingStart: "6px",
+              paddingEnd: "6px",
+              contents: [
+                { type: "text", text: `v${appVersion}`, size: "xxs", color: "#bfdbfe", weight: "bold" },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    hero: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: headerBg,
+      paddingAll: "8px",
+      contents: [
+        { type: "text", text: label, color: "#ffffff", size: "xs", weight: "bold", align: "center" },
+      ],
+    },
+    body: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: "#1e293b",
+      paddingAll: "14px",
+      spacing: "sm",
+      contents: [
+        buildStatRow("📊 ทั้งหมด", `${total} เครื่อง`, "#e2e8f0"),
+        buildStatRow("🟢 ออนไลน์", `${online} เครื่อง`, "#4ade80"),
+        buildStatRow("🔴 ออฟไลน์", `${offline} เครื่อง`, offline > 0 ? "#f87171" : "#4ade80"),
+        buildStatRow("⚡ ใช้งานอยู่", `${login} เครื่อง`, "#60a5fa"),
+        { type: "separator", margin: "sm", color: "#334155" },
+        {
+          type: "box",
+          layout: "vertical",
+          margin: "sm",
+          spacing: "xs",
+          contents: [
+            {
+              type: "box",
+              layout: "horizontal",
+              contents: [
+                { type: "text", text: "อัตราออนไลน์", size: "xs", color: "#94a3b8", flex: 3 },
+                { type: "text", text: `${onlineRate}%`, size: "xs", color, weight: "bold", align: "end", flex: 2 },
+              ],
+            },
+            { type: "text", text: progressBar, size: "xs", color, margin: "xs" },
+          ],
+        },
+      ],
+    },
+  };
+}
+
+// สร้าง Flex Message แบบ Carousel (เลื่อนซ้าย-ขวา) สำหรับรายงานสถานะอุปกรณ์
+export function buildDeviceStatusFlexMessage(stats: {
+  total: number;
+  online: number;
+  offline: number;
+  login: number;
+  onlineRate: number;
+  totalSchools: number;
+  reportTime: string;
+  appGroups?: Array<{
+    appName: string;
+    appVersion: string;
+    online: number;
+    offline: number;
+    login: number;
+    total: number;
+    onlineRate: number;
+  }>;
+}): object {
+  const summaryBubble = buildSummaryBubble(stats);
+  const appBubbles = (stats.appGroups ?? []).map(buildAppGroupBubble);
+
+  return {
+    type: "flex",
+    altText: `[SchoolBright] รายงานสถานะ POS · ออนไลน์ ${stats.online}/${stats.total} (${stats.onlineRate}%)`,
+    contents: {
+      type: "carousel",
+      contents: [summaryBubble, ...appBubbles],
+    },
   };
 }

@@ -45,13 +45,15 @@ export async function GET(request: NextRequest) {
     const reportTime =
       dayjs().format("DD/MM/YYYY HH:mm") + " น.";
 
-    // ดึงสถิติอุปกรณ์ทั้งหมดจาก DB
+    // ดึงสถิติอุปกรณ์ทั้งหมดจาก DB พร้อม AppName/AppVersion สำหรับแยกกลุ่ม
     const allDevices = await prisma.deviceDailyStatus.findMany({
       select: {
         Online: true,
         OnlineTime: true,
         Login: true,
         SchoolID: true,
+        AppName: true,
+        AppVersion: true,
       },
     });
 
@@ -60,22 +62,35 @@ export async function GET(request: NextRequest) {
     let offline = 0;
     let login = 0;
     const schoolSet = new Set<number>();
+    const groupMap = new Map<string, { online: number; offline: number; login: number; total: number }>();
 
     for (const device of allDevices) {
       const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
       const isOnlineDynamic =
         device.Online === true ||
-        (onlineTime
-          ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
-          : false);
+        (onlineTime ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS : false);
 
       if (isOnlineDynamic) online++;
       else offline++;
       if (device.Login) login++;
       schoolSet.add(device.SchoolID);
+
+      // จัดกลุ่มตาม AppName + AppVersion
+      const appKey = `${device.AppName ?? "ไม่ระบุแอป"}|||${device.AppVersion ?? "-"}`;
+      const g = groupMap.get(appKey) ?? { online: 0, offline: 0, login: 0, total: 0 };
+      g.total++;
+      if (isOnlineDynamic) g.online++; else g.offline++;
+      if (device.Login) g.login++;
+      groupMap.set(appKey, g);
     }
 
     const onlineRate = total === 0 ? 0 : Math.round((online / total) * 100);
+
+    const appGroups = Array.from(groupMap.entries()).map(([key, g]) => {
+      const [appName, appVersion] = key.split("|||");
+      return { appName: appName ?? "ไม่ระบุแอป", appVersion: appVersion ?? "-", ...g, onlineRate: g.total === 0 ? 0 : Math.round((g.online / g.total) * 100) };
+    }).sort((a, b) => a.appName.localeCompare(b.appName));
+
     const stats = {
       total,
       online,
@@ -84,6 +99,7 @@ export async function GET(request: NextRequest) {
       onlineRate,
       totalSchools: schoolSet.size,
       reportTime,
+      appGroups,
     };
 
     const flexMessage = buildDeviceStatusFlexMessage(stats);
