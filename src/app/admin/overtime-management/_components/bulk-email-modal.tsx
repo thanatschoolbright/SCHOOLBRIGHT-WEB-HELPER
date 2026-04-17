@@ -492,11 +492,35 @@ const BulkEmailModal: React.FC<BulkEmailModalProps> = ({
 
       // Step 3 — ส่งอีเมล
       updateStep(3, "process");
+
+      // สร้าง summary สำหรับแสดงในตาราง email
+      const otSummary = dataItems.map((d) => {
+        const totalHours =
+          d.descriptions?.reduce((acc: number, item: any) => {
+            if (!item?.start_date || !item?.end_date)
+              return acc + (Number(item?.duration) || 0);
+            const diff = dayjs(item.end_date).add(1, "hour").startOf("hour")
+              .diff(dayjs(item.start_date).startOf("hour"), "hour");
+            return acc + (diff > 0 ? diff : 0);
+          }, 0) || 0;
+        return {
+          id: d.id,
+          employee_code: d.requester_employee_code || "-",
+          name: d.requester_name || "-",
+          position: d.requester_position || "-",
+          department: d.department || "-",
+          request_date: d.request_date || d.created_at || null,
+          total_hours: totalHours,
+          status: d.status || "-",
+        };
+      });
+
       const formData = new FormData();
       formData.append("zip", zipBlob, zipFileName);
       formData.append("recipients", JSON.stringify(recipients));
       formData.append("zip_filename", zipFileName);
       formData.append("ot_count", String(dataItems.length));
+      formData.append("ot_summary", JSON.stringify(otSummary));
 
       const res = await axios.post("/api/v1/timesheet/overtime/send-email-bulk", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -555,7 +579,7 @@ const BulkEmailModal: React.FC<BulkEmailModalProps> = ({
         </Flex>
       }
       footer={null}
-      width={620}
+      width={800}
       closable={!isRunning}
       maskClosable={false}
     >
