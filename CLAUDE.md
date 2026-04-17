@@ -63,16 +63,19 @@ This is a **Next.js 16 (App Router) back-office admin tool** for SchoolBright, c
 | `backlogs/` | Project management via Backlog OAuth integration |
 | `timesheet/` | Time tracking and overtime management |
 | `support/` | Support ticket management |
-| `admin/` | User and system administration |
+| `admin/` | User, role, department, position management + OT admin |
 | `testing/` | Load testing and bypass utilities |
+| `logger/` | API log viewer (wraps `/api/v1/logger/*`) |
+| `backend/` | Internal server-to-server utilities |
+| `profile/` | User profile and password change |
 
 ### API route conventions
 
 API routes are versioned under `src/app/api/`:
 
-- **`v1/`** — primary internal routes (timesheet, backlog, hardware, mobile, health-check, admin, support, etc.)
-- **`v2/`** — newer routes (admin user-management, hardware device status, server)
-- **`v3/`** — authentication
+- **`v1/`** — primary internal routes (timesheet, backlog, hardware, mobile, health-check, admin, support, ai, integrations/discord, logger, mailer, load-test, etc.)
+- **`v2/`** — newer routes (admin user/role/department/position management, hardware device status, server status, authentication v2, profile)
+- **`v3/`** — latest authentication endpoint
 
 URL pattern: `/api/{version}/{domain}/{resource}/{action}`
 
@@ -178,13 +181,18 @@ Use `$transaction` when writing to multiple tables. Never mix models across inst
 
 | File | Purpose |
 |---|---|
-| `src/services/api-gateway.tsx` | Main API proxy — use `callApiService` for client→internal API calls; handles auth headers + token refresh |
-| `src/services/api-url.tsx` | Centralized endpoint URL constants |
+| `src/services/api-gateway.tsx` | `callBackendAPI` — calls external SchoolBright backend; injects `JabjaiKey-{school_id}-{user_id}` header, handles 401 + auto-retry |
+| `src/services/axios-instance/sb-helper.axios.ts` | `callApiService` — Axios instance for client→internal Next.js API routes; logs every request to `/api/v1/logger/create` |
+| `src/services/api-url.tsx` | Centralized `API_URL` constants (reads from `NEXT_PUBLIC_*` env vars) |
 | `src/services/canteen-api.ts` | Hardware canteen device API |
 | `src/helpers/logger.server.ts` | Winston server-side logging |
 | `src/helpers/api-log.helper.ts` | Request/response logging middleware |
 
-The gateway reads `school_id`, `user_id`, and `token` from the Redux store and injects a custom header (`JabjaiKey-{school_id}-{user_id}`). On 401, it auto-refreshes the token and retries the original request. Use Axios for all HTTP calls — not `fetch`.
+**Two distinct HTTP clients — do not mix them:**
+- `callApiService` (from `@services/axios-instance/sb-helper.axios`) — for client components calling `/api/v*/*` routes within this app
+- `callBackendAPI` (from `@services/api-gateway`) — for server-side calls to external SchoolBright backend services
+
+Use Axios for all HTTP calls — not `fetch`. Exception: the logger's axios interceptor itself uses `fetch` to post to `/api/v1/logger/create` to avoid circular calls.
 
 ### Permission system
 
@@ -209,6 +217,17 @@ const permissions: string[] = (session?.user as any)?.permissions || [];
 ### Localization
 
 i18next + next-intl with Thai as primary language. Locale files in `src/locales/`. Config at `config/next-i18next.config.js`.
+
+### AI integration
+
+Gemini and ChatGPT are available via internal API routes:
+- `POST /api/v1/ai/gemini/chat` — general Gemini chat
+- `POST /api/v1/ai/gemini/summarize` — text summarization
+- `POST /api/v1/ai/gemini/auto-category` — auto-categorize support tickets
+- `POST /api/v1/ai/chatgpt/summarize` — ChatGPT summarization
+- `POST /api/v1/timesheet/entry/automate-fill` — AI-assisted timesheet entry fill (Gemini or ChatGPT)
+
+These routes proxy to Google Generative AI / OpenAI — API keys are in env vars.
 
 ### Notable constraints
 
