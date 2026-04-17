@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const LINE_API = "https://api.line.me/v2/bot/message";
+const LINE_FLEX_MAX_BUBBLES = 12;
 
 // ส่งข้อความ push ไปยัง group หรือ user ผ่าน LINE Messaging API
 export async function linePushMessage(
@@ -10,22 +11,37 @@ export async function linePushMessage(
   const accessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
   if (!accessToken) throw new Error("LINE_CHANNEL_ACCESS_TOKEN is not set");
 
-  await axios.post(
-    `${LINE_API}/push`,
-    { to, messages },
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
+  try {
+    await axios.post(
+      `${LINE_API}/push`,
+      { to, messages },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
       },
-    },
-  );
+    );
+  } catch (err: any) {
+    const lineError = err?.response?.data;
+    throw new Error(
+      lineError
+        ? `LINE API error ${err.response.status}: ${JSON.stringify(lineError)}`
+        : err.message,
+    );
+  }
 }
 
 // กำหนดสีและ label ตามจำนวนอุปกรณ์ออฟไลน์
-function resolveStatusStyle(offline: number): { color: string; label: string; headerBg: string } {
-  if (offline === 0) return { color: "#16a34a", label: "ระบบปกติ", headerBg: "#14532d" };
-  if (offline < 5) return { color: "#d97706", label: "ต้องระวัง", headerBg: "#78350f" };
+function resolveStatusStyle(offline: number): {
+  color: string;
+  label: string;
+  headerBg: string;
+} {
+  if (offline === 0)
+    return { color: "#16a34a", label: "ระบบปกติ", headerBg: "#14532d" };
+  if (offline < 5)
+    return { color: "#d97706", label: "ต้องระวัง", headerBg: "#78350f" };
   return { color: "#dc2626", label: "วิกฤต", headerBg: "#7f1d1d" };
 }
 
@@ -36,7 +52,11 @@ function buildProgressBar(rate: number): string {
 }
 
 // สร้าง stat row แบบ horizontal (label ซ้าย, value ขวา)
-function buildStatRow(label: string, value: string, valueColor: string): object {
+function buildStatRow(
+  label: string,
+  value: string,
+  valueColor: string,
+): object {
   return {
     type: "box",
     layout: "horizontal",
@@ -44,7 +64,15 @@ function buildStatRow(label: string, value: string, valueColor: string): object 
     paddingBottom: "4px",
     contents: [
       { type: "text", text: label, size: "sm", color: "#94a3b8", flex: 3 },
-      { type: "text", text: value, size: "sm", color: valueColor, weight: "bold", align: "end", flex: 2 },
+      {
+        type: "text",
+        text: value,
+        size: "sm",
+        color: valueColor,
+        weight: "bold",
+        align: "end",
+        flex: 2,
+      },
     ],
   };
 }
@@ -58,8 +86,18 @@ function buildSummaryBubble(stats: {
   onlineRate: number;
   totalSchools: number;
   reportTime: string;
+  hiddenGroupCount?: number;
 }): object {
-  const { total, online, offline, login, onlineRate, totalSchools, reportTime } = stats;
+  const {
+    total,
+    online,
+    offline,
+    login,
+    onlineRate,
+    totalSchools,
+    reportTime,
+    hiddenGroupCount = 0,
+  } = stats;
   const { color, label, headerBg } = resolveStatusStyle(offline);
   const progressBar = buildProgressBar(onlineRate);
 
@@ -72,9 +110,28 @@ function buildSummaryBubble(stats: {
       backgroundColor: "#0f172a",
       paddingAll: "16px",
       contents: [
-        { type: "text", text: "SchoolBright Helper", size: "xxs", color: "#64748b", weight: "bold" },
-        { type: "text", text: "รายงานสถานะเครื่อง POS", size: "md", color: "#f8fafc", weight: "bold", margin: "xs" },
-        { type: "text", text: reportTime, size: "xxs", color: "#94a3b8", margin: "xs" },
+        {
+          type: "text",
+          text: "SchoolBright Helper",
+          size: "xxs",
+          color: "#64748b",
+          weight: "bold",
+        },
+        {
+          type: "text",
+          text: "รายงานสถานะเครื่อง POS",
+          size: "md",
+          color: "#f8fafc",
+          weight: "bold",
+          margin: "xs",
+        },
+        {
+          type: "text",
+          text: reportTime,
+          size: "xxs",
+          color: "#94a3b8",
+          margin: "xs",
+        },
       ],
     },
     hero: {
@@ -102,7 +159,11 @@ function buildSummaryBubble(stats: {
       contents: [
         buildStatRow("📊 ทั้งหมด", `${total} เครื่อง`, "#e2e8f0"),
         buildStatRow("🟢 ออนไลน์", `${online} เครื่อง`, "#4ade80"),
-        buildStatRow("🔴 ออฟไลน์", `${offline} เครื่อง`, offline > 0 ? "#f87171" : "#4ade80"),
+        buildStatRow(
+          "🔴 ออฟไลน์",
+          `${offline} เครื่อง`,
+          offline > 0 ? "#f87171" : "#4ade80",
+        ),
         buildStatRow("⚡ ใช้งานอยู่", `${login} เครื่อง`, "#60a5fa"),
         buildStatRow("🏫 โรงเรียน", `${totalSchools} แห่ง`, "#c084fc"),
         { type: "separator", margin: "sm", color: "#334155" },
@@ -116,13 +177,46 @@ function buildSummaryBubble(stats: {
               type: "box",
               layout: "horizontal",
               contents: [
-                { type: "text", text: "อัตราออนไลน์", size: "xs", color: "#94a3b8", flex: 3 },
-                { type: "text", text: `${onlineRate}%`, size: "xs", color, weight: "bold", align: "end", flex: 2 },
+                {
+                  type: "text",
+                  text: "อัตราออนไลน์",
+                  size: "xs",
+                  color: "#94a3b8",
+                  flex: 3,
+                },
+                {
+                  type: "text",
+                  text: `${onlineRate}%`,
+                  size: "xs",
+                  color,
+                  weight: "bold",
+                  align: "end",
+                  flex: 2,
+                },
               ],
             },
-            { type: "text", text: progressBar, size: "xs", color, margin: "xs" },
+            {
+              type: "text",
+              text: progressBar,
+              size: "xs",
+              color,
+              margin: "xs",
+            },
           ],
         },
+        ...(hiddenGroupCount > 0
+          ? [
+              { type: "separator", margin: "sm", color: "#334155" },
+              {
+                type: "text",
+                text: `หมายเหตุ: มีอีก ${hiddenGroupCount} กลุ่มแอปที่ไม่ได้แสดงในรายงานนี้`,
+                size: "xxs",
+                color: "#94a3b8",
+                wrap: true,
+                margin: "sm",
+              },
+            ]
+          : []),
       ],
     },
     footer: {
@@ -131,7 +225,13 @@ function buildSummaryBubble(stats: {
       backgroundColor: "#0f172a",
       paddingAll: "8px",
       contents: [
-        { type: "text", text: "Auto Report · SchoolBright", size: "xxs", color: "#475569", align: "center" },
+        {
+          type: "text",
+          text: "Auto Report · SchoolBright",
+          size: "xxs",
+          color: "#475569",
+          align: "center",
+        },
       ],
     },
   };
@@ -147,7 +247,8 @@ function buildAppGroupBubble(group: {
   total: number;
   onlineRate: number;
 }): object {
-  const { appName, appVersion, online, offline, login, total, onlineRate } = group;
+  const { appName, appVersion, online, offline, login, total, onlineRate } =
+    group;
   const { color, label, headerBg } = resolveStatusStyle(offline);
   const progressBar = buildProgressBar(onlineRate);
 
@@ -160,7 +261,14 @@ function buildAppGroupBubble(group: {
       backgroundColor: "#0f172a",
       paddingAll: "14px",
       contents: [
-        { type: "text", text: appName, size: "sm", color: "#f8fafc", weight: "bold", wrap: true },
+        {
+          type: "text",
+          text: appName,
+          size: "sm",
+          color: "#f8fafc",
+          weight: "bold",
+          wrap: true,
+        },
         {
           type: "box",
           layout: "horizontal",
@@ -176,7 +284,13 @@ function buildAppGroupBubble(group: {
               paddingStart: "6px",
               paddingEnd: "6px",
               contents: [
-                { type: "text", text: `v${appVersion}`, size: "xxs", color: "#bfdbfe", weight: "bold" },
+                {
+                  type: "text",
+                  text: `v${appVersion}`,
+                  size: "xxs",
+                  color: "#bfdbfe",
+                  weight: "bold",
+                },
               ],
             },
           ],
@@ -189,7 +303,14 @@ function buildAppGroupBubble(group: {
       backgroundColor: headerBg,
       paddingAll: "8px",
       contents: [
-        { type: "text", text: label, color: "#ffffff", size: "xs", weight: "bold", align: "center" },
+        {
+          type: "text",
+          text: label,
+          color: "#ffffff",
+          size: "xs",
+          weight: "bold",
+          align: "center",
+        },
       ],
     },
     body: {
@@ -201,7 +322,11 @@ function buildAppGroupBubble(group: {
       contents: [
         buildStatRow("📊 ทั้งหมด", `${total} เครื่อง`, "#e2e8f0"),
         buildStatRow("🟢 ออนไลน์", `${online} เครื่อง`, "#4ade80"),
-        buildStatRow("🔴 ออฟไลน์", `${offline} เครื่อง`, offline > 0 ? "#f87171" : "#4ade80"),
+        buildStatRow(
+          "🔴 ออฟไลน์",
+          `${offline} เครื่อง`,
+          offline > 0 ? "#f87171" : "#4ade80",
+        ),
         buildStatRow("⚡ ใช้งานอยู่", `${login} เครื่อง`, "#60a5fa"),
         { type: "separator", margin: "sm", color: "#334155" },
         {
@@ -214,11 +339,31 @@ function buildAppGroupBubble(group: {
               type: "box",
               layout: "horizontal",
               contents: [
-                { type: "text", text: "อัตราออนไลน์", size: "xs", color: "#94a3b8", flex: 3 },
-                { type: "text", text: `${onlineRate}%`, size: "xs", color, weight: "bold", align: "end", flex: 2 },
+                {
+                  type: "text",
+                  text: "อัตราออนไลน์",
+                  size: "xs",
+                  color: "#94a3b8",
+                  flex: 3,
+                },
+                {
+                  type: "text",
+                  text: `${onlineRate}%`,
+                  size: "xs",
+                  color,
+                  weight: "bold",
+                  align: "end",
+                  flex: 2,
+                },
               ],
             },
-            { type: "text", text: progressBar, size: "xs", color, margin: "xs" },
+            {
+              type: "text",
+              text: progressBar,
+              size: "xs",
+              color,
+              margin: "xs",
+            },
           ],
         },
       ],
@@ -245,8 +390,19 @@ export function buildDeviceStatusFlexMessage(stats: {
     onlineRate: number;
   }>;
 }): object {
-  const summaryBubble = buildSummaryBubble(stats);
-  const appBubbles = (stats.appGroups ?? []).map(buildAppGroupBubble);
+  const maxAppBubbles = Math.max(LINE_FLEX_MAX_BUBBLES - 1, 0);
+  const allGroups = stats.appGroups ?? [];
+  const displayedGroups = allGroups.slice(0, maxAppBubbles);
+  const hiddenGroupCount = Math.max(
+    allGroups.length - displayedGroups.length,
+    0,
+  );
+
+  const summaryBubble = buildSummaryBubble({
+    ...stats,
+    hiddenGroupCount,
+  });
+  const appBubbles = displayedGroups.map(buildAppGroupBubble);
 
   return {
     type: "flex",
