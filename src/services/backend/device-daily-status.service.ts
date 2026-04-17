@@ -67,6 +67,7 @@ export const DeviceDailyStatusService = {
     const {
       page = 1,
       limit = 10,
+      schoolId,
       isOnline,
       isLogin,
       startDate,
@@ -82,9 +83,14 @@ export const DeviceDailyStatusService = {
     // สร้าง where clause ตาม filter ที่ได้รับ
     const where: any = {};
 
-    // หมายเหตุ: การกรอง Online จะทำที่ Memory หลังจากดึงข้อมูลมาแล้ว 
+    // กรองตาม SchoolID
+    if (schoolId !== undefined && schoolId !== "") {
+      where.SchoolID = Number(schoolId);
+    }
+
+    // หมายเหตุ: การกรอง Online จะทำที่ Memory หลังจากดึงข้อมูลมาแล้ว
     // เพราะต้องคำนวณสถานะ Dynamic (Heartbeat 15 นาที) ซึ่ง Prisma กรองด้วย Logic นี้ตรงๆ ไม่ได้เหมาะสมที่สุด
-    
+
     if (isLogin !== undefined && isLogin !== "") {
       where.Login = String(isLogin) === "true";
     }
@@ -103,7 +109,7 @@ export const DeviceDailyStatusService = {
 
     // ดึงข้อมูลทั้งหมดที่เข้าข่าย (ยกเว้น Online Filter) เพื่อมาคำนวณ Online แบบ Dynamic
     // หากมีการกรอง Online เราจะดึงข้อมูลมาทั้งหมดก่อน (หรือก้อนใหญ่ขึ้น) แล้วค่อย Filter + Paginate
-    
+
     // ถ้าไม่มีการกรอง Online ให้ทำงานแบบปกติ (Paginate ที่ DB)
     if (isOnline === undefined || isOnline === "") {
       const [total, rawData] = await Promise.all([
@@ -120,7 +126,9 @@ export const DeviceDailyStatusService = {
       const FIFTEEN_MIN_IN_MS = 15 * 60 * 1000;
 
       const data = rawData.map((device) => {
-        const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
+        const onlineTime = device.OnlineTime
+          ? new Date(device.OnlineTime)
+          : null;
         const isOnlineDynamic =
           device.Online === true ||
           (onlineTime
@@ -157,7 +165,9 @@ export const DeviceDailyStatusService = {
 
     const filteredData = allMatchingDevices
       .map((device) => {
-        const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
+        const onlineTime = device.OnlineTime
+          ? new Date(device.OnlineTime)
+          : null;
         const isOnlineDynamic =
           device.Online === true ||
           (onlineTime

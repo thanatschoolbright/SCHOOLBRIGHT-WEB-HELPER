@@ -10,6 +10,7 @@ export async function POST(request: NextRequest) {
     const options: FindAllDeviceStatusOptions = {
       page: body.page,
       limit: body.limit,
+      schoolId: body.schoolId,
       isOnline: body.isOnline,
       isLogin: body.isLogin,
       startDate: body.startDate,
