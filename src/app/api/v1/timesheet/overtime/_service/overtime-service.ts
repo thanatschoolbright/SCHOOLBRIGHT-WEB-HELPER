@@ -206,6 +206,26 @@ export async function createOvertimeWithNotification(
     // 5. สร้างเนื้อหา Email (HTML Template)
     const emailSubject = `[Overtime Request] มีการขออนุมัติ OT ใหม่จาก ${requesterInfo.fullName}`;
 
+    // ── ดึงชื่อ assignee จาก DB เพื่อแสดงในตาราง (แทนที่จะแสดง ID ดิบ) ──
+    const assigneeIds = (payload.descriptions ?? [])
+      .map((d) => d.assignee)
+      .filter((a): a is string | number => a !== undefined && a !== null && !isNaN(Number(a)))
+      .map(Number);
+
+    const assigneeMap = new Map<number, string>();
+    if (assigneeIds.length > 0) {
+      const assigneeUsers = await PrismaTimesheet.user.findMany({
+        where: { id: { in: assigneeIds } },
+        select: { id: true, firstname_th: true, lastname_th: true, nickname: true },
+      });
+      for (const u of assigneeUsers) {
+        const name = `${(u as any).firstname_th ?? ""} ${(u as any).lastname_th ?? ""}`.trim()
+          || (u as any).nickname
+          || String(u.id);
+        assigneeMap.set(u.id, name);
+      }
+    }
+
     // ── สร้าง rows ของตารางรายการงาน ──
     const totalHours = (payload.descriptions ?? []).reduce(
       (sum, d) => sum + (Number(d.duration) || 0),
@@ -214,7 +234,11 @@ export async function createOvertimeWithNotification(
 
     const descriptionRows = (payload.descriptions ?? [])
       .map(
-        (desc, idx) => `
+        (desc, idx) => {
+          const assigneeName = desc.assignee && !isNaN(Number(desc.assignee))
+            ? (assigneeMap.get(Number(desc.assignee)) ?? String(desc.assignee))
+            : (desc.assignee ? String(desc.assignee) : "—");
+          return `
         <tr style="background-color: ${idx % 2 === 0 ? "#ffffff" : "#fafafa"};">
           <td style="padding: 14px 16px; font-size: 13px; color: #374151; border-bottom: 1px solid #f1f5f9; white-space: nowrap;">
             ${dayjs(desc.date).format("DD/MM/YYYY")}
@@ -231,9 +255,10 @@ export async function createOvertimeWithNotification(
             ${desc.description ?? "-"}
           </td>
           <td style="padding: 14px 16px; font-size: 12px; color: #6b7280; border-bottom: 1px solid #f1f5f9; white-space: nowrap;">
-            ${desc.assignee ? String(desc.assignee) : "—"}
+            ${assigneeName}
           </td>
-        </tr>`,
+        </tr>`;
+        },
       )
       .join("");
 
@@ -521,6 +546,25 @@ export async function updateOvertimeStatusWithNotification(
         return sum + h;
       }, 0);
 
+      // ดึงชื่อ assignee จาก DB เพื่อแสดงชื่อจริงแทน ID
+      const statusEmailAssigneeIds = descs
+        .map((d) => d.assignee)
+        .filter((a): a is string => !!a && !isNaN(Number(a)))
+        .map(Number);
+      const statusEmailAssigneeMap = new Map<number, string>();
+      if (statusEmailAssigneeIds.length > 0) {
+        const assigneeUsers = await PrismaTimesheet.user.findMany({
+          where: { id: { in: statusEmailAssigneeIds } },
+          select: { id: true, firstname_th: true, lastname_th: true, nickname: true },
+        });
+        for (const au of assigneeUsers) {
+          const name = `${(au as any).firstname_th ?? ""} ${(au as any).lastname_th ?? ""}`.trim()
+            || (au as any).nickname
+            || String(au.id);
+          statusEmailAssigneeMap.set(au.id, name);
+        }
+      }
+
       const descRows = descs
         .map((d, idx) => {
           const dateStr = d.date ? dayjs(d.date).format("DD/MM/YYYY") : "-";
@@ -533,6 +577,9 @@ export async function updateOvertimeStatusWithNotification(
               ? d.duration.toNumber()
               : Number(d.duration ?? 0);
           const isEven = idx % 2 === 0;
+          const assigneeName = d.assignee && !isNaN(Number(d.assignee))
+            ? (statusEmailAssigneeMap.get(Number(d.assignee)) ?? String(d.assignee))
+            : (d.assignee || "-");
           return `
           <tr style="background-color:${isEven ? "#ffffff" : "#f8fafc"};">
             <td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;color:#374151;font-size:13px;text-align:center;font-weight:600;color:#6366f1;">${String(
@@ -544,7 +591,7 @@ export async function updateOvertimeStatusWithNotification(
               d.description || "-"
             }</td>
             <td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;color:#374151;font-size:13px;">${
-              d.assignee || "-"
+              assigneeName
             }</td>
             <td style="padding:12px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;text-align:center;font-weight:700;color:${
               st.color
