@@ -40,7 +40,7 @@
       "version_control": "Check All System Versions",
       "all_server_status": "All Server Status Report",
       "server_status": "Server Status Report",
-      "online_status": "Online Connection Report",
+      "check_device_status": "Check Device Status",
       "offline_sync_status": "Offline Sync Status",
       "transaction_log": "School Transaction Logs",
       "heartbeats": "Bot Heartbeat Monitoring",

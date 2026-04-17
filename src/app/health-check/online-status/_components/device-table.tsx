@@ -31,36 +31,81 @@ import {
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import { useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { DeviceStatusData } from "../_services/online-status-service";
 import { useOnlineStatusStore } from "../_state/online-status-store";
 
+// ตั้งค่า Day.js ให้จัดการ UTC และ Timezone
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 const { Text: AntText } = Typography;
 
 // คืนค่าสีและ label ตามสถานะ Online/Offline
-const getNetworkStatus = (isOnline: boolean) =>
-  isOnline
-    ? { label: "ออนไลน์", color: "#16a34a", bg: "#dcfce7", border: "#86efac", dot: "success" as const }
-    : { label: "ออฟไลน์", color: "#dc2626", bg: "#fee2e2", border: "#fca5a5", dot: "error" as const };
+const getNetworkStatus = (isOnline: boolean, onlineTime: string | null) => {
+  // คำนวณแบบ Dynamic: ถ้า Online เป็น true หรือมีการส่ง Heartbeat มาใน 15 นาทีล่าสุด (ปรับตาม API)
+  const isOnlineDynamic =
+    isOnline ||
+    (onlineTime
+      ? dayjs().diff(dayjs.utc(onlineTime).local(), "minute") <= 15
+      : false);
+
+  return isOnlineDynamic
+    ? {
+        label: "ออนไลน์",
+        color: "#16a34a",
+        bg: "#dcfce7",
+        border: "#86efac",
+        dot: "success" as const,
+      }
+    : {
+        label: "ออฟไลน์",
+        color: "#dc2626",
+        bg: "#fee2e2",
+        border: "#fca5a5",
+        dot: "error" as const,
+      };
+};
 
 // คืนค่าสีและ label ตามสถานะ Login
 const getSessionStatus = (isLogin: boolean) =>
   isLogin
-    ? { label: "กำลังใช้งาน", color: "#2563eb", bg: "#dbeafe", border: "#93c5fd" }
-    : { label: "ออกระบบแล้ว", color: "#6b7280", bg: "#f3f4f6", border: "#d1d5db" };
+    ? {
+        label: "กำลังใช้งาน",
+        color: "#2563eb",
+        bg: "#dbeafe",
+        border: "#93c5fd",
+      }
+    : {
+        label: "ออกระบบแล้ว",
+        color: "#6b7280",
+        bg: "#f3f4f6",
+        border: "#d1d5db",
+      };
 
 // แสดงเวลาในรูปแบบ dd/mm/yyyy HH:mm
-const FormatDateTime: React.FC<{ time: string | null; prefix?: string }> = ({ time, prefix = "" }) => {
+const FormatDateTime: React.FC<{ time: string | null; prefix?: string }> = ({
+  time,
+  prefix = "",
+}) => {
   const { token } = theme.useToken();
-  if (!time) return <AntText type="secondary" style={{ fontSize: 11 }}>—</AntText>;
+  if (!time)
+    return (
+      <AntText type="secondary" style={{ fontSize: 11 }}>
+        —
+      </AntText>
+    );
   return (
     <span
       className="inline-flex items-center gap-1"
       style={{ fontSize: 11, color: token.colorTextTertiary }}
     >
       <ClockCircleOutlined style={{ fontSize: 10 }} />
-      {prefix}{dayjs(time).format("DD/MM/YYYY HH:mm")}
+      {prefix}
+      {dayjs.utc(time).local().format("DD/MM/YYYY HH:mm")}
     </span>
   );
 };
@@ -70,12 +115,17 @@ const FormatDateTime: React.FC<{ time: string | null; prefix?: string }> = ({ ti
  */
 const DeviceTable: React.FC = () => {
   const { token } = theme.useToken();
-  const { isFetching, deviceList, pagination, fetchData } = useOnlineStatusStore();
+  const { isFetching, deviceList, pagination, fetchData } =
+    useOnlineStatusStore();
 
   const schoolListState = useAppSelector((state) => state.callSchoolList);
   const schoolList = useMemo(() => {
-    if (Array.isArray(schoolListState.response)) return schoolListState.response;
-    if (schoolListState.response && Array.isArray((schoolListState.response as any).data)) {
+    if (Array.isArray(schoolListState.response))
+      return schoolListState.response;
+    if (
+      schoolListState.response &&
+      Array.isArray((schoolListState.response as any).data)
+    ) {
       return (schoolListState.response as any).data;
     }
     return [];
@@ -96,11 +146,19 @@ const DeviceTable: React.FC = () => {
   };
 
   // สถิติรวมจาก deviceList ปัจจุบัน
-  const stats = useMemo(() => ({
-    online: deviceList.filter((d) => d.Online).length,
-    offline: deviceList.filter((d) => !d.Online).length,
-    active: deviceList.filter((d) => d.Login).length,
-  }), [deviceList]);
+  const stats = useMemo(() => {
+    const calcOnline = (d: DeviceStatusData) =>
+      d.Online ||
+      (d.OnlineTime
+        ? dayjs().diff(dayjs.utc(d.OnlineTime).local(), "minute") <= 15
+        : false);
+
+    return {
+      online: deviceList.filter(calcOnline).length,
+      offline: deviceList.filter((d) => !calcOnline(d)).length,
+      active: deviceList.filter((d) => d.Login).length,
+    };
+  }, [deviceList]);
 
   const columns: ColumnsType<DeviceStatusData> = [
     {
@@ -114,25 +172,36 @@ const DeviceTable: React.FC = () => {
       key: "SchoolID",
       width: 280,
       sorter: (a, b) => {
-        const aName = getSchoolName(a.SchoolID)?.SchoolName ?? String(a.SchoolID);
-        const bName = getSchoolName(b.SchoolID)?.SchoolName ?? String(b.SchoolID);
+        const aName =
+          getSchoolName(a.SchoolID)?.SchoolName ?? String(a.SchoolID);
+        const bName =
+          getSchoolName(b.SchoolID)?.SchoolName ?? String(b.SchoolID);
         return aName.localeCompare(bName, "th");
       },
       render: (schoolId: number, record: DeviceStatusData) => {
+        const net = getNetworkStatus(record.Online, record.OnlineTime);
         const school = getSchoolName(schoolId);
-        const net = getNetworkStatus(record.Online);
         const initials = school?.SchoolName?.charAt(0) ?? "#";
+        const isOnlineDynamic =
+          record.Online ||
+          (record.OnlineTime
+            ? dayjs().diff(dayjs.utc(record.OnlineTime).local(), "minute") <= 15
+            : false);
         return (
           <div className="flex items-center gap-3">
             <div
               className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm relative"
-              style={{ background: net.bg, color: net.color, border: `1px solid ${net.border}` }}
+              style={{
+                background: net.bg,
+                color: net.color,
+                border: `1px solid ${net.border}`,
+              }}
             >
               {initials}
               <span
                 className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
                 style={{
-                  background: record.Online ? "#22c55e" : "#ef4444",
+                  background: isOnlineDynamic ? "#22c55e" : "#ef4444",
                   borderColor: token.colorBgContainer,
                 }}
               />
@@ -140,7 +209,9 @@ const DeviceTable: React.FC = () => {
             <div className="flex flex-col min-w-0">
               <AntText
                 strong
-                ellipsis={{ tooltip: school?.SchoolName ?? `โรงเรียน #${schoolId}` }}
+                ellipsis={{
+                  tooltip: school?.SchoolName ?? `โรงเรียน #${schoolId}`,
+                }}
                 style={{ fontSize: 13, maxWidth: 190 }}
               >
                 {school?.SchoolName ?? `โรงเรียน #${schoolId}`}
@@ -178,7 +249,9 @@ const DeviceTable: React.FC = () => {
             }}
             onClick={() => handleCopy(deviceId, "รหัสเครื่อง")}
           >
-            <BarcodeOutlined style={{ color: token.colorPrimary, fontSize: 13 }} />
+            <BarcodeOutlined
+              style={{ color: token.colorPrimary, fontSize: 13 }}
+            />
             <code
               className="text-xs font-mono flex-1 truncate group-hover:text-blue-500 transition-colors"
               style={{ color: token.colorText }}
@@ -206,7 +279,9 @@ const DeviceTable: React.FC = () => {
       render: (_: any, record: DeviceStatusData) => (
         <div className="flex flex-col gap-1.5">
           <span className="flex items-center gap-1.5" style={{ fontSize: 13 }}>
-            <AppstoreOutlined style={{ color: token.colorTextQuaternary, fontSize: 12 }} />
+            <AppstoreOutlined
+              style={{ color: token.colorTextQuaternary, fontSize: 12 }}
+            />
             <AntText style={{ fontSize: 13 }}>{record.AppName || "—"}</AntText>
           </span>
           {record.AppVersion && (
@@ -242,7 +317,12 @@ const DeviceTable: React.FC = () => {
       align: "center",
       sorter: (a, b) => Number(b.Online) - Number(a.Online),
       render: (isOnline: boolean, record: DeviceStatusData) => {
-        const net = getNetworkStatus(isOnline);
+        const net = getNetworkStatus(isOnline, record.OnlineTime);
+        const isOnlineDynamic =
+          isOnline ||
+          (record.OnlineTime
+            ? dayjs().diff(dayjs.utc(record.OnlineTime).local(), "minute") <= 15
+            : false);
         return (
           <div className="flex flex-col items-center gap-1.5">
             <div
@@ -253,7 +333,7 @@ const DeviceTable: React.FC = () => {
                 border: `1px solid ${net.border}`,
               }}
             >
-              {isOnline ? (
+              {isOnlineDynamic ? (
                 <WifiOutlined style={{ fontSize: 11 }} />
               ) : (
                 <DisconnectOutlined style={{ fontSize: 11 }} />
@@ -318,7 +398,9 @@ const DeviceTable: React.FC = () => {
       render: (tstamp: string) => (
         <div className="flex flex-col gap-0.5">
           <AntText style={{ fontSize: 13 }}>
-            {tstamp ? dayjs(tstamp).format("DD/MM/YYYY HH:mm") : "—"}
+            {tstamp
+              ? dayjs.utc(tstamp).local().format("DD/MM/YYYY HH:mm")
+              : "—"}
           </AntText>
         </div>
       ),
@@ -346,7 +428,11 @@ const DeviceTable: React.FC = () => {
   return (
     <Card
       styles={{ body: { padding: 0 } }}
-      style={{ borderRadius: 16, overflow: "hidden", border: `1px solid ${token.colorBorderSecondary}` }}
+      style={{
+        borderRadius: 16,
+        overflow: "hidden",
+        border: `1px solid ${token.colorBorderSecondary}`,
+      }}
     >
       {/* Header */}
       <div
@@ -358,7 +444,9 @@ const DeviceTable: React.FC = () => {
             className="w-9 h-9 rounded-xl flex items-center justify-center"
             style={{ background: token.colorPrimaryBg }}
           >
-            <DesktopOutlined style={{ color: token.colorPrimary, fontSize: 16 }} />
+            <DesktopOutlined
+              style={{ color: token.colorPrimary, fontSize: 16 }}
+            />
           </div>
           <div>
             <AntText strong style={{ fontSize: 15 }}>
@@ -375,7 +463,9 @@ const DeviceTable: React.FC = () => {
                 {stats.offline} ออฟไลน์
               </AntText>
               <span style={{ color: token.colorBorderSecondary }}>·</span>
-              <ThunderboltFilled style={{ fontSize: 10, color: token.colorPrimary }} />
+              <ThunderboltFilled
+                style={{ fontSize: 10, color: token.colorPrimary }}
+              />
               <AntText type="secondary" style={{ fontSize: 11 }}>
                 {stats.active} กำลังใช้งาน
               </AntText>
@@ -419,7 +509,8 @@ const DeviceTable: React.FC = () => {
           style: { padding: "12px 20px", margin: 0 },
           showTotal: (total, range) => (
             <span style={{ fontSize: 12, color: token.colorTextSecondary }}>
-              แสดง {range[0].toLocaleString()}–{range[1].toLocaleString()} จาก {total.toLocaleString()} รายการ
+              แสดง {range[0].toLocaleString()}–{range[1].toLocaleString()} จาก{" "}
+              {total.toLocaleString()} รายการ
             </span>
           ),
         }}
@@ -428,19 +519,32 @@ const DeviceTable: React.FC = () => {
         }
         scroll={{ x: 1200 }}
         size="middle"
-        rowClassName={(record) =>
-          record.Online
+        rowClassName={(record) => {
+          const isOnlineDynamic =
+            record.Online ||
+            (record.OnlineTime
+              ? dayjs().diff(dayjs.utc(record.OnlineTime).local(), "minute") <=
+                15
+              : false);
+          return isOnlineDynamic
             ? "hover:bg-green-50/30 transition-colors"
-            : "hover:bg-red-50/30 transition-colors"
-        }
+            : "hover:bg-red-50/30 transition-colors";
+        }}
         locale={{
           emptyText: (
-            <Flex vertical align="center" gap={12} style={{ padding: "48px 0" }}>
+            <Flex
+              vertical
+              align="center"
+              gap={12}
+              style={{ padding: "48px 0" }}
+            >
               <div
                 className="w-16 h-16 rounded-2xl flex items-center justify-center"
                 style={{ background: token.colorFillAlter }}
               >
-                <PoweroffOutlined style={{ fontSize: 28, color: token.colorBorder }} />
+                <PoweroffOutlined
+                  style={{ fontSize: 28, color: token.colorBorder }}
+                />
               </div>
               <div className="flex flex-col items-center gap-1">
                 <AntText strong style={{ color: token.colorTextSecondary }}>

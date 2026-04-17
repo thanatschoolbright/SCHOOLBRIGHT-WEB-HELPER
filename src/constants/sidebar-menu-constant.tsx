@@ -39,13 +39,13 @@ import {
   ScheduleOutlined,
   SearchOutlined,
   SettingOutlined,
+  SolutionOutlined,
   TagOutlined,
   TeamOutlined,
   ToolOutlined,
   UnlockOutlined,
   UserOutlined,
   WifiOutlined,
-  SolutionOutlined,
 } from "@ant-design/icons";
 import { useSession } from "next-auth/react";
 import { useCallback, useMemo } from "react";
@@ -208,7 +208,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
                 permission: PERMISSIONS.MENU_HEALTH_ALL,
               },
               {
-                label: t("health_check.children.online_status"),
+                label: t("health_check.children.check_device_status"),
                 href: "/health-check/online-status",
                 icon: <WifiOutlined />,
                 permission: PERMISSIONS.MENU_HEALTH_ONLINE,

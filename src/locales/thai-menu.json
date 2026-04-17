@@ -40,7 +40,7 @@
       "server_status": "สถานะเซิร์ฟ",
       "version_control": "เวอร์ชันระบบ",
       "all_server_status": "รายงานรวม",
-      "online_status": "สถานะออนไลน์",
+      "check_device_status": "ตรวจสอบสถานะอุปกรณ์",
       "offline_sync_status": "ซิงก์ออฟไลน์",
       "transaction_log": "ประวัติธุรกรรม",
       "heartbeats": "สถานะบอท",

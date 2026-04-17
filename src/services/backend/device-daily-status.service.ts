@@ -1,7 +1,7 @@
 import { PrismaORM } from "@/helpers/prisma";
 import {
+  FindAllDeviceStatusOptions,
   RequestDeviceDailyStatusTypes,
-  FindAllDeviceStatusOptions
 } from "@/types/device-daily-status.types";
 
 export const DeviceDailyStatusService = {
@@ -10,7 +10,7 @@ export const DeviceDailyStatusService = {
     schoolId: string,
     opts: {
       limit?: string;
-    } = { limit: "10" }
+    } = { limit: "10" },
   ) {
     const take = opts.limit ?? "10";
     return await PrismaORM.deviceDailyStatus.findMany({
@@ -29,7 +29,7 @@ export const DeviceDailyStatusService = {
     deviceId: string,
     opts: {
       limit?: string;
-    } = { limit: "10" }
+    } = { limit: "10" },
   ) {
     const take = opts.limit ?? "10";
     return await PrismaORM.deviceDailyStatus.findMany({
@@ -103,7 +103,7 @@ export const DeviceDailyStatusService = {
     }
 
     // ดึงข้อมูลและนับจำนวนแบบ parallel
-    const [total, data] = await Promise.all([
+    const [total, rawData] = await Promise.all([
       PrismaORM.deviceDailyStatus.count({ where }),
       PrismaORM.deviceDailyStatus.findMany({
         where,
@@ -112,6 +112,24 @@ export const DeviceDailyStatusService = {
         orderBy: { Tstamp: "desc" },
       }),
     ]);
+
+    // คำนวณสถานะ Online แบบ Dynamic (OnlineTime ไม่เกิน 15 นาที)
+    const now = new Date();
+    const FIFTEEN_MIN_IN_MS = 15 * 60 * 1000;
+
+    const data = rawData.map((device) => {
+      const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
+      const isOnlineDynamic =
+        device.Online === true ||
+        (onlineTime
+          ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
+          : false);
+
+      return {
+        ...device,
+        Online: isOnlineDynamic, // Override ค่า Online ด้วย Logic ใหม่
+      };
+    });
 
     return {
       data,
