@@ -1,6 +1,6 @@
 import { errorResponse, successResponse } from "@/helpers/api/response";
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
-import { buildDeviceStatusReport } from "@services/line/line-push.service";
+import { buildDeviceStatusReport, buildSchoolStatusReport } from "@services/line/line-push.service";
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -105,6 +105,18 @@ export async function POST(request: NextRequest) {
           } catch {
             await replyMessage(event.replyToken, [
               { type: "text", text: "เกิดข้อผิดพลาดขณะดึงข้อมูลสถานะ กรุณาลองใหม่อีกครั้ง" },
+            ]);
+          }
+        }
+
+        // ค้นหาโรงเรียน — ข้อความที่ไม่ใช่คำสั่งพิเศษ ให้ถือว่าเป็น keyword ค้นชื่อโรงเรียน
+        if (text !== "สถานะ" && text !== "/luid" && text.length >= 2) {
+          try {
+            const messages = await buildSchoolStatusReport(text);
+            await replyMessage(event.replyToken, messages);
+          } catch {
+            await replyMessage(event.replyToken, [
+              { type: "text", text: "เกิดข้อผิดพลาดขณะค้นหาข้อมูลโรงเรียน กรุณาลองใหม่อีกครั้ง" },
             ]);
           }
         }

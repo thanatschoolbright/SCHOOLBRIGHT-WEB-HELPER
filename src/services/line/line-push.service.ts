@@ -387,7 +387,7 @@ function buildSchoolBlock(
   devices: { appName: string; appVersion: string; deviceId: string }[],
 ): string {
   const lines: string[] = [
-    `โรงเรียน${schoolName} (${schoolId})`,
+    `${schoolName} (${schoolId})`,
     `ออฟไลน์ ${devices.length} เครื่อง`,
     `─────────────────────`,
   ];
@@ -625,4 +625,127 @@ export async function buildDeviceStatusReport(): Promise<object[]> {
   }
 
   return messages;
+}
+
+// ค้นหาโรงเรียนแบบ Like และแสดงสถานะเครื่องทั้งหมด (ออนไลน์ + ออฟไลน์)
+export async function buildSchoolStatusReport(keyword: string): Promise<object[]> {
+  const now = new Date();
+  const reportTime = dayjs().format("DD/MM/YYYY HH:mm") + " น.";
+
+  // ค้นหาโรงเรียนที่ชื่อตรงกับ keyword (ตัดคำว่า "โรงเรียน" ออกก่อนเปรียบเทียบ)
+  const matchedSchools = await prisma.activeSchoolList.findMany({
+    where: { sCompany: { contains: keyword } },
+    select: { nCompany: true, sCompany: true },
+  });
+
+  if (matchedSchools.length === 0) {
+    return [
+      {
+        type: "text",
+        text: `ไม่พบโรงเรียนที่ตรงกับ "${keyword}"\nกรุณาลองใช้คำค้นหาอื่น`,
+      },
+    ];
+  }
+
+  const schoolIds = matchedSchools.map((s) => s.nCompany);
+  const schoolNameMap = new Map<number, string>(
+    matchedSchools.map((s) => [
+      s.nCompany,
+      // ตัดคำนำหน้า "โรงเรียน" ออกเพื่อป้องกันการแสดงซ้ำ
+      (s.sCompany ?? `โรงเรียน ${s.nCompany}`).replace(/^โรงเรียน/, "").trim(),
+    ]),
+  );
+
+  const allDevices = await prisma.deviceDailyStatus.findMany({
+    where: { SchoolID: { in: schoolIds } },
+    select: {
+      Online: true,
+      OnlineTime: true,
+      Login: true,
+      SchoolID: true,
+      DeviceID: true,
+      AppName: true,
+      AppVersion: true,
+    },
+  });
+
+  // จัดกลุ่มอุปกรณ์ตามโรงเรียน แยก online/offline
+  const schoolMap = new Map<
+    number,
+    {
+      schoolName: string;
+      online: { appName: string; appVersion: string; deviceId: string }[];
+      offline: { appName: string; appVersion: string; deviceId: string }[];
+    }
+  >();
+
+  for (const s of matchedSchools) {
+    schoolMap.set(s.nCompany, {
+      schoolName: schoolNameMap.get(s.nCompany) ?? `${s.nCompany}`,
+      online: [],
+      offline: [],
+    });
+  }
+
+  for (const device of allDevices) {
+    const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
+    const isOnline =
+      device.Online === true ||
+      (onlineTime ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS : false);
+
+    const entry = schoolMap.get(device.SchoolID);
+    if (!entry) continue;
+
+    const info = {
+      appName: device.AppName ?? "ไม่ระบุแอป",
+      appVersion: device.AppVersion ?? "-",
+      deviceId: device.DeviceID,
+    };
+    if (isOnline) entry.online.push(info);
+    else entry.offline.push(info);
+  }
+
+  const lines: string[] = [
+    `สถานะเครื่อง POS`,
+    `เวลา : ${reportTime}`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━`,
+  ];
+
+  for (const [schoolId, { schoolName, online, offline }] of Array.from(schoolMap.entries()).sort(([a], [b]) => a - b)) {
+    const total = online.length + offline.length;
+    lines.push(``);
+    lines.push(`${schoolName} (${schoolId})`);
+    lines.push(`รวม ${total} เครื่อง · ออนไลน์ ${online.length} · ออฟไลน์ ${offline.length}`);
+    lines.push(`─────────────────────`);
+
+    for (const { appName, appVersion, deviceId } of online) {
+      lines.push(`🟢 ${appName} v${appVersion}`);
+      lines.push(`   ${deviceId}`);
+    }
+    for (const { appName, appVersion, deviceId } of offline) {
+      lines.push(`🔴 ${appName} v${appVersion}`);
+      lines.push(`   ${deviceId}`);
+    }
+  }
+
+  // แบ่ง messages ถ้ายาวเกิน 5,000 ตัวอักษร
+  const fullText = lines.join("\n");
+  if (fullText.length <= LINE_TEXT_MAX) {
+    return [{ type: "text", text: fullText }];
+  }
+
+  const chunks: string[] = [];
+  let current = "";
+  for (const line of lines) {
+    const candidate = current ? current + "\n" + line : line;
+    if (candidate.length <= LINE_TEXT_MAX) {
+      current = candidate;
+    } else {
+      chunks.push(current);
+      current = line;
+    }
+  }
+  if (current) chunks.push(current);
+
+  return chunks.slice(0, 5).map((text) => ({ type: "text", text }));
 }
