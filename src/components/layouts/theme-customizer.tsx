@@ -179,8 +179,8 @@ export default function ThemeCustomizer() {
 
   return (
     <>
-      {/* Trigger Button — sticky ชิดขวากลางหน้า */}
-      <div className="fixed top-1/2 -translate-y-1/2 right-0 z-[1100]">
+      {/* Trigger Button — ปรับให้ลอยเหนือกราวด์และขยับเข้ามาจากขอบนิดหน่อยเพื่อให้รับกับความโค้งของ layout */}
+      <div className="fixed top-1/2 -translate-y-1/2 right-1.5 sm:right-2 z-[1100]">
         {/* NEW badge */}
         <motion.div
           className="absolute -top-3 -left-5 z-10 pointer-events-none"
@@ -224,7 +224,7 @@ export default function ThemeCustomizer() {
         <motion.button
           type="button"
           onClick={() => setOpen(true)}
-          className="relative flex items-center justify-center w-11 h-11 rounded-l-xl text-white border-none cursor-pointer outline-none"
+          className="relative flex items-center justify-center w-11 h-11 rounded-xl sm:rounded-2xl text-white border-none cursor-pointer outline-none shadow-lg shadow-orange-500/20"
           style={{ background: "#f97316" }}
           animate={{ x: [0, -3, 0] }}
           transition={{
@@ -233,7 +233,7 @@ export default function ThemeCustomizer() {
             repeatDelay: 3,
             ease: "easeInOut",
           }}
-          whileHover={{ width: 52, x: 0 }}
+          whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.93 }}
           title="ปรับแต่งเว็บไซต์"
         >
