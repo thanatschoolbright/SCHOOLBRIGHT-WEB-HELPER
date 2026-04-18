@@ -19,7 +19,7 @@ jobs:
           echo "Sending device status report to LINE..."
           response=$(curl -s -o /tmp/response_body.txt -w "%{http_code}" \
             -X GET \
-            "https://sb-helper.schoolbright.co/api/v1/application/line/cron-report")
+            "https://sb-helper.schoolbright.co/api/v1/hardware/machine-monitoring/channel/line")
 
           body=$(cat /tmp/response_body.txt)
           echo "HTTP Status: $response"
@@ -30,6 +30,44 @@ jobs:
             exit 0
           else
             echo "Failed to send LINE report (status: $response)"
+            exit 1
+          fi
+
+      - name: Send Device Status Alert to Discord
+        run: |
+          echo "Sending device status alert to Discord..."
+          response=$(curl -s -o /tmp/discord_response_body.txt -w "%{http_code}" \
+            -X GET \
+            "https://sb-helper.schoolbright.co/api/v1/hardware/machine-monitoring/channel/discord")
+
+          body=$(cat /tmp/discord_response_body.txt)
+          echo "HTTP Status: $response"
+          echo "Response: $body"
+
+          if [ "$response" -eq 200 ]; then
+            echo "Discord alert sent successfully"
+            exit 0
+          else
+            echo "Failed to send Discord alert (status: $response)"
+            exit 1
+          fi
+
+      - name: Send Device Status Report via Email
+        run: |
+          echo "Sending device status report via email..."
+          response=$(curl -s -o /tmp/email_response_body.txt -w "%{http_code}" \
+            -X GET \
+            "https://sb-helper.schoolbright.co/api/v1/hardware/machine-monitoring/channel/email")
+
+          body=$(cat /tmp/email_response_body.txt)
+          echo "HTTP Status: $response"
+          echo "Response: $body"
+
+          if [ "$response" -eq 200 ]; then
+            echo "Email report sent successfully"
+            exit 0
+          else
+            echo "Failed to send email report (status: $response)"
             exit 1
           fi
 

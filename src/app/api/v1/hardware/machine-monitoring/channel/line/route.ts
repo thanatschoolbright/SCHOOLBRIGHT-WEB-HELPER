@@ -6,9 +6,8 @@ import {
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
-// GET handler สำหรับ Vercel Cron Job — ส่งรายงานสถานะอุปกรณ์ไปยัง LINE Group ทุก 10 นาที
+// GET handler — ดึงข้อมูลจาก DB แล้วส่งรายงานสถานะอุปกรณ์ไปยัง LINE Group
 export async function GET(request: NextRequest) {
-  // ป้องกันการเรียกจากภายนอก ต้องมี Authorization header ตรงกับ CRON_SECRET
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
   if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {

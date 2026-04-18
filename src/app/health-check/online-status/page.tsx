@@ -10,6 +10,7 @@ import {
   DesktopOutlined,
   FilterFilled,
   GlobalOutlined,
+  MailOutlined,
   NotificationOutlined,
   SettingOutlined,
   SyncOutlined,
@@ -38,7 +39,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import DeviceTable from "./_components/device-table";
 import FilterSection from "./_components/filter-section";
@@ -101,6 +102,7 @@ export default function OnlineDeviceDashboard() {
 
   const [isNotifying, setIsNotifying] = useState(false);
   const [isNotifyingLine, setIsNotifyingLine] = useState(false);
+  const [isNotifyingEmail, setIsNotifyingEmail] = useState(false);
   const [lineGroups, setLineGroups] = useState<LineGroup[]>([]);
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
@@ -165,23 +167,12 @@ export default function OnlineDeviceDashboard() {
   // สถิติ Dashboard มาจาก API แยก ไม่ขึ้นกับ filter ปัจจุบัน
   const offlineCount = dashboard?.offline ?? 0;
 
-  // สร้าง school_map จาก Redux สำหรับส่งไปพร้อม Discord payload
-  const schoolMap = useMemo(() => {
-    const raw = schoolListState.response?.data?.data ?? [];
-    return Array.isArray(raw)
-      ? raw.map((s: any) => ({
-          SchoolID: Number(s.school_id ?? s.SchoolID ?? 0),
-          SchoolName: String(s.company_name ?? s.SchoolName ?? ""),
-        }))
-      : [];
-  }, [schoolListState.response?.data?.data]);
-
   // ส่งรายงานสถานะอุปกรณ์ไปยัง LINE Group ทันที
   const handleNotifyLine = async () => {
     try {
       setIsNotifyingLine(true);
       const res = await callApiService.get(
-        "/api/v1/application/line/cron-report",
+        "/api/v1/hardware/machine-monitoring/channel/line",
       );
       const data = res?.data;
       if (data?.status_code === 200 || data?.status === 200) {
@@ -210,77 +201,60 @@ export default function OnlineDeviceDashboard() {
     }
   };
 
-  // ดึงข้อมูลอุปกรณ์ทั้งหมดจาก DB (ไม่ใช้ pagination) แล้วส่งรายงานไปยัง Discord webhook
-  const handleNotifyDiscord = async () => {
+  // ดึงข้อมูลจาก DB แล้วส่งรายงานสถานะเครื่อง POS ทางอีเมล
+  const handleNotifyEmail = async () => {
     try {
-      setIsNotifying(true);
-
-      // ดึงข้อมูลทุกเครื่องจาก DB โดยไม่จำกัด pagination
-      // ใช้ limit สูงเพื่อให้ได้ครบทุกเครื่อง — API รองรับ
-      const fetchAllResponse = await callApiService.post(
-        "/api/v2/hardware/check-device-status",
-        { page: 1, limit: 9999 },
-      );
-
-      const fetchRes = fetchAllResponse?.data;
-      if (
-        !fetchRes ||
-        (fetchRes.status_code !== 200 && fetchRes.status !== 200)
-      ) {
-        throw new Error(fetchRes?.message_th ?? "ดึงข้อมูลอุปกรณ์ไม่สำเร็จ");
-      }
-
-      const allDevices: any[] = Array.isArray(fetchRes.data)
-        ? fetchRes.data
-        : [];
-      const totalAll = fetchRes.pagination?.total ?? allDevices.length;
-
-      if (allDevices.length === 0) {
-        setStatusModal({
-          open: true,
-          type: "error",
-          title: "ไม่มีข้อมูลอุปกรณ์",
-          message: "ไม่พบข้อมูลเครื่องใน Database กรุณาตรวจสอบการเชื่อมต่อ",
-        });
-        return;
-      }
-
-      // ส่งข้อมูลทั้งหมดไปยัง Discord
-      const response = await callApiService.post(
-        "/api/v1/hardware/machine-monitoring",
-        {
-          devices: allDevices,
-          school_map: schoolMap,
-          total_in_db: totalAll,
-        },
-      );
-
-      const res = response?.data;
-      if (res?.status_code === 200 || res?.status === 200) {
-        const d = res.data;
-        const emailNote = d?.email_sent
-          ? ` · ส่งอีเมลแจ้งเตือน narin@schoolbright.co แล้ว`
-          : d?.email_error
-          ? ` · ส่งอีเมลไม่สำเร็จ: ${d.email_error}`
-          : "";
+      setIsNotifyingEmail(true);
+      const res = await callApiService.get("/api/v1/hardware/machine-monitoring/channel/email");
+      const data = res?.data;
+      if (data?.status_code === 200 || data?.status === 200) {
+        const d = data.data;
         setStatusModal({
           open: true,
           type: "success",
-          title: "ส่งแจ้งเตือน Discord สำเร็จ",
-          message: `รายงานสถานะ ${
-            d?.total ?? allDevices.length
-          } เครื่อง · ออนไลน์ ${d?.online} · ออฟไลน์ ${
-            d?.offline
-          } เครื่อง ส่งไปยัง Discord เรียบร้อยแล้ว${emailNote}`,
+          title: "ส่งรายงานอีเมลสำเร็จ",
+          message: `รายงานสถานะ ${d?.total} เครื่อง · ออนไลน์ ${d?.online} · ออฟไลน์ ${d?.offline} เครื่อง ส่งทางอีเมลเรียบร้อยแล้ว`,
         });
       } else {
-        throw new Error(res?.message_th ?? "ส่งไม่สำเร็จ");
+        throw new Error(data?.message_th ?? "ส่งไม่สำเร็จ");
       }
     } catch (err: any) {
       setStatusModal({
         open: true,
         type: "error",
-        title: "ส่งแจ้งเตือนไม่สำเร็จ",
+        title: "ส่งรายงานอีเมลไม่สำเร็จ",
+        message:
+          err?.response?.data?.message_th ??
+          err?.message ??
+          "ไม่สามารถส่งรายงานทางอีเมลได้ในขณะนี้",
+      });
+    } finally {
+      setIsNotifyingEmail(false);
+    }
+  };
+
+  // ดึงข้อมูลจาก DB แล้วส่งรายงานไปยัง Discord webhook แบบกระชับ
+  const handleNotifyDiscord = async () => {
+    try {
+      setIsNotifying(true);
+      const res = await callApiService.get("/api/v1/hardware/machine-monitoring/channel/discord");
+      const data = res?.data;
+      if (data?.status_code === 200 || data?.status === 200) {
+        const d = data.data;
+        setStatusModal({
+          open: true,
+          type: "success",
+          title: "ส่งแจ้งเตือน Discord สำเร็จ",
+          message: `รายงานสถานะ ${d?.total} เครื่อง · ออนไลน์ ${d?.online} · ออฟไลน์ ${d?.offline} เครื่อง ส่งไปยัง Discord เรียบร้อยแล้ว`,
+        });
+      } else {
+        throw new Error(data?.message_th ?? "ส่งไม่สำเร็จ");
+      }
+    } catch (err: any) {
+      setStatusModal({
+        open: true,
+        type: "error",
+        title: "ส่งแจ้งเตือน Discord ไม่สำเร็จ",
         message:
           err?.response?.data?.message_th ??
           err?.message ??
@@ -522,6 +496,63 @@ export default function OnlineDeviceDashboard() {
                 }}
               >
                 <span>ส่งรายงานไปยัง Discord</span>
+                {offlineCount > 0 && (
+                  <div
+                    className="flex items-center justify-center"
+                    style={{
+                      background: "rgba(255, 255, 255, 0.2)",
+                      padding: "2px 8px",
+                      borderRadius: 6,
+                      fontSize: 11,
+                      marginLeft: 4,
+                      border: "1px solid rgba(255, 255, 255, 0.4)",
+                    }}
+                  >
+                    <NotificationOutlined
+                      style={{ marginRight: 4, fontSize: 10 }}
+                    />
+                    {offlineCount} ออฟไลน์
+                  </div>
+                )}
+              </Button>
+
+              {/* ปุ่มส่งรายงานทางอีเมล */}
+              <Button
+                icon={<MailOutlined />}
+                onClick={handleNotifyEmail}
+                loading={isNotifyingEmail}
+                style={{
+                  height: 44,
+                  padding: "0 20px",
+                  borderRadius: 12,
+                  fontWeight: 600,
+                  fontSize: 14,
+                  backgroundColor: isNotifyingEmail
+                    ? token.colorFillTertiary
+                    : "#ea580c",
+                  color: "#FFFFFF",
+                  border: "none",
+                  boxShadow: "0 4px 14px 0 rgba(234, 88, 12, 0.35)",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  if (!isNotifyingEmail) {
+                    e.currentTarget.style.backgroundColor = "#c2410c";
+                    e.currentTarget.style.transform = "translateY(-1px)";
+                    e.currentTarget.style.boxShadow =
+                      "0 6px 20px rgba(234, 88, 12, 0.45)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isNotifyingEmail) {
+                    e.currentTarget.style.backgroundColor = "#ea580c";
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow =
+                      "0 4px 14px 0 rgba(234, 88, 12, 0.35)";
+                  }
+                }}
+              >
+                <span>ส่งรายงานอีเมล</span>
                 {offlineCount > 0 && (
                   <div
                     className="flex items-center justify-center"
