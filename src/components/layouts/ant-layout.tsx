@@ -134,28 +134,24 @@ const getModernTheme = (
       },
       Card: {
         paddingLG: 28,
-        colorBgContainer: isDark
-          ? "rgba(30, 41, 59, 0.75)"
-          : "rgba(255, 255, 255, 0.85)",
-        colorBorderSecondary: isDark
-          ? "rgba(71, 85, 105, 0.5)"
-          : "rgba(226, 232, 240, 0.8)",
-        boxShadowTertiary: isDark
-          ? "0 1px 3px rgba(0,0,0,0.2), 0 8px 24px -4px rgba(0,0,0,0.35)"
-          : "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px -4px rgba(0,0,0,0.07)",
+        colorBgContainer: palette.bgContainer,
+        colorBorderSecondary: palette.border,
+        boxShadowTertiary: "none",
         headerBg: "transparent",
         headerFontSize: 16,
         headerFontSizeSM: 14,
       },
       Table: {
-        headerBg: isDark ? "#334155" : "#F8FAFC", // Brighter table header
+        headerBg: isDark ? "#1E293B" : "#F1F5F9",
+        headerColor: palette.textMain,
         headerSplitColor: "transparent",
         headerBorderRadius: 16,
         padding: 16,
+        colorBgContainer: palette.bgContainer,
       },
       Input: {
         activeShadow: "0 0 0 2px rgba(255, 140, 0, 0.1)",
-        colorBgContainer: isDark ? "rgba(15, 23, 42, 0.6)" : "#FFFFFF", // Brighter input background
+        colorBgContainer: isDark ? "#0F172A" : "#FFFFFF",
       },
       Select: {
         controlOutline: "none",
@@ -267,27 +263,19 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                  Card — Light Mode
                  ═══════════════════ */
               .ant-card {
-                background: rgba(255, 255, 255, 0.85) !important;
-                backdrop-filter: blur(12px) saturate(180%) !important;
-                -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
-                border: 1px solid rgba(226, 232, 240, 0.8) !important;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04),
-                  0 8px 24px -4px rgba(0, 0, 0, 0.07) !important;
-                transition: box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
-                  transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
-                  border-color 0.3s ease !important;
+                background: #ffffff !important;
+                border: 1px solid #e2e8f0 !important;
+                box-shadow: none !important;
+                transition: all 0.3s ease !important;
               }
               .ant-card:hover {
-                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05),
-                  0 16px 40px -8px rgba(0, 0, 0, 0.12) !important;
-                transform: translateY(-2px) !important;
-                border-color: rgba(203, 213, 225, 0.9) !important;
+                border-color: #cbd5e1 !important;
               }
 
               /* Card Header — Light */
               .ant-card .ant-card-head {
-                background: transparent !important;
-                border-bottom: 1px solid rgba(241, 245, 249, 1) !important;
+                background: #f8fafc !important;
+                border-bottom: 1px solid #e2e8f0 !important;
                 padding-inline: 24px !important;
                 min-height: 52px !important;
               }
@@ -303,8 +291,8 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
 
               /* Card Actions — Light */
               .ant-card .ant-card-actions {
-                background: rgba(248, 250, 252, 0.8) !important;
-                border-top: 1px solid rgba(241, 245, 249, 1) !important;
+                background: #f8fafc !important;
+                border-top: 1px solid #e2e8f0 !important;
               }
               .ant-card .ant-card-actions > li > span:hover {
                 color: #ff8c00 !important;
@@ -314,22 +302,18 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                  Card — Dark Mode
                  ══════════════════ */
               .dark .ant-card {
-                background: rgba(30, 41, 59, 0.75) !important;
-                border: 1px solid rgba(71, 85, 105, 0.5) !important;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2),
-                  0 8px 24px -4px rgba(0, 0, 0, 0.35) !important;
+                background: #1e293b !important;
+                border: 1px solid #334155 !important;
+                box-shadow: none !important;
               }
               .dark .ant-card:hover {
-                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25),
-                  0 16px 40px -8px rgba(0, 0, 0, 0.5),
-                  0 0 0 1px rgba(255, 140, 0, 0.08) !important;
-                border-color: rgba(100, 116, 139, 0.6) !important;
-                transform: translateY(-2px) !important;
+                border-color: #475569 !important;
               }
 
               /* Card Header — Dark */
               .dark .ant-card .ant-card-head {
-                border-bottom-color: rgba(51, 65, 85, 0.8) !important;
+                background: #0f172a !important;
+                border-bottom-color: #334155 !important;
               }
               .dark .ant-card .ant-card-head-title {
                 color: #f1f5f9 !important;
@@ -340,8 +324,8 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
 
               /* Card Actions — Dark */
               .dark .ant-card .ant-card-actions {
-                background: rgba(15, 23, 42, 0.4) !important;
-                border-top-color: rgba(51, 65, 85, 0.8) !important;
+                background: #0f172a !important;
+                border-top-color: #334155 !important;
               }
               .dark .ant-card .ant-card-actions > li > span:hover {
                 color: #fb923c !important;
@@ -349,16 +333,12 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
 
               /* glass-card utility (manual) */
               .glass-card {
-                background: var(--card-glass-bg) !important;
-                backdrop-filter: blur(12px) saturate(180%) !important;
-                -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+                background: var(--modal-bg) !important;
                 border: 1px solid var(--border) !important;
               }
 
               .glass-header {
-                background: var(--glass-bg) !important;
-                backdrop-filter: blur(1rem) saturate(180%);
-                -webkit-backdrop-filter: blur(1rem) saturate(180%);
+                background: var(--bg-layout) !important;
                 border-bottom: 1px solid var(--border);
               }
 
@@ -369,7 +349,7 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
               .ant-select,
               .ant-menu-item,
               .ant-table-row {
-                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                transition: all 0.3s ease !important;
               }
 
               /* Smooth selection color */
@@ -386,13 +366,27 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 text-transform: uppercase !important;
                 font-size: 13px !important;
                 letter-spacing: 0.05em !important;
-                color: var(--text-sub) !important;
+                color: var(--text-main) !important;
+                background: var(--borderSecondary) !important;
+              }
+              .ant-table-tbody > tr > td {
+                background: var(--modal-bg) !important;
+                border-bottom: 1px solid var(--border) !important;
               }
               .ant-table-tbody > tr:hover > td {
                 background: var(--borderSecondary) !important;
               }
+              .ant-table-cell-fix-left,
+              .ant-table-cell-fix-right {
+                background: var(--modal-bg) !important;
+                z-index: 2;
+              }
+              .ant-table-tbody > tr:hover > .ant-table-cell-fix-left,
+              .ant-table-tbody > tr:hover > .ant-table-cell-fix-right {
+                background: var(--borderSecondary) !important;
+              }
               .ant-table-row:hover {
-                transform: scale(1.002);
+                transform: none !important;
               }
 
               /* Scrollbar Refinement */
@@ -452,12 +446,13 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
 
               /* Global Component Polishing */
               .ant-table-wrapper .ant-table {
-                background: transparent !important;
+                background: var(--modal-bg) !important;
               }
               .ant-table-wrapper .ant-table-container {
                 border: 1px solid var(--table-border) !important;
                 border-radius: 16px !important;
                 overflow: hidden;
+                background: var(--modal-bg) !important;
               }
 
               /* ═══════════════════════════════════════
@@ -469,13 +464,12 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                  Modal portal is appended to body OUTSIDE .ant-theme-root,
                  so only the page wrapper gets blurred — modal stays sharp */
               .ant-theme-root {
-                transition: filter 0.35s cubic-bezier(0.25, 0.8, 0.25, 1),
-                  transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
-                will-change: filter;
+                transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+                will-change: transform;
               }
               body.ant-scrolling-effect .ant-theme-root {
-                filter: blur(8px) brightness(0.85) saturate(0.9);
-                transform: scale(0.985);
+                filter: none;
+                transform: scale(0.99);
                 pointer-events: none;
               }
 

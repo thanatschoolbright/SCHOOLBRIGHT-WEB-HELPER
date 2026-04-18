@@ -1,5 +1,6 @@
 "use client";
 
+import SummaryCard from "@/components/card/summary-card";
 import {
   BankOutlined,
   BarChartOutlined,
@@ -11,7 +12,7 @@ import {
   GlobalOutlined,
   InfoCircleOutlined,
   PieChartOutlined,
-  StarFilled,
+  RocketOutlined,
   TeamOutlined,
   TrophyOutlined,
 } from "@ant-design/icons";
@@ -20,12 +21,9 @@ import {
   Col,
   Flex,
   Modal,
-  Progress,
   Row,
   Space,
-  Statistic,
   Table,
-  Tag,
   theme,
   Tooltip,
   Typography,
@@ -41,6 +39,7 @@ import {
   LinearScale,
   Title,
 } from "chart.js";
+import { motion } from "framer-motion";
 import { useMemo } from "react";
 import { Bar, Doughnut } from "react-chartjs-2";
 import { useTranslation } from "react-i18next";
@@ -79,6 +78,10 @@ export default function ProvinceRankingModal({
 }: ProvinceRankingModalProps): JSX.Element {
   const { t: TRANSLATION } = useTranslation("translate");
   const { token } = theme.useToken();
+  const isDarkModeActive = useMemo(
+    () => token.colorBgBase !== "#ffffff",
+    [token.colorBgBase],
+  );
 
   // * ==========================================================================
   // * DATA PREPARATION
@@ -233,40 +236,55 @@ export default function ProvinceRankingModal({
         fixed: "left",
         render: (_value, _record, index) => {
           const rank = index + 1;
-          if (rank === 1)
-            return (
-              <TrophyOutlined
-                style={{
-                  color: "#FFD700",
-                  fontSize: 24,
-                  filter: "drop-shadow(0 2px 4px rgba(255, 215, 0, 0.4))",
-                }}
-              />
-            );
-          if (rank === 2)
-            return (
-              <TrophyOutlined style={{ color: "#C0C0C0", fontSize: 20 }} />
-            );
-          if (rank === 3)
-            return (
-              <TrophyOutlined style={{ color: "#CD7F32", fontSize: 18 }} />
-            );
           return (
-            <Flex
-              justify="center"
-              align="center"
-              style={{
-                width: 24,
-                height: 24,
-                borderRadius: "50%",
-                backgroundColor: token.colorFillSecondary,
-                color: token.colorTextSecondary,
-                fontSize: 12,
-                fontWeight: "bold",
-              }}
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: index * 0.05 }}
+              className="flex justify-center items-center"
             >
-              {rank}
-            </Flex>
+              {rank === 1 ? (
+                <div className="relative">
+                  <TrophyOutlined
+                    className="text-3xl"
+                    style={{
+                      color: "#FFD700",
+                      filter: "drop-shadow(0 0 8px rgba(255, 215, 0, 0.6))",
+                    }}
+                  />
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white animate-pulse" />
+                </div>
+              ) : rank === 2 ? (
+                <TrophyOutlined
+                  className="text-2xl"
+                  style={{
+                    color: "#C0C0C0",
+                    filter: "drop-shadow(0 0 6px rgba(192, 192, 192, 0.4))",
+                  }}
+                />
+              ) : rank === 3 ? (
+                <TrophyOutlined
+                  className="text-xl"
+                  style={{
+                    color: "#CD7F32",
+                    filter: "drop-shadow(0 0 4px rgba(205, 127, 50, 0.3))",
+                  }}
+                />
+              ) : (
+                <div
+                  className={`
+                    w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs transition-all
+                    ${
+                      isDarkModeActive
+                        ? "bg-white/5 text-white/40 border border-white/10"
+                        : "bg-slate-100 text-slate-400 border border-slate-200"
+                    }
+                  `}
+                >
+                  {rank}
+                </div>
+              )}
+            </motion.div>
           );
         },
       },
@@ -274,9 +292,21 @@ export default function ProvinceRankingModal({
         title: TRANSLATION("bypass_page.ranking.col_province"),
         dataIndex: "province",
         key: "province",
-        width: 150,
+        width: 180,
         fixed: "left",
-        render: (text) => <Text strong>{text}</Text>,
+        render: (text) => (
+          <div className="flex items-center gap-2 group">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+              <GlobalOutlined />
+            </div>
+            <Text
+              strong
+              className="text-[14px] group-hover:text-primary transition-colors"
+            >
+              {text}
+            </Text>
+          </div>
+        ),
       },
       {
         title: (
@@ -289,11 +319,20 @@ export default function ProvinceRankingModal({
         ),
         dataIndex: "totalSchools",
         key: "totalSchools",
-        width: 100,
+        width: 120,
         align: "right",
         sorter: (firstRecord, secondRecord) =>
           firstRecord.totalSchools - secondRecord.totalSchools,
-        render: (value) => <Text>{value.toLocaleString()}</Text>,
+        render: (value) => (
+          <div className="flex flex-col items-end px-2">
+            <Text className="text-[15px] font-black tabular-nums transition-colors duration-300 dark:text-white">
+              {value.toLocaleString()}
+            </Text>
+            <Text className="text-[9px] uppercase font-bold opacity-30 dark:text-white/50">
+              {TRANSLATION("bypass_page.ranking.total_institutions")}
+            </Text>
+          </div>
+        ),
       },
       {
         title: (
@@ -306,14 +345,22 @@ export default function ProvinceRankingModal({
         ),
         dataIndex: "activeSchools",
         key: "activeSchools",
-        width: 100,
+        width: 120,
         align: "right",
         sorter: (firstRecord, secondRecord) =>
           firstRecord.activeSchools - secondRecord.activeSchools,
         render: (value) => (
-          <Text type="success" strong>
-            {value.toLocaleString()}
-          </Text>
+          <div className="flex flex-col items-end px-2">
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
+              <Text className="text-[15px] font-black text-green-600 dark:text-green-400 tabular-nums">
+                {value.toLocaleString()}
+              </Text>
+            </div>
+            <Text className="text-[9px] uppercase font-bold opacity-30 mt-px dark:text-white/50">
+              {TRANSLATION("bypass_page.ranking.active_schools")}
+            </Text>
+          </div>
         ),
       },
       {
@@ -327,24 +374,33 @@ export default function ProvinceRankingModal({
         ),
         dataIndex: "activationRate",
         key: "activationRate",
-        width: 150,
+        width: 180,
         sorter: (firstRecord, secondRecord) =>
           firstRecord.activationRate - secondRecord.activationRate,
         render: (value) => (
           <Tooltip
-            title={`${value.toFixed(2)}% ${TRANSLATION("bypass_page.ranking.col_rate")}`}
+            title={`${value.toFixed(2)}% ${TRANSLATION(
+              "bypass_page.ranking.col_rate",
+            )}`}
           >
-            <Progress
-              percent={value}
-              size="small"
-              strokeColor={{
-                "0%": token.colorPrimary,
-                "100%": token.colorSuccess,
-              }}
-              format={(percent) => (
-                <span style={{ fontSize: 12 }}>{percent?.toFixed(0)}%</span>
-              )}
-            />
+            <div className="px-3">
+              <Flex justify="space-between" align="center" className="mb-1">
+                <Text className="text-[10px] uppercase font-bold opacity-40">
+                  {TRANSLATION("bypass_page.ranking.market_desc")}
+                </Text>
+                <Text className="text-[11px] font-black text-primary">
+                  {value.toFixed(1)}%
+                </Text>
+              </Flex>
+              <div className="h-1.5 w-full bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden p-0.5">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${value}%` }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                  className="h-full rounded-full bg-gradient-to-r from-primary to-blue-400"
+                />
+              </div>
+            </div>
           </Tooltip>
         ),
       },
@@ -352,11 +408,17 @@ export default function ProvinceRankingModal({
         title: TRANSLATION("bypass_page.ranking.col_clients"),
         dataIndex: "customerCount",
         key: "customerCount",
-        width: 100,
+        width: 110,
         align: "right",
         sorter: (firstRecord, secondRecord) =>
           firstRecord.customerCount - secondRecord.customerCount,
-        render: (value) => <Text style={{ color: "#3b82f6" }}>{value}</Text>,
+        render: (value) => (
+          <div className="px-3 py-1 rounded-xl bg-blue-500/5 border border-blue-500/10">
+            <Text className="text-blue-600 dark:text-blue-400 font-black tabular-nums">
+              {value}
+            </Text>
+          </div>
+        ),
       },
       {
         title: TRANSLATION("bypass_page.ranking.col_contracts"),
@@ -366,45 +428,51 @@ export default function ProvinceRankingModal({
         align: "right",
         sorter: (firstRecord, secondRecord) =>
           firstRecord.contractCount - secondRecord.contractCount,
-        render: (value) => <Text style={{ color: "#10b981" }}>{value}</Text>,
-      },
-      {
-        title: TRANSLATION("bypass_page.ranking.col_test"),
-        dataIndex: "testCount",
-        key: "testCount",
-        width: 100,
-        align: "right",
-        sorter: (firstRecord, secondRecord) =>
-          firstRecord.testCount - secondRecord.testCount,
-        render: (value) => <Text style={{ color: "#f59e0b" }}>{value}</Text>,
-      },
-      {
-        title: TRANSLATION("bypass_page.ranking.col_free"),
-        dataIndex: "freeCount",
-        key: "freeCount",
-        width: 100,
-        align: "right",
-        sorter: (firstRecord, secondRecord) =>
-          firstRecord.freeCount - secondRecord.freeCount,
-        render: (value) => <Text style={{ color: "#8b5cf6" }}>{value}</Text>,
+        render: (value) => (
+          <div className="px-3 py-1 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+            <Text className="text-emerald-600 dark:text-emerald-400 font-black tabular-nums">
+              {value}
+            </Text>
+          </div>
+        ),
       },
       {
         title: (
           <Space>
-            <CrownOutlined style={{ color: token.colorWarning }} />
+            <CrownOutlined className="text-amber-500" />
             <span>{TRANSLATION("bypass_page.ranking.col_grade_a")}</span>
           </Space>
         ),
         dataIndex: "gradeACount",
         key: "gradeACount",
-        width: 100,
+        width: 140,
         align: "center",
         sorter: (firstRecord, secondRecord) =>
           firstRecord.gradeACount - secondRecord.gradeACount,
         render: (value) => (
-          <Tag color="gold" bordered={false} style={{ fontWeight: 600 }}>
-            {value} {TRANSLATION("bypass_page.ranking.schools_unit")}
-          </Tag>
+          <div
+            className={`
+            px-4 py-1.5 rounded-2xl flex items-center justify-center gap-2 transition-all duration-300
+            ${
+              value > 0
+                ? "bg-gradient-to-br from-amber-400/20 to-orange-500/20 border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.1)] group-hover:scale-105"
+                : "bg-slate-100 dark:bg-white/5 border border-slate-200/50 dark:border-white/10 opacity-40"
+            }
+          `}
+          >
+            <Text className="font-black text-[14px] text-amber-600 dark:text-amber-400 transition-colors duration-300">
+              {value}
+            </Text>
+            <div
+              className={`px-1.5 py-0.5 rounded-lg text-[9px] font-black uppercase transition-colors duration-300 ${
+                value > 0
+                  ? "bg-amber-500 text-white"
+                  : "bg-slate-300 dark:bg-white/20 dark:text-white/50"
+              }`}
+            >
+              {TRANSLATION("bypass_page.ranking.grade_a")}
+            </div>
+          </div>
         ),
       },
       {
@@ -427,13 +495,23 @@ export default function ProvinceRankingModal({
           parseFloat(secondRecord.averageGrade),
         render: (value) => {
           const num = parseFloat(value);
-          const color =
-            num >= 3.5 ? "success" : num >= 2.5 ? "processing" : "error";
-          return <Tag color={color}>{value}</Tag>;
+          const colorClass =
+            num >= 3.5
+              ? "from-green-500 to-emerald-600"
+              : num >= 2.5
+              ? "from-blue-500 to-indigo-600"
+              : "from-rose-500 to-red-600";
+          return (
+            <div
+              className={`px-4 py-1 rounded-full bg-gradient-to-r ${colorClass} text-white font-black text-[13px] shadow-sm`}
+            >
+              {value}
+            </div>
+          );
         },
       },
     ],
-    [token, TRANSLATION],
+    [token, TRANSLATION, isDarkModeActive],
   );
 
   return (
@@ -491,216 +569,65 @@ export default function ProvinceRankingModal({
     >
       <Flex vertical gap={24}>
         {/* 1. Enhanced Summary Cards */}
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={8}>
-            <Card
-              variant="borderless"
-              styles={{
-                body: {
-                  borderRadius: 16,
-                  position: "relative",
-                  overflow: "hidden",
-                },
-              }}
-              style={{
-                boxShadow: token.boxShadowTertiary,
-              }}
-            >
-              <BankOutlined
-                style={{
-                  position: "absolute",
-                  right: -20,
-                  bottom: -20,
-                  opacity: 0.05,
-                  fontSize: 100,
-                  color: token.colorInfo,
-                  rotate: "12deg",
-                }}
-              />
-              <Statistic
-                title={
-                  <Space>
-                    <span>
-                      {TRANSLATION("bypass_page.ranking.stat_total_schools")}
-                    </span>
-                    <Tooltip
-                      title={TRANSLATION(
-                        "bypass_page.ranking.stat_total_schools_desc",
-                      )}
-                    >
-                      <InfoCircleOutlined
-                        style={{
-                          fontSize: 12,
-                          color: token.colorTextSecondary,
-                        }}
-                      />
-                    </Tooltip>
-                  </Space>
-                }
-                value={statistics.totalSchools}
-                prefix={<BankOutlined style={{ color: token.colorInfo }} />}
-                valueStyle={{
-                  fontWeight: 800,
-                  color: token.colorText,
-                  fontSize: 32,
-                }}
-                suffix={
-                  <Text type="secondary" style={{ fontSize: 14 }}>
-                    {TRANSLATION("bypass_page.ranking.schools_unit")}
-                  </Text>
-                }
-              />
-              <Tag color="blue" bordered={false} style={{ marginTop: 8 }}>
-                {TRANSLATION("bypass_page.ranking.tag_core_systems")}
-              </Tag>
-            </Card>
-          </Col>
-
-          <Col xs={24} sm={8}>
-            <Card
-              variant="borderless"
-              styles={{
-                body: {
-                  borderRadius: 16,
-                  position: "relative",
-                  overflow: "hidden",
-                },
-              }}
-              style={{
-                boxShadow: token.boxShadowTertiary,
-              }}
-            >
-              <CheckCircleOutlined
-                style={{
-                  position: "absolute",
-                  right: -20,
-                  bottom: -20,
-                  opacity: 0.05,
-                  fontSize: 100,
-                  color: token.colorSuccess,
-                  rotate: "12deg",
-                }}
-              />
-              <Statistic
-                title={
-                  <Space>
-                    <span>
-                      {TRANSLATION("bypass_page.ranking.stat_active_usage")}
-                    </span>
-                    <Tooltip
-                      title={TRANSLATION(
-                        "bypass_page.ranking.stat_active_usage_desc",
-                      )}
-                    >
-                      <InfoCircleOutlined
-                        style={{
-                          fontSize: 12,
-                          color: token.colorTextSecondary,
-                        }}
-                      />
-                    </Tooltip>
-                  </Space>
-                }
-                value={statistics.activeSchools}
-                prefix={
-                  <CheckCircleOutlined style={{ color: token.colorSuccess }} />
-                }
-                valueStyle={{
-                  fontWeight: 800,
-                  color: token.colorSuccess,
-                  fontSize: 32,
-                }}
-                suffix={
-                  <Text type="secondary" style={{ fontSize: 14 }}>
-                    (
-                    {(
-                      (statistics.activeSchools / statistics.totalSchools) *
-                      100
-                    ).toFixed(1)}
-                    %)
-                  </Text>
-                }
-              />
-              <Tag color="green" bordered={false} style={{ marginTop: 8 }}>
-                {TRANSLATION("bypass_page.ranking.tag_online")}
-              </Tag>
-            </Card>
-          </Col>
-
-          <Col xs={24} sm={8}>
-            <Card
-              variant="borderless"
-              styles={{
-                body: {
-                  borderRadius: 16,
-                  position: "relative",
-                  overflow: "hidden",
-                },
-              }}
-              style={{
-                boxShadow: token.boxShadowTertiary,
-              }}
-            >
-              <StarFilled
-                style={{
-                  position: "absolute",
-                  right: -20,
-                  bottom: -20,
-                  opacity: 0.05,
-                  fontSize: 100,
-                  color: token.colorWarning,
-                  rotate: "12deg",
-                }}
-              />
-              <Statistic
-                title={
-                  <Space>
-                    <span>
-                      {TRANSLATION("bypass_page.ranking.stat_grade_a")}
-                    </span>
-                    <Tooltip
-                      title={TRANSLATION(
-                        "bypass_page.ranking.stat_grade_a_desc",
-                      )}
-                    >
-                      <InfoCircleOutlined
-                        style={{
-                          fontSize: 12,
-                          color: token.colorTextSecondary,
-                        }}
-                      />
-                    </Tooltip>
-                  </Space>
-                }
-                value={statistics.gradeA}
-                prefix={<CrownOutlined style={{ color: token.colorWarning }} />}
-                valueStyle={{
-                  fontWeight: 800,
-                  color: token.colorWarning,
-                  fontSize: 32,
-                }}
-                suffix={
-                  <Text type="secondary" style={{ fontSize: 14 }}>
-                    {TRANSLATION("bypass_page.ranking.stat_excellence")}
-                  </Text>
-                }
-              />
-              <Tag color="warning" bordered={false} style={{ marginTop: 8 }}>
-                {TRANSLATION("bypass_page.ranking.tag_top_performers")}
-              </Tag>
-            </Card>
-          </Col>
+        <Row gutter={[20, 20]}>
+          {[
+            {
+              title: TRANSLATION("bypass_page.ranking.stat_total_schools"),
+              value: statistics.totalSchools,
+              icon: <BankOutlined />,
+              color: token.colorInfo,
+              unit: TRANSLATION("bypass_page.ranking.schools_unit"),
+            },
+            {
+              title: TRANSLATION("bypass_page.ranking.stat_active_usage"),
+              value: statistics.activeSchools,
+              icon: <CheckCircleOutlined />,
+              color: token.colorSuccess,
+              unit: TRANSLATION("bypass_page.ranking.schools_unit"),
+              suffix: `(${(
+                (statistics.activeSchools / statistics.totalSchools) *
+                100
+              ).toFixed(1)}%)`,
+            },
+            {
+              title: TRANSLATION("bypass_page.ranking.stat_excellence"),
+              value: statistics.gradeA,
+              icon: <CrownOutlined />,
+              color: token.colorWarning,
+              unit: TRANSLATION("bypass_page.ranking.units"),
+            },
+          ].map((card, index) => (
+            <Col xs={24} sm={8} key={card.title}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="h-full"
+              >
+                <SummaryCard
+                  title={card.title}
+                  value={card.value}
+                  icon={card.icon}
+                  color={card.color}
+                  unit={card.unit}
+                  suffix={card.suffix}
+                />
+              </motion.div>
+            </Col>
+          ))}
         </Row>
 
         {/* 2. School Data Type Summary Cards */}
-        <Flex vertical gap="middle">
-          <AntTitle level={5} style={{ margin: 0 }}>
-            <Flex gap="small" align="center">
-              <InfoCircleOutlined style={{ color: token.colorPrimary }} />
-              <span>
-                {TRANSLATION("bypass_page.ranking.school_category_stats")}
-              </span>
-            </Flex>
+        <Flex vertical gap={24} className="mt-4">
+          <AntTitle
+            level={5}
+            style={{ margin: 0 }}
+            className="flex items-center gap-3"
+          >
+            <div className="w-1.5 h-6 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--primary-rgb),0.5)]" />
+            <span className="font-black tracking-tight text-lg">
+              {TRANSLATION("bypass_page.ranking.school_category_stats")}
+            </span>
           </AntTitle>
           <Row gutter={[16, 16]}>
             {[
@@ -736,189 +663,277 @@ export default function ProvinceRankingModal({
               },
             ].map((item, index) => (
               <Col
-                xs={24}
+                xs={12}
                 sm={12}
-                lg={index === 4 ? 4.8 : 4.8}
-                style={{ flex: "1 0 18%" }}
+                lg={4}
+                className="flex-grow"
                 key={item.title}
               >
-                <Card
-                  variant="borderless"
-                  styles={{
-                    body: {
-                      borderRadius: 16,
-                      position: "relative",
-                      overflow: "hidden",
-                    },
-                  }}
-                  style={{
-                    boxShadow: token.boxShadowTertiary,
-                    height: "100%",
-                  }}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3 + index * 0.05 }}
+                  whileHover={{ y: -5 }}
                 >
-                  <div
-                    style={{
-                      position: "absolute",
-                      right: -10,
-                      bottom: -10,
-                      opacity: 0.05,
-                      fontSize: 60,
-                      color: item.color,
-                      rotate: "12deg",
-                    }}
+                  <Card
+                    variant="borderless"
+                    className="overflow-hidden shadow-sm hover:shadow-md transition-all border border-transparent hover:border-slate-200 dark:hover:border-white/10"
+                    style={{ borderRadius: 20 }}
+                    styles={{ body: { padding: "20px 24px" } }}
                   >
-                    {item.icon}
-                  </div>
-                  <Statistic
-                    title={
-                      <Text type="secondary" style={{ fontSize: 12 }}>
-                        {item.title}
-                      </Text>
-                    }
-                    value={item.value}
-                    valueStyle={{
-                      fontWeight: 800,
-                      color: item.color,
-                      fontSize: 28,
-                    }}
-                    suffix={
-                      <Text type="secondary" style={{ fontSize: 12 }}>
-                        {TRANSLATION("bypass_page.ranking.units")}
-                      </Text>
-                    }
-                  />
-                </Card>
+                    <Flex vertical gap={12}>
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-100 dark:bg-white/5 group-hover:bg-white transition-colors"
+                        style={{ color: item.color }}
+                      >
+                        {item.icon}
+                      </div>
+                      <Flex vertical gap={2}>
+                        <Text className="text-[12px] uppercase font-bold opacity-30 tracking-widest dark:text-white/50">
+                          {item.title}
+                        </Text>
+                        <Flex align="baseline" gap={4}>
+                          <Text
+                            className="text-2xl font-black tabular-nums transition-colors duration-300 dark:text-white"
+                            style={{ color: item.color }}
+                          >
+                            {item.value.toLocaleString()}
+                          </Text>
+                          <Text className="text-[10px] opacity-20 font-bold uppercase dark:text-white/40">
+                            {TRANSLATION("bypass_page.ranking.units")}
+                          </Text>
+                        </Flex>
+                      </Flex>
+                    </Flex>
+                  </Card>
+                </motion.div>
               </Col>
             ))}
           </Row>
         </Flex>
 
         {/* 3. Charts Analysis Section */}
-        <Row gutter={[16, 16]}>
+        <Row gutter={[24, 24]}>
           <Col xs={24} lg={12}>
-            <Card
-              variant="borderless"
-              title={
-                <Flex gap="small" align="center">
-                  <BarChartOutlined style={{ color: token.colorPrimary }} />
-                  <span>
-                    {TRANSLATION("bypass_page.ranking.top_10_comparison")}
-                  </span>
-                </Flex>
-              }
-              style={{ boxShadow: token.boxShadowTertiary, height: "100%" }}
-              styles={{ body: { height: 450 } }}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 }}
             >
-              <Bar options={chartOptions} data={barChartData} />
-            </Card>
-          </Col>
-          <Col xs={24} lg={6}>
-            <Card
-              variant="borderless"
-              title={
-                <Flex gap="small" align="center">
-                  <PieChartOutlined style={{ color: token.colorSuccess }} />
-                  <span>
-                    {TRANSLATION("bypass_page.ranking.quality_ratio")}
-                  </span>
-                </Flex>
-              }
-              style={{ boxShadow: token.boxShadowTertiary, height: "100%" }}
-              styles={{
-                body: {
-                  height: 450,
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                },
-              }}
-            >
-              <Doughnut
-                data={doughnutChartData}
-                options={{
-                  ...chartOptions,
-                  plugins: {
-                    legend: {
-                      position: "bottom",
-                      labels: {
-                        color: token.colorText,
-                        padding: 10,
-                        font: { size: 10 },
+              <Card
+                variant="borderless"
+                title={
+                  <Flex gap="small" align="center">
+                    <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
+                      <BarChartOutlined />
+                    </div>
+                    <span className="font-bold text-base">
+                      {TRANSLATION("bypass_page.ranking.top_10_comparison")}
+                    </span>
+                  </Flex>
+                }
+                style={{ borderRadius: 24, boxShadow: token.boxShadowTertiary }}
+                styles={{ body: { height: 450, padding: 24 } }}
+              >
+                <Bar
+                  options={{
+                    ...chartOptions,
+                    plugins: {
+                      ...chartOptions.plugins,
+                      legend: {
+                        display: true,
+                        position: "top",
+                        align: "end",
+                        labels: {
+                          usePointStyle: true,
+                          pointStyle: "rectRounded",
+                          font: { size: 11, weight: "bold" },
+                        },
                       },
                     },
-                  },
-                }}
-              />
-            </Card>
+                  }}
+                  data={{
+                    ...barChartData,
+                    datasets: barChartData.datasets.map((ds, i) => ({
+                      ...ds,
+                      backgroundColor:
+                        i === 0
+                          ? "rgba(34, 197, 94, 0.8)"
+                          : "rgba(244, 63, 94, 0.8)",
+                      borderRadius: 12,
+                      borderSkipped: false,
+                      barPercentage: 0.5,
+                    })),
+                  }}
+                />
+              </Card>
+            </motion.div>
           </Col>
-          <Col xs={24} lg={6}>
-            <Card
-              variant="borderless"
-              title={
-                <Flex gap="small" align="center">
-                  <PieChartOutlined style={{ color: token.colorInfo }} />
-                  <span>
-                    {TRANSLATION("bypass_page.ranking.category_ratio")}
-                  </span>
-                </Flex>
-              }
-              style={{ boxShadow: token.boxShadowTertiary, height: "100%" }}
-              styles={{
-                body: {
-                  height: 450,
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                },
-              }}
-            >
-              <Doughnut
-                data={schoolDataTypeChartData}
-                options={{
-                  ...chartOptions,
-                  plugins: {
-                    legend: {
-                      position: "bottom",
-                      labels: {
-                        color: token.colorText,
-                        padding: 10,
-                        font: { size: 10 },
+          <Col xs={24} lg={12}>
+            <Row gutter={[24, 24]}>
+              <Col span={12}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.6 }}
+                >
+                  <Card
+                    variant="borderless"
+                    title={
+                      <Flex gap="small" align="center">
+                        <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
+                          <PieChartOutlined />
+                        </div>
+                        <span className="font-bold text-sm">
+                          {TRANSLATION("bypass_page.ranking.quality_ratio")}
+                        </span>
+                      </Flex>
+                    }
+                    style={{
+                      borderRadius: 24,
+                      boxShadow: token.boxShadowTertiary,
+                    }}
+                    styles={{
+                      body: {
+                        height: 350,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                       },
-                    },
-                  },
-                }}
-              />
-            </Card>
+                    }}
+                  >
+                    <Doughnut
+                      data={doughnutChartData}
+                      options={{
+                        ...chartOptions,
+                        cutout: "70%",
+                        plugins: {
+                          legend: {
+                            position: "bottom",
+                            labels: {
+                              boxWidth: 8,
+                              usePointStyle: true,
+                              font: { size: 10 },
+                            },
+                          },
+                        },
+                      }}
+                    />
+                  </Card>
+                </motion.div>
+              </Col>
+              <Col span={12}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.7 }}
+                >
+                  <Card
+                    variant="borderless"
+                    title={
+                      <Flex gap="small" align="center">
+                        <div className="p-2 rounded-lg bg-purple-500/10 text-purple-500">
+                          <PieChartOutlined />
+                        </div>
+                        <span className="font-bold text-sm">
+                          {TRANSLATION("bypass_page.ranking.category_ratio")}
+                        </span>
+                      </Flex>
+                    }
+                    style={{
+                      borderRadius: 24,
+                      boxShadow: token.boxShadowTertiary,
+                    }}
+                    styles={{
+                      body: {
+                        height: 350,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      },
+                    }}
+                  >
+                    <Doughnut
+                      data={schoolDataTypeChartData}
+                      options={{
+                        ...chartOptions,
+                        cutout: "70%",
+                        plugins: {
+                          legend: {
+                            position: "bottom",
+                            labels: {
+                              boxWidth: 8,
+                              usePointStyle: true,
+                              font: { size: 10 },
+                            },
+                          },
+                        },
+                      }}
+                    />
+                  </Card>
+                </motion.div>
+              </Col>
+            </Row>
           </Col>
         </Row>
 
         {/* 4. Detailed Table */}
-        <Card
-          variant="borderless"
-          title={
-            <Flex gap="small" align="center">
-              <TrophyOutlined style={{ color: token.colorWarning }} />
-              <span>{TRANSLATION("bypass_page.ranking.table_title")}</span>
-            </Flex>
-          }
-          style={{
-            boxShadow: token.boxShadowTertiary,
-            border: `1px solid ${token.colorBorderSecondary}`,
-          }}
-          styles={{
-            body: { padding: 0 },
-            header: { borderBottom: `1px solid ${token.colorBorderSecondary}` },
-          }}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
         >
-          <Table
-            columns={columns}
-            dataSource={top10Data}
-            rowKey="province"
-            pagination={false}
-            scroll={{ x: 1400, y: "calc(100vh - 450px)" }}
-            size="middle"
-          />
-        </Card>
+          <Card
+            variant="borderless"
+            title={
+              <Flex gap="small" align="center">
+                <div className="p-2 rounded-lg bg-amber-500/10 text-amber-500">
+                  <RocketOutlined />
+                </div>
+                <span className="font-bold text-base">
+                  {TRANSLATION("bypass_page.ranking.table_title")}
+                </span>
+              </Flex>
+            }
+            style={{ borderRadius: 24, overflow: "hidden" }}
+            styles={{ body: { padding: 0 } }}
+          >
+            <Table
+              columns={columns}
+              dataSource={top10Data}
+              rowKey="province"
+              pagination={false}
+              className="premium-province-table"
+              scroll={{ x: 1400, y: 400 }}
+              size="middle"
+              rowClassName={(_record, index) => `
+                transition-colors duration-300
+                ${
+                  index % 2 === 0
+                    ? "bg-white dark:bg-slate-900/40"
+                    : "bg-slate-50/50 dark:bg-white/5"
+                }
+              `}
+            />
+            <style jsx global>{`
+              .premium-province-table .ant-table-thead > tr > th {
+                background: ${isDarkModeActive
+                  ? "rgba(255,255,255,0.03)"
+                  : "#f8fafc"} !important;
+                font-weight: 800 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.1em !important;
+                font-size: 11px !important;
+                padding: 18px 16px !important;
+              }
+              .premium-province-table .ant-table-row:hover > td {
+                background: ${isDarkModeActive
+                  ? "rgba(59,130,246,0.08)"
+                  : "rgba(59,130,246,0.04)"} !important;
+              }
+            `}</style>
+          </Card>
+        </motion.div>
       </Flex>
     </Modal>
   );

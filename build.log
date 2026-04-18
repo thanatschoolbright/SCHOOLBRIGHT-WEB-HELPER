@@ -1,12 +1,12 @@
 $ next build
-▲ Next.js 16.2.0 (Turbopack)
+▲ Next.js 16.2.4 (Turbopack)
 - Environments: .env.local, .env
 - Experiments (use with caution):
   · optimizePackageImports
   · serverActions
 
   Creating an optimized production build ...
-Turbopack build encountered 33 warnings:
+Turbopack build encountered 27 warnings:
 ./next.config.mjs
 Encountered unexpected file in NFT list
 A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
@@ -21,9 +21,9 @@ To resolve this, you can
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -46,44 +46,14 @@ To resolve this, you can
 
 Output asset trace:
   [output]/.next/server/app/_not-found/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
+  [output]/.next/server/chunks/ssr/[root-of-the-server]__0lsyu28._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
-
-  Server Component:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/auth.ts
-    ./src/actions/auth.ts
-
-
-./next.config.mjs
-Encountered unexpected file in NFT list
-A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
-- filesystem operations (like path.join, path.resolve or fs.readFile), or
-- very dynamic requires (like require('./' + foo)).
-To resolve this, you can
-- remove them if possible, or
-- only use them in development, or
-- make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
-- add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
-
-Output asset trace:
-  [output]/.next/server/app/admin/permission-management/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
-
-Import traces:
-  App Route:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -106,14 +76,14 @@ To resolve this, you can
 
 Output asset trace:
   [output]/.next/server/app/admin/user-profile/[user_id]/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
+  [output]/.next/server/chunks/ssr/[root-of-the-server]__0lsyu28._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -135,45 +105,15 @@ To resolve this, you can
 - add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
 
 Output asset trace:
-  [output]/.next/server/app/admin/user-profile/create/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
+  [output]/.next/server/app/api/v1/hardware/check-online/route.js
+  [output]/.next/server/chunks/[root-of-the-server]__01eupiv._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
-
-  Server Component:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/auth.ts
-    ./src/actions/auth.ts
-
-
-./next.config.mjs
-Encountered unexpected file in NFT list
-A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
-- filesystem operations (like path.join, path.resolve or fs.readFile), or
-- very dynamic requires (like require('./' + foo)).
-To resolve this, you can
-- remove them if possible, or
-- only use them in development, or
-- make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
-- add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
-
-Output asset trace:
-  [output]/.next/server/app/api-spec/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
-
-Import traces:
-  App Route:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -196,14 +136,14 @@ To resolve this, you can
 
 Output asset trace:
   [output]/.next/server/app/api/v1/health-check/transaction-log/payment-slip/list/route.js
-  [output]/.next/server/chunks/[root-of-the-server]__0sy9rp1._.js
+  [output]/.next/server/chunks/[root-of-the-server]__06w_mh6._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -226,14 +166,14 @@ To resolve this, you can
 
 Output asset trace:
   [output]/.next/server/app/api/v1/mobile/leave-letter/read/route.js
-  [output]/.next/server/chunks/[root-of-the-server]__0qxjeea._.js
+  [output]/.next/server/chunks/[root-of-the-server]__0sasda8._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -256,44 +196,14 @@ To resolve this, you can
 
 Output asset trace:
   [output]/.next/server/app/api/v1/mobile/leave-letter/route.js
-  [output]/.next/server/chunks/[root-of-the-server]__04o7_wr._.js
+  [output]/.next/server/chunks/[root-of-the-server]__0fybfa8._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
-
-  Server Component:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/auth.ts
-    ./src/actions/auth.ts
-
-
-./next.config.mjs
-Encountered unexpected file in NFT list
-A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
-- filesystem operations (like path.join, path.resolve or fs.readFile), or
-- very dynamic requires (like require('./' + foo)).
-To resolve this, you can
-- remove them if possible, or
-- only use them in development, or
-- make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
-- add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
-
-Output asset trace:
-  [output]/.next/server/app/api/v1/mobile/leave-letter/update/route.js
-  [output]/.next/server/chunks/[root-of-the-server]__0xazpdh._.js
-
-Import traces:
-  App Route:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -316,14 +226,14 @@ To resolve this, you can
 
 Output asset trace:
   [output]/.next/server/app/api/v1/mobile/notification/read-message/route.js
-  [output]/.next/server/chunks/[root-of-the-server]__0ocxihm._.js
+  [output]/.next/server/chunks/[root-of-the-server]__0uhw-1y._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -346,74 +256,14 @@ To resolve this, you can
 
 Output asset trace:
   [output]/.next/server/app/api/v1/mobile/notification/today/route.js
-  [output]/.next/server/chunks/[root-of-the-server]__0q-475m._.js
+  [output]/.next/server/chunks/[root-of-the-server]__088u8os._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
-
-  Server Component:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/auth.ts
-    ./src/actions/auth.ts
-
-
-./next.config.mjs
-Encountered unexpected file in NFT list
-A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
-- filesystem operations (like path.join, path.resolve or fs.readFile), or
-- very dynamic requires (like require('./' + foo)).
-To resolve this, you can
-- remove them if possible, or
-- only use them in development, or
-- make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
-- add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
-
-Output asset trace:
-  [output]/.next/server/app/api/v1/mobile/notification/week/route.js
-  [output]/.next/server/chunks/[root-of-the-server]__13wul_z._.js
-
-Import traces:
-  App Route:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
-
-  Server Component:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/auth.ts
-    ./src/actions/auth.ts
-
-
-./next.config.mjs
-Encountered unexpected file in NFT list
-A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
-- filesystem operations (like path.join, path.resolve or fs.readFile), or
-- very dynamic requires (like require('./' + foo)).
-To resolve this, you can
-- remove them if possible, or
-- only use them in development, or
-- make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
-- add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
-
-Output asset trace:
-  [output]/.next/server/app/api/v1/school/get-detail/route.js
-  [output]/.next/server/chunks/[root-of-the-server]__08-jgq.._.js
-
-Import traces:
-  App Route:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -436,14 +286,44 @@ To resolve this, you can
 
 Output asset trace:
   [output]/.next/server/app/api/v1/support/bypass/route.js
-  [output]/.next/server/chunks/[root-of-the-server]__0~8n71s._.js
+  [output]/.next/server/chunks/[root-of-the-server]__0zgo~p8._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
+
+  Server Component:
+    ./next.config.mjs
     ./generated/prisma-timesheet/index.js
     ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./src/auth.ts
+    ./src/actions/auth.ts
+
+
+./next.config.mjs
+Encountered unexpected file in NFT list
+A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
+- filesystem operations (like path.join, path.resolve or fs.readFile), or
+- very dynamic requires (like require('./' + foo)).
+To resolve this, you can
+- remove them if possible, or
+- only use them in development, or
+- make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
+- add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
+
+Output asset trace:
+  [output]/.next/server/app/auth/signin/page_client-reference-manifest.js
+  [output]/.next/server/chunks/ssr/[root-of-the-server]__0lsyu28._.js
+
+Import traces:
+  App Route:
+    ./next.config.mjs
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -466,14 +346,74 @@ To resolve this, you can
 
 Output asset trace:
   [output]/.next/server/app/backend/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
+  [output]/.next/server/chunks/ssr/[root-of-the-server]__0lsyu28._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
+
+  Server Component:
+    ./next.config.mjs
     ./generated/prisma-timesheet/index.js
     ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./src/auth.ts
+    ./src/actions/auth.ts
+
+
+./next.config.mjs
+Encountered unexpected file in NFT list
+A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
+- filesystem operations (like path.join, path.resolve or fs.readFile), or
+- very dynamic requires (like require('./' + foo)).
+To resolve this, you can
+- remove them if possible, or
+- only use them in development, or
+- make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
+- add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
+
+Output asset trace:
+  [output]/.next/server/app/backlogs/page_client-reference-manifest.js
+  [output]/.next/server/chunks/ssr/[root-of-the-server]__0lsyu28._.js
+
+Import traces:
+  App Route:
+    ./next.config.mjs
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
+
+  Server Component:
+    ./next.config.mjs
+    ./generated/prisma-timesheet/index.js
+    ./src/helpers/prisma-timesheet.ts
+    ./src/auth.ts
+    ./src/actions/auth.ts
+
+
+./next.config.mjs
+Encountered unexpected file in NFT list
+A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
+- filesystem operations (like path.join, path.resolve or fs.readFile), or
+- very dynamic requires (like require('./' + foo)).
+To resolve this, you can
+- remove them if possible, or
+- only use them in development, or
+- make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
+- add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
+
+Output asset trace:
+  [output]/.next/server/app/backlogs/projects/[projectId]/issues/page_client-reference-manifest.js
+  [output]/.next/server/chunks/ssr/[root-of-the-server]__0lsyu28._.js
+
+Import traces:
+  App Route:
+    ./next.config.mjs
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -496,14 +436,14 @@ To resolve this, you can
 
 Output asset trace:
   [output]/.next/server/app/backlogs/projects/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
+  [output]/.next/server/chunks/ssr/[root-of-the-server]__0lsyu28._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -525,105 +465,15 @@ To resolve this, you can
 - add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
 
 Output asset trace:
-  [output]/.next/server/app/backlogs/report/dashboard/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
+  [output]/.next/server/app/health-check/heartbeats/page_client-reference-manifest.js
+  [output]/.next/server/chunks/ssr/[root-of-the-server]__0lsyu28._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
-
-  Server Component:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/auth.ts
-    ./src/actions/auth.ts
-
-
-./next.config.mjs
-Encountered unexpected file in NFT list
-A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
-- filesystem operations (like path.join, path.resolve or fs.readFile), or
-- very dynamic requires (like require('./' + foo)).
-To resolve this, you can
-- remove them if possible, or
-- only use them in development, or
-- make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
-- add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
-
-Output asset trace:
-  [output]/.next/server/app/backlogs/report/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
-
-Import traces:
-  App Route:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
-
-  Server Component:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/auth.ts
-    ./src/actions/auth.ts
-
-
-./next.config.mjs
-Encountered unexpected file in NFT list
-A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
-- filesystem operations (like path.join, path.resolve or fs.readFile), or
-- very dynamic requires (like require('./' + foo)).
-To resolve this, you can
-- remove them if possible, or
-- only use them in development, or
-- make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
-- add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
-
-Output asset trace:
-  [output]/.next/server/app/health-check/all-server-status/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
-
-Import traces:
-  App Route:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
-
-  Server Component:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/auth.ts
-    ./src/actions/auth.ts
-
-
-./next.config.mjs
-Encountered unexpected file in NFT list
-A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
-- filesystem operations (like path.join, path.resolve or fs.readFile), or
-- very dynamic requires (like require('./' + foo)).
-To resolve this, you can
-- remove them if possible, or
-- only use them in development, or
-- make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
-- add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
-
-Output asset trace:
-  [output]/.next/server/app/health-check/v2/server-status/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
-
-Import traces:
-  App Route:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -646,14 +496,14 @@ To resolve this, you can
 
 Output asset trace:
   [output]/.next/server/app/health-check/version-control/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
+  [output]/.next/server/chunks/ssr/[root-of-the-server]__0lsyu28._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -676,14 +526,14 @@ To resolve this, you can
 
 Output asset trace:
   [output]/.next/server/app/logger/api-log/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
+  [output]/.next/server/chunks/ssr/[root-of-the-server]__0lsyu28._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -705,15 +555,15 @@ To resolve this, you can
 - add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
 
 Output asset trace:
-  [output]/.next/server/app/mobile/qrcode-health-check/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
+  [output]/.next/server/app/mobile/statistic/page_client-reference-manifest.js
+  [output]/.next/server/chunks/ssr/[root-of-the-server]__0lsyu28._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -735,15 +585,15 @@ To resolve this, you can
 - add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
 
 Output asset trace:
-  [output]/.next/server/app/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
+  [output]/.next/server/app/profile/reset-password/page_client-reference-manifest.js
+  [output]/.next/server/chunks/ssr/[root-of-the-server]__0lsyu28._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -765,75 +615,15 @@ To resolve this, you can
 - add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
 
 Output asset trace:
-  [output]/.next/server/app/pages/light-menu/face-scanning/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
+  [output]/.next/server/app/support/bypass/page_client-reference-manifest.js
+  [output]/.next/server/chunks/ssr/[root-of-the-server]__0lsyu28._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
-
-  Server Component:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/auth.ts
-    ./src/actions/auth.ts
-
-
-./next.config.mjs
-Encountered unexpected file in NFT list
-A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
-- filesystem operations (like path.join, path.resolve or fs.readFile), or
-- very dynamic requires (like require('./' + foo)).
-To resolve this, you can
-- remove them if possible, or
-- only use them in development, or
-- make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
-- add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
-
-Output asset trace:
-  [output]/.next/server/app/profile/personal-information/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
-
-Import traces:
-  App Route:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
-
-  Server Component:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/auth.ts
-    ./src/actions/auth.ts
-
-
-./next.config.mjs
-Encountered unexpected file in NFT list
-A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
-- filesystem operations (like path.join, path.resolve or fs.readFile), or
-- very dynamic requires (like require('./' + foo)).
-To resolve this, you can
-- remove them if possible, or
-- only use them in development, or
-- make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
-- add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
-
-Output asset trace:
-  [output]/.next/server/app/support/test/cancel-sales/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
-
-Import traces:
-  App Route:
-    ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -856,14 +646,14 @@ To resolve this, you can
 
 Output asset trace:
   [output]/.next/server/app/support/upload/migrate-student/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
+  [output]/.next/server/chunks/ssr/[root-of-the-server]__0lsyu28._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -885,15 +675,15 @@ To resolve this, you can
 - add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
 
 Output asset trace:
-  [output]/.next/server/app/timesheet/all/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
+  [output]/.next/server/app/testing/rank-test/page_client-reference-manifest.js
+  [output]/.next/server/chunks/ssr/[root-of-the-server]__0lsyu28._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -916,14 +706,14 @@ To resolve this, you can
 
 Output asset trace:
   [output]/.next/server/app/timesheet/all/report/timeline/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
+  [output]/.next/server/chunks/ssr/[root-of-the-server]__0lsyu28._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -946,14 +736,14 @@ To resolve this, you can
 
 Output asset trace:
   [output]/.next/server/app/timesheet/entry/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
+  [output]/.next/server/chunks/ssr/[root-of-the-server]__0lsyu28._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -975,15 +765,15 @@ To resolve this, you can
 - add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
 
 Output asset trace:
-  [output]/.next/server/app/timesheet/overtime/preview/bulk/page_client-reference-manifest.js
-  [output]/.next/server/chunks/ssr/[root-of-the-server]__02bxq0c._.js
+  [output]/.next/server/app/timesheet/overtime/preview/[id]/page_client-reference-manifest.js
+  [output]/.next/server/chunks/ssr/[root-of-the-server]__0lsyu28._.js
 
 Import traces:
   App Route:
     ./next.config.mjs
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
     ./next.config.mjs
@@ -993,33 +783,326 @@ Import traces:
     ./src/actions/auth.ts
 
 
+./next.config.mjs
+Encountered unexpected file in NFT list
+A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:
+- filesystem operations (like path.join, path.resolve or fs.readFile), or
+- very dynamic requires (like require('./' + foo)).
+To resolve this, you can
+- remove them if possible, or
+- only use them in development, or
+- make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
+- add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
 
-> Build error occurred
-Error: Turbopack build failed with 1 errors:
-./src/app/timesheet/overtime/page.tsx:1622:1
-'import', and 'export' cannot be used outside of module code
-  [90m1620 |[0m };
-  [90m1621 |[0m
-[31m[1m>[0m [90m1622 |[0m [36mexport[0m [36mdefault[0m [33mOvertimeManagementPage[0m;
-  [90m     |[0m [31m[1m^^^^^^[0m
-  [90m1623 |[0m
-
-Parsing ecmascript source code failed
+Output asset trace:
+  [output]/.next/server/app/timesheet/project/page_client-reference-manifest.js
+  [output]/.next/server/chunks/ssr/[root-of-the-server]__0lsyu28._.js
 
 Import traces:
   App Route:
-    ./src/app/timesheet/overtime/page.tsx
-    ./generated/prisma-timesheet/index.js
-    ./src/helpers/prisma-timesheet.ts
-    ./src/app/api/v1/timesheet/overtime/upload-images/route.ts
+    ./next.config.mjs
+    ./generated/prisma/index.js
+    ./src/helpers/prisma.ts
+    ./src/app/api/v1/hardware/machine-monitoring/channel/discord/route.ts
 
   Server Component:
-    ./src/app/timesheet/overtime/page.tsx
+    ./next.config.mjs
     ./generated/prisma-timesheet/index.js
     ./src/helpers/prisma-timesheet.ts
     ./src/auth.ts
     ./src/actions/auth.ts
 
 
-    at <unknown> (./src/app/timesheet/overtime/page.tsx:1622:1)
-error: script "build" exited with code 1
+✓ Compiled successfully in 20.3s
+  Skipping validation of types
+  Finished TypeScript config validation in 28ms ...
+  Collecting page data using 11 workers ...
+  Generating static pages using 11 workers (0/255) ...
+  Generating static pages using 11 workers (63/255) 
+  Generating static pages using 11 workers (127/255) 
+  Generating static pages using 11 workers (191/255) 
+✓ Generating static pages using 11 workers (255/255) in 1069ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /admin/department-management
+├ ○ /admin/overtime-management
+├ ○ /admin/permission-management
+├ ○ /admin/permission-management/create
+├ ƒ /admin/permission-management/edit/[role_id]
+├ ○ /admin/position-management
+├ ○ /admin/user-profile
+├ ƒ /admin/user-profile/[user_id]
+├ ○ /admin/user-profile/create
+├ ○ /ant
+├ ○ /api-spec
+├ ƒ /api/auth/[...nextauth]
+├ ƒ /api/docs
+├ ƒ /api/v1/admin/authentication/sign-in
+├ ƒ /api/v1/admin/user
+├ ƒ /api/v1/admin/user/constants/position
+├ ƒ /api/v1/admin/user/create
+├ ƒ /api/v1/admin/user/read/[id]
+├ ƒ /api/v1/admin/user/update
+├ ƒ /api/v1/ai/chatgpt/summarize
+├ ƒ /api/v1/ai/gemini/auto-category
+├ ƒ /api/v1/ai/gemini/chat
+├ ƒ /api/v1/ai/gemini/chat/cancel-sales
+├ ƒ /api/v1/ai/gemini/summarize
+├ ƒ /api/v1/application/line/groups
+├ ƒ /api/v1/application/line/webhook
+├ ƒ /api/v1/authentication/refresh-token
+├ ƒ /api/v1/backlog/dashboard/analytics
+├ ƒ /api/v1/backlog/dashboard/burndown
+├ ƒ /api/v1/backlog/dashboard/heatmap
+├ ƒ /api/v1/backlog/issue-types
+├ ƒ /api/v1/backlog/issues
+├ ƒ /api/v1/backlog/issues/[issueKey]/attachments/[attachmentId]
+├ ƒ /api/v1/backlog/issues/bulk-update
+├ ƒ /api/v1/backlog/issues/re-assign
+├ ƒ /api/v1/backlog/issues/timeline
+├ ƒ /api/v1/backlog/issues/update
+├ ƒ /api/v1/backlog/oauth/token
+├ ƒ /api/v1/backlog/priorities
+├ ƒ /api/v1/backlog/project-statuses
+├ ƒ /api/v1/backlog/projects
+├ ƒ /api/v1/backlog/projects/[project_id]/metadata
+├ ƒ /api/v1/backlog/projects/[project_id]/milestones
+├ ƒ /api/v1/backlog/projects/[project_id]/milestones/[milestoneId]
+├ ƒ /api/v1/backlog/statuses
+├ ƒ /api/v1/backlog/users
+├ ƒ /api/v1/hardware/canteen/application
+├ ƒ /api/v1/hardware/canteen/check
+├ ƒ /api/v1/hardware/canteen/create
+├ ƒ /api/v1/hardware/canteen/delete/[version_id]
+├ ƒ /api/v1/hardware/canteen/export
+├ ƒ /api/v1/hardware/canteen/update
+├ ƒ /api/v1/hardware/canteen/version
+├ ƒ /api/v1/hardware/canteen/version/[id]
+├ ƒ /api/v1/hardware/check-offline
+├ ƒ /api/v1/hardware/check-online
+├ ƒ /api/v1/hardware/facial/scan
+├ ƒ /api/v1/hardware/facial/scan/scan-light
+├ ƒ /api/v1/hardware/machine-monitoring/channel/discord
+├ ƒ /api/v1/hardware/machine-monitoring/channel/email
+├ ƒ /api/v1/hardware/machine-monitoring/channel/line
+├ ƒ /api/v1/hardware/register-device
+├ ƒ /api/v1/health-check/server/heartbeats
+├ ƒ /api/v1/health-check/server/heartbeats/notification/discord
+├ ƒ /api/v1/health-check/server/heartbeats/update/[id]
+├ ƒ /api/v1/health-check/server/system
+├ ƒ /api/v1/health-check/server/system/export
+├ ƒ /api/v1/health-check/transaction-log/payment-slip/list
+├ ƒ /api/v1/health-check/version-control
+├ ƒ /api/v1/integrations/discord
+├ ƒ /api/v1/integrations/discord/check-deployment-status
+├ ƒ /api/v1/integrations/discord/deploy-automate-report
+├ ƒ /api/v1/integrations/discord/push
+├ ƒ /api/v1/integrations/discord/push-release
+├ ƒ /api/v1/integrations/discord/workflow-run
+├ ƒ /api/v1/line-chat
+├ ƒ /api/v1/load-test
+├ ƒ /api/v1/logger/[id]
+├ ƒ /api/v1/logger/[id]/archive
+├ ƒ /api/v1/logger/create
+├ ƒ /api/v1/logger/example
+├ ƒ /api/v1/logger/find-service
+├ ƒ /api/v1/logger/search
+├ ƒ /api/v1/logger/search-example
+├ ƒ /api/v1/logger/test
+├ ƒ /api/v1/mailer/timesheet/notify-missing
+├ ƒ /api/v1/mobile/check-in-attendance/get-level
+├ ƒ /api/v1/mobile/check-in-attendance/get-student
+├ ƒ /api/v1/mobile/check-in-attendance/get-sub-level
+├ ƒ /api/v1/mobile/check-in-subject/get-student
+├ ƒ /api/v1/mobile/check-in-subject/get-subject
+├ ƒ /api/v1/mobile/leave-letter
+├ ƒ /api/v1/mobile/leave-letter/read
+├ ƒ /api/v1/mobile/leave-letter/update
+├ ƒ /api/v1/mobile/notification/read-message
+├ ƒ /api/v1/mobile/notification/today
+├ ƒ /api/v1/mobile/notification/week
+├ ƒ /api/v1/mobile/qrcode-health-check
+├ ƒ /api/v1/mobile/statistic
+├ ƒ /api/v1/proxy/image
+├ ƒ /api/v1/school
+├ ƒ /api/v1/school/get-detail
+├ ƒ /api/v1/school/get-user
+├ ƒ /api/v1/server/status
+├ ƒ /api/v1/support/bypass
+├ ƒ /api/v1/support/cancle-sales
+├ ƒ /api/v1/support/check-nfc
+├ ƒ /api/v1/support/crm/backlog-auth/authorize
+├ ƒ /api/v1/support/crm/backlog-auth/callback
+├ ƒ /api/v1/support/crm/backlog-auth/refresh
+├ ƒ /api/v1/support/crm/backlog-auth/token
+├ ƒ /api/v1/timesheet/ai-description
+├ ƒ /api/v1/timesheet/calculate-summary-month
+├ ƒ /api/v1/timesheet/department/list
+├ ƒ /api/v1/timesheet/entry/automate-fill
+├ ƒ /api/v1/timesheet/entry/check/summary
+├ ƒ /api/v1/timesheet/entry/check/summary-month
+├ ƒ /api/v1/timesheet/entry/check/who-not-entry
+├ ƒ /api/v1/timesheet/entry/condition/find-not-entry-today
+├ ƒ /api/v1/timesheet/entry/delete
+├ ƒ /api/v1/timesheet/entry/insert
+├ ƒ /api/v1/timesheet/entry/read
+├ ƒ /api/v1/timesheet/excel/template_1
+├ ƒ /api/v1/timesheet/excel/template_2
+├ ƒ /api/v1/timesheet/excel/template_3
+├ ƒ /api/v1/timesheet/excel/template_4
+├ ƒ /api/v1/timesheet/excel/template_4/send-email
+├ ƒ /api/v1/timesheet/find-ranking
+├ ƒ /api/v1/timesheet/migration
+├ ƒ /api/v1/timesheet/migration/automate-fill
+├ ƒ /api/v1/timesheet/migration/create
+├ ƒ /api/v1/timesheet/migration/read
+├ ƒ /api/v1/timesheet/my-work
+├ ƒ /api/v1/timesheet/overtime/analytics
+├ ƒ /api/v1/timesheet/overtime/change-status
+├ ƒ /api/v1/timesheet/overtime/create
+├ ƒ /api/v1/timesheet/overtime/delete
+├ ƒ /api/v1/timesheet/overtime/export
+├ ƒ /api/v1/timesheet/overtime/read
+├ ƒ /api/v1/timesheet/overtime/send-email
+├ ƒ /api/v1/timesheet/overtime/send-email-bulk
+├ ƒ /api/v1/timesheet/overtime/status-log
+├ ƒ /api/v1/timesheet/overtime/update
+├ ƒ /api/v1/timesheet/overtime/upload-images
+├ ƒ /api/v1/timesheet/overtime/users
+├ ƒ /api/v1/timesheet/project/color
+├ ƒ /api/v1/timesheet/project/delete
+├ ƒ /api/v1/timesheet/project/insert
+├ ƒ /api/v1/timesheet/project/read
+├ ƒ /api/v1/timesheet/project/stats
+├ ƒ /api/v1/timesheet/project/status/delete
+├ ƒ /api/v1/timesheet/project/status/insert
+├ ƒ /api/v1/timesheet/project/status/read
+├ ƒ /api/v1/timesheet/project/sub-project/[project_id]
+├ ƒ /api/v1/timesheet/project/sub-project/assignee-search
+├ ƒ /api/v1/timesheet/project/sub-project/delete
+├ ƒ /api/v1/timesheet/project/sub-project/insert
+├ ƒ /api/v1/timesheet/project/sub-project/read
+├ ƒ /api/v1/timesheet/project/sub-project/search
+├ ƒ /api/v1/timesheet/project/timeline
+├ ƒ /api/v1/timesheet/report/capturable-details/read
+├ ƒ /api/v1/timesheet/report/capturable-report
+├ ƒ /api/v1/timesheet/report/capturable-report/export-excel
+├ ƒ /api/v1/timesheet/report/capturable-report/send-email
+├ ƒ /api/v1/timesheet/report/capturable-report/summary
+├ ƒ /api/v1/timesheet/report/daily-notify
+├ ƒ /api/v1/timesheet/report/employee-notify
+├ ƒ /api/v1/timesheet/report/employee-notify-one
+├ ƒ /api/v1/timesheet/report/timeline-chart/groups/read
+├ ƒ /api/v1/timesheet/report/timeline-chart/monthly-details/read
+├ ƒ /api/v1/timesheet/report/timeline-chart/read
+├ ƒ /api/v1/timesheet/timeline
+├ ƒ /api/v2/admin/department-management/create
+├ ƒ /api/v2/admin/department-management/delete
+├ ƒ /api/v2/admin/department-management/read
+├ ƒ /api/v2/admin/department-management/seed
+├ ƒ /api/v2/admin/department-management/update
+├ ƒ /api/v2/admin/permission-management/delete
+├ ƒ /api/v2/admin/permission-management/read
+├ ƒ /api/v2/admin/permission-management/seed
+├ ƒ /api/v2/admin/position-management/create
+├ ƒ /api/v2/admin/position-management/delete
+├ ƒ /api/v2/admin/position-management/read
+├ ƒ /api/v2/admin/position-management/seed
+├ ƒ /api/v2/admin/position-management/update
+├ ƒ /api/v2/admin/role-management/create
+├ ƒ /api/v2/admin/role-management/delete
+├ ƒ /api/v2/admin/role-management/read
+├ ƒ /api/v2/admin/role-management/read-by-id
+├ ƒ /api/v2/admin/role-management/update
+├ ƒ /api/v2/admin/user-management/bulk-update-department
+├ ƒ /api/v2/admin/user-management/bulk-update-employment-type
+├ ƒ /api/v2/admin/user-management/bulk-update-position
+├ ƒ /api/v2/admin/user-management/bulk-update-role
+├ ƒ /api/v2/admin/user-management/constants
+├ ƒ /api/v2/admin/user-management/create
+├ ƒ /api/v2/admin/user-management/delete
+├ ƒ /api/v2/admin/user-management/detail/[id]
+├ ƒ /api/v2/admin/user-management/export-excel
+├ ƒ /api/v2/admin/user-management/read
+├ ƒ /api/v2/admin/user-management/reset-password
+├ ƒ /api/v2/admin/user-management/reset-password-to-phone
+├ ƒ /api/v2/admin/user-management/signature/delete
+├ ƒ /api/v2/admin/user-management/signature/read
+├ ƒ /api/v2/admin/user-management/signature/upload
+├ ƒ /api/v2/admin/user-management/sync/check
+├ ƒ /api/v2/admin/user-management/sync/execute
+├ ƒ /api/v2/admin/user-management/sync/push
+├ ƒ /api/v2/admin/user-management/unlock
+├ ƒ /api/v2/admin/user-management/update
+├ ƒ /api/v2/admin/user-management/upload/delete
+├ ƒ /api/v2/admin/user-management/upload/image
+├ ƒ /api/v2/authentication/sign-in
+├ ƒ /api/v2/hardware/check-device-status
+├ ƒ /api/v2/hardware/device-dashboard-summary
+├ ƒ /api/v2/profile/change-password
+├ ƒ /api/v2/server/status
+├ ƒ /api/v3/authentication/sign-in
+├ ƒ /api/version
+├ ○ /auth/signin
+├ ○ /auth/v2/forgot-password
+├ ○ /auth/v2/signin
+├ ○ /backend
+├ ○ /backlogs
+├ ○ /backlogs/issues
+├ ƒ /backlogs/oauth/callback
+├ ○ /backlogs/projects
+├ ƒ /backlogs/projects/[projectId]/issues
+├ ƒ /backlogs/projects/[projectId]/milestones
+├ ○ /backlogs/report
+├ ○ /backlogs/report/dashboard
+├ ○ /docs
+├ ○ /hardware/canteen
+├ ○ /health-check/all-server-status
+├ ○ /health-check/heartbeats
+├ ○ /health-check/offline-sync-status
+├ ○ /health-check/online-status
+├ ○ /health-check/v2/server-status
+├ ○ /health-check/version-control
+├ ○ /health-check/version-control/release-note
+├ ○ /logger/api-log
+├ ○ /main
+├ ○ /mobile/check-attendance
+├ ○ /mobile/leave-letter
+├ ○ /mobile/notification
+├ ○ /mobile/qrcode-health-check
+├ ○ /mobile/statistic
+├ ○ /pages/light-menu/face-scanning
+├ ○ /profile/personal-information
+├ ○ /profile/reset-password
+├ ○ /support/bypass
+├ ○ /support/crm/backlog
+├ ○ /support/test/cancel-sales
+├ ○ /support/test/nfc
+├ ○ /support/upload/migrate-student
+├ ○ /testing/load-test
+├ ○ /testing/rank-test
+├ ○ /timesheet/all
+├ ○ /timesheet/all/description
+├ ○ /timesheet/all/report/capturable
+├ ○ /timesheet/all/report/migrate-person
+├ ○ /timesheet/all/report/migrate-project
+├ ○ /timesheet/all/report/timeline
+├ ○ /timesheet/all/summary
+├ ○ /timesheet/all/summary-month
+├ ○ /timesheet/all/who-not-entry
+├ ○ /timesheet/entry
+├ ○ /timesheet/overtime
+├ ƒ /timesheet/overtime/preview/[id]
+├ ○ /timesheet/overtime/preview/bulk
+├ ○ /timesheet/project
+└ ƒ /timesheet/project/sub-project/[project_id]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
