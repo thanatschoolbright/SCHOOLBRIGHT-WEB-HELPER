@@ -57,6 +57,7 @@ This is a **Next.js 16 (App Router) back-office admin tool** for SchoolBright, c
 
 | Directory | Purpose |
 |---|---|
+| `main/` | Dashboard / home page |
 | `health-check/` | System heartbeat & server status monitoring |
 | `mobile/` | In-app notifications, app statistics, leave letters |
 | `hardware/` | Canteen, facial recognition, turnstile devices |
@@ -73,7 +74,7 @@ This is a **Next.js 16 (App Router) back-office admin tool** for SchoolBright, c
 
 API routes are versioned under `src/app/api/`:
 
-- **`v1/`** — primary internal routes (timesheet, backlog, hardware, mobile, health-check, admin, support, ai, integrations/discord, logger, mailer, load-test, etc.)
+- **`v1/`** — primary internal routes (timesheet, backlog, hardware, mobile, health-check, admin, support, ai, integrations/discord, logger, mailer, load-test, school, proxy, application/line, etc.)
 - **`v2/`** — newer routes (admin user/role/department/position management, hardware device status, server status, authentication v2, profile)
 - **`v3/`** — latest authentication endpoint
 
@@ -142,7 +143,7 @@ src/app/{domain}/{feature}/
 - **Notifications**: Use `toast` from `sonner` only.
 - **Status dialogs**: Use `src/components/modal/status-modal-component.tsx` for success/error/confirm modals.
 - **Page titles**: Use `src/components/typhography/header-bar-component.tsx` only.
-- **Summary cards**: Use `src/components/card/summary-card.tsx`. Always fetch raw data server-side and compute aggregates before passing to the component — never filter on the client via table.
+- **Summary cards**: Use `src/components/card/summary-card.tsx` (`title`, `value`, `unit?`, `subtitle?`, `icon?`, `color?`, `tooltip?`, `suffix?`, `isLoading?`). Always fetch raw data server-side and compute aggregates before passing to the component — never filter on the client via table.
 - **Filter sections**: 2 columns per row (`Col`/`Row`), "ค้นหา" and "ล้างการค้นหา" buttons right-aligned with icons.
 - **Tables**: Wrap content in `<Card styles={{ body: { padding: 16 } }}>`. Use `<UnorderedListOutlined />` (1rem) for table headings. Add sort to all sortable columns. Never use `maxWidth` on columns.
 - **Font weight**: Maximum 600.
@@ -185,6 +186,7 @@ Use `$transaction` when writing to multiple tables. Never mix models across inst
 | `src/services/axios-instance/sb-helper.axios.ts` | `callApiService` — Axios instance for client→internal Next.js API routes; logs every request to `/api/v1/logger/create` |
 | `src/services/api-url.tsx` | Centralized `API_URL` constants (reads from `NEXT_PUBLIC_*` env vars) |
 | `src/services/canteen-api.ts` | Hardware canteen device API |
+| `src/services/line/line-push.service.ts` | LINE Messaging API — push/broadcast messages, cron device-status reports, webhook event handling |
 | `src/helpers/logger.server.ts` | Winston server-side logging |
 | `src/helpers/api-log.helper.ts` | Request/response logging middleware |
 
@@ -232,12 +234,21 @@ These routes proxy to Google Generative AI / OpenAI — API keys are in env vars
 
 Swagger/OpenAPI spec is auto-generated from `/src/app/api` and served at `/api-doc` (OpenAPI 3.1.0 with bearer auth, via `lib/swagger.ts`).
 
+### LINE integration
+
+LINE Messaging API routes under `src/app/api/v1/application/line/`:
+
+- `POST /api/v1/application/line/webhook` — receives LINE webhook events; validates HMAC-SHA256 signature before processing
+- `POST /api/v1/application/line/cron-report` — cron-triggered; pushes device-status summary to LINE groups (no Authorization header required — called by cron only)
+- `GET/POST /api/v1/application/line/groups` — manage LINE group registrations
+
+Business logic lives in `src/services/line/line-push.service.ts`. The legacy `src/app/api/v1/line-chat/route.ts` handles raw webhook echoing (deprecated path — new logic uses `application/line/webhook` above).
+
 ### Notable constraints
 
 - Console logs are stripped in production builds (except `error`/`warn`), configured in `next.config.mjs`.
 - Server Actions body size limit is **5mb** (`experimental.serverActions.bodySizeLimit`).
-- File uploads target Huawei OBS only — `next.config.mjs` remotePatterns restrict image optimization to OBS domain.
-- File uploads go to Huawei OBS (`esdk-obs-nodejs`); image remote pattern is configured in `next.config.mjs`.
+- File uploads go to Huawei OBS (`esdk-obs-nodejs`); image remote pattern is configured in `next.config.mjs` and restricts image optimization to OBS domain.
 - The `BYPASS_USER_ID = "49"` constant in the timesheet/overtime page identifies the sole user with OT approval rights. This check **must** be enforced both on the frontend and at the API layer (`src/app/api/v1/timesheet/overtime/change-status/route.ts`) using `await auth()`.
 - Never delete or overwrite existing functions — only extend or add alongside them.
 - Write a Thai-language comment above every function describing its purpose (no emojis in comments).
