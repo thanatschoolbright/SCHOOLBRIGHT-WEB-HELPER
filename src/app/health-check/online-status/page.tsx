@@ -42,7 +42,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import DeviceTable from "./_components/device-table";
 import FilterSection from "./_components/filter-section";
-import { DashboardSummary, LineGroup, onlineStatusService } from "./_services/online-status-service";
+import {
+  DashboardSummary,
+  LineGroup,
+  onlineStatusService,
+} from "./_services/online-status-service";
 import { useOnlineStatusStore } from "./_state/online-status-store";
 
 dayjs.extend(relativeTime);
@@ -82,8 +86,7 @@ const DiscordIcon = () => (
  */
 export default function OnlineDeviceDashboard() {
   const { token } = theme.useToken();
-  const { isFetching, deviceList, fetchData } =
-    useOnlineStatusStore();
+  const { isFetching, deviceList, fetchData } = useOnlineStatusStore();
   const dispatch = useDispatch<AppDispatch>();
   const schoolListState = useAppSelector(
     (state) => state.callGetSchoolListDetail,
@@ -177,7 +180,9 @@ export default function OnlineDeviceDashboard() {
   const handleNotifyLine = async () => {
     try {
       setIsNotifyingLine(true);
-      const res = await callApiService.get("/api/v1/application/line/cron-report");
+      const res = await callApiService.get(
+        "/api/v1/application/line/cron-report",
+      );
       const data = res?.data;
       if (data?.status_code === 200 || data?.status === 200) {
         const d = data.data;
@@ -185,7 +190,7 @@ export default function OnlineDeviceDashboard() {
           open: true,
           type: "success",
           title: "ส่งแจ้งเตือน LINE สำเร็จ",
-          message: `รายงานสถานะ ${d?.total ?? 0} เครื่อง · ออนไลน์ ${d?.online} · ออฟไลน์ ${d?.offline} เครื่อง ส่งไปยัง LINE แล้ว`,
+          message: `รายงานสถานะเครื่อง ส่งไปยัง LINE แล้ว`,
         });
       } else {
         throw new Error(data?.message_th ?? "ส่งไม่สำเร็จ");
@@ -315,7 +320,10 @@ export default function OnlineDeviceDashboard() {
                 <Tooltip
                   title={
                     activeGroupId
-                      ? `ส่งไปยัง: ${lineGroups.find((g) => g.group_id === activeGroupId)?.group_name ?? activeGroupId}`
+                      ? `ส่งไปยัง: ${
+                          lineGroups.find((g) => g.group_id === activeGroupId)
+                            ?.group_name ?? activeGroupId
+                        }`
                       : "กรุณาเลือกกลุ่ม LINE ก่อนส่ง"
                   }
                 >
@@ -335,10 +343,14 @@ export default function OnlineDeviceDashboard() {
                         : isNotifyingLine
                         ? token.colorFillTertiary
                         : "#06C755",
-                      color: !activeGroupId ? token.colorTextDisabled : "#FFFFFF",
+                      color: !activeGroupId
+                        ? token.colorTextDisabled
+                        : "#FFFFFF",
                       border: "none",
                       borderRight: "1px solid rgba(255,255,255,0.25)",
-                      boxShadow: activeGroupId ? "0 4px 14px 0 rgba(6, 199, 85, 0.35)" : "none",
+                      boxShadow: activeGroupId
+                        ? "0 4px 14px 0 rgba(6, 199, 85, 0.35)"
+                        : "none",
                     }}
                   >
                     <span>ส่งรายงานไปยัง LINE</span>
@@ -353,7 +365,9 @@ export default function OnlineDeviceDashboard() {
                           border: "1px solid rgba(255,255,255,0.4)",
                         }}
                       >
-                        <NotificationOutlined style={{ fontSize: 10, marginRight: 4 }} />
+                        <NotificationOutlined
+                          style={{ fontSize: 10, marginRight: 4 }}
+                        />
                         {offlineCount} ออฟไลน์
                       </span>
                     )}
@@ -369,7 +383,9 @@ export default function OnlineDeviceDashboard() {
                         label: (
                           <Flex align="center" gap={6}>
                             <SettingOutlined style={{ fontSize: 11 }} />
-                            <span style={{ fontSize: 11 }}>เลือกกลุ่ม LINE สำหรับส่งรายงาน</span>
+                            <span style={{ fontSize: 11 }}>
+                              เลือกกลุ่ม LINE สำหรับส่งรายงาน
+                            </span>
                           </Flex>
                         ),
                       },
@@ -379,7 +395,12 @@ export default function OnlineDeviceDashboard() {
                               key: "empty",
                               disabled: true,
                               label: (
-                                <span style={{ fontSize: 12, color: token.colorTextTertiary }}>
+                                <span
+                                  style={{
+                                    fontSize: 12,
+                                    color: token.colorTextTertiary,
+                                  }}
+                                >
                                   ยังไม่มีกลุ่มในระบบ — เพิ่ม Bot เข้ากลุ่มก่อน
                                 </span>
                               ),
@@ -390,20 +411,38 @@ export default function OnlineDeviceDashboard() {
                             label: (
                               <Flex align="center" gap={8}>
                                 {g.group_id === activeGroupId ? (
-                                  <CheckOutlined style={{ color: "#06C755", fontSize: 12 }} />
+                                  <CheckOutlined
+                                    style={{ color: "#06C755", fontSize: 12 }}
+                                  />
                                 ) : (
-                                  <span style={{ width: 12, display: "inline-block" }} />
+                                  <span
+                                    style={{
+                                      width: 12,
+                                      display: "inline-block",
+                                    }}
+                                  />
                                 )}
                                 <Flex vertical gap={1} flex={1}>
-                                  <span style={{ fontSize: 13, fontWeight: 500 }}>
+                                  <span
+                                    style={{ fontSize: 13, fontWeight: 500 }}
+                                  >
                                     {g.group_name ?? "ไม่ระบุชื่อกลุ่ม"}
                                   </span>
-                                  <span style={{ fontSize: 10, color: token.colorTextTertiary, fontFamily: "monospace" }}>
+                                  <span
+                                    style={{
+                                      fontSize: 10,
+                                      color: token.colorTextTertiary,
+                                      fontFamily: "monospace",
+                                    }}
+                                  >
                                     {g.group_id}
                                   </span>
                                 </Flex>
                                 {g.group_id === activeGroupId && (
-                                  <Tag color="green" style={{ fontSize: 10, margin: 0 }}>
+                                  <Tag
+                                    color="green"
+                                    style={{ fontSize: 10, margin: 0 }}
+                                  >
                                     ใช้งานอยู่
                                   </Tag>
                                 )}
@@ -420,13 +459,24 @@ export default function OnlineDeviceDashboard() {
                       width: 36,
                       padding: 0,
                       borderRadius: "0 12px 12px 0",
-                      backgroundColor: activeGroupId ? "#05b84a" : token.colorFillTertiary,
-                      color: activeGroupId ? "#FFFFFF" : token.colorTextTertiary,
+                      backgroundColor: activeGroupId
+                        ? "#05b84a"
+                        : token.colorFillTertiary,
+                      color: activeGroupId
+                        ? "#FFFFFF"
+                        : token.colorTextTertiary,
                       border: "none",
-                      boxShadow: activeGroupId ? "0 4px 14px 0 rgba(6, 199, 85, 0.35)" : "none",
+                      boxShadow: activeGroupId
+                        ? "0 4px 14px 0 rgba(6, 199, 85, 0.35)"
+                        : "none",
                     }}
                     icon={
-                      <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 10 10"
+                        fill="currentColor"
+                      >
                         <path d="M5 7L1 3h8z" />
                       </svg>
                     }
@@ -516,7 +566,9 @@ export default function OnlineDeviceDashboard() {
               unit="เครื่อง"
               icon={<DesktopOutlined />}
               color="#6366f1"
-              subtitle={dashboard ? `${dashboard.totalSchools} โรงเรียน` : undefined}
+              subtitle={
+                dashboard ? `${dashboard.totalSchools} โรงเรียน` : undefined
+              }
               isLoading={isDashboardLoading}
             />
           </Col>
@@ -527,7 +579,9 @@ export default function OnlineDeviceDashboard() {
               unit="เครื่อง"
               icon={<WifiOutlined />}
               color="#16a34a"
-              subtitle={dashboard ? `${dashboard.onlineRate}% ของทั้งหมด` : undefined}
+              subtitle={
+                dashboard ? `${dashboard.onlineRate}% ของทั้งหมด` : undefined
+              }
               isLoading={isDashboardLoading}
             />
           </Col>
@@ -563,7 +617,9 @@ export default function OnlineDeviceDashboard() {
               color="#2563eb"
               subtitle={
                 dashboard
-                  ? `${Math.round((dashboard.login / (dashboard.total || 1)) * 100)}% ของออนไลน์`
+                  ? `${Math.round(
+                      (dashboard.login / (dashboard.total || 1)) * 100,
+                    )}% ของออนไลน์`
                   : undefined
               }
               isLoading={isDashboardLoading}
