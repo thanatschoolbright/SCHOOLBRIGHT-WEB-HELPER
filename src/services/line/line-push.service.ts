@@ -371,8 +371,58 @@ function buildAppGroupBubble(group: {
   };
 }
 
-// สร้าง plain-text message รายละเอียดเครื่อง offline จัดกลุ่มตามโรงเรียน
-export function buildOfflineDetailTextMessage(
+const LINE_TEXT_MAX = 5000;
+// LINE อนุญาตสูงสุด 5 messages ต่อ 1 push call — flex ใช้ 1 slot เหลือ 4 สำหรับ text
+const LINE_TEXT_MSG_SLOTS = 4;
+
+// สร้าง block ข้อความของโรงเรียน 1 แห่ง (ไม่มี header/footer)
+function buildSchoolBlock(
+  schoolId: number,
+  schoolName: string,
+  devices: { appName: string; appVersion: string; deviceId: string }[],
+): string {
+  const lines: string[] = [
+    `โรงเรียน${schoolName} (${schoolId})`,
+    `ออฟไลน์ ${devices.length} เครื่อง`,
+    `─────────────────────`,
+  ];
+  for (const { appName, appVersion, deviceId } of devices) {
+    lines.push(`▸ ${appName} v${appVersion}`);
+    lines.push(`   ${deviceId}`);
+  }
+  return lines.join("\n");
+}
+
+// แบ่ง school blocks ออกเป็น chunk โดยไม่ให้ข้อความเกิน LINE_TEXT_MAX ตัวอักษร
+function chunkSchoolBlocks(
+  header: string,
+  footer: string,
+  blocks: string[],
+): string[] {
+  const messages: string[] = [];
+  let current = header;
+
+  for (const block of blocks) {
+    const separator = current === header ? "" : "\n\n";
+    const candidate = current + separator + block;
+    // ถ้าใส่ block นี้แล้วยังไม่เกิน limit (เผื่อ footer ด้วย)
+    if ((candidate + "\n\n" + footer).length <= LINE_TEXT_MAX) {
+      current = candidate;
+    } else {
+      // flush message ปัจจุบันแล้วเริ่มใหม่
+      messages.push(current);
+      current = block;
+    }
+  }
+
+  // flush message สุดท้ายพร้อม footer
+  messages.push(current + "\n\n" + footer);
+  return messages;
+}
+
+// สร้าง plain-text messages รายละเอียดเครื่อง offline จัดกลุ่มตามโรงเรียน
+// คืนค่าเป็น array เพราะข้อมูลอาจยาวเกิน 5,000 ตัวอักษร (LINE limit)
+export function buildOfflineDetailTextMessages(
   offlineBySchool: Map<
     number,
     {
@@ -381,34 +431,40 @@ export function buildOfflineDetailTextMessage(
     }
   >,
   reportTime: string,
-): object {
+): object[] {
   const sorted = Array.from(offlineBySchool.entries()).sort(([a], [b]) => a - b);
-
   const totalOffline = sorted.reduce((sum, [, { devices }]) => sum + devices.length, 0);
 
-  const lines: string[] = [
+  const header = [
     `แจ้งเตือน : เครื่อง POS ออฟไลน์`,
     `เวลา : ${reportTime}`,
     `จำนวนทั้งหมด : ${totalOffline} เครื่อง จาก ${sorted.length} โรงเรียน`,
     `━━━━━━━━━━━━━━━━━━━━━━━━`,
-  ];
+  ].join("\n");
 
-  sorted.forEach(([schoolId, { schoolName, devices }], idx) => {
-    if (idx > 0) lines.push("");
-    lines.push(`โรงเรียน${schoolName} (${schoolId})`);
-    lines.push(`ออฟไลน์ ${devices.length} เครื่อง`);
-    lines.push(`─────────────────────`);
-    for (const { appName, appVersion, deviceId } of devices) {
-      lines.push(`▸ ${appName} v${appVersion}`);
-      lines.push(`   ${deviceId}`);
-    }
-  });
+  const footer = [
+    `กรุณาตรวจสอบและชาร์จแบตเตอรี่`,
+    `หรือรีสตาร์ทเครื่องโดยด่วน`,
+  ].join("\n");
 
-  lines.push(``);
-  lines.push(`กรุณาตรวจสอบและชาร์จแบตเตอรี่`);
-  lines.push(`หรือรีสตาร์ทเครื่องโดยด่วน`);
+  const blocks = sorted.map(([schoolId, { schoolName, devices }]) =>
+    buildSchoolBlock(schoolId, schoolName, devices),
+  );
 
-  return { type: "text", text: lines.join("\n") };
+  const chunks = chunkSchoolBlocks(header, footer, blocks);
+
+  // LINE อนุญาตสูงสุด LINE_TEXT_MSG_SLOTS messages สำหรับ text (ส่วนที่เหลือจาก flex)
+  const capped = chunks.slice(0, LINE_TEXT_MSG_SLOTS);
+
+  // ถ้าตัดทิ้ง chunk บางส่วน ให้บอกจำนวนที่เกิน
+  if (chunks.length > LINE_TEXT_MSG_SLOTS) {
+    const lastMsg = capped[capped.length - 1];
+    const skipped = chunks.length - LINE_TEXT_MSG_SLOTS;
+    capped[capped.length - 1] =
+      lastMsg + `\n\n(ข้อมูลบางส่วนถูกตัดออก ${skipped} หน้า เนื่องจากเกินขีดจำกัด LINE)`;
+  }
+
+  return capped.map((text) => ({ type: "text", text }));
 }
 
 // สร้าง Flex Message แบบ Carousel (เลื่อนซ้าย-ขวา) สำหรับรายงานสถานะอุปกรณ์

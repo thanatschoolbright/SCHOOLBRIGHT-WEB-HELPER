@@ -2,7 +2,7 @@ import { errorResponse, successResponse } from "@/helpers/api/response";
 import prisma from "@helpers/prisma";
 import {
   buildDeviceStatusFlexMessage,
-  buildOfflineDetailTextMessage,
+  buildOfflineDetailTextMessages,
   linePushMessage,
 } from "@services/line/line-push.service";
 import axios from "axios";
@@ -159,11 +159,9 @@ export async function GET(request: NextRequest) {
 
     const messages: object[] = [buildDeviceStatusFlexMessage(stats)];
 
-    // ถ้ามีเครื่อง offline ให้แนบ plain-text รายละเอียดต่อท้าย
+    // ถ้ามีเครื่อง offline ให้แนบ plain-text รายละเอียดต่อท้าย (อาจหลาย messages)
     if (offlineBySchool.size > 0) {
-      messages.push(
-        buildOfflineDetailTextMessage(offlineBySchool, reportTime),
-      );
+      messages.push(...buildOfflineDetailTextMessages(offlineBySchool, reportTime));
     }
 
     await linePushMessage(groupId, messages);
