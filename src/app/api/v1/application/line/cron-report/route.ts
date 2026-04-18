@@ -81,7 +81,10 @@ export async function GET(request: NextRequest) {
     // จัดกลุ่มเครื่อง offline ตาม SchoolID
     const offlineBySchool = new Map<
       number,
-      { schoolName: string; deviceIds: string[] }
+      {
+        schoolName: string;
+        devices: { appName: string; appVersion: string; deviceId: string }[];
+      }
     >();
 
     for (const device of allDevices) {
@@ -99,9 +102,13 @@ export async function GET(request: NextRequest) {
         const entry = offlineBySchool.get(device.SchoolID) ?? {
           schoolName:
             schoolNameMap.get(device.SchoolID) ?? `โรงเรียน ${device.SchoolID}`,
-          deviceIds: [],
+          devices: [],
         };
-        entry.deviceIds.push(device.DeviceID);
+        entry.devices.push({
+          appName: device.AppName ?? "ไม่ระบุแอป",
+          appVersion: device.AppVersion ?? "-",
+          deviceId: device.DeviceID,
+        });
         offlineBySchool.set(device.SchoolID, entry);
       }
       if (device.Login) login++;

@@ -373,22 +373,40 @@ function buildAppGroupBubble(group: {
 
 // สร้าง plain-text message รายละเอียดเครื่อง offline จัดกลุ่มตามโรงเรียน
 export function buildOfflineDetailTextMessage(
-  offlineBySchool: Map<number, { schoolName: string; deviceIds: string[] }>,
+  offlineBySchool: Map<
+    number,
+    {
+      schoolName: string;
+      devices: { appName: string; appVersion: string; deviceId: string }[];
+    }
+  >,
   reportTime: string,
 ): object {
-  const lines: string[] = [
-    `เครื่อง Offline (${reportTime})`,
-    "─────────────────────",
-  ];
-
   const sorted = Array.from(offlineBySchool.entries()).sort(([a], [b]) => a - b);
 
-  for (const [schoolId, { schoolName, deviceIds }] of sorted) {
-    lines.push(`${schoolName} (${schoolId})`);
-    for (const deviceId of deviceIds) {
-      lines.push(`  • ${deviceId}`);
+  const totalOffline = sorted.reduce((sum, [, { devices }]) => sum + devices.length, 0);
+
+  const lines: string[] = [
+    `แจ้งเตือน : เครื่อง POS ออฟไลน์`,
+    `เวลา : ${reportTime}`,
+    `จำนวนทั้งหมด : ${totalOffline} เครื่อง จาก ${sorted.length} โรงเรียน`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━`,
+  ];
+
+  sorted.forEach(([schoolId, { schoolName, devices }], idx) => {
+    if (idx > 0) lines.push("");
+    lines.push(`โรงเรียน${schoolName} (${schoolId})`);
+    lines.push(`ออฟไลน์ ${devices.length} เครื่อง`);
+    lines.push(`─────────────────────`);
+    for (const { appName, appVersion, deviceId } of devices) {
+      lines.push(`▸ ${appName} v${appVersion}`);
+      lines.push(`   ${deviceId}`);
     }
-  }
+  });
+
+  lines.push(``);
+  lines.push(`กรุณาตรวจสอบและชาร์จแบตเตอรี่`);
+  lines.push(`หรือรีสตาร์ทเครื่องโดยด่วน`);
 
   return { type: "text", text: lines.join("\n") };
 }
