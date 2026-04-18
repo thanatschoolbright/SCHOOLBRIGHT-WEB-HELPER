@@ -1,5 +1,6 @@
 import { errorResponse, successResponse } from "@/helpers/api/response";
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
+import { buildDeviceStatusReport } from "@services/line/line-push.service";
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -85,15 +86,27 @@ export async function POST(request: NextRequest) {
       }
 
       if (event.type === "message" && event.message?.type === "text") {
-        const text: string = event.message.text ?? "";
+        const text: string = (event.message.text ?? "").trim();
 
         // คำสั่ง /luid — ตอบกลับ userId และ groupId
-        if (text.trim() === "/luid") {
+        if (text === "/luid") {
           const userId = event.source?.userId ?? "ไม่พบข้อมูล";
           const gid = groupId ? `\nGroup ID: ${groupId}` : "";
           await replyMessage(event.replyToken, [
             { type: "text", text: `LINE User ID: ${userId}${gid}` },
           ]);
+        }
+
+        // คำสั่ง "สถานะ" — ดึงรายงานสถานะ POS แบบ real-time แล้ว reply กลับ
+        if (text === "สถานะ") {
+          try {
+            const messages = await buildDeviceStatusReport();
+            await replyMessage(event.replyToken, messages);
+          } catch {
+            await replyMessage(event.replyToken, [
+              { type: "text", text: "เกิดข้อผิดพลาดขณะดึงข้อมูลสถานะ กรุณาลองใหม่อีกครั้ง" },
+            ]);
+          }
         }
       }
     }

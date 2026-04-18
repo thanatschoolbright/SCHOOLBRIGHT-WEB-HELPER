@@ -1,4 +1,9 @@
 import axios from "axios";
+import prisma from "@helpers/prisma";
+import dayjs from "dayjs";
+import "dayjs/locale/th";
+
+dayjs.locale("th");
 
 const LINE_API = "https://api.line.me/v2/bot/message";
 const LINE_FLEX_MAX_BUBBLES = 12;
@@ -508,4 +513,116 @@ export function buildDeviceStatusFlexMessage(stats: {
       contents: [summaryBubble, ...appBubbles],
     },
   };
+}
+
+const FIFTEEN_MIN_IN_MS = 15 * 60 * 1000;
+
+// ดึงข้อมูลจาก DB คำนวณสถานะ และสร้าง LINE messages array พร้อมส่ง
+// ใช้ร่วมกันระหว่าง cron-report และ webhook (คำสั่ง "สถานะ")
+export async function buildDeviceStatusReport(): Promise<object[]> {
+  const now = new Date();
+  const reportTime = dayjs().format("DD/MM/YYYY HH:mm") + " น.";
+
+  const [allDevices, allSchools] = await Promise.all([
+    prisma.deviceDailyStatus.findMany({
+      select: {
+        Online: true,
+        OnlineTime: true,
+        Login: true,
+        SchoolID: true,
+        DeviceID: true,
+        AppName: true,
+        AppVersion: true,
+      },
+    }),
+    prisma.activeSchoolList.findMany({
+      select: { nCompany: true, sCompany: true },
+    }),
+  ]);
+
+  const schoolNameMap = new Map<number, string>(
+    allSchools.map((s) => [s.nCompany, s.sCompany ?? `โรงเรียน ${s.nCompany}`]),
+  );
+
+  let online = 0;
+  let offline = 0;
+  let login = 0;
+  const schoolSet = new Set<number>();
+  const groupMap = new Map<
+    string,
+    { online: number; offline: number; login: number; total: number }
+  >();
+  const offlineBySchool = new Map<
+    number,
+    {
+      schoolName: string;
+      devices: { appName: string; appVersion: string; deviceId: string }[];
+    }
+  >();
+
+  for (const device of allDevices) {
+    const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
+    const isOnlineDynamic =
+      device.Online === true ||
+      (onlineTime ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS : false);
+
+    if (isOnlineDynamic) online++;
+    else {
+      offline++;
+      const entry = offlineBySchool.get(device.SchoolID) ?? {
+        schoolName: schoolNameMap.get(device.SchoolID) ?? `โรงเรียน ${device.SchoolID}`,
+        devices: [],
+      };
+      entry.devices.push({
+        appName: device.AppName ?? "ไม่ระบุแอป",
+        appVersion: device.AppVersion ?? "-",
+        deviceId: device.DeviceID,
+      });
+      offlineBySchool.set(device.SchoolID, entry);
+    }
+    if (device.Login) login++;
+    schoolSet.add(device.SchoolID);
+
+    const appKey = `${device.AppName ?? "ไม่ระบุแอป"}|||${device.AppVersion ?? "-"}`;
+    const g = groupMap.get(appKey) ?? { online: 0, offline: 0, login: 0, total: 0 };
+    g.total++;
+    if (isOnlineDynamic) g.online++;
+    else g.offline++;
+    if (device.Login) g.login++;
+    groupMap.set(appKey, g);
+  }
+
+  const total = allDevices.length;
+  const onlineRate = total === 0 ? 0 : Math.round((online / total) * 100);
+
+  const appGroups = Array.from(groupMap.entries())
+    .map(([key, g]) => {
+      const [appName, appVersion] = key.split("|||");
+      return {
+        appName: appName ?? "ไม่ระบุแอป",
+        appVersion: appVersion ?? "-",
+        ...g,
+        onlineRate: g.total === 0 ? 0 : Math.round((g.online / g.total) * 100),
+      };
+    })
+    .sort((a, b) => a.appName.localeCompare(b.appName));
+
+  const messages: object[] = [
+    buildDeviceStatusFlexMessage({
+      total,
+      online,
+      offline,
+      login,
+      onlineRate,
+      totalSchools: schoolSet.size,
+      reportTime,
+      appGroups,
+    }),
+  ];
+
+  if (offlineBySchool.size > 0) {
+    messages.push(...buildOfflineDetailTextMessages(offlineBySchool, reportTime));
+  }
+
+  return messages;
 }
