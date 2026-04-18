@@ -371,6 +371,28 @@ function buildAppGroupBubble(group: {
   };
 }
 
+// สร้าง plain-text message รายละเอียดเครื่อง offline จัดกลุ่มตามโรงเรียน
+export function buildOfflineDetailTextMessage(
+  offlineBySchool: Map<number, { schoolName: string; deviceIds: string[] }>,
+  reportTime: string,
+): object {
+  const lines: string[] = [
+    `เครื่อง Offline (${reportTime})`,
+    "─────────────────────",
+  ];
+
+  const sorted = Array.from(offlineBySchool.entries()).sort(([a], [b]) => a - b);
+
+  for (const [schoolId, { schoolName, deviceIds }] of sorted) {
+    lines.push(`${schoolName} (${schoolId})`);
+    for (const deviceId of deviceIds) {
+      lines.push(`  • ${deviceId}`);
+    }
+  }
+
+  return { type: "text", text: lines.join("\n") };
+}
+
 // สร้าง Flex Message แบบ Carousel (เลื่อนซ้าย-ขวา) สำหรับรายงานสถานะอุปกรณ์
 export function buildDeviceStatusFlexMessage(stats: {
   total: number;

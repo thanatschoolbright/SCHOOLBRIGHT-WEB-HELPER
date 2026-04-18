@@ -2,6 +2,7 @@ import { errorResponse, successResponse } from "@/helpers/api/response";
 import prisma from "@helpers/prisma";
 import {
   buildDeviceStatusFlexMessage,
+  buildOfflineDetailTextMessage,
   linePushMessage,
 } from "@services/line/line-push.service";
 import axios from "axios";
@@ -46,16 +47,27 @@ export async function GET(request: NextRequest) {
     const reportTime = dayjs().format("DD/MM/YYYY HH:mm") + " น.";
 
     // ดึงสถิติอุปกรณ์ทั้งหมดจาก DB พร้อม AppName/AppVersion สำหรับแยกกลุ่ม
-    const allDevices = await prisma.deviceDailyStatus.findMany({
-      select: {
-        Online: true,
-        OnlineTime: true,
-        Login: true,
-        SchoolID: true,
-        AppName: true,
-        AppVersion: true,
-      },
-    });
+    const [allDevices, allSchools] = await Promise.all([
+      prisma.deviceDailyStatus.findMany({
+        select: {
+          Online: true,
+          OnlineTime: true,
+          Login: true,
+          SchoolID: true,
+          DeviceID: true,
+          AppName: true,
+          AppVersion: true,
+        },
+      }),
+      prisma.activeSchoolList.findMany({
+        select: { nCompany: true, sCompany: true },
+      }),
+    ]);
+
+    // สร้าง map รหัสโรงเรียน → ชื่อโรงเรียน
+    const schoolNameMap = new Map<number, string>(
+      allSchools.map((s) => [s.nCompany, s.sCompany ?? `โรงเรียน ${s.nCompany}`]),
+    );
 
     const total = allDevices.length;
     let online = 0;
@@ -65,6 +77,11 @@ export async function GET(request: NextRequest) {
     const groupMap = new Map<
       string,
       { online: number; offline: number; login: number; total: number }
+    >();
+    // จัดกลุ่มเครื่อง offline ตาม SchoolID
+    const offlineBySchool = new Map<
+      number,
+      { schoolName: string; deviceIds: string[] }
     >();
 
     for (const device of allDevices) {
@@ -76,7 +93,17 @@ export async function GET(request: NextRequest) {
           : false);
 
       if (isOnlineDynamic) online++;
-      else offline++;
+      else {
+        offline++;
+        // เก็บรายละเอียดเครื่อง offline แยกตามโรงเรียน
+        const entry = offlineBySchool.get(device.SchoolID) ?? {
+          schoolName:
+            schoolNameMap.get(device.SchoolID) ?? `โรงเรียน ${device.SchoolID}`,
+          deviceIds: [],
+        };
+        entry.deviceIds.push(device.DeviceID);
+        offlineBySchool.set(device.SchoolID, entry);
+      }
       if (device.Login) login++;
       schoolSet.add(device.SchoolID);
 
@@ -123,8 +150,16 @@ export async function GET(request: NextRequest) {
       appGroups,
     };
 
-    const flexMessage = buildDeviceStatusFlexMessage(stats);
-    await linePushMessage(groupId, [flexMessage]);
+    const messages: object[] = [buildDeviceStatusFlexMessage(stats)];
+
+    // ถ้ามีเครื่อง offline ให้แนบ plain-text รายละเอียดต่อท้าย
+    if (offlineBySchool.size > 0) {
+      messages.push(
+        buildOfflineDetailTextMessage(offlineBySchool, reportTime),
+      );
+    }
+
+    await linePushMessage(groupId, messages);
 
     return NextResponse.json(
       successResponse({
