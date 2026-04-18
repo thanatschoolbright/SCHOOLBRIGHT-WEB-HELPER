@@ -25,11 +25,13 @@ const BRAND_COLORS = {
 };
 
 const FONTS = {
-  "google-sans": 'var(--font-google-sans), "Google Sans", system-ui, sans-serif',
+  "google-sans":
+    'var(--font-google-sans), "Google Sans", system-ui, sans-serif',
   sukhumvit: 'var(--font-sukhumvit), "Sukhumvit Set", system-ui, sans-serif',
   anuphan: 'var(--font-anuphan), "Anuphan", system-ui, sans-serif',
   kanit: 'var(--font-kanit), "Kanit", system-ui, sans-serif',
-  "line-seed": 'var(--font-line-seed), "LINE Seed Sans TH", system-ui, sans-serif',
+  "line-seed":
+    'var(--font-line-seed), "LINE Seed Sans TH", system-ui, sans-serif',
 };
 
 const SYSTEM_PALETTE = {
@@ -108,12 +110,12 @@ const getModernTheme = (
       colorBorderSecondary: palette.borderSecondary,
 
       fontFamily: FONTS[font] || FONTS["google-sans"],
-      fontSize: 14,
-      borderRadius: 14,
-      borderRadiusLG: 20,
-      borderRadiusSM: 8,
+      fontSize: 15,
+      borderRadius: 16,
+      borderRadiusLG: 24,
+      borderRadiusSM: 10,
 
-      controlHeight: 44,
+      controlHeight: 46,
       fontWeightStrong: 700,
 
       wireframe: false,
@@ -131,7 +133,7 @@ const getModernTheme = (
         paddingBlock: 8,
       },
       Card: {
-        paddingLG: 24,
+        paddingLG: 28,
         colorBgContainer: isDark
           ? "rgba(30, 41, 59, 0.75)"
           : "rgba(255, 255, 255, 0.85)",
@@ -142,8 +144,8 @@ const getModernTheme = (
           ? "0 1px 3px rgba(0,0,0,0.2), 0 8px 24px -4px rgba(0,0,0,0.35)"
           : "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px -4px rgba(0,0,0,0.07)",
         headerBg: "transparent",
-        headerFontSize: 15,
-        headerFontSizeSM: 13,
+        headerFontSize: 16,
+        headerFontSizeSM: 14,
       },
       Table: {
         headerBg: isDark ? "#334155" : "#F8FAFC", // Brighter table header
@@ -194,7 +196,9 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
   }, []);
 
   const themeFont: keyof typeof FONTS =
-    fontFromContext in FONTS ? (fontFromContext as keyof typeof FONTS) : "google-sans";
+    fontFromContext in FONTS
+      ? (fontFromContext as keyof typeof FONTS)
+      : "google-sans";
 
   // sync font ไปที่ body และ Ant Design Layout ทันทีเมื่อเปลี่ยน
   useEffect(() => {
@@ -362,8 +366,33 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
               .ant-btn,
               .ant-card,
               .ant-input,
-              .ant-select {
-                transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+              .ant-select,
+              .ant-menu-item,
+              .ant-table-row {
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+              }
+
+              /* Smooth selection color */
+              ::selection {
+                background: rgba(255, 140, 0, 0.2);
+                color: #ff8c00;
+              }
+
+              /* ══════════════════════════════
+                 Premium Table Refinement
+                 ══════════════════════════════ */
+              .ant-table-thead > tr > th {
+                font-weight: 700 !important;
+                text-transform: uppercase !important;
+                font-size: 13px !important;
+                letter-spacing: 0.05em !important;
+                color: var(--text-sub) !important;
+              }
+              .ant-table-tbody > tr:hover > td {
+                background: var(--borderSecondary) !important;
+              }
+              .ant-table-row:hover {
+                transform: scale(1.002);
               }
 
               /* Scrollbar Refinement */
@@ -445,8 +474,8 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 will-change: filter;
               }
               body.ant-scrolling-effect .ant-theme-root {
-                filter: blur(6px) brightness(0.9) saturate(0.8);
-                transform: scale(0.99);
+                filter: blur(8px) brightness(0.85) saturate(0.9);
+                transform: scale(0.985);
                 pointer-events: none;
               }
 
@@ -582,38 +611,35 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
 
               /* Apple Store Connect Style Drawer */
               .ant-drawer-mask {
-                background: transparent !important;
-                backdrop-filter: none !important;
+                background: rgba(0, 0, 0, 0.45) !important;
+                backdrop-filter: blur(4px) !important;
+                -webkit-backdrop-filter: blur(4px) !important;
               }
               .ant-drawer-content-wrapper {
-                padding: 24px !important;
+                padding: 16px !important;
                 box-sizing: border-box !important;
-                background: transparent !important;
-                box-shadow: none !important;
               }
               .ant-drawer-content {
-                border-radius: 20px !important;
+                background: var(--modal-bg) !important;
+                border-radius: 24px !important;
+                border: 1px solid var(--border) !important;
+                box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.2) !important;
                 overflow: hidden !important;
-                background: #fcfcfd !important;
-                backdrop-filter: none !important;
-                -webkit-backdrop-filter: none !important;
-                border: 1px solid #e2e8f0 !important;
-                box-shadow: none !important;
               }
-              .dark .ant-drawer-content {
-                background: #1e293b !important;
-                border-color: #475569 !important;
-                box-shadow: none !important;
+              .ant-drawer-header {
+                border-bottom: 1px solid var(--border) !important;
+                padding: 20px 24px !important;
               }
-              .ant-drawer-header-title {
-                display: flex !important;
-                flex-direction: row-reverse !important;
-                justify-content: space-between !important;
-                width: 100% !important;
+              .ant-drawer-title {
+                font-weight: 700 !important;
+                color: var(--text-main) !important;
               }
-              .ant-drawer-close {
-                margin-inline-end: 0 !important;
-                margin-inline-start: auto !important;
+              .ant-drawer-body {
+                padding: 24px !important;
+              }
+              .ant-drawer-footer {
+                border-top: 1px solid var(--border) !important;
+                padding: 16px 24px !important;
               }
             `}</style>
           )}

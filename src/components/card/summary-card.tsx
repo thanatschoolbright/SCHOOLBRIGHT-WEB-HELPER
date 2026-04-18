@@ -62,25 +62,25 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
         style={{ background: color }}
       />
 
-      <div className="flex justify-between items-center gap-3 sm:gap-4 relative z-10">
-        <div className="flex flex-col gap-0 min-w-0">
+      <div className="flex justify-between items-center gap-4 relative z-10">
+        <div className="flex flex-col gap-1 min-w-0">
           {/* Title + Tooltip */}
-          <div className="flex items-center gap-1.5 mb-1">
+          <div className="flex items-center gap-1.5 mb-0.5">
             <span
-              className="text-[10px] sm:text-[11px] font-bold leading-tight text-[#64748B] dark:text-[#CBD5E1] tracking-widest uppercase truncate"
+              className="text-[11px] sm:text-[12px] font-bold leading-tight text-[#64748B] dark:text-[#CBD5E1] tracking-widest uppercase truncate"
               style={{ letterSpacing: "0.08em" }}
             >
               {title}
             </span>
             {tooltip && (
               <div className="group/tip relative flex-shrink-0">
-                <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] cursor-help text-black/20 dark:text-white/20 hover:text-black/40 dark:hover:text-white/40 transition-colors">
+                <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] cursor-help text-[#64748B]/30 dark:text-[#CBD5E1]/30 hover:text-[#64748B]/60 dark:hover:text-[#CBD5E1]/60 transition-colors">
                   ℹ
                 </div>
                 {/* Premium Tooltip */}
                 <div
                   className="pointer-events-none absolute left-0 top-5 z-50 w-max max-w-[150px] sm:max-w-[200px] rounded-lg px-2.5 py-1.5 text-[10px] font-medium text-white opacity-0 group-hover/tip:opacity-100 transition-opacity duration-200 shadow-2xl"
-                  style={{ background: "#111" }}
+                  style={{ background: "#0F172A" }}
                 >
                   {tooltip}
                 </div>
@@ -90,11 +90,11 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
 
           {/* Value + Unit + Suffix */}
           <div className="flex items-baseline gap-1.5 flex-wrap">
-            <span className="text-[24px] sm:text-[32px] font-bold leading-none tracking-tight text-[#0F172A] dark:text-[#FFFFFF] truncate">
+            <span className="text-[24px] sm:text-[30px] font-bold leading-none tracking-tight text-[#0F172A] dark:text-[#FFFFFF] truncate">
               {value}
             </span>
             {(unit || suffix) && (
-              <span className="text-[12px] sm:text-[14px] font-bold text-[#64748B] dark:text-[#CBD5E1]/60 leading-none">
+              <span className="text-[12px] sm:text-[13px] font-bold text-[#64748B]/60 dark:text-[#CBD5E1]/40 leading-none">
                 {unit || suffix}
               </span>
             )}
@@ -102,18 +102,18 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
 
           {/* Subtitle */}
           {subtitle && (
-            <div className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] dark:text-[#CBD5E1]/50 leading-snug mt-1.5 line-clamp-1 sm:line-clamp-none animate-in fade-in slide-in-from-left-2 duration-700">
+            <div className="text-[11px] font-medium text-[#64748B]/70 dark:text-[#CBD5E1]/50 leading-snug mt-1.5 line-clamp-1 sm:line-clamp-none animate-in fade-in slide-in-from-left-2 duration-700">
               {subtitle}
             </div>
           )}
         </div>
 
-        {/* Solid Icon Circle */}
+        {/* Solid Icon - Adjusted scaling */}
         {icon && (
           <div
-            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-xl sm:text-2xl flex-shrink-0 transition-all duration-500 shadow-inner group-hover:scale-110"
+            className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl flex items-center justify-center text-xl sm:text-2xl flex-shrink-0 transition-all duration-500 shadow-inner group-hover:scale-105"
             style={{
-              backgroundColor: `${color}10`,
+              backgroundColor: `${color}08`,
               color: color,
             }}
           >
