@@ -678,6 +678,31 @@ export default function OnlineDeviceDashboard() {
           </Col>
         </Row>
 
+        {/* สถิติแยกตามประเภทอุปกรณ์ (SB Canteen, etc.) */}
+        {dashboard?.app_stats && dashboard.app_stats.length > 0 && (
+          <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+            {dashboard.app_stats.map((app) => (
+              <Col key={app.name} xs={24} sm={12} md={6}>
+                <SummaryCard
+                  title={app.name}
+                  value={app.total}
+                  unit="เครื่อง"
+                  icon={
+                    app.name.toLowerCase().includes("facial") ? (
+                      <CheckOutlined />
+                    ) : (
+                      <DesktopOutlined />
+                    )
+                  }
+                  color={token.colorPrimary}
+                  subtitle={`ออนไลน์ ${app.online} เครื่อง`}
+                  isLoading={isDashboardLoading}
+                />
+              </Col>
+            ))}
+          </Row>
+        )}
+
         <div style={{ marginBottom: 24 }}>
           <Collapse
             defaultActiveKey={["1"]}

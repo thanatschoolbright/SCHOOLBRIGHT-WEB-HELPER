@@ -25,17 +25,28 @@ export async function GET() {
     let offline = 0;
     let login = 0;
     const schoolSet = new Set<number>();
+    const appStats: Record<string, { total: number; online: number }> = {};
 
     for (const device of allDevices) {
       const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
       const isOnlineDynamic =
         device.Online === true ||
-        (onlineTime ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS : false);
+        (onlineTime
+          ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
+          : false);
 
       if (isOnlineDynamic) online++;
       else offline++;
       if (device.Login) login++;
       schoolSet.add(device.SchoolID);
+
+      // สถิติแยกตามประเภทแอป
+      const appName = device.AppName || "ไม่ระบุ";
+      if (!appStats[appName]) {
+        appStats[appName] = { total: 0, online: 0 };
+      }
+      appStats[appName].total++;
+      if (isOnlineDynamic) appStats[appName].online++;
     }
 
     const onlineRate = total === 0 ? 0 : Math.round((online / total) * 100);
@@ -43,7 +54,19 @@ export async function GET() {
 
     return NextResponse.json(
       successResponse({
-        data: { total, online, offline, login, onlineRate, totalSchools },
+        data: {
+          total,
+          online,
+          offline,
+          login,
+          onlineRate,
+          totalSchools,
+          app_stats: Object.entries(appStats).map(([name, stats]) => ({
+            name,
+            total: stats.total,
+            online: stats.online,
+          })),
+        },
         message_th: "ดึงข้อมูล Dashboard สำเร็จ",
         message_en: "Dashboard summary retrieved successfully",
       }),

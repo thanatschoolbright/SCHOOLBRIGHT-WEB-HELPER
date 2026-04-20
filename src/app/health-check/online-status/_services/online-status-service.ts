@@ -33,6 +33,11 @@ export interface DashboardSummary {
   login: number;
   onlineRate: number;
   totalSchools: number;
+  app_stats?: {
+    name: string;
+    total: number;
+    online: number;
+  }[];
 }
 
 export interface DashboardSummaryApiResponse {
@@ -81,10 +86,14 @@ export const onlineStatusService = {
     return response.data.data;
   },
 
-  fetchLineGroups: async (): Promise<{ groups: LineGroup[]; active_group_id: string | null }> => {
-    const response = await callApiService.get<{ status_code: number; data: { groups: LineGroup[]; active_group_id: string | null } }>(
-      "/api/v1/application/line/groups",
-    );
+  fetchLineGroups: async (): Promise<{
+    groups: LineGroup[];
+    active_group_id: string | null;
+  }> => {
+    const response = await callApiService.get<{
+      status_code: number;
+      data: { groups: LineGroup[]; active_group_id: string | null };
+    }>("/api/v1/application/line/groups");
     return response.data.data;
   },
 
