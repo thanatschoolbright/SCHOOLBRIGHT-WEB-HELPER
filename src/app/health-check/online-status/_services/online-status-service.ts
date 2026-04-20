@@ -14,6 +14,7 @@ export interface DeviceStatusData {
   BusinessDate: string;
   AppName?: string;
   AppVersion?: string;
+  Note?: string | null;
 }
 
 export interface DeviceStatusApiResponse {

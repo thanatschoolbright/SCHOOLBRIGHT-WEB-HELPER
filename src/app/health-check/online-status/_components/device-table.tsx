@@ -10,6 +10,7 @@ import {
   CopyOutlined,
   DesktopOutlined,
   DisconnectOutlined,
+  InfoCircleOutlined,
   PoweroffOutlined,
   ReloadOutlined,
   ShopOutlined,
@@ -270,6 +271,21 @@ const DeviceTable: React.FC = () => {
           </div>
         </div>
       ),
+    },
+    {
+      title: (
+        <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide">
+          <InfoCircleOutlined />
+          ชื่ออุปกรณ์
+        </span>
+      ),
+      dataIndex: "Note",
+      key: "Note",
+      width: 180,
+      render: (note: string) => (
+        <AntText style={{ fontSize: 13 }}>{note || "—"}</AntText>
+      ),
+      sorter: (a, b) => (a.Note ?? "").localeCompare(b.Note ?? ""),
     },
     {
       title: (
