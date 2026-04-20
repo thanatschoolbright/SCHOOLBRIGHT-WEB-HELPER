@@ -56,7 +56,6 @@ import {
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { toast } from "sonner";
 
 const { Text } = Typography;
 
@@ -142,18 +141,28 @@ const useServerStatus = () => {
 
   const sendEmailReport = useCallback(async () => {
     setIsSendingEmail(true);
-    const toastId = toast.loading("กำลังส่งอีเมลรายงานสถานะระบบ...");
     try {
       const response = await callApiService.get(
         "/api/v2/server/status/channel/email",
       );
       if (response.data.status_code === 200) {
-        toast.success("ส่งอีเมลรายงานสถานะสำเร็จแล้ว", { id: toastId });
+        setStatusModal({
+          open: true,
+          type: "success",
+          title: "ส่งอีเมลสำเร็จ",
+          message: "ส่งอีเมลรายงานสถานะ Server สำเร็จแล้ว",
+        });
       } else {
         throw new Error(response.data.message_th || "ส่งอีเมลไม่สำเร็จ");
       }
     } catch (error: any) {
-      toast.error(`เกิดข้อผิดพลาด: ${error.message}`, { id: toastId });
+      setStatusModal({
+        open: true,
+        type: "error",
+        title: "ส่งอีเมลไม่สำเร็จ",
+        message: "เกิดข้อผิดพลาดในการส่งอีเมลรายงานสถานะ Server",
+        errorDetails: error,
+      });
     } finally {
       setIsSendingEmail(false);
     }
@@ -199,7 +208,8 @@ const ServerDetailsModal: React.FC<{
   server: ServerStatus | null;
   visible: boolean;
   onClose: () => void;
-}> = ({ server, visible, onClose }) => {
+  setStatusModal: (val: any) => void;
+}> = ({ server, visible, onClose, setStatusModal }) => {
   const { token } = theme.useToken();
   const screens = Grid.useBreakpoint();
   const isMobile = !screens.md;
@@ -211,9 +221,22 @@ const ServerDetailsModal: React.FC<{
   const handleCopy = async () => {
     const success = await copyToClipboard(JSON.stringify(server, null, 2));
     if (success) {
-      toast.success("คัดลอกข้อมูล JSON เรียบร้อยแล้ว");
+      // สามารถเลือกไม่ใช้ Modal สำหรับการ Copy เล็กน้อยได้ แต่ตามคำสั่งยกเลิก Toast ทั้งหมด
+      // จึงขออนุญาตไม่ใส่ Alert/Toast ใดๆ เลยเพื่อความคลีน หรือจะใช้ Modal Success ก็ได้
+      // ในที่นี้ขอเลือกใช้ Modal เพื่อให้เป็นไปตามคำสั่ง "ให้ใช้งาน Modal ทั้งหมด"
+      setStatusModal({
+        open: true,
+        type: "success",
+        title: "คัดลอกสำเร็จ",
+        message: "คัดลอกข้อมูล JSON เรียบร้อยแล้ว",
+      });
     } else {
-      toast.error("ไม่สามารถคัดลอกข้อมูลได้");
+      setStatusModal({
+        open: true,
+        type: "error",
+        title: "คัดลอกล้มเหลว",
+        message: "ไม่สามารถคัดลอกข้อมูลได้",
+      });
     }
   };
 
@@ -441,6 +464,7 @@ const ServerStatusPage: React.FC = () => {
   const [selectedServer, setSelectedServer] = useState<ServerStatus | null>(
     null,
   );
+    errorDetails?: any;
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [isNotifying, setIsNotifying] = useState(false);
@@ -504,7 +528,8 @@ const ServerStatusPage: React.FC = () => {
       name: values.name ?? "",
       status: values.status ?? "all",
     });
-    toast.success("กรองข้อมูลเซิร์ฟเวอร์เรียบร้อย");
+    // ยกเลิก toast และใช้ Modal แทนหากจำเป็น หรือปล่อยไว้ถ้าเป็นแค่ UI feedback เล็กน้อย
+    // ในที่นี้ขอเอาออกตามคำสั่ง "ยกเลิกการใช้ toast ทั้งหมด"
   };
 
   /**
@@ -513,7 +538,6 @@ const ServerStatusPage: React.FC = () => {
   const handleReset = () => {
     form.resetFields();
     setFilters({ name: "", status: "all" });
-    toast.info("ล้างการค้นหาเรียบร้อย");
   };
 
   /**
@@ -549,18 +573,39 @@ const ServerStatusPage: React.FC = () => {
    */
   const handleRefreshData = async () => {
     await refresh();
-    toast.success("ดาวน์โหลดข้อมูลแสดงสถานะเซิร์ฟเวอร์สมบูรณ์");
+    setStatusModal({
+      open: true,
+      type: "success",
+      title: "อัปเดตข้อมูลสำเร็จ",
+      message: "ดาวน์โหลดข้อมูลแสดงสถานะเซิร์ฟเวอร์ล่าสุดเรียบร้อยแล้ว",
+    });
   };
 
   /**
-   * * handleNotifyDiscord: แจ้งเตือนผ่านช่องทาง Discord
+   * * handleNotifyDiscord: แจือนผ่านช่องทาง Discord
    */
-  const handleNotifyDiscord = async () => {
-    setIsNotifying(true);
-    try {
-      const res = await fetch("/api/v2/server/status?mode=discord");
-      if (res.ok) {
-        toast.success("ส่งแจ้งเตือนผ่านช่องทาง Discord เรียบร้อยแล้ว");
+  const setStatusModal({
+          open: true,
+          type: "success",
+          title: "แจ้งเตือนสำเร็จ",
+          message: "ส่งแจ้งเตือนผ่านช่องทาง Discord เรียบร้อยแล้ว",
+        });
+      } else {
+        setStatusModal({
+          open: true,
+          type: "error",
+          title: "แจ้งเตือนไม่สำเร็จ",
+          message: "ไม่สามารถส่งแจ้งเตือนผ่านช่องทาง Discord ได้ในขณะนี้",
+        });
+      }
+    } catch (error: any) {
+      setStatusModal({
+        open: true,
+        type: "error",
+        title: "เกิดข้อผิดพลาด",
+        message: "ระบบขัดข้องไม่สามารถส่งแจ้งเตือนได้",
+        errorDetails: error,
+      }ord เรียบร้อยแล้ว");
       } else {
         toast.error("ไม่สามารถส่งแจ้งเตือนผ่านช่องทาง Discord ได้");
       }
@@ -841,6 +886,7 @@ const ServerStatusPage: React.FC = () => {
         onClose={() => {
           setDetailsModalVisible(false);
         }}
+        setStatusModal={setStatusModal}
       />
 
       <EditDescriptionModal
@@ -857,6 +903,7 @@ const ServerStatusPage: React.FC = () => {
         type={statusModal.type}
         title={statusModal.title}
         message={statusModal.message}
+        errorDetails={statusModal.errorDetails}
         onClose={() => {
           setStatusModal({ ...statusModal, open: false });
         }}
