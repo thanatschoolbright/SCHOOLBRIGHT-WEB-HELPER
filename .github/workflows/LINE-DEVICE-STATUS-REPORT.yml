@@ -15,6 +15,7 @@ jobs:
 
     steps:
       - name: Send Device Status Report to LINE
+        continue-on-error: true
         run: |
           echo "Sending device status report to LINE..."
           response=$(curl -s -o /tmp/response_body.txt -w "%{http_code}" \
@@ -34,6 +35,7 @@ jobs:
           fi
 
       - name: Send Device Status Alert to Discord
+        continue-on-error: true
         run: |
           echo "Sending device status alert to Discord..."
           response=$(curl -s -o /tmp/discord_response_body.txt -w "%{http_code}" \
@@ -53,6 +55,7 @@ jobs:
           fi
 
       - name: Send Device Status Report via Email
+        continue-on-error: true
         run: |
           echo "Sending device status report via email..."
           response=$(curl -s -o /tmp/email_response_body.txt -w "%{http_code}" \
