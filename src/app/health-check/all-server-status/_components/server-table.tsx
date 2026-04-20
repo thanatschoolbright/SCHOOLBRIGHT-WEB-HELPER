@@ -1,14 +1,12 @@
 import React from "react";
-import { Card, Table, Tag, Space, Button, Tooltip, Typography, theme, Flex } from "antd";
+import { Card, Table, Tag, Space, Button, Tooltip, Typography, theme } from "antd";
 import { 
   UnorderedListOutlined, 
   EditOutlined, 
   EyeOutlined, 
   CheckCircleOutlined, 
   CloseCircleOutlined, 
-  ClockCircleOutlined,
-  MailOutlined,
-  DiscordOutlined
+  ClockCircleOutlined
 } from "@ant-design/icons";
 import { ServerStatus, useServerStatusStore } from "../_state/server-status.state";
 
@@ -24,7 +22,7 @@ interface ServerTableProps {
  */
 const ServerTable: React.FC<ServerTableProps> = ({ data, onViewDetails, onEditDescription }) => {
   const { token } = theme.useToken();
-  const { isLoading, isSendingEmail, isNotifyingDiscord, sendEmailReport, notifyDiscord } = useServerStatusStore();
+  const { isLoading } = useServerStatusStore();
 
   const columns = [
     {
@@ -129,28 +127,6 @@ const ServerTable: React.FC<ServerTableProps> = ({ data, onViewDetails, onEditDe
             รายการเซิร์ฟเวอร์
           </Typography.Text>
         </Space>
-      }
-      extra={
-        <Flex gap="middle" wrap="wrap">
-          <Button
-            type="primary"
-            icon={<MailOutlined />}
-            onClick={sendEmailReport}
-            loading={isSendingEmail}
-            style={{ backgroundColor: "#16a34a", borderColor: "#16a34a" }}
-          >
-            ส่งรายงานทาง Email
-          </Button>
-          <Button
-            type="primary"
-            style={{ backgroundColor: "#5865F2", borderColor: "#5865F2" }}
-            icon={<DiscordOutlined />}
-            onClick={notifyDiscord}
-            loading={isNotifyingDiscord}
-          >
-            แจ้งเตือนผ่าน Discord
-          </Button>
-        </Flex>
       }
     >
       <Table

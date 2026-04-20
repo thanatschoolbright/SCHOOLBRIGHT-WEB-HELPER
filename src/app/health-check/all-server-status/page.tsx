@@ -1,8 +1,12 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
-import { Form, Space } from "antd";
-import { SafetyCertificateOutlined } from "@ant-design/icons";
+import { Button, Flex, Form, Space } from "antd";
+import { 
+  SafetyCertificateOutlined, 
+  MailOutlined, 
+  DiscordOutlined 
+} from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
 import { StatusModalComponent } from "@components/modal/status-modal-component";
@@ -26,7 +30,14 @@ import { useServerStatusStore, ServerStatus } from "./_state/server-status.state
 export default function ServerStatusPage() {
   // --- Hooks ---
   const [filterForm] = Form.useForm();
-  const { servers, fetchServers } = useServerStatusStore();
+  const { 
+    servers, 
+    fetchServers, 
+    isSendingEmail, 
+    isNotifyingDiscord, 
+    sendEmailReport, 
+    notifyDiscord 
+  } = useServerStatusStore();
 
   // --- Local States for Modals ---
   const [selectedServer, setSelectedServer] = useState<ServerStatus | null>(null);
@@ -96,6 +107,28 @@ export default function ServerStatusPage() {
         title="ระบบตรวจสอบสถานะเซิร์ฟเวอร์"
         subTitle="ภาพรวมความพร้อมใช้งานและความเร็วในการตอบสนองของระบบทั้งหมดแบบเรียลไทม์"
         icon={<SafetyCertificateOutlined />}
+        extra={
+          <Flex gap="middle">
+            <Button
+              type="primary"
+              icon={<MailOutlined />}
+              onClick={sendEmailReport}
+              loading={isSendingEmail}
+              style={{ backgroundColor: "#16a34a", borderColor: "#16a34a" }}
+            >
+              ส่งรายงานทาง Email
+            </Button>
+            <Button
+              type="primary"
+              style={{ backgroundColor: "#5865F2", borderColor: "#5865F2" }}
+              icon={<DiscordOutlined />}
+              onClick={notifyDiscord}
+              loading={isNotifyingDiscord}
+            >
+              แจ้งเตือนผ่าน Discord
+            </Button>
+          </Flex>
+        }
       />
 
       <Space direction="vertical" size={24} style={{ width: "100%" }}>

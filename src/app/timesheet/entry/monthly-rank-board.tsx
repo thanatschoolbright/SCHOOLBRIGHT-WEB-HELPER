@@ -35,7 +35,6 @@ import {
   useMemo,
   useState,
 } from "react";
-import { toast } from "sonner";
 
 import { ApiResponse, SummaryMetadata, SummaryRecord } from "@/types/timesheet";
 import { RankBoardHeader } from "@components/timesheet/rank-board-header";
@@ -44,7 +43,6 @@ import { RankCard } from "@components/timesheet/rank-card";
 const API_ENDPOINT = "/api/v1/timesheet/entry/check/summary-month";
 const API_FIND_RANK_ENDPOINT = "/api/v1/timesheet/find-ranking";
 const MAX_ROWS = 8;
-const TOAST_ID = "monthly-rank-toast";
 
 type MonthlyRankVariant = "compact" | "wide";
 
@@ -64,61 +62,44 @@ const useMonthlyRankData = (adminId?: number) => {
   const [loading, setLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState<Dayjs>(dayjs());
 
-  const fetchData = useCallback(
-    async (showToast = false) => {
-      setLoading(true);
-      if (showToast) {
-        toast.loading("กำลังอัปเดตข้อมูล...", { id: TOAST_ID });
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+
+    try {
+      // ใช้ endpoint ใหม่ที่รับ user_id เพื่อลดขนาด response (Optimization)
+      const endpoint = adminId ? API_FIND_RANK_ENDPOINT : API_ENDPOINT;
+      const payload: any = {
+        month: selectedMonth.format("M"),
+        year: selectedMonth.format("YYYY"),
+      };
+
+      if (adminId) {
+        payload.user_id = adminId;
       }
 
-      try {
-        // ใช้ endpoint ใหม่ที่รับ user_id เพื่อลดขนาด response (Optimization)
-        const endpoint = adminId ? API_FIND_RANK_ENDPOINT : API_ENDPOINT;
-        const payload: any = {
-          month: selectedMonth.format("M"),
-          year: selectedMonth.format("YYYY"),
-        };
+      const response = await axios.post<ApiResponse>(endpoint, payload, {
+        headers: { "Content-Type": "application/json" },
+      });
 
-        if (adminId) {
-          payload.user_id = adminId;
-        }
+      const apiData = response.data?.data;
 
-        const response = await axios.post<ApiResponse>(endpoint, payload, {
-          headers: { "Content-Type": "application/json" },
-        });
-
-        const apiData = response.data?.data;
-
-        if (adminId) {
-          // find-ranking API จะตอบกลับมาเป็น { record, metadata }
-          const record = (apiData as any)?.record;
-          setRecords(record ? [record] : []);
-        } else {
-          // summary-month API จะตอบกลับมาเป็น { records, metadata }
-          setRecords(apiData?.records ?? []);
-        }
-
-        setMetadata(apiData?.metadata ?? null);
-
-        if (showToast) {
-          toast.success("อัปเดตข้อมูลล่าสุดแล้ว", { id: TOAST_ID });
-        }
-      } catch (error: any) {
-        console.error("fetchMonthlyRank", error);
-        setRecords([]);
-        const errorMessage =
-          error?.response?.data?.message_th ||
-          error?.message ||
-          "เกิดข้อผิดพลาดในการโหลดข้อมูล";
-        if (showToast) {
-          toast.error(errorMessage, { id: TOAST_ID });
-        }
-      } finally {
-        setLoading(false);
+      if (adminId) {
+        // find-ranking API จะตอบกลับมาเป็น { record, metadata }
+        const record = (apiData as any)?.record;
+        setRecords(record ? [record] : []);
+      } else {
+        // summary-month API จะตอบกลับมาเป็น { records, metadata }
+        setRecords(apiData?.records ?? []);
       }
-    },
-    [selectedMonth, adminId],
-  );
+
+      setMetadata(apiData?.metadata ?? null);
+    } catch (error: any) {
+      console.error("fetchMonthlyRank", error);
+      setRecords([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedMonth, adminId]);
 
   useEffect(() => {
     fetchData();
@@ -128,7 +109,7 @@ const useMonthlyRankData = (adminId?: number) => {
     records,
     metadata,
     loading,
-    refetch: () => fetchData(true),
+    refetch: () => fetchData(),
     selectedMonth,
     setSelectedMonth,
   };

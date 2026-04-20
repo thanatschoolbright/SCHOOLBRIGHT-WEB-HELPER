@@ -1,5 +1,4 @@
 import dayjs, { Dayjs } from "dayjs";
-import { toast } from "sonner";
 import { create } from "zustand";
 import { rankingApi } from "../_api/ranking-api";
 
@@ -34,11 +33,8 @@ export const useRankingStore = create<RankingState>((set, get) => ({
   loading: false,
   selectedMonth: dayjs(),
   setSelectedMonth: (month) => set({ selectedMonth: month }),
-  fetchRanking: async (adminId, showToast = false) => {
+  fetchRanking: async (adminId) => {
     set({ loading: true });
-    if (showToast) {
-      toast.loading("กำลังอัปเดตข้อมูล...", { id: "monthly-rank-toast" });
-    }
     try {
       const month = get().selectedMonth.format("M");
       const year = get().selectedMonth.format("YYYY");
@@ -63,15 +59,9 @@ export const useRankingStore = create<RankingState>((set, get) => ({
         metadata: response.data?.metadata || null,
         loading: false,
       });
-
-      if (showToast) {
-        toast.success("อัปเดตข้อมูลสำเร็จ", { id: "monthly-rank-toast" });
-      }
     } catch (error) {
+      console.error("Fetch ranking failed:", error);
       set({ loading: false });
-      if (showToast) {
-        toast.error("ไม่สามารถโหลดข้อมูลได้", { id: "monthly-rank-toast" });
-      }
     }
   },
 }));

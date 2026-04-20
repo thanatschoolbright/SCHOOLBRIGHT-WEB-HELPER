@@ -1,5 +1,4 @@
 import dayjs from "dayjs";
-import { toast } from "sonner";
 import { create } from "zustand";
 import { timesheetApi } from "../_api/timesheet-api";
 import { TimesheetEntry } from "../types/timesheet-entry.types";
@@ -286,20 +285,16 @@ export const useTimesheetStore = create<TimesheetState>((set, get) => ({
 
   saveTimesheet: async (payload) => {
     set({ actionLoading: true });
-    const toast_id = toast.loading("กำลังบันทึกข้อมูล...");
     try {
       const response = await timesheetApi.requestUpsertTimesheet(payload);
       if (response.status === 200) {
-        toast.success("บันทึกข้อมูลสำเร็จ", { id: toast_id });
         return true;
       } else {
         throw new Error(response.message_th || "บันทึกข้อมูลล้มเหลว");
       }
     } catch (error: any) {
-      toast.error(error.message || "เกิดข้อผิดพลาดในการบันทึกข้อมูล", {
-        id: toast_id,
-      });
-      return false;
+      console.error("Save timesheet failed:", error);
+      throw error;
     } finally {
       set({ actionLoading: false });
     }
@@ -307,20 +302,16 @@ export const useTimesheetStore = create<TimesheetState>((set, get) => ({
 
   deleteTimesheet: async (ids: number[], by: number) => {
     set({ actionLoading: true });
-    const toast_id = toast.loading("กำลังลบข้อมูล...");
     try {
       const response = await timesheetApi.requestDeleteTimesheet(ids, by);
       if (response.status === 200) {
-        toast.success("ลบข้อมูลสำเร็จ", { id: toast_id });
         return true;
       } else {
         throw new Error(response.message_th || "ลบข้อมูลล้มเหลว");
       }
     } catch (error: any) {
-      toast.error(error.message || "เกิดข้อผิดพลาดในการลบข้อมูล", {
-        id: toast_id,
-      });
-      return false;
+      console.error("Delete timesheet failed:", error);
+      throw error;
     } finally {
       set({ actionLoading: false });
     }

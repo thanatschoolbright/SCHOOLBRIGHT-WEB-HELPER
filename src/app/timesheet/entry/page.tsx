@@ -95,6 +95,7 @@ export default function TimesheetEntryPage() {
     type: "success" | "error";
     title: string;
     message: string;
+    errorDetails?: any;
   }>({
     open: false,
     type: "success",
@@ -213,9 +214,25 @@ export default function TimesheetEntryPage() {
           fetchEntries(admin_id);
           fetchMonthlySummary(admin_id, selected_summary_date);
           rankBoardRef.current?.refetch();
+          setStatusModal({
+            open: true,
+            type: "success",
+            title: "บันทึกข้อมูลสำเร็จ",
+            message: "ข้อมูล Timesheet ของคุณถูกบันทึกเรียบร้อยแล้ว",
+          });
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Form validation failed:", error);
+        if (error.name !== "ValidationError") {
+          setStatusModal({
+            open: true,
+            type: "error",
+            title: "เกิดข้อผิดพลาดในการบันทึก",
+            message:
+              error.message || "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง",
+            errorDetails: error,
+          });
+        }
       }
     },
     [
@@ -232,15 +249,31 @@ export default function TimesheetEntryPage() {
 
   const handleDeleteTimesheet = useCallback(async () => {
     if (!timesheetRedux.activeRecord?.id || !admin_id) return;
-    const success = await deleteTimesheet(
-      [Number(timesheetRedux.activeRecord.id)],
-      Number(admin_id),
-    );
-    if (success && isMountedRef.current) {
-      closeModal();
-      fetchEntries(admin_id);
-      fetchMonthlySummary(admin_id, selected_summary_date);
-      rankBoardRef.current?.refetch();
+    try {
+      const success = await deleteTimesheet(
+        [Number(timesheetRedux.activeRecord.id)],
+        Number(admin_id),
+      );
+      if (success && isMountedRef.current) {
+        closeModal();
+        fetchEntries(admin_id);
+        fetchMonthlySummary(admin_id, selected_summary_date);
+        rankBoardRef.current?.refetch();
+        setStatusModal({
+          open: true,
+          type: "success",
+          title: "ลบข้อมูลสำเร็จ",
+          message: "ข้อมูล Timesheet ถูกลบออกจากระบบแล้ว",
+        });
+      }
+    } catch (error: any) {
+      setStatusModal({
+        open: true,
+        type: "error",
+        title: "เกิดข้อผิดพลาดในการลบ",
+        message: error.message || "ไม่สามารถลบข้อมูลได้ กรุณาลองใหม่อีกครั้ง",
+        errorDetails: error,
+      });
     }
   }, [
     deleteTimesheet,
@@ -349,8 +382,8 @@ export default function TimesheetEntryPage() {
                         s.value === "S"
                           ? "success"
                           : s.value === "P"
-                            ? "processing"
-                            : "default"
+                          ? "processing"
+                          : "default"
                       }
                     >
                       {i18n.language === "th" ? s.label_th : s.label_en}
@@ -395,6 +428,7 @@ export default function TimesheetEntryPage() {
             type={statusModal.type}
             title={statusModal.title}
             message={statusModal.message}
+            errorDetails={statusModal.errorDetails}
             onClose={() => {
               setStatusModal((prev) => ({ ...prev, open: false }));
             }}

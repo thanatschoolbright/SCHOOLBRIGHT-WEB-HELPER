@@ -26,7 +26,6 @@ import {
 } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
 
 const { Text, Title } = Typography;
 
@@ -87,7 +86,7 @@ export const MyWorkModal: React.FC<MyWorkModalProps> = ({
       );
       setData(response.data?.data ?? []);
     } catch (_error) {
-      toast.error("ไม่สามารถโหลดข้อมูลงานของคุณได้");
+      console.error("Fetch my-work failed:", _error);
     } finally {
       setLoading(false);
     }
@@ -105,12 +104,14 @@ export const MyWorkModal: React.FC<MyWorkModalProps> = ({
       onCancel={onCancel}
       width={900}
       centered
-      closeIcon={
-        <CloseOutlined style={{ color: token.colorTextSecondary }} />
-      }
+      closeIcon={<CloseOutlined style={{ color: token.colorTextSecondary }} />}
       footer={null}
       styles={{
-        content: { padding: 0, borderRadius: token.borderRadiusLG, overflow: "hidden" },
+        content: {
+          padding: 0,
+          borderRadius: token.borderRadiusLG,
+          overflow: "hidden",
+        },
         body: { padding: 0 },
         header: { display: "none" },
       }}
