@@ -6,6 +6,7 @@ import SummaryCard from "@/components/card/summary-card";
 import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 import {
   AlertOutlined,
+  ApiOutlined,
   CheckOutlined,
   DesktopOutlined,
   FilterFilled,
@@ -39,6 +40,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
 import relativeTime from "dayjs/plugin/relativeTime";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import DeviceTable from "./_components/device-table";
@@ -205,7 +207,9 @@ export default function OnlineDeviceDashboard() {
   const handleNotifyEmail = async () => {
     try {
       setIsNotifyingEmail(true);
-      const res = await callApiService.get("/api/v1/hardware/machine-monitoring/channel/email");
+      const res = await callApiService.get(
+        "/api/v1/hardware/machine-monitoring/channel/email",
+      );
       const data = res?.data;
       if (data?.status_code === 200 || data?.status === 200) {
         const d = data.data;
@@ -237,7 +241,9 @@ export default function OnlineDeviceDashboard() {
   const handleNotifyDiscord = async () => {
     try {
       setIsNotifying(true);
-      const res = await callApiService.get("/api/v1/hardware/machine-monitoring/channel/discord");
+      const res = await callApiService.get(
+        "/api/v1/hardware/machine-monitoring/channel/discord",
+      );
       const data = res?.data;
       if (data?.status_code === 200 || data?.status === 200) {
         const d = data.data;
@@ -585,6 +591,20 @@ export default function OnlineDeviceDashboard() {
                   อัปเดตเมื่อ: {dayjs().format("HH:mm:ss")}
                 </AntText>
               </Space>
+
+              <Link href="/health-check/online-status/api-docs">
+                <Button
+                  icon={<ApiOutlined />}
+                  style={{
+                    height: 44,
+                    borderRadius: 8,
+                    fontWeight: 500,
+                    background: token.colorBgContainer,
+                  }}
+                >
+                  LINE API Docs
+                </Button>
+              </Link>
             </Space>
           }
         />
