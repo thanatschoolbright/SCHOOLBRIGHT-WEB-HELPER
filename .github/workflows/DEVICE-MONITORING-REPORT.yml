@@ -1,4 +1,4 @@
-name: LINE - DEVICE STATUS REPORT
+name: Device Monitoring - Multi-Channel Status Report
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
@@ -10,19 +10,21 @@ on:
   workflow_dispatch:
 
 jobs:
-  send-line-report:
+  send-reports:
+    name: Send Device Status Reports
     runs-on: ubuntu-latest
 
     steps:
       - name: Send Device Status Report to LINE
+        id: line_report
         continue-on-error: true
         run: |
           echo "Sending device status report to LINE..."
-          response=$(curl -s -o /tmp/response_body.txt -w "%{http_code}" \
+          response=$(curl -s -o /tmp/line_response.txt -w "%{http_code}" \
             -X GET \
             "https://sb-helper.schoolbright.co/api/v1/hardware/machine-monitoring/channel/line")
 
-          body=$(cat /tmp/response_body.txt)
+          body=$(cat /tmp/line_response.txt)
           echo "HTTP Status: $response"
           echo "Response: $body"
 
@@ -35,14 +37,15 @@ jobs:
           fi
 
       - name: Send Device Status Alert to Discord
+        id: discord_report
         continue-on-error: true
         run: |
           echo "Sending device status alert to Discord..."
-          response=$(curl -s -o /tmp/discord_response_body.txt -w "%{http_code}" \
+          response=$(curl -s -o /tmp/discord_response.txt -w "%{http_code}" \
             -X GET \
             "https://sb-helper.schoolbright.co/api/v1/hardware/machine-monitoring/channel/discord")
 
-          body=$(cat /tmp/discord_response_body.txt)
+          body=$(cat /tmp/discord_response.txt)
           echo "HTTP Status: $response"
           echo "Response: $body"
 
@@ -55,14 +58,15 @@ jobs:
           fi
 
       - name: Send Device Status Report via Email
+        id: email_report
         continue-on-error: true
         run: |
           echo "Sending device status report via email..."
-          response=$(curl -s -o /tmp/email_response_body.txt -w "%{http_code}" \
+          response=$(curl -s -o /tmp/email_response.txt -w "%{http_code}" \
             -X GET \
             "https://sb-helper.schoolbright.co/api/v1/hardware/machine-monitoring/channel/email")
 
-          body=$(cat /tmp/email_response_body.txt)
+          body=$(cat /tmp/email_response.txt)
           echo "HTTP Status: $response"
           echo "Response: $body"
 
@@ -73,6 +77,38 @@ jobs:
             echo "Failed to send email report (status: $response)"
             exit 1
           fi
+
+      - name: Generate Workflow Summary
+        if: always()
+        run: |
+          echo "### 📊 Multi-Channel Report Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Channel | Status | Outcome |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :---: | :--- |" >> $GITHUB_STEP_SUMMARY
+          
+          # LINE
+          if [ "${{ steps.line_report.outcome }}" == "success" ]; then
+            echo "| 💬 LINE | ✅ | Success |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| 💬 LINE | ❌ | Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Discord
+          if [ "${{ steps.discord_report.outcome }}" == "success" ]; then
+            echo "| 🎮 Discord | ✅ | Success |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| 🎮 Discord | ❌ | Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Email
+          if [ "${{ steps.email_report.outcome }}" == "success" ]; then
+            echo "| 📧 Email | ✅ | Success |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| 📧 Email | ❌ | Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Executed at: \`$(date)\`" >> $GITHUB_STEP_SUMMARY
 
       - name: Log timestamp
         if: always()
