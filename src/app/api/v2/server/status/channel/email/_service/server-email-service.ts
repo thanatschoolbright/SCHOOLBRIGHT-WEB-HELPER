@@ -176,7 +176,7 @@ function buildServerStatusEmailHtml(data: EmailReportData): string {
       <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Sarabun:wght@400;600&display=swap');
         body { font-family: 'Plus Jakarta Sans', 'Sarabun', Arial, sans-serif; line-height: 1.6; color: #334155; margin: 0; padding: 0; background-color: #f8fafc; }
-        .container { max-width: 900px; margin: 40px auto; background: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; }
+        .container { max-width: 1100px; margin: 40px auto; background: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; }
         .header { background: #0f172a; padding: 48px 40px; color: #ffffff; position: relative; }
         .header-bg { position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); z-index: 1; }
         .header-content { position: relative; z-index: 2; }
@@ -242,10 +242,10 @@ function buildServerStatusEmailHtml(data: EmailReportData): string {
                 <thead>
                   <tr>
                     <th style="width: 40px; text-align: center;">#</th>
-                    <th>ชื่อระบบ / System Name</th>
-                    <th>Server ID</th>
-                    <th style="text-align: center;">สถานะ</th>
-                    <th style="text-align: center;">ความเร็ว</th>
+                    <th style="width: 300px;">ชื่อระบบ / System Name</th>
+                    <th style="width: 150px;">Server ID</th>
+                    <th style="text-align: center; width: 100px;">สถานะ</th>
+                    <th style="text-align: center; width: 100px;">ความเร็ว</th>
                     <th>Endpoint</th>
                   </tr>
                 </thead>

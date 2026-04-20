@@ -9,6 +9,7 @@ import {
   ApiOutlined,
   CheckOutlined,
   DesktopOutlined,
+  FileExcelOutlined,
   FilterFilled,
   GlobalOutlined,
   MailOutlined,
@@ -105,6 +106,7 @@ export default function OnlineDeviceDashboard() {
   const [isNotifying, setIsNotifying] = useState(false);
   const [isNotifyingLine, setIsNotifyingLine] = useState(false);
   const [isNotifyingEmail, setIsNotifyingEmail] = useState(false);
+  const [isExportingExcel, setIsExportingExcel] = useState(false);
   const [lineGroups, setLineGroups] = useState<LineGroup[]>([]);
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
@@ -268,6 +270,34 @@ export default function OnlineDeviceDashboard() {
       });
     } finally {
       setIsNotifying(false);
+    }
+  };
+
+  /**
+   * ส่งออกข้อมูลสถานะอุปกรณ์เป็นไฟล์ Excel
+   */
+  const handleExportExcel = async () => {
+    try {
+      setIsExportingExcel(true);
+      await onlineStatusService.exportDeviceStatusExcel();
+      setStatusModal({
+        open: true,
+        type: "success",
+        title: "ส่งออก Excel สำเร็จ",
+        message: "ระบบได้สร้างไฟล์รายงานสถานะอุปกรณ์เรียบร้อยแล้ว",
+      });
+    } catch (err: any) {
+      setStatusModal({
+        open: true,
+        type: "error",
+        title: "ส่งออก Excel ไม่สำเร็จ",
+        message:
+          err?.response?.data?.message_th ??
+          err?.message ??
+          "ไม่สามารถสร้างไฟล์ Excel ได้ในขณะนี้",
+      });
+    } finally {
+      setIsExportingExcel(false);
     }
   };
 
@@ -577,6 +607,45 @@ export default function OnlineDeviceDashboard() {
                     {offlineCount} ออฟไลน์
                   </div>
                 )}
+              </Button>
+
+              {/* ปุ่มส่งออก Excel ตกแต่งสวยงาม */}
+              <Button
+                icon={<FileExcelOutlined />}
+                onClick={handleExportExcel}
+                loading={isExportingExcel}
+                style={{
+                  height: 44,
+                  padding: "0 20px",
+                  borderRadius: 12,
+                  fontWeight: 600,
+                  fontSize: 14,
+                  backgroundColor: isExportingExcel
+                    ? token.colorFillTertiary
+                    : "#16a34a",
+                  color: "#FFFFFF",
+                  border: "none",
+                  boxShadow: "0 4px 14px 0 rgba(22, 163, 74, 0.35)",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  if (!isExportingExcel) {
+                    e.currentTarget.style.backgroundColor = "#15803d";
+                    e.currentTarget.style.transform = "translateY(-1px)";
+                    e.currentTarget.style.boxShadow =
+                      "0 6px 20px rgba(22, 163, 74, 0.45)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isExportingExcel) {
+                    e.currentTarget.style.backgroundColor = "#16a34a";
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow =
+                      "0 4px 14px 0 rgba(22, 163, 74, 0.35)";
+                  }
+                }}
+              >
+                <span>ส่งออก Excel</span>
               </Button>
 
               {/* สถานะการอัปเดต */}

@@ -98,6 +98,47 @@ export const onlineStatusService = {
   },
 
   setActiveLineGroup: async (group_id: string): Promise<void> => {
-    await callApiService.put("/api/v1/application/line/groups", { group_id });
+    await callApiService.post("/api/v1/application/line/groups/active", {
+      group_id,
+    });
+  },
+
+  /**
+   * ส่งออกไฟล์ Excel รายงานสถานะอุปกรณ์
+   */
+  exportDeviceStatusExcel: async (): Promise<void> => {
+    try {
+      const response = await callApiService.get(
+        "/api/v2/hardware/export-device-status/read",
+        {
+          responseType: "blob",
+        },
+      );
+
+      // สร้างลิงก์ดาวน์โหลด
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      const contentDisposition = response.headers["content-disposition"];
+      let filename = `device-status-report-${new Date().toISOString()}.xlsx`;
+
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      link.href = url;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+
+      // ลบลิงก์หลังดาวน์โหลด
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Export Excel error:", error);
+      throw error;
+    }
   },
 };
