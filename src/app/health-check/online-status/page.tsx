@@ -617,9 +617,17 @@ export default function OnlineDeviceDashboard() {
               unit="เครื่อง"
               icon={<DesktopOutlined />}
               color="#6366f1"
-              subtitle={
-                dashboard ? `${dashboard.totalSchools} โรงเรียน` : undefined
-              }
+              isLoading={isDashboardLoading}
+            />
+          </Col>
+          <Col xs={24} sm={6}>
+            <SummaryCard
+              title="โรงเรียนที่มีอุปกรณ์"
+              value={dashboard?.totalSchools ?? 0}
+              unit="แห่ง"
+              icon={<GlobalOutlined />}
+              color="#0ea5e9"
+              subtitle="ครอบคลุมทุกแอปพลิเคชัน"
               isLoading={isDashboardLoading}
             />
           </Col>

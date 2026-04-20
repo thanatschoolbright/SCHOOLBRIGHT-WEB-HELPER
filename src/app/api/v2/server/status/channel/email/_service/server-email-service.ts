@@ -43,7 +43,7 @@ export async function fetchAndSendServerStatusEmail() {
     // 2. ดึงรายชื่อผู้รับจาก Env หรือใช้ค่าเริ่มต้น
     const recipients =
       process.env.SERVER_REPORT_EMAILS ||
-      "narin@schoolbright.co, tantawan.tawan@schoolbright.co, ariya.goff@schoolbright.co, cs@schoolbright.co , sa@schoolbright.co";
+      "narin@schoolbright.co, tantawan.tawan@schoolbright.co, ariya.goff@schoolbright.co, cs@schoolbright.co , sa@schoolbright.co, vimal@schoolbright.co";
 
     // 3. ส่งอีเมล
     await sendMail(
@@ -106,7 +106,11 @@ function buildServerStatusEmailHtml(data: EmailReportData): string {
   const statusBg =
     healthScore === 100 ? "#ecfdf5" : healthScore >= 70 ? "#fffbeb" : "#fef2f2";
   const statusLabel =
-    healthScore === 100 ? "Excellent" : healthScore >= 70 ? "Warning" : "Critical";
+    healthScore === 100
+      ? "Excellent"
+      : healthScore >= 70
+      ? "Warning"
+      : "Critical";
 
   const serverRows = results
     .map((server, i) => {
@@ -126,14 +130,20 @@ function buildServerStatusEmailHtml(data: EmailReportData): string {
           ${i + 1}
         </td>
         <td style="padding:16px 12px; border-bottom:1px solid #f1f5f9;">
-          <div style="font-size:14px; color:#1e293b; font-weight:600;">${server.server_name_th}</div>
-          <div style="font-size:11px; color:#64748b; margin-top:2px;">${server.server_name_en || ""}</div>
+          <div style="font-size:14px; color:#1e293b; font-weight:600;">${
+            server.server_name_th
+          }</div>
+          <div style="font-size:11px; color:#64748b; margin-top:2px;">${
+            server.server_name_en || ""
+          }</div>
         </td>
         <td style="padding:16px 12px; border-bottom:1px solid #f1f5f9; font-size:12px; color:#475569; font-family:'Courier New', Courier, monospace;">
           ${server.server}
         </td>
         <td style="padding:16px 12px; border-bottom:1px solid #f1f5f9; text-align:center;">
-          <span style="display:inline-block; background:${isOnline ? "#dcfce7" : "#fee2e2"}; color:${
+          <span style="display:inline-block; background:${
+            isOnline ? "#dcfce7" : "#fee2e2"
+          }; color:${
         isOnline ? "#15803d" : "#b91c1c"
       }; border-radius:12px; padding:4px 12px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.02em;">
             ${isOnline ? "● Online" : "● Offline"}
@@ -143,7 +153,11 @@ function buildServerStatusEmailHtml(data: EmailReportData): string {
           <div style="font-size:14px; color:${speedColor}; font-weight:700;">
             ${isOnline ? server.response_time + "s" : "N/A"}
           </div>
-          ${isOnline ? `<div style="font-size:9px; color:#94a3b8; text-transform:uppercase;">Response</div>` : ""}
+          ${
+            isOnline
+              ? `<div style="font-size:9px; color:#94a3b8; text-transform:uppercase;">Response</div>`
+              : ""
+          }
         </td>
         <td style="padding:16px 12px; border-bottom:1px solid #f1f5f9; font-size:12px; color:#64748b;">
           <code>${server.endpoint || "/"}</code>
@@ -203,7 +217,9 @@ function buildServerStatusEmailHtml(data: EmailReportData): string {
               <span class="card-label" style="color: #10b981;">Online</span>
               <span class="card-value" style="color: #10b981;">${online}</span>
             </div>
-            <div class="summary-card" style="${offline > 0 ? "border-color: #fecaca; background: #fef2f2;" : ""}">
+            <div class="summary-card" style="${
+              offline > 0 ? "border-color: #fecaca; background: #fef2f2;" : ""
+            }">
               <span class="card-label" style="color: #ef4444;">Offline</span>
               <span class="card-value" style="color: #ef4444;">${offline}</span>
             </div>
@@ -220,7 +236,7 @@ function buildServerStatusEmailHtml(data: EmailReportData): string {
               </div>
               <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.01em;">Detailed Infrastructure Status</h3>
             </div>
-            
+
             <div style="border: 1px solid #f1f5f9; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
               <table cellpadding="0" cellspacing="0">
                 <thead>
