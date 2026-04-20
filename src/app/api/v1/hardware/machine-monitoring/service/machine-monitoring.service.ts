@@ -28,6 +28,7 @@ export interface DeviceStatusData {
   BusinessDate: string | Date;
   AppName?: string | null;
   AppVersion?: string | null;
+  Note?: string | null;
 }
 
 // mapping ระหว่าง SchoolID และชื่อโรงเรียน
@@ -98,6 +99,7 @@ export async function fetchDeviceStats(): Promise<{
         BusinessDate: true,
         AppName: true,
         AppVersion: true,
+        Note: true,
       },
     }),
     prisma.activeSchoolList.findMany({
@@ -267,6 +269,7 @@ function buildEmailHtml(stats: DeviceStats, schoolMap: SchoolMapEntry[], reportT
         <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#0f172a;">${device.AppName ?? "ไม่ระบุแอป"}</td>
         <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:12px;color:#64748b;font-family:monospace;text-align:center;">v${device.AppVersion ?? "-"}</td>
         <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:12px;color:#475569;font-family:monospace;">${device.DeviceID}</td>
+        <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#0f172a;">${device.Note ?? "—"}</td>
         <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:12px;color:#dc2626;text-align:center;">${lastOnline}</td>
       </tr>`;
     }).join("");
@@ -287,6 +290,7 @@ function buildEmailHtml(stats: DeviceStats, schoolMap: SchoolMapEntry[], reportT
             <th style="padding:9px 14px;font-size:11px;color:#64748b;font-weight:600;text-align:left;">ชื่อแอปพลิเคชัน</th>
             <th style="padding:9px 14px;font-size:11px;color:#64748b;font-weight:600;text-align:center;">เวอร์ชัน</th>
             <th style="padding:9px 14px;font-size:11px;color:#64748b;font-weight:600;text-align:left;">รหัสเครื่อง</th>
+            <th style="padding:9px 14px;font-size:11px;color:#64748b;font-weight:600;text-align:left;">ชื่ออุปกรณ์</th>
             <th style="padding:9px 14px;font-size:11px;color:#64748b;font-weight:600;text-align:center;">ออฟไลน์ล่าสุด</th>
           </tr>
         </thead>
