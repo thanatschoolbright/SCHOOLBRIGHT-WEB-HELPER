@@ -11,8 +11,8 @@ export async function GET(request: NextRequest) {
   try {
     const buffer = await ExportDeviceStatusService.generateDeviceStatusExcel();
 
-    const filename = `device-status-report-${dayjs().format(
-      "YYYY-MM-DD-HHmm",
+    const filename = `report_device_status_${dayjs().format(
+      "DD-MM-YYYY-HHmm",
     )}.xlsx`;
 
     return new NextResponse(buffer as any, {
@@ -20,7 +20,8 @@ export async function GET(request: NextRequest) {
       headers: {
         "Content-Type":
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "Content-Disposition": `attachment; filename="${filename}"`,
+        // ลบเครื่องหมาย " ที่ครอบ ${filename} ออก
+        "Content-Disposition": `attachment; filename=${filename}`,
         "Access-Control-Expose-Headers": "Content-Disposition",
       },
     });
