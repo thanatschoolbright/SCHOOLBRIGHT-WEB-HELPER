@@ -21,39 +21,14 @@ import {
   Tag,
   Typography,
 } from "antd";
+import { ApiTestPanel } from "./_components/api-test-panel";
 
 const { Title, Text, Paragraph } = Typography;
 
 /**
- * หน้าเอกสาร LINE API Documentation สำหรับนักพัฒนา
+ * หน้าเอกสาร LINE API Documentation สำหรับนักพัฒนา (Strict ตามมาตรฐานโครงการ)
  */
 export default function LineApiDocsPage() {
-  const webhookColumns = [
-    {
-      title: "ฟิลด์",
-      dataIndex: "field",
-      key: "field",
-      render: (text: string) => <Tag color="blue">{text}</Tag>,
-    },
-    { title: "ประเภท", dataIndex: "type", key: "type" },
-    { title: "คำอธิบาย", dataIndex: "desc", key: "desc" },
-  ];
-
-  const webhookData = [
-    {
-      key: "1",
-      field: "destination",
-      type: "string",
-      desc: "User ID ของ Chat Bot",
-    },
-    {
-      key: "2",
-      field: "events",
-      type: "array",
-      desc: "รายการของ Webhook Event (message, join, leave ฯลฯ)",
-    },
-  ];
-
   return (
     <DashboardLayout>
       <div style={{ width: "100%", paddingBottom: 64 }}>
@@ -159,6 +134,12 @@ export default function LineApiDocsPage() {
                   ใช้สำหรับตรวจสอบสถานะความพร้อมของ Webhook
                   และดึงข้อมูลเบื้องต้นของ Channel โดยไม่ต้องส่ง Signature
                 </Paragraph>
+
+                <ApiTestPanel
+                  method="GET"
+                  endpoint="/api/v1/application/line/webhook"
+                  title="สถานะระบบ Webhook"
+                />
               </Card>
 
               {/* ส่วนที่ 3: Group Management */}
@@ -179,6 +160,14 @@ export default function LineApiDocsPage() {
                   เพื่อนำไปใช้ในตัวเลือกหน้า UI
                 </Paragraph>
 
+                <ApiTestPanel
+                  method="GET"
+                  endpoint="/api/v1/application/line/groups"
+                  title="ดึงรายชื่อกลุ่ม LINE"
+                />
+
+                <Divider />
+
                 <Title level={5}>
                   <Tag color="orange">PUT</Tag> /groups
                 </Title>
@@ -186,16 +175,13 @@ export default function LineApiDocsPage() {
                   ตั้งค่ากลุ่มเป้าหมาย (Active Group)
                   สำหรับการส่งรายงานสถานะอุปกรณ์ (Monitoring)
                 </Paragraph>
-                <pre
-                  style={{
-                    background: "#001529",
-                    color: "#fff",
-                    padding: 16,
-                    borderRadius: 8,
-                  }}
-                >
-                  {`{ "group_id": "C..." }`}
-                </pre>
+
+                <ApiTestPanel
+                  method="PUT"
+                  endpoint="/api/v1/application/line/groups"
+                  title="ตั้งค่ากลุ่มเป้าหมาย"
+                  defaultPayload='{ "group_id": "C..." }'
+                />
               </Card>
 
               {/* ส่วนที่ 4: Notifications / Reports */}
@@ -219,6 +205,12 @@ export default function LineApiDocsPage() {
                 <Badge
                   status="processing"
                   text="รองรับการเรียกผ่าน Cron Job (ต้องส่ง Bearer Token)"
+                />
+
+                <ApiTestPanel
+                  method="GET"
+                  endpoint="/api/v1/hardware/machine-monitoring/channel/line"
+                  title="ส่งรายงานไปยัง LINE"
                 />
               </Card>
 
@@ -283,12 +275,12 @@ export default function LineApiDocsPage() {
                     {
                       key: "groups",
                       href: "#groups",
-                      title: "Group Management",
+                      title: "การจัดการกลุ่ม",
                     },
                     {
                       key: "notifications",
                       href: "#notifications",
-                      title: "Notifications & Reports",
+                      title: "การแจ้งเตือน",
                     },
                     {
                       key: "commands",
