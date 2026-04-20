@@ -582,9 +582,14 @@ const ServerStatusPage: React.FC = () => {
   };
 
   /**
-   * * handleNotifyDiscord: แจือนผ่านช่องทาง Discord
+   * * handleNotifyDiscord: แจ้งเตือนผ่านช่องทาง Discord
    */
-  const setStatusModal({
+  const handleNotifyDiscord = async () => {
+    setIsNotifying(true);
+    try {
+      const res = await fetch("/api/v2/server/status?mode=discord");
+      if (res.ok) {
+        setStatusModal({
           open: true,
           type: "success",
           title: "แจ้งเตือนสำเร็จ",
@@ -605,12 +610,7 @@ const ServerStatusPage: React.FC = () => {
         title: "เกิดข้อผิดพลาด",
         message: "ระบบขัดข้องไม่สามารถส่งแจ้งเตือนได้",
         errorDetails: error,
-      }ord เรียบร้อยแล้ว");
-      } else {
-        toast.error("ไม่สามารถส่งแจ้งเตือนผ่านช่องทาง Discord ได้");
-      }
-    } catch {
-      toast.error("เกิดข้อผิดพลาดในการส่งแจ้งเตือน");
+      });
     } finally {
       setIsNotifying(false);
     }
@@ -699,6 +699,63 @@ const ServerStatusPage: React.FC = () => {
         title="ระบบตรวจสอบสถานะเซิร์ฟเวอร์"
         subTitle="ภาพรวมความพร้อมใช้งานและความเร็วในการตอบสนองของระบบทั้งหมดแบบเรียลไทม์"
         icon={<SafetyCertificateOutlined />}
+        extra={
+          <Flex gap="small" wrap="wrap">
+            <Button
+              type="primary"
+              icon={<MailOutlined />}
+              onClick={sendEmailReport}
+              loading={isSendingEmail}
+              style={{
+                backgroundColor: "#16a34a",
+                borderColor: "#16a34a",
+                boxShadow: "none",
+                borderRadius: 8,
+              }}
+            >
+              ส่งรายงานทาง Email
+            </Button>
+            <Button
+              type="primary"
+              style={{
+                backgroundColor: "#5865F2",
+                borderColor: "#5865F2",
+                boxShadow: "none",
+                borderRadius: 8,
+              }}
+              icon={<DiscordOutlined />}
+              onClick={() => void handleNotifyDiscord()}
+              loading={isNotifying}
+            >
+              แจ้งเตือน Discord
+            </Button>
+            <Button
+              type="default"
+              onClick={() => {
+                router.push("/health-check/v2/server-status");
+              }}
+              icon={<ThunderboltFilled style={{ color: token.colorPrimary }} />}
+              style={{
+                boxShadow: "none",
+                borderRadius: 8,
+              }}
+            >
+              บอทหลังบ้าน
+            </Button>
+            <Button
+              type="primary"
+              icon={<ReloadOutlined />}
+              onClick={() => void handleRefreshData()}
+              loading={isLoading}
+              style={{
+                boxShadow: "none",
+                borderRadius: 8,
+              }}
+            >
+              อัปเดตสถานะ
+            </Button>
+          </Flex>
+        }
       />
 
       <Space direction="vertical" size={24} style={{ width: "100%" }}>
@@ -816,54 +873,6 @@ const ServerStatusPage: React.FC = () => {
                 รายการเซิร์ฟเวอร์
               </Text>
             </Space>
-          }
-          extra={
-            <Flex gap="middle" wrap="wrap">
-              <Button
-                type="primary"
-                icon={<MailOutlined />}
-                onClick={sendEmailReport}
-                loading={isSendingEmail}
-                style={{
-                  backgroundColor: "#16a34a",
-                  borderColor: "#16a34a",
-                }}
-              >
-                ส่งรายงานทาง Email
-              </Button>
-              <Button
-                type="primary"
-                style={{
-                  backgroundColor: "#5865F2",
-                  borderColor: "#5865F2",
-                  boxShadow: "none",
-                }}
-                icon={<DiscordOutlined />}
-                onClick={() => void handleNotifyDiscord()}
-                loading={isNotifying}
-              >
-                แจ้งเตือนผ่านช่องทาง Discord
-              </Button>
-              <Button
-                type="default"
-                onClick={() => {
-                  router.push("/health-check/v2/server-status");
-                }}
-                icon={
-                  <ThunderboltFilled style={{ color: token.colorPrimary }} />
-                }
-              >
-                บอทหลังบ้าน (SB App Bot)
-              </Button>
-              <Button
-                type="primary"
-                icon={<ReloadOutlined />}
-                onClick={() => void handleRefreshData()}
-                loading={isLoading}
-              >
-                อัปเดตสถานะ
-              </Button>
-            </Flex>
           }
         >
           <Table
