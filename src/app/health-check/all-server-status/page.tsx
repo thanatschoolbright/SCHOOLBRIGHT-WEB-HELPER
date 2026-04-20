@@ -1,5 +1,6 @@
 "use client";
 
+import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 import { CallAPI as GET_SERVER_STATUS_V2 } from "@/stores/actions/server/call-get-server-status.v2";
 import { ResponseGetServerStatusV2 } from "@/stores/type";
 import {
@@ -9,18 +10,19 @@ import {
   CloseCircleOutlined,
   CopyOutlined,
   DatabaseOutlined,
+  DiscordOutlined,
   EditOutlined,
   EnvironmentOutlined,
   EyeOutlined,
   FilterOutlined,
   InfoCircleOutlined,
   LinkOutlined,
+  MailOutlined,
   ReloadOutlined,
   SafetyCertificateOutlined,
   SearchOutlined,
   ThunderboltFilled,
   UnorderedListOutlined,
-  DiscordOutlined,
 } from "@ant-design/icons";
 import SummaryCard from "@components/card/summary-card";
 import DashboardLayout from "@components/layouts/backend-layout";
@@ -115,6 +117,7 @@ const useServerStatus = () => {
   );
   const [servers, setServers] = useState<ServerStatus[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   const fetchServerStatus = useCallback(async () => {
     setIsLoading(true);
@@ -137,7 +140,33 @@ const useServerStatus = () => {
     setServers(serverData ?? []);
   }, [serverStatusState]);
 
-  return { servers, isLoading, refresh: fetchServerStatus, setServers };
+  const sendEmailReport = useCallback(async () => {
+    setIsSendingEmail(true);
+    const toastId = toast.loading("กำลังส่งอีเมลรายงานสถานะระบบ...");
+    try {
+      const response = await callApiService.get(
+        "/api/v2/server/status/channel/email",
+      );
+      if (response.data.status_code === 200) {
+        toast.success("ส่งอีเมลรายงานสถานะสำเร็จแล้ว", { id: toastId });
+      } else {
+        throw new Error(response.data.message_th || "ส่งอีเมลไม่สำเร็จ");
+      }
+    } catch (error: any) {
+      toast.error(`เกิดข้อผิดพลาด: ${error.message}`, { id: toastId });
+    } finally {
+      setIsSendingEmail(false);
+    }
+  }, []);
+
+  return {
+    servers,
+    isLoading,
+    refresh: fetchServerStatus,
+    setServers,
+    isSendingEmail,
+    sendEmailReport,
+  };
 };
 
 // ==================== Sub-Components ====================
@@ -399,7 +428,14 @@ const ServerStatusPage: React.FC = () => {
   const router = useRouter();
   const { token } = theme.useToken();
   const [form] = Form.useForm();
-  const { servers, isLoading, refresh, setServers } = useServerStatus();
+  const {
+    servers,
+    isLoading,
+    refresh,
+    setServers,
+    isSendingEmail,
+    sendEmailReport,
+  } = useServerStatus();
 
   // State สำหรับจัดการ Modal ข้อมูลลึกและแก้ไข
   const [selectedServer, setSelectedServer] = useState<ServerStatus | null>(
@@ -738,6 +774,18 @@ const ServerStatusPage: React.FC = () => {
           }
           extra={
             <Flex gap="middle" wrap="wrap">
+              <Button
+                type="primary"
+                icon={<MailOutlined />}
+                onClick={sendEmailReport}
+                loading={isSendingEmail}
+                style={{
+                  backgroundColor: "#16a34a",
+                  borderColor: "#16a34a",
+                }}
+              >
+                ส่งรายงานทาง Email
+              </Button>
               <Button
                 type="primary"
                 style={{
