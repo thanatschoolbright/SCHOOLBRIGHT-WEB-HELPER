@@ -464,7 +464,6 @@ const ServerStatusPage: React.FC = () => {
   const [selectedServer, setSelectedServer] = useState<ServerStatus | null>(
     null,
   );
-    errorDetails?: any;
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [isNotifying, setIsNotifying] = useState(false);
@@ -475,6 +474,7 @@ const ServerStatusPage: React.FC = () => {
     type: StatusModalType;
     title: string;
     message: string;
+    errorDetails?: any;
   }>({
     open: false,
     type: "success",
