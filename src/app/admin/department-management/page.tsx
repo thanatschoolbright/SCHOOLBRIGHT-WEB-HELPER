@@ -101,6 +101,11 @@ export default function DepartmentManagementPage() {
   const [candidateDepartments, setCandidateDepartments] = useState<any[]>([]);
   const [executionStatus, setExecutionStatus] = useState<any[]>([]);
   const [currentExecutionIndex, setCurrentExecutionIndex] = useState(0);
+  
+  // Members State
+  const [membersModalOpen, setMembersModalOpen] = useState(false);
+  const [membersLoading, setMembersLoading] = useState(false);
+  const [departmentMembers, setDepartmentMembers] = useState<any[]>([]);
 
   // --- Fetch Data ---
   const fetchData = useCallback(async () => {
@@ -120,6 +125,16 @@ export default function DepartmentManagementPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Sync form values when editing
+  useEffect(() => {
+    if (modalMode === "edit" && selectedDept) {
+      form.setFieldsValue(selectedDept);
+    } else if (modalMode === "create") {
+      form.resetFields();
+      form.setFieldsValue({ is_active: true });
+    }
+  }, [modalMode, selectedDept, form]);
 
   // --- Handlers ---
   const handleOpenAutoGen = async () => {
@@ -248,6 +263,25 @@ export default function DepartmentManagementPage() {
   };
 
   /**
+   * ดึงข้อมูลสมาชิกในแผนก
+   */
+  const handleViewMembers = async (dept: Department) => {
+    setSelectedDept(dept);
+    setMembersModalOpen(true);
+    setMembersLoading(true);
+    try {
+      const res = await axios.get("/api/v2/admin/department-management/members", {
+        params: { departmentId: dept.id },
+      });
+      setDepartmentMembers(res?.data?.data || []);
+    } catch (error) {
+      toast.error("ไม่สามารถดึงรายชื่อสมาชิกได้");
+    } finally {
+      setMembersLoading(false);
+    }
+  };
+
+  /**
    * ล้างค่าการค้นหา
    */
   const handleResetSearch = () => {
@@ -308,11 +342,16 @@ export default function DepartmentManagementPage() {
         <Space>
           <Button
             type="text"
+            title="ดูรายชื่อสมาชิก"
+            icon={<UserOutlined style={{ color: token.colorInfo }} />}
+            onClick={() => handleViewMembers(r)}
+          />
+          <Button
+            type="text"
             icon={<EditOutlined style={{ color: token.colorWarning }} />}
             onClick={() => {
               setSelectedDept(r);
               setModalMode("edit");
-              form.setFieldsValue(r);
             }}
           />
           <Button
@@ -472,8 +511,6 @@ export default function DepartmentManagementPage() {
                 size="large"
                 onClick={() => {
                   setModalMode("create");
-                  form.resetFields();
-                  form.setFieldsValue({ is_active: true });
                 }}
               >
                 เพิ่มแผนก
@@ -501,7 +538,7 @@ export default function DepartmentManagementPage() {
           title={modalMode === "create" ? "เพิ่มแผนกใหม่" : "แก้ไขแผนก"}
           onCancel={() => setModalMode(null)}
           footer={null}
-          destroyOnClose
+          destroyOnHidden
         >
           <Form form={form} layout="vertical" onFinish={handleSubmit}>
             <Form.Item
@@ -519,7 +556,7 @@ export default function DepartmentManagementPage() {
               label="สถานะการใช้งาน"
               valuePropName="checked"
             >
-              <Button.Group>
+              <Space.Compact>
                 <Button
                   type={form.getFieldValue("is_active") ? "primary" : "default"}
                   onClick={() => form.setFieldValue("is_active", true)}
@@ -537,7 +574,7 @@ export default function DepartmentManagementPage() {
                 >
                   ปิดใช้งาน
                 </Button>
-              </Button.Group>
+              </Space.Compact>
             </Form.Item>
 
             <Flex justify="end" gap={12} style={{ marginTop: 24 }}>
@@ -573,6 +610,80 @@ export default function DepartmentManagementPage() {
           message={statusModal.message}
           onClose={() => setStatusModal({ ...statusModal, open: false })}
         />
+
+        {/* Members Modal */}
+        <Modal
+          title={
+            <Space align="center" size={12}>
+              <UserOutlined style={{ fontSize: "1.2rem", color: token.colorPrimary }} />
+              <Typography.Text strong style={{ fontSize: "1.1rem" }}>
+                รายชื่อสมาชิก: {selectedDept?.name_th}
+              </Typography.Text>
+            </Space>
+          }
+          open={membersModalOpen}
+          onCancel={() => setMembersModalOpen(false)}
+          width={800}
+          footer={[
+            <Button key="close" type="primary" onClick={() => setMembersModalOpen(false)}>
+              ปิดหน้าต่าง
+            </Button>
+          ]}
+        >
+          <Table
+            size="small"
+            dataSource={departmentMembers}
+            loading={membersLoading}
+            rowKey="id"
+            pagination={{ pageSize: 10 }}
+            columns={[
+              {
+                title: "รหัสพนักงาน",
+                dataIndex: "employee_code",
+                width: 120,
+                render: (t) => <Tag color="blue">{t || "-"}</Tag>,
+              },
+              {
+                title: "ชื่อ-นามสกุล",
+                key: "name",
+                render: (_, r) => (
+                  <Space direction="vertical" size={0}>
+                    <Typography.Text strong>
+                      {r.firstname_th} {r.lastname_th}
+                    </Typography.Text>
+                    {r.nickname && (
+                      <Typography.Text type="secondary" size="small">
+                        ({r.nickname})
+                      </Typography.Text>
+                    )}
+                  </Space>
+                ),
+              },
+              {
+                title: "ตำแหน่ง",
+                dataIndex: ["position_ref", "name_th"],
+                render: (t) => t || "-",
+              },
+              {
+                title: "สิทธิ์การใช้งาน",
+                dataIndex: ["role", "role_name"],
+                render: (t) => (
+                  <Tag color="purple">{t || "-"}</Tag>
+                ),
+              },
+              {
+                title: "สถานะ",
+                dataIndex: "status",
+                align: "center",
+                render: (s) => (
+                  <Tag color={s === "ACTIVE" ? "success" : "default"}>
+                    {s === "ACTIVE" ? "ปกติ" : s}
+                  </Tag>
+                ),
+              },
+            ]}
+          />
+        </Modal>
 
         {/* Auto Gen Modal */}
         <Modal

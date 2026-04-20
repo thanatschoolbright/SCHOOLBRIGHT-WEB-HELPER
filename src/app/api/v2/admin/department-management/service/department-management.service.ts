@@ -85,6 +85,41 @@ export const DepartmentManagementService = {
     });
   },
 
+  // Get Members
+  async getMembers(departmentId: number) {
+    return await PrismaTimesheet.user.findMany({
+      where: {
+        department_id: departmentId,
+        is_deleted: false,
+      },
+      select: {
+        id: true,
+        employee_code: true,
+        firstname_th: true,
+        lastname_th: true,
+        firstname_en: true,
+        lastname_en: true,
+        nickname: true,
+        email: true,
+        status: true,
+        position_ref: {
+          select: {
+            name_th: true,
+            name_en: true,
+          },
+        },
+        role: {
+          select: {
+            role_name: true,
+          },
+        },
+      },
+      orderBy: {
+        employee_code: "asc",
+      },
+    });
+  },
+
   // Seed Departments
   async seedDepartments() {
     const departments = [
