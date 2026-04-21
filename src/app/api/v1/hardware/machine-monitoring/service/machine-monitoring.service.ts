@@ -12,6 +12,9 @@ const REPORT_EMAILS = [
   "narin@schoolbright.co",
   "tantawan.tawan@schoolbright.co",
   "ariya.goff@schoolbright.co",
+  "nikornsak.champ@schoolbright.co",
+  "traithep.cstp@gmail.com",
+  "kumikomai2015@gmail.com",
 ] as const;
 
 const OFFLINE_CRITICAL_THRESHOLD = 5;
@@ -109,7 +112,9 @@ export async function fetchDeviceStats(): Promise<{
 
   const schoolMap: SchoolMapEntry[] = allSchools.map((s) => ({
     SchoolID: s.nCompany,
-    SchoolName: (s.sCompany ?? `โรงเรียน ${s.nCompany}`).replace(/^โรงเรียน/, "").trim(),
+    SchoolName: (s.sCompany ?? `โรงเรียน ${s.nCompany}`)
+      .replace(/^โรงเรียน/, "")
+      .trim(),
   }));
 
   // คำนวณ online ด้วย heartbeat 15 นาที แล้วใส่กลับใน device object
@@ -117,7 +122,9 @@ export async function fetchDeviceStats(): Promise<{
     const onlineTime = d.OnlineTime ? new Date(d.OnlineTime) : null;
     const isOnline =
       d.Online === true ||
-      (onlineTime ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS : false);
+      (onlineTime
+        ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
+        : false);
     return { ...d, Online: isOnline };
   });
 
@@ -131,11 +138,14 @@ export function calculateDeviceStats(devices: DeviceStatusData[]): DeviceStats {
   const onlineDevices = devices.filter((d) => d.Online === true);
   const offlineDevices = devices.filter((d) => d.Online === false);
   const loginDevices = devices.filter((d) => d.Login === true);
-  const onlineRate = total === 0 ? 0 : Math.round((onlineDevices.length / total) * 100);
+  const onlineRate =
+    total === 0 ? 0 : Math.round((onlineDevices.length / total) * 100);
 
   const groupMap = new Map<string, DeviceStatusData[]>();
   for (const device of devices) {
-    const key = `${device.AppName ?? "ไม่ระบุแอป"}|||${device.AppVersion ?? "-"}`;
+    const key = `${device.AppName ?? "ไม่ระบุแอป"}|||${
+      device.AppVersion ?? "-"
+    }`;
     if (!groupMap.has(key)) groupMap.set(key, []);
     groupMap.get(key)!.push(device);
   }
@@ -152,7 +162,10 @@ export function calculateDeviceStats(devices: DeviceStatusData[]): DeviceStats {
       online: groupOnline,
       offline: groupOffline,
       login: groupDevices.filter((d) => d.Login).length,
-      onlineRate: groupDevices.length === 0 ? 0 : Math.round((groupOnline / groupDevices.length) * 100),
+      onlineRate:
+        groupDevices.length === 0
+          ? 0
+          : Math.round((groupOnline / groupDevices.length) * 100),
       offlineDevices: groupDevices.filter((d) => !d.Online),
     });
   }
@@ -184,8 +197,14 @@ function formatThaiDateTime(raw: string | Date | null | undefined): string {
 }
 
 // ค้นหาชื่อโรงเรียนจาก SchoolID
-function resolveSchoolName(schoolId: number, schoolMap: SchoolMapEntry[]): string {
-  return schoolMap.find((s) => s.SchoolID === schoolId)?.SchoolName ?? `ID:${schoolId}`;
+function resolveSchoolName(
+  schoolId: number,
+  schoolMap: SchoolMapEntry[],
+): string {
+  return (
+    schoolMap.find((s) => s.SchoolID === schoolId)?.SchoolName ??
+    `ID:${schoolId}`
+  );
 }
 
 // จัดกลุ่มเครื่องออฟไลน์ตามโรงเรียน
@@ -193,7 +212,10 @@ function groupOfflineBySchool(
   offlineDevices: DeviceStatusData[],
   schoolMap: SchoolMapEntry[],
 ): { schoolId: number; schoolName: string; devices: DeviceStatusData[] }[] {
-  const map = new Map<number, { schoolId: number; schoolName: string; devices: DeviceStatusData[] }>();
+  const map = new Map<
+    number,
+    { schoolId: number; schoolName: string; devices: DeviceStatusData[] }
+  >();
   for (const d of offlineDevices) {
     if (!map.has(d.SchoolID)) {
       map.set(d.SchoolID, {
@@ -208,13 +230,29 @@ function groupOfflineBySchool(
 }
 
 // สร้าง HTML email รายงานสถานะเครื่อง POS
-function buildEmailHtml(stats: DeviceStats, schoolMap: SchoolMapEntry[], reportTime: string): string {
+function buildEmailHtml(
+  stats: DeviceStats,
+  schoolMap: SchoolMapEntry[],
+  reportTime: string,
+): string {
   const statusColor =
-    stats.offline === 0 ? "#16a34a" : stats.offline < OFFLINE_CRITICAL_THRESHOLD ? "#d97706" : "#dc2626";
+    stats.offline === 0
+      ? "#16a34a"
+      : stats.offline < OFFLINE_CRITICAL_THRESHOLD
+      ? "#d97706"
+      : "#dc2626";
   const statusBg =
-    stats.offline === 0 ? "#f0fdf4" : stats.offline < OFFLINE_CRITICAL_THRESHOLD ? "#fffbeb" : "#fff1f2";
+    stats.offline === 0
+      ? "#f0fdf4"
+      : stats.offline < OFFLINE_CRITICAL_THRESHOLD
+      ? "#fffbeb"
+      : "#fff1f2";
   const statusLabel =
-    stats.offline === 0 ? "ปกติ" : stats.offline < OFFLINE_CRITICAL_THRESHOLD ? "ต้องระวัง" : "วิกฤต";
+    stats.offline === 0
+      ? "ปกติ"
+      : stats.offline < OFFLINE_CRITICAL_THRESHOLD
+      ? "ต้องระวัง"
+      : "วิกฤต";
 
   // --- ตาราง App Summary ---
   const sortedAppGroups = [...stats.appGroups].sort((a, b) => {
@@ -230,54 +268,93 @@ function buildEmailHtml(stats: DeviceStats, schoolMap: SchoolMapEntry[], reportT
     }
   }
 
-  const appGroupRows = sortedAppGroups.map((group, i) => {
-    const isEven = i % 2 === 0;
-    const rowBg = isEven ? "#ffffff" : "#f8fafc";
-    const badgeColor =
-      group.offline === 0 ? "#16a34a" : group.offline < OFFLINE_CRITICAL_THRESHOLD ? "#d97706" : "#dc2626";
-    const badgeText =
-      group.offline === 0 ? "ปกติ" : group.offline < OFFLINE_CRITICAL_THRESHOLD ? "ระวัง" : "วิกฤต";
-    const needsUpdate =
-      compareVersionByNumber(group.appVersion, latestVersionByApp.get(group.appName) ?? group.appVersion) > 0;
-    const updateCell = needsUpdate
-      ? `<span style="background:#dcfce7;color:#15803d;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;">อัพเดท</span>`
-      : `<span style="color:#d1d5db;font-size:13px;">—</span>`;
+  const appGroupRows = sortedAppGroups
+    .map((group, i) => {
+      const isEven = i % 2 === 0;
+      const rowBg = isEven ? "#ffffff" : "#f8fafc";
+      const badgeColor =
+        group.offline === 0
+          ? "#16a34a"
+          : group.offline < OFFLINE_CRITICAL_THRESHOLD
+          ? "#d97706"
+          : "#dc2626";
+      const badgeText =
+        group.offline === 0
+          ? "ปกติ"
+          : group.offline < OFFLINE_CRITICAL_THRESHOLD
+          ? "ระวัง"
+          : "วิกฤต";
+      const needsUpdate =
+        compareVersionByNumber(
+          group.appVersion,
+          latestVersionByApp.get(group.appName) ?? group.appVersion,
+        ) > 0;
+      const updateCell = needsUpdate
+        ? `<span style="background:#dcfce7;color:#15803d;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;">อัพเดท</span>`
+        : `<span style="color:#d1d5db;font-size:13px;">—</span>`;
 
-    return `<tr style="background:${rowBg};">
-      <td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#0f172a;font-weight:500;">${group.appName}</td>
-      <td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:12px;color:#64748b;font-family:monospace;">v${group.appVersion}</td>
+      return `<tr style="background:${rowBg};">
+      <td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#0f172a;font-weight:500;">${
+        group.appName
+      }</td>
+      <td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:12px;color:#64748b;font-family:monospace;">v${
+        group.appVersion
+      }</td>
       <td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;text-align:center;">${updateCell}</td>
-      <td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:13px;color:#0f172a;font-weight:600;">${group.total}</td>
-      <td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:13px;color:#16a34a;font-weight:600;">${group.online}</td>
-      <td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:13px;color:${group.offline > 0 ? "#dc2626" : "#94a3b8"};font-weight:600;">${group.offline}</td>
+      <td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:13px;color:#0f172a;font-weight:600;">${
+        group.total
+      }</td>
+      <td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:13px;color:#16a34a;font-weight:600;">${
+        group.online
+      }</td>
+      <td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:13px;color:${
+        group.offline > 0 ? "#dc2626" : "#94a3b8"
+      };font-weight:600;">${group.offline}</td>
       <td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;text-align:center;">
         <span style="background:${badgeColor};color:#fff;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:600;">${badgeText}</span>
       </td>
-      <td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:13px;color:#0f172a;">${group.onlineRate}%</td>
+      <td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;text-align:center;font-size:13px;color:#0f172a;">${
+        group.onlineRate
+      }%</td>
     </tr>`;
-  }).join("");
+    })
+    .join("");
 
   // --- Section ออฟไลน์ Group ตามโรงเรียน ---
   const schoolGroups = groupOfflineBySchool(stats.offlineDevices, schoolMap);
 
-  const offlineSchoolBlocksHtml = schoolGroups.map((school) => {
-    const deviceRows = school.devices.map((device, idx) => {
-      const lastOnline = formatThaiDateTime(device.OnlineTime);
-      const isEven = idx % 2 === 0;
-      return `<tr style="background:${isEven ? "#ffffff" : "#fafafa"};">
-        <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:12px;color:#94a3b8;text-align:center;width:36px;">${idx + 1}</td>
-        <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#0f172a;">${device.AppName ?? "ไม่ระบุแอป"}</td>
-        <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:12px;color:#64748b;font-family:monospace;text-align:center;">v${device.AppVersion ?? "-"}</td>
-        <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:12px;color:#475569;font-family:monospace;">${device.DeviceID}</td>
-        <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#0f172a;">${device.Note ?? "—"}</td>
+  const offlineSchoolBlocksHtml = schoolGroups
+    .map((school) => {
+      const deviceRows = school.devices
+        .map((device, idx) => {
+          const lastOnline = formatThaiDateTime(device.OnlineTime);
+          const isEven = idx % 2 === 0;
+          return `<tr style="background:${isEven ? "#ffffff" : "#fafafa"};">
+        <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:12px;color:#94a3b8;text-align:center;width:36px;">${
+          idx + 1
+        }</td>
+        <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#0f172a;">${
+          device.AppName ?? "ไม่ระบุแอป"
+        }</td>
+        <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:12px;color:#64748b;font-family:monospace;text-align:center;">v${
+          device.AppVersion ?? "-"
+        }</td>
+        <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:12px;color:#475569;font-family:monospace;">${
+          device.DeviceID
+        }</td>
+        <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#0f172a;">${
+          device.Note ?? "—"
+        }</td>
         <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:12px;color:#dc2626;text-align:center;">${lastOnline}</td>
       </tr>`;
-    }).join("");
+        })
+        .join("");
 
-    const schoolOffline = school.devices.length;
-    const schoolBadgeColor = schoolOffline >= OFFLINE_CRITICAL_THRESHOLD ? "#dc2626" : "#d97706";
+      const schoolOffline = school.devices.length;
+      const schoolBadgeColor =
+        schoolOffline >= OFFLINE_CRITICAL_THRESHOLD ? "#dc2626" : "#d97706";
 
-    return `<div style="margin-bottom:20px;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+      return `<div style="margin-bottom:20px;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
       <div style="background:linear-gradient(90deg,#1e293b 0%,#334155 100%);padding:12px 18px;display:flex;align-items:center;">
         <span style="font-size:14px;font-weight:600;color:#f1f5f9;flex:1;">${school.schoolName}</span>
         <span style="font-size:11px;color:#94a3b8;margin-left:8px;">(${school.schoolId})</span>
@@ -297,10 +374,12 @@ function buildEmailHtml(stats: DeviceStats, schoolMap: SchoolMapEntry[], reportT
         <tbody>${deviceRows}</tbody>
       </table>
     </div>`;
-  }).join("");
+    })
+    .join("");
 
-  const offlineSection = stats.offline > 0
-    ? `<div style="margin-top:36px;">
+  const offlineSection =
+    stats.offline > 0
+      ? `<div style="margin-top:36px;">
         <div style="display:flex;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #fee2e2;">
           <div>
             <p style="margin:0;font-size:16px;font-weight:700;color:#0f172a;">รายละเอียดเครื่องออฟไลน์</p>
@@ -310,14 +389,15 @@ function buildEmailHtml(stats: DeviceStats, schoolMap: SchoolMapEntry[], reportT
         </div>
         ${offlineSchoolBlocksHtml}
       </div>`
-    : `<div style="margin-top:28px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #bbf7d0;border-radius:12px;padding:24px;text-align:center;">
+      : `<div style="margin-top:28px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #bbf7d0;border-radius:12px;padding:24px;text-align:center;">
         <p style="margin:0 0 4px 0;font-size:22px;">&#10003;</p>
         <p style="margin:0;font-size:15px;font-weight:600;color:#15803d;">ทุกเครื่องออนไลน์และพร้อมใช้งาน</p>
         <p style="margin:6px 0 0 0;font-size:12px;color:#4ade80;">ไม่พบเครื่องออฟไลน์ในขณะนี้</p>
       </div>`;
 
   // --- Stats Bar ---
-  const onlineBarWidth = stats.total > 0 ? Math.round((stats.online / stats.total) * 100) : 0;
+  const onlineBarWidth =
+    stats.total > 0 ? Math.round((stats.online / stats.total) * 100) : 0;
 
   return `<!DOCTYPE html>
 <html lang="th">
@@ -346,7 +426,11 @@ function buildEmailHtml(stats: DeviceStats, schoolMap: SchoolMapEntry[], reportT
               สถานะระบบ: ${statusLabel}
             </td>
             <td style="text-align:right;font-size:13px;color:rgba(255,255,255,0.85);">
-              ออนไลน์ ${stats.online} / ${stats.total} เครื่อง &nbsp;·&nbsp; ออฟไลน์ ${stats.offline} เครื่อง &nbsp;·&nbsp; อัตราออนไลน์ ${stats.onlineRate}%
+              ออนไลน์ ${stats.online} / ${
+    stats.total
+  } เครื่อง &nbsp;·&nbsp; ออฟไลน์ ${
+    stats.offline
+  } เครื่อง &nbsp;·&nbsp; อัตราออนไลน์ ${stats.onlineRate}%
             </td>
           </tr>
         </table>
@@ -359,22 +443,34 @@ function buildEmailHtml(stats: DeviceStats, schoolMap: SchoolMapEntry[], reportT
         <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:36px;">
           <tr>
             <td style="width:22%;text-align:center;padding:20px 12px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;">
-              <p style="margin:0;font-size:32px;font-weight:700;color:#0f172a;">${stats.total}</p>
+              <p style="margin:0;font-size:32px;font-weight:700;color:#0f172a;">${
+                stats.total
+              }</p>
               <p style="margin:6px 0 0 0;font-size:12px;color:#94a3b8;font-weight:500;">ทั้งหมด</p>
             </td>
             <td style="width:4%;"></td>
             <td style="width:22%;text-align:center;padding:20px 12px;background:#f0fdf4;border-radius:12px;border:1px solid #bbf7d0;">
-              <p style="margin:0;font-size:32px;font-weight:700;color:#16a34a;">${stats.online}</p>
+              <p style="margin:0;font-size:32px;font-weight:700;color:#16a34a;">${
+                stats.online
+              }</p>
               <p style="margin:6px 0 0 0;font-size:12px;color:#4ade80;font-weight:500;">ออนไลน์</p>
             </td>
             <td style="width:4%;"></td>
-            <td style="width:22%;text-align:center;padding:20px 12px;background:${statusBg};border-radius:12px;border:1px solid ${stats.offline > 0 ? "#fecaca" : "#e2e8f0"};">
-              <p style="margin:0;font-size:32px;font-weight:700;color:${stats.offline > 0 ? statusColor : "#94a3b8"};">${stats.offline}</p>
-              <p style="margin:6px 0 0 0;font-size:12px;color:${stats.offline > 0 ? statusColor : "#94a3b8"};font-weight:500;">ออฟไลน์</p>
+            <td style="width:22%;text-align:center;padding:20px 12px;background:${statusBg};border-radius:12px;border:1px solid ${
+    stats.offline > 0 ? "#fecaca" : "#e2e8f0"
+  };">
+              <p style="margin:0;font-size:32px;font-weight:700;color:${
+                stats.offline > 0 ? statusColor : "#94a3b8"
+              };">${stats.offline}</p>
+              <p style="margin:6px 0 0 0;font-size:12px;color:${
+                stats.offline > 0 ? statusColor : "#94a3b8"
+              };font-weight:500;">ออฟไลน์</p>
             </td>
             <td style="width:4%;"></td>
             <td style="width:22%;text-align:center;padding:20px 12px;background:#eff6ff;border-radius:12px;border:1px solid #bfdbfe;">
-              <p style="margin:0;font-size:32px;font-weight:700;color:#1d4ed8;">${stats.login}</p>
+              <p style="margin:0;font-size:32px;font-weight:700;color:#1d4ed8;">${
+                stats.login
+              }</p>
               <p style="margin:6px 0 0 0;font-size:12px;color:#60a5fa;font-weight:500;">กำลังใช้งาน</p>
             </td>
           </tr>
@@ -385,7 +481,9 @@ function buildEmailHtml(stats: DeviceStats, schoolMap: SchoolMapEntry[], reportT
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:10px;">
             <tr>
               <td style="font-size:13px;font-weight:600;color:#374151;">อัตราออนไลน์</td>
-              <td style="text-align:right;font-size:20px;font-weight:700;color:${statusColor};">${stats.onlineRate}%</td>
+              <td style="text-align:right;font-size:20px;font-weight:700;color:${statusColor};">${
+    stats.onlineRate
+  }%</td>
             </tr>
           </table>
           <div style="background:#e2e8f0;border-radius:999px;height:10px;overflow:hidden;">
@@ -440,7 +538,12 @@ export async function sendMonitoringEmail(
   try {
     const subject = `[SchoolBright] รายงานสถานะเครื่อง POS - ออนไลน์ ${stats.online}/${stats.total} เครื่อง (${stats.onlineRate}%)`;
     const html = buildEmailHtml(stats, schoolMap, reportTime);
-    await sendMail(REPORT_EMAILS.join(", "), subject, "รายงานสถานะเครื่อง POS", html);
+    await sendMail(
+      REPORT_EMAILS.join(", "),
+      subject,
+      "รายงานสถานะเครื่อง POS",
+      html,
+    );
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "ส่งอีเมลไม่สำเร็จ";
