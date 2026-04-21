@@ -154,7 +154,7 @@ export const BYPASS_TARGETS: Record<string, BypassTarget> = {
       },
       development: {
         label: "Development",
-        url: "https://exam-dev.schoolbright.co/ByPass?token=",
+        url: "https://dev-exam.schoolbright.co/ByPass?token=",
       },
     },
   },
