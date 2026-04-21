@@ -19,14 +19,14 @@ const transporter = nodemailer.createTransport({
 });
 
 export async function sendMail(
-  to: string,
+  to: string | string[],
   subject: string,
   text: string,
   html?: string,
 ) {
   const info = await transporter.sendMail({
     from: process.env.MAILER_USER || process.env.NEXT_PUBLIC_MAILER_USER,
-    to,
+    to: Array.isArray(to) ? to.join(", ") : to,
     subject,
     text,
     html,
@@ -35,7 +35,7 @@ export async function sendMail(
 }
 
 export async function sendOvertimeEmail(
-  to: string,
+  to: string | string[],
   subject: string,
   text: string,
   html?: string,

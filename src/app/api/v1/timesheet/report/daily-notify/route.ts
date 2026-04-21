@@ -41,6 +41,9 @@ const NotifySchema = z.object({
       "thanat.light@schoolbright.co",
       "narin@schoolbright.co",
       "tana.joe@schoolbright.co",
+      "nikornsak.champ@schoolbright.co",
+      "traithep.cstp@gmail.com",
+      "kumikomai2015@gmail.com",
     ]),
 });
 

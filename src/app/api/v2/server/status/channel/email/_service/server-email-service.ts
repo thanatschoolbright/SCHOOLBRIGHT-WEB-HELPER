@@ -41,9 +41,19 @@ export async function fetchAndSendServerStatusEmail() {
     const html = buildServerStatusEmailHtml({ ...stats, results, reportTime });
 
     // 2. ดึงรายชื่อผู้รับจาก Env หรือใช้ค่าเริ่มต้น
-    const recipients =
-      process.env.SERVER_REPORT_EMAILS ||
-      "narin@schoolbright.co, tantawan.tawan@schoolbright.co, ariya.goff@schoolbright.co, cs@schoolbright.co , sa@schoolbright.co, vimal@schoolbright.co";
+    const recipients: string[] = process.env.SERVER_REPORT_EMAILS
+      ? process.env.SERVER_REPORT_EMAILS.split(",").map((email) => email.trim())
+      : [
+          "narin@schoolbright.co",
+          "tantawan.tawan@schoolbright.co",
+          "ariya.goff@schoolbright.co",
+          "cs@schoolbright.co",
+          "sa@schoolbright.co",
+          "vimal@schoolbright.co",
+          "nikornsak.champ@schoolbright.co",
+          "traithep.cstp@gmail.com",
+          "kumikomai2015@gmail.com",
+        ];
 
     // 3. ส่งอีเมล
     await sendMail(
