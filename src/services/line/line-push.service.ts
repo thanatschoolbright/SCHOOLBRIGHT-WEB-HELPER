@@ -911,7 +911,7 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
       lines.push(``);
       lines.push(`รุ่น: ${appName} (${appVersion})`);
       lines.push(``);
-      lines.push(`สถานะ: ✖ Offline ${offlineDuration}`);
+      lines.push(`สถานะ: ❌ Offline ${offlineDuration}`);
       lines.push(``);
     });
 
