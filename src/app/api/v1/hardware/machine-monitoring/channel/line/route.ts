@@ -1,4 +1,5 @@
 import { errorResponse, successResponse } from "@/helpers/api/response";
+import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import {
   buildDeviceStatusReport,
   linePushMessage,
@@ -21,13 +22,31 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const groupId = process.env.LINE_MONITORING_GROUP_ID;
+  // ลำดับความสำคัญ: query param > env var > active group ใน DB
+  const { searchParams } = new URL(request.url);
+  let groupId =
+    searchParams.get("group_id") ??
+    process.env.LINE_MONITORING_GROUP_ID ??
+    null;
+
+  if (!groupId) {
+    // fallback: ดึง group ล่าสุดที่ active จาก DB
+    const activeGroup = await PrismaTimesheet.lineGroup
+      .findFirst({
+        where: { is_active: true },
+        orderBy: { updated_at: "desc" },
+      })
+      .catch(() => null);
+    groupId = activeGroup?.group_id ?? null;
+  }
+
   if (!groupId) {
     return NextResponse.json(
       errorResponse({
         status: 503,
-        message_th: "ยังไม่ได้ตั้งค่า LINE_MONITORING_GROUP_ID",
-        message_en: "LINE_MONITORING_GROUP_ID is not configured",
+        message_th:
+          "ยังไม่ได้ตั้งค่า LINE Group เป้าหมาย กรุณาเลือกกลุ่มก่อนส่งรายงาน",
+        message_en: "LINE target group is not configured",
       }),
       { status: 503 },
     );
@@ -39,6 +58,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       successResponse({
+        data: { group_id: groupId },
         message_th: "ส่งรายงานไปยัง LINE สำเร็จ",
         message_en: "Report sent to LINE successfully",
       }),

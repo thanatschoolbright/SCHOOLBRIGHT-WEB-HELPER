@@ -39,7 +39,10 @@ async function replyMessage(
 }
 
 // บันทึกหรืออัพเดท LINE Group ใน DB เมื่อ Bot พบกลุ่มใหม่
+// ตรวจสอบรูปแบบ group ID ก่อน (LINE group ID ขึ้นต้นด้วย 'C' และยาว 33 ตัวอักษร)
 async function upsertLineGroup(groupId: string): Promise<void> {
+  const isValidLineGroupId = /^C[0-9a-f]{32}$/.test(groupId);
+  if (!isValidLineGroupId) return; // ข้าม fake/test group ID
   try {
     await PrismaTimesheet.lineGroup.upsert({
       where: { group_id: groupId },

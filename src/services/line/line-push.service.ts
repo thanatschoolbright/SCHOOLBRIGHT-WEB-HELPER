@@ -1,5 +1,5 @@
-import axios from "axios";
 import prisma from "@helpers/prisma";
+import axios from "axios";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 
@@ -437,8 +437,13 @@ export function buildOfflineDetailTextMessages(
   >,
   reportTime: string,
 ): object[] {
-  const sorted = Array.from(offlineBySchool.entries()).sort(([a], [b]) => a - b);
-  const totalOffline = sorted.reduce((sum, [, { devices }]) => sum + devices.length, 0);
+  const sorted = Array.from(offlineBySchool.entries()).sort(
+    ([a], [b]) => a - b,
+  );
+  const totalOffline = sorted.reduce(
+    (sum, [, { devices }]) => sum + devices.length,
+    0,
+  );
 
   const header = [
     `แจ้งเตือน : เครื่อง POS ออฟไลน์`,
@@ -466,7 +471,8 @@ export function buildOfflineDetailTextMessages(
     const lastMsg = capped[capped.length - 1];
     const skipped = chunks.length - LINE_TEXT_MSG_SLOTS;
     capped[capped.length - 1] =
-      lastMsg + `\n\n(ข้อมูลบางส่วนถูกตัดออก ${skipped} หน้า เนื่องจากเกินขีดจำกัด LINE)`;
+      lastMsg +
+      `\n\n(ข้อมูลบางส่วนถูกตัดออก ${skipped} หน้า เนื่องจากเกินขีดจำกัด LINE)`;
   }
 
   return capped.map((text) => ({ type: "text", text }));
@@ -564,13 +570,16 @@ export async function buildDeviceStatusReport(): Promise<object[]> {
     const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
     const isOnlineDynamic =
       device.Online === true ||
-      (onlineTime ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS : false);
+      (onlineTime
+        ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
+        : false);
 
     if (isOnlineDynamic) online++;
     else {
       offline++;
       const entry = offlineBySchool.get(device.SchoolID) ?? {
-        schoolName: schoolNameMap.get(device.SchoolID) ?? `โรงเรียน ${device.SchoolID}`,
+        schoolName:
+          schoolNameMap.get(device.SchoolID) ?? `โรงเรียน ${device.SchoolID}`,
         devices: [],
       };
       entry.devices.push({
@@ -583,8 +592,15 @@ export async function buildDeviceStatusReport(): Promise<object[]> {
     if (device.Login) login++;
     schoolSet.add(device.SchoolID);
 
-    const appKey = `${device.AppName ?? "ไม่ระบุแอป"}|||${device.AppVersion ?? "-"}`;
-    const g = groupMap.get(appKey) ?? { online: 0, offline: 0, login: 0, total: 0 };
+    const appKey = `${device.AppName ?? "ไม่ระบุแอป"}|||${
+      device.AppVersion ?? "-"
+    }`;
+    const g = groupMap.get(appKey) ?? {
+      online: 0,
+      offline: 0,
+      login: 0,
+      total: 0,
+    };
     g.total++;
     if (isOnlineDynamic) g.online++;
     else g.offline++;
@@ -621,14 +637,24 @@ export async function buildDeviceStatusReport(): Promise<object[]> {
   ];
 
   if (offlineBySchool.size > 0) {
-    messages.push(...buildOfflineDetailTextMessages(offlineBySchool, reportTime));
+    messages.push({
+      type: "text",
+      text: [
+        `สำหรับ CS / QA`,
+        `ให้ตรวจสอบรายละเอียดเครื่องฮาร์ดแวร์ออฟไลน์/ออนไลน์ แต่ละโรงเรียนได้ที่`,
+        `https://sb-helper.schoolbright.co/health-check/online-status`,
+        `และช่องทาง Email`,
+      ].join("\n"),
+    });
   }
 
   return messages;
 }
 
 // ค้นหาโรงเรียนแบบ Like และแสดงสถานะเครื่องทั้งหมด (ออนไลน์ + ออฟไลน์)
-export async function buildSchoolStatusReport(keyword: string): Promise<object[]> {
+export async function buildSchoolStatusReport(
+  keyword: string,
+): Promise<object[]> {
   const now = new Date();
   const reportTime = dayjs().format("DD/MM/YYYY HH:mm") + " น.";
 
@@ -691,7 +717,9 @@ export async function buildSchoolStatusReport(keyword: string): Promise<object[]
     const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
     const isOnline =
       device.Online === true ||
-      (onlineTime ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS : false);
+      (onlineTime
+        ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
+        : false);
 
     const entry = schoolMap.get(device.SchoolID);
     if (!entry) continue;
@@ -711,11 +739,15 @@ export async function buildSchoolStatusReport(keyword: string): Promise<object[]
     `━━━━━━━━━━━━━━━━━━━━━━━━`,
   ];
 
-  for (const [schoolId, { schoolName, online, offline }] of Array.from(schoolMap.entries()).sort(([a], [b]) => a - b)) {
+  for (const [schoolId, { schoolName, online, offline }] of Array.from(
+    schoolMap.entries(),
+  ).sort(([a], [b]) => a - b)) {
     const total = online.length + offline.length;
     lines.push(``);
     lines.push(`${schoolName} (${schoolId})`);
-    lines.push(`รวม ${total} เครื่อง · ออนไลน์ ${online.length} · ออฟไลน์ ${offline.length}`);
+    lines.push(
+      `รวม ${total} เครื่อง · ออนไลน์ ${online.length} · ออฟไลน์ ${offline.length}`,
+    );
     lines.push(`─────────────────────`);
 
     for (const { appName, appVersion, deviceId } of online) {

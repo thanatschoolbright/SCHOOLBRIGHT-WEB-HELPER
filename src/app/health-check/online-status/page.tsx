@@ -174,8 +174,11 @@ export default function OnlineDeviceDashboard() {
   const handleNotifyLine = async () => {
     try {
       setIsNotifyingLine(true);
+      const params = activeGroupId
+        ? `?group_id=${encodeURIComponent(activeGroupId)}`
+        : "";
       const res = await callApiService.get(
-        "/api/v1/hardware/machine-monitoring/channel/line",
+        `/api/v1/hardware/machine-monitoring/channel/line${params}`,
       );
       const data = res?.data;
       if (data?.status_code === 200 || data?.status === 200) {

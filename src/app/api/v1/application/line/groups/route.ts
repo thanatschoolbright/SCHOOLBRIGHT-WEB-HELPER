@@ -73,8 +73,16 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // อัพเดท runtime env สำหรับ process ปัจจุบัน (ใช้งานได้ทันทีโดยไม่ต้อง restart)
+    // อัพเดท runtime env และ mark active ใน DB เพื่อให้ persist ข้าม serverless instance
     process.env.LINE_MONITORING_GROUP_ID = group_id;
+    await PrismaTimesheet.lineGroup.updateMany({
+      where: { is_active: true },
+      data: { is_active: false },
+    });
+    await PrismaTimesheet.lineGroup.update({
+      where: { group_id },
+      data: { is_active: true },
+    });
 
     return NextResponse.json(
       successResponse({
@@ -82,7 +90,9 @@ export async function PUT(request: NextRequest) {
           group_id: group.group_id,
           group_name: group.group_name,
         },
-        message_th: `ตั้งค่ากลุ่ม "${group.group_name ?? group.group_id}" สำเร็จ`,
+        message_th: `ตั้งค่ากลุ่ม "${
+          group.group_name ?? group.group_id
+        }" สำเร็จ`,
         message_en: "Active LINE group updated successfully",
       }),
       { status: 200 },
