@@ -1,8 +1,11 @@
+"use client";
+
 import {
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
   ReloadOutlined,
+  SendOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import {
@@ -17,11 +20,13 @@ import {
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
+import React, { useState } from "react";
 import {
   TLineGroupItem,
   sendTestLineReport,
 } from "../_api/school-line-group-service";
 import { useSchoolLineGroupStore } from "../_state/use-school-line-group-store";
+import { BatchSendModal } from "./batch-send-modal";
 
 const { Text } = Typography;
 
@@ -56,6 +61,13 @@ export const SchoolLineGroupTable = () => {
     openCreateModal,
     openEditModal,
   } = useSchoolLineGroupStore();
+
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [batchModalOpen, setBatchModalOpen] = useState(false);
+
+  const selectedItems = items.filter((item) =>
+    selectedRowKeys.includes(item.LineGroupId),
+  );
 
   /**
    * ส่ง LINE ทดสอบไปยังโรงเรียนที่เลือก
@@ -250,6 +262,17 @@ export const SchoolLineGroupTable = () => {
           {filterSchoolId && <Tag color="blue">โรงเรียน: {filterSchoolId}</Tag>}
         </Flex>
         <Space>
+          {selectedRowKeys.length > 0 && (
+            <Button
+              type="primary"
+              icon={<SendOutlined />}
+              size="small"
+              style={{ background: "#06C755", border: "none" }}
+              onClick={() => setBatchModalOpen(true)}
+            >
+              ส่ง LINE ({selectedRowKeys.length} รายการ)
+            </Button>
+          )}
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -274,17 +297,37 @@ export const SchoolLineGroupTable = () => {
         columns={columns}
         dataSource={items}
         loading={loading}
+        rowSelection={{
+          type: "checkbox",
+          selectedRowKeys,
+          onChange: (keys) => setSelectedRowKeys(keys),
+          getCheckboxProps: (record: TLineGroupItem) => ({
+            disabled: !record.SchoolId,
+          }),
+        }}
         pagination={{
           current: pagination.page,
           pageSize: pagination.page_size,
           total: pagination.total,
           showSizeChanger: false,
           showTotal: (total) => `ทั้งหมด ${total} รายการ`,
-          onChange: (page) => fetchData(page),
+          onChange: (page) => {
+            setSelectedRowKeys([]);
+            fetchData(page);
+          },
         }}
         size="small"
         scroll={{ x: 1000 }}
         locale={{ emptyText: "ไม่พบข้อมูล" }}
+      />
+
+      <BatchSendModal
+        open={batchModalOpen}
+        selected={selectedItems}
+        onClose={() => {
+          setBatchModalOpen(false);
+          setSelectedRowKeys([]);
+        }}
       />
     </Card>
   );
