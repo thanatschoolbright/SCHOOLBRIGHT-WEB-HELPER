@@ -1199,15 +1199,24 @@ const OvertimeManagementPage = () => {
             return acc + (diff > 0 ? diff : 0);
           }, 0) || 0;
 
-        // คำนวณเวลา Actual
+        // คำนวณเวลา Actual จาก start_date/end_date จริง รองรับข้ามเที่ยงคืน
+        const calcActualMinutes = (
+          startIso: string | null,
+          endIso: string | null,
+        ): number => {
+          if (!startIso || !endIso) return 0;
+          let diff = dayjs(endIso).diff(dayjs(startIso), "minute");
+          // ถ้า diff ติดลบ แสดงว่าข้ามเที่ยงคืน → บวก 1 วัน
+          if (diff < 0) diff += 24 * 60;
+          return diff;
+        };
+
         const totalActualMinutes =
           data.descriptions?.reduce((acc: number, item: any) => {
-            if (!item?.start_date || !item?.end_date) return acc;
-            const diff = dayjs(item.end_date).diff(
-              dayjs(item.start_date),
-              "minute",
+            return (
+              acc +
+              calcActualMinutes(item.start_date ?? null, item.end_date ?? null)
             );
-            return acc + (diff > 0 ? diff : 0);
           }, 0) || 0;
 
         // ดึงข้อมูลหลักฐานจาก descriptions รายการแรก (มี id 87 ตามตัวอย่าง)
@@ -1215,10 +1224,13 @@ const OvertimeManagementPage = () => {
         const proofData = firstDescription.proof || {};
         const headerDate = data.request_date || data.created_at;
 
-        // ฟังก์ชันแปลงเวลาเป็นทศนิยม 2 ตำแหน่ง (เช่น 4:30 -> 4.50, 4:00 -> 4.00)
+        // แปลงนาทีเป็น "H ชม. MM นาที" สำหรับแสดงในเอกสาร
         const formatDurationToDecimal = (minutes: number) => {
-          if (!minutes || minutes <= 0) return "0.00";
-          return (minutes / 60).toFixed(2);
+          if (!minutes || minutes <= 0) return "0 ชม. 0 นาที";
+          const totalMinutes = Math.round(minutes);
+          const h = Math.floor(totalMinutes / 60);
+          const m = totalMinutes % 60;
+          return `${h} ชม. ${m} นาที`;
         };
 
         // Pre-fetch รูปภาพทั้งหมดเป็น base64 ก่อนสร้าง HTML (แก้ปัญหา CORS กับ html2canvas)
@@ -1336,7 +1348,7 @@ const OvertimeManagementPage = () => {
             <div class="ot-total-label">รวมเวลาทั้งหมด (Plan):</div>
             <div class="ot-total-value">${formatDurationToDecimal(
               totalBudgetHours * 60,
-            )} ชม.</div>
+            )}</div>
           </div>
 
           <div class="ot-sign-container-temp">
@@ -1395,10 +1407,11 @@ const OvertimeManagementPage = () => {
               <tbody>
                 ${(data.descriptions || [])
                   .map((d: any, i: number) => {
-                    const diffM =
-                      d.start_date && d.end_date
-                        ? dayjs(d.end_date).diff(dayjs(d.start_date), "minute")
-                        : 0;
+                    // คำนวณจาก start_date/end_date จริง รองรับข้ามเที่ยงคืน
+                    const diffM = calcActualMinutes(
+                      d.start_date ?? null,
+                      d.end_date ?? null,
+                    );
                     return `
                     <tr>
                       <td>${i + 1}</td>
@@ -1423,7 +1436,7 @@ const OvertimeManagementPage = () => {
               <div style="margin-left:auto" class="ot-total-label">รวมเวลาปฏิบัติงานจริง (Actual):</div>
               <div class="ot-total-value">${formatDurationToDecimal(
                 totalActualMinutes,
-              )} ชม.</div>
+              )} </div>
             </div>
 
             <div class="ot-sign-container-temp">
