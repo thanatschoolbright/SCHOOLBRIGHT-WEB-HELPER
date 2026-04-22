@@ -791,7 +791,6 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
   offline: number;
 }> {
   const now = new Date();
-  const reportTime = dayjs().format("DD/MM/YYYY HH:mm") + " น.";
 
   const school = await prisma.activeSchoolList.findFirst({
     where: { nCompany: schoolId },
@@ -862,30 +861,61 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
   // แสดงเฉพาะเครื่องที่ออฟไลน์
   const offlineDevices = deviceStatuses.filter((s) => !s.isOnline);
 
+  // แยก วันที่ และ เวลา ออกจากกัน
+  const reportDate = dayjs().format("DD/MM/YYYY");
+  const reportHour = dayjs().format("HH:mm");
+
   const lines: string[] = [
-    `สวัสดี ${schoolName} ${schoolId}`,
-    `รายงานสถานะเครื่องฮาร์ดแวร์ (เครื่องที่ออฟไลน์)`,
-    `วันที่ ${reportTime}`,
+    `📋 รายงานสถานะอุปกรณ์ (Offline)`,
+    ``,
+    `เรียนคุณ ${schoolName} ${schoolId}`,
+    ``,
+    `📅 ประจำวันที่: ${reportDate} | เวลา: ${reportHour} น.`,
+    ``,
     `━━━━━━━━━━━━━━━━━━━━━━━━`,
   ];
 
   if (offlineDevices.length === 0) {
+    lines.push(``);
     lines.push(`ทุกเครื่องออนไลน์ปกติ ไม่มีเครื่องออฟไลน์`);
+    lines.push(``);
+    lines.push(`━━━━━━━━━━━━━━━━━━━━━━━━`);
   } else {
+    lines.push(``);
+    lines.push(`🔴 รายชื่อเครื่องที่ออฟไลน์`);
+    lines.push(``);
+
     offlineDevices.forEach(({ device, offlineMinutes }, index) => {
-      const note = device.Note ?? device.DeviceID;
+      const deviceName = device.Note?.trim()
+        ? device.Note.trim()
+        : "(ไม่ระบุชื่อเครื่อง)";
+      const deviceId = device.DeviceID ?? "-";
       const appName = device.AppName ?? "ไม่ระบุแอป";
       const appVersion = device.AppVersion ?? "-";
-      const offlineLabel =
-        offlineMinutes !== null
-          ? ` (ออฟไลน์มาแล้ว ${offlineMinutes} นาที)`
-          : " (ไม่ทราบเวลา)";
 
-      lines.push(
-        `${index + 1}. ${note} รหัสเครื่อง : ${appName} (${appVersion})`,
-      );
-      lines.push(`   สถานะ : Offline ✖${offlineLabel}`);
+      let offlineDuration = "(ไม่ทราบเวลา)";
+      if (offlineMinutes !== null) {
+        const days = Math.floor(offlineMinutes / (60 * 24));
+        const hours = Math.floor((offlineMinutes % (60 * 24)) / 60);
+        const mins = offlineMinutes % 60;
+        const parts: string[] = [];
+        if (days > 0) parts.push(`${days} วัน`);
+        if (hours > 0) parts.push(`${hours} ชั่วโมง`);
+        parts.push(`${mins} นาที`);
+        offlineDuration = `(${parts.join(" ")})`;
+      }
+
+      lines.push(`${index + 1}. ${deviceName}`);
+      lines.push(``);
+      lines.push(`ID: ${deviceId}`);
+      lines.push(``);
+      lines.push(`รุ่น: ${appName} (${appVersion})`);
+      lines.push(``);
+      lines.push(`สถานะ: ✖ Offline ${offlineDuration}`);
+      lines.push(``);
     });
+
+    lines.push(`━━━━━━━━━━━━━━━━━━━━━━━━`);
   }
 
   const total = filteredDevices.length;
