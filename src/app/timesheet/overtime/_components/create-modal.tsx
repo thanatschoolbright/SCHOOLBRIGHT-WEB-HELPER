@@ -98,8 +98,16 @@ const TaskDescriptionCard = ({ fieldProps, remove, token }: any) => {
       fieldProps.name,
       "startDate",
     ]);
-    if (value && startDate && !dayjs(value).isAfter(dayjs(startDate))) {
-      return Promise.reject("เวลาสิ้นสุดต้องมากกว่าเวลาเริ่มต้น");
+    if (!value || !startDate) return Promise.resolve();
+    const diffMinutes = dayjs(value).diff(dayjs(startDate), "minute");
+    // ต้องมากกว่าเวลาเริ่มต้น และห่างกันไม่เกิน 24 ชั่วโมง
+    if (diffMinutes <= 0) {
+      return Promise.reject(
+        "เวลาสิ้นสุดต้องมากกว่าเวลาเริ่มต้น (หากข้ามเที่ยงคืน โปรดเลือกวันที่ถัดไป)",
+      );
+    }
+    if (diffMinutes > 24 * 60) {
+      return Promise.reject("ระยะเวลาทำงานต้องไม่เกิน 24 ชั่วโมงต่อรายการ");
     }
     return Promise.resolve();
   };

@@ -32,6 +32,7 @@ import BulkActionBar from "./_components/bulk-action-bar";
 import BulkEmailModal from "./_components/bulk-email-modal";
 import DepartmentBreakdown from "./_components/department-breakdown";
 import AdminExportModal from "./_components/export-modal";
+import { FixDateModal } from "./_components/fix-date-modal";
 import MarkPaidModal from "./_components/mark-paid-modal";
 import MonthlyCostReport from "./_components/monthly-cost-report";
 import OverdueAlert from "./_components/overdue-alert";
@@ -81,6 +82,7 @@ export default function AdminOvertimeManagementPage() {
   const [isDetailVisible, setIsDetailVisible] = useState(false);
   const [isAnalyticsVisible, setIsAnalyticsVisible] = useState(false);
   const [isExportVisible, setIsExportVisible] = useState(false);
+  const [isFixDateVisible, setIsFixDateVisible] = useState(false);
   const [isMarkPaidVisible, setIsMarkPaidVisible] = useState(false);
   const [rejectModal, setRejectModal] = useState<{
     open: boolean;
@@ -1039,6 +1041,14 @@ export default function AdminOvertimeManagementPage() {
                   วิเคราะห์สถิติ
                 </Button>
                 <Button
+                  icon={<SolutionOutlined />}
+                  size="large"
+                  onClick={() => setIsFixDateVisible(true)}
+                  danger
+                >
+                  แก้ไขวันที่ผิด
+                </Button>
+                <Button
                   icon={<ReloadOutlined />}
                   size="large"
                   onClick={() => loadOvertimeData({ page: 1 })}
@@ -1168,6 +1178,13 @@ export default function AdminOvertimeManagementPage() {
             selectedRecords={dataSource.filter((r) =>
               selectedKeys.includes(r.id ?? r.key),
             )}
+          />
+
+          {/* Modal แก้ไขวันที่ผิดปกติ */}
+          <FixDateModal
+            open={isFixDateVisible}
+            onClose={() => setIsFixDateVisible(false)}
+            onFixed={() => loadOvertimeData({ page: currentPageRef.current })}
           />
 
           {/* Modal แจ้งเตือนสถานะ */}
