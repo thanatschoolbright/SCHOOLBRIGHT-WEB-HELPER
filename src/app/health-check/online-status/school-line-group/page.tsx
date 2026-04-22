@@ -4,10 +4,12 @@ import { TeamOutlined } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { StatusModalComponent } from "@components/modal/status-modal-component";
 import { HeaderBar } from "@components/typhography/header-bar-component";
+import { Flex } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 import { useEffect } from "react";
 import { FilterSection } from "./_components/filter-section";
+import { SchoolLineGroupModal } from "./_components/school-line-group-modal";
 import { SchoolLineGroupTable } from "./_components/school-line-group-table";
 import { SummarySection } from "./_components/summary-section";
 import { useSchoolLineGroupStore } from "./_state/use-school-line-group-store";
@@ -19,11 +21,23 @@ dayjs.locale("th");
  * ทำหน้าที่เป็น Orchestrator สำหรับประกอบ Component และจัด Layout
  */
 export default function SchoolLineGroupPage() {
-  const { fetchData, statusModal, closeModal } = useSchoolLineGroupStore();
+  const { fetchData, statusModal, deleteId, loading, closeModal, removeItem } = useSchoolLineGroupStore();
 
   useEffect(() => {
     void fetchData(1);
   }, [fetchData]);
+
+  /**
+   * จัดการการยืนยันใน StatusModal
+   */
+  const handleConfirm = async () => {
+    if (statusModal.type === "delete" && deleteId) {
+      await removeItem(deleteId);
+      closeModal();
+    } else {
+      closeModal();
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -40,13 +54,18 @@ export default function SchoolLineGroupPage() {
           <SchoolLineGroupTable />
         </Flex>
 
+        {/* Modal สำหรับ Create/Update */}
+        <SchoolLineGroupModal />
+
+        {/* Modal สำหรับแสดงสถานะและยืนยันการลบ */}
         <StatusModalComponent
           open={statusModal.open}
           type={statusModal.type}
           title={statusModal.title}
           message={statusModal.message}
+          loading={loading}
           onClose={closeModal}
-          onConfirm={closeModal}
+          onConfirm={handleConfirm}
         />
       </div>
     </DashboardLayout>

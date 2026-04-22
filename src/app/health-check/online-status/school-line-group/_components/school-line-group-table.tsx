@@ -1,4 +1,10 @@
-import { ReloadOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+  ReloadOutlined,
+  UnorderedListOutlined,
+} from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -44,6 +50,9 @@ export const SchoolLineGroupTable = () => {
     fetchData,
     setSendingId,
     setStatusModal,
+    openCreateModal,
+    openEditModal,
+    removeItem,
   } = useSchoolLineGroupStore();
 
   /**
@@ -78,6 +87,19 @@ export const SchoolLineGroupTable = () => {
     } finally {
       setSendingId(null);
     }
+  };
+
+  /**
+   * ยืนยันการลบข้อมูล
+   */
+  const confirmDelete = (record: TLineGroupItem) => {
+    useSchoolLineGroupStore.getState().setDeleteId(record.LineGroupId);
+    setStatusModal({
+      open: true,
+      type: "delete",
+      title: "ยืนยันการลบกลุ่ม LINE",
+      message: `คุณต้องการลบกลุ่ม LINE ของโรงเรียน ${record.SchoolId} ใช่หรือไม่?`,
+    });
   };
 
   const columns: ColumnsType<TLineGroupItem> = [
@@ -173,30 +195,43 @@ export const SchoolLineGroupTable = () => {
       title: "การจัดการ",
       key: "action",
       align: "center",
-      width: 150,
+      width: 220,
       render: (_: unknown, record: TLineGroupItem) => (
-        <Tooltip
-          title={`ส่งรายงานสถานะเครื่องของโรงเรียน ${
-            record.SchoolId ?? "-"
-          } ไปยัง LINE`}
-        >
-          <Button
-            size="small"
-            icon={<LineIcon />}
-            loading={sendingId === record.LineGroupId}
-            disabled={!record.SchoolId}
-            onClick={() => handleSendLine(record)}
-            style={{
-              background: record.SchoolId ? "#06C755" : undefined,
-              color: record.SchoolId ? "#fff" : undefined,
-              border: "none",
-              fontWeight: 600,
-              borderRadius: 8,
-            }}
-          >
-            ส่ง LINE
-          </Button>
-        </Tooltip>
+        <Space size="middle">
+          <Tooltip title="ทดสอบส่ง LINE">
+            <Button
+              size="small"
+              icon={<LineIcon />}
+              loading={sendingId === record.LineGroupId}
+              disabled={!record.SchoolId}
+              onClick={() => handleSendLine(record)}
+              style={{
+                background: record.SchoolId ? "#06C755" : undefined,
+                color: record.SchoolId ? "#fff" : undefined,
+                border: "none",
+                fontWeight: 600,
+                borderRadius: 6,
+              }}
+            />
+          </Tooltip>
+          <Tooltip title="แก้ไข">
+            <Button
+              size="small"
+              icon={<EditOutlined />}
+              onClick={() => openEditModal(record)}
+              style={{ borderRadius: 6 }}
+            />
+          </Tooltip>
+          <Tooltip title="ลบ">
+            <Button
+              size="small"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={() => confirmDelete(record)}
+              style={{ borderRadius: 6 }}
+            />
+          </Tooltip>
+        </Space>
       ),
     },
   ];
@@ -220,6 +255,14 @@ export const SchoolLineGroupTable = () => {
           )}
         </Flex>
         <Space>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            size="small"
+            onClick={openCreateModal}
+          >
+            เพิ่มข้อมูล
+          </Button>
           <Button
             icon={<ReloadOutlined />}
             size="small"
@@ -245,7 +288,7 @@ export const SchoolLineGroupTable = () => {
           onChange: (page) => fetchData(page),
         }}
         size="small"
-        scroll={{ x: 900 }}
+        scroll={{ x: 1000 }}
         locale={{ emptyText: "ไม่พบข้อมูล" }}
       />
     </Card>

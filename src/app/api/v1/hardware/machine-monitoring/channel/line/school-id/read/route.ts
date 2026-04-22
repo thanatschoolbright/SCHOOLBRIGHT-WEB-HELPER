@@ -1,10 +1,12 @@
 import { errorResponse, successResponse } from "@/helpers/api/response";
 import { validateRequest } from "@/helpers/api/validate.request";
 import { NextRequest, NextResponse } from "next/server";
-import { getSchoolGroupService } from "./_service/school-id-service";
-import { schoolIdSchema } from "./_validation/school-id-schema";
+import { getSchoolGroupService } from "../_service/school-id-service";
+import { schoolIdSchema } from "../_validation/school-id-schema";
 
-// ✨ POST handler — ดึงข้อมูลกลุ่ม LINE จาก Jabjai Master DB พร้อมระบบแบ่งหน้า
+/**
+ * ✨ POST handler — ดึงข้อมูลกลุ่ม LINE จาก Jabjai Master DB พร้อมระบบแบ่งหน้า
+ */
 export async function POST(request: NextRequest) {
   // 1️⃣ ตรวจสอบความถูกต้องของ Request
   const { data, error } = await validateRequest(request, schoolIdSchema);

@@ -24,9 +24,6 @@ export interface ApiResponse {
 
 /**
  * ดึงข้อมูลกลุ่ม LINE ตามรหัสโรงเรียน
- * @param page หน้าที่ต้องการดึง
- * @param limit จำนวนรายการต่อหน้า
- * @param school_id รหัสโรงเรียนที่ต้องการกรอง
  */
 export const fetchSchoolLineGroups = async (
   page: number,
@@ -34,7 +31,7 @@ export const fetchSchoolLineGroups = async (
   school_id?: number,
 ) => {
   const res = await callApiService.post<ApiResponse>(
-    "/api/v1/hardware/machine-monitoring/channel/line/school-id",
+    "/api/v1/hardware/machine-monitoring/channel/line/school-id/read",
     {
       page,
       limit,
@@ -45,8 +42,53 @@ export const fetchSchoolLineGroups = async (
 };
 
 /**
+ * สร้างกลุ่ม LINE ใหม่
+ */
+export const createSchoolLineGroup = async (data: {
+  school_id: number;
+  group_id: string;
+  line_notification_access_token: string;
+  group_type: string;
+}) => {
+  const res = await callApiService.post(
+    "/api/v1/hardware/machine-monitoring/channel/line/school-id/create",
+    data,
+  );
+  return res.data;
+};
+
+/**
+ * แก้ไขกลุ่ม LINE
+ */
+export const updateSchoolLineGroup = async (data: {
+  line_group_id: number;
+  school_id?: number;
+  group_id?: string;
+  line_notification_access_token?: string;
+  group_type?: string;
+}) => {
+  const res = await callApiService.patch(
+    "/api/v1/hardware/machine-monitoring/channel/line/school-id/update",
+    data,
+  );
+  return res.data;
+};
+
+/**
+ * ลบกลุ่ม LINE
+ */
+export const deleteSchoolLineGroup = async (line_group_id: number) => {
+  const res = await callApiService.delete(
+    "/api/v1/hardware/machine-monitoring/channel/line/school-id/delete",
+    {
+      data: { line_group_id },
+    },
+  );
+  return res.data;
+};
+
+/**
  * ส่งรายงานทดสอบไปยัง LINE
- * @param school_id รหัสโรงเรียน
  */
 export const sendTestLineReport = async (school_id: number) => {
   const res = await callApiService.get(

@@ -1,8 +1,10 @@
 import { create } from "zustand";
 import {
-  ApiResponse,
   TLineGroupItem,
   fetchSchoolLineGroups,
+  createSchoolLineGroup,
+  updateSchoolLineGroup,
+  deleteSchoolLineGroup,
 } from "../_api/school-line-group-service";
 import { toast } from "sonner";
 
@@ -17,6 +19,7 @@ interface SchoolLineGroupState {
   };
   filterSchoolId: number | undefined;
   sendingId: number | null;
+  deleteId: number | null;
   statusModal: {
     open: boolean;
     type: "success" | "error" | "confirm" | "delete";
@@ -24,9 +27,15 @@ interface SchoolLineGroupState {
     message: string;
   };
 
+  // CRUD State
+  isModalOpen: boolean;
+  modalMode: "create" | "edit";
+  editItem: TLineGroupItem | null;
+
   // Actions
   setFilterSchoolId: (id: number | undefined) => void;
   setSendingId: (id: number | null) => void;
+  setDeleteId: (id: number | null) => void;
   setStatusModal: (modal: {
     open: boolean;
     type: "success" | "error" | "confirm" | "delete";
@@ -34,8 +43,17 @@ interface SchoolLineGroupState {
     message: string;
   }) => void;
   closeModal: () => void;
+  
+  // CRUD Actions
+  openCreateModal: () => void;
+  openEditModal: (item: TLineGroupItem) => void;
+  closeFormModal: () => void;
+  
   fetchData: (page?: number) => Promise<void>;
   resetFilters: () => void;
+  
+  submitForm: (values: any) => Promise<void>;
+  removeItem: (id: number) => Promise<void>;
 }
 
 /**
@@ -53,32 +71,37 @@ export const useSchoolLineGroupStore = create<SchoolLineGroupState>(
     },
     filterSchoolId: undefined,
     sendingId: null,
+    deleteId: null,
     statusModal: { open: false, type: "success", title: "", message: "" },
 
-    /**
-     * ตั้งค่ารหัสโรงเรียนสำหรับกรองข้อมูล
-     */
+    isModalOpen: false,
+    modalMode: "create",
+    editItem: null,
+
     setFilterSchoolId: (id) => set({ filterSchoolId: id }),
-
-    /**
-     * ตั้งค่า ID ที่กำลังส่งข้อมูล
-     */
     setSendingId: (id) => set({ sendingId: id }),
-
     /**
      * ตั้งค่าข้อมูล Modal สถานะ
      */
-    setStatusModal: (modal) => set({ statusModal: modal }),
+    setStatusModal: (modal) => {
+      // ถ้าเป็นประเภทลบ ให้ล้าง deleteId เดิมออกก่อน (ถ้ามี)
+      if (modal.type !== "delete") {
+        set({ deleteId: null });
+      }
+      set({ statusModal: modal });
+    },
 
     /**
-     * ปิด Modal สถานะ
+     * ตั้งค่า ID ที่ต้องการลบ
      */
+    setDeleteId: (id: number | null) => set({ deleteId: id }),
     closeModal: () =>
       set((state) => ({ statusModal: { ...state.statusModal, open: false } })),
 
-    /**
-     * ดึงข้อมูลจาก API และอัปเดต State
-     */
+    openCreateModal: () => set({ isModalOpen: true, modalMode: "create", editItem: null }),
+    openEditModal: (item) => set({ isModalOpen: true, modalMode: "edit", editItem: item }),
+    closeFormModal: () => set({ isModalOpen: false, editItem: null }),
+
     fetchData: async (page) => {
       const { pagination, filterSchoolId } = get();
       const currentPage = page ?? pagination.page;
@@ -104,12 +127,63 @@ export const useSchoolLineGroupStore = create<SchoolLineGroupState>(
       }
     },
 
-    /**
-     * ล้างการค้นหาและดึงข้อมูลใหม่
-     */
     resetFilters: () => {
       set({ filterSchoolId: undefined });
       get().fetchData(1);
+    },
+
+    submitForm: async (values) => {
+      const { modalMode, editItem, fetchData, closeFormModal } = get();
+      set({ loading: true });
+      try {
+        let res;
+        if (modalMode === "create") {
+          res = await createSchoolLineGroup({
+            school_id: values.school_id,
+            group_id: values.group_id,
+            line_notification_access_token: values.line_notification_access_token,
+            group_type: values.group_type,
+          });
+        } else if (editItem) {
+          res = await updateSchoolLineGroup({
+            line_group_id: editItem.LineGroupId,
+            school_id: values.school_id,
+            group_id: values.group_id,
+            line_notification_access_token: values.line_notification_access_token,
+            group_type: values.group_type,
+          });
+        }
+
+        if (res?.status_code === 200 || res?.status_code === 201) {
+          toast.success(modalMode === "create" ? "เพิ่มข้อมูลสำเร็จ" : "แก้ไขข้อมูลสำเร็จ");
+          closeFormModal();
+          void fetchData();
+        } else {
+          throw new Error(res?.message_th || "ดำเนินการไม่สำเร็จ");
+        }
+      } catch (err: any) {
+        toast.error(err.message || "เกิดข้อผิดพลาด");
+      } finally {
+        set({ loading: false });
+      }
+    },
+
+    removeItem: async (id) => {
+      const { fetchData } = get();
+      set({ loading: true });
+      try {
+        const res = await deleteSchoolLineGroup(id);
+        if (res?.status_code === 200) {
+          toast.success("ลบข้อมูลสำเร็จ");
+          void fetchData();
+        } else {
+          throw new Error(res?.message_th || "ลบข้อมูลไม่สำเร็จ");
+        }
+      } catch (err: any) {
+        toast.error(err.message || "เกิดข้อผิดพลาด");
+      } finally {
+        set({ loading: false });
+      }
     },
   }),
 );
