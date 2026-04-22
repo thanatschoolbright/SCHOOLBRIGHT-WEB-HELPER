@@ -829,17 +829,16 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
     orderBy: { DeviceID: "asc" },
   });
 
-  const lines: string[] = [
-    `สวัสดี ${schoolName} ${schoolId}`,
-    `รายงานสถานะเครื่องฮาร์ดแวร์`,
-    `วันที่ ${reportTime}`,
-    `━━━━━━━━━━━━━━━━━━━━━━━━`,
-  ];
+  // กรองเฉพาะเครื่องที่ไม่ใช่ .SB Canteen ออกก่อนนับ total
+  const filteredDevices = devices.filter(
+    (d) => (d.AppName ?? "").trim() !== ".SB Canteen",
+  );
 
   let onlineCount = 0;
   let offlineCount = 0;
 
-  devices.forEach((device, index) => {
+  // คำนวณสถานะก่อน เพื่อใช้นับ online/offline ของเครื่องที่ผ่านการกรอง
+  const deviceStatuses = filteredDevices.map((device) => {
     const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
     const isOnline =
       device.Online === true ||
@@ -847,27 +846,49 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
         ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
         : false);
 
+    let offlineMinutes: number | null = null;
+    if (!isOnline && onlineTime) {
+      offlineMinutes = Math.floor(
+        (now.getTime() - onlineTime.getTime()) / (60 * 1000),
+      );
+    }
+
     if (isOnline) onlineCount++;
     else offlineCount++;
 
-    const note = device.Note ?? device.DeviceID;
-    const appName = device.AppName ?? "ไม่ระบุแอป";
-    const appVersion = device.AppVersion ?? "-";
-    const statusText = isOnline ? "Online" : "Offline";
-    const statusIcon = isOnline ? "✅" : "❎";
-    const offlineNote = isOnline ? "" : " (โปรดตรวจสอบ)";
-
-    lines.push(
-      `${index + 1}. ${note} รหัสเครื่อง : ${appName} (${appVersion})`,
-    );
-    lines.push(`   สถานะ : ${statusText} ${statusIcon}${offlineNote}`);
+    return { device, isOnline, offlineMinutes };
   });
 
-  if (devices.length === 0) {
-    lines.push(`ไม่พบข้อมูลเครื่องฮาร์ดแวร์ของโรงเรียนนี้`);
+  // แสดงเฉพาะเครื่องที่ออฟไลน์
+  const offlineDevices = deviceStatuses.filter((s) => !s.isOnline);
+
+  const lines: string[] = [
+    `สวัสดี ${schoolName} ${schoolId}`,
+    `รายงานสถานะเครื่องฮาร์ดแวร์ (เครื่องที่ออฟไลน์)`,
+    `วันที่ ${reportTime}`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━`,
+  ];
+
+  if (offlineDevices.length === 0) {
+    lines.push(`ทุกเครื่องออนไลน์ปกติ ไม่มีเครื่องออฟไลน์`);
+  } else {
+    offlineDevices.forEach(({ device, offlineMinutes }, index) => {
+      const note = device.Note ?? device.DeviceID;
+      const appName = device.AppName ?? "ไม่ระบุแอป";
+      const appVersion = device.AppVersion ?? "-";
+      const offlineLabel =
+        offlineMinutes !== null
+          ? ` (ออฟไลน์มาแล้ว ${offlineMinutes} นาที)`
+          : " (ไม่ทราบเวลา)";
+
+      lines.push(
+        `${index + 1}. ${note} รหัสเครื่อง : ${appName} (${appVersion})`,
+      );
+      lines.push(`   สถานะ : Offline ✖${offlineLabel}`);
+    });
   }
 
-  const total = devices.length;
+  const total = filteredDevices.length;
   const fullText = lines.join("\n");
 
   // แบ่ง messages ถ้ายาวเกิน 5,000 ตัวอักษร
