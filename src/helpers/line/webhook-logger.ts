@@ -32,7 +32,7 @@ export function writeWebhookLog(entry: WebhookLogEntry): void {
       : null,
     method: "POST",
     statusCode: entry.outcome === "error" ? 500 : 200,
-    url: "/api/v1/application/line/webhook",
+    url: `${baseUrl}/api/v1/application/line/webhook`,
     endpoint: "/api/v1/application/line/webhook",
     serviceName: "line-webhook",
     requestBody: entry.requestBody ?? null,
