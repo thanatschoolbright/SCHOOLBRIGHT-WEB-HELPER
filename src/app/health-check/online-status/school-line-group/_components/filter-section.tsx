@@ -21,7 +21,7 @@ const { Text } = Typography;
 
 /**
  * ส่วนกรองข้อมูลสำหรับค้นหาตามรหัสโรงเรียน
- * ปรับปรุง Padding และ Margin ให้มีความโปร่งสบายตามากขึ้น
+ * ใช้ Row, Col และ Flex ในการจัดวางเพื่อให้ Input และปุ่มค้นหาอยู่ในแนวเดียวกันอย่างสมดุล
  */
 export const FilterSection = () => {
   const { token } = theme.useToken();
@@ -58,19 +58,20 @@ export const FilterSection = () => {
           body: { padding: "32px" },
         }}
       >
-        <Flex align="center" gap={12} className="mb-8">
+        <Flex
+          align="center"
+          gap={12}
+          className="mb-8"
+          style={{
+            marginBottom: "1rem",
+          }}
+        >
           <div className="p-2.5 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
             <FilterFilled
               style={{ fontSize: "1.1rem", color: token.colorPrimary }}
             />
           </div>
-          <Flex
-            vertical
-            gap={2}
-            style={{
-              marginBottom: "1rem",
-            }}
-          >
+          <Flex vertical gap={2}>
             <Text strong className="text-base tracking-tight">
               ค้นหาข้อมูล
             </Text>
@@ -84,13 +85,14 @@ export const FilterSection = () => {
         </Flex>
 
         <Form form={form} layout="vertical" onFinish={handleSearch}>
-          <Row gutter={32} align="bottom">
+          <Row gutter={[24, 24]} align="bottom">
+            {/* ฝั่งช่องกรอกข้อมูล */}
             <Col xs={24} sm={14} md={16} lg={18}>
               <Form.Item
                 label={
                   <Text
                     type="secondary"
-                    className="text-xs font-semibold uppercase tracking-widest ml-1 mb-1"
+                    className="text-xs font-bold uppercase tracking-widest ml-1 mb-1"
                   >
                     รหัสโรงเรียน (School ID)
                   </Text>
@@ -101,29 +103,33 @@ export const FilterSection = () => {
                 <InputNumber
                   placeholder="ค้นหาด้วยรหัสโรงเรียน เช่น 1001"
                   style={{ width: "100%" }}
-                  className="h-12 rounded-xl flex items-center border-slate-200 hover:border-blue-400 focus:border-blue-500 transition-all text-sm px-2"
+                  className="h-12 rounded-xl flex items-center border-slate-200 hover:border-blue-400 focus:border-blue-500 transition-all text-sm px-2 bg-slate-50 dark:bg-slate-800/50 border-none"
                   min={1}
                   controls={false}
                   prefix={<SearchOutlined className="text-slate-300 mr-2" />}
                 />
               </Form.Item>
             </Col>
+
+            {/* ฝั่งกลุ่มปุ่มกด */}
             <Col xs={24} sm={10} md={8} lg={6}>
-              <Flex gap={12} className="sm:mt-0 mt-6">
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  loading={loading}
-                  className="flex-1 h-12 rounded-xl shadow-lg shadow-blue-100 dark:shadow-none font-bold bg-blue-600 hover:bg-blue-500 border-none transition-all active:scale-95"
-                >
-                  ค้นหา
-                </Button>
-                <Button
-                  icon={<ReloadOutlined />}
-                  onClick={handleClear}
-                  className="h-12 w-12 flex items-center justify-center rounded-xl border-slate-200 hover:text-blue-500 hover:border-blue-500 transition-all active:scale-95 bg-slate-50 dark:bg-slate-800 border-none"
-                />
-              </Flex>
+              <Form.Item label=" " colon={false} className="mb-0">
+                <Flex gap={12}>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    loading={loading}
+                    className="flex-1 h-12 rounded-xl shadow-lg shadow-blue-100 dark:shadow-none font-bold bg-blue-600 hover:bg-blue-500 border-none transition-all active:scale-95"
+                  >
+                    ค้นหา
+                  </Button>
+                  <Button
+                    icon={<ReloadOutlined />}
+                    onClick={handleClear}
+                    className="h-12 w-12 flex items-center justify-center rounded-xl border-none transition-all active:scale-95 bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-blue-500"
+                  />
+                </Flex>
+              </Form.Item>
             </Col>
           </Row>
         </Form>
