@@ -566,19 +566,36 @@ const OvertimeManagementPage = () => {
             const end = dayjs(desc.endDate);
             const base = dayjs(baseDate);
 
+            // คำนวณ startDate โดยใช้ base date
+            const startIso = base
+              .hour(start.hour())
+              .minute(start.minute())
+              .second(0)
+              .toISOString();
+
+            // ตรวจสอบว่า end_date ข้ามเที่ยงคืนหรือไม่
+            // ถ้า end < start (เวลา) แสดงว่าข้ามวัน → ใช้ base + 1 วัน
+            const startBaseTime = base
+              .hour(start.hour())
+              .minute(start.minute())
+              .second(0);
+            const endBaseTime = base
+              .hour(end.hour())
+              .minute(end.minute())
+              .second(0);
+            const isOvernight = endBaseTime.isBefore(startBaseTime);
+            const endBase = isOvernight ? base.add(1, "day") : base;
+            const endIso = endBase
+              .hour(end.hour())
+              .minute(end.minute())
+              .second(0)
+              .toISOString();
+
             return {
               ...desc,
               duration: Number(desc.duration || 0),
-              startDate: base
-                .hour(start.hour())
-                .minute(start.minute())
-                .second(0)
-                .toISOString(),
-              endDate: base
-                .hour(end.hour())
-                .minute(end.minute())
-                .second(0)
-                .toISOString(),
+              startDate: startIso,
+              endDate: endIso,
               assignee: String(formSubmissionPayload.assignee),
             };
           },
@@ -635,15 +652,22 @@ const OvertimeManagementPage = () => {
             !formSubmissionPayload.signature_file?.[0]
           ) {
             try {
-              const signatureUrl = formSubmissionPayload.signature_default_url as string;
+              const signatureUrl =
+                formSubmissionPayload.signature_default_url as string;
               const fetchUrl = signatureUrl.startsWith("/")
                 ? signatureUrl
                 : `/api/v1/proxy/image?url=${encodeURIComponent(signatureUrl)}`;
               const res = await fetch(fetchUrl);
               const blob = await res.blob();
               const ext = blob.type.includes("png") ? "png" : "jpg";
-              const file = new File([blob], `signature_default.${ext}`, { type: blob.type });
-              await uploadBinaryImage({ originFileObj: file }, firstId, "signature_1");
+              const file = new File([blob], `signature_default.${ext}`, {
+                type: blob.type,
+              });
+              await uploadBinaryImage(
+                { originFileObj: file },
+                firstId,
+                "signature_1",
+              );
             } catch (err) {
               console.error("ไม่สามารถอัปโหลดลายเซ็น default ได้:", err);
             }
