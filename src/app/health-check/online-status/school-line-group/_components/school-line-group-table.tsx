@@ -84,7 +84,8 @@ export const SchoolLineGroupTable = () => {
         open: true,
         type: "error",
         title: "ส่งรายงานไม่สำเร็จ",
-        message: msg,
+        message: "ไม่สามารถส่งรายงานไปยัง LINE ได้ กรุณาตรวจสอบการเชื่อมต่อ",
+        errorDetails: msg,
       });
     } finally {
       setSendingId(null);

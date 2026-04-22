@@ -21,7 +21,8 @@ dayjs.locale("th");
  * ทำหน้าที่เป็น Orchestrator สำหรับประกอบ Component และจัด Layout
  */
 export default function SchoolLineGroupPage() {
-  const { fetchData, statusModal, deleteId, loading, closeModal, removeItem } = useSchoolLineGroupStore();
+  const { fetchData, statusModal, deleteId, loading, closeModal, removeItem } =
+    useSchoolLineGroupStore();
 
   useEffect(() => {
     void fetchData(1);
@@ -63,6 +64,7 @@ export default function SchoolLineGroupPage() {
           type={statusModal.type}
           title={statusModal.title}
           message={statusModal.message}
+          errorDetails={statusModal.errorDetails}
           loading={loading}
           onClose={closeModal}
           onConfirm={handleConfirm}

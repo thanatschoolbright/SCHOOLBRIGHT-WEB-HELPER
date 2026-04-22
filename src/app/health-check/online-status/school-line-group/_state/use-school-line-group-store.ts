@@ -1,4 +1,3 @@
-import { toast } from "sonner";
 import { create } from "zustand";
 import {
   TLineGroupItem,
@@ -25,6 +24,7 @@ interface SchoolLineGroupState {
     type: "success" | "error" | "confirm" | "delete";
     title: string;
     message: string;
+    errorDetails?: unknown;
   };
 
   // CRUD State
@@ -41,6 +41,7 @@ interface SchoolLineGroupState {
     type: "success" | "error" | "confirm" | "delete";
     title: string;
     message: string;
+    errorDetails?: unknown;
   }) => void;
   closeModal: () => void;
 
@@ -52,7 +53,7 @@ interface SchoolLineGroupState {
   fetchData: (page?: number) => Promise<void>;
   resetFilters: () => void;
 
-  submitForm: (values: any) => Promise<void>;
+  submitForm: (values: Record<string, unknown>) => Promise<void>;
   removeItem: (id: number) => Promise<void>;
 }
 
@@ -72,7 +73,13 @@ export const useSchoolLineGroupStore = create<SchoolLineGroupState>(
     filterSchoolId: undefined,
     sendingId: null,
     deleteId: null,
-    statusModal: { open: false, type: "success", title: "", message: "" },
+    statusModal: {
+      open: false,
+      type: "success",
+      title: "",
+      message: "",
+      errorDetails: undefined,
+    },
 
     isModalOpen: false,
     modalMode: "create",
@@ -122,8 +129,18 @@ export const useSchoolLineGroupStore = create<SchoolLineGroupState>(
             pagination: body.pagination,
           });
         }
-      } catch {
-        toast.error("ไม่สามารถโหลดข้อมูลได้");
+      } catch (err: unknown) {
+        const errMsg =
+          err instanceof Error ? err.message : "ไม่สามารถโหลดข้อมูลได้";
+        set({
+          statusModal: {
+            open: true,
+            type: "error",
+            title: "โหลดข้อมูลไม่สำเร็จ",
+            message: "ไม่สามารถดึงข้อมูลกลุ่ม LINE ได้ กรุณาลองใหม่อีกครั้ง",
+            errorDetails: errMsg,
+          },
+        });
       } finally {
         set({ loading: false });
       }
@@ -134,27 +151,27 @@ export const useSchoolLineGroupStore = create<SchoolLineGroupState>(
       get().fetchData(1);
     },
 
-    submitForm: async (values) => {
+    submitForm: async (values: Record<string, unknown>) => {
       const { modalMode, editItem, fetchData, closeFormModal } = get();
       set({ loading: true });
       try {
         let res;
         if (modalMode === "create") {
           res = await createSchoolLineGroup({
-            school_id: values.school_id,
-            group_id: values.group_id,
+            school_id: values.school_id as number,
+            group_id: values.group_id as string,
             line_notification_access_token:
-              values.line_notification_access_token,
-            group_type: values.group_type,
+              values.line_notification_access_token as string,
+            group_type: values.group_type as string,
           });
         } else if (editItem) {
           res = await updateSchoolLineGroup({
             line_group_id: editItem.LineGroupId,
-            school_id: values.school_id,
-            group_id: values.group_id,
+            school_id: values.school_id as number,
+            group_id: values.group_id as string,
             line_notification_access_token:
-              values.line_notification_access_token,
-            group_type: values.group_type,
+              values.line_notification_access_token as string,
+            group_type: values.group_type as string,
           });
         }
 
@@ -192,7 +209,9 @@ export const useSchoolLineGroupStore = create<SchoolLineGroupState>(
               modalMode === "create"
                 ? "เพิ่มกลุ่ม LINE ไม่สำเร็จ"
                 : "แก้ไขข้อมูลกลุ่ม LINE ไม่สำเร็จ",
-            message: msg,
+            message:
+              "ไม่สามารถดำเนินการได้ กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง",
+            errorDetails: msg,
           },
         });
       } finally {
@@ -205,14 +224,31 @@ export const useSchoolLineGroupStore = create<SchoolLineGroupState>(
       set({ loading: true });
       try {
         const res = await deleteSchoolLineGroup(id);
-        if (res?.status_code === 200) {
-          toast.success("ลบข้อมูลสำเร็จ");
+        if ((res?.status ?? res?.status_code) === 200) {
           void fetchData();
+          set({
+            statusModal: {
+              open: true,
+              type: "success",
+              title: "ลบข้อมูลสำเร็จ",
+              message:
+                res?.message_th ?? "ลบกลุ่ม LINE ออกจากระบบเรียบร้อยแล้ว",
+            },
+          });
         } else {
           throw new Error(res?.message_th || "ลบข้อมูลไม่สำเร็จ");
         }
-      } catch (err: any) {
-        toast.error(err.message || "เกิดข้อผิดพลาด");
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "เกิดข้อผิดพลาด";
+        set({
+          statusModal: {
+            open: true,
+            type: "error",
+            title: "ลบข้อมูลไม่สำเร็จ",
+            message: "ไม่สามารถลบกลุ่ม LINE ได้ กรุณาลองใหม่อีกครั้ง",
+            errorDetails: msg,
+          },
+        });
       } finally {
         set({ loading: false });
       }
