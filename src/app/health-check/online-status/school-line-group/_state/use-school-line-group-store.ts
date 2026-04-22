@@ -1,12 +1,12 @@
+import { toast } from "sonner";
 import { create } from "zustand";
 import {
   TLineGroupItem,
-  fetchSchoolLineGroups,
   createSchoolLineGroup,
-  updateSchoolLineGroup,
   deleteSchoolLineGroup,
+  fetchSchoolLineGroups,
+  updateSchoolLineGroup,
 } from "../_api/school-line-group-service";
-import { toast } from "sonner";
 
 interface SchoolLineGroupState {
   items: TLineGroupItem[];
@@ -43,15 +43,15 @@ interface SchoolLineGroupState {
     message: string;
   }) => void;
   closeModal: () => void;
-  
+
   // CRUD Actions
   openCreateModal: () => void;
   openEditModal: (item: TLineGroupItem) => void;
   closeFormModal: () => void;
-  
+
   fetchData: (page?: number) => Promise<void>;
   resetFilters: () => void;
-  
+
   submitForm: (values: any) => Promise<void>;
   removeItem: (id: number) => Promise<void>;
 }
@@ -98,8 +98,10 @@ export const useSchoolLineGroupStore = create<SchoolLineGroupState>(
     closeModal: () =>
       set((state) => ({ statusModal: { ...state.statusModal, open: false } })),
 
-    openCreateModal: () => set({ isModalOpen: true, modalMode: "create", editItem: null }),
-    openEditModal: (item) => set({ isModalOpen: true, modalMode: "edit", editItem: item }),
+    openCreateModal: () =>
+      set({ isModalOpen: true, modalMode: "create", editItem: null }),
+    openEditModal: (item) =>
+      set({ isModalOpen: true, modalMode: "edit", editItem: item }),
     closeFormModal: () => set({ isModalOpen: false, editItem: null }),
 
     fetchData: async (page) => {
@@ -141,7 +143,8 @@ export const useSchoolLineGroupStore = create<SchoolLineGroupState>(
           res = await createSchoolLineGroup({
             school_id: values.school_id,
             group_id: values.group_id,
-            line_notification_access_token: values.line_notification_access_token,
+            line_notification_access_token:
+              values.line_notification_access_token,
             group_type: values.group_type,
           });
         } else if (editItem) {
@@ -149,20 +152,49 @@ export const useSchoolLineGroupStore = create<SchoolLineGroupState>(
             line_group_id: editItem.LineGroupId,
             school_id: values.school_id,
             group_id: values.group_id,
-            line_notification_access_token: values.line_notification_access_token,
+            line_notification_access_token:
+              values.line_notification_access_token,
             group_type: values.group_type,
           });
         }
 
-        if (res?.status_code === 200 || res?.status_code === 201) {
-          toast.success(modalMode === "create" ? "เพิ่มข้อมูลสำเร็จ" : "แก้ไขข้อมูลสำเร็จ");
+        const isSuccess =
+          (res?.status ?? res?.status_code) === 200 ||
+          (res?.status ?? res?.status_code) === 201;
+        if (isSuccess) {
           closeFormModal();
           void fetchData();
+          set({
+            statusModal: {
+              open: true,
+              type: "success",
+              title:
+                modalMode === "create"
+                  ? "เพิ่มกลุ่ม LINE สำเร็จ"
+                  : "แก้ไขข้อมูลกลุ่ม LINE สำเร็จ",
+              message:
+                res?.message_th ??
+                (modalMode === "create"
+                  ? "เพิ่มข้อมูลเรียบร้อยแล้ว"
+                  : "แก้ไขข้อมูลเรียบร้อยแล้ว"),
+            },
+          });
         } else {
           throw new Error(res?.message_th || "ดำเนินการไม่สำเร็จ");
         }
-      } catch (err: any) {
-        toast.error(err.message || "เกิดข้อผิดพลาด");
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "เกิดข้อผิดพลาด";
+        set({
+          statusModal: {
+            open: true,
+            type: "error",
+            title:
+              modalMode === "create"
+                ? "เพิ่มกลุ่ม LINE ไม่สำเร็จ"
+                : "แก้ไขข้อมูลกลุ่ม LINE ไม่สำเร็จ",
+            message: msg,
+          },
+        });
       } finally {
         set({ loading: false });
       }

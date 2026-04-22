@@ -17,8 +17,11 @@ import {
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
+import {
+  TLineGroupItem,
+  sendTestLineReport,
+} from "../_api/school-line-group-service";
 import { useSchoolLineGroupStore } from "../_state/use-school-line-group-store";
-import { TLineGroupItem, sendTestLineReport } from "../_api/school-line-group-service";
 
 const { Text } = Typography;
 
@@ -52,7 +55,6 @@ export const SchoolLineGroupTable = () => {
     setStatusModal,
     openCreateModal,
     openEditModal,
-    removeItem,
   } = useSchoolLineGroupStore();
 
   /**
@@ -64,13 +66,13 @@ export const SchoolLineGroupTable = () => {
     setSendingId(record.LineGroupId);
     try {
       const data = await sendTestLineReport(record.SchoolId);
-      if (data?.status_code === 200) {
+      if ((data?.status ?? data?.status_code) === 200) {
         setStatusModal({
           open: true,
           type: "success",
           title: "ส่งรายงานสำเร็จ",
-          message: `ส่งรายงานสถานะเครื่องของโรงเรียน ${
-            data.data?.school_name ?? record.SchoolId
+          message: `ส่งรายงานสถานะเครื่องของ ${
+            data.data?.school_name ?? `โรงเรียน ${record.SchoolId}`
           } ไปยัง LINE สำเร็จ`,
         });
       } else {
@@ -238,21 +240,13 @@ export const SchoolLineGroupTable = () => {
 
   return (
     <Card style={{ borderRadius: 12 }} styles={{ body: { padding: 16 } }}>
-      <Flex
-        align="center"
-        justify="space-between"
-        style={{ marginBottom: 12 }}
-      >
+      <Flex align="center" justify="space-between" style={{ marginBottom: 12 }}>
         <Flex align="center" gap={8}>
           <UnorderedListOutlined style={{ fontSize: "1rem" }} />
           <Text strong style={{ fontSize: 14 }}>
             รายชื่อกลุ่ม LINE
           </Text>
-          {filterSchoolId && (
-            <Tag color="blue">
-              โรงเรียน: {filterSchoolId}
-            </Tag>
-          )}
+          {filterSchoolId && <Tag color="blue">โรงเรียน: {filterSchoolId}</Tag>}
         </Flex>
         <Space>
           <Button
