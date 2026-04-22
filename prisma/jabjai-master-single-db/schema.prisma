@@ -1,0 +1,2048 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../generated/jabjai-master"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_JABJAI_MASTER_SINGLE_DB")
+}
+
+model ActiveSchoolList {
+  nCompany Int      @id
+  sCompany String?  @db.VarChar(250)
+  cDel     Boolean?
+  Active   Boolean?
+  isActive Boolean?
+
+  @@index([nCompany], map: "IDX_nCompany")
+}
+
+model ApplicationURLData {
+  ID              Int      @id(map: "public_ApplicationURLData_PK_ApplicationURLData") @default(autoincrement())
+  ApplicationType String   @db.VarChar(50)
+  ProdURL         String   @db.VarChar(500)
+  DevURL          String   @db.VarChar(500)
+  Tstamp          DateTime
+  UatURL          String?  @db.VarChar(500)
+  AlphaURL        String?  @db.VarChar(500)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model DeviceDailyStatus {
+  DeviceStatusID String    @db.Uuid
+  SchoolID       Int
+  DeviceID       String    @db.VarChar(200)
+  Online         Boolean
+  OnlineTime     DateTime?
+  Login          Boolean
+  LoginTime      DateTime?
+  LogOut         Boolean
+  LogoutTime     DateTime?
+  Tstamp         DateTime
+  BusinessDate   String    @db.VarChar(10)
+  AppVersion     String?   @db.VarChar(200)
+  AppName        String?   @db.VarChar(200)
+  Note           String?
+  UserLoginID    Int?
+  DeviceTypeID   Int?
+
+  @@ignore
+}
+
+model JabjaiUserClaims {
+  UserID              Int      @id(map: "public_JabjaiUserClaims_PK_JabjaiUserClaims_1")
+  SchoolID            Int
+  UserName            String   @db.VarChar(300)
+  Password            String   @db.VarChar(300)
+  Email               String   @db.VarChar(500)
+  AuthorizationKey    String?  @db.VarChar(1000)
+  OldAuthorizationKey String?  @db.VarChar(1000)
+  ExpiredDate         DateTime
+  Tstamp              DateTime
+  GeneratedDate       DateTime @db.Timestamp(6)
+  UserType            Int?     @default(0) @db.SmallInt
+
+  @@index([SchoolID], map: "public_JabjaiUserClaims_INDEX_VV_2355_2354")
+  @@index([SchoolID, UserID], map: "public_JabjaiUserClaims_IX_JabjaiUserClaims")
+  @@index([AuthorizationKey], map: "public_JabjaiUserClaims_IX_JabjaiUserClaims_AuthorizationKey")
+}
+
+model LINERichMenu {
+  ID         Int     @id(map: "public_LINERichMenu_PK_LINERICHMENU")
+  RichMenuID String? @db.VarChar(100)
+  Status     String? @db.VarChar(1)
+}
+
+model LINEUser {
+  StudentID    Int
+  LINEUserID   String    @db.VarChar(100)
+  RichMenuID   String?   @db.VarChar(100)
+  SchoolID     Int?
+  RegisterDate DateTime?
+  Status       String?   @db.VarChar(15)
+  OS           String?   @db.VarChar(20)
+  UpdateDate   DateTime?
+
+  @@id([StudentID, LINEUserID], map: "public_LINEUser_PK_LINEUSER")
+  @@index([Status, RegisterDate], map: "public_LINEUser_INDEX_VV_2337_2336")
+  @@index([SchoolID, Status], map: "public_LINEUser_INDEX_VV_4178_4177")
+  @@index([LINEUserID], map: "public_LINEUser_INDEX_VV_4862180_4862179")
+  @@index([RichMenuID], map: "public_LINEUser_INDEX_VV_5178383_5178382")
+  @@index([SchoolID], map: "public_LINEUser_IX_VV_LINEUser_SchoolID")
+}
+
+model LogScanFCTemp {
+  ID         Int      @id(map: "public_LogScanFCTemp_PK_LogScanFCTemp") @default(autoincrement())
+  SchoolID   Int
+  LogData    String
+  Tstamp     DateTime
+  LogStatus  String?  @db.VarChar(50)
+  MethodName String?  @db.VarChar(250)
+  ErrorLog   String?
+
+  @@index([LogStatus, MethodName], map: "public_LogScanFCTemp_INDEX_VV_553_552")
+  @@index([SchoolID, MethodName], map: "public_LogScanFCTemp_INDEX_VV_71217_71216")
+  @@index([Tstamp], map: "public_LogScanFCTemp_INDEX_VV_92974_92973")
+  @@index([MethodName, Tstamp], map: "public_LogScanFCTemp_IX_LogScanFCTemp_FacScan_Method_Tstamp")
+  @@index([Tstamp], map: "public_LogScanFCTemp_IX_LogScanFCTemp_Filtered1")
+  @@index([Tstamp], map: "public_LogScanFCTemp_IX_LogScanFCTemp_Filtered2")
+}
+
+model SchoolTEmployees {
+  SchoolID       Int
+  sEmp           Int
+  nStudentStatus Int?
+  sStudentID     String? @db.VarChar
+
+  @@id([SchoolID, sEmp])
+  @@index([sEmp, nStudentStatus], map: "IDX_sEmp")
+}
+
+model SchoolTUser {
+  SchoolID       Int
+  sID            Int
+  nStudentStatus Int?
+  sStudentID     String? @db.VarChar
+
+  @@id([SchoolID, sID])
+  @@index([sID, nStudentStatus], map: "IDX_sID")
+}
+
+model ShortenUrl {
+  UrlID     Int      @id(map: "public_ShortenUrl_PK_ShortenUrl") @default(autoincrement())
+  UrlString String   @db.VarChar(1500)
+  ShortUrl  String   @db.VarChar(50)
+  Tstamp    DateTime
+
+  @@index([ShortUrl], map: "public_ShortenUrl_INDEX_VV_505_504")
+}
+
+model TAccountChart {
+  AccountChartId   Int     @id @default(autoincrement())
+  AccountChartCode String? @db.VarChar(10)
+  Name             String? @db.VarChar(150)
+}
+
+model TAccountJournal {
+  AccountJournalId Int       @id @default(autoincrement())
+  RefID            String?   @db.VarChar(150)
+  Code             String?   @db.VarChar(50)
+  Url              String?   @db.VarChar(300)
+  Type             String?   @db.VarChar(50)
+  Status           String?   @db.VarChar(50)
+  DebitCredit      Decimal?  @db.Decimal(18, 2)
+  Description      String?   @db.VarChar(300)
+  CreateDate       DateTime? @db.Timestamp(6)
+  CreateBy         Int?
+  UpdateDate       DateTime? @db.Timestamp(6)
+  UpdateBy         Int?
+  DeleteDate       DateTime? @db.Timestamp(6)
+  DeleteBy         Int?
+}
+
+model TAccountRole {
+  AccountRoleId      Int      @id(map: "public_TAccountRole_PK_TAccountRole") @default(autoincrement())
+  PageGroupId        Int?
+  PageId             Int?
+  AccountRoleGroupId Int?
+  CanModify          Boolean?
+  CanView            Boolean?
+  NoPermission       Boolean?
+  IsDefault          Boolean?
+  RoleValue          Int?
+}
+
+model TAccountRoleGroup {
+  AccountRoleGroupId Int     @id(map: "public_TAccountRoleGroup_PK_TAccountRoleGroup") @default(autoincrement())
+  RoleGroupName      String? @db.VarChar(50)
+  Note               String? @db.VarChar(200)
+}
+
+model TAccountRoleUser {
+  AccountRoleUserId  Int  @id(map: "public_TAccountRoleUser_PK_TAccountRoleUser") @default(autoincrement())
+  AccountRoleGroupId Int?
+  UserId             Int?
+}
+
+model TAdmin {
+  id                  String    @id(map: "public_TAdmin_PK_TAdmin") @db.VarChar(100)
+  username            String?   @db.VarChar(250)
+  password            String?
+  picture             String?   @db.VarChar(250)
+  del                 Boolean?
+  name                String?   @db.VarChar(100)
+  active              Boolean?
+  email               String?   @db.VarChar(250)
+  tel                 String?   @db.VarChar(20)
+  id2                 Int       @default(autoincrement())
+  RoleID              Int?      @db.SmallInt
+  OfficerID           Int?
+  Code                String?   @db.VarChar(50)
+  FirstName           String?   @db.VarChar(250)
+  LastName            String?   @db.VarChar(250)
+  NickName            String?   @db.VarChar(50)
+  Position            String?   @db.VarChar(50)
+  IsActive            Boolean?
+  CreateDate          DateTime?
+  CreateBy            Int?
+  UpdateDate          DateTime?
+  UpdateBy            Int?
+  BacklogEmailAccount String?   @db.VarChar(50)
+}
+
+model TAttach {
+  AttachId    Int       @id(map: "public_TAttach_PK_TAttach") @default(autoincrement())
+  EventName   String?   @db.VarChar(50)
+  EventId     Int?
+  AttachUrl   String?   @db.VarChar(1000)
+  CreateDate  DateTime?
+  AttachName  String?   @db.VarChar(255)
+  ContentType String?   @db.VarChar(255)
+}
+
+model TAverment {
+  nAvermentID Int       @id(map: "public_TAverment_PK_TAverment")
+  sAverment   String?   @db.VarChar(6)
+  nCompany    String?
+  sMac        String?   @db.VarChar(20)
+  dAdd        DateTime?
+  cType       Int?
+  nStatus     Int?
+}
+
+model TB_APILog {
+  ID     Int      @id(map: "public_TB_APILog_PK_TB_APILog_1") @default(autoincrement())
+  Info   String?
+  Tstamp DateTime @default(now())
+
+  @@index([Tstamp], map: "public_TB_APILog_INDEX_VV_2203_2202_1")
+}
+
+model TB_AppVersion {
+  Fd_ID               String    @id(map: "public_TB_AppVersion_PK_TB_AppVersion") @db.Uuid
+  Fd_Name             String    @db.VarChar(250)
+  Fd_AppID            String    @db.Uuid
+  Fd_URL              String?
+  Fd_Prod             Boolean?
+  Fd_Dev              Boolean?
+  Fd_Environment      String?   @db.VarChar(50)
+  Fd_IsLastestVersion Boolean?
+  CreatedBy           Int?
+  UpdatedBy           Int?
+  CreatedDate         DateTime?
+  UpdatedDate         DateTime?
+}
+
+model TB_Application {
+  AppID       Int       @default(autoincrement())
+  Fd_AppID    String    @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  Fd_AppName  String?   @db.VarChar(250)
+  Fd_AppType  Int?
+  CreatedBy   Int?
+  UpdatedBy   Int?
+  CreatedDate DateTime?
+  UpdatedDate DateTime?
+
+  @@id([AppID, Fd_AppID], map: "public_TB_Application_PK_TB_Application")
+}
+
+model TB_BehaviorJob {
+  ID          String    @id(map: "public_TB_BehaviorJob_PK_TB_BehaviorJob") @db.Uuid
+  CreatedDate DateTime?
+  JobName     String?   @db.VarChar(100)
+  JobValues   String?
+  JobStatus   String?   @db.VarChar(50)
+  SchoolID    Int?
+  LogDate     DateTime? @db.Timestamp(6)
+
+  @@index([SchoolID, LogDate], map: "public_TB_BehaviorJob_INDEX_VV_71312_71311")
+}
+
+model TB_ChangePasswordHistory {
+  Fd_ChangePasswordID String    @id(map: "public_TB_ChangePasswordHistory_PK_TB_ChangePasswordHistory") @db.Uuid
+  Fd_CreateDate       DateTime?
+  Fd_UserID           Int?
+  Fd_ResetDate        DateTime?
+  Fd_OldPasswrod      String?   @db.VarChar(50)
+  Fd_NewPassword      String?   @db.VarChar(50)
+  Fd_SchoolID         Int?
+
+  @@index([Fd_UserID], map: "public_TB_ChangePasswordHistory_INDEX_VV_4882845_4882844")
+}
+
+model TB_FCM {
+  ID                String    @id(map: "public_TB_FCM_PK_TB_FCM") @db.Uuid
+  Token             String?   @db.VarChar(2000)
+  UserID            Int?
+  SchoolID          Int?
+  Imei              String?   @db.VarChar(150)
+  System            String?   @db.VarChar(150)
+  Fd_Lang           String?   @db.VarChar(10)
+  isActive          Boolean?
+  isDelete          Boolean?
+  CreatedBy         Int?
+  UpdatedBy         Int?
+  CreatedDate       DateTime?
+  UpdatedDate       DateTime?
+  Fd_MBBrand        String?   @db.VarChar(100)
+  Fd_LoginDate      DateTime?
+  Fd_VerifyStatus   Int?
+  IPAddress         String?   @db.VarChar(50)
+  Fd_FirstLoginDate DateTime?
+  Fd_Location       String?   @db.VarChar(150)
+
+  @@index([UserID, Imei], map: "public_TB_FCM_INDEX_VV_115964_115963")
+  @@index([UserID, isDelete, Fd_VerifyStatus, Imei], map: "public_TB_FCM_INDEX_VV_156823_156822")
+  @@index([Fd_LoginDate], map: "public_TB_FCM_INDEX_VV_23039_23038")
+  @@index([SchoolID], map: "public_TB_FCM_INDEX_VV_27312_27311")
+  @@index([Imei], map: "public_TB_FCM_INDEX_VV_773_772")
+  @@index([UserID, SchoolID], map: "public_TB_FCM_TB_FCM_UserID_SchoolID")
+}
+
+model TB_IPBlockList {
+  ID                BigInt    @id(map: "public_TB_IPBlockList_PK__TB_IPBlo__3214EC27F556445A") @default(autoincrement())
+  IPAddress         String    @db.VarChar(50)
+  SchoolID          Int?
+  BlockReason       String    @db.VarChar(500)
+  BlockType         String    @db.VarChar(20)
+  BlockedFrom       DateTime
+  BlockedUntil      DateTime?
+  IsActive          Boolean   @default(true)
+  CreatedDate       DateTime  @default(now())
+  CreatedBy         String?   @db.VarChar(100)
+  RelatedIncidentID BigInt?
+
+  @@index([IsActive, BlockedUntil], map: "public_TB_IPBlockList_IX_IPBlockList_Active")
+  @@index([IPAddress, SchoolID, IsActive], map: "public_TB_IPBlockList_UX_IPBlockList_IP")
+}
+
+model TB_JobsQueue {
+  JobId         String    @id(map: "public_TB_JobsQueue_PK_TB_JobsQueue") @db.Uuid
+  MessageID     Int
+  JobName       String?   @db.VarChar(200)
+  JobValues     String?
+  StateName     String?   @db.VarChar(20)
+  CreatedDate   DateTime?
+  FetchedDate   DateTime?
+  SchedulerDate DateTime?
+  CompleteDate  DateTime?
+  ErrorMessage  String?
+  ResponseTime  Float?
+
+  @@index([MessageID, StateName], map: "public_TB_JobsQueue_INDEX_VV_3131_3130")
+  @@index([StateName, CreatedDate], map: "public_TB_JobsQueue_INDEX_VV_63565_63564")
+  @@index([JobName, StateName], map: "public_TB_JobsQueue_INDEX_VV_996_995")
+}
+
+model TB_LoginAttempts {
+  ID                    BigInt   @id(map: "public_TB_LoginAttempts_PK_TB_LoginAttempts") @default(autoincrement())
+  UserID                Int
+  SchoolID              Int
+  Username              String   @db.VarChar(100)
+  AttemptDate           DateTime @default(now())
+  IsSuccess             Boolean
+  FailureReason         String?  @db.VarChar(200)
+  IsAccountLocked       Boolean  @default(false)
+  RequirePasswordChange Boolean  @default(false)
+  CreatedDate           DateTime @default(now())
+  IPAddress             String?  @db.VarChar(20)
+
+  @@index([SchoolID, IsSuccess, IPAddress, AttemptDate], map: "public_TB_LoginAttempts_INDEX_VV_1785_1784")
+  @@index([SchoolID, AttemptDate], map: "public_TB_LoginAttempts_IX_LoginAttempts_SchoolID_Date")
+  @@index([UserID, AttemptDate], map: "public_TB_LoginAttempts_IX_LoginAttempts_UserID_Date")
+}
+
+model TB_LoginHistory {
+  Fd_LoginHistoryID String    @id(map: "public_TB_LoginHistory_PK_TB_LoginHistory_Backup") @db.Uuid
+  Fd_LoginDate      DateTime?
+  Fd_Token          String?   @db.VarChar(250)
+  Fd_UserID         Int?
+  Fd_SchoolID       Int?
+  Imei              String?   @db.VarChar(150)
+  System            String?   @db.VarChar(150)
+  Fd_Version        String?   @db.VarChar(100)
+  Fd_MBBrand        String?   @db.VarChar(10)
+
+  @@index([Fd_Token], map: "public_TB_LoginHistory_INDEX_VV_2904_2903")
+  @@index([Fd_LoginDate], map: "public_TB_LoginHistory_INDEX_VV_6065990_6065989_Backup")
+  @@index([Fd_SchoolID], map: "public_TB_LoginHistory_INDEX_VV_831_830")
+  @@index([Fd_UserID, Fd_SchoolID], map: "public_TB_LoginHistory_IX_TB_LoginHistory_Backup_Fd_UserID_Fd_S")
+}
+
+model TB_Logoffline {
+  LogOfflineID String    @id(map: "public_TB_Logoffline_PK_TB_Logoffline") @db.Uuid
+  SchoolID     Int
+  LogText      String?
+  Created      DateTime?
+}
+
+model TB_PaymentGateway {
+  Fd_PaymentGatewayID                       Int      @id(map: "public_TB_PaymentGateway_PK_TB_PaymentGateway")
+  Fd_SchoolID                               Int?
+  Fd_PublicKey                              String?  @db.VarChar(250)
+  Fd_SecretKey                              String?  @db.VarChar(250)
+  Fd_Active                                 Boolean?
+  Fd_ActiveInvoice                          Boolean?
+  Fd_PartnerID                              String?  @db.VarChar(20)
+  Fd_PartnerSecret                          String?  @db.VarChar(70)
+  Fd_MerchantMID                            String?  @db.VarChar(20)
+  Fd_PromptPayActive                        Int?
+  Fd_ConsumerID                             String?  @db.VarChar(50)
+  Fd_ConsumerSecret                         String?  @db.VarChar(25)
+  Fd_Campaign_ID                            String?  @db.VarChar(10)
+  Fd_CGA_Merchant_CreditCard_Full_ID        String?  @db.VarChar(25)
+  Fd_CGA_Terminal_CreditCard_Full_ID        String?  @db.VarChar(15)
+  Fd_CGA_Merchant_CreditCard_Installment_ID String?  @db.VarChar(25)
+  Fd_CGA_Terminal_CreditCard_Installment_ID String?  @db.VarChar(15)
+  Fd_CGA_SmartPay_CreditCard_Installment_ID String?  @db.VarChar(10)
+  DisableNormalCard                         Boolean?
+  Fd_PublicKeyInvoice                       String?  @db.VarChar(250)
+  Fd_SecretKeyInvoice                       String?  @db.VarChar(250)
+  Fd_FeePayment                             Decimal? @db.Decimal(18, 2)
+  Fd_FeeInvoice                             Decimal? @db.Decimal(18, 2)
+  Fd_BBLPayment                             Boolean?
+  Fd_Suffix                                 String?  @db.VarChar(10)
+  Fd_KTBPayment                             Boolean?
+  Fd_PaymentType                            Int?     @db.SmallInt
+  Fd_BeamMerchant                           String?  @db.VarChar(50)
+  Fd_BeamSecretKey                          String?  @db.VarChar(250)
+
+  @@index([Fd_SchoolID, Fd_Active], map: "public_TB_PaymentGateway_TB_PaymentGateway_SchoolID_Active")
+  @@index([Fd_SchoolID, Fd_ActiveInvoice], map: "public_TB_PaymentGateway_TB_PaymentGateway_SchoolID_Fd_ActiveIn")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model TB_PaymentMethods {
+  Id                                     Int       @id(map: "public_TB_PaymentMethods_PK_TB_PaymentMethods") @default(autoincrement())
+  PublicKey                              String?   @db.VarChar(255)
+  PaymentMethod                          Int?      @db.SmallInt
+  PaymentChannel                         Int?      @db.SmallInt
+  MerchantID                             String?   @db.VarChar(255)
+  SecretKey                              String?   @db.VarChar(255)
+  IsActive                               Boolean?
+  ActiveInvoice                          Boolean?
+  PartnerID                              String?   @db.VarChar(20)
+  PartnerSecret                          String?   @db.VarChar(70)
+  PromptPayActive                        Int?
+  ConsumerID                             String?   @db.VarChar(50)
+  ConsumerSecret                         String?   @db.VarChar(25)
+  Campaign_ID                            String?   @db.VarChar(10)
+  CGA_Merchant_CreditCard_Full_ID        String?   @db.VarChar(25)
+  CGA_Terminal_CreditCard_Full_ID        String?   @db.VarChar(25)
+  CGA_Merchant_CreditCard_Installment_ID String?   @db.VarChar(25)
+  CGA_Terminal_CreditCard_Installment_ID String?   @db.VarChar(25)
+  CGA_SmartPay_CreditCard_Installment_ID String?   @db.VarChar(25)
+  DisableNormalCard                      Boolean?
+  PublicKeyInvoice                       String?   @db.VarChar(255)
+  SecretKeyInvoice                       String?   @db.VarChar(255)
+  UpdateAt                               DateTime? @db.Timestamp(6)
+  UpdateBy                               Int?
+  CreateAt                               DateTime? @db.Timestamp(6)
+  CreateBy                               Int?
+  DeleteAt                               DateTime? @db.Timestamp(6)
+  SchoolId                               Int?
+  Fee                                    Decimal?  @db.Decimal(18, 2)
+  TransactionType                        Int?      @db.SmallInt
+
+  @@index([IsActive], map: "public_TB_PaymentMethods_IsActive")
+  @@index([PaymentMethod, PaymentChannel], map: "public_TB_PaymentMethods_PaymentMethod_PaymentChannel")
+  @@index([SchoolId, IsActive], map: "public_TB_PaymentMethods_SchoolId_IsActive")
+}
+
+model TB_PaymentSetting {
+  SystemID   String    @id(map: "public_TB_PaymentSetting_PK_TB_PaymentSetting") @db.Uuid
+  Bank       String?   @db.VarChar(150)
+  SystemName String?   @db.VarChar(150)
+  isActive   Boolean?
+  CreateDate DateTime?
+  CreateBy   Int?
+  UpdateDate DateTime?
+  UpdateBy   Int?
+}
+
+model TB_Policy {
+  Fd_PolicyID String    @id(map: "public_TB_Policy_PK_TB_Policy") @db.Uuid
+  Fd_Message  String?
+  Fd_Version  String?   @db.VarChar(10)
+  Fd_IsActive Boolean?
+  Fd_IsDel    Boolean?
+  Fd_IsStatus Int?
+  Fd_Created  DateTime?
+  Fd_Modified DateTime?
+  Fd_CreateBy String?   @db.Uuid
+  Fd_ModifyBy String?   @db.Uuid
+}
+
+model TB_PolicyApprove {
+  Fd_ApproveID   String    @id(map: "public_TB_PolicyApprove_PK_TB_PolicyApprove") @db.Uuid
+  Fd_PolicyID    String    @db.Uuid
+  Fd_UserID      Int
+  Fd_ApproveDate DateTime?
+  Fd_UserType    Int?      @db.SmallInt
+
+  @@index([Fd_UserID, Fd_PolicyID, Fd_ApproveID], map: "public_TB_PolicyApprove__dta_index_TB_PolicyApprove_6_105115079")
+}
+
+model TB_RecoverUserData {
+  RecoverID           String    @id(map: "public_TB_RecoverUserData_PK_TB_RecoverUserData") @db.Uuid
+  Token               String?   @db.VarChar(250)
+  UserID              Int?
+  SchoolID            Int?
+  Imei                String?   @db.VarChar(150)
+  System              String?   @db.VarChar(150)
+  CreatedDate         DateTime?
+  AppvoreStatus       Int?
+  AppvoreUserID       Int?
+  AppvoreDate         DateTime?
+  Email               String?   @db.VarChar(100)
+  student_picture_0   String?   @db.VarChar(250)
+  student_picture_1   String?   @db.VarChar(250)
+  parent_picture_0    String?   @db.VarChar(250)
+  parent_picture_1    String?   @db.VarChar(250)
+  teacher_picture_0   String?   @db.VarChar(250)
+  teacher_picture_1   String?   @db.VarChar(250)
+  EmailPin            String?   @db.VarChar(50)
+  UserType            String?   @db.VarChar(50)
+  Fd_ChangePasswordID String?   @db.Uuid
+
+  @@index([UserID], map: "public_TB_RecoverUserData_INDEX_VV_5092367_5092366")
+  @@index([UserID, Email, CreatedDate], map: "public_TB_RecoverUserData_INDEX_VV_5125918_5125917")
+}
+
+model TB_SchoolAppVersion {
+  ID          String    @id(map: "public_TB_SchoolAppVersion_PK_TB_SchoolAppVersion") @db.Uuid
+  SchoolID    Int?
+  AppVersion  String?   @db.Uuid
+  CreatedBy   Int?
+  UpdatedBy   Int?
+  CreatedDate DateTime?
+  UpdatedDate DateTime?
+  AppID       Int       @default(0)
+}
+
+model TB_SecurityIncidents {
+  ID             BigInt    @id(map: "public_TB_SecurityIncidents_PK__TB_Secur__3214EC272F28FDD2") @default(autoincrement())
+  IncidentType   String    @db.VarChar(50)
+  Severity       String    @db.VarChar(20)
+  SchoolID       Int
+  SourceIP       String?   @db.VarChar(50)
+  TargetUserID   Int?
+  TargetUsername String?   @db.VarChar(100)
+  ThreatLevel    String    @db.VarChar(20)
+  AttemptsCount  Int
+  TimeWindow     Int?
+  BlockDuration  Int?
+  Description    String?
+  DetectedDate   DateTime
+  CreatedDate    DateTime  @default(now())
+  IsResolved     Boolean   @default(false)
+  ResolvedDate   DateTime?
+  ResolvedBy     String?   @db.VarChar(100)
+
+  @@index([SourceIP, DetectedDate], map: "public_TB_SecurityIncidents_IX_SecurityIncidents_IP")
+  @@index([Severity, IsResolved, DetectedDate], map: "public_TB_SecurityIncidents_IX_SecurityIncidents_Severity")
+  @@index([IncidentType, DetectedDate], map: "public_TB_SecurityIncidents_IX_SecurityIncidents_Type")
+}
+
+model TB_Server {
+  ID         String   @id(map: "public_TB_Server_PK_TB_Server") @db.Uuid
+  Message    String?
+  Status     Boolean?
+  ServerName String?  @db.VarChar(250)
+  Url        String?  @db.VarChar(250)
+}
+
+model TB_VerifierDevice {
+  Fd_VerifierID    String    @id(map: "public_TB_VerifierDevice_PK_TB_VerifierDevice") @db.Uuid
+  Fd_Data          String?
+  Fd_ChanelMessage Int?
+  Fd_UserID        Int?
+  Fd_SchoolID      Int?
+  CreatedDate      DateTime?
+  Fd_Status        Int?
+
+  @@index([Fd_SchoolID], map: "public_TB_VerifierDevice_INDEX_VV_1006_1005")
+  @@index([Fd_UserID], map: "public_TB_VerifierDevice_INDEX_VV_5138658_5138657")
+}
+
+model TCompany {
+  nCompany                      Int       @id(map: "public_TCompany_PK_TCompany")
+  sCompany                      String?   @db.VarChar(250)
+  sSchoolPass                   String?   @db.VarChar(100)
+  sAddress                      String?   @db.VarChar(250)
+  sTel                          String?   @db.VarChar(15)
+  sServer                       String?   @db.VarChar(100)
+  sDatabases                    String?   @db.VarChar(100)
+  sUser                         String?   @db.VarChar(100)
+  sPassword                     String?   @db.VarChar(100)
+  sEntities                     String?   @db.VarChar(100)
+  nType                         String?   @db.Char(1)
+  sImage                        String?   @db.VarChar(1000)
+  admin1                        Int?
+  admin2                        Int?
+  single_authen                 Boolean?
+  double_authen                 Boolean?
+  nfc                           Boolean?
+  sotfware                      Boolean?
+  latitude                      Float?
+  longitude                     Float?
+  schoolHeadPicture             String?   @db.VarChar(250)
+  serverAdminPicture            String?   @db.VarChar(250)
+  schoolCoverPicture            String?   @db.VarChar(250)
+  sCode                         String?   @db.VarChar(50)
+  sNameEN                       String?   @db.VarChar(100)
+  sPhoneOne                     String?   @db.VarChar(50)
+  sPhoneTwo                     String?   @db.VarChar(50)
+  sMobilePhone                  String?   @db.VarChar(50)
+  sFax                          String?   @db.VarChar(50)
+  sEmailOne                     String?   @db.VarChar(100)
+  sEmailTwo                     String?   @db.VarChar(100)
+  sWebsite                      String?   @db.VarChar(100)
+  sHomeNumber                   String?   @db.VarChar(100)
+  sSoy                          String?   @db.VarChar(100)
+  sMuu                          String?   @db.VarChar(100)
+  sRoad                         String?   @db.VarChar(100)
+  sTumbon                       String?   @db.VarChar(100)
+  sAumpher                      String?   @db.VarChar(100)
+  sPost                         String?   @db.VarChar(100)
+  SchoolHeadName                String?   @db.VarChar(100)
+  SchoolHeadLastname            String?   @db.VarChar(100)
+  SchoolHeadEmail               String?   @db.VarChar(100)
+  SchoolHeadPhone               String?   @db.VarChar(100)
+  ServerAdminName               String?   @db.VarChar(100)
+  ServerAdminLastname           String?   @db.VarChar(100)
+  ServerAdminEmail              String?   @db.VarChar(100)
+  ServerAdminPhone              String?   @db.VarChar(100)
+  checker                       Int?
+  sProvince                     String?   @db.VarChar(50)
+  sOwner                        String?   @db.VarChar(100)
+  Active                        Boolean?
+  settingTimePeriod             Int?
+  settingPlanTeacher            Int?
+  settingGradeAdmin             Int?
+  settingReportView             Int?
+  TaxId                         String?   @db.VarChar(100)
+  nSchoolHeadid                 Int?
+  nAcademicDirectorid           Int?
+  nRegistraDirectorid           Int?
+  nAcademicSubDirectorid        Int?
+  nAccountingDirectorid         Int?
+  nStudentDevelopmentDirectorid Int?
+  nWebAdminid                   Int?
+  nGM                           Int?
+  nPersonnel                    Int?
+  sShortSchoolName              String?   @db.VarChar(10)
+  sSchoolHistory                String?
+  sSchoolVision                 String?
+  sSchoolMission                String?
+  EducationArea                 String?   @db.VarChar(100)
+  uID                           String    @db.Uuid
+  PaymentAPIUrl                 String?   @db.VarChar(400)
+  isActive                      Boolean?
+  cDel                          Boolean?
+  CostGradeRepairMid            Decimal?  @db.Decimal(6, 2)
+  CostGradeRepair               Decimal?  @db.Decimal(6, 2)
+  CostGradeRepairFinal          Decimal?  @db.Decimal(6, 2)
+  SchoolAreaCode                String?   @db.VarChar(10)
+  GradeViewFor100               Boolean
+  GradeViewAutoBlock            Boolean
+  sAumpherEng                   String?   @db.VarChar(100)
+  sProvinceEng                  String?   @db.VarChar(50)
+  SchoolClass                   String?   @db.VarChar(150)
+  UserSupportID                 Int?
+  UserSaleID                    Int?
+  SchoolGrade                   String?   @db.Char(2)
+  ActiveDate                    DateTime?
+  InactiveDate                  DateTime?
+  IsActiveSendMessageToLINE     Boolean?
+  TumbonID                      Int?      @db.SmallInt
+  AumpherID                     Int?      @db.SmallInt
+  ProvinceID                    Int?      @db.SmallInt
+  ClassNameDisable              Boolean?
+  CrmGrade                      String?   @db.Char(1)
+  SchoolDataType                String?   @db.VarChar(50)
+  ActiveStatus                  Int?
+
+  @@index([isActive, cDel, ActiveStatus, sCompany], map: "idx_tcompany_active_status_company")
+  @@index([ActiveStatus, nCompany], map: "idx_tcompany_activestatus_company")
+  @@index([single_authen, double_authen], map: "idx_tcompany_auth")
+  @@index([sCompany], map: "idx_tcompany_companyname")
+  @@index([sEntities], map: "idx_tcompany_entities")
+  @@index([isActive, cDel], map: "idx_tcompany_isactive_cdel")
+  @@index([ProvinceID], map: "idx_tcompany_province")
+  @@index([isActive, nCompany, SchoolDataType], map: "idx_tcompany_schooldata")
+  @@index([SchoolGrade], map: "idx_tcompany_schoolgrade")
+  @@index([UserSaleID, cDel], map: "idx_tcompany_usersale_cdel")
+  @@index([UserSupportID, nCompany], map: "idx_tcompany_usersupport_company")
+}
+
+model TComputer {
+  nComputerID   Int     @id(map: "public_TComputer_PK_TComputer")
+  sComputerName String? @db.VarChar(100)
+  sMac          String? @db.VarChar(50)
+  nCompany      Int?
+  cType         String? @db.Char(1)
+  sToken        String?
+  cStatus       String? @db.Char(1)
+}
+
+model TConnect {
+  nConnectID   Int       @id(map: "public_TConnect_PK_TConnect")
+  sMacPC       String?   @db.VarChar(50)
+  sMacMoblie   String?   @db.VarChar(50)
+  cStatus      String?   @db.VarChar(2)
+  sValue       String?
+  sDisplay     String?
+  cTypeConnect String?   @db.Char(2)
+  sList        String?
+  dList        DateTime?
+  dUpdate      DateTime?
+  CustomerID   Int?
+  EmployessID  Int?
+}
+
+model TContact {
+  ContactID    Int       @id(map: "public_TContact_PK_TContact_1") @default(autoincrement())
+  SchoolID     Int?
+  SaleID       String?   @db.VarChar(50)
+  SupportID    String?   @db.VarChar(50)
+  StudentFree  Int?
+  StudentPay   Int?
+  StudentCount Int?
+  PackageID    Int?      @db.SmallInt
+  Remark       String?   @db.VarChar(4000)
+  Created      DateTime?
+  Modified     DateTime?
+  CreateBy     Int?
+  ModifyBy     Int?
+  IsDelete     Boolean?
+  ServiceType  String?   @db.VarChar(5)
+
+  @@index([SchoolID], map: "public_TContact_INDEX_VV_1587_1586")
+}
+
+model TContactList {
+  ContactListID Int       @id(map: "public_TContactList_PK_TContact") @default(autoincrement())
+  SchoolID      Int?
+  Episode       String?   @db.VarChar(50)
+  ContactNo     String?   @db.VarChar(50)
+  StartDate     DateTime?
+  EndDate       DateTime?
+  Period        Int?      @db.SmallInt
+  RemainDay     Int?      @db.SmallInt
+  Status        String?   @db.VarChar(10)
+  StatusOther   String?   @db.VarChar(50)
+  ServiceCharge String?   @db.VarChar(10)
+  VAT           String?   @db.VarChar(10)
+  StudentAmount Int?      @db.SmallInt
+  Created       DateTime?
+  Modified      DateTime?
+  CreateBy      Int?
+  ModifyBy      Int?
+  IsDelete      Boolean?
+
+  @@index([IsDelete], map: "public_TContactList_INDEX_VV_97417_97416")
+  @@index([SchoolID, IsDelete], map: "public_TContactList_IX_TContactList_SchoolID_IsDelete")
+}
+
+model TContactListAttach {
+  AttachID      Int       @id(map: "public_TContactListAttach_PK_TContactAttach") @default(autoincrement())
+  ContactListID Int?
+  SchoolID      Int?
+  AttachUrl     String?   @db.VarChar(1000)
+  IsDelete      Boolean?
+  Created       DateTime?
+  Modified      DateTime?
+  CreateBy      Int?
+  ModifyBy      Int?
+
+  @@index([ContactListID, IsDelete], map: "public_TContactListAttach_INDEX_VV_5667683_5667682")
+}
+
+model TContactLog {
+  LogID         Int       @id(map: "public_TContactLog_PK_TContactLog") @default(autoincrement())
+  SchoolID      Int?
+  ContactID     Int?
+  ContactListID Int?
+  Created       DateTime?
+  Modified      DateTime?
+  CreateBy      Int?
+  ModifyBy      Int?
+  JsonLog       String?   @db.VarChar(4000)
+  DataModel     String?
+
+  @@index([ContactID], map: "public_TContactLog_INDEX_VV_94846_94845")
+}
+
+model TCrmActivity {
+  CrmActivityId       Int       @id(map: "public_TCrmActivity_PK_TCrmActivity") @default(autoincrement())
+  SchoolID            Int?
+  SchoolName          String?   @db.VarChar(250)
+  Type                String?   @db.VarChar(50)
+  ActivityType        String?   @db.VarChar(20)
+  MeetingType         String?   @db.VarChar(20)
+  ActivityTitle       String?   @db.VarChar(300)
+  ActivityDescription String?   @db.VarChar(4000)
+  ActivityStatus      String?   @db.VarChar(50)
+  StartDate           DateTime?
+  EndDate             DateTime?
+  IsRecurring         Boolean?
+  Map                 String?   @db.VarChar(300)
+  LatLng              String?   @db.VarChar(50)
+  AttachUrl           String?   @db.VarChar(300)
+  CreateDate          DateTime?
+  CreateBy            Int?
+  UpdateDate          DateTime?
+  UpdateBy            Int?
+  DeleteDate          DateTime?
+  DeleteBy            Int?
+
+  @@index([DeleteDate], map: "public_TCrmActivity_INDEX_VV_126323_126322")
+  @@index([CreateBy, DeleteDate], map: "public_TCrmActivity_INDEX_VV_126362_126361")
+  @@index([CreateBy, DeleteDate, StartDate], map: "public_TCrmActivity_INDEX_VV_1807_1806")
+  @@index([DeleteDate, CreateDate], map: "public_TCrmActivity_INDEX_VV_2495_2494")
+  @@index([StartDate, DeleteDate], map: "public_TCrmActivity_INDEX_VV_967_966")
+}
+
+model TCrmAssignContact {
+  CrmAssignContactId Int       @id(map: "public_TCrmAssignContact_PK_TCrmAssignContact") @default(autoincrement())
+  CrmContactId       Int?
+  SaleId             Int?
+  CreateDate         DateTime?
+}
+
+model TCrmAssignSupport {
+  CrmAssignSupportId Int       @id(map: "public_TCrmAssignSupport_PK_TCrmAssignSupport") @default(autoincrement())
+  CrmSupportId       Int?
+  StaffId            Int?
+  CreateDate         DateTime?
+
+  @@index([CrmSupportId], map: "public_TCrmAssignSupport_INDEX_VV_65807_65806")
+}
+
+model TCrmBacklog {
+  CrmBacklogId Int       @id(map: "public_TCrmBacklog_PK_TCrmBacklog") @default(autoincrement())
+  Json         String?
+  CreateDate   DateTime?
+  HasUpdate    Boolean?
+}
+
+model TCrmContact {
+  CrmContactId    Int       @id(map: "public_TCrmContact_PK_TCrmContact") @default(autoincrement())
+  Type            String?   @db.VarChar(50)
+  SchoolName      String?   @db.VarChar(100)
+  Address         String?   @db.VarChar(300)
+  Province        String?   @db.VarChar(50)
+  District        String?   @db.VarChar(150)
+  SubDistrict     String?   @db.VarChar(150)
+  StudentQty      Int?
+  SchoolGroup     String?   @db.VarChar(50)
+  SchoolEducation String?   @db.VarChar(50)
+  KnowFrom        String?   @db.VarChar(50)
+  Score           Int?
+  EventName       String?   @db.VarChar(300)
+  CreateDate      DateTime?
+  CreateBy        Int?
+  UpdateDate      DateTime?
+  UpdateBy        Int?
+  DeleteDate      DateTime?
+  DeleteBy        Int?
+  TaxNo           String?   @db.VarChar(13)
+  SignName        String?   @db.VarChar(100)
+  SignPosition    String?   @db.VarChar(100)
+  WitnessName     String?   @db.VarChar(100)
+  WitnessPosition String?   @db.VarChar(100)
+  ContactPhone    String?   @db.VarChar(50)
+  Zipcode         String?   @db.VarChar(6)
+  SaleAreaId      Int?
+
+  @@index([SchoolName], map: "public_TCrmContact_INDEX_VV_1056_1055")
+  @@index([CreateBy, DeleteDate], map: "public_TCrmContact_INDEX_VV_118027_118026")
+  @@index([DeleteDate], map: "public_TCrmContact_INDEX_VV_19713_19712")
+  @@index([DeleteDate], map: "public_TCrmContact_INDEX_VV_4198_4197")
+  @@index([DeleteDate], map: "public_TCrmContact_INDEX_VV_99406_99405")
+}
+
+model TCrmFeedback {
+  CrmFeedbackId Int       @id(map: "public_TCrmFeedback_PK_TCrmFeedback") @default(autoincrement())
+  CrmSupportId  Int?
+  Score         Int?
+  Reasons       String?   @db.VarChar(200)
+  Comment       String?   @db.VarChar(500)
+  CreateDate    DateTime?
+}
+
+model TCrmReminder {
+  CrmReminderId Int       @id(map: "public_TCrmReminder_PK_TCrmReminder") @default(autoincrement())
+  Subject       String?   @db.VarChar(200)
+  Body          String?   @db.VarChar(500)
+  StartDate     DateTime?
+  EndDate       DateTime?
+  CreateDate    DateTime?
+  CreateBy      Int?
+  UpdateDate    DateTime?
+  UpdateBy      Int?
+  DeleteDate    DateTime?
+  DeleteBy      Int?
+}
+
+model TCrmSubActivity {
+  CrmSubActivityId Int       @id(map: "public_TCrmSubActivity_PK_CrmSubActivity") @default(autoincrement())
+  CrmActivityId    Int?
+  SchoolID         Int?
+  ContactID        Int?
+  CrmContactId     Int?
+  CrmSubContactId  Int?
+  ImportDate       DateTime?
+  ImportBy         Int?
+  SchoolName       String?   @db.VarChar(250)
+  Position         String?   @db.VarChar(50)
+  Name             String?   @db.VarChar(100)
+  Tel              String?   @db.VarChar(50)
+}
+
+model TCrmSubContact {
+  CrmSubContactId Int     @id(map: "public_TCrmSubContact_PK_TCrmSubContact") @default(autoincrement())
+  CrmContactId    Int?
+  Position        String? @db.VarChar(50)
+  Name            String? @db.VarChar(100)
+  Tel             String? @db.VarChar(50)
+  Email           String? @db.VarChar(50)
+
+  @@index([CrmContactId], map: "public_TCrmSubContact_INDEX_VV_3285_3284")
+}
+
+model TCrmSupport {
+  CrmSupportId              Int       @id(map: "public_TCrmSupport_PK_TCrmSupport") @default(autoincrement())
+  IssueDate                 DateTime?
+  SchoolId                  Int?
+  Channel                   String?   @db.VarChar(50)
+  ContactId                 Int?
+  Type                      String?   @db.VarChar(50)
+  SubType                   String?   @db.VarChar(50)
+  RefCode                   String?   @db.VarChar(50)
+  SupportDetail             String?   @db.VarChar(500)
+  Subject                   String?   @db.VarChar(255)
+  Question                  String?
+  Answer                    String?
+  IsFollowUp                Boolean?
+  FollowUpDate              DateTime?
+  Status                    String?   @db.VarChar(50)
+  Priority                  String?   @db.VarChar(50)
+  BacklogProjectID          Int?
+  BacklogIssueID            Int?
+  CreateDate                DateTime?
+  CreateBy                  Int?
+  UpdateDate                DateTime?
+  UpdateBy                  Int?
+  DeleteDate                DateTime?
+  DeleteBy                  Int?
+  LineInfo                  String?
+  Session                   String?   @db.Uuid
+  HasRemindFollowUp         Boolean?
+  FollowUpEndDate           DateTime?
+  FollowUpFrequency         String?   @db.VarChar(20)
+  CustomerFollowUpDate      DateTime?
+  CustomerFollowUpEndDate   DateTime?
+  CustomerFollowUpFrequency String?   @db.VarChar(20)
+  CustomerNotifyMessage     String?   @db.VarChar(1000)
+  AssignStaffId             Int?
+  Note                      String?   @db.VarChar(300)
+  Onboarding                String?   @db.VarChar(500)
+  ReferenceKey              String?   @db.VarChar(50)
+  ReferenceValue            String?   @db.VarChar(50)
+  BacklogModel              String?
+  StartDate                 DateTime?
+  DueDate                   DateTime?
+
+  @@index([AssignStaffId, Status, DeleteDate], map: "idx_tcrmsupport_assignstaff")
+  @@index([CreateBy, DeleteDate], map: "idx_tcrmsupport_createby")
+  @@index([FollowUpDate, Status], map: "idx_tcrmsupport_followup")
+  @@index([IssueDate], map: "idx_tcrmsupport_issue")
+  @@index([Priority, Status, DeleteDate], map: "idx_tcrmsupport_priority")
+  @@index([SchoolId, DeleteDate], map: "idx_tcrmsupport_school")
+  @@index([SchoolId, Status, DeleteDate], map: "idx_tcrmsupport_school_status")
+  @@index([Type, SubType, DeleteDate], map: "idx_tcrmsupport_type")
+}
+
+model TCrmSupportBacklogAuth {
+  CrmSupportBacklogAuthId Int       @id(map: "public_TCrmSupportBacklogAuth_PK_TCrmSupportBacklogAuth") @default(autoincrement())
+  StaffId                 Int?
+  AccessToken             String?   @db.VarChar(500)
+  RefreshToken            String?   @db.VarChar(500)
+  CreateDate              DateTime?
+  ExpireDate              DateTime?
+}
+
+model TCrmSupportComment {
+  CrmSupportCommentId Int       @id(map: "public_TCrmSupportComment_PK_TCrmSupportComment") @default(autoincrement())
+  CrmSupportId        Int?
+  Comment             String?   @db.VarChar(500)
+  CreateDate          DateTime?
+  CreateBy            Int?
+  UpdateDate          DateTime?
+  UpdateBy            Int?
+  DeleteDate          DateTime?
+  DeleteBy            Int?
+}
+
+model TCrmSurvey {
+  CrmSurveyId Int       @id(map: "public_TCrmSurvey_PK_TCrmSurvey") @default(autoincrement())
+  SchoolId    Int?
+  SenderName  String?   @db.VarChar(200)
+  SenderType  String?   @db.VarChar(50)
+  SenderCode  String?   @db.VarChar(50)
+  Tel         String?   @db.VarChar(50)
+  Email       String?   @db.VarChar(50)
+  Note        String?   @db.VarChar(500)
+  TopupDate   DateTime?
+  Session     String?   @db.Uuid
+  CreateDate  DateTime?
+}
+
+model TDashboardSummaries {
+  DashboardSummaryId Int       @id(map: "public_TDashboardSummaries_PK_TDashboardSummaries") @default(autoincrement())
+  SchoolSummary      String?
+  StudentSummary     String?
+  TeacherSummary     String?
+  UpdateDate         DateTime?
+}
+
+model TDelivery {
+  DeliveryId         Int       @id(map: "public_TDelivery_PK_TDelivery") @default(autoincrement())
+  SchoolId           Int?
+  RecipientType      String?   @db.VarChar(50)
+  TransmissionType   String?   @db.VarChar(50)
+  TransmissionDate   DateTime?
+  TransportationName String?   @db.VarChar(100)
+  TrackingNo         String?   @db.VarChar(50)
+  RecipientName      String?   @db.VarChar(100)
+  RecipientTel       String?   @db.VarChar(50)
+  RefNo              String?   @db.VarChar(300)
+  Note               String?   @db.VarChar(200)
+  AttachUrl          String?   @db.VarChar(300)
+  CreateDate         DateTime?
+  CreateBy           Int?
+  UpdateDate         DateTime?
+  UpdateBy           Int?
+  DeleteDate         DateTime?
+  DeleteBy           Int?
+  NotifyMessage      String?   @db.VarChar(1000)
+  NotifyDate         DateTime?
+
+  @@index([DeleteDate], map: "public_TDelivery_INDEX_VV_23054_23053")
+  @@index([DeleteDate], map: "public_TDelivery_INDEX_VV_46739_46738")
+  @@index([SchoolId], map: "public_TDelivery_INDEX_VV_5942991_5942990")
+}
+
+model TDeliveryAttach {
+  DeliveryAttachId Int     @id(map: "public_TDeliveryAttach_PK_TDeliveryAttach") @default(autoincrement())
+  DeliveryId       Int?
+  AttachUrl        String? @db.VarChar(300)
+}
+
+model TDiscordGroup {
+  DiscordGroupId Int       @id(map: "public_TDiscordGroup_PK_TDiscordGroup") @default(autoincrement())
+  SchoolId       Int?
+  GroupName      String?   @db.VarChar(50)
+  WebhookUrl     String?   @db.VarChar(200)
+  CreateDate     DateTime?
+}
+
+model TEmailQueue {
+  EmailQueueId Int       @id(map: "public_TEmailQueue_PK_TEmailQueue") @default(autoincrement())
+  Email        String?   @db.VarChar(50)
+  EmailSubject String?   @db.VarChar(200)
+  EmailBody    String?
+  ProcessDate  DateTime?
+  Status       String?   @db.VarChar(50)
+  Retry        Int?
+}
+
+model TEventLog {
+  EventLogId BigInt    @id(map: "public_TEventLog_PK_TEventLog") @default(autoincrement())
+  SchoolId   Int?
+  UserId     Int?
+  EventName  String?   @db.VarChar(50)
+  TableName  String?   @db.VarChar(50)
+  ColumnName String?   @db.VarChar(50)
+  KeyValue   String?   @db.VarChar(50)
+  OldValue   String?
+  NewValue   String?
+  CreateDate DateTime?
+
+  @@index([CreateDate], map: "public_TEventLog_INDEX_VV_1130_1129")
+  @@index([UserId, TableName], map: "public_TEventLog_INDEX_VV_1140_1139")
+  @@index([TableName], map: "public_TEventLog_INDEX_VV_1200_1199")
+  @@index([TableName, ColumnName], map: "public_TEventLog_INDEX_VV_23922_23921")
+}
+
+model TExceptionLog {
+  ExceptionLogId  BigInt    @id(map: "public_TExceptionLog_PK_TExceptionLog") @default(autoincrement())
+  MethodName      String?   @db.VarChar(200)
+  Parameter       String?
+  Application     String?   @db.VarChar(100)
+  ExceptionMsg    String?
+  ExceptionType   String?   @db.VarChar(100)
+  ExceptionSource String?
+  ExceptionURL    String?   @db.VarChar(100)
+  Logdate         DateTime?
+  SchoolId        Int?
+  sEmp            Int?
+
+  @@index([SchoolId, Logdate], map: "public_TExceptionLog_INDEX_VV_6116_6115")
+}
+
+model TExpense {
+  ExpenseId                  Int       @id(map: "public_TExpense_PK_TExpense") @default(autoincrement())
+  Year                       Int?
+  Month                      Int?
+  AccountChartId             Int?
+  AccountChartType           String?   @db.VarChar(150)
+  BillingType                String?   @db.VarChar(50)
+  IssueBy                    String?   @db.VarChar(200)
+  IssueDate                  DateTime?
+  Description                String?   @db.VarChar(500)
+  Qty                        Int?
+  PriceBeforeVat             Decimal?  @db.Decimal(18, 2)
+  Vat                        Decimal?  @db.Decimal(18, 2)
+  TotalPrice                 Decimal?  @db.Decimal(18, 2)
+  RawTotalPrice              Decimal?  @db.Decimal(18, 2)
+  AttachUrl                  String?   @db.VarChar(300)
+  Status                     String?   @db.VarChar(50)
+  CreateDate                 DateTime?
+  CreateBy                   Int?
+  UpdateDate                 DateTime?
+  UpdateBy                   Int?
+  DeleteDate                 DateTime?
+  DeleteBy                   Int?
+  ApproveDate                DateTime?
+  ApproveBy                  Int?
+  PaidType                   String?   @db.VarChar(50)
+  VehicleCode                String?   @db.VarChar(50)
+  CheckIn                    DateTime?
+  CheckOut                   DateTime?
+  ExpenseRefID               String?   @db.VarChar(150)
+  ExpenseCode                String?   @db.VarChar(50)
+  ExpenseUrl                 String?   @db.VarChar(300)
+  ExpenseCreateDate          DateTime?
+  ExpenseRefIDFleetcard      String?   @db.VarChar(150)
+  ExpenseCodeFleetcard       String?   @db.VarChar(50)
+  ExpenseUrlFleetcard        String?   @db.VarChar(300)
+  ExpenseCreateDateFleetcard DateTime?
+
+  @@index([Year, DeleteDate], map: "public_TExpense_INDEX_VV_126797_126796")
+  @@index([CreateBy, DeleteDate], map: "public_TExpense_INDEX_VV_13611_13610")
+  @@index([DeleteDate], map: "public_TExpense_INDEX_VV_23128_23127")
+  @@index([Year, CreateBy, DeleteDate], map: "public_TExpense_INDEX_VV_23733_23732")
+  @@index([Year, DeleteDate], map: "public_TExpense_INDEX_VV_4286_4285")
+  @@index([DeleteDate], map: "public_TExpense_INDEX_VV_465_464")
+  @@index([Year, Month, CreateBy, DeleteDate], map: "public_TExpense_INDEX_VV_5112200_5112199")
+  @@index([Month, DeleteDate], map: "public_TExpense_INDEX_VV_5992_5991")
+}
+
+model TExpenseVehicle {
+  ExpenseVehicleId Int     @id(map: "public_TExpenseVehicle_PK_TExpenseVehicle") @default(autoincrement())
+  StaffId          Int?
+  VehicleCode      String? @db.VarChar(20)
+}
+
+model TFeature {
+  FeatureId   Int      @id(map: "public_TFeature_PK_TFeature")
+  GroupName   String?  @db.VarChar(50)
+  FeatureName String?  @db.VarChar(200)
+  Type        String?  @db.VarChar(20)
+  QueryParams String?  @db.VarChar(1000)
+  Keyword     String?  @db.VarChar(100)
+  Active      Boolean?
+}
+
+model TGroupMenu {
+  groupmenuid Int      @id(map: "public_TGroupMenu_PK_TGroupMenu")
+  groupmenu   String?  @db.VarChar(250)
+  class       String?  @db.VarChar(100)
+  title       String?  @db.VarChar(100)
+  active      Boolean?
+  group_order Int?
+  actvice     Boolean?
+  new_order   Int?
+  icon        String?  @db.VarChar(100)
+  IsDev       Boolean?
+}
+
+model TGroupMenu_Lang {
+  ID            String  @id(map: "public_TGroupMenu_Lang_PK_TGroupMenu_Lang") @db.Uuid
+  GroupMenuName String?
+  groupmenuid   Int?
+  Lang          String? @db.VarChar(10)
+}
+
+model TGroupPermission {
+  GroupID    Int       @id(map: "public_TGroupPermission_PK_TGroupPermission") @default(autoincrement())
+  GroupName  String?   @db.VarChar(250)
+  IsDel      Boolean?
+  IsActive   Boolean?
+  SchoolID   Int?
+  Created    DateTime?
+  Modified   DateTime?
+  CreateBy   Int?
+  ModifyBy   Int?
+  IsEditable Boolean?
+
+  @@index([GroupName, IsEditable], map: "public_TGroupPermission_INDEX_VV_23929_23928")
+  @@index([IsDel, IsActive, SchoolID], map: "public_TGroupPermission_INDEX_VV_5063631_5063630")
+  @@index([IsDel, SchoolID], map: "public_TGroupPermission_INDEX_VV_5101174_5101173")
+  @@index([SchoolID], map: "public_TGroupPermission_INDEX_VV_5126323_5126322")
+}
+
+model TGroupPermissionMenu {
+  MenuID   Int
+  GroupID  Int
+  Type     String   @db.Char(1)
+  Role     Int?     @db.SmallInt
+  SchoolID Int?
+  IsDel    Boolean?
+  IsActive Boolean?
+
+  @@id([MenuID, GroupID, Type], map: "public_TGroupPermissionMenu_PK_TGroupPermissionMenu")
+  @@index([Type, SchoolID, IsActive], map: "public_TGroupPermissionMenu_INDEX_VV_1002_1001")
+  @@index([GroupID, Type, SchoolID], map: "public_TGroupPermissionMenu_INDEX_VV_104_103")
+  @@index([Role], map: "public_TGroupPermissionMenu_INDEX_VV_5599137_5599136")
+}
+
+model TGroupPermissionUser {
+  GroupID  Int
+  UserID   Int
+  IsDel    Boolean?
+  IsActive Boolean?
+  SchoolID Int?
+
+  @@id([UserID, GroupID], map: "public_TGroupPermissionUser_PK_TGroupPermissionUser")
+  @@index([IsDel], map: "public_TGroupPermissionUser_INDEX_VV_328_327")
+  @@index([GroupID, IsDel, IsActive, SchoolID], map: "public_TGroupPermissionUser_IX_VV_TGroupPermissionUser_GroupID_")
+  @@index([IsDel, IsActive, SchoolID], map: "public_TGroupPermissionUser_IX_VV_TGroupPermissionUser_IsDel_Is")
+  @@index([IsDel, SchoolID], map: "public_TGroupPermissionUser_IX_VV_TGroupPermissionUser_IsDel_Sc")
+}
+
+model TGroupPermission_Log {
+  Id       Int       @default(autoincrement())
+  SchoolID Int
+  Date     DateTime?
+  Text     String?
+  ByUser   String?   @db.VarChar(250)
+
+  @@id([Id, SchoolID], map: "public_TGroupPermission_Log_PK_TGroupPermission_Log")
+  @@index([SchoolID], map: "public_TGroupPermission_Log_INDEX_VV_18221_18220")
+}
+
+model TInvoice {
+  InvoiceId                Int       @id(map: "public_TInvoice_PK_TInvoice") @default(autoincrement())
+  SchoolId                 Int?
+  PriceType                String?   @db.VarChar(10)
+  CalculationType          String?   @db.VarChar(10)
+  ServiceType              String?   @db.VarChar(10)
+  CurrentYear              Int?
+  TaxStatus                Int?
+  Term1Day                 Int?
+  Term1Month               Int?
+  Term2Day                 Int?
+  Term2Month               Int?
+  YearDay                  Int?
+  YearMonth                Int?
+  IssueDate                DateTime?
+  DueDate                  DateTime?
+  NoOfDueDate              Int?
+  ContactID                Int?
+  Note                     String?   @db.VarChar(300)
+  StudentQuantity          Int?
+  StudentAllowUsing        Int?
+  StudentPay               Int?
+  TotalPrice               Decimal?  @db.Decimal(18, 2)
+  InvoiceCreateDate        DateTime?
+  InvoiceUrl               String?   @db.VarChar(300)
+  InvoiceCode              String?   @db.VarChar(50)
+  InvoiceRef               String?   @db.VarChar(100)
+  IsActive                 Boolean?
+  IsSuccess                Boolean?
+  SentEmailDate            DateTime?
+  SentLineNotificationDate DateTime?
+  CreateDate               DateTime?
+  CreateBy                 Int?
+  UpdateDate               DateTime?
+  UpdateBy                 Int?
+  RecordDelete             Boolean?
+  DeleteBy                 Int?
+  PeakModel                String?
+
+  @@index([RecordDelete, SchoolId], map: "public_TInvoice_INDEX_VV_5669387_5669386")
+  @@index([IsActive, RecordDelete], map: "public_TInvoice_INDEX_VV_665_664")
+  @@index([SchoolId], map: "public_TInvoice_INDEX_VV_789_788")
+}
+
+model TInvoiceDetail {
+  InvoiceDetailId                 Int       @id(map: "public_TInvoiceDetail_PK_TInvoiceDetail") @default(autoincrement())
+  InvoiceId                       Int?
+  ProductId                       Int?
+  EducationType                   String?   @db.VarChar(30)
+  CurrentTerm                     Int?
+  Year                            Int?
+  StartDate                       DateTime?
+  EndDate                         DateTime?
+  DueDate                         DateTime?
+  Price                           Decimal?  @db.Decimal(18, 2)
+  StudentCount                    Int?
+  TotalPrice                      Decimal?  @db.Decimal(18, 2)
+  InvoiceCreateDate               DateTime?
+  InvoiceUrl                      String?   @db.VarChar(300)
+  InvoiceCode                     String?   @db.VarChar(50)
+  InvoiceRef                      String?   @db.VarChar(100)
+  SentEmailDate                   DateTime?
+  SentLineNotificationDate        DateTime?
+  IsSuccess                       Boolean?
+  RecordDelete                    Boolean?
+  DeleteBy                        Int?
+  RecieptRef                      String?   @db.VarChar(100)
+  RecieptCode                     String?   @db.VarChar(300)
+  RecieptUrl                      String?   @db.VarChar(2000)
+  RecieptCreateDate               DateTime?
+  PayStatus                       String?   @db.VarChar(50)
+  OverduePrice                    Decimal?  @db.Decimal(18, 2)
+  RecieptSentEmailDate            DateTime?
+  RecieptSentLineNotificationDate DateTime?
+  CreateBy                        Int?
+  UpdateBy                        Int?
+  UpdateDate                      DateTime?
+
+  @@index([CurrentTerm, Year, RecordDelete], map: "public_TInvoiceDetail_INDEX_VV_1152_1151")
+  @@index([InvoiceId], map: "public_TInvoiceDetail_INDEX_VV_148965_148964")
+  @@index([Year, SentEmailDate, InvoiceUrl], map: "public_TInvoiceDetail_INDEX_VV_23783_23782")
+  @@index([CurrentTerm, Year, SentEmailDate], map: "public_TInvoiceDetail_INDEX_VV_81426_81425")
+  @@index([InvoiceCode], map: "public_TInvoiceDetail_INDEX_VV_93478_93477")
+}
+
+model TLineGroup {
+  LineGroupId                 Int       @id(map: "public_TLineGroup_PK_TLineGroup") @default(autoincrement())
+  SchoolId                    Int?
+  GroupId                     String?   @db.VarChar(50)
+  LineNotificationAccessToken String?   @db.VarChar(500)
+  GroupType                   String?   @db.VarChar(50)
+  CreateDate                  DateTime?
+}
+
+model TLineMessage {
+  LineMessageId  Int       @id(map: "public_TLineMessage_PK_TLineMessage") @default(autoincrement())
+  SchoolId       Int?
+  Type           String?   @db.VarChar(50)
+  UserId         String?   @db.VarChar(50)
+  GroupId        String?   @db.VarChar(50)
+  Text           String?   @db.VarChar(2000)
+  CreateDate     DateTime?
+  Session        String?   @db.Uuid
+  ReferenceKey   String?   @db.VarChar(50)
+  ReferenceValue String?   @db.VarChar(50)
+  Model          String?
+
+  @@index([Type, ReferenceKey, ReferenceValue], map: "public_TLineMessage_INDEX_VV_1184_1183")
+  @@index([Text, SchoolId], map: "public_TLineMessage_INDEX_VV_126410_126409")
+  @@index([GroupId], map: "public_TLineMessage_INDEX_VV_1540_1539")
+  @@index([Type, Session], map: "public_TLineMessage_INDEX_VV_5024001_5024000")
+}
+
+model TLogDebug {
+  ID         Int       @id(map: "public_TLogDebug_PK_TLOGDEBUG") @default(autoincrement())
+  SchoolID   Int?
+  StudentID  Int?
+  EmployeeID Int?
+  LogMessage String?
+  LogDate    DateTime?
+  IP         String?   @db.VarChar(20)
+}
+
+model TLogError {
+  dLogError DateTime @id(map: "public_TLogError_PK_TLogError")
+  sLogError String?
+  sFunction String?
+}
+
+model TMenu {
+  MenuId       Int      @id(map: "public_TMenu_PK_TMenu")
+  MenuName     String?  @db.VarChar(250)
+  url          String?  @db.VarChar(100)
+  title        String?  @db.VarChar(250)
+  urlDev       String?  @db.VarChar(100)
+  class        String?  @db.VarChar(250)
+  MenuMode     String?  @db.VarChar(100)
+  MenuType     Int?
+  MenuIndex    Int?
+  groupmenuid  Int?
+  nMenuOrder   Int?
+  showmenu     Boolean?
+  demo         Boolean?
+  target       Int?
+  Submenu      Int?
+  active       Boolean?
+  actvice      Boolean?
+  SegmentID    Int?
+  nMenuOrder2  Int?
+  IsExceptAuth Boolean?
+}
+
+model TMenuPermission {
+  Id       Int     @id(map: "public_TMenuPermission_PK_TMenuPermission") @default(autoincrement())
+  MenuID   Int?
+  MenuName String? @db.VarChar(250)
+  MenuUrl  String? @db.VarChar(250)
+}
+
+model TMenu_Lang {
+  ID       String  @id(map: "public_TMenu_Lang_PK_TMenu_Lang") @db.Uuid
+  MenuName String?
+  MenuId   Int?
+  Lang     String? @db.VarChar(10)
+}
+
+model TMessage {
+  nMessageID   Int       @id(map: "public_TMessage_PK_TMessage_1") @default(autoincrement())
+  UserID       Int
+  sMessage     String?
+  sTitle       String?
+  nType        Int?
+  dSend        DateTime?
+  nStatus      Int?
+  scheduled_id String?   @db.VarChar(250)
+  push_id      Int?
+  homework_id  Int?
+  cDel         String?   @db.Char(1)
+  sell_id      Int?
+  topup_id     Int?
+}
+
+model TMessageSystem {
+  ID         Int       @id(map: "public_TMessageSystem_PK_TMESSAGESYSTEM") @default(autoincrement())
+  Title      String?   @db.VarChar(150)
+  Message    String?   @db.VarChar(1024)
+  AddDate    DateTime?
+  AddBy      String?   @db.VarChar(100)
+  UpdateDate DateTime?
+  UpdateBy   String?   @db.VarChar(100)
+  IsDelete   String?   @db.VarChar(1)
+}
+
+model TMessageTemplate {
+  MessageTemplateId Int     @id(map: "public_TMessageTemplate_PK_TMessageTemplate") @default(autoincrement())
+  Message           String? @db.VarChar(1000)
+}
+
+model TMobileMenu {
+  Menu_Id      Int      @id(map: "public_TMobileMenu_PK_TMobileMenu")
+  Menu_Name    String?  @db.VarChar(250)
+  Menu_NameEN  String?  @db.VarChar(250)
+  Actvie       Boolean?
+  Demo         Boolean?
+  SubMenu_Id   Int?
+  IsExceptAuth Boolean?
+  OrderNo      Int?     @db.SmallInt
+  MenuUrl      String?
+}
+
+model TNews {
+  NewsID      Int       @id(map: "public_TNews_PK_TNews") @default(autoincrement())
+  Type        Int?      @db.SmallInt
+  ToType      Int?      @db.SmallInt
+  Title       String?   @db.VarChar(250)
+  Detail      String?
+  Remark      String?
+  StartDate   DateTime?
+  EndDate     DateTime?
+  IsEmail     Boolean?
+  IsBroadcast Boolean?
+  IsPopup     Boolean?
+  PopupUrl    String?   @db.VarChar(500)
+  IsBanner    Boolean?
+  BannerUrl   String?   @db.VarChar(500)
+  Created     DateTime?
+  Modified    DateTime?
+  CreateBy    Int?
+  ModifyBy    Int?
+  IsDelete    Boolean?
+  IsDone      Boolean?
+  SchoolID    Int?
+
+  @@index([IsBroadcast], map: "public_TNews_INDEX_VV_5093745_5093744")
+  @@index([SchoolID], map: "public_TNews_INDEX_VV_5126410_5126409")
+  @@index([Created], map: "public_TNews_INDEX_VV_81548_81547")
+  @@index([Title], map: "public_TNews__dta_index_TNews_6_1550628567__K10_K21_K7_K8_K20_K")
+}
+
+model TNews2 {
+  NewsID         Int       @id(map: "public_TNews2_PK_TNews2") @default(autoincrement())
+  SystemType     Int?      @db.SmallInt
+  SendType       String?   @db.VarChar(20)
+  Title          String?   @db.VarChar(250)
+  SchoolID       Int?
+  ToType         Int?      @db.SmallInt
+  StartDate      DateTime?
+  EndDate        DateTime?
+  IsSystemLogin  Boolean?
+  SystemLogin    String?
+  IsStudentLogin Boolean?
+  StudentLogin   String?
+  IsNoteHead     Boolean?
+  NoteHead       String?
+  IsNoteAppWeb   Boolean?
+  NoteAppWeb     String?
+  IsPopup        Boolean?
+  Popup          String?
+  IsBanner       Boolean?
+  Banner         String?
+  IsEmail        Boolean?
+  Email          String?
+  ToSID          String?
+  IsSMS          Boolean?
+  SMS            String?
+  IsLine         Boolean?
+  Line           String?
+  IsLineGroup    Boolean?
+  LineGroup      String?
+  Created        DateTime?
+  Modified       DateTime?
+  CreateBy       Int?
+  ModifyBy       Int?
+  IsDelete       Boolean?
+  IsDone         Boolean?
+
+  @@index([IsNoteAppWeb, IsDelete], map: "public_TNews2_INDEX_VV_550_549")
+  @@index([NewsID, IsDelete, IsNoteAppWeb], map: "public_TNews2__dta_index_TNews2_6_790293875__K1_K34_K15")
+  @@index([IsSystemLogin], map: "public_TNews2__dta_index_TNews2_6_790293875__K34_K7_K8_K13_K5_9")
+}
+
+model TNewsAttachFile {
+  AttachID  Int       @id(map: "public_TNewsAttachFile_PK_TNewsAttachFile") @default(autoincrement())
+  NewsID    Int
+  AttachUrl String?   @db.VarChar(500)
+  Created   DateTime?
+  Modified  DateTime?
+  CreateBy  Int?
+  ModifyBy  Int?
+  IsDelete  Boolean?
+}
+
+model TNewsPushNotify {
+  PushID    Int       @id(map: "public_TNewsPushNotify_PK_TNewsPushNotifyNew") @default(autoincrement())
+  NewsID    Int
+  UserID    Int
+  UserType  Int
+  SendDate  DateTime?
+  ReadDate  DateTime?
+  SchoolID  Int
+  Created   DateTime?
+  CreatedBy Int?
+  Modified  DateTime?
+  ModifyBy  Int?
+  IsDelete  Boolean
+
+  @@index([UserID], map: "public_TNewsPushNotify_INDEX_VV_1135_1134")
+  @@index([NewsID, SchoolID, UserID], map: "public_TNewsPushNotify_INDEX_VV_5703_5702")
+  @@index([UserID, ReadDate], map: "public_TNewsPushNotify_IX_TNewsPushNotifyNew_UserID_ReadDate")
+  @@index([UserID, SchoolID], map: "public_TNewsPushNotify_IX_TNewsPushNotifyNew_UserID_SchoolID")
+}
+
+model TNotificationSetting {
+  NotificationSettingId       Int       @id(map: "public_TNotificationSetting_PK_TNotificationSetting") @default(autoincrement())
+  SchoolId                    Int?
+  StaffID                     BigInt?
+  LineNotificationAccessToken String?   @db.VarChar(500)
+  CreateDate                  DateTime?
+  CreateBy                    Int?
+  UpdateDate                  DateTime?
+  UpdateBy                    Int?
+}
+
+model TOfficer {
+  OfficerID Int       @id(map: "public_TOfficer_PK_TOfficer") @default(autoincrement())
+  Code      String?   @db.VarChar(50)
+  FirstName String?   @db.VarChar(250)
+  LastName  String?   @db.VarChar(250)
+  NickName  String?   @db.VarChar(50)
+  Position  String?   @db.VarChar(50)
+  IsActive  Boolean?
+  IsDelete  Boolean?
+  Created   DateTime?
+  Modified  DateTime?
+  CreateBy  Int?
+  ModifyBy  Int?
+}
+
+model TPackage {
+  PackageID   Int       @id(map: "public_TPackage_PK_TPackage") @default(autoincrement())
+  PackageName String?   @db.VarChar(100)
+  IsActive    Boolean?
+  IsDelete    Boolean?
+  Created     DateTime?
+  Modified    DateTime?
+  CreateBy    Int?
+  ModifyBy    Int?
+}
+
+model TPage {
+  PageId      Int      @id @default(autoincrement())
+  PageGroupId Int?
+  PageName    String?  @db.VarChar(50)
+  PageUrl     String?  @db.VarChar(200)
+  Active      Boolean?
+}
+
+model TPageGroup {
+  PageGroupId   Int     @id @default(autoincrement())
+  PageGroupName String? @db.VarChar(50)
+}
+
+model TParent_Card {
+  Id         Int       @default(autoincrement())
+  sID        Int
+  SchoolID   Int
+  No         Int       @db.SmallInt
+  Type       Int?      @db.SmallInt
+  ParentName String?   @db.VarChar(250)
+  NFC        String?   @db.VarChar(20)
+  NFCEncrypt String?   @db.VarChar(20)
+  Created    DateTime?
+  Modified   DateTime?
+  CreateBy   Int?
+  ModifyBy   Int?
+  IsDel      Boolean?
+  IsActive   Boolean?
+  Barcode    String?   @db.VarChar(30)
+
+  @@id([Id, sID, SchoolID, No], map: "public_TParent_Card_PK_TParent_Card")
+  @@index([SchoolID, IsDel, Barcode], map: "public_TParent_Card_INDEX_VV_28_27")
+  @@index([SchoolID, IsDel, IsActive], map: "public_TParent_Card_INDEX_VV_30151_30150")
+  @@index([SchoolID, NFCEncrypt, IsDel, IsActive], map: "public_TParent_Card_IX_TParent_Card_SchoolID_NFCEncrypt_IsDel_I")
+  @@index([sID, SchoolID, No, IsDel, IsActive], map: "public_TParent_Card_IX_TParent_Card_sID_SchoolID_No_IsDel_IsAct")
+  @@index([Type], map: "public_TParent_Card_IX_VV_TParent_Card_SchoolID_IsDel_IsActive")
+}
+
+model TPeakData {
+  PeakDataId Int       @id @default(autoincrement())
+  Name       String?   @db.VarChar(50)
+  Value      String?
+  UpdateDate DateTime? @db.Timestamp(6)
+}
+
+model TPosDevices {
+  PosID      String @id(map: "public_TPosDevices_PK_TPosDevices") @db.VarChar(10)
+  TTabletID  Int?
+  TerminalID Int?
+}
+
+model TProduct {
+  ProductId   Int      @id(map: "public_TProduct_PK_TProduct") @default(autoincrement())
+  ProductCode String?  @db.VarChar(10)
+  Name        String?  @db.VarChar(200)
+  IsActive    Boolean?
+}
+
+model TResetPassword {
+  ID         Int       @id(map: "public_TResetPassword_PK_TResetPassword")
+  sUerID     Int?
+  dExpUpdate DateTime?
+  dExpActive DateTime?
+  OTP        String?   @db.VarChar(10)
+  cStatus    String?   @db.VarChar(10)
+}
+
+model TSaleArea {
+  SaleAreaId Int     @id @default(autoincrement())
+  Name       String? @db.VarChar(50)
+  Text       String?
+  Mapping    String? @db.VarChar(50)
+}
+
+model TSchoolArea {
+  ID   Int     @id(map: "public_TSchoolArea_PK_TSchoolArea_1") @default(autoincrement())
+  Code String? @db.VarChar(10)
+  Area String? @db.VarChar(100)
+}
+
+model TSchoolSummary {
+  SchoolID      Int       @id(map: "PK_TSchoolSummary")
+  StudentCount  Int?
+  CurrentTermID String?   @db.VarChar(20)
+  CurrentYearID Int?
+  Modified      DateTime? @db.Timestamp(6)
+}
+
+model TSegmentMenu {
+  ID          Int      @id(map: "public_TSegmentMenu_PK_TSegmentMenu") @default(autoincrement())
+  GroupMenuID Int?
+  Name        String?  @db.VarChar(250)
+  Class       String?  @db.VarChar(100)
+  Title       String?  @db.VarChar(100)
+  Active      Boolean?
+  nOrder      Int?
+}
+
+model TSegmentMenu_Lang {
+  ID              String  @id(map: "public_TSegmentMenu_Lang_PK_TSegmentMenuLang") @db.Uuid
+  SegmentMenuName String?
+  SegmentMenuID   Int?
+  Lang            String? @db.VarChar(10)
+}
+
+model TSound_Student {
+  SchoolID       Int
+  sID            Int
+  nTermSubLevel2 Int
+  FullName       String?   @db.VarChar(250)
+  Code           String?   @db.VarChar(50)
+  NickName       String?   @db.VarChar(50)
+  Receiver       String?   @db.VarChar(250)
+  Base64Sound    String?
+  Created        DateTime?
+  Modified       DateTime?
+  CreateBy       Int?
+  ModifyBy       Int?
+  IsDel          Boolean?
+  Gate           String?   @db.VarChar(10)
+  TermID         String?   @db.VarChar(20)
+
+  @@id([SchoolID, sID, nTermSubLevel2], map: "public_TSound_Student_PK_TUser_Sound")
+}
+
+model TStudentCall {
+  CallDate  DateTime
+  sID       Int
+  SchoolID  Int
+  CardNo    Int?      @db.SmallInt
+  Status    Int?      @db.SmallInt
+  Created   DateTime? @db.Time(6)
+  Announced DateTime? @db.Time(6)
+  Completed DateTime? @db.Time(6)
+  IsResend  Boolean?
+  ScanType  String?   @db.VarChar(10)
+  Token     String?   @db.Uuid
+  Remark    String?   @db.VarChar(250)
+  GateToken String?   @db.VarChar(500)
+
+  @@id([CallDate, sID, SchoolID], map: "public_TStudentCall_PK_TStudentCalling")
+  @@index([CallDate, SchoolID], map: "public_TStudentCall_INDEX_VV_103297_103296")
+  @@index([sID], map: "public_TStudentCall_INDEX_VV_916_915")
+  @@index([SchoolID, Status], map: "public_TStudentCall_INDEX_VV_93396_93395")
+  @@index([CallDate, SchoolID, ScanType], map: "public_TStudentCall_INDEX_VV_97423_97422")
+  @@index([Status], map: "public_TStudentCall_IX_TStudentCall_CallDate_SchoolID_ScanType")
+}
+
+model TStudentCall_Config {
+  SchoolId       Int       @id(map: "public_TStudentCall_Config_PK_TStudentCall_Config")
+  Gate           String?   @db.VarChar(20)
+  BgCard         String?
+  IsActive       Boolean?
+  Radius         Float?
+  Created        DateTime?
+  CreateBy       Int?
+  ModifyBy       Int?
+  Modified       DateTime?
+  IsShowLevel    Boolean?
+  IsShowLastName Boolean?
+  IsShowParent   Boolean?
+  CardType       Int?      @db.SmallInt
+  NameType       Int?      @db.SmallInt
+  IsEng          Boolean?
+}
+
+model TStudentCall_Gate {
+  Token        String    @id(map: "public_TStudentCall_Gate_PK_TStudentCall_Gate") @db.Uuid
+  SchoolID     Int?
+  Gate         Int?      @db.SmallInt
+  GateName     String?   @db.VarChar(250)
+  SelectedRoom String?
+  FullUrl      String?   @db.VarChar(250)
+  ShortUrl     String?   @db.VarChar(250)
+  Created      DateTime?
+  Modified     DateTime?
+  CreateBy     Int?
+  ModifyBy     Int?
+  IsDel        Boolean?
+
+  @@index([SchoolID, IsDel], map: "public_TStudentCall_Gate_INDEX_VV_162_161")
+}
+
+model TStudentCall_Log {
+  LogId        Int       @id(map: "public_TStudentCall_Log_PK_TStudentCall_Log") @default(autoincrement())
+  LogDate      DateTime?
+  LogText      String?
+  SchoolID     Int?
+  sID          Int?
+  Type         Int?      @db.SmallInt
+  IPAddress    String?   @db.VarChar(50)
+  Token        String?   @db.VarChar(50)
+  ConnectionID String?   @db.VarChar(50)
+
+  @@index([LogDate], map: "public_TStudentCall_Log_INDEX_VV_169071_169070")
+}
+
+model TSubDelivery {
+  SubDeliveryId Int       @id(map: "public_TSubDelivery_PK_TSubDelivery") @default(autoincrement())
+  DeliveryId    Int?
+  ProductName   String?   @db.VarChar(300)
+  Qty           Int?
+  SerialNo      String?   @db.VarChar(100)
+  StartDate     DateTime?
+  InsuranceNo   String?   @db.VarChar(100)
+  EndDate       DateTime?
+  DeliveryNo    String?   @db.VarChar(100)
+  ClaimNo       String?   @db.VarChar(100)
+  Note          String?   @db.VarChar(100)
+
+  @@index([ProductName, DeliveryId], map: "public_TSubDelivery_INDEX_VV_5110763_5110762")
+  @@index([DeliveryId], map: "public_TSubDelivery_INDEX_VV_99726_99725")
+}
+
+model TSubInsurance {
+  SubInsuranceId Int       @id(map: "public_TSubInsurance_PK_TSubInsurance") @default(autoincrement())
+  InsuranceId    Int?
+  ProductName    String?   @db.VarChar(100)
+  Qty            Int?
+  SerialNo       String?   @db.VarChar(100)
+  InsuranceNo    String?   @db.VarChar(100)
+  StartDate      DateTime?
+  EndDate        DateTime?
+}
+
+model TSystemSetting {
+  nSystemID                Int       @id(map: "public_TSystemSetting_PK_TSystemSetting") @default(autoincrement())
+  SchoolID                 Int?
+  bScanOut                 Boolean?
+  CreatedBy                Int?
+  UpdatedBy                Int?
+  CreatedDate              DateTime?
+  UpdatedDate              DateTime?
+  MenuID                   Int?
+  DocumentID               String?   @db.VarChar(50)
+  Config                   String?   @db.VarChar(1000)
+  IsOpenApproveUserProfile Boolean?
+  ApproveOption            Int?
+  ApproveStartDate         DateTime?
+  ApproveEndDate           DateTime?
+  MaxTopup                 Float?
+}
+
+model TToken {
+  Token_Id          Int       @id(map: "public_TToken_PK_TToken")
+  Client_Token      String?   @db.VarChar(200)
+  User_Token        String?   @db.VarChar(200)
+  School_Id         Int?
+  Client_Time_Stamp DateTime?
+  JabJai_Token      String?   @db.VarChar(200)
+}
+
+model TTopuphistory {
+  History_id       Int      @id(map: "public_TTopuphistory_PK_TTopuphistory")
+  order_no         String?  @db.VarChar(50)
+  user_id          Int?
+  trade_mony       Int?
+  Hash_data        String?
+  pay_type         String?  @db.VarChar(10)
+  site_cd          String?  @db.VarChar(20)
+  ret_url          String?  @db.VarChar(100)
+  good_name        String?  @db.VarChar(100)
+  order_first_name String?  @db.VarChar(100)
+  order_last_name  String?  @db.VarChar(100)
+  order_email      String?  @db.VarChar(100)
+  currency         String?  @db.VarChar(10)
+  fee              Int?
+  res_cd           String?  @db.VarChar(20)
+  res_msg          String?  @db.VarChar(50)
+  tno              String?  @db.VarChar(50)
+  money            Decimal? @db.Decimal(18, 0)
+}
+
+model TUser {
+  sID                   Int       @id(map: "public_TUser_PK_TUser") @default(autoincrement())
+  sName                 String?   @db.VarChar(256)
+  sLastname             String?   @db.VarChar(256)
+  sIdentification       String?   @db.VarChar(13)
+  dUpdatePass           DateTime?
+  username              String?   @db.VarChar(20)
+  userpassword          String?   @db.VarChar(50)
+  dBirth                DateTime?
+  cSex                  String?   @db.Char(1)
+  sPhone                String?   @db.VarChar(100)
+  sEmail                String?   @db.VarChar(256)
+  sPassword             String?   @db.VarChar(100)
+  sAddress              String?   @db.VarChar(512)
+  PROVINCE_ID           Int?
+  AMPHUR_ID             Int?
+  DISTRICT_ID           Int?
+  nSystemID             Int?
+  sCity                 String?   @db.VarChar(512)
+  sPostalcode           String?   @db.VarChar(10)
+  sCountry              String?   @db.VarChar(512)
+  dCreate               DateTime?
+  dUpdate               DateTime?
+  sFinger               String?
+  sFinger2              String?
+  sFinger3              String?
+  NFC                   String?   @db.VarChar(10)
+  cType                 String?   @db.Char(1)
+  cDel                  String?   @db.Char(1)
+  nCompany              Int
+  ContactPeak           String?   @db.VarChar(250)
+  pin                   String?   @db.VarChar(100)
+  Token                 String?
+  Secret_Key            String?
+  nMoney                Decimal?  @db.Decimal(18, 2)
+  uID                   String    @db.Uuid
+  UserSignature         String?   @db.VarChar(250)
+  UseBiometric          Boolean
+  sPicture              String?   @db.VarChar(250)
+  LineID                String?   @db.VarChar(250)
+  PasswordHash          String?   @db.VarChar(350)
+  UseEncryptPassword    Boolean
+  IsFirstLogin          Boolean   @default(true)
+  CurrentFailedAttempts Int       @default(0)
+  AccountLockedUntil    DateTime?
+  IsAccountVerified     Boolean   @default(false)
+
+  @@index([nCompany, cDel], map: "idx_tuser_company_cdel")
+  @@index([nCompany, cType, cDel], map: "idx_tuser_company_type")
+  @@index([nCompany, username], map: "idx_tuser_company_username")
+  @@index([sIdentification], map: "idx_tuser_identification")
+  @@index([username, cDel], map: "idx_tuser_login")
+  @@index([sName, sLastname], map: "idx_tuser_name")
+  @@index([NFC], map: "idx_tuser_nfc")
+  @@index([PasswordHash], map: "idx_tuser_passwordhash")
+  @@index([sID, nCompany], map: "idx_tuser_sid")
+  @@index([nSystemID, cType, nCompany], map: "idx_tuser_system")
+}
+
+model TUser_Card {
+  Id                Int       @default(autoincrement())
+  sID               Int
+  SchoolID          Int
+  No                Int?      @db.SmallInt
+  NFC               String?   @db.VarChar(20)
+  NFCReverse        String?   @db.VarChar(20)
+  NFCEncrypt        String?   @db.VarChar(20)
+  NFCEncryptReverse String?   @db.VarChar(20)
+  Created           DateTime?
+  Modified          DateTime?
+  CreateBy          Int?
+  ModifyBy          Int?
+  IsDel             Boolean?
+  IsActive          Boolean?
+  FreeText          String?   @db.VarChar(20)
+
+  @@id([Id, sID, SchoolID], map: "public_TUser_Card_PK_TUser_Card")
+  @@index([NFC], map: "idx_tusercard_nfc")
+  @@index([NFCEncrypt], map: "idx_tusercard_nfcencrypt")
+  @@index([NFCEncryptReverse], map: "idx_tusercard_nfcencryptreverse")
+  @@index([NFCReverse], map: "idx_tusercard_nfcreverse")
+  @@index([No], map: "idx_tusercard_no")
+  @@index([SchoolID, IsActive, IsDel], map: "idx_tusercard_school_active")
+  @@index([SchoolID, sID, IsDel], map: "idx_tusercard_school_sid")
+  @@index([sID, SchoolID], map: "idx_tusercard_sid_school")
+}
+
+model TrackingData {
+  ID      Int     @id(map: "public_TrackingData_PK_TrackingData") @default(autoincrement())
+  PID     Int?
+  ChVer   BigInt?
+  ChCrVer BigInt?
+  ChOp    String? @db.VarChar(200)
+  sPID    String? @db.VarChar(200)
+}
+
+model User_Audit_Table {
+  AuditID       Int       @id @default(autoincrement())
+  TableName     String
+  OperationType String
+  TStamp        DateTime? @default(now()) @db.Timestamp(6)
+  OldID         Int?
+  NewID         Int?
+  StringID      String?
+
+  @@index([AuditID], map: "IDX_PK_AuditID")
+  @@index([TableName, NewID(sort: Desc), AuditID(sort: Desc)], map: "IDX_VV_TableName_NewID")
+}
+
+model amphur {
+  AMPHUR_ID      Int     @id(map: "public_amphur_PK_amphur")
+  AMPHUR_CODE    String  @db.VarChar(4)
+  AMPHUR_NAME    String  @db.VarChar(150)
+  POSTCODE       String  @db.VarChar(5)
+  GEO_ID         Int
+  PROVINCE_ID    Int
+  AMPHUR_NAME_EN String? @db.VarChar(150)
+}
+
+model district {
+  DISTRICT_ID      Int     @id(map: "public_district_PK_district")
+  DISTRICT_CODE    String  @db.VarChar(6)
+  DISTRICT_NAME_EN String? @db.VarChar(150)
+  DISTRICT_NAME    String  @db.VarChar(150)
+  AMPHUR_ID        Int
+  PROVINCE_ID      Int
+  GEO_ID           Int
+
+  @@index([PROVINCE_ID], map: "public_district_INDEX_VV_4298_4297")
+  @@index([AMPHUR_ID, PROVINCE_ID], map: "public_district_INDEX_VV_99835_99834")
+}
+
+model favorites {
+  favoritesid Int  @id(map: "public_favorites_PK_favorites")
+  tabletid    Int?
+  productid   Int?
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model indexupdated {
+  table_name      Unsupported("name")?
+  index_type      Unsupported("name")?
+  duplicate_count BigInt?
+  indexes         Unsupported("_name")[]
+
+  @@ignore
+}
+
+model permission {
+  user_id     Int
+  menu_id     Int
+  type        String    @db.VarChar(5)
+  actvice     Int
+  CreatedBy   Int?
+  UpdatedBy   Int?
+  CreatedDate DateTime?
+  UpdatedDate DateTime?
+
+  @@id([user_id, menu_id, type], map: "public_permission_PK_permission")
+}
+
+model province {
+  PROVINCE_ID      Int     @id(map: "public_province_PK_province")
+  PROVINCE_CODE    String  @db.VarChar(2)
+  PROVINCE_NAME    String  @db.VarChar(150)
+  GEO_ID           Int
+  PROVINCE_NAME_EN String? @db.VarChar(150)
+}
