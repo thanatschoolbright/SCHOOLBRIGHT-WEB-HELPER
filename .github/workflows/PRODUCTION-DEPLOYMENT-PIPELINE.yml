@@ -2,7 +2,7 @@ name: PRODUCTION DEPLOYMENT PIPELINE
 
 on:
   push:
-    branches: [release/production]
+    branches: [ release/production ]
   workflow_dispatch:
     inputs:
       tag:
@@ -31,7 +31,7 @@ jobs:
   # ============================================
   pre_flight_checks:
     name: Pre-flight Checks
-    runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
+    runs-on: [ self-hosted, PRODUCTION-SB-WEB-HELPER ]
     timeout-minutes: 5
     environment: production
     outputs:
@@ -42,7 +42,8 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag != '' && format('refs/tags/{0}', inputs.tag) || github.ref }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag != '' &&
+            format('refs/tags/{0}', inputs.tag) || github.ref }}
 
       - name: Determine Deployment Reference
         id: ref
@@ -79,7 +80,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: [pre_flight_checks]
+    needs: [ pre_flight_checks ]
     if: |
       always() &&
       needs.pre_flight_checks.result == 'success'
@@ -103,6 +104,7 @@ jobs:
         run: |
           if [ -f "prisma/schema.prisma" ]; then npx prisma generate --schema=prisma/schema.prisma; fi
           if [ -f "prisma/timesheet/schema.prisma" ]; then npx prisma generate --schema=prisma/timesheet/schema.prisma; fi
+          if [ -f "prisma/jabjai-master/schema.prisma" ]; then npx prisma generate --schema=prisma/jabjai-master/schema.prisma; fi
 
       - name: Build Application
         run: npm run build
@@ -135,8 +137,8 @@ jobs:
   # ============================================
   deploy:
     name: Deploy to Production
-    runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
-    needs: [pre_flight_checks, build]
+    runs-on: [ self-hosted, PRODUCTION-SB-WEB-HELPER ]
+    needs: [ pre_flight_checks, build ]
     environment:
       name: production
       url: https://sb-helper.schoolbright.co
@@ -183,6 +185,7 @@ jobs:
           echo "Regenerating Prisma client for target OS..."
           if [ -f "prisma/schema.prisma" ]; then npx prisma generate --schema=prisma/schema.prisma; fi
           if [ -f "prisma/timesheet/schema.prisma" ]; then npx prisma generate --schema=prisma/timesheet/schema.prisma; fi
+          if [ -f "prisma/jabjai-master/schema.prisma" ]; then npx prisma generate --schema=prisma/jabjai-master/schema.prisma; fi
 
           echo "Setting file permissions..."
           sudo chown -R root:root "${{ env.DEPLOY_PATH }}"
@@ -218,7 +221,7 @@ jobs:
   # ============================================
   verify:
     name: Verify
-    runs-on: [self-hosted, PRODUCTION-SB-WEB-HELPER]
+    runs-on: [ self-hosted, PRODUCTION-SB-WEB-HELPER ]
     needs: deploy
     steps:
       - name: HTTP Health Check
@@ -255,7 +258,7 @@ jobs:
   summary:
     name: Deployment Summary
     runs-on: ubuntu-latest
-    needs: [pre_flight_checks, build, deploy, verify]
+    needs: [ pre_flight_checks, build, deploy, verify ]
     if: always()
     steps:
       - name: Generate Summary Report
