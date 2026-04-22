@@ -781,3 +781,124 @@ export async function buildSchoolStatusReport(
 
   return chunks.slice(0, 5).map((text) => ({ type: "text", text }));
 }
+
+// สร้าง LINE message รายงานสถานะเครื่องฮาร์ดแวร์ของโรงเรียนเดียว พร้อมหมายเลขลำดับ
+export async function buildSchoolDeviceReport(schoolId: number): Promise<{
+  messages: object[];
+  schoolName: string;
+  total: number;
+  online: number;
+  offline: number;
+}> {
+  const now = new Date();
+  const reportTime = dayjs().format("DD/MM/YYYY HH:mm") + " น.";
+
+  const school = await prisma.activeSchoolList.findFirst({
+    where: { nCompany: schoolId },
+    select: { nCompany: true, sCompany: true },
+  });
+
+  if (!school) {
+    return {
+      messages: [
+        {
+          type: "text",
+          text: `ไม่พบข้อมูลโรงเรียน รหัส ${schoolId}`,
+        },
+      ],
+      schoolName: `โรงเรียน ${schoolId}`,
+      total: 0,
+      online: 0,
+      offline: 0,
+    };
+  }
+
+  const schoolName = school.sCompany ?? `โรงเรียน ${schoolId}`;
+
+  const devices = await prisma.deviceDailyStatus.findMany({
+    where: { SchoolID: schoolId },
+    select: {
+      Online: true,
+      OnlineTime: true,
+      Login: true,
+      DeviceID: true,
+      AppName: true,
+      AppVersion: true,
+      Note: true,
+    },
+    orderBy: { DeviceID: "asc" },
+  });
+
+  const lines: string[] = [
+    `สวัสดี ${schoolName} ${schoolId}`,
+    `รายงานสถานะเครื่องฮาร์ดแวร์`,
+    `วันที่ ${reportTime}`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━`,
+  ];
+
+  let onlineCount = 0;
+  let offlineCount = 0;
+
+  devices.forEach((device, index) => {
+    const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
+    const isOnline =
+      device.Online === true ||
+      (onlineTime
+        ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
+        : false);
+
+    if (isOnline) onlineCount++;
+    else offlineCount++;
+
+    const note = device.Note ?? device.DeviceID;
+    const appName = device.AppName ?? "ไม่ระบุแอป";
+    const appVersion = device.AppVersion ?? "-";
+    const statusText = isOnline ? "Online" : "Offline";
+    const statusIcon = isOnline ? "✅" : "❎";
+    const offlineNote = isOnline ? "" : " (โปรดตรวจสอบ)";
+
+    lines.push(
+      `${index + 1}. ${note} รหัสเครื่อง : ${appName} (${appVersion})`,
+    );
+    lines.push(`   สถานะ : ${statusText} ${statusIcon}${offlineNote}`);
+  });
+
+  if (devices.length === 0) {
+    lines.push(`ไม่พบข้อมูลเครื่องฮาร์ดแวร์ของโรงเรียนนี้`);
+  }
+
+  const total = devices.length;
+  const fullText = lines.join("\n");
+
+  // แบ่ง messages ถ้ายาวเกิน 5,000 ตัวอักษร
+  if (fullText.length <= LINE_TEXT_MAX) {
+    return {
+      messages: [{ type: "text", text: fullText }],
+      schoolName,
+      total,
+      online: onlineCount,
+      offline: offlineCount,
+    };
+  }
+
+  const chunks: string[] = [];
+  let current = "";
+  for (const line of lines) {
+    const candidate = current ? current + "\n" + line : line;
+    if (candidate.length <= LINE_TEXT_MAX) {
+      current = candidate;
+    } else {
+      chunks.push(current);
+      current = line;
+    }
+  }
+  if (current) chunks.push(current);
+
+  return {
+    messages: chunks.slice(0, 5).map((text) => ({ type: "text", text })),
+    schoolName,
+    total,
+    online: onlineCount,
+    offline: offlineCount,
+  };
+}

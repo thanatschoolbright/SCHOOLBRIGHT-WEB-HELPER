@@ -352,7 +352,41 @@ export default function LineApiDocsPage() {
                 />
               </Card>
 
-              {/* ส่วนที่ 5: คำสั่งบิลต์อิน */}
+              {/* ส่วนที่ 5: รายงานรายโรงเรียน */}
+              <Card
+                id="school-report"
+                title={
+                  <Flex align="center" gap={8}>
+                    <BellOutlined /> รายงานสถานะฮาร์ดแวร์รายโรงเรียน
+                  </Flex>
+                }
+                style={{ marginBottom: 24, borderRadius: 16 }}
+                extra={<Tag color="orange">School-Specific</Tag>}
+              >
+                <Title level={5}>
+                  <Tag color="blue">GET</Tag>{" "}
+                  /api/v1/hardware/machine-monitoring/channel/line/
+                  {"{school_id}"}
+                </Title>
+                <Paragraph>
+                  ส่งรายงานสถานะเครื่องฮาร์ดแวร์ของโรงเรียนเดียวไปยัง LINE Group
+                  ที่ตั้งค่าไว้ ข้อความจะแสดงรายชื่อเครื่อง, แอปพลิเคชัน,
+                  และสถานะ Online/Offline
+                </Paragraph>
+                <Badge
+                  status="default"
+                  text="ไม่ต้องใช้ Bearer Token — เรียกได้โดยตรง"
+                  style={{ marginBottom: 16, display: "block" }}
+                />
+
+                <ApiTestPanel
+                  method="GET"
+                  endpoint="/api/v1/hardware/machine-monitoring/channel/line/1234"
+                  title="ส่งรายงานรายโรงเรียนไปยัง LINE (เปลี่ยน 1234 เป็นรหัสโรงเรียน)"
+                />
+              </Card>
+
+              {/* ส่วนที่ 6: คำสั่งบิลต์อิน */}
               <Card
                 id="commands"
                 title={
@@ -419,6 +453,11 @@ export default function LineApiDocsPage() {
                       key: "notifications",
                       href: "#notifications",
                       title: "การแจ้งเตือน",
+                    },
+                    {
+                      key: "school-report",
+                      href: "#school-report",
+                      title: "รายงานรายโรงเรียน",
                     },
                     {
                       key: "commands",
