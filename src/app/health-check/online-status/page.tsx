@@ -710,6 +710,44 @@ export default function OnlineDeviceDashboard() {
                   ทดสอบ LINE Webhook
                 </Button>
               </Link>
+
+              <Link href="/health-check/online-status/school-line-group">
+                <Button
+                  icon={<LineIcon />}
+                  style={{
+                    height: 44,
+                    padding: "0 18px",
+                    borderRadius: 12,
+                    fontWeight: 600,
+                    fontSize: 14,
+                    background:
+                      "linear-gradient(135deg, #1677ff 0%, #0958d9 100%)",
+                    color: "#FFFFFF",
+                    border: "none",
+                    boxShadow: "0 4px 14px 0 rgba(22, 119, 255, 0.35)",
+                    transition: "all 0.25s ease",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background =
+                      "linear-gradient(135deg, #0958d9 0%, #003eb3 100%)";
+                    e.currentTarget.style.transform = "translateY(-1px)";
+                    e.currentTarget.style.boxShadow =
+                      "0 6px 20px rgba(22, 119, 255, 0.45)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background =
+                      "linear-gradient(135deg, #1677ff 0%, #0958d9 100%)";
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow =
+                      "0 4px 14px 0 rgba(22, 119, 255, 0.35)";
+                  }}
+                >
+                  กลุ่ม LINE รายโรงเรียน
+                </Button>
+              </Link>
             </Space>
           }
         />
