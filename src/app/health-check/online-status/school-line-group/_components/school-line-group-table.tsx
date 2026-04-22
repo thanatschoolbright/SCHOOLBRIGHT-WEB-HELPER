@@ -17,6 +17,7 @@ import {
   Tag,
   Tooltip,
   Typography,
+  theme,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
@@ -27,6 +28,7 @@ import {
 } from "../_api/school-line-group-service";
 import { useSchoolLineGroupStore } from "../_state/use-school-line-group-store";
 import { BatchSendModal } from "./batch-send-modal";
+import { motion } from "framer-motion";
 
 const { Text } = Typography;
 
@@ -47,8 +49,10 @@ const LineIcon = () => (
 
 /**
  * ตารางแสดงรายชื่อกลุ่ม LINE พร้อมฟังก์ชันการจัดการ
+ * ปรับปรุง Padding และ Cell Spacing ให้ดูพรีเมียมและไม่อึดอัด
  */
 export const SchoolLineGroupTable = () => {
+  const { token } = theme.useToken();
   const {
     items,
     loading,
@@ -121,10 +125,13 @@ export const SchoolLineGroupTable = () => {
     {
       title: "ลำดับ",
       key: "index",
-      width: 70,
+      width: 80,
       align: "center",
-      render: (_: unknown, __: unknown, idx: number) =>
-        (pagination.page - 1) * pagination.page_size + idx + 1,
+      render: (_: unknown, __: unknown, idx: number) => (
+        <Text style={{ fontSize: 13, color: token.colorTextSecondary }}>
+          {(pagination.page - 1) * pagination.page_size + idx + 1}
+        </Text>
+      ),
     },
     {
       title: "รหัสโรงเรียน",
@@ -135,7 +142,7 @@ export const SchoolLineGroupTable = () => {
         val ? (
           <Tag
             color="blue"
-            style={{ fontFamily: "monospace", fontWeight: 600 }}
+            className="rounded-lg font-mono font-bold px-3 py-0.5 border-blue-200"
           >
             {val}
           </Tag>
@@ -153,14 +160,7 @@ export const SchoolLineGroupTable = () => {
           <Text
             code
             copyable
-            style={{
-              fontSize: 11,
-              maxWidth: 220,
-              display: "inline-block",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
+            className="text-[11px] max-w-[200px] truncate inline-block py-0.5 px-1"
           >
             {val}
           </Text>
@@ -173,24 +173,28 @@ export const SchoolLineGroupTable = () => {
       dataIndex: "GroupType",
       key: "GroupType",
       sorter: (a, b) => (a.GroupType ?? "").localeCompare(b.GroupType ?? ""),
-      render: (val: string | null) =>
-        val ? (
-          <Tag color="purple">{val}</Tag>
-        ) : (
-          <Tag color="default">ไม่ระบุ</Tag>
-        ),
+      render: (val: string | null) => (
+        <Tag
+          color={val ? "purple" : "default"}
+          className="rounded-lg m-0 px-3 border-purple-100"
+        >
+          {val ?? "ไม่ระบุ"}
+        </Tag>
+      ),
     },
     {
-      title: "มี Token",
+      title: "สถานะ Token",
       dataIndex: "LineNotificationAccessToken",
       key: "hasToken",
       align: "center",
-      render: (val: string | null) =>
-        val ? (
-          <Tag color="green">มี Token</Tag>
-        ) : (
-          <Tag color="red">ไม่มี Token</Tag>
-        ),
+      render: (val: string | null) => (
+        <Tag
+          color={val ? "success" : "error"}
+          className="rounded-full px-4 m-0 font-medium"
+        >
+          {val ? "มี Token" : "ไม่มี Token"}
+        </Tag>
+      ),
     },
     {
       title: "วันที่สร้าง",
@@ -199,7 +203,7 @@ export const SchoolLineGroupTable = () => {
       sorter: (a, b) => dayjs(a.CreateDate).unix() - dayjs(b.CreateDate).unix(),
       render: (val: string | null) =>
         val ? (
-          <Text style={{ fontSize: 12 }}>
+          <Text style={{ fontSize: 12, color: token.colorTextSecondary }}>
             {dayjs(val).format("DD/MM/YYYY HH:mm")}
           </Text>
         ) : (
@@ -210,9 +214,9 @@ export const SchoolLineGroupTable = () => {
       title: "การจัดการ",
       key: "action",
       align: "center",
-      width: 220,
+      width: 200,
       render: (_: unknown, record: TLineGroupItem) => (
-        <Space size="middle">
+        <Space size={12}>
           <Tooltip title="ทดสอบส่ง LINE">
             <Button
               size="small"
@@ -220,13 +224,11 @@ export const SchoolLineGroupTable = () => {
               loading={sendingId === record.LineGroupId}
               disabled={!record.SchoolId}
               onClick={() => handleSendLine(record)}
-              style={{
-                background: record.SchoolId ? "#06C755" : undefined,
-                color: record.SchoolId ? "#fff" : undefined,
-                border: "none",
-                fontWeight: 600,
-                borderRadius: 6,
-              }}
+              className={`rounded-xl border-none flex items-center justify-center h-9 w-9 transition-all active:scale-90 ${
+                record.SchoolId
+                  ? "bg-[#06C755] hover:bg-[#05b14a] text-white shadow-md shadow-green-100"
+                  : ""
+              }`}
             />
           </Tooltip>
           <Tooltip title="แก้ไข">
@@ -234,7 +236,7 @@ export const SchoolLineGroupTable = () => {
               size="small"
               icon={<EditOutlined />}
               onClick={() => openEditModal(record)}
-              style={{ borderRadius: 6 }}
+              className="rounded-xl h-9 w-9 flex items-center justify-center hover:text-blue-500 hover:border-blue-500 transition-all active:scale-90 bg-slate-50 dark:bg-slate-800 border-none"
             />
           </Tooltip>
           <Tooltip title="ลบ">
@@ -243,7 +245,7 @@ export const SchoolLineGroupTable = () => {
               danger
               icon={<DeleteOutlined />}
               onClick={() => confirmDelete(record)}
-              style={{ borderRadius: 6 }}
+              className="rounded-xl h-9 w-9 flex items-center justify-center transition-all active:scale-90 shadow-md shadow-red-50 bg-red-50 dark:bg-red-900/20 border-none"
             />
           </Tooltip>
         </Space>
@@ -252,83 +254,115 @@ export const SchoolLineGroupTable = () => {
   ];
 
   return (
-    <Card style={{ borderRadius: 12 }} styles={{ body: { padding: 16 } }}>
-      <Flex align="center" justify="space-between" style={{ marginBottom: 12 }}>
-        <Flex align="center" gap={8}>
-          <UnorderedListOutlined style={{ fontSize: "1rem" }} />
-          <Text strong style={{ fontSize: 14 }}>
-            รายชื่อกลุ่ม LINE
-          </Text>
-          {filterSchoolId && <Tag color="blue">โรงเรียน: {filterSchoolId}</Tag>}
-        </Flex>
-        <Space>
-          {selectedRowKeys.length > 0 && (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: 0.2 }}
+    >
+      <Card
+        className="shadow-sm border-none rounded-2xl overflow-hidden"
+        styles={{ body: { padding: "32px" } }}
+      >
+        <Flex
+          align="center"
+          justify="space-between"
+          style={{
+            marginBottom: "1rem",
+          }}
+        >
+          <Flex align="center" gap={12}>
+            <div className="p-2.5 bg-slate-50 dark:bg-slate-800 rounded-xl">
+              <UnorderedListOutlined style={{ fontSize: "1.1rem" }} />
+            </div>
+            <Flex vertical gap={3}>
+              <Text strong className="text-base tracking-tight">
+                รายชื่อกลุ่ม LINE
+              </Text>
+              {filterSchoolId ? (
+                <Text type="secondary" className="text-xs">
+                  กำลังแสดงผลลัพธ์ของโรงเรียน:{" "}
+                  <Text strong className="text-blue-500">
+                    {filterSchoolId}
+                  </Text>
+                </Text>
+              ) : (
+                <Text
+                  type="secondary"
+                  className="text-[11px] uppercase tracking-widest font-medium"
+                >
+                  Group Management
+                </Text>
+              )}
+            </Flex>
+          </Flex>
+          <Space size={16}>
+            {selectedRowKeys.length > 0 && (
+              <Button
+                type="primary"
+                icon={<SendOutlined />}
+                className="rounded-xl h-11 px-6 font-bold bg-[#06C755] hover:bg-[#05b14a] border-none shadow-lg shadow-green-100 transition-all active:scale-95"
+                onClick={() => setBatchModalOpen(true)}
+              >
+                ส่ง LINE ({selectedRowKeys.length})
+              </Button>
+            )}
             <Button
               type="primary"
-              icon={<SendOutlined />}
-              size="small"
-              style={{ background: "#06C755", border: "none" }}
-              onClick={() => setBatchModalOpen(true)}
+              icon={<PlusOutlined />}
+              onClick={openCreateModal}
+              className="rounded-xl h-11 px-6 font-bold shadow-lg shadow-blue-100 dark:shadow-none border-none bg-blue-600 hover:bg-blue-500 transition-all active:scale-95"
             >
-              ส่ง LINE ({selectedRowKeys.length} รายการ)
+              เพิ่มข้อมูล
             </Button>
-          )}
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            size="small"
-            onClick={openCreateModal}
-          >
-            เพิ่มข้อมูล
-          </Button>
-          <Button
-            icon={<ReloadOutlined />}
-            size="small"
-            loading={loading}
-            onClick={() => fetchData()}
-          >
-            รีเฟรช
-          </Button>
-        </Space>
-      </Flex>
+            <Button
+              icon={<ReloadOutlined />}
+              loading={loading}
+              onClick={() => fetchData()}
+              className="rounded-xl h-11 w-11 flex items-center justify-center border-slate-200 hover:text-blue-500 hover:border-blue-500 transition-all active:scale-95 bg-slate-50 dark:bg-slate-800 border-none"
+            />
+          </Space>
+        </Flex>
 
-      <Table
-        rowKey="LineGroupId"
-        columns={columns}
-        dataSource={items}
-        loading={loading}
-        rowSelection={{
-          type: "checkbox",
-          selectedRowKeys,
-          onChange: (keys) => setSelectedRowKeys(keys),
-          getCheckboxProps: (record: TLineGroupItem) => ({
-            disabled: !record.SchoolId,
-          }),
-        }}
-        pagination={{
-          current: pagination.page,
-          pageSize: pagination.page_size,
-          total: pagination.total,
-          showSizeChanger: false,
-          showTotal: (total) => `ทั้งหมด ${total} รายการ`,
-          onChange: (page) => {
+        <Table
+          rowKey="LineGroupId"
+          columns={columns}
+          dataSource={items}
+          loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            selectedRowKeys,
+            onChange: (keys) => setSelectedRowKeys(keys),
+            getCheckboxProps: (record: TLineGroupItem) => ({
+              disabled: !record.SchoolId,
+            }),
+          }}
+          pagination={{
+            current: pagination.page,
+            pageSize: pagination.page_size,
+            total: pagination.total,
+            showSizeChanger: false,
+            showTotal: (total) => `ทั้งหมด ${total} รายการ`,
+            onChange: (page) => {
+              setSelectedRowKeys([]);
+              fetchData(page);
+            },
+            className: "pt-8",
+          }}
+          size="middle"
+          scroll={{ x: 1000 }}
+          className="modern-table"
+          locale={{ emptyText: "ไม่พบข้อมูลกลุ่ม LINE ในระบบ" }}
+        />
+
+        <BatchSendModal
+          open={batchModalOpen}
+          selected={selectedItems}
+          onClose={() => {
+            setBatchModalOpen(false);
             setSelectedRowKeys([]);
-            fetchData(page);
-          },
-        }}
-        size="small"
-        scroll={{ x: 1000 }}
-        locale={{ emptyText: "ไม่พบข้อมูล" }}
-      />
-
-      <BatchSendModal
-        open={batchModalOpen}
-        selected={selectedItems}
-        onClose={() => {
-          setBatchModalOpen(false);
-          setSelectedRowKeys([]);
-        }}
-      />
-    </Card>
+          }}
+        />
+      </Card>
+    </motion.div>
   );
 };

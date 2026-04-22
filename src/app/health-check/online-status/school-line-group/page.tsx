@@ -4,7 +4,7 @@ import { TeamOutlined } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { StatusModalComponent } from "@components/modal/status-modal-component";
 import { HeaderBar } from "@components/typhography/header-bar-component";
-import { Flex } from "antd";
+import { Flex, theme } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 import { useEffect } from "react";
@@ -13,14 +13,16 @@ import { SchoolLineGroupModal } from "./_components/school-line-group-modal";
 import { SchoolLineGroupTable } from "./_components/school-line-group-table";
 import { SummarySection } from "./_components/summary-section";
 import { useSchoolLineGroupStore } from "./_state/use-school-line-group-store";
+import { motion } from "framer-motion";
 
 dayjs.locale("th");
 
 /**
  * หน้ารายการ LINE Group ตามโรงเรียน
- * ทำหน้าที่เป็น Orchestrator สำหรับประกอบ Component และจัด Layout
+ * ปรับปรุง Layout ให้มีความโปร่ง (Spacious) และมีระเบียบมากขึ้น
  */
 export default function SchoolLineGroupPage() {
+  const { token } = theme.useToken();
   const { fetchData, statusModal, deleteId, loading, closeModal, removeItem } =
     useSchoolLineGroupStore();
 
@@ -42,17 +44,27 @@ export default function SchoolLineGroupPage() {
 
   return (
     <DashboardLayout>
-      <div style={{ width: "100%", paddingBottom: 48 }}>
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="w-full pb-16 pt-2"
+      >
         <HeaderBar
           icon={<TeamOutlined />}
           title="รายชื่อกลุ่ม LINE ตามโรงเรียน"
           subTitle="จัดการและทดสอบการส่งรายงานสถานะฮาร์ดแวร์ไปยังกลุ่ม LINE ของแต่ละโรงเรียน"
         />
 
-        <Flex vertical gap={24} style={{ marginTop: 24 }}>
+        <Flex vertical gap={32} style={{ marginTop: 32 }}>
+          {/* ส่วนสรุปข้อมูล */}
           <SummarySection />
-          <FilterSection />
-          <SchoolLineGroupTable />
+          
+          {/* ส่วนตัวกรองและตารางข้อมูล */}
+          <Flex vertical gap={32}>
+            <FilterSection />
+            <SchoolLineGroupTable />
+          </Flex>
         </Flex>
 
         {/* Modal สำหรับ Create/Update */}
@@ -69,7 +81,7 @@ export default function SchoolLineGroupPage() {
           onClose={closeModal}
           onConfirm={handleConfirm}
         />
-      </div>
+      </motion.div>
     </DashboardLayout>
   );
 }
