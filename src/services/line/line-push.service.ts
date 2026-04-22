@@ -868,7 +868,7 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
   const lines: string[] = [
     `📋 รายงานสถานะอุปกรณ์ (Offline)`,
     ``,
-    `เรียนคุณ ${schoolName} ${schoolId}`,
+    `${schoolName} ${schoolId}`,
     ``,
     `📅 ประจำวันที่: ${reportDate} | เวลา: ${reportHour} น.`,
     ``,
