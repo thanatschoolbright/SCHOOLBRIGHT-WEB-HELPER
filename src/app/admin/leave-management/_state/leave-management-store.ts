@@ -1,10 +1,18 @@
 import { toast } from "sonner";
 import { create } from "zustand";
-import { responseLeaveList } from "../_api/leave-management-api";
+import {
+  requestConfirmLeave,
+  responseLeaveList,
+} from "../_api/leave-management-api";
 
 // --- Types ---
 export interface LeaveItem {
   id: number;
+  // letter_id คือ leaveLetterId จาก API ใช้ส่งไปใน confirmLeave
+  letter_id: number;
+  leave_letter_id: number;
+  // school_id_raw ของผู้ขอลา สำหรับส่งไปใน confirmLeave
+  school_id_raw: number;
   student_name: string;
   leave_type: string;
   start_date: string;
@@ -99,11 +107,15 @@ export const useLeaveManagementStore = create<LeaveManagementState>(
           const mappedLeaves: LeaveItem[] = Array.isArray(rawList)
             ? rawList.map((item: any) => ({
                 id: item.letterId || item.leaveLetterId,
+                letter_id: item.letterId,
+                leave_letter_id: item.leaveLetterId,
+                user_id_raw: item.leaveLetterId, // ใช้ leaveLetterId เป็น userid ในการ confirm
+                school_id_raw: item.SchoolID,
                 student_name: item.senderName || "ไม่ระบุชื่อ",
                 leave_type: item.letterType || "ไม่ระบุประเภท",
-                start_date: item.letterSubmitDate, // ในรายการหลักไม่มี Start/End แยกมาให้ จึงใช้วันที่ส่งไปก่อน
+                start_date: item.letterSubmitDate,
                 end_date: item.letterSubmitDate,
-                reason: "-", // รายการหลักไม่มี Reason
+                reason: "-",
                 status: item.ApprovedStatus?.TextTH || "รออนุมัติ",
                 created_at: item.letterSubmitDate,
               }))
@@ -147,11 +159,22 @@ export const useLeaveManagementStore = create<LeaveManagementState>(
     setSelectedRowKeys: (keys) => set({ selectedRowKeys: keys }),
     clearSelection: () => set({ selectedRowKeys: [] }),
 
-    // อนุมัติการลา (รองรับทั้งทีละคนและ batch)
+    // อนุมัติการลา (รองรับทั้งทีละคนและ batch โดย loop call API ทีละรายการ)
     approveLeave: async (ids) => {
       set({ isApproving: true });
       try {
-        // TODO: เรียก API อนุมัติทีละ id (API ยังไม่รองรับ batch)
+        const { leaves } = get();
+        // หา LeaveItem ที่ตรงกับ id ที่เลือกเพื่อนำ letter_id, user_id_raw, school_id_raw ไปใช้
+        const targets = leaves.filter((item) => ids.includes(item.id));
+        await Promise.all(
+          targets.map((item) =>
+            requestConfirmLeave({
+              letter_id: item.letter_id,
+              school_id: item.school_id_raw,
+              approve: "1",
+            }),
+          ),
+        );
         toast.success(`อนุมัติการลาจำนวน ${ids.length} รายการสำเร็จ`);
         set({ selectedRowKeys: [] });
         await get().fetchData();
@@ -162,11 +185,21 @@ export const useLeaveManagementStore = create<LeaveManagementState>(
       }
     },
 
-    // ไม่อนุมัติการลา (รองรับทั้งทีละคนและ batch)
+    // ไม่อนุมัติการลา (รองรับทั้งทีละคนและ batch โดย loop call API ทีละรายการ)
     rejectLeave: async (ids) => {
       set({ isApproving: true });
       try {
-        // TODO: เรียก API ไม่อนุมัติทีละ id (API ยังไม่รองรับ batch)
+        const { leaves } = get();
+        const targets = leaves.filter((item) => ids.includes(item.id));
+        await Promise.all(
+          targets.map((item) =>
+            requestConfirmLeave({
+              letter_id: item.letter_id,
+              school_id: item.school_id_raw,
+              approve: "0",
+            }),
+          ),
+        );
         toast.success(`ไม่อนุมัติการลาจำนวน ${ids.length} รายการสำเร็จ`);
         set({ selectedRowKeys: [] });
         await get().fetchData();

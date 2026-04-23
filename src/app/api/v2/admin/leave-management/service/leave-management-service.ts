@@ -1,6 +1,9 @@
 import axios from "axios";
 import https from "https";
-import { ReadLeaveManagementInput } from "../validation/leave-management-schema";
+import {
+  ApproveLeaveManagementInput,
+  ReadLeaveManagementInput,
+} from "../validation/leave-management-schema";
 
 const agent = new https.Agent({ rejectUnauthorized: false });
 
@@ -10,117 +13,100 @@ const agent = new https.Agent({ rejectUnauthorized: false });
  */
 export class LeaveManagementService {
   /**
-   * ดึง Token สำหรับเข้าใช้งาน API
+   * ดึง Token สำหรับเข้าใช้งาน API พร้อม userId และ schoolId ที่ได้จากการ Login
    */
   private static async getAuthToken() {
     const apiUrl = "https://apimobiledev.schoolbright.co";
     const loginEndpoint = "/api/login";
-    // เปลี่ยนมาใช้ GET params แทน URL query string string
     const loginUrl = `${apiUrl}${loginEndpoint}`;
 
-    console.log("🚀 [Auth] Starting login process...");
-    console.log(`🔗 [Auth] URL: ${loginUrl}`);
+    const response = await axios.get(loginUrl, {
+      params: {
+        user: "JJ00176",
+        pass: "-Lightdragon99",
+        schoolid: 39,
+        imei: "",
+      },
+      httpsAgent: agent,
+    });
 
-    try {
-      // ลองเปลี่ยนจาก POST เป็น GET ตามโครงสร้าง API บางตัวของ SchoolBright
-      const response = await axios.get(loginUrl, {
-        params: {
-          user: "JJ00176",
-          pass: "-Lightdragon99",
-          schoolid: 39,
-          imei: "",
-        },
-        httpsAgent: agent,
-      });
-
-      console.log("✅ [Auth] Login Success");
-      console.log(
-        "📦 [Auth] Response Data:",
-        JSON.stringify(response.data, null, 2),
-      );
-
-      if (response.data && response.data.token) {
-        return {
-          token: response.data.token,
-          userId: response.data.ID,
-          schoolId: response.data.SchoolId,
-        };
-      }
-      throw new Error("Login failed: Token not found in response");
-    } catch (error: any) {
-      console.error("❌ [Auth] Login Error:", error.message);
-      if (error.response) {
-        console.error("📂 [Auth] Error Status:", error.response.status);
-        console.error(
-          "📂 [Auth] Error Data:",
-          JSON.stringify(error.response.data, null, 2),
-        );
-      }
-      throw error;
+    if (response.data && response.data.token) {
+      return {
+        token: response.data.token,
+        userId: response.data.ID,
+        schoolId: response.data.SchoolId,
+      };
     }
+    throw new Error("Login failed: Token not found in response");
   }
 
   /**
    * ดึงรายการข้อมูลการลาทั้งหมด (Admin View)
    */
-  static async findAll(params: ReadLeaveManagementInput, headers: any) {
+  static async findAll(
+    params: ReadLeaveManagementInput,
+    _headers: Record<string, string>,
+  ) {
     const { userid, schoolid } = params;
     const apiUrl = "https://apimobiledev.schoolbright.co";
     const endpoint = `/api/LeaveLetterList`;
 
-    console.log("🔍 [FindAll] Request Parameters:", {
-      userid,
-      schoolid,
+    const auth = await this.getAuthToken();
+
+    const jabjaiKey = `JabjaiKey-${auth.schoolId}-${auth.userId}`;
+    // ส่งเฉพาะ JabjaiKey เท่านั้น ห้าม forward headers จาก browser เพราะจะทำให้ cookie/host ผิดพลาด
+    const customHeaders: Record<string, string> = {
+      [jabjaiKey]: auth.token,
+    };
+
+    const requestParams = {
+      userid: userid,
+      schoolid: schoolid || auth.schoolId,
+    };
+
+    const response = await axios.get(`${apiUrl}${endpoint}`, {
+      params: requestParams,
+      headers: customHeaders,
+      httpsAgent: agent,
     });
 
-    try {
-      // 1. ดึง Token
-      const auth = await this.getAuthToken();
+    return response.data;
+  }
 
-      // 2. จัดการ Header
-      // ใช้ ID และ SchoolId จาก Auth (Login) ตาม cURL ล่าสุด
-      const jabjaiKey = `JabjaiKey-${auth.schoolId}-${auth.userId}`;
-      const customHeaders = {
-        ...headers,
-        [jabjaiKey]: auth.token,
-      };
+  /**
+   * อนุมัติหรือไม่อนุมัติใบลาโดยอ้างอิงจาก letterId
+   * approve = "1" คืออนุมัติ, approve = "0" คือไม่อนุมัติ
+   */
+  static async confirmLeave(
+    params: ApproveLeaveManagementInput,
+    _headers: Record<string, string>,
+  ) {
+    const apiUrl = "https://apimobiledev.schoolbright.co";
+    const endpoint = "/api/confirmLeave";
 
-      console.log(`🔑 [FindAll] Header Key: ${jabjaiKey}`);
+    const auth = await this.getAuthToken();
 
-      // 3. ยิง API
-      // ใช้ค่าที่ส่งมาจากหน้าบ้านโดยตรงตาม format id/page
-      const requestParams = {
-        userid: userid,
-        schoolid: schoolid || auth.schoolId,
-      };
+    const jabjaiKey = `JabjaiKey-${auth.schoolId}-${auth.userId}`;
+    // ส่งเฉพาะ JabjaiKey เท่านั้น ห้าม forward headers จาก browser
+    const customHeaders: Record<string, string> = {
+      [jabjaiKey]: auth.token,
+    };
 
-      console.log("📡 [FindAll] Calling LeaveLetterList API...");
-      console.log(`🔗 [FindAll] URL: ${apiUrl}${endpoint}`);
-      console.log("📑 [FindAll] Final Query Params:", requestParams);
+    const requestParams = {
+      letterid: params.letter_id,
+      // userid คือ admin ที่ทำการอนุมัติ ดึงจาก auth token โดยตรง
+      userid: auth.userId,
+      schoolid: params.school_id,
+      approve: params.approve,
+      message: params.message || "",
+    };
 
-      const response = await axios.get(`${apiUrl}${endpoint}`, {
-        params: requestParams,
-        headers: customHeaders,
-        httpsAgent: agent,
-      });
+    const response = await axios.get(`${apiUrl}${endpoint}`, {
+      params: requestParams,
+      headers: customHeaders,
+      httpsAgent: agent,
+    });
 
-      console.log("✅ [FindAll] API Success");
-
-      const rawData = response.data;
-
-      // ส่งข้อมูลกลับไปแบบ raw data หรือ map ตามความเหมาะสม
-      // ในที่นี้เลือกส่งกลับแบบที่ Frontend จัดการต่อได้ง่าย
-      return rawData;
-    } catch (error: any) {
-      console.error("❌ [FindAll] Fetch Error:", error.message);
-      if (error.response) {
-        console.error("📂 [FindAll] Error Status:", error.response.status);
-        console.error(
-          "📂 [Auth] Error Data:",
-          JSON.stringify(error.response.data, null, 2),
-        );
-      }
-      throw error;
-    }
+    return response.data;
   }
 }
