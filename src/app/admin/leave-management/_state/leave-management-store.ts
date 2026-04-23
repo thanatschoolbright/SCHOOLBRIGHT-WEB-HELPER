@@ -23,6 +23,16 @@ export interface LeaveItem {
   school_name?: string;
 }
 
+export type BatchItemStatus = "waiting" | "processing" | "success" | "error";
+
+export interface BatchProgressItem {
+  id: number;
+  student_name: string;
+  leave_type: string;
+  status: BatchItemStatus;
+  error_message?: string;
+}
+
 export interface Pagination {
   total: number;
   current_page: number;
@@ -39,6 +49,10 @@ interface LeaveManagementState {
   // Batch selection
   selectedRowKeys: number[];
   isApproving: boolean;
+
+  // Batch progress modal
+  showProgressModal: boolean;
+  batchProgress: BatchProgressItem[];
 
   // Filters
   filters: {
@@ -58,6 +72,7 @@ interface LeaveManagementState {
   resetFilters: () => void;
   setSelectedRowKeys: (keys: number[]) => void;
   clearSelection: () => void;
+  setShowProgressModal: (visible: boolean) => void;
   approveLeave: (ids: number[]) => Promise<void>;
   rejectLeave: (ids: number[]) => Promise<void>;
 }
@@ -75,6 +90,8 @@ export const useLeaveManagementStore = create<LeaveManagementState>(
     isLoading: false,
     selectedRowKeys: [],
     isApproving: false,
+    showProgressModal: false,
+    batchProgress: [],
 
     filters: {
       page: 1,
@@ -158,56 +175,115 @@ export const useLeaveManagementStore = create<LeaveManagementState>(
     // จัดการ selected rows สำหรับ batch action
     setSelectedRowKeys: (keys) => set({ selectedRowKeys: keys }),
     clearSelection: () => set({ selectedRowKeys: [] }),
+    setShowProgressModal: (visible) => set({ showProgressModal: visible }),
 
-    // อนุมัติการลา (รองรับทั้งทีละคนและ batch โดย loop call API ทีละรายการ)
+    // อนุมัติการลา — ทำงาน sequential ทีละ 1 รายการพร้อมอัพเดต progress
     approveLeave: async (ids) => {
-      set({ isApproving: true });
-      try {
-        const { leaves } = get();
-        // หา LeaveItem ที่ตรงกับ id ที่เลือกเพื่อนำ letter_id, user_id_raw, school_id_raw ไปใช้
-        const targets = leaves.filter((item) => ids.includes(item.id));
-        await Promise.all(
-          targets.map((item) =>
-            requestConfirmLeave({
-              letter_id: item.letter_id,
-              school_id: item.school_id_raw,
-              approve: "1",
-            }),
+      const { leaves } = get();
+      const targets = leaves.filter((item) => ids.includes(item.id));
+
+      // ตั้งค่า initial progress ทุกรายการเป็น "รอคิว"
+      const initialProgress: BatchProgressItem[] = targets.map((item) => ({
+        id: item.id,
+        student_name: item.student_name,
+        leave_type: item.leave_type,
+        status: "waiting",
+      }));
+
+      set({
+        isApproving: true,
+        batchProgress: initialProgress,
+        showProgressModal: true,
+      });
+
+      // ประมวลผลทีละรายการ (sequential) ไม่ใช้ Promise.all
+      for (const item of targets) {
+        // อัพเดตสถานะรายการปัจจุบันเป็น "กำลังดำเนินการ"
+        set((state) => ({
+          batchProgress: state.batchProgress.map((p) =>
+            p.id === item.id ? { ...p, status: "processing" } : p,
           ),
-        );
-        toast.success(`อนุมัติการลาจำนวน ${ids.length} รายการสำเร็จ`);
-        set({ selectedRowKeys: [] });
-        await get().fetchData();
-      } catch {
-        toast.error("เกิดข้อผิดพลาดในการอนุมัติ");
-      } finally {
-        set({ isApproving: false });
+        }));
+
+        try {
+          await requestConfirmLeave({
+            letter_id: item.letter_id,
+            school_id: item.school_id_raw,
+            approve: "1",
+          });
+          // อัพเดตสถานะเป็น "สำเร็จ"
+          set((state) => ({
+            batchProgress: state.batchProgress.map((p) =>
+              p.id === item.id ? { ...p, status: "success" } : p,
+            ),
+          }));
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : "เกิดข้อผิดพลาด";
+          // อัพเดตสถานะเป็น "error"
+          set((state) => ({
+            batchProgress: state.batchProgress.map((p) =>
+              p.id === item.id
+                ? { ...p, status: "error", error_message: message }
+                : p,
+            ),
+          }));
+        }
       }
+
+      set({ isApproving: false, selectedRowKeys: [] });
+      await get().fetchData();
     },
 
-    // ไม่อนุมัติการลา (รองรับทั้งทีละคนและ batch โดย loop call API ทีละรายการ)
+    // ไม่อนุมัติการลา — ทำงาน sequential ทีละ 1 รายการพร้อมอัพเดต progress
     rejectLeave: async (ids) => {
-      set({ isApproving: true });
-      try {
-        const { leaves } = get();
-        const targets = leaves.filter((item) => ids.includes(item.id));
-        await Promise.all(
-          targets.map((item) =>
-            requestConfirmLeave({
-              letter_id: item.letter_id,
-              school_id: item.school_id_raw,
-              approve: "0",
-            }),
+      const { leaves } = get();
+      const targets = leaves.filter((item) => ids.includes(item.id));
+
+      const initialProgress: BatchProgressItem[] = targets.map((item) => ({
+        id: item.id,
+        student_name: item.student_name,
+        leave_type: item.leave_type,
+        status: "waiting",
+      }));
+
+      set({
+        isApproving: true,
+        batchProgress: initialProgress,
+        showProgressModal: true,
+      });
+
+      for (const item of targets) {
+        set((state) => ({
+          batchProgress: state.batchProgress.map((p) =>
+            p.id === item.id ? { ...p, status: "processing" } : p,
           ),
-        );
-        toast.success(`ไม่อนุมัติการลาจำนวน ${ids.length} รายการสำเร็จ`);
-        set({ selectedRowKeys: [] });
-        await get().fetchData();
-      } catch {
-        toast.error("เกิดข้อผิดพลาดในการไม่อนุมัติ");
-      } finally {
-        set({ isApproving: false });
+        }));
+
+        try {
+          await requestConfirmLeave({
+            letter_id: item.letter_id,
+            school_id: item.school_id_raw,
+            approve: "0",
+          });
+          set((state) => ({
+            batchProgress: state.batchProgress.map((p) =>
+              p.id === item.id ? { ...p, status: "success" } : p,
+            ),
+          }));
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : "เกิดข้อผิดพลาด";
+          set((state) => ({
+            batchProgress: state.batchProgress.map((p) =>
+              p.id === item.id
+                ? { ...p, status: "error", error_message: message }
+                : p,
+            ),
+          }));
+        }
       }
+
+      set({ isApproving: false, selectedRowKeys: [] });
+      await get().fetchData();
     },
 
     resetFilters: () => {

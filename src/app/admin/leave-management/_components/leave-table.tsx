@@ -21,6 +21,7 @@ import {
   LeaveItem,
   useLeaveManagementStore,
 } from "../_state/leave-management-store";
+import { BatchProgressModal } from "./batch-progress-modal";
 
 export const LeaveTable = () => {
   const {
@@ -244,6 +245,9 @@ export const LeaveTable = () => {
           },
         }}
       />
+
+      {/* Modal แสดงความคืบหน้าการ approve/reject แบบ batch */}
+      <BatchProgressModal />
     </Card>
   );
 };
