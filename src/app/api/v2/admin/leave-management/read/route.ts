@@ -11,14 +11,10 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const headers = sanitizeForwardHeaders(request);
 
-  // เตรียม Payload สำหรับตรวจสอบ
+  // เตรียม Payload สำหรับตรวจสอบให้ตรงกับ apimobiledev
   const queryParams = {
-    page: Number(searchParams.get("page")) || 1,
-    limit: Number(searchParams.get("limit")) || 50,
-    search: searchParams.get("search") || undefined,
-    start_date: searchParams.get("start_date") || undefined,
-    end_date: searchParams.get("end_date") || undefined,
-    school_id: searchParams.get("school_id") || undefined,
+    userid: searchParams.get("userid") || undefined,
+    schoolid: searchParams.get("schoolid") || undefined,
   };
 
   const validation = ReadLeaveManagementSchema.safeParse(queryParams);
