@@ -14,6 +14,7 @@
       "role_management": "จัดการบทบาทและสิทธิ์ (RBAC)",
       "position_management": "ตำแหน่ง",
       "department_management": "แผนก",
+      "leave_management": "จัดการการลาหยุด",
       "system_log": "ประวัติระบบ",
       "ot_management": "จัดการ OT (แอดมิน)"
     }

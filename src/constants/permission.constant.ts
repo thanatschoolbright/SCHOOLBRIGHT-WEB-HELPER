@@ -50,6 +50,7 @@ export const PERMISSIONS = {
   MENU_TIMESHEET_ALL: "menu.timesheet.all",
   MENU_TIMESHEET_OVERTIME: "menu.timesheet.overtime",
   MENU_OT_MANAGEMENT: "menu.admin.ot_management",
+  MENU_ADMIN_LEAVE: "menu.admin.leave_management",
 
   MENU_BACKLOGS: "menu.backlogs.report",
   MENU_LOGGER: "menu.logger.api_logs",

@@ -149,6 +149,15 @@ export const useSidebarMenu = (): SidebarItem[] => {
                 permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.ROLE_MANAGE],
               },
               {
+                label: t("admin_system.children.leave_management"),
+                href: "/admin/leave-management",
+                icon: <CalendarOutlined />,
+                permission: [
+                  PERMISSIONS.ADMIN_ACCESS,
+                  PERMISSIONS.MENU_ADMIN_LEAVE,
+                ],
+              },
+              {
                 label: t("admin_system.children.ot_management"),
                 href: "/admin/overtime-management",
                 icon: <SolutionOutlined />,
