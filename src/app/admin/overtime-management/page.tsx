@@ -488,23 +488,37 @@ export default function AdminOvertimeManagementPage() {
             return accumulator + (hourDiff > 0 ? hourDiff : 0);
           }, 0) || 0;
 
+        // คำนวณเวลา Actual จาก start_date/end_date จริง รองรับข้ามเที่ยงคืน
+        const calcActualMinutes = (
+          startIso: string | null,
+          endIso: string | null,
+        ): number => {
+          if (!startIso || !endIso) return 0;
+          let diff = dayjs(endIso).diff(dayjs(startIso), "minute");
+          // ถ้า diff ติดลบ แสดงว่าข้ามเที่ยงคืน → บวก 1 วัน
+          if (diff < 0) diff += 24 * 60;
+          return diff;
+        };
+
         const totalActualMinutes =
           data.descriptions?.reduce((accumulator: number, item: any) => {
-            if (!item?.start_date || !item?.end_date) return accumulator;
-            const minuteDiff = dayjs(item.end_date).diff(
-              dayjs(item.start_date),
-              "minute",
+            return (
+              accumulator +
+              calcActualMinutes(item.start_date ?? null, item.end_date ?? null)
             );
-            return accumulator + (minuteDiff > 0 ? minuteDiff : 0);
           }, 0) || 0;
 
         const firstDescription = data.descriptions?.[0] || {};
         const proofData = firstDescription.proof || {};
         const headerDate = data.request_date || data.created_at;
 
+        // แปลงนาทีเป็น "H ชม. MM นาที" สำหรับแสดงในเอกสาร
         const formatDurationToDecimal = (minutes: number) => {
-          if (!minutes || minutes <= 0) return "0.00";
-          return (minutes / 60).toFixed(2);
+          if (!minutes || minutes <= 0) return "0 ชม. 0 นาที";
+          const totalMinutes = Math.round(minutes);
+          const h = Math.floor(totalMinutes / 60);
+          const m = totalMinutes % 60;
+          return `${h} ชม. ${m} นาที`;
         };
 
         const [
@@ -639,7 +653,7 @@ export default function AdminOvertimeManagementPage() {
             <div class="ot-total-label">รวมเวลาทั้งหมด (Plan):</div>
             <div class="ot-total-value">${formatDurationToDecimal(
               totalBudgetHours * 60,
-            )} ชม.</div>
+            )}</div>
           </div>
 
           <div class="ot-sign-container-temp">
@@ -698,13 +712,11 @@ export default function AdminOvertimeManagementPage() {
               <tbody>
                 ${(data.descriptions || [])
                   .map((descriptionItem: any, itemIndex: number) => {
-                    const diffMinutes =
-                      descriptionItem.start_date && descriptionItem.end_date
-                        ? dayjs(descriptionItem.end_date).diff(
-                            dayjs(descriptionItem.start_date),
-                            "minute",
-                          )
-                        : 0;
+                    // คำนวณจาก start_date/end_date จริง รองรับข้ามเที่ยงคืน
+                    const diffMinutes = calcActualMinutes(
+                      descriptionItem.start_date ?? null,
+                      descriptionItem.end_date ?? null,
+                    );
 
                     return `<tr>
                       <td>${itemIndex + 1}</td>
@@ -739,7 +751,7 @@ export default function AdminOvertimeManagementPage() {
               <div style="margin-left:auto" class="ot-total-label">รวมเวลาปฏิบัติงานจริง (Actual):</div>
               <div class="ot-total-value">${formatDurationToDecimal(
                 totalActualMinutes,
-              )} ชม.</div>
+              )} </div>
             </div>
 
             <div class="ot-sign-container-temp">
