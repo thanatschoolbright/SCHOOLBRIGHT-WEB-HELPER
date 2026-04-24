@@ -31,6 +31,7 @@ import {
   Flex,
   Row,
   Space,
+  Tabs,
   Tag,
   Tooltip,
   Typography,
@@ -45,6 +46,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import DeviceTable from "./_components/device-table";
 import FilterSection from "./_components/filter-section";
+import { SchoolDeviceTab } from "./_components/school-device-tab";
 import {
   DashboardSummary,
   LineGroup,
@@ -182,7 +184,6 @@ export default function OnlineDeviceDashboard() {
       );
       const data = res?.data;
       if (data?.status_code === 200 || data?.status === 200) {
-        const d = data.data;
         setStatusModal({
           open: true,
           type: "success",
@@ -854,22 +855,41 @@ export default function OnlineDeviceDashboard() {
           </Row>
         )}
 
-        <div style={{ marginBottom: 24 }}>
-          <Collapse
-            defaultActiveKey={["1"]}
-            ghost
-            expandIconPosition="end"
-            items={collapseItems}
-            destroyOnHidden={false}
-            style={{
-              background: token.colorBgContainer,
-              borderRadius: 16,
-              border: "none",
-            }}
-          />
-        </div>
-
-        <DeviceTable />
+        <Tabs
+          defaultActiveKey="devices"
+          size="large"
+          style={{ marginTop: 8 }}
+          items={[
+            {
+              key: "devices",
+              label: "ดูอุปกรณ์ทั้งหมด",
+              children: (
+                <>
+                  <div style={{ marginBottom: 24 }}>
+                    <Collapse
+                      defaultActiveKey={["1"]}
+                      ghost
+                      expandIconPosition="end"
+                      items={collapseItems}
+                      destroyOnHidden={false}
+                      style={{
+                        background: token.colorBgContainer,
+                        borderRadius: 16,
+                        border: "none",
+                      }}
+                    />
+                  </div>
+                  <DeviceTable />
+                </>
+              ),
+            },
+            {
+              key: "by-school",
+              label: "ดูอุปกรณ์ตามรายชื่อโรงเรียน",
+              children: <SchoolDeviceTab />,
+            },
+          ]}
+        />
       </div>
 
       <StatusModalComponent
