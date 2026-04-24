@@ -12,6 +12,7 @@ import {
   MobileOutlined,
   ReloadOutlined,
   UnorderedListOutlined,
+  WarningOutlined,
   WifiOutlined,
 } from "@ant-design/icons";
 import { callApiService } from "@services/axios-instance/sb-helper.axios";
@@ -48,6 +49,8 @@ const { Text } = Typography;
 // ----------------------------------------
 // Types
 // ----------------------------------------
+type OfflineReason = "server_down" | "device_or_network" | null;
+
 interface DeviceDetail {
   device_id: string;
   app_name: string;
@@ -56,6 +59,7 @@ interface DeviceDetail {
   is_online: boolean;
   is_login: boolean;
   online_time: string | null;
+  offline_reason: OfflineReason;
 }
 
 interface SchoolDeviceSummaryItem {
@@ -64,6 +68,7 @@ interface SchoolDeviceSummaryItem {
   online: number;
   offline: number;
   total: number;
+  offline_reason: OfflineReason;
   devices: DeviceDetail[];
 }
 
@@ -88,6 +93,57 @@ const getAppIcon = (appName: string): React.ReactNode => {
     if (key.includes(pattern)) return icon;
   }
   return <DesktopOutlined style={{ fontSize: 16 }} />;
+};
+
+// ----------------------------------------
+// Offline Reason Badge
+// ----------------------------------------
+const OfflineReasonBadge = ({ reason }: { reason: OfflineReason }) => {
+  if (!reason) return null;
+  if (reason === "server_down") {
+    return (
+      <Tooltip title="เซิร์ฟเวอร์ฮาร์ดแวร์ไม่ตอบสนอง — น่าจะเกิดจากปัญหาฝั่งเซิร์ฟเวอร์">
+        <Flex
+          align="center"
+          gap={4}
+          style={{
+            marginTop: 4,
+            padding: "2px 6px",
+            borderRadius: 6,
+            background: "rgba(220,38,38,0.08)",
+            border: "1px solid rgba(220,38,38,0.2)",
+            cursor: "default",
+          }}
+        >
+          <WarningOutlined style={{ fontSize: 10, color: "#dc2626" }} />
+          <Text style={{ fontSize: 10, color: "#dc2626" }}>
+            เซิร์ฟเวอร์เกิดข้อขัดข้อง
+          </Text>
+        </Flex>
+      </Tooltip>
+    );
+  }
+  return (
+    <Tooltip title="เซิร์ฟเวอร์ฮาร์ดแวร์ปกติ — น่าจะเกิดจากอินเทอร์เน็ตของโรงเรียน หรือตัวเครื่องเสียหาย">
+      <Flex
+        align="center"
+        gap={4}
+        style={{
+          marginTop: 4,
+          padding: "2px 6px",
+          borderRadius: 6,
+          background: "rgba(217,119,6,0.08)",
+          border: "1px solid rgba(217,119,6,0.2)",
+          cursor: "default",
+        }}
+      >
+        <WarningOutlined style={{ fontSize: 10, color: "#d97706" }} />
+        <Text style={{ fontSize: 10, color: "#d97706" }}>
+          อินเทอร์เน็ต / ตัวเครื่องเสียหาย
+        </Text>
+      </Flex>
+    </Tooltip>
+  );
 };
 
 // ----------------------------------------
@@ -192,6 +248,9 @@ const DeviceGroupBlock = ({
                       v{device.app_version}
                     </Text>
                   )}
+                  {!effectiveOnline && (
+                    <OfflineReasonBadge reason={device.offline_reason} />
+                  )}
                 </Flex>
               </Flex>
 
@@ -261,7 +320,7 @@ export const SchoolDeviceTab = () => {
       const res = await callApiService.get(
         "/api/v2/hardware/school-device-summary",
       );
-      setData(res.data?.data ?? []);
+      setData(res.data?.data?.items ?? []);
     } finally {
       setLoading(false);
     }

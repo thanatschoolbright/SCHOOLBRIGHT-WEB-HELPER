@@ -523,6 +523,20 @@ export function buildDeviceStatusFlexMessage(stats: {
 
 const FIFTEEN_MIN_IN_MS = 15 * 60 * 1000;
 
+// ตรวจสอบสถานะ hardware server โดยยิง GET /api/application แล้วคืน true ถ้าได้ 200
+async function checkHardwareServerHealth(): Promise<boolean> {
+  try {
+    const { API_URL } = await import("@/services/api-url");
+    const res = await axios.get(`${API_URL.PROD_HARDWARE_API_URL}/api/application`, {
+      timeout: 8000,
+      validateStatus: () => true,
+    });
+    return res.status === 200;
+  } catch {
+    return false;
+  }
+}
+
 // ดึงข้อมูลจาก DB คำนวณสถานะ และสร้าง LINE messages array พร้อมส่ง
 // ใช้ร่วมกันระหว่าง cron-report และ webhook (คำสั่ง "สถานะ")
 export async function buildDeviceStatusReport(): Promise<object[]> {
@@ -977,8 +991,15 @@ function buildOfflineDeviceBubble(opts: {
   appVersion: string;
   offlineDuration: string;
   lastOnlineAt: string | null;
+  offlineReason: "device_or_network" | "server_down";
 }): object {
-  const { index, deviceName, deviceId, appName, appVersion, offlineDuration, lastOnlineAt } = opts;
+  const { index, deviceName, deviceId, appName, appVersion, offlineDuration, lastOnlineAt, offlineReason } = opts;
+  const reasonText =
+    offlineReason === "server_down"
+      ? "เซิร์ฟเวอร์เกิดข้อขัดข้อง"
+      : "อินเทอร์เน็ต / ตัวเครื่องเสียหาย";
+  const reasonColor =
+    offlineReason === "server_down" ? "#dc2626" : "#d97706";
 
   return {
     type: "bubble",
@@ -1079,6 +1100,31 @@ function buildOfflineDeviceBubble(opts: {
           color: lastOnlineAt ? "#e2e8f0" : "#475569",
           weight: "bold",
           margin: "xs",
+        },
+        { type: "separator", margin: "sm", color: "#334155" },
+        {
+          type: "box",
+          layout: "horizontal",
+          margin: "sm",
+          contents: [
+            {
+              type: "text",
+              text: "สาเหตุ",
+              size: "xxs",
+              color: "#94a3b8",
+              flex: 2,
+            },
+            {
+              type: "text",
+              text: reasonText,
+              size: "xxs",
+              color: reasonColor,
+              weight: "bold",
+              wrap: true,
+              align: "end",
+              flex: 4,
+            },
+          ],
         },
         {
           type: "text",
@@ -1256,9 +1302,16 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
     appVersion: string;
     offlineMinutes: number | null;
     lastOnlineAt: string | null;
+    offlineReason: "device_or_network" | "server_down";
   }
 
   const offlineDevices: OfflineDevice[] = [];
+
+  // ตรวจสอบ hardware server ก่อนวนเครื่อง เพื่อกำหนดสาเหตุ offline
+  const hardwareServerOk = await checkHardwareServerHealth();
+  const offlineReason: OfflineDevice["offlineReason"] = hardwareServerOk
+    ? "device_or_network"
+    : "server_down";
 
   for (const device of filteredDevices) {
     const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
@@ -1285,6 +1338,7 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
         lastOnlineAt: onlineTime
           ? dayjs(onlineTime).format("DD/MM/YYYY HH:mm")
           : null,
+        offlineReason,
       });
     }
   }
@@ -1331,6 +1385,7 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
       appVersion: d.appVersion,
       offlineDuration: formatOfflineDuration(d.offlineMinutes),
       lastOnlineAt: d.lastOnlineAt,
+      offlineReason: d.offlineReason,
     }),
   );
 
