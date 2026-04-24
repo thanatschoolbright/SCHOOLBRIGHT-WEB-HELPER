@@ -975,8 +975,9 @@ function buildOfflineDeviceBubble(opts: {
   appName: string;
   appVersion: string;
   offlineDuration: string;
+  lastOnlineAt: string | null;
 }): object {
-  const { index, deviceName, appName, appVersion, offlineDuration } = opts;
+  const { index, deviceName, appName, appVersion, offlineDuration, lastOnlineAt } = opts;
 
   return {
     type: "bubble",
@@ -1059,6 +1060,22 @@ function buildOfflineDeviceBubble(opts: {
           text: offlineDuration,
           size: "xl",
           color: "#f87171",
+          weight: "bold",
+          margin: "xs",
+        },
+        { type: "separator", margin: "md", color: "#334155" },
+        {
+          type: "text",
+          text: "ออนไลน์ล่าสุดเมื่อ",
+          size: "xxs",
+          color: "#94a3b8",
+          margin: "md",
+        },
+        {
+          type: "text",
+          text: lastOnlineAt ?? "ไม่มีข้อมูล",
+          size: "sm",
+          color: lastOnlineAt ? "#e2e8f0" : "#475569",
           weight: "bold",
           margin: "xs",
         },
@@ -1229,6 +1246,7 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
     appName: string;
     appVersion: string;
     offlineMinutes: number | null;
+    lastOnlineAt: string | null;
   }
 
   const offlineDevices: OfflineDevice[] = [];
@@ -1254,6 +1272,9 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
         appName: device.AppName ?? "ไม่ระบุแอป",
         appVersion: device.AppVersion ?? "-",
         offlineMinutes,
+        lastOnlineAt: onlineTime
+          ? dayjs(onlineTime).format("DD/MM/YYYY HH:mm")
+          : null,
       });
     }
   }
@@ -1298,6 +1319,7 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
       appName: d.appName,
       appVersion: d.appVersion,
       offlineDuration: formatOfflineDuration(d.offlineMinutes),
+      lastOnlineAt: d.lastOnlineAt,
     }),
   );
 
