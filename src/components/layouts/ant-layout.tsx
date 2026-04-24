@@ -177,6 +177,11 @@ const getModernTheme = (
         tailWidth: 2,
         dotBorderWidth: 3,
       },
+      Drawer: {
+        colorBgElevated: palette.bgElevated,
+        colorText: palette.textMain,
+        colorTextHeading: palette.textMain,
+      },
     },
   };
 };
@@ -248,6 +253,12 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
           {isMounted && (
             <style jsx global>{`
               :root {
+                --modal-bg: ${isDark ? "#1E293B" : "#FFFFFF"};
+                --border: ${palette.border};
+                --text-main: ${palette.textMain};
+                --modal-mask-bg: ${isDark
+                  ? "rgba(0, 0, 0, 0.5)"
+                  : "rgba(0, 0, 0, 0.45)"};
                 --font-family-current: ${FONTS[themeFont]};
               }
               body {
@@ -475,10 +486,10 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
 
               /* Overlay — hardcoded colors (CSS variables don't reach portal) */
               .ant-modal-mask {
-                background: rgba(0, 0, 0, 0.3) !important;
+                background: var(--modal-mask-bg) !important;
               }
               .dark .ant-modal-mask {
-                background: rgba(0, 0, 0, 0.45) !important;
+                background: var(--modal-mask-bg) !important;
               }
 
               /* Wrapper centering */
@@ -491,14 +502,14 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 border-radius: 24px !important;
                 overflow: hidden !important;
                 padding: 0 !important;
-                background: #ffffff !important;
-                border: 1px solid #e2e8f0 !important;
+                background: var(--modal-bg) !important;
+                border: 1px solid var(--border) !important;
                 box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.08),
                   0 24px 48px -12px rgba(0, 0, 0, 0.12) !important;
               }
               .dark .ant-modal-content {
-                background: #1e293b !important;
-                border: 1px solid #334155 !important;
+                background: var(--modal-bg) !important;
+                border: 1px solid var(--border) !important;
                 box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.4),
                   0 32px 64px -16px rgba(0, 0, 0, 0.6) !important;
               }
@@ -507,43 +518,44 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
               .ant-modal-header {
                 padding: 24px 28px 16px !important;
                 margin-bottom: 0 !important;
-                background: transparent !important;
-                border-bottom: 1px solid #f1f5f9 !important;
+                background: var(--modal-bg) !important;
+                border-bottom: 1px solid var(--border) !important;
               }
               .dark .ant-modal-header {
-                border-bottom-color: #334155 !important;
+                background: var(--modal-bg) !important;
               }
               .ant-modal-title {
                 font-size: 16px !important;
                 font-weight: 700 !important;
                 letter-spacing: -0.01em !important;
-                color: #0f172a !important;
+                color: var(--text-main) !important;
               }
               .dark .ant-modal-title {
-                color: #f8fafc !important;
+                color: var(--text-main) !important;
               }
 
               /* Body */
               .ant-modal-body {
                 padding: 20px 28px !important;
-                color: #374151;
+                background: var(--modal-bg) !important;
+                color: var(--text-main) !important;
               }
               .dark .ant-modal-body {
-                color: #cbd5e1 !important;
+                background: var(--modal-bg) !important;
               }
 
               /* Footer */
               .ant-modal-footer {
                 padding: 16px 28px 24px !important;
                 margin-top: 0 !important;
-                background: transparent !important;
-                border-top: 1px solid #f1f5f9 !important;
+                background: var(--modal-bg) !important;
+                border-top: 1px solid var(--border) !important;
                 display: flex !important;
                 justify-content: flex-end !important;
                 gap: 8px !important;
               }
               .dark .ant-modal-footer {
-                border-top-color: #334155 !important;
+                background: var(--modal-bg) !important;
               }
 
               /* Close button */
@@ -553,22 +565,22 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 width: 32px !important;
                 height: 32px !important;
                 border-radius: 50% !important;
-                background: #f1f5f9 !important;
-                color: #64748b !important;
+                background: var(--border) !important;
+                color: var(--text-main) !important;
                 transition: all 0.2s ease !important;
               }
               .ant-modal-close:hover {
-                background: #e2e8f0 !important;
-                color: #0f172a !important;
+                background: var(--border) !important;
+                color: var(--text-main) !important;
                 transform: rotate(90deg) !important;
+                opacity: 0.8;
               }
               .dark .ant-modal-close {
-                background: rgba(51, 65, 85, 0.8) !important;
-                color: #94a3b8 !important;
+                background: var(--border) !important;
               }
               .dark .ant-modal-close:hover {
-                background: #475569 !important;
-                color: #f8fafc !important;
+                background: var(--border) !important;
+                opacity: 1;
               }
 
               /* Confirm Modal icon row */
@@ -587,13 +599,13 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
               }
               .ant-modal-confirm-btns {
                 padding: 16px 28px 24px !important;
-                border-top: 1px solid #f1f5f9 !important;
+                border-top: 1px solid var(--border) !important;
                 display: flex !important;
                 gap: 8px !important;
                 justify-content: flex-end !important;
               }
               .dark .ant-modal-confirm-btns {
-                border-top-color: #334155 !important;
+                border-top-color: var(--border) !important;
               }
 
               /* Fix Body Scroll Lock for Modal and Drawer */
@@ -605,13 +617,14 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
 
               /* Apple Store Connect Style Drawer */
               .ant-drawer-mask {
-                background: rgba(0, 0, 0, 0.45) !important;
+                background: var(--modal-mask-bg) !important;
                 backdrop-filter: blur(4px) !important;
                 -webkit-backdrop-filter: blur(4px) !important;
               }
               .ant-drawer-content-wrapper {
                 padding: 16px !important;
                 box-sizing: border-box !important;
+                background: transparent !important;
               }
               .ant-drawer-content {
                 background: var(--modal-bg) !important;
@@ -621,6 +634,7 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 overflow: hidden !important;
               }
               .ant-drawer-header {
+                background: var(--modal-bg) !important;
                 border-bottom: 1px solid var(--border) !important;
                 padding: 20px 24px !important;
               }
@@ -629,9 +643,11 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 color: var(--text-main) !important;
               }
               .ant-drawer-body {
+                background: var(--modal-bg) !important;
                 padding: 24px !important;
               }
               .ant-drawer-footer {
+                background: var(--modal-bg) !important;
                 border-top: 1px solid var(--border) !important;
                 padding: 16px 24px !important;
               }

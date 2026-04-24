@@ -449,7 +449,7 @@ export function buildOfflineDetailTextMessages(
     `แจ้งเตือน : เครื่อง POS ออฟไลน์`,
     `เวลา : ${reportTime}`,
     `จำนวนทั้งหมด : ${totalOffline} เครื่อง จาก ${sorted.length} โรงเรียน`,
-    `━━━━━━━━━━━━━━━━━━━━━━━━`,
+    ``,
   ].join("\n");
 
   const footer = [
@@ -866,20 +866,20 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
   const reportHour = dayjs().format("HH:mm");
 
   const lines: string[] = [
-    `📋 รายงานสถานะอุปกรณ์ (Offline)`,
+    `📋 รายงานสถานะอุปกรณ์`,
     ``,
-    `${schoolName} ${schoolId}`,
+    `${schoolName}`,
     ``,
     `📅 ประจำวันที่: ${reportDate} | เวลา: ${reportHour} น.`,
     ``,
-    `━━━━━━━━━━━━━━━━━━━━━━━━`,
+    `━━━━━━━━━━━━━━`,
   ];
 
   if (offlineDevices.length === 0) {
     lines.push(``);
     lines.push(`ทุกเครื่องออนไลน์ปกติ ไม่มีเครื่องออฟไลน์`);
     lines.push(``);
-    lines.push(`━━━━━━━━━━━━━━━━━━━━━━━━`);
+    lines.push(`━━━━━━━━━━━━━━`);
   } else {
     lines.push(``);
     lines.push(`🔴 รายชื่อเครื่องที่ออฟไลน์`);
