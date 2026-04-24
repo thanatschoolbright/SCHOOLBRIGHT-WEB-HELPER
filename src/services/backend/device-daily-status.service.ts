@@ -123,16 +123,15 @@ export const DeviceDailyStatusService = {
       ]);
 
       const now = new Date();
-      const FIFTEEN_MIN_IN_MS = 15 * 60 * 1000;
+      const TEN_MIN_IN_MS = 10 * 60 * 1000;
 
       const data = rawData.map((device) => {
         const onlineTime = device.OnlineTime
           ? new Date(device.OnlineTime)
           : null;
         const isOnlineDynamic =
-          device.Online === true ||
           (onlineTime
-            ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
+            ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
             : false);
 
         return {
@@ -160,7 +159,7 @@ export const DeviceDailyStatusService = {
     });
 
     const now = new Date();
-    const FIFTEEN_MIN_IN_MS = 15 * 60 * 1000;
+    const TEN_MIN_IN_MS = 10 * 60 * 1000;
     const filterIsOnline = String(isOnline) === "true";
 
     const filteredData = allMatchingDevices
@@ -169,9 +168,8 @@ export const DeviceDailyStatusService = {
           ? new Date(device.OnlineTime)
           : null;
         const isOnlineDynamic =
-          device.Online === true ||
           (onlineTime
-            ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
+            ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
             : false);
 
         return {

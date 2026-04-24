@@ -5,7 +5,7 @@ import "dayjs/locale/th";
 
 dayjs.locale("th");
 
-const FIFTEEN_MIN_IN_MS = 15 * 60 * 1000;
+const TEN_MIN_IN_MS = 10 * 60 * 1000;
 
 // อีเมลที่รับรายงานสถานะเครื่อง POS
 const REPORT_EMAILS = [
@@ -121,9 +121,8 @@ export async function fetchDeviceStats(): Promise<{
   const devices: DeviceStatusData[] = allDevices.map((d) => {
     const onlineTime = d.OnlineTime ? new Date(d.OnlineTime) : null;
     const isOnline =
-      d.Online === true ||
       (onlineTime
-        ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
+        ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
         : false);
     return { ...d, Online: isOnline };
   });

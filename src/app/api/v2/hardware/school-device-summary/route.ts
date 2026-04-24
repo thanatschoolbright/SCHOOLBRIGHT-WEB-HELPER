@@ -4,7 +4,7 @@ import prisma from "@helpers/prisma";
 import axios from "axios";
 import { NextResponse } from "next/server";
 
-const FIFTEEN_MIN_IN_MS = 15 * 60 * 1000;
+const TEN_MIN_IN_MS = 10 * 60 * 1000;
 
 export interface SchoolDeviceSummaryItem {
   school_id: number;
@@ -82,9 +82,8 @@ export async function GET(): Promise<NextResponse> {
     for (const device of allDevices) {
       const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
       const isOnline =
-        device.Online === true ||
         (onlineTime
-          ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
+          ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
           : false);
 
       if (!schoolMap.has(device.SchoolID)) {

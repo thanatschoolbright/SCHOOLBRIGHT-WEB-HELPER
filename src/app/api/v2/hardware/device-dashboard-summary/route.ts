@@ -2,7 +2,7 @@ import { errorResponse, successResponse } from "@/helpers/api/response";
 import prisma from "@helpers/prisma";
 import { NextResponse } from "next/server";
 
-const FIFTEEN_MIN_IN_MS = 15 * 60 * 1000;
+const TEN_MIN_IN_MS = 10 * 60 * 1000;
 
 // GET handler ดึงสถิติ Dashboard ภาพรวมอุปกรณ์ทั้งหมด ไม่ขึ้นกับ filter ใดๆ
 export async function GET() {
@@ -30,9 +30,8 @@ export async function GET() {
     for (const device of allDevices) {
       const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
       const isOnlineDynamic =
-        device.Online === true ||
         (onlineTime
-          ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
+          ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
           : false);
 
       if (isOnlineDynamic) online++;

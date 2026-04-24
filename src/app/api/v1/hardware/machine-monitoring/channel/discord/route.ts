@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 dayjs.locale("th");
 
-const FIFTEEN_MIN_IN_MS = 15 * 60 * 1000;
+const TEN_MIN_IN_MS = 10 * 60 * 1000;
 const CRITICAL_THRESHOLD = 5;
 const FIELD_CHAR_LIMIT = 1000;
 const MAX_EMBED_FIELDS = 24;
@@ -16,7 +16,7 @@ const MAX_EMBED_FIELDS = 24;
 function isDeviceOnline(online: boolean, onlineTime: Date | null, now: Date): boolean {
   if (online) return true;
   if (!onlineTime) return false;
-  return now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS;
+  return now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS;
 }
 
 // เลือกสี embed ตามจำนวน offline

@@ -149,8 +149,6 @@ const OfflineReasonBadge = ({ reason }: { reason: OfflineReason }) => {
 // ----------------------------------------
 // Device Group ใน Drawer
 // ----------------------------------------
-const FIFTEEN_MIN_MS = 15 * 60 * 1000;
-
 const DeviceGroupBlock = ({
   appName,
   devices,
@@ -201,11 +199,7 @@ const DeviceGroupBlock = ({
           const lastSeen = device.online_time
             ? dayjs.tz(device.online_time).fromNow()
             : null;
-          const isRecentOnline = device.online_time
-            ? Date.now() - dayjs.tz(device.online_time).valueOf() <=
-              FIFTEEN_MIN_MS
-            : false;
-          const effectiveOnline = device.is_online || isRecentOnline;
+          const effectiveOnline = device.is_online;
 
           return (
             <Flex

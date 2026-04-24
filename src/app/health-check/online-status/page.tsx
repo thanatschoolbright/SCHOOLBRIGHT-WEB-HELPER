@@ -877,12 +877,10 @@ export default function OnlineDeviceDashboard() {
               <ClockCircleOutlined style={{ color: "#6366f1", fontSize: 13, marginTop: 2, flexShrink: 0 }} />
               <AntText style={{ fontSize: 12 }}>
                 <AntText strong style={{ fontSize: 12 }}>เงื่อนไขออนไลน์ :</AntText>
-                {" "}เครื่องถือว่าออนไลน์เมื่อ flag{" "}
-                <code style={{ fontSize: 11, padding: "1px 5px", borderRadius: 4, background: "rgba(99,102,241,0.1)", color: "#6366f1" }}>Online = true</code>
-                {" "}หรือ{" "}
+                {" "}เครื่องถือว่าออนไลน์เมื่อ{" "}
                 <code style={{ fontSize: 11, padding: "1px 5px", borderRadius: 4, background: "rgba(99,102,241,0.1)", color: "#6366f1" }}>OnlineTime</code>
                 {" "}ล่าสุดไม่เกิน{" "}
-                <AntText strong style={{ fontSize: 12, color: "#6366f1" }}>15 นาที</AntText>
+                <AntText strong style={{ fontSize: 12, color: "#6366f1" }}>10 นาที</AntText>
                 {" "}ที่ผ่านมา
               </AntText>
             </Flex>

@@ -11,7 +11,7 @@ export class ExportDeviceStatusService {
    */
   static async generateDeviceStatusExcel(): Promise<Buffer> {
     const now = new Date();
-    const FIFTEEN_MIN_IN_MS = 15 * 60 * 1000;
+    const TEN_MIN_IN_MS = 10 * 60 * 1000;
 
     try {
       // 1. ดึงข้อมูลจากฐานข้อมูล
@@ -110,9 +110,8 @@ export class ExportDeviceStatusService {
       for (const device of devices) {
         const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
         const isOnline =
-          device.Online === true ||
           (onlineTime
-            ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
+            ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
             : false);
 
         // เพิ่มเว้นวรรคหรือหัวข้อถัดไปถ้าเปลี่ยนโรงเรียน

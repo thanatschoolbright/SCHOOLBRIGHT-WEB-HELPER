@@ -521,7 +521,7 @@ export function buildDeviceStatusFlexMessage(stats: {
   };
 }
 
-const FIFTEEN_MIN_IN_MS = 15 * 60 * 1000;
+const TEN_MIN_IN_MS = 10 * 60 * 1000;
 
 // ตรวจสอบสถานะ hardware server โดยยิง GET /api/application แล้วคืน true ถ้าได้ 200
 async function checkHardwareServerHealth(): Promise<boolean> {
@@ -583,9 +583,8 @@ export async function buildDeviceStatusReport(): Promise<object[]> {
   for (const device of allDevices) {
     const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
     const isOnlineDynamic =
-      device.Online === true ||
       (onlineTime
-        ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
+        ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
         : false);
 
     if (isOnlineDynamic) online++;
@@ -730,9 +729,8 @@ export async function buildSchoolStatusReport(
   for (const device of allDevices) {
     const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
     const isOnline =
-      device.Online === true ||
       (onlineTime
-        ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
+        ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
         : false);
 
     const entry = schoolMap.get(device.SchoolID);
@@ -1316,9 +1314,8 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
   for (const device of filteredDevices) {
     const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
     const isOnline =
-      device.Online === true ||
       (onlineTime
-        ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
+        ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
         : false);
 
     if (isOnline) {
