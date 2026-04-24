@@ -782,6 +782,375 @@ export async function buildSchoolStatusReport(
   return chunks.slice(0, 5).map((text) => ({ type: "text", text }));
 }
 
+// แปลง offlineMinutes เป็นข้อความภาษาไทย
+function formatOfflineDuration(offlineMinutes: number | null): string {
+  if (offlineMinutes === null) return "ไม่ทราบเวลา";
+  const days = Math.floor(offlineMinutes / (60 * 24));
+  const hours = Math.floor((offlineMinutes % (60 * 24)) / 60);
+  const mins = offlineMinutes % 60;
+  const parts: string[] = [];
+  if (days > 0) parts.push(`${days} วัน`);
+  if (hours > 0) parts.push(`${hours} ชม.`);
+  parts.push(`${mins} น.`);
+  return parts.join(" ");
+}
+
+// สร้าง bubble สรุปภาพรวมของโรงเรียนเดียว (card แรก)
+function buildSchoolSummaryBubble(opts: {
+  schoolName: string;
+  schoolId: number;
+  total: number;
+  online: number;
+  offline: number;
+  reportTime: string;
+  hiddenCount: number;
+}): object {
+  const { schoolName, schoolId, total, online, offline, reportTime, hiddenCount } = opts;
+  const { color, label, headerBg } = resolveStatusStyle(offline);
+  const onlineRate = total === 0 ? 0 : Math.round((online / total) * 100);
+  const progressBar = buildProgressBar(onlineRate);
+
+  return {
+    type: "bubble",
+    size: "kilo",
+    header: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: "#0f172a",
+      paddingAll: "16px",
+      contents: [
+        {
+          type: "text",
+          text: "SchoolBright Helper",
+          size: "xxs",
+          color: "#64748b",
+          weight: "bold",
+        },
+        {
+          type: "text",
+          text: "รายงานสถานะอุปกรณ์",
+          size: "md",
+          color: "#f8fafc",
+          weight: "bold",
+          margin: "xs",
+        },
+        {
+          type: "text",
+          text: reportTime,
+          size: "xxs",
+          color: "#94a3b8",
+          margin: "xs",
+        },
+      ],
+    },
+    hero: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: headerBg,
+      paddingAll: "10px",
+      contents: [
+        {
+          type: "text",
+          text: `สถานะ: ${label}`,
+          color: "#ffffff",
+          size: "sm",
+          weight: "bold",
+          align: "center",
+        },
+      ],
+    },
+    body: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: "#1e293b",
+      paddingAll: "16px",
+      spacing: "sm",
+      contents: [
+        {
+          type: "text",
+          text: schoolName,
+          size: "sm",
+          color: "#f8fafc",
+          weight: "bold",
+          wrap: true,
+        },
+        {
+          type: "text",
+          text: `รหัส ${schoolId}`,
+          size: "xxs",
+          color: "#64748b",
+          margin: "xs",
+        },
+        { type: "separator", margin: "sm", color: "#334155" },
+        buildStatRow("ทั้งหมด", `${total} เครื่อง`, "#e2e8f0"),
+        buildStatRow("ออนไลน์", `${online} เครื่อง`, "#4ade80"),
+        buildStatRow(
+          "ออฟไลน์",
+          `${offline} เครื่อง`,
+          offline > 0 ? "#f87171" : "#4ade80",
+        ),
+        { type: "separator", margin: "sm", color: "#334155" },
+        {
+          type: "box",
+          layout: "vertical",
+          margin: "sm",
+          spacing: "xs",
+          contents: [
+            {
+              type: "box",
+              layout: "horizontal",
+              contents: [
+                { type: "text", text: "อัตราออนไลน์", size: "xs", color: "#94a3b8", flex: 3 },
+                { type: "text", text: `${onlineRate}%`, size: "xs", color, weight: "bold", align: "end", flex: 2 },
+              ],
+            },
+            { type: "text", text: progressBar, size: "xs", color, margin: "xs" },
+          ],
+        },
+        ...(hiddenCount > 0
+          ? [
+              { type: "separator", margin: "sm", color: "#334155" },
+              {
+                type: "text",
+                text: `และอีก ${hiddenCount} เครื่องที่ไม่ได้แสดง`,
+                size: "xxs",
+                color: "#94a3b8",
+                wrap: true,
+                margin: "sm",
+              },
+            ]
+          : []),
+      ],
+    },
+    footer: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: "#0f172a",
+      paddingAll: "8px",
+      contents: [
+        {
+          type: "text",
+          text: "Auto Report · SchoolBright",
+          size: "xxs",
+          color: "#475569",
+          align: "center",
+        },
+      ],
+    },
+  };
+}
+
+// สร้าง bubble แสดงรายละเอียดเครื่องออฟไลน์ 1 เครื่อง
+function buildOfflineDeviceBubble(opts: {
+  index: number;
+  deviceName: string;
+  deviceId: string;
+  appName: string;
+  appVersion: string;
+  offlineDuration: string;
+}): object {
+  const { index, deviceName, deviceId, appName, appVersion, offlineDuration } = opts;
+
+  return {
+    type: "bubble",
+    size: "kilo",
+    header: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: "#7f1d1d",
+      paddingAll: "12px",
+      contents: [
+        {
+          type: "box",
+          layout: "horizontal",
+          contents: [
+            {
+              type: "box",
+              layout: "vertical",
+              backgroundColor: "#dc2626",
+              cornerRadius: "12px",
+              paddingTop: "2px",
+              paddingBottom: "2px",
+              paddingStart: "8px",
+              paddingEnd: "8px",
+              contents: [
+                {
+                  type: "text",
+                  text: `#${index}`,
+                  size: "xxs",
+                  color: "#ffffff",
+                  weight: "bold",
+                },
+              ],
+            },
+            {
+              type: "text",
+              text: "OFFLINE",
+              size: "xxs",
+              color: "#fca5a5",
+              weight: "bold",
+              margin: "sm",
+              align: "end",
+              flex: 1,
+            },
+          ],
+        },
+        {
+          type: "text",
+          text: deviceName,
+          size: "sm",
+          color: "#ffffff",
+          weight: "bold",
+          wrap: true,
+          margin: "sm",
+        },
+      ],
+    },
+    body: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: "#1e293b",
+      paddingAll: "14px",
+      spacing: "sm",
+      contents: [
+        buildStatRow("Device ID", deviceId, "#e2e8f0"),
+        buildStatRow("แอป", appName, "#c084fc"),
+        buildStatRow("เวอร์ชัน", `v${appVersion}`, "#60a5fa"),
+        { type: "separator", margin: "sm", color: "#334155" },
+        {
+          type: "box",
+          layout: "horizontal",
+          margin: "sm",
+          contents: [
+            {
+              type: "text",
+              text: "ออฟไลน์นาน",
+              size: "xs",
+              color: "#94a3b8",
+              flex: 3,
+            },
+            {
+              type: "text",
+              text: offlineDuration,
+              size: "xs",
+              color: "#f87171",
+              weight: "bold",
+              align: "end",
+              flex: 3,
+              wrap: true,
+            },
+          ],
+        },
+      ],
+    },
+  };
+}
+
+// สร้าง bubble แสดงสถานะ "ทุกเครื่องออนไลน์" เมื่อไม่มีเครื่องออฟไลน์
+function buildAllOnlineBubble(opts: {
+  schoolName: string;
+  total: number;
+  reportTime: string;
+}): object {
+  const { schoolName, total, reportTime } = opts;
+  return {
+    type: "bubble",
+    size: "kilo",
+    header: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: "#0f172a",
+      paddingAll: "16px",
+      contents: [
+        {
+          type: "text",
+          text: "SchoolBright Helper",
+          size: "xxs",
+          color: "#64748b",
+          weight: "bold",
+        },
+        {
+          type: "text",
+          text: "รายงานสถานะอุปกรณ์",
+          size: "md",
+          color: "#f8fafc",
+          weight: "bold",
+          margin: "xs",
+        },
+        {
+          type: "text",
+          text: reportTime,
+          size: "xxs",
+          color: "#94a3b8",
+          margin: "xs",
+        },
+      ],
+    },
+    hero: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: "#14532d",
+      paddingAll: "10px",
+      contents: [
+        {
+          type: "text",
+          text: "สถานะ: ระบบปกติ",
+          color: "#ffffff",
+          size: "sm",
+          weight: "bold",
+          align: "center",
+        },
+      ],
+    },
+    body: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: "#1e293b",
+      paddingAll: "16px",
+      spacing: "sm",
+      contents: [
+        {
+          type: "text",
+          text: schoolName,
+          size: "sm",
+          color: "#f8fafc",
+          weight: "bold",
+          wrap: true,
+        },
+        { type: "separator", margin: "md", color: "#334155" },
+        {
+          type: "text",
+          text: "ทุกเครื่องออนไลน์ปกติ",
+          size: "sm",
+          color: "#4ade80",
+          weight: "bold",
+          align: "center",
+          margin: "md",
+        },
+        buildStatRow("จำนวนทั้งหมด", `${total} เครื่อง`, "#e2e8f0"),
+      ],
+    },
+    footer: {
+      type: "box",
+      layout: "vertical",
+      backgroundColor: "#0f172a",
+      paddingAll: "8px",
+      contents: [
+        {
+          type: "text",
+          text: "Auto Report · SchoolBright",
+          size: "xxs",
+          color: "#475569",
+          align: "center",
+        },
+      ],
+    },
+  };
+}
+
+// สูงสุด 9 bubble เครื่องออฟไลน์ + 1 summary = 10 (ขีดจำกัด carousel)
+const MAX_DEVICE_BUBBLES = 9;
+
 // สร้าง LINE message รายงานสถานะเครื่องฮาร์ดแวร์ของโรงเรียนเดียว พร้อมหมายเลขลำดับ
 export async function buildSchoolDeviceReport(schoolId: number): Promise<{
   messages: object[];
@@ -791,6 +1160,7 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
   offline: number;
 }> {
   const now = new Date();
+  const reportTime = dayjs().format("DD/MM/YYYY HH:mm") + " น.";
 
   const school = await prisma.activeSchoolList.findFirst({
     where: { nCompany: schoolId },
@@ -799,12 +1169,7 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
 
   if (!school) {
     return {
-      messages: [
-        {
-          type: "text",
-          text: `ไม่พบข้อมูลโรงเรียน รหัส ${schoolId}`,
-        },
-      ],
+      messages: [{ type: "text", text: `ไม่พบข้อมูลโรงเรียน รหัส ${schoolId}` }],
       schoolName: `โรงเรียน ${schoolId}`,
       total: 0,
       online: 0,
@@ -836,8 +1201,17 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
   let onlineCount = 0;
   let offlineCount = 0;
 
-  // คำนวณสถานะก่อน เพื่อใช้นับ online/offline ของเครื่องที่ผ่านการกรอง
-  const deviceStatuses = filteredDevices.map((device) => {
+  interface OfflineDevice {
+    deviceName: string;
+    deviceId: string;
+    appName: string;
+    appVersion: string;
+    offlineMinutes: number | null;
+  }
+
+  const offlineDevices: OfflineDevice[] = [];
+
+  for (const device of filteredDevices) {
     const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
     const isOnline =
       device.Online === true ||
@@ -845,108 +1219,79 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
         ? now.getTime() - onlineTime.getTime() <= FIFTEEN_MIN_IN_MS
         : false);
 
-    let offlineMinutes: number | null = null;
-    if (!isOnline && onlineTime) {
-      offlineMinutes = Math.floor(
-        (now.getTime() - onlineTime.getTime()) / (60 * 1000),
-      );
+    if (isOnline) {
+      onlineCount++;
+    } else {
+      offlineCount++;
+      const offlineMinutes =
+        onlineTime !== null
+          ? Math.floor((now.getTime() - onlineTime.getTime()) / (60 * 1000))
+          : null;
+      offlineDevices.push({
+        deviceName: device.Note?.trim() || "ไม่ระบุชื่อเครื่อง",
+        deviceId: device.DeviceID ?? "-",
+        appName: device.AppName ?? "ไม่ระบุแอป",
+        appVersion: device.AppVersion ?? "-",
+        offlineMinutes,
+      });
     }
-
-    if (isOnline) onlineCount++;
-    else offlineCount++;
-
-    return { device, isOnline, offlineMinutes };
-  });
-
-  // แสดงเฉพาะเครื่องที่ออฟไลน์
-  const offlineDevices = deviceStatuses.filter((s) => !s.isOnline);
-
-  // แยก วันที่ และ เวลา ออกจากกัน
-  const reportDate = dayjs().format("DD/MM/YYYY");
-  const reportHour = dayjs().format("HH:mm");
-
-  const lines: string[] = [
-    `📋 รายงานสถานะอุปกรณ์`,
-    ``,
-    `${schoolName}`,
-    ``,
-    `📅 ประจำวันที่: ${reportDate} | เวลา: ${reportHour} น.`,
-    ``,
-    `━━━━━━━━━━━━━━`,
-  ];
-
-  if (offlineDevices.length === 0) {
-    lines.push(``);
-    lines.push(`ทุกเครื่องออนไลน์ปกติ ไม่มีเครื่องออฟไลน์`);
-    lines.push(``);
-    lines.push(`━━━━━━━━━━━━━━`);
-  } else {
-    lines.push(``);
-    lines.push(`🔴 รายชื่อเครื่องที่ออฟไลน์`);
-    lines.push(``);
-
-    offlineDevices.forEach(({ device, offlineMinutes }, index) => {
-      const deviceName = device.Note?.trim()
-        ? device.Note.trim()
-        : "(ไม่ระบุชื่อเครื่อง)";
-      const deviceId = device.DeviceID ?? "-";
-      const appName = device.AppName ?? "ไม่ระบุแอป";
-      const appVersion = device.AppVersion ?? "-";
-
-      let offlineDuration = "(ไม่ทราบเวลา)";
-      if (offlineMinutes !== null) {
-        const days = Math.floor(offlineMinutes / (60 * 24));
-        const hours = Math.floor((offlineMinutes % (60 * 24)) / 60);
-        const mins = offlineMinutes % 60;
-        const parts: string[] = [];
-        if (days > 0) parts.push(`${days} วัน`);
-        if (hours > 0) parts.push(`${hours} ชั่วโมง`);
-        parts.push(`${mins} นาที`);
-        offlineDuration = `(${parts.join(" ")})`;
-      }
-
-      lines.push(`${index + 1}. ${deviceName}`);
-      lines.push(``);
-      lines.push(`ID: ${deviceId}`);
-      lines.push(``);
-      lines.push(`รุ่น: ${appName} (${appVersion})`);
-      lines.push(``);
-      lines.push(`สถานะ: ❌ Offline ${offlineDuration}`);
-      lines.push(``);
-    });
-
-    lines.push(`━━━━━━━━━━━━━━━━━━━━━━━━`);
   }
 
   const total = filteredDevices.length;
-  const fullText = lines.join("\n");
 
-  // แบ่ง messages ถ้ายาวเกิน 5,000 ตัวอักษร
-  if (fullText.length <= LINE_TEXT_MAX) {
+  // กรณีทุกเครื่องออนไลน์ — ส่ง bubble เดียว
+  if (offlineDevices.length === 0) {
     return {
-      messages: [{ type: "text", text: fullText }],
+      messages: [
+        {
+          type: "flex",
+          altText: `[SchoolBright] ${schoolName} · ทุกเครื่องออนไลน์ปกติ (${total} เครื่อง)`,
+          contents: buildAllOnlineBubble({ schoolName, total, reportTime }),
+        },
+      ],
       schoolName,
       total,
       online: onlineCount,
-      offline: offlineCount,
+      offline: 0,
     };
   }
 
-  const chunks: string[] = [];
-  let current = "";
-  for (const line of lines) {
-    const candidate = current ? current + "\n" + line : line;
-    if (candidate.length <= LINE_TEXT_MAX) {
-      current = candidate;
-    } else {
-      chunks.push(current);
-      current = line;
-    }
-  }
-  if (current) chunks.push(current);
+  // จำกัดจำนวน bubble เครื่องออฟไลน์ไม่เกิน MAX_DEVICE_BUBBLES
+  const displayedDevices = offlineDevices.slice(0, MAX_DEVICE_BUBBLES);
+  const hiddenCount = offlineDevices.length - displayedDevices.length;
+
+  const summaryBubble = buildSchoolSummaryBubble({
+    schoolName,
+    schoolId,
+    total,
+    online: onlineCount,
+    offline: offlineCount,
+    reportTime,
+    hiddenCount,
+  });
+
+  const deviceBubbles = displayedDevices.map((d, i) =>
+    buildOfflineDeviceBubble({
+      index: i + 1,
+      deviceName: d.deviceName,
+      deviceId: d.deviceId,
+      appName: d.appName,
+      appVersion: d.appVersion,
+      offlineDuration: formatOfflineDuration(d.offlineMinutes),
+    }),
+  );
 
   return {
-    messages: chunks.slice(0, 5).map((text) => ({ type: "text", text })),
+    messages: [
+      {
+        type: "flex",
+        altText: `[SchoolBright] ${schoolName} · ออฟไลน์ ${offlineCount}/${total} เครื่อง`,
+        contents: {
+          type: "carousel",
+          contents: [summaryBubble, ...deviceBubbles],
+        },
+      },
+    ],
     schoolName,
     total,
     online: onlineCount,
