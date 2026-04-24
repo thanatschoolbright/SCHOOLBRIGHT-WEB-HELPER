@@ -1,15 +1,21 @@
 import { create } from "zustand";
 import {
+  SchoolOption,
   TLineGroupItem,
   createSchoolLineGroup,
   deleteSchoolLineGroup,
   fetchSchoolLineGroups,
+  fetchSchoolOptions as apiFetchSchoolOptions,
   updateSchoolLineGroup,
 } from "../_api/school-line-group-service";
+
+export type { SchoolOption };
 
 interface SchoolLineGroupState {
   items: TLineGroupItem[];
   loading: boolean;
+  schoolOptions: SchoolOption[];
+  schoolOptionsLoading: boolean;
   pagination: {
     page: number;
     page_size: number;
@@ -33,6 +39,7 @@ interface SchoolLineGroupState {
   editItem: TLineGroupItem | null;
 
   // Actions
+  fetchSchoolOptions: () => Promise<void>;
   setFilterSchoolId: (id: number | undefined) => void;
   setSendingId: (id: number | null) => void;
   setDeleteId: (id: number | null) => void;
@@ -64,6 +71,8 @@ export const useSchoolLineGroupStore = create<SchoolLineGroupState>(
   (set, get) => ({
     items: [],
     loading: false,
+    schoolOptions: [],
+    schoolOptionsLoading: false,
     pagination: {
       page: 1,
       page_size: 10,
@@ -84,6 +93,19 @@ export const useSchoolLineGroupStore = create<SchoolLineGroupState>(
     isModalOpen: false,
     modalMode: "create",
     editItem: null,
+
+    fetchSchoolOptions: async () => {
+      if (get().schoolOptions.length > 0) return;
+      set({ schoolOptionsLoading: true });
+      try {
+        const options = await apiFetchSchoolOptions();
+        set({ schoolOptions: options });
+      } catch {
+        // ถ้าโหลดไม่สำเร็จ ให้ใช้ InputNumber แทน
+      } finally {
+        set({ schoolOptionsLoading: false });
+      }
+    },
 
     setFilterSchoolId: (id) => set({ filterSchoolId: id }),
     setSendingId: (id) => set({ sendingId: id }),

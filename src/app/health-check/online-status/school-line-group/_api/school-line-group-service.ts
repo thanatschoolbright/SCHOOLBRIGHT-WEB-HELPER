@@ -1,5 +1,10 @@
 import { callApiService } from "@services/axios-instance/sb-helper.axios";
 
+export interface SchoolOption {
+  value: number;
+  label: string;
+}
+
 export interface TLineGroupItem {
   LineGroupId: number;
   SchoolId: number | null;
@@ -7,6 +12,8 @@ export interface TLineGroupItem {
   LineNotificationAccessToken: string | null;
   GroupType: string | null;
   CreateDate: string | null;
+  school_name_th: string | null;
+  school_name_en: string | null;
 }
 
 export interface ApiResponse {
@@ -85,6 +92,18 @@ export const deleteSchoolLineGroup = async (line_group_id: number) => {
     },
   );
   return res.data;
+};
+
+/**
+ * ดึงรายชื่อโรงเรียนทั้งหมดสำหรับใช้ใน Dropdown
+ */
+export const fetchSchoolOptions = async (): Promise<SchoolOption[]> => {
+  const res = await callApiService.get("/api/v1/school/get-detail");
+  const rawList: any[] = res.data?.data?.data ?? [];
+  return rawList.map((item: any) => ({
+    value: item.school_id ?? item.SchoolID ?? 0,
+    label: `[${item.school_id ?? item.SchoolID}] ${item.SchoolName ?? item.company_name ?? ""}`,
+  }));
 };
 
 /**

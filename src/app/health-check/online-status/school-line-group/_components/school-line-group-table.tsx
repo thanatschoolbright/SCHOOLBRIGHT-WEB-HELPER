@@ -83,13 +83,14 @@ export const SchoolLineGroupTable = () => {
     try {
       const data = await sendTestLineReport(record.SchoolId);
       if ((data?.status ?? data?.status_code) === 200) {
+        const schoolLabel = record.school_name_th
+          ? `${record.school_name_th} (${record.SchoolId})`
+          : data.data?.school_name ?? `โรงเรียน ${record.SchoolId}`;
         setStatusModal({
           open: true,
           type: "success",
           title: "ส่งรายงานสำเร็จ",
-          message: `ส่งรายงานสถานะเครื่องของ ${
-            data.data?.school_name ?? `โรงเรียน ${record.SchoolId}`
-          } ไปยัง LINE สำเร็จ`,
+          message: `ส่งรายงานสถานะเครื่องของ${schoolLabel} ไปยัง LINE สำเร็จ`,
         });
       } else {
         throw new Error(data?.message_th ?? "ส่งไม่สำเร็จ");
@@ -112,12 +113,15 @@ export const SchoolLineGroupTable = () => {
    * ยืนยันการลบข้อมูล
    */
   const confirmDelete = (record: TLineGroupItem) => {
+    const schoolLabel = record.school_name_th
+      ? `${record.school_name_th} (${record.SchoolId})`
+      : `โรงเรียน ${record.SchoolId}`;
     useSchoolLineGroupStore.getState().setDeleteId(record.LineGroupId);
     setStatusModal({
       open: true,
       type: "delete",
       title: "ยืนยันการลบกลุ่ม LINE",
-      message: `คุณต้องการลบกลุ่ม LINE ของโรงเรียน ${record.SchoolId} ใช่หรือไม่?`,
+      message: `คุณต้องการลบกลุ่ม LINE ของ${schoolLabel} ใช่หรือไม่?`,
     });
   };
 
@@ -149,6 +153,27 @@ export const SchoolLineGroupTable = () => {
         ) : (
           <Text type="secondary">-</Text>
         ),
+    },
+    {
+      title: "ชื่อโรงเรียน",
+      key: "school_name",
+      sorter: (a, b) =>
+        (a.school_name_th ?? "").localeCompare(b.school_name_th ?? ""),
+      render: (_: unknown, record: TLineGroupItem) => {
+        const nameTH = record.school_name_th;
+        const nameEN = record.school_name_en;
+        if (!nameTH) return <Text type="secondary">-</Text>;
+        return (
+          <Flex vertical gap={2}>
+            <Text style={{ fontSize: 13 }}>{nameTH}</Text>
+            {nameEN && (
+              <Text type="secondary" style={{ fontSize: 11 }}>
+                {nameEN}
+              </Text>
+            )}
+          </Flex>
+        );
+      },
     },
     {
       title: "Group ID",

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   FilterFilled,
   ReloadOutlined,
@@ -9,25 +11,36 @@ import {
   Col,
   Flex,
   Form,
-  InputNumber,
   Row,
+  Select,
   Typography,
   theme,
 } from "antd";
-import { useSchoolLineGroupStore } from "../_state/use-school-line-group-store";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
+import { useSchoolLineGroupStore } from "../_state/use-school-line-group-store";
 
 const { Text } = Typography;
 
 /**
- * ส่วนกรองข้อมูลสำหรับค้นหาตามรหัสโรงเรียน
- * ใช้ Row, Col และ Flex ในการจัดวางเพื่อให้ Input และปุ่มค้นหาอยู่ในแนวเดียวกันอย่างสมดุล
+ * ส่วนกรองข้อมูลสำหรับค้นหาตามโรงเรียน
  */
 export const FilterSection = () => {
   const { token } = theme.useToken();
   const [form] = Form.useForm();
-  const { loading, setFilterSchoolId, fetchData, resetFilters } =
-    useSchoolLineGroupStore();
+  const {
+    loading,
+    schoolOptions,
+    schoolOptionsLoading,
+    fetchSchoolOptions,
+    setFilterSchoolId,
+    fetchData,
+    resetFilters,
+  } = useSchoolLineGroupStore();
+
+  useEffect(() => {
+    void fetchSchoolOptions();
+  }, [fetchSchoolOptions]);
 
   /**
    * ค้นหาข้อมูลตามรหัสโรงเรียน
@@ -61,10 +74,7 @@ export const FilterSection = () => {
         <Flex
           align="center"
           gap={12}
-          className="mb-8"
-          style={{
-            marginBottom: "1rem",
-          }}
+          style={{ marginBottom: "1rem" }}
         >
           <div className="p-2.5 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
             <FilterFilled
@@ -86,7 +96,6 @@ export const FilterSection = () => {
 
         <Form form={form} layout="vertical" onFinish={handleSearch}>
           <Row gutter={[24, 24]} align="bottom">
-            {/* ฝั่งช่องกรอกข้อมูล */}
             <Col xs={24} sm={14} md={16} lg={18}>
               <Form.Item
                 label={
@@ -94,24 +103,30 @@ export const FilterSection = () => {
                     type="secondary"
                     className="text-xs font-bold uppercase tracking-widest ml-1 mb-1"
                   >
-                    รหัสโรงเรียน (School ID)
+                    โรงเรียน
                   </Text>
                 }
                 name="school_id"
                 className="mb-0"
               >
-                <InputNumber
-                  placeholder="ค้นหาด้วยรหัสโรงเรียน เช่น 1001"
+                <Select
+                  showSearch
+                  allowClear
+                  loading={schoolOptionsLoading}
+                  placeholder="ค้นหาหรือเลือกโรงเรียน..."
+                  options={schoolOptions}
+                  filterOption={(input, option) =>
+                    String(option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  suffixIcon={<SearchOutlined className="text-slate-300" />}
+                  className="h-12 rounded-xl"
                   style={{ width: "100%" }}
-                  className="h-12 rounded-xl flex items-center border-slate-200 hover:border-blue-400 focus:border-blue-500 transition-all text-sm px-2 bg-slate-50 dark:bg-slate-800/50 border-none"
-                  min={1}
-                  controls={false}
-                  prefix={<SearchOutlined className="text-slate-300 mr-2" />}
                 />
               </Form.Item>
             </Col>
 
-            {/* ฝั่งกลุ่มปุ่มกด */}
             <Col xs={24} sm={10} md={8} lg={6}>
               <Form.Item label=" " colon={false} className="mb-0">
                 <Flex gap={12}>

@@ -132,7 +132,8 @@ src/app/{domain}/{feature}/
 ├── page.tsx                   # Orchestrator (RSC or client)
 ├── _components/               # Feature-scoped components
 ├── _state/
-│   └── use-{feature}-store.ts # Zustand store
+│   └── use-{feature}-store.ts # Zustand store (preferred location)
+├── _stores/                   # Alternative Zustand store location (some features)
 └── _api/
     └── {feature}-service.ts   # callApiService wrapper
 ```
@@ -163,7 +164,7 @@ Two Prisma instances (singleton pattern, global cached in dev):
 | Helper | DB | Schema | Models |
 |---|---|---|---|
 | `src/helpers/prisma.ts` | SQL Server (main) | `prisma/schema.prisma` | 400+ models — school, canteen, hardware, device, sales |
-| `src/helpers/prisma-timesheet.ts` | PostgreSQL (timesheet) | `prisma/timesheet/schema.prisma` | User, Department, Position, Role, Permission, RolePermission, Project, Feature, ProjectAssignee, ProjectStatus, Group, TimesheetEntry, Overtime, OvertimeDescription, OvertimeStatusLog, ApiLog, CrmSupportAuthentication |
+| `src/helpers/prisma-timesheet.ts` | PostgreSQL (timesheet) | `prisma/timesheet/schema.prisma` | User, Department, Position, Role, Permission, RolePermission, Project, Feature, ProjectAssignee, ProjectStatus, Group, TimesheetEntry, Overtime, OvertimeDescription, OvertimeStatusLog, ApiLog, CrmSupportAuthentication, LineGroup |
 
 **Import pattern — สำคัญมาก, สองแบบนี้ต่างกัน:**
 ```ts

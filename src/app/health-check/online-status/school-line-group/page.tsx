@@ -4,7 +4,7 @@ import { TeamOutlined } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { StatusModalComponent } from "@components/modal/status-modal-component";
 import { HeaderBar } from "@components/typhography/header-bar-component";
-import { Flex, theme } from "antd";
+import { Flex } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 import { useEffect } from "react";
@@ -22,7 +22,6 @@ dayjs.locale("th");
  * ปรับปรุง Layout ให้มีความโปร่ง (Spacious) และมีระเบียบมากขึ้น
  */
 export default function SchoolLineGroupPage() {
-  const { token } = theme.useToken();
   const { fetchData, statusModal, deleteId, loading, closeModal, removeItem } =
     useSchoolLineGroupStore();
 

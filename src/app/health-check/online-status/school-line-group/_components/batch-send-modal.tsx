@@ -89,32 +89,32 @@ export const BatchSendModal = ({
     for (let i = 0; i < updated.length; i++) {
       setCurrentIndex(i);
       // อัพเดทสถานะเป็น "กำลังส่ง"
-      updated[i] = { ...updated[i], status: "sending", message: "กำลังดำเนินการ..." };
+      updated[i] = { ...updated[i]!, status: "sending", message: "กำลังดำเนินการ..." } as BatchItem;
       setBatchItems([...updated]);
 
       try {
-        const res = await sendTestLineReport(updated[i].schoolId);
+        const res = await sendTestLineReport(updated[i]!.schoolId);
         const isSuccess = (res?.status ?? res?.status_code) === 200;
 
         updated[i] = {
-          ...updated[i],
+          ...updated[i]!,
           status: isSuccess ? "success" : "error",
           message: isSuccess ? "ส่งสำเร็จ" : res?.message_th ?? "ส่งไม่สำเร็จ",
-          schoolName: res?.data?.school_name ?? updated[i].schoolName,
+          schoolName: res?.data?.school_name ?? updated[i]!.schoolName,
           detail: isSuccess
             ? `อุปกรณ์รวม ${res?.data?.total_devices ?? "-"} | ออนไลน์ ${
                 res?.data?.online_devices ?? "-"
               } | ออฟไลน์ ${res?.data?.offline_devices ?? "-"}`
             : res?.message_th ?? null,
-        };
+        } as BatchItem;
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : "เกิดข้อผิดพลาด";
         updated[i] = {
-          ...updated[i],
+          ...updated[i]!,
           status: "error",
           message: "ส่งไม่สำเร็จ",
           detail: msg,
-        };
+        } as BatchItem;
       }
 
       setBatchItems([...updated]);

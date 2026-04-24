@@ -1,7 +1,7 @@
 "use client";
 
 import { EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { Form, Input, InputNumber, Modal, Select, Typography, theme, Flex } from "antd";
+import { Flex, Form, Input, Modal, Select, Typography } from "antd";
 import { useEffect } from "react";
 import { useSchoolLineGroupStore } from "../_state/use-school-line-group-store";
 
@@ -12,9 +12,8 @@ const { Text } = Typography;
  * ปรับปรุง Spacing และ Form Layout ให้ดูโปร่งและใช้งานง่ายขึ้น
  */
 export const SchoolLineGroupModal = () => {
-  const { token } = theme.useToken();
   const [form] = Form.useForm();
-  const { isModalOpen, modalMode, editItem, loading, closeFormModal, submitForm } = useSchoolLineGroupStore();
+  const { isModalOpen, modalMode, editItem, loading, closeFormModal, submitForm, schoolOptions, schoolOptionsLoading } = useSchoolLineGroupStore();
 
   // ตั้งค่าข้อมูลเริ่มต้นเมื่อเปิด Modal ในโหมดแก้ไข
   useEffect(() => {
@@ -90,15 +89,23 @@ export const SchoolLineGroupModal = () => {
         className="flex flex-col gap-5"
       >
         <Form.Item
-          label={<Text type="secondary" className="text-xs font-bold uppercase tracking-widest ml-1 mb-1">รหัสโรงเรียน (School ID)</Text>}
+          label={<Text type="secondary" className="text-xs font-bold uppercase tracking-widest ml-1 mb-1">โรงเรียน</Text>}
           name="school_id"
-          rules={[{ required: true, message: "กรุณาระบุรหัสโรงเรียน" }]}
+          rules={[{ required: true, message: "กรุณาเลือกโรงเรียน" }]}
           className="mb-0"
         >
-          <InputNumber 
-            style={{ width: "100%" }} 
-            placeholder="ระบุรหัสโรงเรียน เช่น 1001" 
-            className="h-12 rounded-xl flex items-center border-slate-200 hover:border-blue-400 focus:border-blue-500 transition-all px-2 text-sm"
+          <Select
+            showSearch
+            loading={schoolOptionsLoading}
+            placeholder="ค้นหาหรือเลือกโรงเรียน..."
+            options={schoolOptions}
+            filterOption={(input, option) =>
+              String(option?.label ?? "")
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
+            className="h-12 rounded-xl transition-all"
+            style={{ width: "100%" }}
           />
         </Form.Item>
 
