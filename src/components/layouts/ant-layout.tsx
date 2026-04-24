@@ -6,12 +6,17 @@ import thTH from "antd/locale/th_TH";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import React, { useEffect, useMemo, useState } from "react";
 import { FontProvider, useFont } from "../providers/font-provider";
 
 // Initialize configuration
+dayjs.extend(utc);
+dayjs.extend(timezone);
 dayjs.extend(buddhistEra);
 dayjs.locale("th");
+dayjs.tz.setDefault("Asia/Bangkok");
 
 /**
  * Design Constants for 2026 Aesthetics

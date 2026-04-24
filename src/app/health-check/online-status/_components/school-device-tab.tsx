@@ -1,6 +1,5 @@
 "use client";
 
-import { callApiService } from "@services/axios-instance/sb-helper.axios";
 import {
   BankOutlined,
   CameraOutlined,
@@ -15,6 +14,7 @@ import {
   UnorderedListOutlined,
   WifiOutlined,
 } from "@ant-design/icons";
+import { callApiService } from "@services/axios-instance/sb-helper.axios";
 import {
   Badge,
   Button,
@@ -31,12 +31,17 @@ import {
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/th";
+import relativeTime from "dayjs/plugin/relativeTime";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import { useCallback, useEffect, useState } from "react";
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
 dayjs.extend(relativeTime);
 dayjs.locale("th");
+dayjs.tz.setDefault("Asia/Bangkok");
 
 const { Text } = Typography;
 
@@ -138,10 +143,10 @@ const DeviceGroupBlock = ({
       <Flex vertical gap={6}>
         {devices.map((device) => {
           const lastSeen = device.online_time
-            ? dayjs(device.online_time).fromNow()
+            ? dayjs.tz(device.online_time).fromNow()
             : null;
           const isRecentOnline = device.online_time
-            ? Date.now() - new Date(device.online_time).getTime() <=
+            ? Date.now() - dayjs.tz(device.online_time).valueOf() <=
               FIFTEEN_MIN_MS
             : false;
           const effectiveOnline = device.is_online || isRecentOnline;
@@ -196,7 +201,7 @@ const DeviceGroupBlock = ({
                   color={effectiveOnline ? "success" : "error"}
                   style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
                 >
-                  {effectiveOnline ? "Online" : "Offline"}
+                  {effectiveOnline ? "ออนไลน์" : "ออฟไลน์"}
                 </Tag>
                 {device.is_login && (
                   <Tag
@@ -208,15 +213,11 @@ const DeviceGroupBlock = ({
                 )}
                 {lastSeen && (
                   <Tooltip
-                    title={dayjs(device.online_time).format(
-                      "DD/MM/YYYY HH:mm:ss",
-                    )}
+                    title={dayjs
+                      .tz(device.online_time)
+                      .format("DD/MM/YYYY HH:mm:ss")}
                   >
-                    <Flex
-                      align="center"
-                      gap={3}
-                      style={{ cursor: "default" }}
-                    >
+                    <Flex align="center" gap={3} style={{ cursor: "default" }}>
                       <ClockCircleOutlined
                         style={{
                           fontSize: 10,
@@ -278,15 +279,12 @@ export const SchoolDeviceTab = () => {
   // จัดกลุ่มเครื่องใน Drawer ตาม app_name
   const deviceGroups = selectedSchool
     ? Array.from(
-        selectedSchool.devices.reduce(
-          (map, device) => {
-            const key = device.app_name;
-            if (!map.has(key)) map.set(key, []);
-            map.get(key)!.push(device);
-            return map;
-          },
-          new Map<string, DeviceDetail[]>(),
-        ),
+        selectedSchool.devices.reduce((map, device) => {
+          const key = device.app_name;
+          if (!map.has(key)) map.set(key, []);
+          map.get(key)!.push(device);
+          return map;
+        }, new Map<string, DeviceDetail[]>()),
       )
     : [];
 
@@ -381,10 +379,7 @@ export const SchoolDeviceTab = () => {
 
   return (
     <>
-      <Card
-        styles={{ body: { padding: 16 } }}
-        style={{ borderRadius: 16 }}
-      >
+      <Card styles={{ body: { padding: 16 } }} style={{ borderRadius: 16 }}>
         <Flex
           align="center"
           justify="space-between"
@@ -409,7 +404,10 @@ export const SchoolDeviceTab = () => {
 
         <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
           <Col xs={12} sm={6}>
-            <Card size="small" style={{ borderRadius: 10, textAlign: "center" }}>
+            <Card
+              size="small"
+              style={{ borderRadius: 10, textAlign: "center" }}
+            >
               <Text type="secondary" style={{ fontSize: 11 }}>
                 โรงเรียนทั้งหมด
               </Text>
@@ -424,7 +422,10 @@ export const SchoolDeviceTab = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6}>
-            <Card size="small" style={{ borderRadius: 10, textAlign: "center" }}>
+            <Card
+              size="small"
+              style={{ borderRadius: 10, textAlign: "center" }}
+            >
               <Text type="secondary" style={{ fontSize: 11 }}>
                 มีอุปกรณ์ออฟไลน์
               </Text>
@@ -439,7 +440,10 @@ export const SchoolDeviceTab = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6}>
-            <Card size="small" style={{ borderRadius: 10, textAlign: "center" }}>
+            <Card
+              size="small"
+              style={{ borderRadius: 10, textAlign: "center" }}
+            >
               <Text type="secondary" style={{ fontSize: 11 }}>
                 ออนไลน์ทั้งหมด
               </Text>
@@ -454,7 +458,10 @@ export const SchoolDeviceTab = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6}>
-            <Card size="small" style={{ borderRadius: 10, textAlign: "center" }}>
+            <Card
+              size="small"
+              style={{ borderRadius: 10, textAlign: "center" }}
+            >
               <Text type="secondary" style={{ fontSize: 11 }}>
                 ออฟไลน์ทั้งหมด
               </Text>
