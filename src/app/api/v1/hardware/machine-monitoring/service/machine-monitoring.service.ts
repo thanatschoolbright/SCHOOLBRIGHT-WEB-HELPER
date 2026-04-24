@@ -1,5 +1,5 @@
-import prisma from "@helpers/prisma";
 import { sendMail } from "@/server/mailer";
+import prisma from "@helpers/prisma";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 
@@ -15,6 +15,7 @@ const REPORT_EMAILS = [
   "nikornsak.champ@schoolbright.co",
   "traithep.cstp@gmail.com",
   "kumikomai2015@gmail.com",
+  "supicha.ing@schoolbright.co",
 ] as const;
 
 const OFFLINE_CRITICAL_THRESHOLD = 5;
@@ -120,10 +121,9 @@ export async function fetchDeviceStats(): Promise<{
   // คำนวณ online ด้วย heartbeat 15 นาที แล้วใส่กลับใน device object
   const devices: DeviceStatusData[] = allDevices.map((d) => {
     const onlineTime = d.OnlineTime ? new Date(d.OnlineTime) : null;
-    const isOnline =
-      (onlineTime
-        ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
-        : false);
+    const isOnline = onlineTime
+      ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
+      : false;
     return { ...d, Online: isOnline };
   });
 

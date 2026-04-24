@@ -53,6 +53,7 @@ export async function fetchAndSendServerStatusEmail() {
           "nikornsak.champ@schoolbright.co",
           "traithep.cstp@gmail.com",
           "kumikomai2015@gmail.com",
+          "supicha.ing@schoolbright.co",
         ];
 
     // 3. ส่งอีเมล
