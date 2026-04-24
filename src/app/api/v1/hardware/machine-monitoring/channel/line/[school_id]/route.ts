@@ -1,12 +1,12 @@
 import { errorResponse, successResponse } from "@/helpers/api/response";
-import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
+import { PrismaJabjaiMaster } from "@/helpers/prisma/prisma-jabjai-master-single-db";
 import {
   buildSchoolDeviceReport,
   linePushMessage,
 } from "@services/line/line-push.service";
 import { NextRequest, NextResponse } from "next/server";
 
-// GET handler — ส่งรายงานสถานะฮาร์ดแวร์ของโรงเรียนเดียวไปยัง LINE Group
+// GET handler — ส่งรายงานสถานะฮาร์ดแวร์ของโรงเรียนเดียวไปยัง LINE Group ของโรงเรียนนั้น
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ school_id: string }> },
@@ -26,31 +26,30 @@ export async function GET(
     );
   }
 
-  // ลำดับความสำคัญ: query param > env var > active group ใน DB
+  // ลำดับความสำคัญ: 1) tLineGroup ของโรงเรียน 2) query param 3) env var
   const { searchParams } = new URL(request.url);
-  let groupId =
+
+  // ดึง GroupId ของโรงเรียนนั้นจาก JabjaiMaster (ล่าสุด)
+  const schoolLineGroup = await PrismaJabjaiMaster.tLineGroup
+    .findFirst({
+      where: { SchoolId: schoolIdNum },
+      orderBy: { CreateDate: "desc" },
+    })
+    .catch(() => null);
+
+  const groupId =
+    schoolLineGroup?.GroupId ??
     searchParams.get("group_id") ??
     process.env.LINE_MONITORING_GROUP_ID ??
     null;
-
-  if (!groupId) {
-    // fallback: ดึง group ล่าสุดที่ active จาก DB
-    const activeGroup = await PrismaTimesheet.lineGroup
-      .findFirst({
-        where: { is_active: true },
-        orderBy: { updated_at: "desc" },
-      })
-      .catch(() => null);
-    groupId = activeGroup?.group_id ?? null;
-  }
 
   if (!groupId) {
     return NextResponse.json(
       errorResponse({
         status: 503,
         message_th:
-          "ยังไม่ได้ตั้งค่า LINE Group เป้าหมาย กรุณาเลือกกลุ่มก่อนส่งรายงาน",
-        message_en: "LINE target group is not configured",
+          "โรงเรียนนี้ยังไม่ได้ตั้งค่า LINE Group กรุณาเพิ่มกลุ่ม LINE ในระบบก่อนส่งรายงาน",
+        message_en: `No LINE group configured for school ${schoolIdNum}`,
       }),
       { status: 503 },
     );
