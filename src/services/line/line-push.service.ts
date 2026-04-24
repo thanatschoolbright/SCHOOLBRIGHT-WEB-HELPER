@@ -972,12 +972,13 @@ function buildSchoolSummaryBubble(opts: {
 function buildOfflineDeviceBubble(opts: {
   index: number;
   deviceName: string;
+  deviceId: string;
   appName: string;
   appVersion: string;
   offlineDuration: string;
   lastOnlineAt: string | null;
 }): object {
-  const { index, deviceName, appName, appVersion, offlineDuration, lastOnlineAt } = opts;
+  const { index, deviceName, deviceId, appName, appVersion, offlineDuration, lastOnlineAt } = opts;
 
   return {
     type: "bubble",
@@ -1078,6 +1079,13 @@ function buildOfflineDeviceBubble(opts: {
           color: lastOnlineAt ? "#e2e8f0" : "#475569",
           weight: "bold",
           margin: "xs",
+        },
+        {
+          type: "text",
+          text: `ID: ${deviceId}`,
+          size: "xxs",
+          color: "#475569",
+          margin: "sm",
         },
       ],
     },
@@ -1243,6 +1251,7 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
 
   interface OfflineDevice {
     deviceName: string;
+    deviceId: string;
     appName: string;
     appVersion: string;
     offlineMinutes: number | null;
@@ -1269,6 +1278,7 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
           : null;
       offlineDevices.push({
         deviceName: device.Note?.trim() || "ไม่ระบุชื่อเครื่อง",
+        deviceId: device.DeviceID ?? "-",
         appName: device.AppName ?? "ไม่ระบุแอป",
         appVersion: device.AppVersion ?? "-",
         offlineMinutes,
@@ -1316,6 +1326,7 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
     buildOfflineDeviceBubble({
       index: i + 1,
       deviceName: d.deviceName,
+      deviceId: d.deviceId,
       appName: d.appName,
       appVersion: d.appVersion,
       offlineDuration: formatOfflineDuration(d.offlineMinutes),
