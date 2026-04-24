@@ -6,17 +6,21 @@ import SummaryCard from "@/components/card/summary-card";
 import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 import {
   AlertOutlined,
+  CheckCircleOutlined,
   CheckOutlined,
+  ClockCircleOutlined,
   DesktopOutlined,
   FileExcelOutlined,
   FilterFilled,
   GlobalOutlined,
+  InfoCircleOutlined,
   MailOutlined,
   NotificationOutlined,
   SettingOutlined,
   SyncOutlined,
   ThunderboltFilled,
   WifiOutlined,
+  WarningOutlined,
 } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { StatusModalComponent } from "@components/modal/status-modal-component";
@@ -25,6 +29,7 @@ import { CallAPI as fetchSchoolList } from "@stores/actions/support/call-get-sch
 import { AppDispatch, useAppSelector } from "@stores/store";
 import {
   Button,
+  Card,
   Col,
   Collapse,
   Dropdown,
@@ -854,6 +859,64 @@ export default function OnlineDeviceDashboard() {
             ))}
           </Row>
         )}
+
+        {/* ตัวแนะนำ: Logic การตรวจสอบสถานะออฟไลน์ */}
+        <Card
+          size="small"
+          style={{ borderRadius: 14, marginBottom: 20, marginTop: 4 }}
+          styles={{ body: { padding: "14px 20px" } }}
+        >
+          <Flex align="center" gap={8} style={{ marginBottom: 10 }}>
+            <InfoCircleOutlined style={{ color: token.colorPrimary, fontSize: 15 }} />
+            <AntText strong style={{ fontSize: 13 }}>
+              Logic การตรวจสอบสถานะออฟไลน์
+            </AntText>
+          </Flex>
+          <Flex vertical gap={8}>
+            <Flex align="flex-start" gap={10}>
+              <ClockCircleOutlined style={{ color: "#6366f1", fontSize: 13, marginTop: 2, flexShrink: 0 }} />
+              <AntText style={{ fontSize: 12 }}>
+                <AntText strong style={{ fontSize: 12 }}>เงื่อนไขออนไลน์ :</AntText>
+                {" "}เครื่องถือว่าออนไลน์เมื่อ flag{" "}
+                <code style={{ fontSize: 11, padding: "1px 5px", borderRadius: 4, background: "rgba(99,102,241,0.1)", color: "#6366f1" }}>Online = true</code>
+                {" "}หรือ{" "}
+                <code style={{ fontSize: 11, padding: "1px 5px", borderRadius: 4, background: "rgba(99,102,241,0.1)", color: "#6366f1" }}>OnlineTime</code>
+                {" "}ล่าสุดไม่เกิน{" "}
+                <AntText strong style={{ fontSize: 12, color: "#6366f1" }}>15 นาที</AntText>
+                {" "}ที่ผ่านมา
+              </AntText>
+            </Flex>
+            <Flex align="flex-start" gap={10}>
+              <WarningOutlined style={{ color: "#d97706", fontSize: 13, marginTop: 2, flexShrink: 0 }} />
+              <AntText style={{ fontSize: 12 }}>
+                <AntText strong style={{ fontSize: 12 }}>ออฟไลน์ (สาเหตุ: อินเทอร์เน็ต / ตัวเครื่องเสียหาย) :</AntText>
+                {" "}เครื่อง offline แต่{" "}
+                <code style={{ fontSize: 11, padding: "1px 5px", borderRadius: 4, background: "rgba(217,119,6,0.1)", color: "#d97706" }}>Hardware Server /api/application</code>
+                {" "}ตอบกลับ{" "}
+                <AntText strong style={{ fontSize: 12, color: "#d97706" }}>HTTP 200</AntText>
+                {" "}— เซิร์ฟเวอร์ปกติ แต่เครื่องส่งสัญญาณไม่ได้ (อินเทอร์เน็ตโรงเรียน หรือฮาร์ดแวร์เสียหาย)
+              </AntText>
+            </Flex>
+            <Flex align="flex-start" gap={10}>
+              <AlertOutlined style={{ color: "#dc2626", fontSize: 13, marginTop: 2, flexShrink: 0 }} />
+              <AntText style={{ fontSize: 12 }}>
+                <AntText strong style={{ fontSize: 12 }}>ออฟไลน์ (สาเหตุ: เซิร์ฟเวอร์เกิดข้อขัดข้อง) :</AntText>
+                {" "}เครื่อง offline และ{" "}
+                <code style={{ fontSize: 11, padding: "1px 5px", borderRadius: 4, background: "rgba(220,38,38,0.1)", color: "#dc2626" }}>Hardware Server /api/application</code>
+                {" "}ตอบกลับ{" "}
+                <AntText strong style={{ fontSize: 12, color: "#dc2626" }}>ไม่ใช่ 200</AntText>
+                {" "}— น่าจะเป็นปัญหาฝั่งเซิร์ฟเวอร์ฮาร์ดแวร์เอง
+              </AntText>
+            </Flex>
+            <Flex align="flex-start" gap={10}>
+              <CheckCircleOutlined style={{ color: "#16a34a", fontSize: 13, marginTop: 2, flexShrink: 0 }} />
+              <AntText style={{ fontSize: 12 }}>
+                <AntText strong style={{ fontSize: 12 }}>ออนไลน์ :</AntText>
+                {" "}เครื่องที่ผ่านเงื่อนไขออนไลน์ข้างต้น — ไม่แสดงสาเหตุ
+              </AntText>
+            </Flex>
+          </Flex>
+        </Card>
 
         <Tabs
           defaultActiveKey="devices"
