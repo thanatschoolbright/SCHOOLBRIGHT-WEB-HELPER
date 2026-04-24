@@ -46,8 +46,8 @@ function resolveStatusStyle(offline: number): {
   if (offline === 0)
     return { color: "#16a34a", label: "ระบบปกติ", headerBg: "#14532d" };
   if (offline < 5)
-    return { color: "#d97706", label: "ต้องระวัง", headerBg: "#78350f" };
-  return { color: "#dc2626", label: "วิกฤต", headerBg: "#7f1d1d" };
+    return { color: "#d97706", label: "โปรดตรวจสอบระบบ", headerBg: "#78350f" };
+  return { color: "#dc2626", label: "โปรดตรวจสอบระบบ", headerBg: "#7f1d1d" };
 }
 
 // สร้าง progress bar จากเปอร์เซ็นต์ (0–100)
@@ -446,7 +446,7 @@ export function buildOfflineDetailTextMessages(
   );
 
   const header = [
-    `แจ้งเตือน : เครื่อง POS ออฟไลน์`,
+    `แจ้งเตือน : เครื่องออฟไลน์`,
     `เวลา : ${reportTime}`,
     `จำนวนทั้งหมด : ${totalOffline} เครื่อง จาก ${sorted.length} โรงเรียน`,
     ``,
@@ -805,7 +805,15 @@ function buildSchoolSummaryBubble(opts: {
   reportTime: string;
   hiddenCount: number;
 }): object {
-  const { schoolName, schoolId, total, online, offline, reportTime, hiddenCount } = opts;
+  const {
+    schoolName,
+    schoolId,
+    total,
+    online,
+    offline,
+    reportTime,
+    hiddenCount,
+  } = opts;
   const { color, label, headerBg } = resolveStatusStyle(offline);
   const onlineRate = total === 0 ? 0 : Math.round((online / total) * 100);
   const progressBar = buildProgressBar(onlineRate);
@@ -900,11 +908,31 @@ function buildSchoolSummaryBubble(opts: {
               type: "box",
               layout: "horizontal",
               contents: [
-                { type: "text", text: "อัตราออนไลน์", size: "xs", color: "#94a3b8", flex: 3 },
-                { type: "text", text: `${onlineRate}%`, size: "xs", color, weight: "bold", align: "end", flex: 2 },
+                {
+                  type: "text",
+                  text: "อัตราออนไลน์",
+                  size: "xs",
+                  color: "#94a3b8",
+                  flex: 3,
+                },
+                {
+                  type: "text",
+                  text: `${onlineRate}%`,
+                  size: "xs",
+                  color,
+                  weight: "bold",
+                  align: "end",
+                  flex: 2,
+                },
               ],
             },
-            { type: "text", text: progressBar, size: "xs", color, margin: "xs" },
+            {
+              type: "text",
+              text: progressBar,
+              size: "xs",
+              color,
+              margin: "xs",
+            },
           ],
         },
         ...(hiddenCount > 0
@@ -944,12 +972,11 @@ function buildSchoolSummaryBubble(opts: {
 function buildOfflineDeviceBubble(opts: {
   index: number;
   deviceName: string;
-  deviceId: string;
   appName: string;
   appVersion: string;
   offlineDuration: string;
 }): object {
-  const { index, deviceName, deviceId, appName, appVersion, offlineDuration } = opts;
+  const { index, deviceName, appName, appVersion, offlineDuration } = opts;
 
   return {
     type: "bubble",
@@ -985,7 +1012,7 @@ function buildOfflineDeviceBubble(opts: {
             },
             {
               type: "text",
-              text: "OFFLINE",
+              text: "ออฟไลน์",
               size: "xxs",
               color: "#fca5a5",
               weight: "bold",
@@ -1004,6 +1031,14 @@ function buildOfflineDeviceBubble(opts: {
           wrap: true,
           margin: "sm",
         },
+        {
+          type: "text",
+          text: `${appName} v${appVersion}`,
+          size: "xxs",
+          color: "#fca5a5",
+          wrap: false,
+          margin: "xs",
+        },
       ],
     },
     body: {
@@ -1011,35 +1046,21 @@ function buildOfflineDeviceBubble(opts: {
       layout: "vertical",
       backgroundColor: "#1e293b",
       paddingAll: "14px",
-      spacing: "sm",
+      spacing: "none",
       contents: [
-        buildStatRow("Device ID", deviceId, "#e2e8f0"),
-        buildStatRow("แอป", appName, "#c084fc"),
-        buildStatRow("เวอร์ชัน", `v${appVersion}`, "#60a5fa"),
-        { type: "separator", margin: "sm", color: "#334155" },
         {
-          type: "box",
-          layout: "horizontal",
-          margin: "sm",
-          contents: [
-            {
-              type: "text",
-              text: "ออฟไลน์นาน",
-              size: "xs",
-              color: "#94a3b8",
-              flex: 3,
-            },
-            {
-              type: "text",
-              text: offlineDuration,
-              size: "xs",
-              color: "#f87171",
-              weight: "bold",
-              align: "end",
-              flex: 3,
-              wrap: true,
-            },
-          ],
+          type: "text",
+          text: "ออฟไลน์นาน",
+          size: "xxs",
+          color: "#94a3b8",
+        },
+        {
+          type: "text",
+          text: offlineDuration,
+          size: "xl",
+          color: "#f87171",
+          weight: "bold",
+          margin: "xs",
         },
       ],
     },
@@ -1169,7 +1190,9 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
 
   if (!school) {
     return {
-      messages: [{ type: "text", text: `ไม่พบข้อมูลโรงเรียน รหัส ${schoolId}` }],
+      messages: [
+        { type: "text", text: `ไม่พบข้อมูลโรงเรียน รหัส ${schoolId}` },
+      ],
       schoolName: `โรงเรียน ${schoolId}`,
       total: 0,
       online: 0,
@@ -1203,7 +1226,6 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
 
   interface OfflineDevice {
     deviceName: string;
-    deviceId: string;
     appName: string;
     appVersion: string;
     offlineMinutes: number | null;
@@ -1229,7 +1251,6 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
           : null;
       offlineDevices.push({
         deviceName: device.Note?.trim() || "ไม่ระบุชื่อเครื่อง",
-        deviceId: device.DeviceID ?? "-",
         appName: device.AppName ?? "ไม่ระบุแอป",
         appVersion: device.AppVersion ?? "-",
         offlineMinutes,
@@ -1274,7 +1295,6 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
     buildOfflineDeviceBubble({
       index: i + 1,
       deviceName: d.deviceName,
-      deviceId: d.deviceId,
       appName: d.appName,
       appVersion: d.appVersion,
       offlineDuration: formatOfflineDuration(d.offlineMinutes),
