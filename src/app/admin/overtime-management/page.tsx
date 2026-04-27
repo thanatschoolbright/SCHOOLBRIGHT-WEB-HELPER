@@ -35,6 +35,7 @@ import AdminExportModal from "./_components/export-modal";
 import { FixDateModal } from "./_components/fix-date-modal";
 import MarkPaidModal from "./_components/mark-paid-modal";
 import MonthlyCostReport from "./_components/monthly-cost-report";
+import OtCalendarView from "./_components/ot-calendar-view";
 import OverdueAlert from "./_components/overdue-alert";
 import StatusLogDrawer from "./_components/status-log-drawer";
 import { useAdminOvertimeStore } from "./_state/admin-overtime-store";
@@ -1136,6 +1137,14 @@ export default function AdminOvertimeManagementPage() {
             onTableChange={handleTableChange}
             selectedKeys={selectedKeys}
             onSelectionChange={setSelectedKeys}
+          />
+
+          {/* D1 — Calendar View OT รายเดือน */}
+          <OtCalendarView
+            onViewDetail={(record) => {
+              setSelectedDetail(record);
+              setIsDetailVisible(true);
+            }}
           />
 
           {/* B3 — Department Breakdown */}

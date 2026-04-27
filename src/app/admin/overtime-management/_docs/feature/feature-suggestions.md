@@ -21,6 +21,7 @@
 | Dashboard SLA การอนุมัติ | `ApprovalSlaDashboard` |
 | รายงานค่าใช้จ่าย OT รายเดือน/รายคน | `MonthlyCostReport` |
 | สถิติ OT แยกตามแผนก | `DepartmentBreakdown` |
+| **[เสร็จแล้ว]** ปฏิทิน OT รายเดือน color-coded + Drill-down | `OtCalendarView` |
 
 ---
 
