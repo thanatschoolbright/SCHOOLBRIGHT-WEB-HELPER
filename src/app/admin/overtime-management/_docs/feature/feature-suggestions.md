@@ -29,18 +29,20 @@
 
 ---
 
-### 1. OT Calendar View (Priority: สูง)
+### 1. OT Calendar View ✅ เสร็จแล้ว
 
 **ปัญหาที่แก้:** ปัจจุบันดูข้อมูล OT ได้เฉพาะในรูปแบบตารางเท่านั้น ยากต่อการมองภาพรวมว่าวันไหนมีคนทำ OT กี่คน หรือช่วงไหนมี OT หนาแน่น
 
-**รายละเอียด:**
-- Calendar แบบ Monthly View แสดงจำนวนรายการ OT แต่ละวัน
-- คลิกที่วันเพื่อ Drill-down ดูรายชื่อพนักงานที่ขอ OT วันนั้น
-- Color-coded: เขียว = อนุมัติ, เหลือง = รออนุมัติ, แดง = ปฏิเสธ
-- แสดง Badge จำนวนรายการบนแต่ละวัน
+**สิ่งที่ทำ:**
+- Calendar Monthly View โหลด OT ทั้งเดือนจาก `/api/v1/timesheet/overtime/read`
+- Badge color-coded แต่ละวัน: เขียว = อนุมัติ / เหลือง = รออนุมัติ / แดง = ปฏิเสธ / น้ำเงิน = จ่ายแล้ว
+- คลิกวัน → Drawer รายชื่อพนักงานพร้อม Status Tag
+- คลิกการ์ดใน Drawer → เปิด DetailModal เดิม
+- Summary cards นับ OT รายเดือนแยกทุกสถานะ
+- เปลี่ยนเดือน → โหลด data อัตโนมัติ
 
-**Component ที่ต้องสร้าง:** `_components/ot-calendar-view.tsx`
-**Library:** Ant Design `Calendar` component
+**Component:** `_components/ot-calendar-view.tsx`
+**วางใน page.tsx:** ระหว่าง AdminOtTable และ DepartmentBreakdown
 
 ---
 
@@ -174,7 +176,7 @@
 
 | ลำดับ | Feature | เหตุผล |
 |---|---|---|
-| 1 | OT Calendar View | เพิ่ม UX ภาพรวม ทำง่าย ใช้ Ant Design ที่มีอยู่ |
+| ~~1~~ | ~~OT Calendar View~~ ✅ | เสร็จแล้ว — `_components/ot-calendar-view.tsx` |
 | 2 | OT Quota & Budget Tracking | ตอบโจทย์ธุรกิจโดยตรง ควบคุมค่าใช้จ่าย |
 | 3 | Comment / หมายเหตุ | ลดการสื่อสารนอกระบบ ทำง่าย |
 | 4 | Recurring OT Detection | Logic ง่าย ไม่ต้องสร้าง API ใหม่ |
