@@ -379,6 +379,7 @@ const OvertimeManagementPage = () => {
               }
             : {}),
           ...(appliedStatusValue ? { status: appliedStatusValue } : {}),
+          ...(appliedSearchText ? { search: appliedSearchText } : {}),
         };
 
         const apiRequestParametersBody = targetOvertimeIdentifier
@@ -411,38 +412,14 @@ const OvertimeManagementPage = () => {
 
         if (targetOvertimeIdentifier) return overtimeRecordsListContent;
 
-        // text search คงทำ client-side เพราะ API ไม่รองรับค้นหาด้วยชื่อ
-        let filteredOvertimeItemsResultList = overtimeRecordsListContent;
-        if (appliedSearchText) {
-          const lowerCaseSearchTextString = appliedSearchText.toLowerCase();
-          filteredOvertimeItemsResultList = overtimeRecordsListContent.filter(
-            (item: any) => {
-              const searchFieldValues = [
-                item.id?.toString(),
-                item.requester_id?.toString(),
-                item.requester_name,
-                item.requester_employee_code,
-                item.status,
-                item.reason,
-                item.descriptions
-                  ?.map((desc: any) => desc.description)
-                  .join(" "),
-              ].filter(Boolean);
-              return searchFieldValues.some((field) =>
-                field?.toLowerCase().includes(lowerCaseSearchTextString),
-              );
-            },
-          );
-        }
-
         setOvertimeDataSource(
-          filteredOvertimeItemsResultList.map((item: any) => ({
+          overtimeRecordsListContent.map((item: any) => ({
             key: item.id,
             ...item,
           })),
         );
         setStoreOvertimeDataSource(
-          filteredOvertimeItemsResultList.map((item: any) => ({
+          overtimeRecordsListContent.map((item: any) => ({
             key: item.id,
             ...item,
           })),
@@ -454,11 +431,11 @@ const OvertimeManagementPage = () => {
             currentPageSizeValue,
           total:
             apiResponseDataContent.pagination?.total ??
-            filteredOvertimeItemsResultList.length,
+            overtimeRecordsListContent.length,
         });
         setTotalRecords(
           apiResponseDataContent.pagination?.total ??
-            filteredOvertimeItemsResultList.length,
+            overtimeRecordsListContent.length,
         );
 
         return overtimeRecordsListContent;

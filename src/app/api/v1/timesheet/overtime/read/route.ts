@@ -29,6 +29,7 @@ const ReadOvertimeSchema = z.object({
   status: z.string().optional(),
   from: z.string().optional(),
   to: z.string().optional(),
+  search: z.string().optional(),
 });
 
 type ReadOvertimeParams = z.infer<typeof ReadOvertimeSchema>;
@@ -85,6 +86,7 @@ async function handleFindAll(params: ReadOvertimeParams) {
     status: params.status,
     from,
     to,
+    search: params.search,
   });
 
   const data = result.items.map(transformOvertimeToSnakeCase);

@@ -55,6 +55,7 @@ interface FindAllQuery {
   status?: string;
   from?: Date;
   to?: Date;
+  search?: string;
 }
 
 interface DescriptionInput {
@@ -187,11 +188,11 @@ export async function checkOvertimeTimeOverlap(
 
   const minStart = requestedRanges.reduce(
     (min, r) => (r.start < min ? r.start : min),
-    requestedRanges[0].start,
+    requestedRanges[0]!.start,
   );
   const maxEnd = requestedRanges.reduce(
     (max, r) => (r.end > max ? r.end : max),
-    requestedRanges[0].end,
+    requestedRanges[0]!.end,
   );
 
   const existingDescriptions = await (PrismaTimesheet as any).overtimeDescription.findMany({
@@ -410,6 +411,39 @@ function buildWhereClause(query: FindAllQuery) {
     where.requestDate = {};
     if (query.from) where.requestDate.gte = query.from;
     if (query.to) where.requestDate.lte = query.to;
+  }
+
+  // ค้นหาด้วยข้อความ: ตรวจสอบ id, employee_code, ชื่อพนักงาน (requester/creator), และ description
+  if (query.search && query.search.trim() !== "") {
+    const keyword = query.search.trim();
+    const isNumeric = !isNaN(Number(keyword));
+    where.OR = [
+      ...(isNumeric ? [{ id: Number(keyword) }] : []),
+      {
+        requester: {
+          OR: [
+            { employee_code: { contains: keyword } },
+            { firstname_th: { contains: keyword } },
+            { lastname_th: { contains: keyword } },
+            { firstname_en: { contains: keyword } },
+            { lastname_en: { contains: keyword } },
+          ],
+        },
+      },
+      {
+        creator: {
+          OR: [
+            { firstname_th: { contains: keyword } },
+            { lastname_th: { contains: keyword } },
+          ],
+        },
+      },
+      {
+        descriptions: {
+          some: { description: { contains: keyword } },
+        },
+      },
+    ];
   }
 
   return where;
