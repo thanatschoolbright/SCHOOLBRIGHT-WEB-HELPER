@@ -165,7 +165,9 @@ export default function AdminOvertimeManagementPage() {
           throw new Error(res?.data?.message_th || "ไม่สามารถโหลดข้อมูลได้");
         }
 
-        const records: any[] = Array.isArray(res.data.data) ? res.data.data : [];
+        const records: any[] = Array.isArray(res.data.data)
+          ? res.data.data
+          : [];
         const mapped = records.map((r) => ({ key: r.id, ...r }));
         setDataSource(mapped);
         const total = res.data.pagination?.total ?? records.length;
@@ -807,9 +809,9 @@ export default function AdminOvertimeManagementPage() {
 
         itemsForZip.push({
           employeeCode,
-          fileName: `OT_${employeeCode}_${requesterName}_${dayjs(
+          fileName: `OT_${data.id}_${employeeCode}_${requesterName}_${dayjs(
             data.request_date,
-          ).format("DD-MM-YYYY")}_${data.id}.pdf`,
+          ).format("DD-MM-YYYY")}.pdf`,
           element: [printableElement, evidenceElement],
         });
       }
