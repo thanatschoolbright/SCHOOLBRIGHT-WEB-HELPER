@@ -154,6 +154,7 @@ export default function AdminOvertimeManagementPage() {
           body.from = params.dateRange[0];
           body.to = params.dateRange[1];
         }
+        if (params?.searchText) body.search = params.searchText;
 
         const res = await callApiService.post(
           "/api/v1/timesheet/overtime/read",
@@ -164,26 +165,7 @@ export default function AdminOvertimeManagementPage() {
           throw new Error(res?.data?.message_th || "ไม่สามารถโหลดข้อมูลได้");
         }
 
-        let records: any[] = Array.isArray(res.data.data) ? res.data.data : [];
-
-        // client-side text search (API ไม่รองรับค้นหาด้วยชื่อ)
-        if (params?.searchText) {
-          const q = params.searchText.toLowerCase();
-          records = records.filter((r) => {
-            const fields = [
-              r.id?.toString(),
-              r.requester_id?.toString(),
-              r.requester_name,
-              r.requester_employee_code,
-              r.requester_firstname_th,
-              r.requester_lastname_th,
-              r.status,
-              ...(r.descriptions || []).map((d: any) => d.description),
-            ].filter(Boolean);
-            return fields.some((f) => f?.toLowerCase().includes(q));
-          });
-        }
-
+        const records: any[] = Array.isArray(res.data.data) ? res.data.data : [];
         const mapped = records.map((r) => ({ key: r.id, ...r }));
         setDataSource(mapped);
         const total = res.data.pagination?.total ?? records.length;
