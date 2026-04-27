@@ -1156,11 +1156,12 @@ export default function AdminOvertimeManagementPage() {
           {/* C2 — Approval SLA Dashboard */}
           <ApprovalSlaDashboard />
 
-          {/* Modal ดูรายละเอียด */}
+          {/* Modal ดูรายละเอียด (isAdmin เปิดส่วน Comment / หมายเหตุ) */}
           <DetailModal
             visible={isDetailVisible}
             onClose={() => setIsDetailVisible(false)}
             selectedDetail={selectedDetail}
+            isAdmin={true}
           />
 
           {/* Modal ระบุเหตุผลปฏิเสธ (รองรับทั้งรายการเดียวและ bulk) */}

@@ -1,17 +1,21 @@
 "use client";
 
 import { OT_STATUS } from "@/constants/overtime-status";
+import { callApiService } from "@/services/axios-instance/sb-helper.axios";
+import { useAppSelector } from "@/stores/store";
 import {
   CameraOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
   CloseCircleOutlined,
+  CommentOutlined,
   DollarOutlined,
   ExclamationCircleOutlined,
   FileSearchOutlined,
   FileTextOutlined,
   HistoryOutlined,
   PlusCircleOutlined,
+  SendOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import {
@@ -22,7 +26,7 @@ import {
   Divider,
   Empty,
   Flex,
-  Image,
+  Input,
   Modal,
   Row,
   Space,
@@ -32,15 +36,18 @@ import {
   theme,
   Timeline,
   Typography,
+  Image,
 } from "antd";
 import axios from "axios";
 import dayjs from "dayjs";
 import React from "react";
+import { toast } from "sonner";
 
 interface DetailModalProps {
   visible: boolean;
   onClose: () => void;
   selectedDetail: any;
+  isAdmin?: boolean;
 }
 
 /**
@@ -53,19 +60,25 @@ const DetailModal: React.FC<DetailModalProps> = ({
   visible,
   onClose,
   selectedDetail,
+  isAdmin = false,
 }) => {
   const { token } = theme.useToken();
+  const authState = useAppSelector((state) => state.callAdminLogin);
+  const currentUserName = authState?.response?.data?.user_data
+    ? `${authState.response.data.user_data.firstname ?? ""} ${authState.response.data.user_data.lastname ?? ""}`.trim()
+    : "";
 
   // ประวัติจาก Database (real logs)
   const [statusLogs, setStatusLogs] = React.useState<any[]>([]);
   const [isLoadingLogs, setIsLoadingLogs] = React.useState(false);
 
-  // ดึง status logs จาก API ทุกครั้งที่เปิด modal และมีข้อมูล
-  React.useEffect(() => {
-    if (!visible || !selectedDetail?.id) {
-      setStatusLogs([]);
-      return;
-    }
+  // state สำหรับ Comment / หมายเหตุ Admin
+  const [commentText, setCommentText] = React.useState("");
+  const [isSavingComment, setIsSavingComment] = React.useState(false);
+
+  // ดึง status logs จาก API
+  const fetchLogs = React.useCallback(() => {
+    if (!selectedDetail?.id) return;
     setIsLoadingLogs(true);
     axios
       .get(`/api/v1/timesheet/overtime/status-log?overtime_id=${selectedDetail.id}`)
@@ -74,7 +87,41 @@ const DetailModal: React.FC<DetailModalProps> = ({
       })
       .catch(() => setStatusLogs([]))
       .finally(() => setIsLoadingLogs(false));
-  }, [visible, selectedDetail?.id]);
+  }, [selectedDetail?.id]);
+
+  // โหลด logs เมื่อ modal เปิด
+  React.useEffect(() => {
+    if (!visible || !selectedDetail?.id) {
+      setStatusLogs([]);
+      setCommentText("");
+      return;
+    }
+    fetchLogs();
+  }, [visible, selectedDetail?.id, fetchLogs]);
+
+  // บันทึก Comment ของ Admin
+  const handleSaveComment = React.useCallback(async () => {
+    const text = commentText.trim();
+    if (!text || !selectedDetail?.id) return;
+    setIsSavingComment(true);
+    try {
+      const res = await callApiService.post("/api/v1/timesheet/overtime/comment", {
+        overtime_id: selectedDetail.id,
+        comment: text,
+      });
+      if (res?.data?.status === 201) {
+        toast.success("บันทึกหมายเหตุสำเร็จ");
+        setCommentText("");
+        fetchLogs();
+      } else {
+        toast.error(res?.data?.message_th || "ไม่สามารถบันทึกหมายเหตุได้");
+      }
+    } catch {
+      toast.error("เกิดข้อผิดพลาดในการบันทึกหมายเหตุ");
+    } finally {
+      setIsSavingComment(false);
+    }
+  }, [commentText, selectedDetail?.id, fetchLogs]);
 
   // คำนวณสรุปจำนวนชั่วโมงทำงานโดยรวมในคำขอที่ถูกเลือก
   const totalDurationSummaryValue = React.useMemo(() => {
@@ -103,6 +150,26 @@ const DetailModal: React.FC<DetailModalProps> = ({
     // ใช้ real logs จาก Database ถ้ามี
     if (statusLogs.length > 0) {
       return statusLogs.map((log: any) => {
+        // log ที่ to_status = "comment" คือหมายเหตุจาก Admin
+        if (log.to_status === "comment") {
+          return {
+            dot: <CommentOutlined style={{ color: "#1677ff" }} />,
+            color: "#1677ff",
+            children: (
+              <Flex vertical gap={2}>
+                <Tag color="blue" style={{ margin: 0, width: "fit-content", fontSize: 12 }}>
+                  หมายเหตุจาก Admin
+                </Tag>
+                <Typography.Text style={{ fontSize: 12 }}>{log.note}</Typography.Text>
+                <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                  {log.changed_by_name ?? ""}{" "}
+                  {log.changed_at ? `• ${dayjs(log.changed_at).format("DD/MM/YYYY HH:mm")}` : ""}
+                </Typography.Text>
+              </Flex>
+            ),
+          };
+        }
+
         // log ที่มี from_status = null คือการสร้าง
         const isCreation = !log.from_status;
         const statusKey = isCreation ? "created" : log.to_status;
@@ -121,7 +188,7 @@ const DetailModal: React.FC<DetailModalProps> = ({
               </Tag>
               {log.note && log.note !== "สร้างคำขอ OT" && (
                 <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  📝 {log.note}
+                  {log.note}
                 </Typography.Text>
               )}
               <Typography.Text type="secondary" style={{ fontSize: 11 }}>
@@ -444,7 +511,54 @@ const DetailModal: React.FC<DetailModalProps> = ({
           </Card>
         </Flex>
 
-        {/* ส่วนที่ 4: หลักฐานรูปภาพและลายเซ็น */}
+        {/* ส่วนที่ 4: หมายเหตุจาก Admin (แสดงเฉพาะฝั่ง Admin) */}
+        {isAdmin && (
+          <Flex vertical gap={12}>
+            <Divider orientation="left" style={{ margin: "8px 0" }}>
+              <Space>
+                <CommentOutlined style={{ color: token.colorPrimary }} />
+                <Typography.Text strong>หมายเหตุจาก Admin</Typography.Text>
+              </Space>
+            </Divider>
+            <Card
+              variant="borderless"
+              style={{ background: token.colorFillQuaternary, borderRadius: 16 }}
+              styles={{ body: { padding: 16 } }}
+            >
+              <Flex vertical gap={8}>
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  พิมพ์ข้อความที่ต้องการฝากถึงพนักงาน — จะแสดงในประวัติการดำเนินการของทั้งสองฝ่าย
+                </Typography.Text>
+                <Flex gap={8} align="flex-start">
+                  <Input.TextArea
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    placeholder={`หมายเหตุจาก ${currentUserName || "Admin"}...`}
+                    autoSize={{ minRows: 2, maxRows: 5 }}
+                    maxLength={1000}
+                    showCount
+                    style={{ flex: 1 }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) handleSaveComment();
+                    }}
+                  />
+                  <Button
+                    type="primary"
+                    icon={<SendOutlined />}
+                    loading={isSavingComment}
+                    disabled={!commentText.trim()}
+                    onClick={handleSaveComment}
+                    style={{ alignSelf: "flex-end" }}
+                  >
+                    บันทึก
+                  </Button>
+                </Flex>
+              </Flex>
+            </Card>
+          </Flex>
+        )}
+
+        {/* ส่วนที่ 5: หลักฐานรูปภาพและลายเซ็น (เดิมส่วนที่ 4) */}
         <Flex vertical gap={16}>
           <Divider orientation="left" style={{ margin: "8px 0" }}>
             <Space>

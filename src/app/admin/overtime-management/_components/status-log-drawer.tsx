@@ -4,6 +4,7 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   CloseCircleOutlined,
+  CommentOutlined,
   DollarOutlined,
   ExclamationCircleOutlined,
   HistoryOutlined,
@@ -97,8 +98,33 @@ const StatusLogDrawer: React.FC<StatusLogDrawerProps> = ({
     fetchLogs();
   }, [open, overtimeId]);
 
-  // สร้าง timeline items จาก log
+  // สร้าง timeline items จาก log — แยก comment entry ออกจาก status change
   const timelineItems = logs.map((log) => {
+    // entry ที่ to_status = "comment" คือหมายเหตุจาก Admin
+    if (log.to_status === "comment") {
+      return {
+        color: "#1677ff",
+        dot: <CommentOutlined style={{ color: "#1677ff" }} />,
+        children: (
+          <Flex vertical gap={4}>
+            <Tag color="blue" style={{ margin: 0, width: "fit-content", fontSize: 12 }}>
+              หมายเหตุจาก Admin
+            </Tag>
+            <Text style={{ fontSize: 12 }}>{log.note}</Text>
+            <Flex align="center" gap={6}>
+              <UserOutlined style={{ color: "#8c8c8c", fontSize: 12 }} />
+              <Text style={{ fontSize: 12 }}>
+                {log.changed_by_name || (log.changed_by ? `User #${log.changed_by}` : "Admin")}
+              </Text>
+            </Flex>
+            <Text type="secondary" style={{ fontSize: 11 }}>
+              {dayjs(log.changed_at).format("DD/MM/YYYY HH:mm:ss น.")}
+            </Text>
+          </Flex>
+        ),
+      };
+    }
+
     const cfg = STATUS_CONFIG[log.to_status] || {
       label: log.to_status,
       color: "gray",

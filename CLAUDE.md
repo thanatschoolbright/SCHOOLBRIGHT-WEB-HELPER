@@ -116,7 +116,7 @@ Use these in route handlers instead of writing custom logic:
 | `safe-parse.params.ts` | `safeParseRequestBody(request)` | `request.json()` with empty-object fallback |
 | `format-date.params.ts` | `formatDate(date)` | Any date → ISO string or `null` |
 
-Input validation uses Zod via `src/helpers/api/validate.request.ts`.
+Input validation uses Zod via `src/helpers/api/validate.request.ts`. Use `validateRequest(request, schema)` in route handlers — it parses the body and returns `{ error: NextResponse }` on failure or `{ data: T }` on success. The `validate.params.ts` / `safe-parse.params.ts` helpers in `helpers/controller/` are lower-level utilities; prefer `validateRequest` at the route layer.
 
 ### State management
 
@@ -128,6 +128,8 @@ Two patterns coexist:
 ### Page component pattern
 
 Pages prefer RSC (React Server Components) — push data fetching and logic server-side. Only extract `"use client"` components for interactive elements (forms, modals, buttons). Client components pull from Redux via `useAppSelector`, use local `useState`/`useCallback` for UI state, and call internal API endpoints via `callApiService` from `src/services/axios-instance/sb-helper.axios.ts`. Sub-components in `_components/` receive handlers as props.
+
+All pages must be wrapped in `<BackendLayout>` from `@components/layouts/backend-layout`.
 
 Feature frontend layout:
 ```
@@ -151,6 +153,7 @@ src/app/{domain}/{feature}/
 - **Filter sections**: Heading "ตัวกรอง" uses `<FilterOutlined />` (`fontSize: 1rem, fontWeight: 600`) with `marginBottom: 16px`. Layout is 2 columns per row (`Col`/`Row`). "ค้นหา" and "ล้างการค้นหา" buttons right-aligned with icons.
 - **Tables**: Wrap content in `<Card styles={{ body: { padding: 16 } }}>`. Use `<UnorderedListOutlined />` (1rem) for table headings. Action buttons (bulk actions, export, etc.) go top-right of the table section. Add sort to all sortable columns. Never use `maxWidth` on columns.
 - **Font weight**: Maximum 600.
+- **Dates**: Use `dayjs` for all date manipulation and formatting — it is the project standard.
 - **Language**: All UI text must be 100% Thai — no mixing Thai and English words in labels, buttons, or toast messages.
 - **No emojis**: Strictly forbidden in code, comments, strings, and UI. Exception: commit messages use `✨` prefix only.
 

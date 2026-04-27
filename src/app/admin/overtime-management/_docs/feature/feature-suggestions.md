@@ -22,6 +22,7 @@
 | รายงานค่าใช้จ่าย OT รายเดือน/รายคน | `MonthlyCostReport` |
 | สถิติ OT แยกตามแผนก | `DepartmentBreakdown` |
 | **[เสร็จแล้ว]** ปฏิทิน OT รายเดือน color-coded + Drill-down | `OtCalendarView` |
+| **[เสร็จแล้ว]** หมายเหตุ Admin ใน DetailModal + Timeline | `comment/route.ts` + `detail-modal.tsx` |
 
 ---
 
@@ -64,18 +65,22 @@
 
 ---
 
-### 3. ระบบ Comment / หมายเหตุ ในรายการ OT (Priority: สูง)
+### 3. ระบบ Comment / หมายเหตุ ในรายการ OT ✅ เสร็จแล้ว
 
 **ปัญหาที่แก้:** เมื่อ Admin อนุมัติหรือปฏิเสธ OT ปัจจุบันมีแค่ "เหตุผลปฏิเสธ" แต่ไม่มีพื้นที่สำหรับการสื่อสารระหว่าง Admin กับพนักงาน ทำให้ต้องใช้ช่องทางอื่น (Line/Email) แทน
 
-**รายละเอียด:**
-- Section "หมายเหตุจาก Admin" ใน DetailModal
-- Admin พิมพ์ Comment และ Save ได้โดยไม่ต้องเปลี่ยนสถานะ
-- Comment แสดงใน StatusLogDrawer เรียงตามเวลา
-- พนักงานเห็น Comment ฝั่ง User ด้วย
+**สิ่งที่ทำ:**
+- API `POST /api/v1/timesheet/overtime/comment` — บันทึก comment ลง `OvertimeStatusLog` ด้วย `to_status = "comment"` (ไม่ต้องแก้ schema DB)
+- `detail-modal.tsx` เพิ่ม prop `isAdmin` — เมื่อ `true` แสดง Section "หมายเหตุจาก Admin" พร้อม TextArea + ปุ่มบันทึก (Ctrl+Enter ก็บันทึกได้)
+- หลัง save comment — reload Timeline ใน modal อัตโนมัติ
+- Timeline ทั้งใน `DetailModal` และ `StatusLogDrawer` render entry ที่ `to_status = "comment"` แบบพิเศษ (สีน้ำเงิน, icon `CommentOutlined`, ไม่แสดง arrow สถานะ)
+- พนักงานฝั่ง User เห็น comment ได้ผ่าน GET /status-log เหมือนเดิม (ไม่ต้องแก้อะไรเพิ่ม)
 
-**API ที่ต้องสร้าง:** `POST /api/v1/timesheet/overtime/comment`
-**DB:** เพิ่ม field `admin_note` ใน `OvertimeStatusLog` หรือสร้าง model `OvertimeComment` ใหม่
+**ไฟล์ที่แก้:**
+- `src/app/api/v1/timesheet/overtime/comment/route.ts` (ใหม่)
+- `src/app/timesheet/overtime/_components/detail-modal.tsx`
+- `src/app/admin/overtime-management/_components/status-log-drawer.tsx`
+- `src/app/admin/overtime-management/page.tsx` (เพิ่ม `isAdmin={true}` ใน DetailModal)
 
 ---
 
@@ -178,7 +183,7 @@
 |---|---|---|
 | ~~1~~ | ~~OT Calendar View~~ ✅ | เสร็จแล้ว — `_components/ot-calendar-view.tsx` |
 | 2 | OT Quota & Budget Tracking | ตอบโจทย์ธุรกิจโดยตรง ควบคุมค่าใช้จ่าย |
-| 3 | Comment / หมายเหตุ | ลดการสื่อสารนอกระบบ ทำง่าย |
+| ~~3~~ | ~~Comment / หมายเหตุ~~ ✅ | เสร็จแล้ว — comment API + DetailModal + StatusLogDrawer |
 | 4 | Recurring OT Detection | Logic ง่าย ไม่ต้องสร้าง API ใหม่ |
 | 5 | Smart Approve | ลด Manual Work ของ Admin |
 | 6 | Export PDF สรุปรายเดือน | ใช้ Infrastructure เดิมได้เลย |
