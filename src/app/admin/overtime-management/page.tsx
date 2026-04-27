@@ -501,7 +501,16 @@ export default function AdminOvertimeManagementPage() {
 
         const firstDescription = data.descriptions?.[0] || {};
         const proofData = firstDescription.proof || {};
-        const headerDate = data.request_date || data.created_at;
+        // วันที่แสดงในส่วนหัวเอกสารและลายเซ็นผู้อนุมัติ
+        // ใช้ end_date ล่าสุดจาก descriptions บวก 1 วัน เพื่อให้วันเซ็นอนุมัติมากกว่าวันสิ้นสุด OT เสมอ
+        const latestEndDate = (data.descriptions || [])
+          .map((d: any) => d.end_date)
+          .filter(Boolean)
+          .sort()
+          .at(-1);
+        const headerDate = latestEndDate
+          ? dayjs(latestEndDate).add(1, "day").toISOString()
+          : data.request_date || data.created_at;
 
         // แปลงนาทีเป็น "H ชม. MM นาที" สำหรับแสดงในเอกสาร
         const formatDurationToDecimal = (minutes: number) => {
