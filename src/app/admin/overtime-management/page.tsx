@@ -406,6 +406,9 @@ export default function AdminOvertimeManagementPage() {
         .ot-info-temp > div { display: flex; align-items: center; gap: 4px; min-height: 22px; }
         .ot-table-temp { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 10px; table-layout: fixed; }
         .ot-table-temp th, .ot-table-temp td { padding: 5px 6px; vertical-align: middle; text-align: center; border: 1px solid #9ca3af; overflow: hidden; }
+        .ot-time-cell { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+        .ot-time-date { font-size: 9px; color: #555; }
+        .ot-time-hour { font-size: 10px; font-weight: 600; color: #111; }
         .ot-table-temp th { background-color: #e5e7eb; color: #111; font-weight: 700; font-size: 9.5px; }
         .ot-table-temp td { color: #222; }
         .ot-table-temp td.desc-cell { text-align: left; word-break: break-word; overflow-wrap: break-word; white-space: normal; max-width: 0; }
@@ -623,16 +626,14 @@ export default function AdminOvertimeManagementPage() {
                     }</td>
                     <td>${
                       descriptionItem.start_date
-                        ? dayjs(descriptionItem.start_date).format("HH:00")
+                        ? `<div class="ot-time-cell"><span class="ot-time-date">${formatDateThai(descriptionItem.start_date)}</span><span class="ot-time-hour">${dayjs(descriptionItem.start_date).format("HH:00")}</span></div>`
                         : "-"
                     }</td>
-                    <td>${
-                      descriptionItem.end_date
-                        ? dayjs(descriptionItem.end_date)
-                            .add(1, "hour")
-                            .format("HH:00")
-                        : "-"
-                    }</td>
+                    <td>${(() => {
+                      if (!descriptionItem.end_date) return "-";
+                      const endAdjusted = dayjs(descriptionItem.end_date).add(1, "hour").startOf("hour");
+                      return `<div class="ot-time-cell"><span class="ot-time-date">${formatDateThai(endAdjusted.toISOString())}</span><span class="ot-time-hour">${endAdjusted.format("HH:00")}</span></div>`;
+                    })()}</td>
                     <td style="font-weight:600">${formatDurationToDecimal(
                       diffMinutes,
                     )}</td>
@@ -736,12 +737,12 @@ export default function AdminOvertimeManagementPage() {
                       }</td>
                       <td>${
                         descriptionItem.start_date
-                          ? dayjs(descriptionItem.start_date).format("HH:mm")
+                          ? `<div class="ot-time-cell"><span class="ot-time-date">${formatDateThai(descriptionItem.start_date)}</span><span class="ot-time-hour">${dayjs(descriptionItem.start_date).format("HH:mm")}</span></div>`
                           : "-"
                       }</td>
                       <td>${
                         descriptionItem.end_date
-                          ? dayjs(descriptionItem.end_date).format("HH:mm")
+                          ? `<div class="ot-time-cell"><span class="ot-time-date">${formatDateThai(descriptionItem.end_date)}</span><span class="ot-time-hour">${dayjs(descriptionItem.end_date).format("HH:mm")}</span></div>`
                           : "-"
                       }</td>
                       <td style="font-weight:600">${formatDurationToDecimal(
