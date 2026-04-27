@@ -809,7 +809,7 @@ export default function AdminOvertimeManagementPage() {
 
         itemsForZip.push({
           employeeCode,
-          fileName: `OT_${data.id}_${employeeCode}_${requesterName}_${dayjs(
+          fileName: `OT${data.id}_${employeeCode}_${requesterName}_${dayjs(
             data.request_date,
           ).format("DD-MM-YYYY")}.pdf`,
           element: [printableElement, evidenceElement],
