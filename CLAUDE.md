@@ -127,7 +127,7 @@ Two patterns coexist:
 
 ### Page component pattern
 
-Pages prefer RSC (React Server Components) — push data fetching and logic server-side. Only extract `"use client"` components for interactive elements (forms, modals, buttons). Client components pull from Redux via `useAppSelector`, use local `useState`/`useCallback` for UI state, and call internal API endpoints via `callApiService` from `src/services/api-gateway.tsx`. Sub-components in `_components/` receive handlers as props.
+Pages prefer RSC (React Server Components) — push data fetching and logic server-side. Only extract `"use client"` components for interactive elements (forms, modals, buttons). Client components pull from Redux via `useAppSelector`, use local `useState`/`useCallback` for UI state, and call internal API endpoints via `callApiService` from `src/services/axios-instance/sb-helper.axios.ts`. Sub-components in `_components/` receive handlers as props.
 
 Feature frontend layout:
 ```
@@ -145,11 +145,11 @@ src/app/{domain}/{feature}/
 
 - **Component library**: Ant Design v5 only. Use `Flex`, `Row`, `Col`, `Space` for layout — no inline CSS or custom stylesheets. Support both Light and Dark mode via Ant Design tokens.
 - **Notifications**: Use `toast` from `sonner` only.
-- **Status dialogs**: Use `src/components/modal/status-modal-component.tsx` for success/error/confirm modals.
+- **Status dialogs**: Import from `@/components/modal/status-modal` (component file: `src/components/modal/status-modal-component.tsx`). Use for success/error/confirm modals.
 - **Page titles**: Use `src/components/typhography/header-bar-component.tsx` only.
 - **Summary cards**: Use `src/components/card/summary-card.tsx` (`title`, `value`, `unit?`, `subtitle?`, `icon?`, `color?`, `tooltip?`, `suffix?`, `isLoading?`). Always fetch raw data server-side and compute aggregates before passing to the component — never filter on the client via table.
-- **Filter sections**: 2 columns per row (`Col`/`Row`), "ค้นหา" and "ล้างการค้นหา" buttons right-aligned with icons.
-- **Tables**: Wrap content in `<Card styles={{ body: { padding: 16 } }}>`. Use `<UnorderedListOutlined />` (1rem) for table headings. Add sort to all sortable columns. Never use `maxWidth` on columns.
+- **Filter sections**: Heading "ตัวกรอง" uses `<FilterOutlined />` (`fontSize: 1rem, fontWeight: 600`) with `marginBottom: 16px`. Layout is 2 columns per row (`Col`/`Row`). "ค้นหา" and "ล้างการค้นหา" buttons right-aligned with icons.
+- **Tables**: Wrap content in `<Card styles={{ body: { padding: 16 } }}>`. Use `<UnorderedListOutlined />` (1rem) for table headings. Action buttons (bulk actions, export, etc.) go top-right of the table section. Add sort to all sortable columns. Never use `maxWidth` on columns.
 - **Font weight**: Maximum 600.
 - **Language**: All UI text must be 100% Thai — no mixing Thai and English words in labels, buttons, or toast messages.
 - **No emojis**: Strictly forbidden in code, comments, strings, and UI. Exception: commit messages use `✨` prefix only.

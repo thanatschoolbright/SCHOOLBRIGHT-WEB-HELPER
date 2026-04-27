@@ -401,15 +401,17 @@ export default function AdminOvertimeManagementPage() {
           border: 1px solid #d1d5db;
           background: #fafafa;
         }
-        .ot-label-temp { font-weight: 600; color: #555; min-width: 80px; font-size: 10.5px; vertical-align: middle; }
-        .ot-value-temp { flex: 1; border-bottom: 1px solid #e5e7eb; padding-bottom: 1px; color: #111; font-size: 10.5px; vertical-align: middle; }
-        .ot-info-temp > div { display: flex; align-items: center; vertical-align: middle; gap: 4px; }
+        .ot-label-temp { display: flex; align-items: center; font-weight: 600; color: #555; min-width: 80px; font-size: 10.5px; }
+        .ot-value-temp { display: flex; align-items: center; flex: 1; border-bottom: 1px solid #e5e7eb; padding-bottom: 1px; color: #111; font-size: 10.5px; }
+        .ot-info-temp > div { display: flex; align-items: center; gap: 4px; min-height: 22px; }
         .ot-table-temp { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 10px; table-layout: fixed; }
         .ot-table-temp th, .ot-table-temp td { padding: 5px 6px; vertical-align: middle; text-align: center; border: 1px solid #9ca3af; overflow: hidden; }
-        .ot-table-temp th { background-color: #e5e7eb; color: #111; font-weight: 700; font-size: 9.5px; vertical-align: middle; }
-        .ot-table-temp td { color: #222; vertical-align: middle; }
-        .ot-table-temp td.desc-cell { text-align: left; word-break: break-word; overflow-wrap: break-word; white-space: normal; max-width: 0; vertical-align: middle; }
+        .ot-table-temp th { background-color: #e5e7eb; color: #111; font-weight: 700; font-size: 9.5px; }
+        .ot-table-temp td { color: #222; }
+        .ot-table-temp td.desc-cell { text-align: left; word-break: break-word; overflow-wrap: break-word; white-space: normal; max-width: 0; }
         .ot-section-header {
+          display: flex;
+          align-items: center;
           margin-bottom: 6px;
           padding: 5px 8px;
           background: #f3f4f6;
@@ -417,7 +419,7 @@ export default function AdminOvertimeManagementPage() {
           color: #111;
           font-size: 10.5px;
           font-weight: 700;
-          vertical-align: middle;
+          min-height: 24px;
         }
         .ot-summary-temp {
           display: flex;
@@ -428,21 +430,24 @@ export default function AdminOvertimeManagementPage() {
           font-size: 10.5px;
           margin-bottom: 14px;
           padding: 6px 10px;
-          vertical-align: middle;
         }
-        .ot-total-label { color: #555; vertical-align: middle; }
-        .ot-total-value { font-size: 13px; color: #111; font-weight: 700; vertical-align: middle; }
+        .ot-total-label { display: flex; align-items: center; color: #555; }
+        .ot-total-value { display: flex; align-items: center; font-size: 13px; color: #111; font-weight: 700; }
         .ot-sign-container-temp { display: flex; justify-content: space-between; align-items: stretch; margin-top: 14px; gap: 16px; }
-        .ot-sign-box-temp { text-align: center; width: 48%; padding: 8px; border: 1px solid #d1d5db; display: flex; flex-direction: column; align-items: center; justify-content: center; vertical-align: middle; }
-        .ot-sign-title-temp { font-weight: 700; margin-bottom: 4px; font-size: 10.5px; color: #111; padding-bottom: 4px; vertical-align: middle; width: 100%; }
+        .ot-sign-box-temp { text-align: center; width: 48%; padding: 8px; border: 1px solid #d1d5db; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+        .ot-sign-title-temp { display: flex; align-items: center; justify-content: center; font-weight: 700; margin-bottom: 4px; font-size: 10.5px; color: #111; padding-bottom: 4px; width: 100%; min-height: 20px; }
         .ot-sign-line-temp { border-bottom: 1px solid #6b7280; margin: 4px auto 4px; width: 70%; }
+        .ot-sign-img-temp { height: 45px; display: flex; align-items: center; justify-content: center; width: 100%; }
+        .ot-sign-name-temp { display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #334155; min-height: 18px; }
+        .ot-sign-sub-temp { display: flex; align-items: center; justify-content: center; font-size: 9px; color: #64748b; margin-top: 1px; min-height: 14px; }
+        .ot-sign-date-temp { display: flex; align-items: center; justify-content: center; font-size: 9px; color: #94a3b8; margin-top: 2px; min-height: 14px; }
         .ot-sub-form-temp { margin-top: 18px; border-top: 1px solid #d1d5db; padding-top: 14px; }
         .evidence-page-temp { padding: 20px 28px; }
         .evidence-grid-temp { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
-        .evidence-item-temp { border: 1px solid #d1d5db; padding: 12px; height: 480px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; background: #fff; vertical-align: middle; }
-        .evidence-label-temp { font-weight: 700; color: #111; margin-bottom: 10px; text-align: center; font-size: 12px; vertical-align: middle; width: 100%; }
-        .evidence-img-wrapper-temp { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; background: #f9fafb; padding: 6px; overflow: hidden; vertical-align: middle; }
-        .evidence-img-temp { max-width: 100%; max-height: 100%; object-fit: contain; vertical-align: middle; }
+        .evidence-item-temp { border: 1px solid #d1d5db; padding: 12px; height: 480px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; background: #fff; }
+        .evidence-label-temp { display: flex; align-items: center; justify-content: center; font-weight: 700; color: #111; margin-bottom: 10px; text-align: center; font-size: 12px; width: 100%; min-height: 20px; }
+        .evidence-img-wrapper-temp { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; background: #f9fafb; padding: 6px; overflow: hidden; }
+        .evidence-img-temp { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
       `;
       temporaryContainer.appendChild(styleElement);
 
@@ -651,7 +656,7 @@ export default function AdminOvertimeManagementPage() {
           <div class="ot-sign-container-temp">
             <div class="ot-sign-box-temp">
               <div class="ot-sign-title-temp">ผู้ขออนุมัติ</div>
-              <div style="height:45px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:2px;">
+              <div class="ot-sign-img-temp">
                 ${
                   signatureBase64
                     ? `<img src="${signatureBase64}" style="max-height:40px;">`
@@ -659,18 +664,18 @@ export default function AdminOvertimeManagementPage() {
                 }
               </div>
               <div class="ot-sign-line-temp"></div>
-              <div style="font-size:11px; font-weight:600; color:#334155;">(${requesterName
+              <div class="ot-sign-name-temp">(${requesterName
                 .replace(/\s*\([^)]*\)/g, "")
                 .trim()})</div>
-              <div style="font-size:9px; color:#64748b; margin-top:1px;">${requesterPosition}</div>
-              <div style="font-size:9px; color:#94a3b8; margin-top:2px;">วันที่ ${formatDateThai(
+              <div class="ot-sign-sub-temp">${requesterPosition}</div>
+              <div class="ot-sign-date-temp">วันที่ ${formatDateThai(
                 headerDate,
                 " / ",
               )}</div>
             </div>
             <div class="ot-sign-box-temp">
               <div class="ot-sign-title-temp">ผู้ตรวจสอบ / รับทราบ</div>
-              <div style="height:45px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:2px;">
+              <div class="ot-sign-img-temp">
                 ${
                   approverSignatureBase64
                     ? `<img src="${approverSignatureBase64}" style="max-height:40px;">`
@@ -678,9 +683,9 @@ export default function AdminOvertimeManagementPage() {
                 }
               </div>
               <div class="ot-sign-line-temp"></div>
-              <div style="font-size:11px; font-weight:600; color:#334155;">(ธนัท พรหมพิริยา)</div>
-              <div style="font-size:9px; color:#64748b; margin-top:1px;">หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ</div>
-              <div style="font-size:9px; color:#94a3b8; margin-top:2px;">วันที่ ${formatDateThai(
+              <div class="ot-sign-name-temp">(ธนัท พรหมพิริยา)</div>
+              <div class="ot-sign-sub-temp">หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ</div>
+              <div class="ot-sign-date-temp">วันที่ ${formatDateThai(
                 headerDate,
                 " / ",
               )}</div>
@@ -758,7 +763,7 @@ export default function AdminOvertimeManagementPage() {
             <div class="ot-sign-container-temp">
               <div class="ot-sign-box-temp">
                 <div class="ot-sign-title-temp">ผู้บันทึกการทำงาน</div>
-                <div style="height:45px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:2px;">
+                <div class="ot-sign-img-temp">
                   ${
                     signatureBase64
                       ? `<img src="${signatureBase64}" style="max-height:40px;">`
@@ -766,18 +771,18 @@ export default function AdminOvertimeManagementPage() {
                   }
                 </div>
                 <div class="ot-sign-line-temp"></div>
-                <div style="font-size:11px; font-weight:600; color:#334155;">(${requesterName
+                <div class="ot-sign-name-temp">(${requesterName
                   .replace(/\s*\([^)]*\)/g, "")
                   .trim()})</div>
-                <div style="font-size:9px; color:#64748b; margin-top:1px;">${requesterPosition}</div>
-                <div style="font-size:9px; color:#94a3b8; margin-top:2px;">วันที่ ${formatDateThai(
+                <div class="ot-sign-sub-temp">${requesterPosition}</div>
+                <div class="ot-sign-date-temp">วันที่ ${formatDateThai(
                   headerDate,
                   " / ",
                 )}</div>
               </div>
               <div class="ot-sign-box-temp">
                 <div class="ot-sign-title-temp">ผู้รับรองการทำงาน</div>
-                <div style="height:45px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:2px;">
+                <div class="ot-sign-img-temp">
                   ${
                     approverSignatureBase64
                       ? `<img src="${approverSignatureBase64}" style="max-height:40px;">`
@@ -785,9 +790,9 @@ export default function AdminOvertimeManagementPage() {
                   }
                 </div>
                 <div class="ot-sign-line-temp"></div>
-                <div style="font-size:11px; font-weight:600; color:#334155;">(ธนัท พรหมพิริยา)</div>
-                <div style="font-size:9px; color:#64748b; margin-top:1px;">หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ</div>
-                <div style="font-size:9px; color:#94a3b8; margin-top:2px;">วันที่ ${formatDateThai(
+                <div class="ot-sign-name-temp">(ธนัท พรหมพิริยา)</div>
+                <div class="ot-sign-sub-temp">หัวหน้าฝ่ายเทคโนโลยีสารสนเทศ</div>
+                <div class="ot-sign-date-temp">วันที่ ${formatDateThai(
                   headerDate,
                   " / ",
                 )}</div>

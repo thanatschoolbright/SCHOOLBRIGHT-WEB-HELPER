@@ -18,8 +18,8 @@ import {
   Modal,
   Space,
   Table,
-  Tag,
   Tabs,
+  Tag,
   theme,
   Tooltip,
   Typography,
@@ -54,8 +54,11 @@ const activityColumns: ColumnsType<ApiLogItem> = [
     width: 80,
     render: (v) => {
       const colorMap: Record<string, string> = {
-        GET: "green", POST: "blue", PUT: "orange",
-        PATCH: "cyan", DELETE: "red",
+        GET: "green",
+        POST: "blue",
+        PUT: "orange",
+        PATCH: "cyan",
+        DELETE: "red",
       };
       return <Tag color={colorMap[v] ?? "default"}>{v ?? "-"}</Tag>;
     },
@@ -78,11 +81,16 @@ const activityColumns: ColumnsType<ApiLogItem> = [
     width: 80,
     render: (v, record) => (
       <Space size={4}>
-        {record.isSuccess
-          ? <CheckCircleOutlined style={{ color: "#52c41a" }} />
-          : <CloseCircleOutlined style={{ color: "#ff4d4f" }} />
-        }
-        <Tag color={v >= 200 && v < 300 ? "success" : v >= 400 ? "error" : "warning"}>
+        {record.isSuccess ? (
+          <CheckCircleOutlined style={{ color: "#52c41a" }} />
+        ) : (
+          <CloseCircleOutlined style={{ color: "#ff4d4f" }} />
+        )}
+        <Tag
+          color={
+            v >= 200 && v < 300 ? "success" : v >= 400 ? "error" : "warning"
+          }
+        >
           {v ?? "-"}
         </Tag>
       </Space>
@@ -104,7 +112,9 @@ const activityColumns: ColumnsType<ApiLogItem> = [
     dataIndex: "ipAddress",
     key: "ipAddress",
     width: 120,
-    render: (v) => <Typography.Text style={{ fontSize: 11 }}>{v ?? "-"}</Typography.Text>,
+    render: (v) => (
+      <Typography.Text style={{ fontSize: 11 }}>{v ?? "-"}</Typography.Text>
+    ),
   },
 ];
 
@@ -120,9 +130,18 @@ const UserInfoTab = () => {
     <div className="py-2">
       <div
         className="flex items-center gap-6 mb-6 p-6 rounded-2xl border"
-        style={{ backgroundColor: token.colorFillAlter, borderColor: token.colorBorderSecondary }}
+        style={{
+          backgroundColor: token.colorFillAlter,
+          borderColor: token.colorBorderSecondary,
+        }}
       >
-        <Avatar size={100} src={selectedUser.profile_image_path} icon={<UserOutlined />} className="shadow-md" style={{ border: `4px solid ${token.colorBgContainer}` }} />
+        <Avatar
+          size={100}
+          src={selectedUser.profile_image_path}
+          icon={<UserOutlined />}
+          className="shadow-md"
+          style={{ border: `4px solid ${token.colorBgContainer}` }}
+        />
         <div>
           <Typography.Title level={3} style={{ margin: 0 }}>
             {selectedUser.firstname_th} {selectedUser.lastname_th}
@@ -131,50 +150,103 @@ const UserInfoTab = () => {
             {selectedUser.nickname ? `(${selectedUser.nickname})` : ""}
           </Typography.Text>
           <div className="mt-2 flex gap-2 flex-wrap">
-            <Tag color="blue" className="rounded-full">รหัสพนักงาน: {selectedUser.employee_code}</Tag>
-            <Tag color="cyan" className="rounded-full">รหัสระบบ: {selectedUser.admin_id}</Tag>
-            <Tag color={selectedUser.status === "ACTIVE" ? "success" : "default"} className="rounded-full">
-              {selectedUser.status === "ACTIVE" ? "ออนไลน์และเป็นปกติ" : "ระงับการใช้งาน"}
+            <Tag color="blue" className="rounded-full">
+              รหัสพนักงาน: {selectedUser.employee_code}
+            </Tag>
+            <Tag color="cyan" className="rounded-full">
+              รหัสระบบ: {selectedUser.admin_id}
+            </Tag>
+            <Tag
+              color={selectedUser.status === "ACTIVE" ? "success" : "default"}
+              className="rounded-full"
+            >
+              {selectedUser.status === "ACTIVE"
+                ? "ออนไลน์และเป็นปกติ"
+                : "ระงับการใช้งาน"}
             </Tag>
           </div>
         </div>
       </div>
 
-      <Descriptions title="ข้อมูลส่วนตัวและบัญชี" bordered column={2} className="mb-6" size="small">
-        <Descriptions.Item label="ชื่อผู้ใช้งาน">{selectedUser.username}</Descriptions.Item>
-        <Descriptions.Item label="สิทธิ์การใช้งาน">{selectedUser.role?.role_name || "ผู้ใช้งาน"}</Descriptions.Item>
-        <Descriptions.Item label="อีเมล" span={2}>{selectedUser.email || "-"}</Descriptions.Item>
-        <Descriptions.Item label="เบอร์โทรศัพท์">{selectedUser.phone || "-"}</Descriptions.Item>
+      <Descriptions
+        title="ข้อมูลส่วนตัวและบัญชี"
+        bordered
+        column={2}
+        className="mb-6"
+        size="small"
+      >
+        <Descriptions.Item label="ชื่อผู้ใช้งาน">
+          {selectedUser.username}
+        </Descriptions.Item>
+        <Descriptions.Item label="สิทธิ์การใช้งาน">
+          {selectedUser.role?.role_name || "ผู้ใช้งาน"}
+        </Descriptions.Item>
+        <Descriptions.Item label="อีเมล" span={2}>
+          {selectedUser.email || "-"}
+        </Descriptions.Item>
+        <Descriptions.Item label="เบอร์โทรศัพท์">
+          {selectedUser.phone || "-"}
+        </Descriptions.Item>
         <Descriptions.Item label="วันเกิด">
-          {selectedUser.birth_date ? dayjs(selectedUser.birth_date).format("DD MMMM YYYY") : "-"}
+          {selectedUser.birth_date
+            ? dayjs(selectedUser.birth_date).format("DD MMMM YYYY")
+            : "-"}
         </Descriptions.Item>
         <Descriptions.Item label="เพศ">
-          {selectedUser.gender === "MALE" ? "ชาย" : selectedUser.gender === "FEMALE" ? "หญิง" : selectedUser.gender === "OTHER" ? "ไม่ระบุ" : "-"}
+          {selectedUser.gender === "MALE"
+            ? "ชาย"
+            : selectedUser.gender === "FEMALE"
+            ? "หญิง"
+            : selectedUser.gender === "OTHER"
+            ? "ไม่ระบุ"
+            : "-"}
         </Descriptions.Item>
         <Descriptions.Item label="อีเมลสำรอง">
-          {(selectedUser as unknown as Record<string, string>).backlog_email || "-"}
+          {(selectedUser as unknown as Record<string, string>).backlog_email ||
+            "-"}
         </Descriptions.Item>
       </Descriptions>
 
-      <Descriptions title="ข้อมูลการทำงาน" bordered column={2} className="mb-6" size="small">
-        <Descriptions.Item label="ตำแหน่ง">{selectedUser.position_ref?.name_th || "-"}</Descriptions.Item>
-        <Descriptions.Item label="แผนก">{selectedUser.department?.name_th || "-"}</Descriptions.Item>
+      <Descriptions
+        title="ข้อมูลการทำงาน"
+        bordered
+        column={2}
+        className="mb-6"
+        size="small"
+      >
+        <Descriptions.Item label="ตำแหน่ง">
+          {selectedUser.position_ref?.name_th || "-"}
+        </Descriptions.Item>
+        <Descriptions.Item label="แผนก">
+          {selectedUser.department?.name_th || "-"}
+        </Descriptions.Item>
         <Descriptions.Item label="ประเภทการจ้างงาน">
-          {selectedUser.employment_type === "FULL_TIME" ? "พนักงานประจำ"
-            : selectedUser.employment_type === "PART_TIME" ? "พาร์ทไทม์"
-              : selectedUser.employment_type === "CONTRACT" ? "สัญญาจ้าง"
-                : selectedUser.employment_type === "INTERN" ? "นักศึกษาฝึกงาน" : "-"}
+          {selectedUser.employment_type === "FULL_TIME"
+            ? "พนักงานประจำ"
+            : selectedUser.employment_type === "PART_TIME"
+            ? "พาร์ทไทม์"
+            : selectedUser.employment_type === "CONTRACT"
+            ? "สัญญาจ้าง"
+            : selectedUser.employment_type === "INTERN"
+            ? "นักศึกษาฝึกงาน"
+            : "-"}
         </Descriptions.Item>
         <Descriptions.Item label="วันที่เริ่มงาน">
-          {selectedUser.joined_date ? dayjs(selectedUser.joined_date).format("DD MMMM YYYY") : "-"}
+          {selectedUser.joined_date
+            ? dayjs(selectedUser.joined_date).format("DD MMMM YYYY")
+            : "-"}
         </Descriptions.Item>
       </Descriptions>
 
       <Descriptions title="ข้อมูลความปลอดภัย" bordered column={2} size="small">
         <Descriptions.Item label="เข้าสู่ระบบล่าสุด">
-          {selectedUser.last_login ? dayjs(selectedUser.last_login).format("DD/MM/YYYY HH:mm") : "-"}
+          {selectedUser.last_login
+            ? dayjs(selectedUser.last_login).format("DD/MM/YYYY HH:mm")
+            : "-"}
         </Descriptions.Item>
-        <Descriptions.Item label="เข้าสู่ระบบล้มเหลว">{selectedUser.failed_login_attempts || 0} ครั้ง</Descriptions.Item>
+        <Descriptions.Item label="เข้าสู่ระบบล้มเหลว">
+          {selectedUser.failed_login_attempts || 0} ครั้ง
+        </Descriptions.Item>
         <Descriptions.Item label="สร้างเมื่อ" span={2}>
           {dayjs(selectedUser.created_at).format("DD/MM/YYYY HH:mm")}
         </Descriptions.Item>
@@ -213,29 +285,35 @@ const ActivityLogTab = () => {
   const [logs, setLogs] = useState<ApiLogItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [pagination, setPagination] = useState<ApiLogPagination>({
-    page: 1, limit: 10, total: 0, totalPages: 0,
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
   });
 
   // ดึง activity log ของ user คนนี้จาก calledBy = username
-  const fetchLogs = useCallback(async (page = 1) => {
-    if (!selectedUser?.username) return;
-    setIsLoading(true);
-    try {
-      const res = await GET_API_LOGS({
-        calledBy: selectedUser.username,
-        page,
-        limit: 10,
-        sortBy: "request_time",
-        sortOrder: "desc",
-      });
-      setLogs(res.data.logs);
-      setPagination(res.data.pagination);
-    } catch {
-      // silent — ถ้า log ไม่มีก็แสดง empty
-    } finally {
-      setIsLoading(false);
-    }
-  }, [selectedUser?.username]);
+  const fetchLogs = useCallback(
+    async (page = 1) => {
+      if (!selectedUser?.username) return;
+      setIsLoading(true);
+      try {
+        const res = await GET_API_LOGS({
+          calledBy: selectedUser.id.toString(),
+          page,
+          limit: 10,
+          sortBy: "request_time",
+          sortOrder: "desc",
+        });
+        setLogs(res.data.logs);
+        setPagination(res.data.pagination);
+      } catch {
+        // silent — ถ้า log ไม่มีก็แสดง empty
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [selectedUser?.username],
+  );
 
   useEffect(() => {
     fetchLogs(1);
@@ -249,7 +327,7 @@ const ActivityLogTab = () => {
             <Typography.Text strong>ประวัติการใช้งาน API</Typography.Text>
           </Badge>
           <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-            (calledBy: {selectedUser?.username ?? "-"})
+            (calledBy : {selectedUser?.id ?? "-"})
           </Typography.Text>
         </Space>
         <Tooltip title="รีเฟรช">
@@ -278,7 +356,9 @@ const ActivityLogTab = () => {
           onChange: (page) => fetchLogs(page),
           size: "small",
         }}
-        rowClassName={(record) => !record.isSuccess ? "bg-red-50 dark:bg-red-950/20" : ""}
+        rowClassName={(record) =>
+          !record.isSuccess ? "bg-red-50 dark:bg-red-950/20" : ""
+        }
       />
     </div>
   );
@@ -286,7 +366,8 @@ const ActivityLogTab = () => {
 
 // Main Modal
 export const DetailModal = () => {
-  const { detailModalOpen, selectedUser, closeDetailModal } = useUserProfileStore();
+  const { detailModalOpen, selectedUser, closeDetailModal } =
+    useUserProfileStore();
 
   return (
     <Modal
@@ -294,7 +375,10 @@ export const DetailModal = () => {
       title={
         <Space>
           <InfoCircleOutlined />
-          <span>รายละเอียดพนักงาน — {selectedUser?.firstname_th} {selectedUser?.lastname_th}</span>
+          <span>
+            รายละเอียดพนักงาน — {selectedUser?.firstname_th}{" "}
+            {selectedUser?.lastname_th}
+          </span>
         </Space>
       }
       onCancel={closeDetailModal}
@@ -308,12 +392,22 @@ export const DetailModal = () => {
         items={[
           {
             key: "info",
-            label: <Space><UserOutlined />ข้อมูลพนักงาน</Space>,
+            label: (
+              <Space>
+                <UserOutlined />
+                ข้อมูลพนักงาน
+              </Space>
+            ),
             children: <UserInfoTab />,
           },
           {
             key: "activity",
-            label: <Space><HistoryOutlined />Activity Log</Space>,
+            label: (
+              <Space>
+                <HistoryOutlined />
+                Activity Log
+              </Space>
+            ),
             children: <ActivityLogTab />,
           },
         ]}
