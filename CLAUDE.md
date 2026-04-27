@@ -15,6 +15,9 @@ bun start
 
 # Code quality
 bun lint          # ESLint
+
+# Misc
+bun bun-benchmark # Build benchmark via benchmark-build.sh
 ```
 
 No test suite is configured. Type-checking is implicit via TypeScript strict mode (`noImplicitAny`, `strictNullChecks`, `noImplicitReturns`, `noUnusedLocals`). Note: `typescript.ignoreBuildErrors: true` — TS errors surface during dev, not at build time.
@@ -165,8 +168,9 @@ Two Prisma instances (singleton pattern, global cached in dev):
 |---|---|---|---|
 | `src/helpers/prisma.ts` | SQL Server (main) | `prisma/schema.prisma` | 400+ models — school, canteen, hardware, device, sales |
 | `src/helpers/prisma-timesheet.ts` | PostgreSQL (timesheet) | `prisma/timesheet/schema.prisma` | User, Department, Position, Role, Permission, RolePermission, Project, Feature, ProjectAssignee, ProjectStatus, Group, TimesheetEntry, Overtime, OvertimeDescription, OvertimeStatusLog, ApiLog, CrmSupportAuthentication, LineGroup |
+| `src/helpers/prisma/prisma-jabjai-master-single-db.ts` | SQL Server (jabjai-master) | `prisma/jabjai-master-single-db/schema.prisma` | School/group master data (used by machine-monitoring LINE channel and LINE group routes) |
 
-**Import pattern — สำคัญมาก, สองแบบนี้ต่างกัน:**
+**Import pattern — สำคัญมาก, สามแบบนี้ต่างกัน:**
 ```ts
 // Timesheet DB — named export (capital P)
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
@@ -175,6 +179,10 @@ await PrismaTimesheet.overtime.findMany({ ... });
 // Main DB — default export
 import prisma from "@helpers/prisma";
 await prisma.userList.findMany({ ... });
+
+// Jabjai-master DB — named export
+import { PrismaJabjaiMaster } from "@/helpers/prisma/prisma-jabjai-master-single-db";
+await PrismaJabjaiMaster.someModel.findMany({ ... });
 ```
 
 Use `$transaction` when writing to multiple tables. Never mix models across instances (timesheet models do not exist in main DB and vice versa).

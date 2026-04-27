@@ -158,6 +158,83 @@ const mapUsersToOvertime = async (overtimeItems: any[]) => {
   });
 };
 
+export interface OvertimeOverlapResult {
+  hasOverlap: boolean;
+  conflicts: Array<{
+    overtime_id: number;
+    description_id: number;
+    start_date: string;
+    end_date: string;
+  }>;
+}
+
+// ตรวจสอบว่า descriptions ที่ส่งมามีเวลาซ้อนทับกับรายการ OT ที่มีอยู่ของพนักงานคนนั้นหรือไม่
+export async function checkOvertimeTimeOverlap(
+  requesterId: string | number,
+  descriptions: Array<{ startDate?: Date | string; endDate?: Date | string }>,
+  excludeOvertimeId?: number,
+): Promise<OvertimeOverlapResult> {
+  const requestedRanges = descriptions
+    .map((d) => ({
+      start: d.startDate ? new Date(d.startDate) : null,
+      end: d.endDate ? new Date(d.endDate) : null,
+    }))
+    .filter((r): r is { start: Date; end: Date } => r.start !== null && r.end !== null);
+
+  if (requestedRanges.length === 0) {
+    return { hasOverlap: false, conflicts: [] };
+  }
+
+  const minStart = requestedRanges.reduce(
+    (min, r) => (r.start < min ? r.start : min),
+    requestedRanges[0].start,
+  );
+  const maxEnd = requestedRanges.reduce(
+    (max, r) => (r.end > max ? r.end : max),
+    requestedRanges[0].end,
+  );
+
+  const existingDescriptions = await (PrismaTimesheet as any).overtimeDescription.findMany({
+    where: {
+      overtime: {
+        requesterId: Number(requesterId),
+        isDeleted: false,
+        ...(excludeOvertimeId ? { id: { not: excludeOvertimeId } } : {}),
+      },
+      startDate: { not: null, lte: maxEnd },
+      endDate: { not: null, gte: minStart },
+    },
+    select: {
+      id: true,
+      overtimeId: true,
+      startDate: true,
+      endDate: true,
+    },
+  });
+
+  const conflicts: OvertimeOverlapResult["conflicts"] = [];
+
+  for (const existing of existingDescriptions) {
+    const exStart = new Date(existing.startDate);
+    const exEnd = new Date(existing.endDate);
+
+    for (const range of requestedRanges) {
+      const isOverlap = range.start < exEnd && range.end > exStart;
+      if (isOverlap) {
+        conflicts.push({
+          overtime_id: existing.overtimeId,
+          description_id: existing.id,
+          start_date: exStart.toISOString(),
+          end_date: exEnd.toISOString(),
+        });
+        break;
+      }
+    }
+  }
+
+  return { hasOverlap: conflicts.length > 0, conflicts };
+}
+
 export const Service = {
   // ตรวจสอบว่า OT ID มีอยู่ในระบบหรือไม่
   async validatorID(id: number): Promise<boolean> {

@@ -619,10 +619,29 @@ const OvertimeManagementPage = () => {
       setCurrentSubmissionStep(1); // ขั้นตอนที่ 2: บันทึกข้อมูลลงฐานข้อมูล
 
       // 3. ยิง API สร้างรายการหลัก
-      const result = await callApiService.post(
-        "/api/v1/timesheet/overtime/create",
-        submissionBodyPayload,
-      );
+      let result;
+      try {
+        result = await callApiService.post(
+          "/api/v1/timesheet/overtime/create",
+          submissionBodyPayload,
+        );
+      } catch (axiosErr: any) {
+        setIsSubmissionLoading(false);
+        const errData = axiosErr?.response?.data;
+        // 409 = เวลาซ้อนทับกับรายการ OT ที่มีอยู่
+        if (axiosErr?.response?.status === 409 || errData?.status === 409) {
+          const detail = errData?.error?.conflict_details ?? "";
+          setModalState({
+            open: true,
+            type: "error",
+            title: "ช่วงเวลา OT ซ้อนทับกับรายการที่มีอยู่",
+            message: `ไม่สามารถสร้างคำขอ OT ได้ เนื่องจากช่วงเวลาที่เลือกซ้อนทับกับรายการ OT ที่มีอยู่แล้วของพนักงานคนนี้${detail ? `\n\n${detail}` : ""}`,
+          });
+          return null;
+        }
+        processAndDisplaySystemError(axiosErr, "เกิดข้อผิดพลาดในการสร้างรายการ");
+        return null;
+      }
       const resData = result?.data;
 
       if (resData && (resData.status === 200 || resData.status === 201)) {
