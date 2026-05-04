@@ -9,6 +9,7 @@ const nextConfig = {
   poweredByHeader: false,
   compress: true,
   productionBrowserSourceMaps: false,
+  output: "standalone",
 
   devIndicators: {
     buildActivityPosition: "bottom-left",

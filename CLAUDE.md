@@ -127,7 +127,7 @@ Two patterns coexist:
 
 ### Page component pattern
 
-Pages prefer RSC (React Server Components) — push data fetching and logic server-side. Only extract `"use client"` components for interactive elements (forms, modals, buttons). Client components pull from Redux via `useAppSelector`, use local `useState`/`useCallback` for UI state, and call internal API endpoints via `callApiService` from `src/services/axios-instance/sb-helper.axios.ts`. Sub-components in `_components/` receive handlers as props.
+Pages prefer RSC (React Server Components) — push data fetching and Prisma queries server-side to minimize client JS bundle. Only extract `"use client"` components for interactive elements (forms, modals, buttons with event handlers). Client components pull from Redux via `useAppSelector`, use local `useState`/`useCallback` for UI state, and call internal API endpoints via `callApiService` from `src/services/axios-instance/sb-helper.axios.ts`. Sub-components in `_components/` receive handlers as props.
 
 All pages must be wrapped in `<BackendLayout>` from `@components/layouts/backend-layout`.
 
@@ -154,6 +154,9 @@ src/app/{domain}/{feature}/
 - **Tables**: Wrap content in `<Card styles={{ body: { padding: 16 } }}>`. Use `<UnorderedListOutlined />` (1rem) for table headings. Action buttons (bulk actions, export, etc.) go top-right of the table section. Add sort to all sortable columns. Never use `maxWidth` on columns.
 - **Font weight**: Maximum 600.
 - **Dates**: Use `dayjs` for all date manipulation and formatting — it is the project standard.
+- **Charts**: Use `@ant-design/plots` (preferred) or `react-chartjs-2` / `chart.js` for data visualizations.
+- **Export**: Use `exceljs` for Excel, `jspdf` + `jspdf-autotable` for PDF, `docx` for Word, and `file-saver` to trigger browser downloads.
+- **Naming**: Use full, descriptive identifiers — `requestUserByID` not `req`, `responseOvertimeList` not `res`. Write one Thai-language comment above every function (no emojis in comments).
 - **Language**: All UI text must be 100% Thai — no mixing Thai and English words in labels, buttons, or toast messages.
 - **No emojis**: Strictly forbidden in code, comments, strings, and UI. Exception: commit messages use `✨` prefix only.
 
