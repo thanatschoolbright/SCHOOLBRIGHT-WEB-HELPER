@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import { NextRequest, NextResponse } from "next/server";
 
 const WEBHOOK_DISCORD =
-  process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_HEARTBEAT_BOT ?? "";
+  process.env.WEBHOOK_DISCORD_HEARTBEAT_BOT ?? "";
 const DISCORD_ALERT_USER = "<@692372441699319900>";
 
 // --- Configuration & Assets ---

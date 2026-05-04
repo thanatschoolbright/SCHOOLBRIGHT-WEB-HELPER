@@ -3,18 +3,18 @@ import nodemailer from "nodemailer";
 const transporter = nodemailer.createTransport({
   host:
     process.env.MAILER_HOST ||
-    process.env.NEXT_PUBLIC_MAILER_HOST ||
+    process.env.MAILER_HOST ||
     "smtp.gmail.com",
   port: Number(
-    process.env.MAILER_PORT || process.env.NEXT_PUBLIC_MAILER_PORT || 587,
+    process.env.MAILER_PORT || process.env.MAILER_PORT || 587,
   ),
   secure:
     process.env.MAILER_SECURE === "true" ||
-    process.env.NEXT_PUBLIC_MAILER_SECURE === "true" ||
+    process.env.MAILER_SECURE === "true" ||
     false,
   auth: {
-    user: process.env.MAILER_USER || process.env.NEXT_PUBLIC_MAILER_USER,
-    pass: process.env.MAILER_PASS || process.env.NEXT_PUBLIC_MAILER_PASS,
+    user: process.env.MAILER_USER || process.env.MAILER_USER,
+    pass: process.env.MAILER_PASS || process.env.MAILER_PASS,
   },
 });
 
@@ -25,7 +25,7 @@ export async function sendMail(
   html?: string,
 ) {
   const info = await transporter.sendMail({
-    from: process.env.MAILER_USER || process.env.NEXT_PUBLIC_MAILER_USER,
+    from: process.env.MAILER_USER || process.env.MAILER_USER,
     to: Array.isArray(to) ? to.join(", ") : to,
     subject,
     text,
@@ -54,7 +54,7 @@ export async function sendMailWithAttachment(params: {
   }[];
 }) {
   const info = await transporter.sendMail({
-    from: process.env.MAILER_USER || process.env.NEXT_PUBLIC_MAILER_USER,
+    from: process.env.MAILER_USER || process.env.MAILER_USER,
     to: Array.isArray(params.to) ? params.to.join(", ") : params.to,
     subject: params.subject,
     html: params.html,

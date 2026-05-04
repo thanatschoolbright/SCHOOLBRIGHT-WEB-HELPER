@@ -10,7 +10,7 @@ Header `Authorization: Bearer {CRON_SECRET}` — ถ้าไม่ตั้ง�
 
 | Key | หน้าที่ |
 |---|---|
-| `NEXT_PUBLIC_WEBHOOK_DISCORD_DAILY_MACHINE_MONITORING` | Discord Webhook URL ปลายทาง |
+| `WEBHOOK_DISCORD_DAILY_MACHINE_MONITORING` | Discord Webhook URL ปลายทาง |
 | `CRON_SECRET` | ป้องกันการเรียกจากภายนอก |
 
 ## Discord Payload

@@ -53,7 +53,7 @@ const VALIDATED_USERS_ARE_NOT_ENTRY = (users: any[], entries: any[]) => {
 
 // ** ส่งแจ้งเตือน Discord กรณี ที่ยังทำ Timesheet ไม่ครบ
 const DISCORD_WEBHOOK_URL =
-  process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_TIMESHEET_SYSTEM ?? "";
+  process.env.WEBHOOK_DISCORD_TIMESHEET_SYSTEM ?? "";
 
 async function sendDiscordNotification(users: any[]) {
   console.info("[Discord] start sendDiscordNotification");

@@ -17,37 +17,37 @@ type ActionStyle = {
 
 // --- Constants & Config ---
 const DEFAULT_MENTION = "<@692371893826879568>"; // Default fallback user
-const DEFAULT_WEBHOOK_ENV = "NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER";
+const DEFAULT_WEBHOOK_ENV = "WEBHOOK_DISCORD_PULL_REQUEST_SERVER";
 
 // Map repositories to specific Discord users and Webhook URLs
 const REPOSITORY_CONFIG: Record<string, RepoConfig> = {
   "Jabjai-Corporation/robodocs-api-main": {
     mention: discordIdUser.Light,
-    webhookEnv: "NEXT_PUBLIC_WEBHOOK_DISCORD_ROBODOCS_SERVER",
+    webhookEnv: "WEBHOOK_DISCORD_ROBODOCS_SERVER",
   },
   "Jabjai-Corporation/robodocs-web-main": {
     mention: discordIdUser.Light,
-    webhookEnv: "NEXT_PUBLIC_WEBHOOK_DISCORD_ROBODOCS_SERVER",
+    webhookEnv: "WEBHOOK_DISCORD_ROBODOCS_SERVER",
   },
   "Jabjai-Corporation/sb-web-mark_activity": {
     mention: discordIdUser.Light,
-    webhookEnv: "NEXT_PUBLIC_WEBHOOK_DISCORD_MARKACTIVITY_SERVER",
+    webhookEnv: "WEBHOOK_DISCORD_MARKACTIVITY_SERVER",
   },
   "Jabjai-Corporation/sb-web-system": {
     mention: discordIdUser.Joe,
-    webhookEnv: "NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER",
+    webhookEnv: "WEBHOOK_DISCORD_PULL_REQUEST_SERVER",
   },
   "Jabjai-Corporation/sb-web-academic": {
     mention: discordIdUser.Krishnan,
-    webhookEnv: "NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER",
+    webhookEnv: "WEBHOOK_DISCORD_PULL_REQUEST_SERVER",
   },
   "Jabjai-Corporation/sb-web-accounting-system": {
     mention: discordIdUser.Tuk,
-    webhookEnv: "NEXT_PUBLIC_WEBHOOK_DISCORD_ACCOUNTING_SERVER",
+    webhookEnv: "WEBHOOK_DISCORD_ACCOUNTING_SERVER",
   },
   "Jabjai-Corporation/sb-api-mobile": {
     mention: discordIdUser.Joe,
-    webhookEnv: "NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER",
+    webhookEnv: "WEBHOOK_DISCORD_PULL_REQUEST_SERVER",
   },
 };
 

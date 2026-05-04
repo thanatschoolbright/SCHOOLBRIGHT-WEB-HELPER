@@ -343,7 +343,7 @@ export async function POST(request: Request) {
     const { workingDays, expectedHours } = computeExpectedHours(start, end);
 
     const baseUrl =
-      API_URL?.SB_HELPER_URL ?? process.env.NEXT_PUBLIC_SB_HELPER_URL;
+      API_URL?.SB_HELPER_URL ?? process.env.SB_HELPER_URL;
 
     if (!baseUrl) {
       throw new Error("Missing SB Helper API base URL configuration");

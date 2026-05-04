@@ -26,7 +26,7 @@ export async function fetchAndSendServerStatusEmail() {
     // หมายเหตุ: แทนที่จะเขียน Logic เช็ค Server ซ้ำ เราจะดึงจาก API หลักของโครงการ
     const response = await axios.get(
       `${
-        process.env.NEXT_PUBLIC_API_URL_LOCAL || "http://localhost:3000"
+        process.env.API_URL_LOCAL || "http://localhost:3000"
       }/api/v2/server/status`,
     );
 

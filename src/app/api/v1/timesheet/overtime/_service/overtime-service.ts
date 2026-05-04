@@ -150,7 +150,7 @@ export async function createOvertimeWithNotification(
   };
 
   // 2. ดึงข้อมูล Email ของ Manager จาก Environment Variable
-  const managerEmail = process.env.NEXT_PUBLIC_EMAIL_NOTIFICATION;
+  const managerEmail = process.env.EMAIL_NOTIFICATION;
   if (managerEmail) {
     // 3. เตรียมข้อมูลผู้ขอ (Requester) สำหรับใส่ใน Email
     let fullName = `${payload.firstname ?? ""} ${
@@ -201,7 +201,7 @@ export async function createOvertimeWithNotification(
         : "วันหยุด/นักขัตฤกษ์";
 
     const baseUrl =
-      process.env.NEXT_PUBLIC_SB_HELPER_URL || "http://localhost:3000";
+      process.env.SB_HELPER_URL || "http://localhost:3000";
 
     // 5. สร้างเนื้อหา Email (HTML Template)
     const emailSubject = `[Overtime Request] มีการขออนุมัติ OT ใหม่จาก ${requesterInfo.fullName}`;
@@ -521,7 +521,7 @@ export async function updateOvertimeStatusWithNotification(
       };
 
       const baseUrl =
-        process.env.NEXT_PUBLIC_SB_HELPER_URL || "http://localhost:3000";
+        process.env.SB_HELPER_URL || "http://localhost:3000";
       const emailSubject = `[แจ้งเตือน OT] #OT-${String(id).padStart(
         5,
         "0",

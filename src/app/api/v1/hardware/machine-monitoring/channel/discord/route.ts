@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const webhookUrl = process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_DAILY_MACHINE_MONITORING ?? "";
+  const webhookUrl = process.env.WEBHOOK_DISCORD_DAILY_MACHINE_MONITORING ?? "";
   if (!webhookUrl.startsWith("http")) {
     return NextResponse.json(
       errorResponse({ status: 503, message_th: "ยังไม่ได้ตั้งค่า Discord Webhook URL", message_en: "Discord Webhook URL not configured" }),

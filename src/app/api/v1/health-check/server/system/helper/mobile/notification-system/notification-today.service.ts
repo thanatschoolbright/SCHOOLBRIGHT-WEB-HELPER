@@ -11,7 +11,7 @@ export async function checkNotificationTodayService(
   accessToken?: string,
 ): Promise<HealthCheckResult> {
   const targetToken =
-    accessToken ?? process.env.NEXT_PUBLIC_AUTHENTICATION_TOKEN ?? "";
+    accessToken ?? process.env.AUTHENTICATION_TOKEN ?? "";
 
   const NOTIFICATION_TODAY_CONFIG = {
     url: `${API_URL.PROD_SB_API_URL}/Notification/today/1230336?page=1&lang=th`,

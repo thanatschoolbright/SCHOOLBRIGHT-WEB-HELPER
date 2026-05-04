@@ -63,7 +63,7 @@ export const ObsService = {
     }
 
     // Fallback or Direct: Use Axios PUT if the bucket is publicly writable or using a proxy URL
-    const bucketUrl = process.env.NEXT_PUBLIC_OBS_BUCKET_URL;
+    const bucketUrl = process.env.OBS_BUCKET_URL;
     if (bucketUrl && bucketUrl !== "error") {
       try {
         await axios.put(`${bucketUrl}/${key}`, sourceFile, {

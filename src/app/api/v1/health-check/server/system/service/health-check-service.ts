@@ -31,7 +31,7 @@ dayjs.locale("th");
 // ── Config ─────────────────────────────────────────────────────────────────
 const DISCORD_CONFIG = {
   WEBHOOK_URL:
-    process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_DAILY_MONITOR_SERVER ?? "",
+    process.env.WEBHOOK_DISCORD_DAILY_MONITOR_SERVER ?? "",
   ALERT_USER_ID: "<@1344189022561636445>",
   BOT_NAME: "SB System Monitor",
   AVATAR_URL:

@@ -15,32 +15,32 @@ const REPO_MAP: Record<string, RepoConfig> = {
   "Jabjai-Corporation/sb-web-system": {
     name: "School Bright System",
     mentionRole: discordIdUser.TeamSupport,
-    webhookEnvKey: "NEXT_PUBLIC_WEBHOOK_DISCORD_SYSTEM_SERVER",
+    webhookEnvKey: "WEBHOOK_DISCORD_SYSTEM_SERVER",
   },
   "Jabjai-Corporation/sb-web-mark_activity": {
     name: "Mark Activity Module",
     mentionRole: discordIdUser.TeamSupport,
-    webhookEnvKey: "NEXT_PUBLIC_WEBHOOK_DISCORD_MARKACTIVITY_SERVER",
+    webhookEnvKey: "WEBHOOK_DISCORD_MARKACTIVITY_SERVER",
   },
   "Jabjai-Corporation/sb-web-academic": {
     name: "Academic Module",
     mentionRole: discordIdUser.TeamSupport,
-    webhookEnvKey: "NEXT_PUBLIC_WEBHOOK_DISCORD_ACADEMIC_SERVER",
+    webhookEnvKey: "WEBHOOK_DISCORD_ACADEMIC_SERVER",
   },
   "Jabjai-Corporation/sb-web-accounting-system": {
     name: "Accounting System",
     mentionRole: discordIdUser.TeamSupport,
-    webhookEnvKey: "NEXT_PUBLIC_WEBHOOK_DISCORD_ACCOUNTING_SERVER",
+    webhookEnvKey: "WEBHOOK_DISCORD_ACCOUNTING_SERVER",
   },
   "Jabjai-Corporation/sb-api-mobile": {
     name: "School Bright API Mobile",
     mentionRole: discordIdUser.TeamSupport,
-    webhookEnvKey: "NEXT_PUBLIC_WEBHOOK_DISCORD_SBAPI_SERVER",
+    webhookEnvKey: "WEBHOOK_DISCORD_SBAPI_SERVER",
   },
   "Jabjai-Corporation/sb-web-canteen": {
     name: "Canteen Shop",
     mentionRole: discordIdUser.TeamSupport,
-    webhookEnvKey: "NEXT_PUBLIC_WEBHOOK_DISCORD_CANTEEN_SERVER",
+    webhookEnvKey: "WEBHOOK_DISCORD_CANTEEN_SERVER",
   },
 };
 

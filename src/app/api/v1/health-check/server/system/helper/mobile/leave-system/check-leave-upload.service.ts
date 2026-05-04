@@ -7,7 +7,7 @@ export async function checkLeaveUploadService(
   accessToken?: string
 ): Promise<HealthCheckResult> {
   const targetToken =
-    accessToken ?? process.env.NEXT_PUBLIC_AUTHENTICATION_TOKEN ?? "";
+    accessToken ?? process.env.AUTHENTICATION_TOKEN ?? "";
 
   const formData = new FormData();
   const dummyFile = new Blob(["health-check-image"], { type: "image/png" });

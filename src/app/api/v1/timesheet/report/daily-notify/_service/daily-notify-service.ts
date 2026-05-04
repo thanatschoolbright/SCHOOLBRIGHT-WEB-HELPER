@@ -567,7 +567,7 @@ export const generateTimesheetEmailHtml = (
 
     <!-- CTA -->
     <div class="cta-wrap">
-      <a href="${process.env.NEXT_PUBLIC_SB_HELPER_URL}/timesheet/all/description" class="cta-btn">
+      <a href="${process.env.SB_HELPER_URL}/timesheet/all/description" class="cta-btn">
         ดูรายงานฉบับเต็ม
       </a>
     </div>
@@ -738,7 +738,7 @@ export const DailyNotifyService = {
     records: TimesheetNotifyRecord[],
     dateLabel: string,
   ): Promise<{ success: boolean; error: string | undefined }> {
-    const webhookUrl = process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_TIMESHEET_SYSTEM;
+    const webhookUrl = process.env.WEBHOOK_DISCORD_TIMESHEET_SYSTEM;
     if (!webhookUrl)
       return { success: false, error: "DISCORD_WEBHOOK_URL ไม่ได้ตั้งค่า" };
 

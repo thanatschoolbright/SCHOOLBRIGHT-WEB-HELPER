@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
     mentionUser = discordIdUser.TeamSupport;
     const discordWebhook: string =
-      process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_AUTOMATED_TEST ?? "";
+      process.env.WEBHOOK_DISCORD_AUTOMATED_TEST ?? "";
 
     if (!discordWebhook || !discordWebhook.startsWith("http")) {
       console.error("Invalid Discord webhook URL:", discordWebhook);

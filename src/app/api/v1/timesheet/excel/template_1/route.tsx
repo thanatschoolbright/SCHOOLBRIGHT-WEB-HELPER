@@ -231,7 +231,7 @@ const processExportTask = async (exportId: string, body: RequestPayload) => {
         const investment = body.investment;
 
         const baseUrl =
-            API_URL?.SB_HELPER_URL ?? process.env.NEXT_PUBLIC_SB_HELPER_URL;
+            API_URL?.SB_HELPER_URL ?? process.env.SB_HELPER_URL;
 
         if (!baseUrl || baseUrl === "error") {
             throw new Error("ไม่พบการตั้งค่า SB Helper API base URL");

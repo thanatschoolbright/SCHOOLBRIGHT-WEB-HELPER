@@ -43,7 +43,7 @@ export const OvertimeService = {
   > {
     try {
       const baseUrl =
-        API_URL?.SB_HELPER_URL ?? process.env.NEXT_PUBLIC_SB_HELPER_URL;
+        API_URL?.SB_HELPER_URL ?? process.env.SB_HELPER_URL;
       if (!baseUrl) return new Map();
 
       // การเรียกข้อมูล User จาก API ภายในระบบ

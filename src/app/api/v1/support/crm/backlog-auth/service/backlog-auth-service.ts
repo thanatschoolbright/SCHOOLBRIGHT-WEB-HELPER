@@ -1,11 +1,11 @@
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import axios from "axios";
 
-const BACKLOG_SPACE = process.env.NEXT_PUBLIC_BACKLOG_SPACE ?? "jabjai";
-const BACKLOG_DOMAIN = process.env.NEXT_PUBLIC_BACKLOG_DOMAIN ?? "backlog.com";
-const CLIENT_ID = process.env.NEXT_PUBLIC_BACKLOG_CLIENT_ID ?? "";
+const BACKLOG_SPACE = process.env.BACKLOG_SPACE ?? "jabjai";
+const BACKLOG_DOMAIN = process.env.BACKLOG_DOMAIN ?? "backlog.com";
+const CLIENT_ID = process.env.BACKLOG_CLIENT_ID ?? "";
 const CLIENT_SECRET = process.env.BACKLOG_CLIENT_SECRET ?? "";
-const REDIRECT_URI = process.env.NEXT_PUBLIC_BACKLOG_CRM_REDIRECT_URI ?? "";
+const REDIRECT_URI = process.env.BACKLOG_CRM_REDIRECT_URI ?? "";
 
 export const BACKLOG_TOKEN_URL = `https://${BACKLOG_SPACE}.${BACKLOG_DOMAIN}/api/v2/oauth2/token`;
 export const BACKLOG_AUTHORIZE_URL = `https://${BACKLOG_SPACE}.${BACKLOG_DOMAIN}/OAuth2AccessRequest.action`;

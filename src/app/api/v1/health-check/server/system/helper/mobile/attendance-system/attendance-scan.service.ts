@@ -8,7 +8,7 @@ export async function checkFlagPoleScanService(
 ): Promise<HealthCheckResult> {
   // 1. กำหนด Token
   const targetToken =
-    accessToken ?? process.env.NEXT_PUBLIC_AUTHENTICATION_TOKEN ?? "";
+    accessToken ?? process.env.AUTHENTICATION_TOKEN ?? "";
 
   // 2. Setup Config (Dynamic)
   const FLAGPOLE_SCAN_CONFIG = {

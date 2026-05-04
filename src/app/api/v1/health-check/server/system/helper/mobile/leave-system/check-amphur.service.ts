@@ -7,7 +7,7 @@ export async function checkAmphurService(
   accessToken?: string
 ): Promise<HealthCheckResult> {
   const targetToken =
-    accessToken ?? process.env.NEXT_PUBLIC_AUTHENTICATION_TOKEN ?? "";
+    accessToken ?? process.env.AUTHENTICATION_TOKEN ?? "";
 
   const AMPHUR_CONFIG = {
     // เลข 1 ใน URL คือ Province ID (กรุงเทพมหานคร จากตัวอย่างก่อนหน้า)

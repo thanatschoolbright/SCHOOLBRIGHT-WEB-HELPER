@@ -12,11 +12,11 @@ const ORG_CONFIG: Record<string, OrgConfig> = {
   "Jabjai-Corporation": {
     webhooks: {
       "release/development":
-        "NEXT_PUBLIC_WEBHOOK_DISCORD_RELEASE_DEVELOPMENT_SERVER",
-      "release/beta": "NEXT_PUBLIC_WEBHOOK_DISCORD_RELEASE_BETA_SERVER",
+        "WEBHOOK_DISCORD_RELEASE_DEVELOPMENT_SERVER",
+      "release/beta": "WEBHOOK_DISCORD_RELEASE_BETA_SERVER",
       "release/production":
-        "NEXT_PUBLIC_WEBHOOK_DISCORD_RELEASE_PRODUCTION_SERVER",
-      default: "NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER",
+        "WEBHOOK_DISCORD_RELEASE_PRODUCTION_SERVER",
+      default: "WEBHOOK_DISCORD_PULL_REQUEST_SERVER",
     },
   },
 };

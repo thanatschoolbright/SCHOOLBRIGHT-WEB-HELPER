@@ -17,9 +17,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const clientId = process.env.NEXT_PUBLIC_BACKLOG_CLIENT_ID;
+    const clientId = process.env.BACKLOG_CLIENT_ID;
     const clientSecret = process.env.BACKLOG_CLIENT_SECRET;
-    const redirectUri = process.env.NEXT_PUBLIC_BACKLOG_REDIRECT_URI;
+    const redirectUri = process.env.BACKLOG_REDIRECT_URI;
 
     if (!clientId || !clientSecret || !redirectUri) {
       return NextResponse.json(

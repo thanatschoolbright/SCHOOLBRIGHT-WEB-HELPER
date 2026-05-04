@@ -8,7 +8,7 @@ export async function checkVerificationService(
 ): Promise<HealthCheckResult> {
   // 1. กำหนด Token: ใช้ Token ใหม่ที่ส่งมา (fresh) ถ้าไม่มีให้ใช้จาก ENV (fallback)
   const targetToken =
-    accessToken ?? process.env.NEXT_PUBLIC_AUTHENTICATION_TOKEN ?? "";
+    accessToken ?? process.env.AUTHENTICATION_TOKEN ?? "";
 
   // 2. Setup Config (ย้ายเข้ามาข้างในเพื่อให้ Dynamic ตาม Token)
   const VERIFICATION_CONFIG = {

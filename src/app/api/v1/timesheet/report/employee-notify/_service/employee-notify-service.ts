@@ -120,7 +120,7 @@ export const buildEmployeeEmailHtml = (
   );
   const isZero = target.total_hours === 0;
   const helperUrl =
-    process.env.NEXT_PUBLIC_SB_HELPER_URL ??
+    process.env.SB_HELPER_URL ??
     "https://sb-helper.schoolbright.co";
 
   const statusColor = isZero ? "#dc2626" : "#d97706";

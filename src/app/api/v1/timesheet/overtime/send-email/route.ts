@@ -591,8 +591,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const mailUser = getEnvVariable("MAILER_USER", "NEXT_PUBLIC_MAILER_USER");
-    const mailPass = getEnvVariable("MAILER_PASS", "NEXT_PUBLIC_MAILER_PASS");
+    const mailUser = getEnvVariable("MAILER_USER", "MAILER_USER");
+    const mailPass = getEnvVariable("MAILER_PASS", "MAILER_PASS");
 
     if (!mailUser || !mailPass) {
       console.error("Mailer configuration missing: MAILER_USER or MAILER_PASS");

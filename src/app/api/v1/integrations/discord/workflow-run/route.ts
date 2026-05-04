@@ -5,11 +5,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 //** คอนฟิกและค่าคงที่ (ตั้งเป็นตัวแปรบนสุดเพื่อแก้ไขง่าย)
 const ALTERNATIVE_WEBHOOK =
-  process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_PULL_REQUEST_SERVER;
+  process.env.WEBHOOK_DISCORD_PULL_REQUEST_SERVER;
 const DEFAULT_WEBHOOK =
-  process.env.NEXT_PUBLIC_WEBHOOK_DISCORD_RELEASE_PRODUCTION_SERVER;
+  process.env.WEBHOOK_DISCORD_RELEASE_PRODUCTION_SERVER;
 const GITHUB_TOKEN =
-  process.env.GITHUB_TOKEN || process.env.NEXT_PUBLIC_GITHUB_TOKEN;
+  process.env.GITHUB_TOKEN || process.env.GITHUB_TOKEN;
 const DEDUP_WINDOW_MS = 5_000; // มิลลิวินาที
 const MAX_EMBED_DESCRIPTION = 3000; // Discord embed safe margin
 const MAX_STEPS = 80;

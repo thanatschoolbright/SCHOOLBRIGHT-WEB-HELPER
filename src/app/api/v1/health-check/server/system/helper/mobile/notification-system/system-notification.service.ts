@@ -12,7 +12,7 @@ export async function checkSystemNotificationService(
   accessToken?: string,
 ): Promise<HealthCheckResult> {
   const targetToken =
-    accessToken ?? process.env.NEXT_PUBLIC_AUTHENTICATION_TOKEN ?? "";
+    accessToken ?? process.env.AUTHENTICATION_TOKEN ?? "";
 
   const SYSTEM_NOTIFICATION_CONFIG = {
     url: `${API_URL.PROD_SB_API_URL}/api/message/System/Detail?Messageid=789&userid=1230336`,

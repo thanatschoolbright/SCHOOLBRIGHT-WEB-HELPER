@@ -7,7 +7,7 @@ export async function checkProfileService(
   accessToken?: string
 ): Promise<HealthCheckResult> {
   const targetToken =
-    accessToken ?? process.env.NEXT_PUBLIC_AUTHENTICATION_TOKEN ?? "";
+    accessToken ?? process.env.AUTHENTICATION_TOKEN ?? "";
 
   const PROFILE_CONFIG = {
     url: `${API_URL.PROD_SB_API_URL}/api/user`,

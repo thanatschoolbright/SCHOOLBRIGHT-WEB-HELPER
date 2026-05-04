@@ -7,7 +7,7 @@ export async function checkSubmitLeaveService(
   accessToken?: string
 ): Promise<HealthCheckResult> {
   const targetToken =
-    accessToken ?? process.env.NEXT_PUBLIC_AUTHENTICATION_TOKEN ?? "";
+    accessToken ?? process.env.AUTHENTICATION_TOKEN ?? "";
 
   const payload = {
     UserId: 1230336,

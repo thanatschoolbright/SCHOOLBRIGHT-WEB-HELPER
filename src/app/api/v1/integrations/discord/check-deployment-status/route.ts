@@ -5,7 +5,7 @@ import { discordIdUser } from "@/helpers/api/discord-id-user";
 
 // --- 1. Configuration ---
 const GLOBAL_CONFIG = {
-  webhookEnv: "NEXT_PUBLIC_WEBHOOK_DISCORD_CHECK_STATUS_DEPLOY_BOT",
+  webhookEnv: "WEBHOOK_DISCORD_CHECK_STATUS_DEPLOY_BOT",
   // ลบ mentionUserId ออก เพราะจะไปใช้จาก discordIdUser แทน
 };
 

@@ -34,6 +34,7 @@ import { useOvertimeStore } from "../_state/overtime-store";
 interface RemindModalProps {
   visible: boolean;
   onClose: () => void;
+  hrEmail?: string;
 }
 
 type UrgencyFilter = "all" | "urgent" | "normal";
@@ -44,13 +45,19 @@ const URGENT_THRESHOLD_DAYS = 3;
 /**
  * Modal ส่ง Email แจ้งเตือนซ้ำสำหรับคำขอ OT ที่รออนุมัตินานเกินไป
  */
-const RemindModal: React.FC<RemindModalProps> = ({ visible, onClose }) => {
+const RemindModal: React.FC<RemindModalProps> = ({
+  visible,
+  onClose,
+  hrEmail,
+}) => {
   const { token } = theme.useToken();
   const { overtimeDataSource, isLoadingOvertimeData } = useOvertimeStore();
 
   const [urgencyFilter, setUrgencyFilter] = useState<UrgencyFilter>("all");
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  const [sendingMap, setSendingMap] = useState<Record<number, "sending" | "done" | "error">>({});
+  const [sendingMap, setSendingMap] = useState<
+    Record<number, "sending" | "done" | "error">
+  >({});
   const [isSendingAll, setIsSendingAll] = useState(false);
   const [sentCount, setSentCount] = useState(0);
 
@@ -129,10 +136,9 @@ const RemindModal: React.FC<RemindModalProps> = ({ visible, onClose }) => {
       const res = await axios.post("/api/v1/timesheet/overtime/send-email", {
         id: String(id),
         link: previewUrl,
-        to: process.env.NEXT_PUBLIC_HR_EMAIL || "manager.hr@schoolbright.co",
+        to: hrEmail || "manager.hr@schoolbright.co",
       });
-      const ok =
-        res.data?.status === 200 || res.data?.status === 201;
+      const ok = res.data?.status === 200 || res.data?.status === 201;
       setSendingMap((prev) => ({ ...prev, [id]: ok ? "done" : "error" }));
       return ok;
     } catch {
@@ -159,11 +165,18 @@ const RemindModal: React.FC<RemindModalProps> = ({ visible, onClose }) => {
   };
 
   const selectedCount = selectedIds.size;
-  const doneCount = Object.values(sendingMap).filter((v) => v === "done").length;
-  const errorCount = Object.values(sendingMap).filter((v) => v === "error").length;
-  const allSentDone = selectedCount > 0 && doneCount + errorCount >= selectedCount;
+  const doneCount = Object.values(sendingMap).filter(
+    (v) => v === "done",
+  ).length;
+  const errorCount = Object.values(sendingMap).filter(
+    (v) => v === "error",
+  ).length;
+  const allSentDone =
+    selectedCount > 0 && doneCount + errorCount >= selectedCount;
   const sendProgress =
-    selectedCount > 0 ? Math.round(((doneCount + errorCount) / selectedCount) * 100) : 0;
+    selectedCount > 0
+      ? Math.round(((doneCount + errorCount) / selectedCount) * 100)
+      : 0;
 
   const columns = [
     {
@@ -234,9 +247,17 @@ const RemindModal: React.FC<RemindModalProps> = ({ visible, onClose }) => {
         const id = Number(record.id);
         const state = sendingMap[id];
         if (state === "sending")
-          return <Tag color="processing" icon={<MailOutlined />}>กำลังส่ง</Tag>;
+          return (
+            <Tag color="processing" icon={<MailOutlined />}>
+              กำลังส่ง
+            </Tag>
+          );
         if (state === "done")
-          return <Tag color="success" icon={<CheckCircleOutlined />}>ส่งแล้ว</Tag>;
+          return (
+            <Tag color="success" icon={<CheckCircleOutlined />}>
+              ส่งแล้ว
+            </Tag>
+          );
         if (state === "error")
           return (
             <Tooltip title="ส่งอีเมลล้มเหลว กด Retry">
@@ -313,15 +334,23 @@ const RemindModal: React.FC<RemindModalProps> = ({ visible, onClose }) => {
             <Card
               variant="borderless"
               styles={{ body: { padding: "14px 18px" } }}
-              style={{ background: token.colorFillQuaternary, borderRadius: 12 }}
+              style={{
+                background: token.colorFillQuaternary,
+                borderRadius: 12,
+              }}
             >
               <Flex align="center" gap={10}>
-                <ClockCircleOutlined style={{ fontSize: 20, color: token.colorWarning }} />
+                <ClockCircleOutlined
+                  style={{ fontSize: 20, color: token.colorWarning }}
+                />
                 <Flex vertical gap={0}>
                   <Typography.Text type="secondary" style={{ fontSize: 12 }}>
                     รออนุมัติทั้งหมด
                   </Typography.Text>
-                  <Typography.Text strong style={{ fontSize: 22, lineHeight: 1.2 }}>
+                  <Typography.Text
+                    strong
+                    style={{ fontSize: 22, lineHeight: 1.2 }}
+                  >
                     {pendingRecords.length}
                   </Typography.Text>
                 </Flex>
@@ -333,14 +362,26 @@ const RemindModal: React.FC<RemindModalProps> = ({ visible, onClose }) => {
               variant="borderless"
               styles={{ body: { padding: "14px 18px" } }}
               style={{
-                background: urgentRecords.length > 0 ? token.colorErrorBg : token.colorFillQuaternary,
+                background:
+                  urgentRecords.length > 0
+                    ? token.colorErrorBg
+                    : token.colorFillQuaternary,
                 borderRadius: 12,
-                border: urgentRecords.length > 0 ? `1px solid ${token.colorErrorBorder}` : undefined,
+                border:
+                  urgentRecords.length > 0
+                    ? `1px solid ${token.colorErrorBorder}`
+                    : undefined,
               }}
             >
               <Flex align="center" gap={10}>
                 <ExclamationCircleOutlined
-                  style={{ fontSize: 20, color: urgentRecords.length > 0 ? token.colorError : token.colorTextTertiary }}
+                  style={{
+                    fontSize: 20,
+                    color:
+                      urgentRecords.length > 0
+                        ? token.colorError
+                        : token.colorTextTertiary,
+                  }}
                 />
                 <Flex vertical gap={0}>
                   <Typography.Text type="secondary" style={{ fontSize: 12 }}>
@@ -351,7 +392,8 @@ const RemindModal: React.FC<RemindModalProps> = ({ visible, onClose }) => {
                     style={{
                       fontSize: 22,
                       lineHeight: 1.2,
-                      color: urgentRecords.length > 0 ? token.colorError : undefined,
+                      color:
+                        urgentRecords.length > 0 ? token.colorError : undefined,
                     }}
                   >
                     {urgentRecords.length}
@@ -367,12 +409,21 @@ const RemindModal: React.FC<RemindModalProps> = ({ visible, onClose }) => {
               style={{ background: token.colorSuccessBg, borderRadius: 12 }}
             >
               <Flex align="center" gap={10}>
-                <CheckCircleOutlined style={{ fontSize: 20, color: token.colorSuccess }} />
+                <CheckCircleOutlined
+                  style={{ fontSize: 20, color: token.colorSuccess }}
+                />
                 <Flex vertical gap={0}>
                   <Typography.Text type="secondary" style={{ fontSize: 12 }}>
                     ส่งเตือนแล้วรอบนี้
                   </Typography.Text>
-                  <Typography.Text strong style={{ fontSize: 22, lineHeight: 1.2, color: token.colorSuccess }}>
+                  <Typography.Text
+                    strong
+                    style={{
+                      fontSize: 22,
+                      lineHeight: 1.2,
+                      color: token.colorSuccess,
+                    }}
+                  >
                     {doneCount}
                   </Typography.Text>
                 </Flex>
@@ -390,7 +441,9 @@ const RemindModal: React.FC<RemindModalProps> = ({ visible, onClose }) => {
             message={
               <Typography.Text strong>
                 มีคำขอรอนานกว่า {URGENT_THRESHOLD_DAYS} วัน จำนวน{" "}
-                <span style={{ color: token.colorError }}>{urgentRecords.length}</span>{" "}
+                <span style={{ color: token.colorError }}>
+                  {urgentRecords.length}
+                </span>{" "}
                 รายการ — ควรส่งแจ้งเตือนโดยด่วน
               </Typography.Text>
             }
@@ -409,7 +462,12 @@ const RemindModal: React.FC<RemindModalProps> = ({ visible, onClose }) => {
               { label: `ทั้งหมด (${pendingRecords.length})`, value: "all" },
               {
                 label: (
-                  <Badge count={urgentRecords.length} size="small" color="red" offset={[6, -2]}>
+                  <Badge
+                    count={urgentRecords.length}
+                    size="small"
+                    color="red"
+                    offset={[6, -2]}
+                  >
                     <span style={{ paddingRight: 10 }}>ด่วน</span>
                   </Badge>
                 ),
@@ -431,7 +489,10 @@ const RemindModal: React.FC<RemindModalProps> = ({ visible, onClose }) => {
               disabled={selectedCount === 0 || isSendingAll || allSentDone}
               loading={isSendingAll}
               onClick={handleSendSelected}
-              style={{ background: token.colorWarning, borderColor: token.colorWarning }}
+              style={{
+                background: token.colorWarning,
+                borderColor: token.colorWarning,
+              }}
             >
               ส่งเตือนที่เลือก ({selectedCount})
             </Button>
@@ -468,10 +529,16 @@ const RemindModal: React.FC<RemindModalProps> = ({ visible, onClose }) => {
           rowKey="id"
           size="small"
           loading={isLoadingOvertimeData}
-          pagination={{ pageSize: 8, showSizeChanger: false, showTotal: (total) => `ทั้งหมด ${total} รายการ` }}
+          pagination={{
+            pageSize: 8,
+            showSizeChanger: false,
+            showTotal: (total) => `ทั้งหมด ${total} รายการ`,
+          }}
           locale={{ emptyText: "ไม่มีรายการรออนุมัติ" }}
           rowClassName={(record) =>
-            record.waitDays >= URGENT_THRESHOLD_DAYS ? "ant-table-row-urgent" : ""
+            record.waitDays >= URGENT_THRESHOLD_DAYS
+              ? "ant-table-row-urgent"
+              : ""
           }
           style={{
             border: `1px solid ${token.colorBorderSecondary}`,
