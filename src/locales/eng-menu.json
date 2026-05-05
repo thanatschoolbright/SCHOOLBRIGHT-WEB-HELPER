@@ -16,7 +16,9 @@
       "department_management": "Department Management",
       "leave_management": "Leave Management",
       "system_log": "System Logs",
-      "ot_management": "OT Management (Admin)"
+      "ot_management": "OT Management (Admin)",
+      "system_management": "System Management",
+      "api_spec": "API Spec"
     }
   },
   "testing": {

@@ -1,942 +1,539 @@
 "use client";
 
-import SummaryCard from "@/components/card/summary-card";
 import PermissionLayout from "@/components/layouts/permission-layout";
-import { StatusModalComponent } from "@/components/modal/status-modal-component";
 import { HeaderBar } from "@/components/typhography/header-bar-component";
 import {
-  ApartmentOutlined,
+  ApiOutlined,
   CheckCircleOutlined,
-  CheckOutlined,
-  ClearOutlined,
-  CloseOutlined,
-  CloudServerOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  ExclamationCircleOutlined,
-  FilterOutlined,
-  PlusOutlined,
-  ReloadOutlined,
-  SearchOutlined,
+  CopyOutlined,
+  KeyOutlined,
+  LoginOutlined,
   UnorderedListOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
-import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import {
+  Badge,
   Button,
   Card,
   Col,
   Flex,
-  Form,
   Input,
-  Modal,
-  Progress,
   Row,
   Space,
-  Steps,
-  Table,
+  Tabs,
   Tag,
   theme,
   Typography,
 } from "antd";
-import type { ColumnsType } from "antd/es/table";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
-// Department Type
-interface Department {
-  id: number;
-  name_th: string;
-  name_en?: string;
-  is_active: boolean;
-  _count?: {
-    users: number; // For showing how many users are in this department
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "";
+
+interface ApiField {
+  name: string;
+  type: string;
+  required: boolean;
+  description: string;
+  location?: "body" | "header";
+}
+
+interface ApiEndpointCardProps {
+  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+  path: string;
+  title: string;
+  description: string;
+  requestFields?: ApiField[];
+  responseExample: string;
+  errorList?: { status: number; message: string }[];
+}
+
+const METHOD_COLOR: Record<string, string> = {
+  GET: "green",
+  POST: "blue",
+  PUT: "orange",
+  DELETE: "red",
+  PATCH: "purple",
+};
+
+// คัดลอกข้อความไปยัง clipboard
+function useCopyText() {
+  return (text: string, label?: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success(`คัดลอก${label ? ` ${label}` : ""}แล้ว`);
+    });
   };
 }
 
-const DEFAULT_DEPARTMENTS = [
-  { name_th: "บริหารงานทั่วไป", name_en: "General Administration" },
-  { name_th: "เทคโนโลยีสารสนเทศ", name_en: "Information Technology" },
-  { name_th: "ทรัพยากรบุคคล", name_en: "Human Resources" },
-  { name_th: "บัญชีและการเงิน", name_en: "Accounting and Finance" },
-  { name_th: "การตลาด", name_en: "Marketing" },
-  { name_th: "ฝ่ายขาย", name_en: "Sales" },
-  { name_th: "พัฒนาผลิตภัณฑ์", name_en: "Product Development" },
-  { name_th: "วิศวกรรม", name_en: "Engineering" },
-  { name_th: "ประกันคุณภาพ", name_en: "Quality Assurance" },
-  { name_th: "บริการลูกค้า", name_en: "Customer Service" },
-  { name_th: "วิจัยและพัฒนา", name_en: "Research and Development" },
-  { name_th: "ฝ่ายปฏิบัติการ", name_en: "Operations" },
-];
-
-export default function DepartmentManagementPage() {
+// การ์ดแสดงรายละเอียด API endpoint
+function ApiEndpointCard({
+  method,
+  path,
+  title,
+  description,
+  requestFields,
+  responseExample,
+  errorList,
+}: ApiEndpointCardProps) {
   const { token } = theme.useToken();
-  const [form] = Form.useForm();
+  const copyText = useCopyText();
+  const fullUrl = `${BASE_URL}${path}`;
 
-  // State
-  const [loading, setLoading] = useState(true);
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [search, setSearch] = useState("");
-  const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
-  const [selectedDept, setSelectedDept] = useState<Department | null>(null);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [statusModal, setStatusModal] = useState<{
-    open: boolean;
-    type: "success" | "error" | "confirm" | "delete";
-    title: string;
-    message: string;
-  }>({
-    open: false,
-    type: "success",
-    title: "",
-    message: "",
-  });
+  return (
+    <Card
+      style={{
+        borderRadius: 16,
+        border: `1px solid ${token.colorBorderSecondary}`,
+        marginBottom: 24,
+      }}
+      styles={{ body: { padding: 24 } }}
+    >
+      <Flex align="center" gap={12} style={{ marginBottom: 16 }}>
+        <UnorderedListOutlined style={{ fontSize: "1rem", color: token.colorPrimary }} />
+        <Typography.Text strong style={{ fontSize: "1.05rem" }}>
+          {title}
+        </Typography.Text>
+      </Flex>
 
-  // Auto Gen State
-  const [autoGenModalOpen, setAutoGenModalOpen] = useState(false);
-  const [genStep, setGenStep] = useState<
-    "generating" | "review" | "executing" | "summary"
-  >("generating");
-  const [candidateDepartments, setCandidateDepartments] = useState<any[]>([]);
-  const [executionStatus, setExecutionStatus] = useState<any[]>([]);
-  const [currentExecutionIndex, setCurrentExecutionIndex] = useState(0);
-  
-  // Members State
-  const [membersModalOpen, setMembersModalOpen] = useState(false);
-  const [membersLoading, setMembersLoading] = useState(false);
-  const [departmentMembers, setDepartmentMembers] = useState<any[]>([]);
-
-  // --- Fetch Data ---
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get("/api/v2/admin/department-management/read", {
-        params: { search, limit: 100 },
-      });
-      setDepartments(res?.data?.data?.items || []);
-    } catch (error) {
-      toast.error("ไม่สามารถดึงข้อมูลแผนกได้");
-    } finally {
-      setLoading(false);
-    }
-  }, [search]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  // Sync form values when editing
-  useEffect(() => {
-    if (modalMode === "edit" && selectedDept) {
-      form.setFieldsValue(selectedDept);
-    } else if (modalMode === "create") {
-      form.resetFields();
-      form.setFieldsValue({ is_active: true });
-    }
-  }, [modalMode, selectedDept, form]);
-
-  // --- Handlers ---
-  const handleOpenAutoGen = async () => {
-    setAutoGenModalOpen(true);
-    setGenStep("generating");
-
-    // Simulate thinking/generating
-    setTimeout(() => {
-      const candidates = DEFAULT_DEPARTMENTS.map((dept) => {
-        const exists = departments.some((d) => d.name_th === dept.name_th);
-        return {
-          ...dept,
-          status: exists ? "DUPLICATE" : "READY",
-        };
-      });
-      setCandidateDepartments(candidates);
-      setGenStep("review");
-    }, 1200);
-  };
-
-  const handleConfirmAutoGen = async () => {
-    setGenStep("executing");
-    setExecutionStatus(
-      candidateDepartments.map((c) => ({ ...c, execStatus: "pending" })),
-    );
-    setCurrentExecutionIndex(0);
-
-    for (let i = 0; i < candidateDepartments.length; i++) {
-      const item = candidateDepartments[i];
-      setCurrentExecutionIndex(i);
-
-      if (item.status === "DUPLICATE") {
-        setExecutionStatus((prev) => {
-          const next = [...prev];
-          next[i] = {
-            ...item,
-            execStatus: "skipped",
-            message: "Already exists",
-          };
-          return next;
-        });
-        await new Promise((r) => setTimeout(r, 150));
-        continue;
-      }
-
-      try {
-        await new Promise((r) => setTimeout(r, 400));
-        await axios.post("/api/v2/admin/department-management/create", {
-          name_th: item.name_th,
-          name_en: item.name_en,
-          is_active: true,
-        });
-
-        setExecutionStatus((prev) => {
-          const next = [...prev];
-          next[i] = { ...item, execStatus: "success" };
-          return next;
-        });
-      } catch (err) {
-        setExecutionStatus((prev) => {
-          const next = [...prev];
-          next[i] = { ...item, execStatus: "error" };
-          return next;
-        });
-      }
-    }
-
-    setGenStep("summary");
-    fetchData();
-    setStatusModal({
-      open: true,
-      type: "success",
-      title: "ดำเนินการสำเร็จ",
-      message: "ระบบได้ทำการสร้างแผนกจากเทมเพลตเรียบร้อยแล้ว",
-    });
-  };
-
-  /**
-   * ลบรายการ candidate ออกจากรายการที่จะสร้าง
-   * @param index ลำดับของรายการ
-   */
-  const handleDeleteCandidate = (index: number) => {
-    const newCandidates = [...candidateDepartments];
-    newCandidates.splice(index, 1);
-    setCandidateDepartments(newCandidates);
-  };
-
-  /**
-   * บันทึกข้อมูลแผนก (สร้างใหม่ หรือ แก้ไข)
-   * @param values ข้อมูลจากฟอร์ม
-   */
-  const handleSubmit = async (values: any) => {
-    try {
-      if (modalMode === "create") {
-        await axios.post("/api/v2/admin/department-management/create", values);
-        toast.success("สร้างแผนกสำเร็จ");
-      } else {
-        await axios.post("/api/v2/admin/department-management/update", {
-          ...values,
-          id: selectedDept?.id,
-        });
-        toast.success("แก้ไขแผนกสำเร็จ");
-      }
-      setModalMode(null);
-      fetchData();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message_th || "เกิดข้อผิดพลาด");
-    }
-  };
-
-  /**
-   * ลบแผนก
-   */
-  const handleDelete = async () => {
-    if (!selectedDept) return;
-    try {
-      await axios.post("/api/v2/admin/department-management/delete", {
-        id: selectedDept.id,
-      });
-      toast.success("ลบแผนกเรียบร้อยแล้ว");
-      setDeleteModalOpen(false);
-      fetchData();
-    } catch {
-      toast.error("เกิดข้อผิดพลาดในการลบ");
-    }
-  };
-
-  /**
-   * ดึงข้อมูลสมาชิกในแผนก
-   */
-  const handleViewMembers = async (dept: Department) => {
-    setSelectedDept(dept);
-    setMembersModalOpen(true);
-    setMembersLoading(true);
-    try {
-      const res = await axios.get("/api/v2/admin/department-management/members", {
-        params: { departmentId: dept.id },
-      });
-      setDepartmentMembers(res?.data?.data || []);
-    } catch (error) {
-      toast.error("ไม่สามารถดึงรายชื่อสมาชิกได้");
-    } finally {
-      setMembersLoading(false);
-    }
-  };
-
-  /**
-   * ล้างค่าการค้นหา
-   */
-  const handleResetSearch = () => {
-    setSearch("");
-  };
-
-  // --- Columns ---
-  const columns: ColumnsType<Department> = [
-    {
-      title: "ID",
-      dataIndex: "id",
-      width: 80,
-      render: (text) => (
-        <span style={{ color: token.colorTextDescription }}>#{text}</span>
-      ),
-    },
-    {
-      title: "ชื่อแผนก (TH)",
-      dataIndex: "name_th",
-      sorter: (a, b) => a.name_th.localeCompare(b.name_th),
-      render: (text) => <Typography.Text strong>{text}</Typography.Text>,
-    },
-    {
-      title: "ชื่อแผนก (EN)",
-      dataIndex: "name_en",
-      sorter: (a, b) => (a.name_en || "").localeCompare(b.name_en || ""),
-      render: (text) => text || "-",
-    },
-    {
-      title: "จำนวนพนักงาน",
-      dataIndex: ["_count", "users"],
-      align: "center",
-      sorter: (a, b) => (a._count?.users || 0) - (b._count?.users || 0),
-      render: (count) => <Tag color="blue">{count || 0} คน</Tag>,
-    },
-    {
-      title: "สถานะ",
-      dataIndex: "is_active",
-      align: "center",
-      sorter: (a, b) =>
-        a.is_active === b.is_active ? 0 : a.is_active ? -1 : 1,
-      render: (active) =>
-        active ? (
-          <Tag color="success" icon={<CheckCircleOutlined />}>
-            เปิดใช้งาน
-          </Tag>
-        ) : (
-          <Tag color="default" icon={<CloseOutlined />}>
-            ปิดใช้งาน
-          </Tag>
-        ),
-    },
-    {
-      title: "จัดการ",
-      key: "action",
-      align: "center",
-      render: (_, r) => (
-        <Space>
-          <Button
-            type="text"
-            title="ดูรายชื่อสมาชิก"
-            icon={<UserOutlined style={{ color: token.colorInfo }} />}
-            onClick={() => handleViewMembers(r)}
+      <Flex align="center" gap={12} style={{ marginBottom: 12 }}>
+        <Tag color={METHOD_COLOR[method]} style={{ fontWeight: 600, fontSize: 13, padding: "2px 10px" }}>
+          {method}
+        </Tag>
+        <Flex flex={1} align="center" gap={8}>
+          <Input
+            value={fullUrl}
+            readOnly
+            size="middle"
+            style={{ fontFamily: "monospace", fontSize: 13 }}
           />
           <Button
             type="text"
-            icon={<EditOutlined style={{ color: token.colorWarning }} />}
-            onClick={() => {
-              setSelectedDept(r);
-              setModalMode("edit");
+            size="small"
+            icon={<CopyOutlined />}
+            onClick={() => copyText(fullUrl, "URL")}
+          />
+        </Flex>
+      </Flex>
+
+      <Typography.Paragraph type="secondary" style={{ marginBottom: 20 }}>
+        {description}
+      </Typography.Paragraph>
+
+      {requestFields && requestFields.length > 0 && (
+        <div style={{ marginBottom: 20 }}>
+          <Typography.Text strong style={{ display: "block", marginBottom: 10 }}>
+            {requestFields.every((f) => f.location === "header") ? "Headers" : "Request Body (JSON)"}
+          </Typography.Text>
+          <div
+            style={{
+              background: token.colorFillAlter,
+              borderRadius: 10,
+              padding: 16,
+              border: `1px solid ${token.colorBorderSecondary}`,
             }}
-          />
+          >
+            {requestFields.map((field) => (
+              <Flex key={field.name} align="baseline" gap={10} style={{ marginBottom: 8 }}>
+                <code
+                  style={{
+                    color: token.colorPrimary,
+                    fontWeight: 600,
+                    minWidth: 130,
+                    fontSize: 13,
+                  }}
+                >
+                  {field.name}
+                </code>
+                <Tag color="default" style={{ fontSize: 11 }}>
+                  {field.type}
+                </Tag>
+                <Badge
+                  status={field.required ? "error" : "default"}
+                  text={
+                    <Typography.Text type={field.required ? "danger" : "secondary"} style={{ fontSize: 11 }}>
+                      {field.required ? "บังคับ" : "ไม่บังคับ"}
+                    </Typography.Text>
+                  }
+                />
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  {field.description}
+                </Typography.Text>
+              </Flex>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div style={{ marginBottom: errorList ? 20 : 0 }}>
+        <Flex justify="space-between" align="center" style={{ marginBottom: 10 }}>
+          <Typography.Text strong>ตัวอย่าง Response (200 OK)</Typography.Text>
           <Button
             type="text"
-            danger
-            icon={<DeleteOutlined />}
-            disabled={r._count?.users ? r._count.users > 0 : false}
-            onClick={() => {
-              setSelectedDept(r);
-              setDeleteModalOpen(true);
-            }}
-          />
-        </Space>
-      ),
-    },
-  ];
+            size="small"
+            icon={<CopyOutlined />}
+            onClick={() => copyText(responseExample, "Response")}
+          >
+            คัดลอก
+          </Button>
+        </Flex>
+        <pre
+          style={{
+            background: token.colorFillAlter,
+            borderRadius: 10,
+            padding: 16,
+            fontSize: 12,
+            overflowX: "auto",
+            border: `1px solid ${token.colorBorderSecondary}`,
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+          }}
+        >
+          {responseExample}
+        </pre>
+      </div>
 
+      {errorList && errorList.length > 0 && (
+        <div>
+          <Typography.Text strong style={{ display: "block", marginBottom: 10 }}>
+            Error Responses
+          </Typography.Text>
+          <Flex gap={8} wrap="wrap">
+            {errorList.map((err) => (
+              <Tag
+                key={err.status}
+                color={err.status >= 500 ? "red" : err.status >= 400 ? "orange" : "default"}
+                style={{ marginBottom: 4 }}
+              >
+                {err.status} — {err.message}
+              </Tag>
+            ))}
+          </Flex>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+const SIGN_IN_RESPONSE = JSON.stringify(
+  {
+    status: 200,
+    message_th: "เข้าสู่ระบบสำเร็จ",
+    message_en: "Sign in successful",
+    data: {
+      token: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJqb2huLmRvZSIsImlzcyI6InNjaG9vbGJyaWdodC1zaGFyZWQtYXV0aCIsImlhdCI6MTc0NjAwMDAwMCwiZXhwIjoxNzQ2MDI4ODAwfQ.signature",
+      token_type: "Bearer",
+      expires_in: 28800,
+      user: {
+        id: 1,
+        admin_id: null,
+        username: "john.doe",
+        employee_code: "EMP001",
+        email: "john@schoolbright.co",
+        firstname_th: "จอห์น",
+        lastname_th: "โด",
+        role_id: 2,
+        role_name: "Developer",
+        permissions: ["timesheet.entry.read"],
+        status: "ACTIVE",
+        last_login: "2026-05-05T10:00:00.000Z",
+      },
+    },
+  },
+  null,
+  2,
+);
+
+const SESSION_RESPONSE = JSON.stringify(
+  {
+    status: 200,
+    message_th: "ดึงข้อมูล session สำเร็จ",
+    message_en: "Session retrieved successfully",
+    data: {
+      user: {
+        id: 1,
+        username: "john.doe",
+        email: "john@schoolbright.co",
+        firstname_th: "จอห์น",
+        lastname_th: "โด",
+        role_name: "Developer",
+        permissions: ["timesheet.entry.read"],
+        department_name: "เทคโนโลยีสารสนเทศ",
+        status: "ACTIVE",
+        last_login: "2026-05-05T10:00:00.000Z",
+      },
+      expires: "2026-05-05T18:00:00.000Z",
+    },
+  },
+  null,
+  2,
+);
+
+// แท็บ Login API
+function LoginApiTab() {
+  const [copied, setCopied] = useState(false);
+  const copyText = useCopyText();
+
+  const curlExample = `curl -X POST ${BASE_URL}/api/v3/authentication/shared/sign-in \\
+  -H "Content-Type: application/json" \\
+  -d '{"username": "john@schoolbright.co", "password": "yourpassword"}'`;
+
+  return (
+    <div>
+      <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
+        <Col xs={24} md={8}>
+          <Card
+            style={{ borderRadius: 12, textAlign: "center" }}
+            styles={{ body: { padding: 20 } }}
+          >
+            <LoginOutlined style={{ fontSize: 28, color: "#1677ff", marginBottom: 8 }} />
+            <Typography.Title level={5} style={{ marginBottom: 4 }}>
+              Shared Login
+            </Typography.Title>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              ใช้ DB ผู้ใช้เดียวกัน
+            </Typography.Text>
+          </Card>
+        </Col>
+        <Col xs={24} md={8}>
+          <Card
+            style={{ borderRadius: 12, textAlign: "center" }}
+            styles={{ body: { padding: 20 } }}
+          >
+            <CheckCircleOutlined style={{ fontSize: 28, color: "#52c41a", marginBottom: 8 }} />
+            <Typography.Title level={5} style={{ marginBottom: 4 }}>
+              Stateless
+            </Typography.Title>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              ไม่สร้าง NextAuth session
+            </Typography.Text>
+          </Card>
+        </Col>
+        <Col xs={24} md={8}>
+          <Card
+            style={{ borderRadius: 12, textAlign: "center" }}
+            styles={{ body: { padding: 20 } }}
+          >
+            <KeyOutlined style={{ fontSize: 28, color: "#fa8c16", marginBottom: 8 }} />
+            <Typography.Title level={5} style={{ marginBottom: 4 }}>
+              Lock Protection
+            </Typography.Title>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              5 ครั้ง / ล็อก 15 นาที
+            </Typography.Text>
+          </Card>
+        </Col>
+      </Row>
+
+      <ApiEndpointCard
+        method="POST"
+        path="/api/v3/authentication/shared/sign-in"
+        title="เข้าสู่ระบบ (Shared Login)"
+        description="Login ด้วย email, employee_code หรือ username — รองรับ case-insensitive ส่งคืน JWT token (HS256, อายุ 8 ชั่วโมง) สำหรับนำไปใช้กับเส้น /session"
+        requestFields={[
+          { name: "username", type: "string", required: true, description: "email / employee_code / username" },
+          { name: "password", type: "string", required: true, description: "รหัสผ่าน" },
+        ]}
+        responseExample={SIGN_IN_RESPONSE}
+        errorList={[
+          { status: 400, message: "Username and password are required" },
+          { status: 401, message: "Invalid credentials / Invalid password" },
+          { status: 403, message: "Account is locked or inactive" },
+          { status: 429, message: "Account temporarily locked (15 min)" },
+          { status: 500, message: "Internal Server Error" },
+        ]}
+      />
+
+      <Card
+        style={{ borderRadius: 16, marginBottom: 24 }}
+        styles={{ body: { padding: 24 } }}
+      >
+        <Flex justify="space-between" align="center" style={{ marginBottom: 12 }}>
+          <Typography.Text strong>ตัวอย่าง cURL</Typography.Text>
+          <Button
+            type="text"
+            size="small"
+            icon={<CopyOutlined />}
+            onClick={() => {
+              copyText(curlExample, "cURL");
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            }}
+          >
+            {copied ? "คัดลอกแล้ว" : "คัดลอก"}
+          </Button>
+        </Flex>
+        <pre
+          style={{
+            background: "#1a1a2e",
+            color: "#e2e2e2",
+            borderRadius: 10,
+            padding: 16,
+            fontSize: 12,
+            overflowX: "auto",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+          }}
+        >
+          {curlExample}
+        </pre>
+      </Card>
+    </div>
+  );
+}
+
+// แท็บ Session API
+function SessionApiTab() {
+  const copyText = useCopyText();
+
+  const curlExample = `curl --location '${BASE_URL}/api/v3/authentication/shared/session' \\
+  --header 'Authorization: Bearer <JWT token จากเส้น /sign-in>'`;
+
+  return (
+    <div>
+      <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
+        <Col xs={24} md={12}>
+          <Card
+            style={{ borderRadius: 12, textAlign: "center" }}
+            styles={{ body: { padding: 20 } }}
+          >
+            <UserOutlined style={{ fontSize: 28, color: "#722ed1", marginBottom: 8 }} />
+            <Typography.Title level={5} style={{ marginBottom: 4 }}>
+              แลก Token เป็น Session
+            </Typography.Title>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              ส่ง JWT token เพื่อดึงข้อมูลพนักงานล่าสุด
+            </Typography.Text>
+          </Card>
+        </Col>
+        <Col xs={24} md={12}>
+          <Card
+            style={{ borderRadius: 12, textAlign: "center" }}
+            styles={{ body: { padding: 20 } }}
+          >
+            <KeyOutlined style={{ fontSize: 28, color: "#13c2c2", marginBottom: 8 }} />
+            <Typography.Title level={5} style={{ marginBottom: 4 }}>
+              Token-Protected
+            </Typography.Title>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              Verify HS256 + ตรวจสอบ issuer ก่อนอนุญาต
+            </Typography.Text>
+          </Card>
+        </Col>
+      </Row>
+
+      <ApiEndpointCard
+        method="GET"
+        path="/api/v3/authentication/shared/session"
+        title="ดึงข้อมูล Session ด้วย Bearer Token"
+        description="ส่ง JWT token ผ่าน Authorization header เพื่อ verify และดึงข้อมูลพนักงานล่าสุดจาก DB (real-time)"
+        requestFields={[
+          { name: "Authorization", type: "string", required: true, description: "Bearer <JWT token จากเส้น /sign-in>", location: "header" },
+        ]}
+        responseExample={SESSION_RESPONSE}
+        errorList={[
+          { status: 401, message: "Missing or invalid Authorization header" },
+          { status: 401, message: "Invalid or expired token" },
+          { status: 403, message: "Account is locked or inactive" },
+          { status: 404, message: "User not found" },
+          { status: 500, message: "Internal Server Error" },
+        ]}
+      />
+
+      <Card
+        style={{ borderRadius: 16, marginBottom: 24 }}
+        styles={{ body: { padding: 24 } }}
+      >
+        <Flex justify="space-between" align="center" style={{ marginBottom: 12 }}>
+          <Typography.Text strong>ตัวอย่าง cURL</Typography.Text>
+          <Button
+            type="text"
+            size="small"
+            icon={<CopyOutlined />}
+            onClick={() => copyText(curlExample, "cURL")}
+          >
+            คัดลอก
+          </Button>
+        </Flex>
+        <pre
+          style={{
+            background: "#1a1a2e",
+            color: "#e2e2e2",
+            borderRadius: 10,
+            padding: 16,
+            fontSize: 12,
+            overflowX: "auto",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+          }}
+        >
+          {curlExample}
+        </pre>
+      </Card>
+    </div>
+  );
+}
+
+export default function ApiSpecManagementPage() {
   return (
     <PermissionLayout role={["ADMIN"]}>
       <DashboardLayout>
         <HeaderBar
-          icon={<ApartmentOutlined />}
-          title="จัดการแผนก"
-          subTitle="บริหารจัดการแผนกและโครงสร้างองค์กร"
+          icon={<ApiOutlined />}
+          title="API Spec"
+          subTitle="รายละเอียด API สำหรับแชร์ให้เว็บอื่นใช้งานระบบ Login เดียวกัน"
           extra={
             <Space>
-              <Button onClick={fetchData} icon={<ReloadOutlined />}>
-                รีเฟรช
-              </Button>
+              <Tag color="blue" style={{ padding: "4px 10px" }}>
+                v3
+              </Tag>
+              <Tag color="green" style={{ padding: "4px 10px" }}>
+                Shared Auth
+              </Tag>
             </Space>
           }
         />
 
-        <Row gutter={[24, 24]} style={{ marginBottom: 32 }}>
-          <Col xs={24} sm={12} md={8}>
-            <SummaryCard
-              title="จำนวนแผนกทั้งหมด"
-              value={departments.length}
-              unit="รายการ"
-              icon={<ApartmentOutlined />}
-              color={token.colorPrimary}
-              isLoading={loading}
-            />
-          </Col>
-          <Col xs={24} sm={12} md={8}>
-            <SummaryCard
-              title="แผนกที่เปิดใช้งาน"
-              value={departments.filter((d) => d.is_active).length}
-              unit="รายการ"
-              icon={<CheckCircleOutlined />}
-              color={token.colorSuccess}
-              isLoading={loading}
-            />
-          </Col>
-          <Col xs={24} sm={12} md={8}>
-            <SummaryCard
-              title="พนักงานรวมทุกแผนก"
-              value={departments.reduce(
-                (acc, curr) => acc + (curr._count?.users || 0),
-                0,
-              )}
-              unit="คน"
-              icon={<UserOutlined />}
-              color={token.colorInfo}
-              isLoading={loading}
-            />
-          </Col>
-        </Row>
-
         <Card
-          style={{
-            borderRadius: 16,
-            border: `1px solid ${token.colorBorderSecondary}`,
-            marginBottom: 32,
-          }}
-          styles={{ body: { padding: 24 } }}
+          style={{ borderRadius: 16, marginBottom: 8 }}
+          styles={{ body: { padding: 0 } }}
         >
-          <Flex align="center" gap={12} style={{ marginBottom: 24 }}>
-            <FilterOutlined
-              style={{ fontSize: "1.2rem", color: token.colorPrimary }}
-            />
-            <Typography.Text strong style={{ fontSize: "1.1rem" }}>
-              ตัวกรองข้อมูล
-            </Typography.Text>
-          </Flex>
-
-          <Row gutter={[24, 24]}>
-            <Col xs={24} md={12}>
-              <Form.Item label="ค้นหาชื่อแผนก" style={{ marginBottom: 0 }}>
-                <Input
-                  prefix={<SearchOutlined />}
-                  placeholder="เช่น ฝ่ายบริหาร, IT..."
-                  size="large"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  allowClear
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Flex justify="end" gap={12} style={{ marginTop: 32 }}>
-            <Button
-              icon={<ClearOutlined />}
-              onClick={handleResetSearch}
-              size="large"
-            >
-              ล้างการค้นหา
-            </Button>
-            <Button
-              type="primary"
-              icon={<SearchOutlined />}
-              onClick={fetchData}
-              size="large"
-            >
-              ค้นหา
-            </Button>
-          </Flex>
-        </Card>
-
-        <Card
-          style={{
-            borderRadius: 16,
-            border: `1px solid ${token.colorBorderSecondary}`,
-          }}
-          styles={{ body: { padding: 24 } }}
-        >
-          <Flex
-            justify="space-between"
-            align="center"
-            style={{ marginBottom: 24 }}
-          >
-            <Space align="center" size={12}>
-              <UnorderedListOutlined
-                style={{ fontSize: "1.2rem", color: token.colorPrimary }}
-              />
-              <Typography.Text strong style={{ fontSize: "1.1rem" }}>
-                รายการแผนกทั้งหมด
-              </Typography.Text>
-            </Space>
-            <Space size={12}>
-              <Button
-                onClick={handleOpenAutoGen}
-                icon={<CloudServerOutlined />}
-                size="large"
-                style={{
-                  backgroundColor: token.colorSuccessBg,
-                  color: token.colorSuccess,
-                  borderColor: token.colorSuccessBorder,
-                }}
-              >
-                เทมเพลตแผนกอัตโนมัติ
-              </Button>
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                size="large"
-                onClick={() => {
-                  setModalMode("create");
-                }}
-              >
-                เพิ่มแผนก
-              </Button>
-            </Space>
-          </Flex>
-
-          <Table
-            columns={columns}
-            dataSource={departments}
-            loading={loading}
-            rowKey="id"
-            pagination={{
-              pageSize: 15,
-              showSizeChanger: true,
-              showTotal: (total) => `ทั้งหมด ${total} รายการ`,
-              style: { marginTop: 24 },
-            }}
-          />
-        </Card>
-
-        {/* Create/Edit Modal */}
-        <Modal
-          open={!!modalMode}
-          title={modalMode === "create" ? "เพิ่มแผนกใหม่" : "แก้ไขแผนก"}
-          onCancel={() => setModalMode(null)}
-          footer={null}
-          destroyOnHidden
-        >
-          <Form form={form} layout="vertical" onFinish={handleSubmit}>
-            <Form.Item
-              name="name_th"
-              label="ชื่อแผนก (TH)"
-              rules={[{ required: true, message: "กรุณาระบุชื่อแผนกภาษาไทย" }]}
-            >
-              <Input placeholder="เช่น ฝ่ายทรัพยากรบุคคล" />
-            </Form.Item>
-            <Form.Item name="name_en" label="ชื่อแผนก (EN)">
-              <Input placeholder="e.g. Human Resources" />
-            </Form.Item>
-            <Form.Item
-              name="is_active"
-              label="สถานะการใช้งาน"
-              valuePropName="checked"
-            >
-              <Space.Compact>
-                <Button
-                  type={form.getFieldValue("is_active") ? "primary" : "default"}
-                  onClick={() => form.setFieldValue("is_active", true)}
-                  icon={<CheckOutlined />}
-                >
-                  เปิดใช้งาน
-                </Button>
-                <Button
-                  type={
-                    !form.getFieldValue("is_active") ? "primary" : "default"
-                  }
-                  danger={!form.getFieldValue("is_active")}
-                  onClick={() => form.setFieldValue("is_active", false)}
-                  icon={<CloseOutlined />}
-                >
-                  ปิดใช้งาน
-                </Button>
-              </Space.Compact>
-            </Form.Item>
-
-            <Flex justify="end" gap={12} style={{ marginTop: 24 }}>
-              <Button onClick={() => setModalMode(null)}>ยกเลิก</Button>
-              <Button
-                type="primary"
-                htmlType="submit"
-                icon={<CheckCircleOutlined />}
-              >
-                บันทึกข้อมูล
-              </Button>
-            </Flex>
-          </Form>
-        </Modal>
-
-        {/* Delete Confirmation */}
-        <StatusModalComponent
-          open={deleteModalOpen}
-          type="delete"
-          title="ยืนยันการลบแผนก"
-          message={`คุณต้องการลบแผนก "${selectedDept?.name_th}" หรือไม่? การดำเนินการนี้ไม่สามารถเรียกคืนได้ และแผนกต้องไม่มีพนักงานสังกัดอยู่`}
-          onClose={() => setDeleteModalOpen(false)}
-          onConfirm={handleDelete}
-          confirmLabel="ลบทิ้ง"
-          cancelLabel="ยกเลิก"
-        />
-
-        {/* Status Notification Modal */}
-        <StatusModalComponent
-          open={statusModal.open}
-          type={statusModal.type}
-          title={statusModal.title}
-          message={statusModal.message}
-          onClose={() => setStatusModal({ ...statusModal, open: false })}
-        />
-
-        {/* Members Modal */}
-        <Modal
-          title={
-            <Space align="center" size={12}>
-              <UserOutlined style={{ fontSize: "1.2rem", color: token.colorPrimary }} />
-              <Typography.Text strong style={{ fontSize: "1.1rem" }}>
-                รายชื่อสมาชิก: {selectedDept?.name_th}
-              </Typography.Text>
-            </Space>
-          }
-          open={membersModalOpen}
-          onCancel={() => setMembersModalOpen(false)}
-          width={800}
-          footer={[
-            <Button key="close" type="primary" onClick={() => setMembersModalOpen(false)}>
-              ปิดหน้าต่าง
-            </Button>
-          ]}
-        >
-          <Table
-            size="small"
-            dataSource={departmentMembers}
-            loading={membersLoading}
-            rowKey="id"
-            pagination={{ pageSize: 10 }}
-            columns={[
+          <Tabs
+            defaultActiveKey="login"
+            size="large"
+            style={{ padding: "0 24px" }}
+            items={[
               {
-                title: "รหัสพนักงาน",
-                dataIndex: "employee_code",
-                width: 120,
-                render: (t) => <Tag color="blue">{t || "-"}</Tag>,
-              },
-              {
-                title: "ชื่อ-นามสกุล",
-                key: "name",
-                render: (_, r) => (
-                  <Space direction="vertical" size={0}>
-                    <Typography.Text strong>
-                      {r.firstname_th} {r.lastname_th}
-                    </Typography.Text>
-                    {r.nickname && (
-                      <Typography.Text type="secondary" size="small">
-                        ({r.nickname})
-                      </Typography.Text>
-                    )}
+                key: "login",
+                label: (
+                  <Space>
+                    <LoginOutlined />
+                    เส้น Login
                   </Space>
                 ),
-              },
-              {
-                title: "ตำแหน่ง",
-                dataIndex: ["position_ref", "name_th"],
-                render: (t) => t || "-",
-              },
-              {
-                title: "สิทธิ์การใช้งาน",
-                dataIndex: ["role", "role_name"],
-                render: (t) => (
-                  <Tag color="purple">{t || "-"}</Tag>
+                children: (
+                  <div style={{ padding: "16px 0 24px" }}>
+                    <LoginApiTab />
+                  </div>
                 ),
               },
               {
-                title: "สถานะ",
-                dataIndex: "status",
-                align: "center",
-                render: (s) => (
-                  <Tag color={s === "ACTIVE" ? "success" : "default"}>
-                    {s === "ACTIVE" ? "ปกติ" : s}
-                  </Tag>
+                key: "session",
+                label: (
+                  <Space>
+                    <UserOutlined />
+                    เส้น Session
+                  </Space>
+                ),
+                children: (
+                  <div style={{ padding: "16px 0 24px" }}>
+                    <SessionApiTab />
+                  </div>
                 ),
               },
             ]}
           />
-        </Modal>
-
-        {/* Auto Gen Modal */}
-        <Modal
-          title={
-            <Space align="center" size={12}>
-              <CloudServerOutlined
-                style={{ fontSize: "1.2rem", color: token.colorPrimary }}
-              />
-              <Typography.Text strong style={{ fontSize: "1.1rem" }}>
-                สร้างแผนกจากเทมเพลตมาตรฐาน
-              </Typography.Text>
-            </Space>
-          }
-          open={autoGenModalOpen}
-          onCancel={() => {
-            if (genStep !== "executing") setAutoGenModalOpen(false);
-          }}
-          width={800}
-          footer={
-            genStep === "review" ? (
-              <Flex justify="end" gap={12}>
-                <Button onClick={() => setAutoGenModalOpen(false)}>
-                  ยกเลิก
-                </Button>
-                <Button
-                  type="primary"
-                  onClick={handleConfirmAutoGen}
-                  disabled={candidateDepartments.length === 0}
-                  icon={<CloudServerOutlined />}
-                  size="large"
-                >
-                  เริ่มสร้างแผนก (
-                  {
-                    candidateDepartments.filter((c) => c.status === "READY")
-                      .length
-                  }{" "}
-                  รายการ )
-                </Button>
-              </Flex>
-            ) : genStep === "summary" ? (
-              <Button
-                type="primary"
-                onClick={() => setAutoGenModalOpen(false)}
-                size="large"
-              >
-                เสร็จสิ้น
-              </Button>
-            ) : null
-          }
-          closable={genStep !== "executing"}
-          maskClosable={genStep !== "executing"}
-        >
-          {genStep === "generating" && (
-            <div style={{ padding: "60px 0", textAlign: "center" }}>
-              <div
-                style={{
-                  fontSize: "3rem",
-                  color: token.colorPrimary,
-                  marginBottom: 24,
-                }}
-              >
-                <CloudServerOutlined className="animate-spin" />
-              </div>
-              <Typography.Text type="secondary" style={{ fontSize: "1.1rem" }}>
-                กำลังวิเคราะห์และสร้างรายการแผนกมาตรฐาน...
-              </Typography.Text>
-            </div>
-          )}
-
-          {genStep === "review" && (
-            <div style={{ padding: "8px 0" }}>
-              <div
-                style={{
-                  padding: 16,
-                  backgroundColor: token.colorInfoBg,
-                  borderRadius: 12,
-                  marginBottom: 24,
-                  border: `1px solid ${token.colorInfoBorder}`,
-                }}
-              >
-                <Typography.Text style={{ color: token.colorInfoText }}>
-                  ระบบจะตรวจสอบรายชื่อแผนกมาตรฐานและข้ามรายการที่ซ้ำกับข้อมูลปัจจุบันของคุณ
-                  คุณสามารถลบบางรายการที่ไม่ต้องการได้ก่อนกดยืนยัน
-                </Typography.Text>
-              </div>
-
-              <Table
-                size="small"
-                dataSource={candidateDepartments}
-                rowKey="name_th"
-                pagination={false}
-                scroll={{ y: 350 }}
-                columns={[
-                  {
-                    title: "ชื่อแผนก (TH)",
-                    dataIndex: "name_th",
-                    render: (t) => (
-                      <Typography.Text strong>{t}</Typography.Text>
-                    ),
-                  },
-                  { title: "ชื่อแผนก (EN)", dataIndex: "name_en" },
-                  {
-                    title: "ตรวจสอบ",
-                    dataIndex: "status",
-                    width: 120,
-                    render: (s) =>
-                      s === "DUPLICATE" ? (
-                        <Tag
-                          color="warning"
-                          icon={<ExclamationCircleOutlined />}
-                        >
-                          ซ้ำ
-                        </Tag>
-                      ) : (
-                        <Tag color="success" icon={<CheckCircleOutlined />}>
-                          ใหม่
-                        </Tag>
-                      ),
-                  },
-                  {
-                    title: "ลบ",
-                    align: "center",
-                    width: 60,
-                    render: (_, __, i) => (
-                      <Button
-                        type="text"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => handleDeleteCandidate(i)}
-                      />
-                    ),
-                  },
-                ]}
-              />
-            </div>
-          )}
-
-          {(genStep === "executing" || genStep === "summary") && (
-            <div style={{ padding: "16px 0" }}>
-              <div style={{ textAlign: "center", marginBottom: 32 }}>
-                <Typography.Title level={4}>
-                  {genStep === "executing"
-                    ? "กำลังดำเนินการ..."
-                    : "ดำเนินการเสร็จสิ้น"}
-                </Typography.Title>
-                <Progress
-                  percent={Math.round(
-                    ((currentExecutionIndex + (genStep === "summary" ? 1 : 0)) /
-                      candidateDepartments.length) *
-                      100,
-                  )}
-                  status={genStep === "summary" ? "success" : "active"}
-                  strokeColor={{
-                    "0%": token.colorPrimary,
-                    "100%": token.colorSuccess,
-                  }}
-                  strokeWidth={12}
-                />
-              </div>
-
-              <div
-                style={{
-                  height: 300,
-                  overflowY: "auto",
-                  backgroundColor: token.colorFillAlter,
-                  padding: 24,
-                  borderRadius: 12,
-                  border: `1px solid ${token.colorBorderSecondary}`,
-                  marginBottom: 24,
-                }}
-              >
-                <Steps
-                  direction="vertical"
-                  size="small"
-                  current={currentExecutionIndex}
-                  items={executionStatus.map((item, idx) => ({
-                    title: item.name_th,
-                    description:
-                      item.execStatus === "skipped" ? (
-                        "ข้าม (มีอยู่แล้ว)"
-                      ) : item.execStatus === "error" ? (
-                        <span style={{ color: token.colorError }}>
-                          เกิดข้อผิดพลาด
-                        </span>
-                      ) : item.execStatus === "success" ? (
-                        <span style={{ color: token.colorSuccess }}>
-                          สร้างสำเร็จ
-                        </span>
-                      ) : (
-                        "รอการดำเนินการ"
-                      ),
-                    status:
-                      item.execStatus === "pending"
-                        ? "wait"
-                        : item.execStatus === "success"
-                          ? "finish"
-                          : item.execStatus === "error"
-                            ? "error"
-                            : item.execStatus === "skipped"
-                              ? "finish"
-                              : "wait",
-                  }))}
-                />
-              </div>
-
-              {genStep === "summary" && (
-                <div
-                  style={{
-                    padding: 16,
-                    backgroundColor: token.colorSuccessBg,
-                    border: `1px solid ${token.colorSuccessBorder}`,
-                    borderRadius: 12,
-                  }}
-                >
-                  <Flex justify="space-around" align="center">
-                    <Typography.Text
-                      strong
-                      style={{ color: token.colorSuccessText }}
-                    >
-                      สำเร็จ:{" "}
-                      {
-                        executionStatus.filter(
-                          (i) => i.execStatus === "success",
-                        ).length
-                      }
-                    </Typography.Text>
-                    <Typography.Text
-                      strong
-                      style={{ color: token.colorWarningText }}
-                    >
-                      ข้าม:{" "}
-                      {
-                        executionStatus.filter(
-                          (i) => i.execStatus === "skipped",
-                        ).length
-                      }
-                    </Typography.Text>
-                    <Typography.Text
-                      strong
-                      style={{ color: token.colorErrorText }}
-                    >
-                      ล้มเหลว:{" "}
-                      {
-                        executionStatus.filter((i) => i.execStatus === "error")
-                          .length
-                      }
-                    </Typography.Text>
-                  </Flex>
-                </div>
-              )}
-            </div>
-          )}
-        </Modal>
+        </Card>
       </DashboardLayout>
     </PermissionLayout>
   );

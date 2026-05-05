@@ -30,6 +30,7 @@ import {
   HistoryOutlined,
   IdcardOutlined,
   IssuesCloseOutlined,
+  KeyOutlined,
   LockOutlined,
   MobileOutlined,
   ProjectOutlined,
@@ -166,6 +167,20 @@ export const useSidebarMenu = (): SidebarItem[] => {
                   PERMISSIONS.ADMIN_ACCESS,
                   PERMISSIONS.MENU_OT_MANAGEMENT,
                 ],
+              },
+            ],
+          },
+          {
+            label: t("admin_system.children.system_management"),
+            icon: <ApiOutlined />,
+            permission: PERMISSIONS.ADMIN_ACCESS,
+            children: [
+              {
+                label: t("admin_system.children.api_spec"),
+                href: "/admin/api-spec-management",
+                icon: <KeyOutlined />,
+                news: true,
+                permission: PERMISSIONS.ADMIN_ACCESS,
               },
             ],
           },
