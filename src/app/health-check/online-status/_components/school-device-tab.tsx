@@ -216,7 +216,7 @@ const DeviceGroupBlock = ({
 
           return (
             <Flex
-              key={device.device_id}
+              key={`${appName}:${device.device_id}`}
               align="center"
               justify="space-between"
               style={{
