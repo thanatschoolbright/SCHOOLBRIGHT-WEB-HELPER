@@ -44,16 +44,11 @@ export async function fetchAndSendServerStatusEmail() {
     const recipients: string[] = process.env.SERVER_REPORT_EMAILS
       ? process.env.SERVER_REPORT_EMAILS.split(",").map((email) => email.trim())
       : [
-          "narin@schoolbright.co",
-          "tantawan.tawan@schoolbright.co",
-          "ariya.goff@schoolbright.co",
-          "cs@schoolbright.co",
           "sa@schoolbright.co",
           "vimal@schoolbright.co",
           "nikornsak.champ@schoolbright.co",
           "traithep.cstp@gmail.com",
           "kumikomai2015@gmail.com",
-          "supicha.ing@schoolbright.co",
         ];
 
     // 3. ส่งอีเมล

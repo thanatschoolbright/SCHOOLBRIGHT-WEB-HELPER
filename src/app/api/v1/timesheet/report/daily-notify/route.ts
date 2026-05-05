@@ -39,12 +39,10 @@ const NotifySchema = z.object({
     .default([
       "sa@schoolbright.co",
       "thanat.light@schoolbright.co",
-      "narin@schoolbright.co",
       "tana.joe@schoolbright.co",
       "nikornsak.champ@schoolbright.co",
       "traithep.cstp@gmail.com",
       "kumikomai2015@gmail.com",
-      "supicha.ing@schoolbright.co",
     ]),
 });
 

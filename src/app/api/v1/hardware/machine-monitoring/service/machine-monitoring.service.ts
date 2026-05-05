@@ -9,13 +9,9 @@ const TEN_MIN_IN_MS = 10 * 60 * 1000;
 
 // อีเมลที่รับรายงานสถานะเครื่อง POS
 const REPORT_EMAILS = [
-  "narin@schoolbright.co",
-  "tantawan.tawan@schoolbright.co",
-  "ariya.goff@schoolbright.co",
   "nikornsak.champ@schoolbright.co",
   "traithep.cstp@gmail.com",
   "kumikomai2015@gmail.com",
-  "supicha.ing@schoolbright.co",
 ] as const;
 
 const OFFLINE_CRITICAL_THRESHOLD = 5;
