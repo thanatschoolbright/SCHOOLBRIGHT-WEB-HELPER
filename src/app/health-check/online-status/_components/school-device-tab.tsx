@@ -2,6 +2,8 @@
 
 import {
   BankOutlined,
+  BellFilled,
+  BellOutlined,
   CameraOutlined,
   ClockCircleOutlined,
   CreditCardOutlined,
@@ -10,6 +12,7 @@ import {
   EyeOutlined,
   LaptopOutlined,
   MobileOutlined,
+  QuestionCircleOutlined,
   ReloadOutlined,
   UnorderedListOutlined,
   WarningOutlined,
@@ -25,6 +28,7 @@ import {
   Flex,
   Row,
   Space,
+  Switch,
   Table,
   Tag,
   Tooltip,
@@ -37,6 +41,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -60,6 +65,7 @@ interface DeviceDetail {
   is_login: boolean;
   online_time: string | null;
   offline_reason: OfflineReason;
+  notify_enabled: boolean;
 }
 
 interface SchoolDeviceSummaryItem {
@@ -150,11 +156,17 @@ const OfflineReasonBadge = ({ reason }: { reason: OfflineReason }) => {
 // Device Group ใน Drawer
 // ----------------------------------------
 const DeviceGroupBlock = ({
+  schoolId,
   appName,
   devices,
+  onToggleNotify,
+  togglingDeviceId,
 }: {
+  schoolId: number;
   appName: string;
   devices: DeviceDetail[];
+  onToggleNotify: (schoolId: number, deviceId: string, enabled: boolean) => void;
+  togglingDeviceId: string | null;
 }) => {
   const onlineCount = devices.filter((d) => d.is_online).length;
   const offlineCount = devices.length - onlineCount;
@@ -200,6 +212,7 @@ const DeviceGroupBlock = ({
             ? dayjs.tz(device.online_time).fromNow()
             : null;
           const effectiveOnline = device.is_online;
+          const isToggling = togglingDeviceId === device.device_id;
 
           return (
             <Flex
@@ -248,44 +261,71 @@ const DeviceGroupBlock = ({
                 </Flex>
               </Flex>
 
-              {/* ขวา: สถานะ + เวลา */}
-              <Flex vertical align="end" gap={3}>
-                <Tag
-                  color={effectiveOnline ? "success" : "error"}
-                  style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
+              {/* ขวา: toggle แจ้งเตือน + สถานะ + เวลา */}
+              <Flex align="center" gap={12}>
+                {/* Toggle การแจ้งเตือน */}
+                <Tooltip
+                  title={
+                    device.notify_enabled
+                      ? "ปิดการแจ้งเตือน LINE สำหรับเครื่องนี้"
+                      : "เปิดการแจ้งเตือน LINE สำหรับเครื่องนี้"
+                  }
                 >
-                  {effectiveOnline ? "ออนไลน์" : "ออฟไลน์"}
-                </Tag>
-                {device.is_login && (
+                  <Flex align="center" gap={5}>
+                    {device.notify_enabled ? (
+                      <BellFilled style={{ fontSize: 12, color: "#16a34a" }} />
+                    ) : (
+                      <BellOutlined style={{ fontSize: 12, color: "rgba(128,128,128,0.5)" }} />
+                    )}
+                    <Switch
+                      size="small"
+                      checked={device.notify_enabled}
+                      loading={isToggling}
+                      onChange={(checked) =>
+                        onToggleNotify(schoolId, device.device_id, checked)
+                      }
+                    />
+                  </Flex>
+                </Tooltip>
+
+                <Flex vertical align="end" gap={3}>
                   <Tag
-                    color="processing"
-                    style={{ margin: 0, fontSize: 10, borderRadius: 6 }}
+                    color={effectiveOnline ? "success" : "error"}
+                    style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
                   >
-                    กำลังใช้งาน
+                    {effectiveOnline ? "ออนไลน์" : "ออฟไลน์"}
                   </Tag>
-                )}
-                {lastSeen && (
-                  <Tooltip
-                    title={dayjs
-                      .tz(device.online_time)
-                      .format("DD/MM/YYYY HH:mm:ss")}
-                  >
-                    <Flex align="center" gap={3} style={{ cursor: "default" }}>
-                      <ClockCircleOutlined
-                        style={{
-                          fontSize: 10,
-                          color: "var(--ant-color-text-quaternary)",
-                        }}
-                      />
-                      <Text
-                        type="secondary"
-                        style={{ fontSize: 10, whiteSpace: "nowrap" }}
-                      >
-                        {lastSeen}
-                      </Text>
-                    </Flex>
-                  </Tooltip>
-                )}
+                  {device.is_login && (
+                    <Tag
+                      color="processing"
+                      style={{ margin: 0, fontSize: 10, borderRadius: 6 }}
+                    >
+                      กำลังใช้งาน
+                    </Tag>
+                  )}
+                  {lastSeen && (
+                    <Tooltip
+                      title={dayjs
+                        .tz(device.online_time)
+                        .format("DD/MM/YYYY HH:mm:ss")}
+                    >
+                      <Flex align="center" gap={3} style={{ cursor: "default" }}>
+                        <ClockCircleOutlined
+                          style={{
+                            fontSize: 10,
+                            color: "var(--ant-color-text-quaternary)",
+                          }}
+                        />
+                        <Text
+                          type="secondary"
+                          style={{ fontSize: 10, whiteSpace: "nowrap" }}
+                        >
+                          {lastSeen}
+                        </Text>
+                      </Flex>
+                    </Tooltip>
+                  )}
+                </Flex>
               </Flex>
             </Flex>
           );
@@ -298,8 +338,8 @@ const DeviceGroupBlock = ({
 // ----------------------------------------
 // Main Component
 // ----------------------------------------
-/**
- * Tab แสดงอุปกรณ์จัดกลุ่มตามโรงเรียน พร้อม Drawer ดูสถานะรายเครื่อง
+/*
+ * Tab แสดงอุปกรณ์จัดกลุ่มตามโรงเรียน พร้อม Drawer ดูสถานะรายเครื่องและตั้งค่าการแจ้งเตือน
  */
 export const SchoolDeviceTab = () => {
   const [data, setData] = useState<SchoolDeviceSummaryItem[]>([]);
@@ -307,6 +347,7 @@ export const SchoolDeviceTab = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedSchool, setSelectedSchool] =
     useState<SchoolDeviceSummaryItem | null>(null);
+  const [togglingDeviceId, setTogglingDeviceId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -328,6 +369,76 @@ export const SchoolDeviceTab = () => {
     setSelectedSchool(record);
     setDrawerOpen(true);
   };
+
+  // อัพเดท notify_enabled ของอุปกรณ์ใน state พร้อมส่ง API
+  const handleToggleNotify = useCallback(
+    async (schoolId: number, deviceId: string, enabled: boolean) => {
+      setTogglingDeviceId(deviceId);
+
+      // optimistic update
+      const updateDeviceInList = (items: SchoolDeviceSummaryItem[]) =>
+        items.map((school) => {
+          if (school.school_id !== schoolId) return school;
+          return {
+            ...school,
+            devices: school.devices.map((d) =>
+              d.device_id === deviceId ? { ...d, notify_enabled: enabled } : d,
+            ),
+          };
+        });
+
+      setData((prev) => updateDeviceInList(prev));
+      setSelectedSchool((prev) =>
+        prev && prev.school_id === schoolId
+          ? {
+              ...prev,
+              devices: prev.devices.map((d) =>
+                d.device_id === deviceId ? { ...d, notify_enabled: enabled } : d,
+              ),
+            }
+          : prev,
+      );
+
+      try {
+        await callApiService.post(
+          "/api/v1/hardware/machine-monitoring/device-notify-setting/toggle",
+          { school_id: schoolId, device_id: deviceId, notify_enabled: enabled },
+        );
+        toast.success(
+          enabled
+            ? `เปิดการแจ้งเตือนอุปกรณ์ ${deviceId} สำเร็จ`
+            : `ปิดการแจ้งเตือนอุปกรณ์ ${deviceId} สำเร็จ`,
+        );
+      } catch {
+        // rollback หากเกิดข้อผิดพลาด
+        setData((prev) =>
+          prev.map((school) => {
+            if (school.school_id !== schoolId) return school;
+            return {
+              ...school,
+              devices: school.devices.map((d) =>
+                d.device_id === deviceId ? { ...d, notify_enabled: !enabled } : d,
+              ),
+            };
+          }),
+        );
+        setSelectedSchool((prev) =>
+          prev && prev.school_id === schoolId
+            ? {
+                ...prev,
+                devices: prev.devices.map((d) =>
+                  d.device_id === deviceId ? { ...d, notify_enabled: !enabled } : d,
+                ),
+              }
+            : prev,
+        );
+        toast.error("ไม่สามารถบันทึกการตั้งค่าได้ กรุณาลองอีกครั้ง");
+      } finally {
+        setTogglingDeviceId(null);
+      }
+    },
+    [],
+  );
 
   // จัดกลุ่มเครื่องใน Drawer ตาม app_name
   const deviceGroups = selectedSchool
@@ -557,7 +668,7 @@ export const SchoolDeviceTab = () => {
           setSelectedSchool(null);
         }}
         title={
-          <Flex vertical gap={2}>
+          <Flex vertical gap={4}>
             <Flex align="center" gap={8}>
               <BankOutlined />
               <Text strong style={{ fontSize: 15 }}>
@@ -583,9 +694,28 @@ export const SchoolDeviceTab = () => {
                 รวม {selectedSchool?.total} เครื่อง
               </Tag>
             </Space>
+            {/* Phase 1 Tooltip */}
+            <Flex align="center" gap={6} style={{ marginTop: 2 }}>
+              <BellOutlined style={{ fontSize: 11, color: "var(--ant-color-text-tertiary)" }} />
+              <Text type="secondary" style={{ fontSize: 11 }}>
+                การแจ้งเตือน LINE (Phase 1)
+              </Text>
+              <Tooltip
+                title="Phase 1: ระบบจะส่งการแจ้งเตือนผ่าน LINE เฉพาะในช่วงเวลา 18:00 - 06:00 น. ตามเวลาประเทศไทย และเฉพาะอุปกรณ์ที่เปิดการแจ้งเตือนไว้เท่านั้น"
+                placement="bottomLeft"
+              >
+                <QuestionCircleOutlined
+                  style={{
+                    fontSize: 12,
+                    color: "var(--ant-color-text-tertiary)",
+                    cursor: "pointer",
+                  }}
+                />
+              </Tooltip>
+            </Flex>
           </Flex>
         }
-        width={480}
+        width={680}
         styles={{ body: { padding: "20px 20px" } }}
       >
         {deviceGroups.length === 0 ? (
@@ -603,8 +733,11 @@ export const SchoolDeviceTab = () => {
           deviceGroups.map(([appName, devices]) => (
             <DeviceGroupBlock
               key={appName}
+              schoolId={selectedSchool!.school_id}
               appName={appName}
               devices={devices}
+              onToggleNotify={handleToggleNotify}
+              togglingDeviceId={togglingDeviceId}
             />
           ))
         )}

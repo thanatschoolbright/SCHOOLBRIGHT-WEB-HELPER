@@ -349,3 +349,17 @@ model LineGroup {
 
   @@map("line_group")
 }
+
+model DeviceMonitorSetting {
+  id               Int       @id @default(autoincrement()) @map("id")
+  school_id        Int       @map("school_id")
+  device_id        String    @map("device_id") @timesheet.VarChar(200)
+  notify_enabled   Boolean   @default(true) @map("notify_enabled")
+  updated_by       Int?      @map("updated_by")
+  created_at       DateTime  @default(now()) @map("created_at")
+  updated_at       DateTime  @updatedAt @map("updated_at")
+
+  @@unique([school_id, device_id])
+  @@index([school_id])
+  @@map("device_monitor_setting")
+}
