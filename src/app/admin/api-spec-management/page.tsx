@@ -8,6 +8,7 @@ import {
   CopyOutlined,
   KeyOutlined,
   LoginOutlined,
+  TeamOutlined,
   UnorderedListOutlined,
   UserOutlined,
 } from "@ant-design/icons";
@@ -135,14 +136,7 @@ function ApiEndpointCard({
           >
             {requestFields.map((field) => (
               <Flex key={field.name} align="baseline" gap={10} style={{ marginBottom: 8 }}>
-                <code
-                  style={{
-                    color: token.colorPrimary,
-                    fontWeight: 600,
-                    minWidth: 130,
-                    fontSize: 13,
-                  }}
-                >
+                <code style={{ color: token.colorPrimary, fontWeight: 600, minWidth: 130, fontSize: 13 }}>
                   {field.name}
                 </code>
                 <Tag color="default" style={{ fontSize: 11 }}>
@@ -199,9 +193,9 @@ function ApiEndpointCard({
             Error Responses
           </Typography.Text>
           <Flex gap={8} wrap="wrap">
-            {errorList.map((err) => (
+            {errorList.map((err, i) => (
               <Tag
-                key={err.status}
+                key={i}
                 color={err.status >= 500 ? "red" : err.status >= 400 ? "orange" : "default"}
                 style={{ marginBottom: 4 }}
               >
@@ -214,6 +208,37 @@ function ApiEndpointCard({
     </Card>
   );
 }
+
+// การ์ด cURL example
+function CurlCard({ curlExample }: { curlExample: string }) {
+  const copyText = useCopyText();
+  return (
+    <Card style={{ borderRadius: 16, marginBottom: 24 }} styles={{ body: { padding: 24 } }}>
+      <Flex justify="space-between" align="center" style={{ marginBottom: 12 }}>
+        <Typography.Text strong>ตัวอย่าง cURL</Typography.Text>
+        <Button type="text" size="small" icon={<CopyOutlined />} onClick={() => copyText(curlExample, "cURL")}>
+          คัดลอก
+        </Button>
+      </Flex>
+      <pre
+        style={{
+          background: "#1a1a2e",
+          color: "#e2e2e2",
+          borderRadius: 10,
+          padding: 16,
+          fontSize: 12,
+          overflowX: "auto",
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-word",
+        }}
+      >
+        {curlExample}
+      </pre>
+    </Card>
+  );
+}
+
+// ===== Response Examples =====
 
 const SIGN_IN_RESPONSE = JSON.stringify(
   {
@@ -269,6 +294,46 @@ const SESSION_RESPONSE = JSON.stringify(
   2,
 );
 
+const ALL_USER_RESPONSE = JSON.stringify(
+  {
+    status: 200,
+    message_th: "ดึงข้อมูลผู้ใช้ทั้งหมดสำเร็จ",
+    message_en: "Users retrieved successfully",
+    data: {
+      total: 42,
+      users: [
+        {
+          id: 1,
+          admin_id: 117,
+          username: "john.doe",
+          employee_code: "EMP001",
+          email: "john@schoolbright.co",
+          firstname_th: "จอห์น",
+          lastname_th: "โด",
+          firstname_en: "John",
+          lastname_en: "Doe",
+          nickname: "John",
+          status: "ACTIVE",
+          phone: "081-234-5678",
+          employment_type: "FULL_TIME",
+          joined_date: "2023-01-01T00:00:00.000Z",
+          last_login: "2026-05-05T10:00:00.000Z",
+          department_id: 2,
+          department_name: "เทคโนโลยีสารสนเทศ",
+          position_id: 3,
+          position_name: "Software Engineer",
+          role_id: 1,
+          role_name: "Developer",
+        },
+      ],
+    },
+  },
+  null,
+  2,
+);
+
+// ===== Tab Components =====
+
 // แท็บ Login API
 function LoginApiTab() {
   const [copied, setCopied] = useState(false);
@@ -282,45 +347,24 @@ function LoginApiTab() {
     <div>
       <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
         <Col xs={24} md={8}>
-          <Card
-            style={{ borderRadius: 12, textAlign: "center" }}
-            styles={{ body: { padding: 20 } }}
-          >
+          <Card style={{ borderRadius: 12, textAlign: "center" }} styles={{ body: { padding: 20 } }}>
             <LoginOutlined style={{ fontSize: 28, color: "#1677ff", marginBottom: 8 }} />
-            <Typography.Title level={5} style={{ marginBottom: 4 }}>
-              Shared Login
-            </Typography.Title>
-            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              ใช้ DB ผู้ใช้เดียวกัน
-            </Typography.Text>
+            <Typography.Title level={5} style={{ marginBottom: 4 }}>Shared Login</Typography.Title>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>ใช้ DB ผู้ใช้เดียวกัน</Typography.Text>
           </Card>
         </Col>
         <Col xs={24} md={8}>
-          <Card
-            style={{ borderRadius: 12, textAlign: "center" }}
-            styles={{ body: { padding: 20 } }}
-          >
+          <Card style={{ borderRadius: 12, textAlign: "center" }} styles={{ body: { padding: 20 } }}>
             <CheckCircleOutlined style={{ fontSize: 28, color: "#52c41a", marginBottom: 8 }} />
-            <Typography.Title level={5} style={{ marginBottom: 4 }}>
-              Stateless
-            </Typography.Title>
-            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              ไม่สร้าง NextAuth session
-            </Typography.Text>
+            <Typography.Title level={5} style={{ marginBottom: 4 }}>Stateless JWT</Typography.Title>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>ไม่สร้าง NextAuth session</Typography.Text>
           </Card>
         </Col>
         <Col xs={24} md={8}>
-          <Card
-            style={{ borderRadius: 12, textAlign: "center" }}
-            styles={{ body: { padding: 20 } }}
-          >
+          <Card style={{ borderRadius: 12, textAlign: "center" }} styles={{ body: { padding: 20 } }}>
             <KeyOutlined style={{ fontSize: 28, color: "#fa8c16", marginBottom: 8 }} />
-            <Typography.Title level={5} style={{ marginBottom: 4 }}>
-              Lock Protection
-            </Typography.Title>
-            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              5 ครั้ง / ล็อก 15 นาที
-            </Typography.Text>
+            <Typography.Title level={5} style={{ marginBottom: 4 }}>Lock Protection</Typography.Title>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>5 ครั้ง / ล็อก 15 นาที</Typography.Text>
           </Card>
         </Col>
       </Row>
@@ -329,7 +373,7 @@ function LoginApiTab() {
         method="POST"
         path="/api/v3/authentication/shared/sign-in"
         title="เข้าสู่ระบบ (Shared Login)"
-        description="Login ด้วย email, employee_code หรือ username — รองรับ case-insensitive ส่งคืน JWT token (HS256, อายุ 8 ชั่วโมง) สำหรับนำไปใช้กับเส้น /session"
+        description="Login ด้วย email, employee_code หรือ username — รองรับ case-insensitive ส่งคืน JWT token (HS256, อายุ 8 ชั่วโมง) สำหรับนำไปใช้กับเส้น /session และ /all-user"
         requestFields={[
           { name: "username", type: "string", required: true, description: "email / employee_code / username" },
           { name: "password", type: "string", required: true, description: "รหัสผ่าน" },
@@ -344,10 +388,7 @@ function LoginApiTab() {
         ]}
       />
 
-      <Card
-        style={{ borderRadius: 16, marginBottom: 24 }}
-        styles={{ body: { padding: 24 } }}
-      >
+      <Card style={{ borderRadius: 16, marginBottom: 24 }} styles={{ body: { padding: 24 } }}>
         <Flex justify="space-between" align="center" style={{ marginBottom: 12 }}>
           <Typography.Text strong>ตัวอย่าง cURL</Typography.Text>
           <Button
@@ -384,8 +425,6 @@ function LoginApiTab() {
 
 // แท็บ Session API
 function SessionApiTab() {
-  const copyText = useCopyText();
-
   const curlExample = `curl --location '${BASE_URL}/api/v3/authentication/shared/session' \\
   --header 'Authorization: Bearer <JWT token จากเส้น /sign-in>'`;
 
@@ -393,31 +432,17 @@ function SessionApiTab() {
     <div>
       <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
         <Col xs={24} md={12}>
-          <Card
-            style={{ borderRadius: 12, textAlign: "center" }}
-            styles={{ body: { padding: 20 } }}
-          >
+          <Card style={{ borderRadius: 12, textAlign: "center" }} styles={{ body: { padding: 20 } }}>
             <UserOutlined style={{ fontSize: 28, color: "#722ed1", marginBottom: 8 }} />
-            <Typography.Title level={5} style={{ marginBottom: 4 }}>
-              แลก Token เป็น Session
-            </Typography.Title>
-            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              ส่ง JWT token เพื่อดึงข้อมูลพนักงานล่าสุด
-            </Typography.Text>
+            <Typography.Title level={5} style={{ marginBottom: 4 }}>แลก Token เป็น Session</Typography.Title>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>ส่ง JWT token เพื่อดึงข้อมูลพนักงานล่าสุด</Typography.Text>
           </Card>
         </Col>
         <Col xs={24} md={12}>
-          <Card
-            style={{ borderRadius: 12, textAlign: "center" }}
-            styles={{ body: { padding: 20 } }}
-          >
+          <Card style={{ borderRadius: 12, textAlign: "center" }} styles={{ body: { padding: 20 } }}>
             <KeyOutlined style={{ fontSize: 28, color: "#13c2c2", marginBottom: 8 }} />
-            <Typography.Title level={5} style={{ marginBottom: 4 }}>
-              Token-Protected
-            </Typography.Title>
-            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              Verify HS256 + ตรวจสอบ issuer ก่อนอนุญาต
-            </Typography.Text>
+            <Typography.Title level={5} style={{ marginBottom: 4 }}>Token-Protected</Typography.Title>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>Verify HS256 + ตรวจสอบ issuer ก่อนอนุญาต</Typography.Text>
           </Card>
         </Col>
       </Row>
@@ -440,39 +465,64 @@ function SessionApiTab() {
         ]}
       />
 
-      <Card
-        style={{ borderRadius: 16, marginBottom: 24 }}
-        styles={{ body: { padding: 24 } }}
-      >
-        <Flex justify="space-between" align="center" style={{ marginBottom: 12 }}>
-          <Typography.Text strong>ตัวอย่าง cURL</Typography.Text>
-          <Button
-            type="text"
-            size="small"
-            icon={<CopyOutlined />}
-            onClick={() => copyText(curlExample, "cURL")}
-          >
-            คัดลอก
-          </Button>
-        </Flex>
-        <pre
-          style={{
-            background: "#1a1a2e",
-            color: "#e2e2e2",
-            borderRadius: 10,
-            padding: 16,
-            fontSize: 12,
-            overflowX: "auto",
-            whiteSpace: "pre-wrap",
-            wordBreak: "break-word",
-          }}
-        >
-          {curlExample}
-        </pre>
-      </Card>
+      <CurlCard curlExample={curlExample} />
     </div>
   );
 }
+
+// แท็บ All User API
+function AllUserApiTab() {
+  const curlExample = `curl --location '${BASE_URL}/api/v3/authentication/shared/all-user' \\
+  --header 'Authorization: Bearer <JWT token จากเส้น /sign-in>'`;
+
+  return (
+    <div>
+      <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
+        <Col xs={24} md={8}>
+          <Card style={{ borderRadius: 12, textAlign: "center" }} styles={{ body: { padding: 20 } }}>
+            <TeamOutlined style={{ fontSize: 28, color: "#1677ff", marginBottom: 8 }} />
+            <Typography.Title level={5} style={{ marginBottom: 4 }}>ข้อมูลพนักงาน</Typography.Title>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>ดึงรายชื่อพนักงานทั้งหมดในระบบ</Typography.Text>
+          </Card>
+        </Col>
+        <Col xs={24} md={8}>
+          <Card style={{ borderRadius: 12, textAlign: "center" }} styles={{ body: { padding: 20 } }}>
+            <KeyOutlined style={{ fontSize: 28, color: "#fa8c16", marginBottom: 8 }} />
+            <Typography.Title level={5} style={{ marginBottom: 4 }}>Token-Protected</Typography.Title>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>ต้องมี JWT token ที่ถูกต้องก่อนเข้าถึง</Typography.Text>
+          </Card>
+        </Col>
+        <Col xs={24} md={8}>
+          <Card style={{ borderRadius: 12, textAlign: "center" }} styles={{ body: { padding: 20 } }}>
+            <CheckCircleOutlined style={{ fontSize: 28, color: "#52c41a", marginBottom: 8 }} />
+            <Typography.Title level={5} style={{ marginBottom: 4 }}>Real-time DB</Typography.Title>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>ข้อมูลล่าสุดจากฐานข้อมูล</Typography.Text>
+          </Card>
+        </Col>
+      </Row>
+
+      <ApiEndpointCard
+        method="GET"
+        path="/api/v3/authentication/shared/all-user"
+        title="ดึงข้อมูลผู้ใช้ทั้งหมด"
+        description="ดึงรายชื่อพนักงานทั้งหมดที่ยังใช้งานอยู่ในระบบ — ต้องมี Bearer token ที่ถูกต้อง ไม่ส่งข้อมูล password, refresh_token หรือ failed_login_attempts กลับ"
+        requestFields={[
+          { name: "Authorization", type: "string", required: true, description: "Bearer <JWT token จากเส้น /sign-in>", location: "header" },
+        ]}
+        responseExample={ALL_USER_RESPONSE}
+        errorList={[
+          { status: 401, message: "Missing or invalid Authorization header" },
+          { status: 401, message: "Invalid or expired token" },
+          { status: 500, message: "Internal Server Error" },
+        ]}
+      />
+
+      <CurlCard curlExample={curlExample} />
+    </div>
+  );
+}
+
+// ===== Main Page =====
 
 export default function ApiSpecManagementPage() {
   return (
@@ -484,20 +534,13 @@ export default function ApiSpecManagementPage() {
           subTitle="รายละเอียด API สำหรับแชร์ให้เว็บอื่นใช้งานระบบ Login เดียวกัน"
           extra={
             <Space>
-              <Tag color="blue" style={{ padding: "4px 10px" }}>
-                v3
-              </Tag>
-              <Tag color="green" style={{ padding: "4px 10px" }}>
-                Shared Auth
-              </Tag>
+              <Tag color="blue" style={{ padding: "4px 10px" }}>v3</Tag>
+              <Tag color="green" style={{ padding: "4px 10px" }}>Shared Auth</Tag>
             </Space>
           }
         />
 
-        <Card
-          style={{ borderRadius: 16, marginBottom: 8 }}
-          styles={{ body: { padding: 0 } }}
-        >
+        <Card style={{ borderRadius: 16, marginBottom: 8 }} styles={{ body: { padding: 0 } }}>
           <Tabs
             defaultActiveKey="login"
             size="large"
@@ -505,31 +548,18 @@ export default function ApiSpecManagementPage() {
             items={[
               {
                 key: "login",
-                label: (
-                  <Space>
-                    <LoginOutlined />
-                    เส้น Login
-                  </Space>
-                ),
-                children: (
-                  <div style={{ padding: "16px 0 24px" }}>
-                    <LoginApiTab />
-                  </div>
-                ),
+                label: <Space><LoginOutlined />เส้น Login</Space>,
+                children: <div style={{ padding: "16px 0 24px" }}><LoginApiTab /></div>,
               },
               {
                 key: "session",
-                label: (
-                  <Space>
-                    <UserOutlined />
-                    เส้น Session
-                  </Space>
-                ),
-                children: (
-                  <div style={{ padding: "16px 0 24px" }}>
-                    <SessionApiTab />
-                  </div>
-                ),
+                label: <Space><UserOutlined />เส้น Session</Space>,
+                children: <div style={{ padding: "16px 0 24px" }}><SessionApiTab /></div>,
+              },
+              {
+                key: "all-user",
+                label: <Space><TeamOutlined />เส้น All User</Space>,
+                children: <div style={{ padding: "16px 0 24px" }}><AllUserApiTab /></div>,
               },
             ]}
           />
