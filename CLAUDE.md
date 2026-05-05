@@ -18,6 +18,15 @@ bun lint          # ESLint
 
 # Misc
 bun bun-benchmark # Build benchmark via benchmark-build.sh
+
+# Prisma — three separate schemas, must target each explicitly
+bunx prisma generate                                                         # Main DB (SQL Server)
+bunx prisma generate --schema=prisma/timesheet/schema.prisma                # Timesheet DB (PostgreSQL)
+bunx prisma generate --schema=prisma/jabjai-master-single-db/schema.prisma  # Jabjai-master DB (SQL Server)
+
+bunx prisma migrate dev --schema=prisma/timesheet/schema.prisma             # Run/create migrations (timesheet only — main DB uses db push)
+bunx prisma db push                                                          # Sync main DB schema without migrations
+bunx prisma studio --schema=prisma/timesheet/schema.prisma                  # Browse timesheet DB
 ```
 
 No test suite is configured. Type-checking is implicit via TypeScript strict mode (`noImplicitAny`, `strictNullChecks`, `noImplicitReturns`, `noUnusedLocals`). Note: `typescript.ignoreBuildErrors: true` — TS errors surface during dev, not at build time.
@@ -72,6 +81,9 @@ This is a **Next.js 16 (App Router) back-office admin tool** for SchoolBright, c
 | `logger/` | API log viewer (wraps `/api/v1/logger/*`) |
 | `backend/` | Internal server-to-server utilities |
 | `profile/` | User profile and password change |
+| `ant/` | Ant Design theme token API (serves theme config to client) |
+| `api-spec/` | Interactive Swagger UI at `/api-spec` |
+| `docs/` | Static documentation pages |
 
 ### API route conventions
 
@@ -147,7 +159,7 @@ src/app/{domain}/{feature}/
 
 - **Component library**: Ant Design v5 only. Use `Flex`, `Row`, `Col`, `Space` for layout — no inline CSS or custom stylesheets. Support both Light and Dark mode via Ant Design tokens.
 - **Notifications**: Use `toast` from `sonner` only.
-- **Status dialogs**: Import from `@/components/modal/status-modal` (component file: `src/components/modal/status-modal-component.tsx`). Use for success/error/confirm modals.
+- **Status dialogs**: Import from `@/components/modal/status-modal` (component file: `src/components/modal/status-modal-component.tsx`). Types: `"success" | "error" | "confirm" | "delete"`. Key props: `open`, `type`, `title?`, `message?`, `onClose`, `onConfirm?`, `loading?`, `confirmLabel?`, `cancelLabel?`.
 - **Page titles**: Use `src/components/typhography/header-bar-component.tsx` only.
 - **Summary cards**: Use `src/components/card/summary-card.tsx` (`title`, `value`, `unit?`, `subtitle?`, `icon?`, `color?`, `tooltip?`, `suffix?`, `isLoading?`). Always fetch raw data server-side and compute aggregates before passing to the component — never filter on the client via table.
 - **Filter sections**: Heading "ตัวกรอง" uses `<FilterOutlined />` (`fontSize: 1rem, fontWeight: 600`) with `marginBottom: 16px`. Layout is 2 columns per row (`Col`/`Row`). "ค้นหา" and "ล้างการค้นหา" buttons right-aligned with icons.
