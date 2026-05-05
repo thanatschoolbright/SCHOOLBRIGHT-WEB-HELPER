@@ -30,9 +30,7 @@ const NotifySchema = z.object({
     }),
   ),
   date_label: z.string().min(1),
-  // mode: "all" | "email" | "discord" — default all
   mode: z.enum(["all", "email", "discord"]).default("all"),
-  // recipients override (optional) — ถ้าไม่ส่งจะใช้ค่า default
   recipients: z
     .array(z.string().email())
     .optional()
