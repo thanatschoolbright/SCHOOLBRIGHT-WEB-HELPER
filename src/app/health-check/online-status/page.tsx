@@ -10,6 +10,7 @@ import {
   CheckOutlined,
   ClockCircleOutlined,
   ClusterOutlined,
+  DeleteOutlined,
   DesktopOutlined,
   FileExcelOutlined,
   FilterFilled,
@@ -35,6 +36,7 @@ import {
   Collapse,
   Dropdown,
   Flex,
+  Modal,
   Row,
   Space,
   Tabs,
@@ -118,6 +120,23 @@ export default function OnlineDeviceDashboard() {
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
   const [isDashboardLoading, setIsDashboardLoading] = useState(false);
+
+  // สถานะ Modal ยืนยันการลบเครื่องที่ไม่ได้ใช้งานเกิน 7 วัน
+  const [cleanupModal, setCleanupModal] = useState<{
+    open: boolean;
+    previewCount: number;
+    schoolsAffected: number;
+    cutoffDate: string;
+    isLoadingPreview: boolean;
+    isDeleting: boolean;
+  }>({
+    open: false,
+    previewCount: 0,
+    schoolsAffected: 0,
+    cutoffDate: "",
+    isLoadingPreview: false,
+    isDeleting: false,
+  });
 
   const loadDashboard = async () => {
     setIsDashboardLoading(true);
@@ -307,6 +326,65 @@ export default function OnlineDeviceDashboard() {
       });
     } finally {
       setIsExportingExcel(false);
+    }
+  };
+
+  // เปิด Modal ยืนยันการลบ — โหลด preview จำนวนเครื่องที่จะถูกลบก่อน
+  const handleOpenCleanupModal = async () => {
+    setCleanupModal((prev) => ({
+      ...prev,
+      open: true,
+      isLoadingPreview: true,
+    }));
+    try {
+      const res = await callApiService.get(
+        "/api/v2/hardware/device-cleanup",
+      );
+      const data = res.data?.data;
+      setCleanupModal((prev) => ({
+        ...prev,
+        previewCount: data?.count ?? 0,
+        schoolsAffected: data?.schools_affected ?? 0,
+        cutoffDate: data?.cutoff_date ?? "",
+        isLoadingPreview: false,
+      }));
+    } catch {
+      setCleanupModal((prev) => ({
+        ...prev,
+        isLoadingPreview: false,
+      }));
+    }
+  };
+
+  // ยืนยันและลบเครื่องที่ไม่ได้ใช้งานเกิน 7 วัน
+  const handleConfirmCleanup = async () => {
+    setCleanupModal((prev) => ({ ...prev, isDeleting: true }));
+    try {
+      const res = await callApiService.delete("/api/v2/hardware/device-cleanup");
+      const data = res.data?.data;
+      setCleanupModal((prev) => ({
+        ...prev,
+        open: false,
+        isDeleting: false,
+      }));
+      setStatusModal({
+        open: true,
+        type: "success",
+        title: "ลบเครื่องสำเร็จ",
+        message: `ลบเครื่องที่ไม่ได้ใช้งานเกิน 7 วัน จำนวน ${data?.deleted ?? 0} เครื่อง จาก ${data?.schools_affected ?? 0} โรงเรียน`,
+      });
+      void loadDashboard();
+    } catch (err: any) {
+      setCleanupModal((prev) => ({ ...prev, isDeleting: false }));
+      setStatusModal({
+        open: true,
+        type: "error",
+        title: "ลบเครื่องไม่สำเร็จ",
+        message:
+          err?.response?.data?.message_th ??
+          err?.message ??
+          "ไม่สามารถลบข้อมูลได้ในขณะนี้",
+      });
     }
   };
 
@@ -564,6 +642,29 @@ export default function OnlineDeviceDashboard() {
                         router.push(
                           "/health-check/online-status/school-line-group",
                         ),
+                    },
+                    { type: "divider" },
+                    {
+                      key: "cleanup-header",
+                      type: "group",
+                      label: (
+                        <Flex align="center" gap={6}>
+                          <DeleteOutlined style={{ fontSize: 11 }} />
+                          <span style={{ fontSize: 11 }}>จัดการข้อมูล</span>
+                        </Flex>
+                      ),
+                    },
+                    {
+                      key: "cleanup-devices",
+                      icon: (
+                        <DeleteOutlined style={{ color: "#dc2626" }} />
+                      ),
+                      label: (
+                        <span style={{ color: "#dc2626", fontWeight: 500 }}>
+                          ลบเครื่องที่ไม่ได้ใช้งานเกิน 7 วัน
+                        </span>
+                      ),
+                      onClick: handleOpenCleanupModal,
                     },
                   ],
                 }}
@@ -866,6 +967,128 @@ export default function OnlineDeviceDashboard() {
           ]}
         />
       </div>
+
+      {/* Modal ยืนยันการลบเครื่องที่ไม่ได้ใช้งานเกิน 7 วัน */}
+      <Modal
+        open={cleanupModal.open}
+        title={
+          <Flex align="center" gap={8}>
+            <DeleteOutlined style={{ color: "#dc2626", fontSize: 18 }} />
+            <AntText strong style={{ fontSize: 16 }}>
+              ลบเครื่องที่ไม่ได้ใช้งานเกิน 7 วัน
+            </AntText>
+          </Flex>
+        }
+        onCancel={() =>
+          !cleanupModal.isDeleting &&
+          setCleanupModal((prev) => ({ ...prev, open: false }))
+        }
+        maskClosable={!cleanupModal.isDeleting}
+        closable={!cleanupModal.isDeleting}
+        footer={
+          <Flex justify="end" gap={8}>
+            <Button
+              disabled={cleanupModal.isDeleting}
+              onClick={() =>
+                setCleanupModal((prev) => ({ ...prev, open: false }))
+              }
+              style={{ borderRadius: 8 }}
+            >
+              ยกเลิก
+            </Button>
+            <Button
+              danger
+              type="primary"
+              icon={<DeleteOutlined />}
+              loading={cleanupModal.isDeleting}
+              disabled={cleanupModal.isLoadingPreview || cleanupModal.previewCount === 0}
+              onClick={handleConfirmCleanup}
+              style={{ borderRadius: 8 }}
+            >
+              {cleanupModal.previewCount === 0
+                ? "ไม่มีรายการที่ต้องลบ"
+                : `ยืนยันลบ ${cleanupModal.previewCount} เครื่อง`}
+            </Button>
+          </Flex>
+        }
+        width={480}
+      >
+        {cleanupModal.isLoadingPreview ? (
+          <Flex
+            justify="center"
+            align="center"
+            style={{ padding: "32px 0" }}
+            gap={12}
+          >
+            <SyncOutlined spin style={{ fontSize: 20, color: token.colorPrimary }} />
+            <AntText type="secondary">กำลังโหลดรายการ...</AntText>
+          </Flex>
+        ) : cleanupModal.previewCount === 0 ? (
+          <Flex vertical align="center" gap={12} style={{ padding: "24px 0" }}>
+            <CheckCircleOutlined style={{ fontSize: 36, color: "#16a34a" }} />
+            <AntText style={{ fontSize: 14 }}>
+              ไม่พบเครื่องที่ Offline เกิน 7 วัน
+            </AntText>
+            <AntText type="secondary" style={{ fontSize: 12 }}>
+              ระบบสะอาด ไม่มีรายการที่ต้องลบ
+            </AntText>
+          </Flex>
+        ) : (
+          <Flex vertical gap={16}>
+            <Card
+              size="small"
+              style={{
+                borderRadius: 10,
+                border: "1px solid rgba(220,38,38,0.25)",
+                background: "rgba(220,38,38,0.04)",
+              }}
+              styles={{ body: { padding: "12px 16px" } }}
+            >
+              <Flex vertical gap={8}>
+                <Flex justify="space-between" align="center">
+                  <AntText type="secondary" style={{ fontSize: 12 }}>
+                    จำนวนเครื่องที่จะถูกลบ
+                  </AntText>
+                  <AntText strong style={{ fontSize: 18, color: "#dc2626" }}>
+                    {cleanupModal.previewCount} เครื่อง
+                  </AntText>
+                </Flex>
+                <Flex justify="space-between" align="center">
+                  <AntText type="secondary" style={{ fontSize: 12 }}>
+                    โรงเรียนที่ได้รับผลกระทบ
+                  </AntText>
+                  <AntText strong style={{ fontSize: 14 }}>
+                    {cleanupModal.schoolsAffected} แห่ง
+                  </AntText>
+                </Flex>
+                {cleanupModal.cutoffDate && (
+                  <Flex justify="space-between" align="center">
+                    <AntText type="secondary" style={{ fontSize: 12 }}>
+                      เกณฑ์ตัดข้อมูล (ก่อนวันที่)
+                    </AntText>
+                    <AntText style={{ fontSize: 12 }}>
+                      {dayjs(cleanupModal.cutoffDate).format("DD/MM/YYYY HH:mm")}
+                    </AntText>
+                  </Flex>
+                )}
+              </Flex>
+            </Card>
+            <Flex align="flex-start" gap={8}>
+              <WarningOutlined
+                style={{ color: "#d97706", fontSize: 14, marginTop: 2, flexShrink: 0 }}
+              />
+              <AntText style={{ fontSize: 12 }}>
+                การดำเนินการนี้{" "}
+                <AntText strong style={{ fontSize: 12, color: "#dc2626" }}>
+                  ไม่สามารถย้อนกลับได้
+                </AntText>{" "}
+                ระบบจะลบเครื่องที่ค่า <code>OnlineTime</code> เกิน 7 วัน
+                หรือไม่เคย online เลยออกจากฐานข้อมูลถาวร
+              </AntText>
+            </Flex>
+          </Flex>
+        )}
+      </Modal>
 
       <StatusModalComponent
         open={statusModal.open}
