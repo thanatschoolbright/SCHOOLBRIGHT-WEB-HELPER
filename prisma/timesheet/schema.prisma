@@ -350,3 +350,15 @@ model LineGroup {
   @@map("line_group")
 }
 
+model BotSetting {
+  id          Int       @id @default(autoincrement()) @map("id")
+  key         String    @unique @map("key") @timesheet.VarChar(100)
+  value       String    @map("value") @timesheet.VarChar(255)
+  description String?   @map("description")
+  updated_by  Int?      @map("updated_by")
+  updated_at  DateTime  @updatedAt @map("updated_at")
+  created_at  DateTime  @default(now()) @map("created_at")
+
+  @@map("bot_setting")
+}
+

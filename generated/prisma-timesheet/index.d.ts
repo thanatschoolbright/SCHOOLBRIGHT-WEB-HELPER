@@ -103,6 +103,11 @@ export type CrmSupportAuthentication = $Result.DefaultSelection<Prisma.$CrmSuppo
  * 
  */
 export type LineGroup = $Result.DefaultSelection<Prisma.$LineGroupPayload>
+/**
+ * Model BotSetting
+ * 
+ */
+export type BotSetting = $Result.DefaultSelection<Prisma.$BotSettingPayload>
 
 /**
  * Enums
@@ -418,6 +423,16 @@ export class PrismaClient<
     * ```
     */
   get lineGroup(): Prisma.LineGroupDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.botSetting`: Exposes CRUD operations for the **BotSetting** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BotSettings
+    * const botSettings = await prisma.botSetting.findMany()
+    * ```
+    */
+  get botSetting(): Prisma.BotSettingDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -876,7 +891,8 @@ export namespace Prisma {
     OvertimeStatusLog: 'OvertimeStatusLog',
     ApiLog: 'ApiLog',
     CrmSupportAuthentication: 'CrmSupportAuthentication',
-    LineGroup: 'LineGroup'
+    LineGroup: 'LineGroup',
+    BotSetting: 'BotSetting'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -895,7 +911,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "position" | "department" | "user" | "role" | "permission" | "rolePermission" | "group" | "projectStatus" | "project" | "feature" | "projectAssignee" | "timesheetEntry" | "overtime" | "overtimeDescription" | "overtimeStatusLog" | "apiLog" | "crmSupportAuthentication" | "lineGroup"
+      modelProps: "position" | "department" | "user" | "role" | "permission" | "rolePermission" | "group" | "projectStatus" | "project" | "feature" | "projectAssignee" | "timesheetEntry" | "overtime" | "overtimeDescription" | "overtimeStatusLog" | "apiLog" | "crmSupportAuthentication" | "lineGroup" | "botSetting"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2231,6 +2247,80 @@ export namespace Prisma {
           }
         }
       }
+      BotSetting: {
+        payload: Prisma.$BotSettingPayload<ExtArgs>
+        fields: Prisma.BotSettingFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BotSettingFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotSettingPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BotSettingFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotSettingPayload>
+          }
+          findFirst: {
+            args: Prisma.BotSettingFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotSettingPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BotSettingFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotSettingPayload>
+          }
+          findMany: {
+            args: Prisma.BotSettingFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotSettingPayload>[]
+          }
+          create: {
+            args: Prisma.BotSettingCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotSettingPayload>
+          }
+          createMany: {
+            args: Prisma.BotSettingCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BotSettingCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotSettingPayload>[]
+          }
+          delete: {
+            args: Prisma.BotSettingDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotSettingPayload>
+          }
+          update: {
+            args: Prisma.BotSettingUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotSettingPayload>
+          }
+          deleteMany: {
+            args: Prisma.BotSettingDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BotSettingUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BotSettingUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotSettingPayload>[]
+          }
+          upsert: {
+            args: Prisma.BotSettingUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BotSettingPayload>
+          }
+          aggregate: {
+            args: Prisma.BotSettingAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBotSetting>
+          }
+          groupBy: {
+            args: Prisma.BotSettingGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BotSettingGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BotSettingCountArgs<ExtArgs>
+            result: $Utils.Optional<BotSettingCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2345,6 +2435,7 @@ export namespace Prisma {
     apiLog?: ApiLogOmit
     crmSupportAuthentication?: CrmSupportAuthenticationOmit
     lineGroup?: LineGroupOmit
+    botSetting?: BotSettingOmit
   }
 
   /* Types for Logging */
@@ -24294,6 +24385,1065 @@ export namespace Prisma {
 
 
   /**
+   * Model BotSetting
+   */
+
+  export type AggregateBotSetting = {
+    _count: BotSettingCountAggregateOutputType | null
+    _avg: BotSettingAvgAggregateOutputType | null
+    _sum: BotSettingSumAggregateOutputType | null
+    _min: BotSettingMinAggregateOutputType | null
+    _max: BotSettingMaxAggregateOutputType | null
+  }
+
+  export type BotSettingAvgAggregateOutputType = {
+    id: number | null
+    updated_by: number | null
+  }
+
+  export type BotSettingSumAggregateOutputType = {
+    id: number | null
+    updated_by: number | null
+  }
+
+  export type BotSettingMinAggregateOutputType = {
+    id: number | null
+    key: string | null
+    value: string | null
+    description: string | null
+    updated_by: number | null
+    updated_at: Date | null
+    created_at: Date | null
+  }
+
+  export type BotSettingMaxAggregateOutputType = {
+    id: number | null
+    key: string | null
+    value: string | null
+    description: string | null
+    updated_by: number | null
+    updated_at: Date | null
+    created_at: Date | null
+  }
+
+  export type BotSettingCountAggregateOutputType = {
+    id: number
+    key: number
+    value: number
+    description: number
+    updated_by: number
+    updated_at: number
+    created_at: number
+    _all: number
+  }
+
+
+  export type BotSettingAvgAggregateInputType = {
+    id?: true
+    updated_by?: true
+  }
+
+  export type BotSettingSumAggregateInputType = {
+    id?: true
+    updated_by?: true
+  }
+
+  export type BotSettingMinAggregateInputType = {
+    id?: true
+    key?: true
+    value?: true
+    description?: true
+    updated_by?: true
+    updated_at?: true
+    created_at?: true
+  }
+
+  export type BotSettingMaxAggregateInputType = {
+    id?: true
+    key?: true
+    value?: true
+    description?: true
+    updated_by?: true
+    updated_at?: true
+    created_at?: true
+  }
+
+  export type BotSettingCountAggregateInputType = {
+    id?: true
+    key?: true
+    value?: true
+    description?: true
+    updated_by?: true
+    updated_at?: true
+    created_at?: true
+    _all?: true
+  }
+
+  export type BotSettingAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BotSetting to aggregate.
+     */
+    where?: BotSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BotSettings to fetch.
+     */
+    orderBy?: BotSettingOrderByWithRelationInput | BotSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BotSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BotSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BotSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BotSettings
+    **/
+    _count?: true | BotSettingCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: BotSettingAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: BotSettingSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BotSettingMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BotSettingMaxAggregateInputType
+  }
+
+  export type GetBotSettingAggregateType<T extends BotSettingAggregateArgs> = {
+        [P in keyof T & keyof AggregateBotSetting]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBotSetting[P]>
+      : GetScalarType<T[P], AggregateBotSetting[P]>
+  }
+
+
+
+
+  export type BotSettingGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BotSettingWhereInput
+    orderBy?: BotSettingOrderByWithAggregationInput | BotSettingOrderByWithAggregationInput[]
+    by: BotSettingScalarFieldEnum[] | BotSettingScalarFieldEnum
+    having?: BotSettingScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BotSettingCountAggregateInputType | true
+    _avg?: BotSettingAvgAggregateInputType
+    _sum?: BotSettingSumAggregateInputType
+    _min?: BotSettingMinAggregateInputType
+    _max?: BotSettingMaxAggregateInputType
+  }
+
+  export type BotSettingGroupByOutputType = {
+    id: number
+    key: string
+    value: string
+    description: string | null
+    updated_by: number | null
+    updated_at: Date
+    created_at: Date
+    _count: BotSettingCountAggregateOutputType | null
+    _avg: BotSettingAvgAggregateOutputType | null
+    _sum: BotSettingSumAggregateOutputType | null
+    _min: BotSettingMinAggregateOutputType | null
+    _max: BotSettingMaxAggregateOutputType | null
+  }
+
+  type GetBotSettingGroupByPayload<T extends BotSettingGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BotSettingGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BotSettingGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BotSettingGroupByOutputType[P]>
+            : GetScalarType<T[P], BotSettingGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BotSettingSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    key?: boolean
+    value?: boolean
+    description?: boolean
+    updated_by?: boolean
+    updated_at?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["botSetting"]>
+
+  export type BotSettingSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    key?: boolean
+    value?: boolean
+    description?: boolean
+    updated_by?: boolean
+    updated_at?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["botSetting"]>
+
+  export type BotSettingSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    key?: boolean
+    value?: boolean
+    description?: boolean
+    updated_by?: boolean
+    updated_at?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["botSetting"]>
+
+  export type BotSettingSelectScalar = {
+    id?: boolean
+    key?: boolean
+    value?: boolean
+    description?: boolean
+    updated_by?: boolean
+    updated_at?: boolean
+    created_at?: boolean
+  }
+
+  export type BotSettingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "key" | "value" | "description" | "updated_by" | "updated_at" | "created_at", ExtArgs["result"]["botSetting"]>
+
+  export type $BotSettingPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BotSetting"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      key: string
+      value: string
+      description: string | null
+      updated_by: number | null
+      updated_at: Date
+      created_at: Date
+    }, ExtArgs["result"]["botSetting"]>
+    composites: {}
+  }
+
+  type BotSettingGetPayload<S extends boolean | null | undefined | BotSettingDefaultArgs> = $Result.GetResult<Prisma.$BotSettingPayload, S>
+
+  type BotSettingCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BotSettingFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BotSettingCountAggregateInputType | true
+    }
+
+  export interface BotSettingDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BotSetting'], meta: { name: 'BotSetting' } }
+    /**
+     * Find zero or one BotSetting that matches the filter.
+     * @param {BotSettingFindUniqueArgs} args - Arguments to find a BotSetting
+     * @example
+     * // Get one BotSetting
+     * const botSetting = await prisma.botSetting.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BotSettingFindUniqueArgs>(args: SelectSubset<T, BotSettingFindUniqueArgs<ExtArgs>>): Prisma__BotSettingClient<$Result.GetResult<Prisma.$BotSettingPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BotSetting that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BotSettingFindUniqueOrThrowArgs} args - Arguments to find a BotSetting
+     * @example
+     * // Get one BotSetting
+     * const botSetting = await prisma.botSetting.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BotSettingFindUniqueOrThrowArgs>(args: SelectSubset<T, BotSettingFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BotSettingClient<$Result.GetResult<Prisma.$BotSettingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BotSetting that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BotSettingFindFirstArgs} args - Arguments to find a BotSetting
+     * @example
+     * // Get one BotSetting
+     * const botSetting = await prisma.botSetting.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BotSettingFindFirstArgs>(args?: SelectSubset<T, BotSettingFindFirstArgs<ExtArgs>>): Prisma__BotSettingClient<$Result.GetResult<Prisma.$BotSettingPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BotSetting that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BotSettingFindFirstOrThrowArgs} args - Arguments to find a BotSetting
+     * @example
+     * // Get one BotSetting
+     * const botSetting = await prisma.botSetting.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BotSettingFindFirstOrThrowArgs>(args?: SelectSubset<T, BotSettingFindFirstOrThrowArgs<ExtArgs>>): Prisma__BotSettingClient<$Result.GetResult<Prisma.$BotSettingPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BotSettings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BotSettingFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BotSettings
+     * const botSettings = await prisma.botSetting.findMany()
+     * 
+     * // Get first 10 BotSettings
+     * const botSettings = await prisma.botSetting.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const botSettingWithIdOnly = await prisma.botSetting.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BotSettingFindManyArgs>(args?: SelectSubset<T, BotSettingFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BotSettingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BotSetting.
+     * @param {BotSettingCreateArgs} args - Arguments to create a BotSetting.
+     * @example
+     * // Create one BotSetting
+     * const BotSetting = await prisma.botSetting.create({
+     *   data: {
+     *     // ... data to create a BotSetting
+     *   }
+     * })
+     * 
+     */
+    create<T extends BotSettingCreateArgs>(args: SelectSubset<T, BotSettingCreateArgs<ExtArgs>>): Prisma__BotSettingClient<$Result.GetResult<Prisma.$BotSettingPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BotSettings.
+     * @param {BotSettingCreateManyArgs} args - Arguments to create many BotSettings.
+     * @example
+     * // Create many BotSettings
+     * const botSetting = await prisma.botSetting.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BotSettingCreateManyArgs>(args?: SelectSubset<T, BotSettingCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BotSettings and returns the data saved in the database.
+     * @param {BotSettingCreateManyAndReturnArgs} args - Arguments to create many BotSettings.
+     * @example
+     * // Create many BotSettings
+     * const botSetting = await prisma.botSetting.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BotSettings and only return the `id`
+     * const botSettingWithIdOnly = await prisma.botSetting.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BotSettingCreateManyAndReturnArgs>(args?: SelectSubset<T, BotSettingCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BotSettingPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BotSetting.
+     * @param {BotSettingDeleteArgs} args - Arguments to delete one BotSetting.
+     * @example
+     * // Delete one BotSetting
+     * const BotSetting = await prisma.botSetting.delete({
+     *   where: {
+     *     // ... filter to delete one BotSetting
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BotSettingDeleteArgs>(args: SelectSubset<T, BotSettingDeleteArgs<ExtArgs>>): Prisma__BotSettingClient<$Result.GetResult<Prisma.$BotSettingPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BotSetting.
+     * @param {BotSettingUpdateArgs} args - Arguments to update one BotSetting.
+     * @example
+     * // Update one BotSetting
+     * const botSetting = await prisma.botSetting.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BotSettingUpdateArgs>(args: SelectSubset<T, BotSettingUpdateArgs<ExtArgs>>): Prisma__BotSettingClient<$Result.GetResult<Prisma.$BotSettingPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BotSettings.
+     * @param {BotSettingDeleteManyArgs} args - Arguments to filter BotSettings to delete.
+     * @example
+     * // Delete a few BotSettings
+     * const { count } = await prisma.botSetting.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BotSettingDeleteManyArgs>(args?: SelectSubset<T, BotSettingDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BotSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BotSettingUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BotSettings
+     * const botSetting = await prisma.botSetting.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BotSettingUpdateManyArgs>(args: SelectSubset<T, BotSettingUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BotSettings and returns the data updated in the database.
+     * @param {BotSettingUpdateManyAndReturnArgs} args - Arguments to update many BotSettings.
+     * @example
+     * // Update many BotSettings
+     * const botSetting = await prisma.botSetting.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BotSettings and only return the `id`
+     * const botSettingWithIdOnly = await prisma.botSetting.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BotSettingUpdateManyAndReturnArgs>(args: SelectSubset<T, BotSettingUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BotSettingPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BotSetting.
+     * @param {BotSettingUpsertArgs} args - Arguments to update or create a BotSetting.
+     * @example
+     * // Update or create a BotSetting
+     * const botSetting = await prisma.botSetting.upsert({
+     *   create: {
+     *     // ... data to create a BotSetting
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BotSetting we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BotSettingUpsertArgs>(args: SelectSubset<T, BotSettingUpsertArgs<ExtArgs>>): Prisma__BotSettingClient<$Result.GetResult<Prisma.$BotSettingPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BotSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BotSettingCountArgs} args - Arguments to filter BotSettings to count.
+     * @example
+     * // Count the number of BotSettings
+     * const count = await prisma.botSetting.count({
+     *   where: {
+     *     // ... the filter for the BotSettings we want to count
+     *   }
+     * })
+    **/
+    count<T extends BotSettingCountArgs>(
+      args?: Subset<T, BotSettingCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BotSettingCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BotSetting.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BotSettingAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BotSettingAggregateArgs>(args: Subset<T, BotSettingAggregateArgs>): Prisma.PrismaPromise<GetBotSettingAggregateType<T>>
+
+    /**
+     * Group by BotSetting.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BotSettingGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BotSettingGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BotSettingGroupByArgs['orderBy'] }
+        : { orderBy?: BotSettingGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BotSettingGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBotSettingGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BotSetting model
+   */
+  readonly fields: BotSettingFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BotSetting.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BotSettingClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BotSetting model
+   */
+  interface BotSettingFieldRefs {
+    readonly id: FieldRef<"BotSetting", 'Int'>
+    readonly key: FieldRef<"BotSetting", 'String'>
+    readonly value: FieldRef<"BotSetting", 'String'>
+    readonly description: FieldRef<"BotSetting", 'String'>
+    readonly updated_by: FieldRef<"BotSetting", 'Int'>
+    readonly updated_at: FieldRef<"BotSetting", 'DateTime'>
+    readonly created_at: FieldRef<"BotSetting", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BotSetting findUnique
+   */
+  export type BotSettingFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BotSetting
+     */
+    select?: BotSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BotSetting
+     */
+    omit?: BotSettingOmit<ExtArgs> | null
+    /**
+     * Filter, which BotSetting to fetch.
+     */
+    where: BotSettingWhereUniqueInput
+  }
+
+  /**
+   * BotSetting findUniqueOrThrow
+   */
+  export type BotSettingFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BotSetting
+     */
+    select?: BotSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BotSetting
+     */
+    omit?: BotSettingOmit<ExtArgs> | null
+    /**
+     * Filter, which BotSetting to fetch.
+     */
+    where: BotSettingWhereUniqueInput
+  }
+
+  /**
+   * BotSetting findFirst
+   */
+  export type BotSettingFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BotSetting
+     */
+    select?: BotSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BotSetting
+     */
+    omit?: BotSettingOmit<ExtArgs> | null
+    /**
+     * Filter, which BotSetting to fetch.
+     */
+    where?: BotSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BotSettings to fetch.
+     */
+    orderBy?: BotSettingOrderByWithRelationInput | BotSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BotSettings.
+     */
+    cursor?: BotSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BotSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BotSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BotSettings.
+     */
+    distinct?: BotSettingScalarFieldEnum | BotSettingScalarFieldEnum[]
+  }
+
+  /**
+   * BotSetting findFirstOrThrow
+   */
+  export type BotSettingFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BotSetting
+     */
+    select?: BotSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BotSetting
+     */
+    omit?: BotSettingOmit<ExtArgs> | null
+    /**
+     * Filter, which BotSetting to fetch.
+     */
+    where?: BotSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BotSettings to fetch.
+     */
+    orderBy?: BotSettingOrderByWithRelationInput | BotSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BotSettings.
+     */
+    cursor?: BotSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BotSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BotSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BotSettings.
+     */
+    distinct?: BotSettingScalarFieldEnum | BotSettingScalarFieldEnum[]
+  }
+
+  /**
+   * BotSetting findMany
+   */
+  export type BotSettingFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BotSetting
+     */
+    select?: BotSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BotSetting
+     */
+    omit?: BotSettingOmit<ExtArgs> | null
+    /**
+     * Filter, which BotSettings to fetch.
+     */
+    where?: BotSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BotSettings to fetch.
+     */
+    orderBy?: BotSettingOrderByWithRelationInput | BotSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BotSettings.
+     */
+    cursor?: BotSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BotSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BotSettings.
+     */
+    skip?: number
+    distinct?: BotSettingScalarFieldEnum | BotSettingScalarFieldEnum[]
+  }
+
+  /**
+   * BotSetting create
+   */
+  export type BotSettingCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BotSetting
+     */
+    select?: BotSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BotSetting
+     */
+    omit?: BotSettingOmit<ExtArgs> | null
+    /**
+     * The data needed to create a BotSetting.
+     */
+    data: XOR<BotSettingCreateInput, BotSettingUncheckedCreateInput>
+  }
+
+  /**
+   * BotSetting createMany
+   */
+  export type BotSettingCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BotSettings.
+     */
+    data: BotSettingCreateManyInput | BotSettingCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BotSetting createManyAndReturn
+   */
+  export type BotSettingCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BotSetting
+     */
+    select?: BotSettingSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BotSetting
+     */
+    omit?: BotSettingOmit<ExtArgs> | null
+    /**
+     * The data used to create many BotSettings.
+     */
+    data: BotSettingCreateManyInput | BotSettingCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BotSetting update
+   */
+  export type BotSettingUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BotSetting
+     */
+    select?: BotSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BotSetting
+     */
+    omit?: BotSettingOmit<ExtArgs> | null
+    /**
+     * The data needed to update a BotSetting.
+     */
+    data: XOR<BotSettingUpdateInput, BotSettingUncheckedUpdateInput>
+    /**
+     * Choose, which BotSetting to update.
+     */
+    where: BotSettingWhereUniqueInput
+  }
+
+  /**
+   * BotSetting updateMany
+   */
+  export type BotSettingUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BotSettings.
+     */
+    data: XOR<BotSettingUpdateManyMutationInput, BotSettingUncheckedUpdateManyInput>
+    /**
+     * Filter which BotSettings to update
+     */
+    where?: BotSettingWhereInput
+    /**
+     * Limit how many BotSettings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BotSetting updateManyAndReturn
+   */
+  export type BotSettingUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BotSetting
+     */
+    select?: BotSettingSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BotSetting
+     */
+    omit?: BotSettingOmit<ExtArgs> | null
+    /**
+     * The data used to update BotSettings.
+     */
+    data: XOR<BotSettingUpdateManyMutationInput, BotSettingUncheckedUpdateManyInput>
+    /**
+     * Filter which BotSettings to update
+     */
+    where?: BotSettingWhereInput
+    /**
+     * Limit how many BotSettings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BotSetting upsert
+   */
+  export type BotSettingUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BotSetting
+     */
+    select?: BotSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BotSetting
+     */
+    omit?: BotSettingOmit<ExtArgs> | null
+    /**
+     * The filter to search for the BotSetting to update in case it exists.
+     */
+    where: BotSettingWhereUniqueInput
+    /**
+     * In case the BotSetting found by the `where` argument doesn't exist, create a new BotSetting with this data.
+     */
+    create: XOR<BotSettingCreateInput, BotSettingUncheckedCreateInput>
+    /**
+     * In case the BotSetting was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BotSettingUpdateInput, BotSettingUncheckedUpdateInput>
+  }
+
+  /**
+   * BotSetting delete
+   */
+  export type BotSettingDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BotSetting
+     */
+    select?: BotSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BotSetting
+     */
+    omit?: BotSettingOmit<ExtArgs> | null
+    /**
+     * Filter which BotSetting to delete.
+     */
+    where: BotSettingWhereUniqueInput
+  }
+
+  /**
+   * BotSetting deleteMany
+   */
+  export type BotSettingDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BotSettings to delete
+     */
+    where?: BotSettingWhereInput
+    /**
+     * Limit how many BotSettings to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BotSetting without action
+   */
+  export type BotSettingDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BotSetting
+     */
+    select?: BotSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BotSetting
+     */
+    omit?: BotSettingOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -24601,6 +25751,19 @@ export namespace Prisma {
   };
 
   export type LineGroupScalarFieldEnum = (typeof LineGroupScalarFieldEnum)[keyof typeof LineGroupScalarFieldEnum]
+
+
+  export const BotSettingScalarFieldEnum: {
+    id: 'id',
+    key: 'key',
+    value: 'value',
+    description: 'description',
+    updated_by: 'updated_by',
+    updated_at: 'updated_at',
+    created_at: 'created_at'
+  };
+
+  export type BotSettingScalarFieldEnum = (typeof BotSettingScalarFieldEnum)[keyof typeof BotSettingScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -26336,6 +27499,70 @@ export namespace Prisma {
     updated_at?: DateTimeNullableWithAggregatesFilter<"LineGroup"> | Date | string | null
   }
 
+  export type BotSettingWhereInput = {
+    AND?: BotSettingWhereInput | BotSettingWhereInput[]
+    OR?: BotSettingWhereInput[]
+    NOT?: BotSettingWhereInput | BotSettingWhereInput[]
+    id?: IntFilter<"BotSetting"> | number
+    key?: StringFilter<"BotSetting"> | string
+    value?: StringFilter<"BotSetting"> | string
+    description?: StringNullableFilter<"BotSetting"> | string | null
+    updated_by?: IntNullableFilter<"BotSetting"> | number | null
+    updated_at?: DateTimeFilter<"BotSetting"> | Date | string
+    created_at?: DateTimeFilter<"BotSetting"> | Date | string
+  }
+
+  export type BotSettingOrderByWithRelationInput = {
+    id?: SortOrder
+    key?: SortOrder
+    value?: SortOrder
+    description?: SortOrderInput | SortOrder
+    updated_by?: SortOrderInput | SortOrder
+    updated_at?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type BotSettingWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    key?: string
+    AND?: BotSettingWhereInput | BotSettingWhereInput[]
+    OR?: BotSettingWhereInput[]
+    NOT?: BotSettingWhereInput | BotSettingWhereInput[]
+    value?: StringFilter<"BotSetting"> | string
+    description?: StringNullableFilter<"BotSetting"> | string | null
+    updated_by?: IntNullableFilter<"BotSetting"> | number | null
+    updated_at?: DateTimeFilter<"BotSetting"> | Date | string
+    created_at?: DateTimeFilter<"BotSetting"> | Date | string
+  }, "id" | "key">
+
+  export type BotSettingOrderByWithAggregationInput = {
+    id?: SortOrder
+    key?: SortOrder
+    value?: SortOrder
+    description?: SortOrderInput | SortOrder
+    updated_by?: SortOrderInput | SortOrder
+    updated_at?: SortOrder
+    created_at?: SortOrder
+    _count?: BotSettingCountOrderByAggregateInput
+    _avg?: BotSettingAvgOrderByAggregateInput
+    _max?: BotSettingMaxOrderByAggregateInput
+    _min?: BotSettingMinOrderByAggregateInput
+    _sum?: BotSettingSumOrderByAggregateInput
+  }
+
+  export type BotSettingScalarWhereWithAggregatesInput = {
+    AND?: BotSettingScalarWhereWithAggregatesInput | BotSettingScalarWhereWithAggregatesInput[]
+    OR?: BotSettingScalarWhereWithAggregatesInput[]
+    NOT?: BotSettingScalarWhereWithAggregatesInput | BotSettingScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"BotSetting"> | number
+    key?: StringWithAggregatesFilter<"BotSetting"> | string
+    value?: StringWithAggregatesFilter<"BotSetting"> | string
+    description?: StringNullableWithAggregatesFilter<"BotSetting"> | string | null
+    updated_by?: IntNullableWithAggregatesFilter<"BotSetting"> | number | null
+    updated_at?: DateTimeWithAggregatesFilter<"BotSetting"> | Date | string
+    created_at?: DateTimeWithAggregatesFilter<"BotSetting"> | Date | string
+  }
+
   export type PositionCreateInput = {
     name_th: string
     name_en?: string | null
@@ -28033,6 +29260,73 @@ export namespace Prisma {
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type BotSettingCreateInput = {
+    key: string
+    value: string
+    description?: string | null
+    updated_by?: number | null
+    updated_at?: Date | string
+    created_at?: Date | string
+  }
+
+  export type BotSettingUncheckedCreateInput = {
+    id?: number
+    key: string
+    value: string
+    description?: string | null
+    updated_by?: number | null
+    updated_at?: Date | string
+    created_at?: Date | string
+  }
+
+  export type BotSettingUpdateInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    updated_by?: NullableIntFieldUpdateOperationsInput | number | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BotSettingUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    updated_by?: NullableIntFieldUpdateOperationsInput | number | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BotSettingCreateManyInput = {
+    id?: number
+    key: string
+    value: string
+    description?: string | null
+    updated_by?: number | null
+    updated_at?: Date | string
+    created_at?: Date | string
+  }
+
+  export type BotSettingUpdateManyMutationInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    updated_by?: NullableIntFieldUpdateOperationsInput | number | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BotSettingUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    key?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    updated_by?: NullableIntFieldUpdateOperationsInput | number | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -29462,6 +30756,46 @@ export namespace Prisma {
 
   export type LineGroupSumOrderByAggregateInput = {
     id?: SortOrder
+  }
+
+  export type BotSettingCountOrderByAggregateInput = {
+    id?: SortOrder
+    key?: SortOrder
+    value?: SortOrder
+    description?: SortOrder
+    updated_by?: SortOrder
+    updated_at?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type BotSettingAvgOrderByAggregateInput = {
+    id?: SortOrder
+    updated_by?: SortOrder
+  }
+
+  export type BotSettingMaxOrderByAggregateInput = {
+    id?: SortOrder
+    key?: SortOrder
+    value?: SortOrder
+    description?: SortOrder
+    updated_by?: SortOrder
+    updated_at?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type BotSettingMinOrderByAggregateInput = {
+    id?: SortOrder
+    key?: SortOrder
+    value?: SortOrder
+    description?: SortOrder
+    updated_by?: SortOrder
+    updated_at?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type BotSettingSumOrderByAggregateInput = {
+    id?: SortOrder
+    updated_by?: SortOrder
   }
 
   export type UserCreateNestedManyWithoutPosition_refInput = {

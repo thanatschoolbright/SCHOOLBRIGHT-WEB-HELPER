@@ -2,9 +2,11 @@
  * CronJob Script — ตรวจสอบสถานะ Hardware และส่งแจ้งเตือนผ่าน LINE
  * รันโดย Kubernetes CronJob ทุก 1 นาที (Asia/Bangkok)
  * Time Condition: 18:00–06:00 ระงับการแจ้งเตือน
+ * Bot Condition: เช็กจาก bot_setting.line_bot_enabled ใน Timesheet DB ก่อนทำงานทุกครั้ง
  */
 
 import { PrismaJabjaiMaster } from "@/helpers/prisma/prisma-jabjai-master-single-db";
+import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 
 const APP_URL =
   process.env.APP_INTERNAL_URL ?? "http://sb-helper.schoolbright.co";
@@ -14,6 +16,27 @@ const CRON_SECRET = process.env.CRON_SECRET ?? "";
 const TEST_SCHOOL_ID = process.env.TEST_SCHOOL_ID
   ? parseInt(process.env.TEST_SCHOOL_ID, 10)
   : null;
+
+const SEP = "─".repeat(70);
+
+// ✨ เช็กสถานะเปิด/ปิด Bot จาก Timesheet DB — คืน true ถ้าเปิดใช้งาน
+async function isBotEnabled(): Promise<boolean> {
+  try {
+    const row = await PrismaTimesheet.botSetting.findUnique({
+      where: { key: "line_bot_enabled" },
+      select: { value: true, updated_by: true, updated_at: true },
+    });
+    if (!row) {
+      // ยังไม่มี row → ถือว่าเปิดอยู่ (default)
+      return true;
+    }
+    return row.value === "true";
+  } catch (err) {
+    // ถ้า query ล้มเหลว → ให้ทำงานต่อ (fail-open) ไม่ให้ DB error ระงับ Bot
+    console.error(`[BOT-SETTING] ไม่สามารถดึงสถานะ Bot ได้ — ใช้ค่า default: เปิด`, err);
+    return true;
+  }
+}
 
 // ✨ ตรวจสอบ Time Condition — ช่วง 18:00-06:00 ไม่ส่งแจ้งเตือน
 function isQuietHours(): boolean {
@@ -38,40 +61,29 @@ async function fetchAndDisplayLineGroups() {
     },
   });
 
-  console.log(`\n${"─".repeat(90)}`);
+  console.log(`\n${SEP}`);
   console.log(` LINE Groups ที่พบทั้งหมด: ${groups.length} กลุ่ม`);
-  console.log(`${"─".repeat(90)}`);
+  console.log(SEP);
   console.log(
-    ` ${"#".padEnd(5)} ${"LineGroupId".padEnd(12)} ${"SchoolId".padEnd(
-      10,
-    )} ${"GroupType".padEnd(15)} ${"GroupId".padEnd(35)} ${"CreateDate"}`,
+    ` ${"#".padEnd(5)} ${"LineGroupId".padEnd(12)} ${"SchoolId".padEnd(10)} ${"GroupType".padEnd(15)} ${"GroupId".padEnd(35)} ${"CreateDate"}`,
   );
-  console.log(`${"─".repeat(90)}`);
+  console.log(SEP);
 
   groups.forEach((g, i) => {
     const date = g.CreateDate
-      ? new Date(g.CreateDate).toLocaleDateString("th-TH", {
-          timeZone: "Asia/Bangkok",
-        })
+      ? new Date(g.CreateDate).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" })
       : "-";
     console.log(
-      ` ${String(i + 1).padEnd(5)} ${String(g.LineGroupId).padEnd(12)} ${String(
-        g.SchoolId ?? "-",
-      ).padEnd(10)} ${(g.GroupType ?? "-").padEnd(15)} ${(
-        g.GroupId ?? "-"
-      ).padEnd(35)} ${date}`,
+      ` ${String(i + 1).padEnd(5)} ${String(g.LineGroupId).padEnd(12)} ${String(g.SchoolId ?? "-").padEnd(10)} ${(g.GroupType ?? "-").padEnd(15)} ${(g.GroupId ?? "-").padEnd(35)} ${date}`,
     );
   });
 
-  console.log(`${"─".repeat(90)}\n`);
+  console.log(`${SEP}\n`);
   return groups;
 }
 
 // ✨ ส่งรายงานสถานะเครื่องของโรงเรียนเดียวไปยัง LINE Group
-async function sendSchoolReport(
-  schoolId: number,
-  timestamp: string,
-): Promise<boolean> {
+async function sendSchoolReport(schoolId: number, timestamp: string): Promise<boolean> {
   try {
     const response = await fetch(
       `${APP_URL}/api/v2/hardware/school-device/cronjob/${schoolId}`,
@@ -82,9 +94,7 @@ async function sendSchoolReport(
       },
     );
 
-    const body = await response.json();
     console.log(`[${timestamp}] School ${schoolId} — HTTP ${response.status}`);
-
     return response.ok;
   } catch (error) {
     console.error(`[${timestamp}] School ${schoolId} — ERROR:`, error);
@@ -92,47 +102,58 @@ async function sendSchoolReport(
   }
 }
 
-// ✨ ฟังก์ชันหลัก — ดึง LINE Groups แล้วส่งรายงานทีละโรงเรียน
+// ✨ ฟังก์ชันหลัก — เช็กสถานะ Bot ก่อน แล้วดึง LINE Groups และส่งรายงานทีละโรงเรียน
 async function main() {
-  const timestamp = new Date().toLocaleString("th-TH", {
-    timeZone: "Asia/Bangkok",
-  });
-  console.log(`[${timestamp}] Starting device monitor...`);
+  const timestamp = new Date().toLocaleString("th-TH", { timeZone: "Asia/Bangkok" });
+  console.log(`\n${SEP}`);
+  console.log(`[${timestamp}] Device Monitor LINE Bot — Starting`);
+  console.log(SEP);
+
+  // ─── ตรวจสอบ Bot Status (ระดับสูงสุด) ───
+  const botEnabled = await isBotEnabled();
+  if (!botEnabled) {
+    console.log(`\n${SEP}`);
+    console.log(`[${timestamp}] ⚠ มีการปิดการใช้งาน LINE Bot ในระบบ`);
+    console.log(`[${timestamp}]   → ระบบจะไม่ทำการ Query ข้อมูลอุปกรณ์`);
+    console.log(`[${timestamp}]   → ระบบจะไม่ส่งการแจ้งเตือนไปยัง LINE`);
+    console.log(`[${timestamp}]   → หากต้องการเปิดใช้งาน กรุณาไปที่หน้า Web Admin`);
+    console.log(`[${timestamp}]   → เส้นทาง: ตรวจสอบสถานะอุปกรณ์ → ปุ่มตั้งค่า → เปิด LINE Bot`);
+    console.log(SEP);
+    await PrismaTimesheet.$disconnect();
+    process.exit(0);
+  }
+  console.log(`[${timestamp}] ✓ Bot Status: เปิดใช้งาน`);
 
   // โหมดทดสอบ — ส่งเฉพาะโรงเรียนที่ระบุ และข้าม quiet hours
   if (TEST_SCHOOL_ID !== null) {
-    console.log(
-      `[${timestamp}] TEST MODE — school_id=${TEST_SCHOOL_ID}, APP_URL=${APP_URL}`,
-    );
+    console.log(`[${timestamp}] TEST MODE — school_id=${TEST_SCHOOL_ID}, APP_URL=${APP_URL}`);
     const ok = await sendSchoolReport(TEST_SCHOOL_ID, timestamp);
+    await PrismaTimesheet.$disconnect();
     process.exit(ok ? 0 : 1);
   }
 
+  // ─── ตรวจสอบ Quiet Hours ───
   if (isQuietHours()) {
-    console.log(
-      `[${timestamp}] Quiet hours (18:00–06:00) — skipping notification`,
-    );
+    console.log(`[${timestamp}] Quiet hours (18:00–06:00) — skipping notification`);
+    await PrismaTimesheet.$disconnect();
     process.exit(0);
   }
 
-  // ดึงและแสดงรายชื่อ LINE Groups
+  // ─── ดึง LINE Groups และส่งรายงาน ───
   const groups = await fetchAndDisplayLineGroups();
 
   if (groups.length === 0) {
     console.log(`[${timestamp}] ไม่พบ LINE Group ในระบบ — skipping`);
+    await PrismaTimesheet.$disconnect();
     process.exit(0);
   }
 
-  // กรองเฉพาะโรงเรียนที่มี SchoolId และ GroupId ที่ใช้งานได้
   const activeGroups = groups.filter(
     (g) => g.SchoolId !== null && g.GroupId !== null && g.GroupId.trim() !== "",
   );
 
-  console.log(
-    `[${timestamp}] Active groups with valid SchoolId+GroupId: ${activeGroups.length}`,
-  );
+  console.log(`[${timestamp}] Active groups with valid SchoolId+GroupId: ${activeGroups.length}`);
 
-  // ส่งรายงานทีละโรงเรียน
   let successCount = 0;
   let failCount = 0;
 
@@ -143,9 +164,11 @@ async function main() {
     else failCount++;
   }
 
-  console.log(
-    `[${timestamp}] Done — success: ${successCount}, failed: ${failCount}`,
-  );
+  console.log(`\n${SEP}`);
+  console.log(`[${timestamp}] Done — success: ${successCount}, failed: ${failCount}`);
+  console.log(SEP);
+
+  await PrismaTimesheet.$disconnect();
 
   if (failCount > 0) {
     process.exit(1);

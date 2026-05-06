@@ -18,6 +18,7 @@ import {
   InfoCircleOutlined,
   MailOutlined,
   NotificationOutlined,
+  PoweroffOutlined,
   SettingOutlined,
   SyncOutlined,
   ThunderboltFilled,
@@ -39,8 +40,10 @@ import {
   Modal,
   Row,
   Space,
+  Switch,
   Tabs,
   Tag,
+  Tooltip,
   Typography,
   theme,
 } from "antd";
@@ -48,6 +51,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useHasPermission } from "@hooks/use-has-permission";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -104,6 +108,7 @@ export default function OnlineDeviceDashboard() {
   const schoolListState = useAppSelector(
     (state) => state.callGetSchoolListDetail,
   );
+  const { isAdmin } = useHasPermission();
 
   const [statusModal, setStatusModal] = useState<{
     open: boolean;
@@ -120,6 +125,11 @@ export default function OnlineDeviceDashboard() {
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
   const [isDashboardLoading, setIsDashboardLoading] = useState(false);
+
+  // สถานะ LINE Bot (เปิด/ปิด)
+  const [botEnabled, setBotEnabled] = useState<boolean | null>(null);
+  const [isBotLoading, setIsBotLoading] = useState(false);
+  const [isTogglingBot, setIsTogglingBot] = useState(false);
 
   // สถานะ Modal ยืนยันการลบเครื่องที่ไม่ได้ใช้งานเกิน 7 วัน
   const [cleanupModal, setCleanupModal] = useState<{
@@ -158,6 +168,50 @@ export default function OnlineDeviceDashboard() {
     }
   };
 
+  // โหลดสถานะ LINE Bot จาก API
+  const loadBotSetting = async () => {
+    setIsBotLoading(true);
+    try {
+      const res = await callApiService.get("/api/v2/hardware/bot-setting");
+      setBotEnabled(res.data?.data?.enabled ?? true);
+    } catch {
+      setBotEnabled(true);
+    } finally {
+      setIsBotLoading(false);
+    }
+  };
+
+  // เปิด/ปิด LINE Bot — เฉพาะ Admin เท่านั้น
+  const handleToggleBot = async (enabled: boolean) => {
+    if (!isAdmin) return;
+    setIsTogglingBot(true);
+    try {
+      const res = await callApiService.patch("/api/v2/hardware/bot-setting", { enabled });
+      const newEnabled = res.data?.data?.enabled ?? enabled;
+      setBotEnabled(newEnabled);
+      setStatusModal({
+        open: true,
+        type: "success",
+        title: newEnabled ? "เปิด LINE Bot สำเร็จ" : "ปิด LINE Bot สำเร็จ",
+        message: newEnabled
+          ? "ระบบจะส่งการแจ้งเตือนไปยัง LINE ตามโรงเรียนที่ตั้งค่าไว้"
+          : "ระบบจะหยุดส่งการแจ้งเตือนทั้งหมด แม้ Cronjob ยังทำงานอยู่",
+      });
+    } catch (err: any) {
+      setStatusModal({
+        open: true,
+        type: "error",
+        title: "เปลี่ยนสถานะ Bot ไม่สำเร็จ",
+        message:
+          err?.response?.data?.message_th ??
+          err?.message ??
+          "ไม่สามารถบันทึกการตั้งค่าได้",
+      });
+    } finally {
+      setIsTogglingBot(false);
+    }
+  };
+
   const handleSelectLineGroup = async (groupId: string) => {
     try {
       await onlineStatusService.setActiveLineGroup(groupId);
@@ -183,6 +237,7 @@ export default function OnlineDeviceDashboard() {
     fetchData(1, 20);
     void loadDashboard();
     void loadLineGroups();
+    void loadBotSetting();
 
     // โหลดรายชื่อโรงเรียนเข้า Redux เพื่อให้ FilterSection ใช้งาน Dropdown ได้
     const hasSchoolData =
@@ -642,6 +697,62 @@ export default function OnlineDeviceDashboard() {
                         router.push(
                           "/health-check/online-status/school-line-group",
                         ),
+                    },
+                    { type: "divider" },
+                    {
+                      key: "bot-header",
+                      type: "group",
+                      label: (
+                        <Flex align="center" gap={6}>
+                          <PoweroffOutlined style={{ fontSize: 11 }} />
+                          <span style={{ fontSize: 11 }}>ควบคุม LINE Bot</span>
+                        </Flex>
+                      ),
+                    },
+                    {
+                      key: "bot-toggle",
+                      label: (
+                        <Tooltip
+                          title={!isAdmin ? "เฉพาะ Admin เท่านั้นที่สามารถเปลี่ยนสถานะ Bot ได้" : ""}
+                        >
+                          <Flex
+                            align="center"
+                            justify="space-between"
+                            gap={12}
+                            style={{ opacity: !isAdmin ? 0.5 : 1 }}
+                          >
+                            <Flex align="center" gap={8}>
+                              <PoweroffOutlined
+                                style={{
+                                  color: botEnabled ? "#16a34a" : "rgba(128,128,128,0.5)",
+                                }}
+                              />
+                              <Flex vertical gap={0}>
+                                <span style={{ fontWeight: 500, fontSize: 13 }}>
+                                  LINE Bot แจ้งเตือน
+                                </span>
+                                <span style={{ fontSize: 10, color: "rgba(128,128,128,0.8)" }}>
+                                  {botEnabled === null
+                                    ? "กำลังโหลด..."
+                                    : botEnabled
+                                    ? "กำลังทำงาน"
+                                    : "หยุดทำงาน"}
+                                </span>
+                              </Flex>
+                            </Flex>
+                            <Switch
+                              size="small"
+                              checked={botEnabled ?? true}
+                              loading={isBotLoading || isTogglingBot}
+                              disabled={!isAdmin || isBotLoading}
+                              onChange={(checked) => {
+                                void handleToggleBot(checked);
+                              }}
+                              onClick={(_, e) => e.stopPropagation()}
+                            />
+                          </Flex>
+                        </Tooltip>
+                      ),
                     },
                     { type: "divider" },
                     {

@@ -363,6 +363,16 @@ exports.Prisma.LineGroupScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.BotSettingScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  value: 'value',
+  description: 'description',
+  updated_by: 'updated_by',
+  updated_at: 'updated_at',
+  created_at: 'created_at'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -411,7 +421,8 @@ exports.Prisma.ModelName = {
   OvertimeStatusLog: 'OvertimeStatusLog',
   ApiLog: 'ApiLog',
   CrmSupportAuthentication: 'CrmSupportAuthentication',
-  LineGroup: 'LineGroup'
+  LineGroup: 'LineGroup',
+  BotSetting: 'BotSetting'
 };
 
 /**
