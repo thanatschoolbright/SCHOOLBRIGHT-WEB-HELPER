@@ -83,13 +83,7 @@ async function sendSchoolReport(
     );
 
     const body = await response.json();
-    console.log(
-      `[${timestamp}] School ${schoolId} — HTTP ${response.status}`,
-    );
-    console.log(
-      `[${timestamp}] School ${schoolId} — Response:`,
-      JSON.stringify(body, null, 2),
-    );
+    console.log(`[${timestamp}] School ${schoolId} — HTTP ${response.status}`);
 
     return response.ok;
   } catch (error) {
