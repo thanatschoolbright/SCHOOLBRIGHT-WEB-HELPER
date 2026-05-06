@@ -123,7 +123,7 @@ All files and folders use **kebab-case**. API payload fields (request/response) 
 
 **Standard response format**:
 ```json
-{ "status_code": 200, "message_th": "...", "message_en": "...", "data": {} }
+{ "status": 200, "message_th": "...", "message_en": "...", "data": {} }
 ```
 
 Response helpers: `successResponse` / `errorResponse` from `src/helpers/api/response.ts`.
