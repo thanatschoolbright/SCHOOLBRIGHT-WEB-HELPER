@@ -815,6 +815,7 @@ function buildSchoolSummaryBubble(opts: {
   total: number;
   online: number;
   offline: number;
+  notifyCount: number;
   reportTime: string;
   hiddenCount: number;
 }): object {
@@ -824,6 +825,7 @@ function buildSchoolSummaryBubble(opts: {
     total,
     online,
     offline,
+    notifyCount,
     reportTime,
     hiddenCount,
   } = opts;
@@ -909,6 +911,11 @@ function buildSchoolSummaryBubble(opts: {
           "ออฟไลน์",
           `${offline} เครื่อง`,
           offline > 0 ? "#f87171" : "#4ade80",
+        ),
+        buildStatRow(
+          "เปิดแจ้งเตือน",
+          `${notifyCount}/${total} เครื่อง`,
+          notifyCount > 0 ? "#38bdf8" : "#94a3b8",
         ),
         { type: "separator", margin: "sm", color: "#334155" },
         {
@@ -1385,6 +1392,7 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
 
   let onlineCount = 0;
   let offlineCount = 0;
+  let notifyCount = 0;
 
   interface OfflineDevice {
     deviceName: string;
@@ -1410,6 +1418,8 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
       (onlineTime
         ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
         : false);
+
+    if (device.NotifyEnabled) notifyCount++;
 
     if (isOnline) {
       onlineCount++;
@@ -1464,6 +1474,7 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
     total,
     online: onlineCount,
     offline: offlineCount,
+    notifyCount,
     reportTime,
     hiddenCount,
   });
