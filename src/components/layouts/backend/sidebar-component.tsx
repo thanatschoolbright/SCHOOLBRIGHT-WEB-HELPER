@@ -7,9 +7,10 @@ import {
   MoonOutlined,
   SunOutlined,
 } from "@ant-design/icons";
-import { Grid, theme, Tooltip } from "antd";
+import { Grid, Popover, theme, Tooltip } from "antd";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -29,7 +30,10 @@ export interface CustomMenuItemType {
 const DARK_MODE_KEY = "theme";
 
 // ตรวจสอบว่า item หรือ child ใดเป็น active route
-function isDescendantActive(item: CustomMenuItemType, pathname: string): boolean {
+function isDescendantActive(
+  item: CustomMenuItemType,
+  pathname: string,
+): boolean {
   if (item.href === pathname) return true;
   if (!item.children) return false;
   return item.children.some((child) => isDescendantActive(child, pathname));
@@ -41,9 +45,21 @@ const EASE_SMOOTH = [0.32, 0.72, 0, 1] as const;
 const EASE_OUT = [0, 0, 0.2, 1] as const;
 
 const submenuVariants = {
-  closed: { height: 0, opacity: 0, transition: { duration: 0.26, ease: EASE_SMOOTH } },
-  open: { height: "auto" as const, opacity: 1, transition: { duration: 0.32, ease: EASE_OUT } },
-  exit: { height: 0, opacity: 0, transition: { duration: 0.22, ease: EASE_SMOOTH } },
+  closed: {
+    height: 0,
+    opacity: 0,
+    transition: { duration: 0.26, ease: EASE_SMOOTH },
+  },
+  open: {
+    height: "auto" as const,
+    opacity: 1,
+    transition: { duration: 0.32, ease: EASE_OUT },
+  },
+  exit: {
+    height: 0,
+    opacity: 0,
+    transition: { duration: 0.22, ease: EASE_SMOOTH },
+  },
 };
 
 const itemVariants = {
@@ -81,7 +97,7 @@ function DarkModeToggle({ collapsed }: { collapsed: boolean }) {
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
     setMounted(true);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -111,7 +127,9 @@ function DarkModeToggle({ collapsed }: { collapsed: boolean }) {
             whileTap={{ scale: 0.88 }}
             className="relative w-10 h-10 rounded-xl flex items-center justify-center text-base cursor-pointer border-0 outline-none overflow-hidden"
             style={{
-              background: isDark ? token.colorFillSecondary : token.colorPrimaryBg,
+              background: isDark
+                ? token.colorFillSecondary
+                : token.colorPrimaryBg,
               color: isDark ? token.colorWarning : token.colorPrimary,
               boxShadow: isDark
                 ? `0 0 12px ${token.colorWarning}20`
@@ -146,7 +164,9 @@ function DarkModeToggle({ collapsed }: { collapsed: boolean }) {
         <motion.div
           className="w-9 h-9 rounded-xl flex items-center justify-center text-sm overflow-hidden flex-shrink-0"
           animate={{
-            background: isDark ? token.colorFillSecondary : token.colorPrimaryBg,
+            background: isDark
+              ? token.colorFillSecondary
+              : token.colorPrimaryBg,
             color: isDark ? token.colorWarning : token.colorPrimary,
             boxShadow: isDark
               ? `0 0 14px ${token.colorWarning}25`
@@ -177,7 +197,10 @@ function DarkModeToggle({ collapsed }: { collapsed: boolean }) {
           >
             {isDark ? "โหมดมืด" : "โหมดสว่าง"}
           </motion.span>
-          <span className="text-[10.5px] truncate" style={{ color: token.colorTextTertiary }}>
+          <span
+            className="text-[10.5px] truncate"
+            style={{ color: token.colorTextTertiary }}
+          >
             {isDark ? "ปกป้องดวงตาของคุณ" : "มองเห็นได้ชัดเจน"}
           </span>
         </div>
@@ -190,7 +213,9 @@ function DarkModeToggle({ collapsed }: { collapsed: boolean }) {
         whileTap={{ scale: 0.93 }}
         className="relative flex-shrink-0 w-12 h-6 rounded-full cursor-pointer border-0 outline-none"
         animate={{
-          backgroundColor: isDark ? token.colorPrimary : token.colorFillTertiary,
+          backgroundColor: isDark
+            ? token.colorPrimary
+            : token.colorFillTertiary,
           boxShadow: isDark
             ? `0 0 10px ${token.colorPrimary}50, inset 0 1px 2px rgba(0,0,0,0.15)`
             : `inset 0 1px 3px rgba(0,0,0,0.12)`,
@@ -216,9 +241,18 @@ function DarkModeToggle({ collapsed }: { collapsed: boolean }) {
 function StatusBadge({ type }: { type: "new" | "revamp" | "maintenance" }) {
   const { t } = useTranslation("menu");
   const map = {
-    new: { className: "bg-orange-500/15 text-orange-500 ring-1 ring-orange-500/20", label: t("status.new") },
-    revamp: { className: "bg-blue-500/15 text-blue-500 ring-1 ring-blue-500/20", label: t("status.revamp") },
-    maintenance: { className: "bg-red-500/15 text-red-500 ring-1 ring-red-500/20", label: t("status.maintenance") },
+    new: {
+      className: "bg-orange-500/15 text-orange-500 ring-1 ring-orange-500/20",
+      label: t("status.new"),
+    },
+    revamp: {
+      className: "bg-blue-500/15 text-blue-500 ring-1 ring-blue-500/20",
+      label: t("status.revamp"),
+    },
+    maintenance: {
+      className: "bg-red-500/15 text-red-500 ring-1 ring-red-500/20",
+      label: t("status.maintenance"),
+    },
   };
   const { className, label } = map[type];
   return (
@@ -256,7 +290,11 @@ function LeafItem({
       variants={itemVariants}
       initial="hidden"
       animate="visible"
-      whileHover={!shouldReduceMotion ? { x: 4, transition: { duration: 0.18, ease: EASE_OUT } } : {}}
+      whileHover={
+        !shouldReduceMotion
+          ? { x: 4, transition: { duration: 0.18, ease: EASE_OUT } }
+          : {}
+      }
       whileTap={!shouldReduceMotion ? { scale: 0.975 } : {}}
       onClick={() => item.href && onNavigate(item.href)}
       className="relative w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left cursor-pointer border-0 outline-none group overflow-hidden"
@@ -288,7 +326,10 @@ function LeafItem({
       {/* Hover background shimmer */}
       <motion.span
         className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none"
-        style={{ background: `${token.colorPrimary}08`, transition: "opacity 0.2s" }}
+        style={{
+          background: `${token.colorPrimary}08`,
+          transition: "opacity 0.2s",
+        }}
       />
 
       {/* Icon or dot */}
@@ -307,7 +348,9 @@ function LeafItem({
         <motion.span
           animate={{
             scale: isActive ? 1.5 : 1,
-            backgroundColor: isActive ? token.colorPrimary : token.colorTextQuaternary,
+            backgroundColor: isActive
+              ? token.colorPrimary
+              : token.colorTextQuaternary,
             boxShadow: isActive ? `0 0 6px ${token.colorPrimary}80` : "none",
           }}
           transition={{ duration: 0.22 }}
@@ -317,7 +360,9 @@ function LeafItem({
 
       {/* Label */}
       <span
-        className={`relative flex-1 text-[12.5px] leading-snug truncate text-left z-10 ${isActive ? "font-semibold" : "font-normal"}`}
+        className={`relative flex-1 text-[12.5px] leading-snug truncate text-left z-10 ${
+          isActive ? "font-semibold" : "font-normal"
+        }`}
       >
         {item.label}
       </span>
@@ -365,21 +410,28 @@ function GroupItem({
         whileTap={{ scale: 0.98 }}
         className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left cursor-pointer border-0 outline-none"
         style={{
-          background: isActive && !open ? `${token.colorPrimary}08` : "transparent",
+          background:
+            isActive && !open ? `${token.colorPrimary}08` : "transparent",
           color: isActive ? token.colorPrimary : token.colorTextSecondary,
           transition: "background 0.2s, color 0.2s",
         }}
       >
         {item.icon && (
           <motion.span
-            animate={{ color: isActive ? token.colorPrimary : token.colorTextQuaternary }}
+            animate={{
+              color: isActive ? token.colorPrimary : token.colorTextQuaternary,
+            }}
             transition={{ duration: 0.2 }}
             className="text-sm flex-shrink-0 flex items-center justify-center w-5 h-5"
           >
             {item.icon}
           </motion.span>
         )}
-        <span className={`flex-1 text-[12.5px] leading-snug truncate text-left ${isActive ? "font-semibold" : "font-medium"}`}>
+        <span
+          className={`flex-1 text-[12.5px] leading-snug truncate text-left ${
+            isActive ? "font-semibold" : "font-medium"
+          }`}
+        >
           {item.label}
         </span>
         <motion.span
@@ -481,7 +533,9 @@ function SectionItem({
         }}
         transition={{ duration: 0.25 }}
         style={{
-          border: isActive ? `1px solid ${token.colorPrimary}20` : "1px solid transparent",
+          border: isActive
+            ? `1px solid ${token.colorPrimary}20`
+            : "1px solid transparent",
         }}
       >
         {/* Section Icon */}
@@ -502,7 +556,9 @@ function SectionItem({
         </motion.span>
 
         <span
-          className={`flex-1 text-[13px] leading-snug truncate text-left tracking-wide ${isActive ? "font-bold" : "font-semibold"}`}
+          className={`flex-1 text-[13px] leading-snug truncate text-left tracking-wide ${
+            isActive ? "font-bold" : "font-semibold"
+          }`}
           style={{ color: isActive ? token.colorPrimary : token.colorText }}
         >
           {item.label}
@@ -573,71 +629,159 @@ function CollapsedRail({
 }) {
   const { token } = theme.useToken();
 
+  const renderPopoverContent = (item: CustomMenuItemType) => {
+    return (
+      <div className="sidebar-popover-content">
+        <div
+          className="sidebar-popover-title"
+          style={{ color: token.colorPrimary }}
+        >
+          {item.label}
+        </div>
+        <div className="sidebar-popover-children flex flex-col gap-1">
+          {item.children?.map((child) => (
+            <Link
+              key={child.href ?? child.label}
+              href={child.href ?? "#"}
+              onClick={(e) => {
+                if (!child.href) e.preventDefault();
+                else onNavigate(child.href);
+              }}
+              className={`sidebar-popover-child px-3 py-2 rounded-lg text-sm transition-all flex items-center gap-2 group ${
+                currentPathname === child.href
+                  ? "bg-primary/10 font-bold"
+                  : "hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95"
+              }`}
+              style={{
+                color:
+                  currentPathname === child.href
+                    ? token.colorPrimary
+                    : token.colorText,
+              }}
+            >
+              {child.icon && (
+                <span
+                  className="text-base"
+                  style={{
+                    color:
+                      currentPathname === child.href
+                        ? token.colorPrimary
+                        : token.colorTextTertiary,
+                  }}
+                >
+                  {child.icon}
+                </span>
+              )}
+              <span className="flex-1">{child.label}</span>
+              {(child.news || child.revamp || child.maintenance) && (
+                <div className="flex gap-1 transform scale-75 origin-right">
+                  {child.news && <StatusBadge type="new" />}
+                  {child.revamp && <StatusBadge type="revamp" />}
+                  {child.maintenance && <StatusBadge type="maintenance" />}
+                </div>
+              )}
+            </Link>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col gap-1.5 px-1">
       {items.map((item, i) => {
         const isActive = isDescendantActive(item, currentPathname);
+        const hasChildren = item.children && item.children.length > 0;
         const href = item.href;
 
-        return (
-          <Tooltip key={item.href ?? item.label} title={item.label} placement="right">
-            <motion.button
-              type="button"
-              custom={i}
-              variants={collapsedIconVariants}
-              initial="hidden"
-              animate="visible"
-              whileHover={{ scale: 1.14, x: 3, transition: { duration: 0.16, ease: EASE_OUT } }}
-              whileTap={{ scale: 0.88 }}
-              onClick={() => (href ? onNavigate(href) : undefined)}
-              className="relative flex items-center justify-center w-10 h-10 rounded-xl mx-auto cursor-pointer border-0 outline-none flex-shrink-0 overflow-hidden"
-              style={{ fontSize: 17 }}
+        const button = (
+          <motion.button
+            type="button"
+            custom={i}
+            variants={collapsedIconVariants}
+            initial="hidden"
+            animate="visible"
+            whileHover={{
+              scale: 1.14,
+              x: 3,
+              transition: { duration: 0.16, ease: EASE_OUT },
+            }}
+            whileTap={{ scale: 0.88 }}
+            onClick={() => (href ? onNavigate(href) : undefined)}
+            className="relative flex items-center justify-center w-10 h-10 rounded-xl mx-auto cursor-pointer border-0 outline-none flex-shrink-0 overflow-hidden"
+            style={{ fontSize: 17 }}
+          >
+            {/* Background */}
+            <motion.span
+              className="absolute inset-0 rounded-xl"
+              animate={{
+                background: isActive
+                  ? `${token.colorPrimary}15`
+                  : "rgba(0,0,0,0)",
+                border: isActive
+                  ? `1px solid ${token.colorPrimary}35`
+                  : "1px solid transparent",
+                boxShadow: isActive
+                  ? `0 0 14px ${token.colorPrimary}30, inset 0 1px 0 rgba(255,255,255,0.08)`
+                  : "none",
+              }}
+              transition={{ duration: 0.25 }}
+            />
+
+            {/* Icon */}
+            <motion.span
+              animate={{
+                color: isActive ? token.colorPrimary : token.colorTextTertiary,
+                scale: isActive ? 1.1 : 1,
+              }}
+              transition={{ duration: 0.22 }}
+              className="relative z-10 flex items-center justify-center"
             >
-              {/* Background */}
-              <motion.span
-                className="absolute inset-0 rounded-xl"
-                animate={{
-                  background: isActive ? `${token.colorPrimary}15` : "rgba(0,0,0,0)",
-                  border: isActive
-                    ? `1px solid ${token.colorPrimary}35`
-                    : "1px solid transparent",
-                  boxShadow: isActive
-                    ? `0 0 14px ${token.colorPrimary}30, inset 0 1px 0 rgba(255,255,255,0.08)`
-                    : "none",
-                }}
-                transition={{ duration: 0.25 }}
-              />
+              {item.icon}
+            </motion.span>
 
-              {/* Icon */}
-              <motion.span
-                animate={{
-                  color: isActive ? token.colorPrimary : token.colorTextTertiary,
-                  scale: isActive ? 1.1 : 1,
-                }}
-                transition={{ duration: 0.22 }}
-                className="relative z-10 flex items-center justify-center"
-              >
-                {item.icon}
-              </motion.span>
+            {/* Active dot */}
+            <AnimatePresence>
+              {isActive && (
+                <motion.span
+                  key="dot"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={{ duration: 0.2, ...EASE_SPRING }}
+                  className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full z-10"
+                  style={{
+                    background: token.colorPrimary,
+                    boxShadow: `0 0 6px ${token.colorPrimary}`,
+                  }}
+                />
+              )}
+            </AnimatePresence>
+          </motion.button>
+        );
 
-              {/* Active dot */}
-              <AnimatePresence>
-                {isActive && (
-                  <motion.span
-                    key="dot"
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0, opacity: 0 }}
-                    transition={{ duration: 0.2, ...EASE_SPRING }}
-                    className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full z-10"
-                    style={{
-                      background: token.colorPrimary,
-                      boxShadow: `0 0 6px ${token.colorPrimary}`,
-                    }}
-                  />
-                )}
-              </AnimatePresence>
-            </motion.button>
+        if (hasChildren) {
+          return (
+            <Popover
+              key={item.href ?? item.label}
+              content={renderPopoverContent(item)}
+              placement="rightTop"
+              overlayClassName="sidebar-collapsed-menu-popover"
+              trigger="hover"
+              mouseEnterDelay={0.1}
+            >
+              {button}
+            </Popover>
+          );
+        }
+
+        return (
+          <Tooltip
+            key={item.href ?? item.label}
+            title={item.label}
+            placement="right"
+          >
+            {button}
           </Tooltip>
         );
       })}
@@ -668,8 +812,18 @@ function LogoArea({
             type="button"
             onClick={onLogoClick}
             initial={{ opacity: 0, x: -16, filter: "blur(4px)" }}
-            animate={{ opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.28, ease: EASE_OUT } }}
-            exit={{ opacity: 0, x: -12, filter: "blur(4px)", transition: { duration: 0.18 } }}
+            animate={{
+              opacity: 1,
+              x: 0,
+              filter: "blur(0px)",
+              transition: { duration: 0.28, ease: EASE_OUT },
+            }}
+            exit={{
+              opacity: 0,
+              x: -12,
+              filter: "blur(4px)",
+              transition: { duration: 0.18 },
+            }}
             className="flex items-center gap-3 cursor-pointer border-0 bg-transparent outline-none p-0 flex-1 min-w-0"
           >
             {/* Logo image with ring */}
@@ -749,12 +903,12 @@ function LogoArea({
 // --- Main Sidebar ---
 export default function SidebarContent({
   collapsed = false,
-  onToggle,
-  onMobileClose,
+  onToggleAction,
+  onMobileCloseAction,
 }: {
   collapsed?: boolean;
-  onToggle?: () => void;
-  onMobileClose?: () => void;
+  onToggleAction?: () => void;
+  onMobileCloseAction?: () => void;
 }) {
   const sidebarMenu = useSidebarMenu() as CustomMenuItemType[];
   const currentPathname = usePathname();
@@ -769,9 +923,9 @@ export default function SidebarContent({
       } else {
         router.push(href);
       }
-      onMobileClose?.();
+      onMobileCloseAction?.();
     },
-    [router, onMobileClose],
+    [router, onMobileCloseAction],
   );
 
   return (
@@ -792,7 +946,7 @@ export default function SidebarContent({
       <LogoArea
         collapsed={collapsed}
         onLogoClick={() => router.push("/main")}
-        onToggle={onToggle}
+        onToggle={onToggleAction}
         showToggle={!!screens.lg}
       />
 
@@ -818,7 +972,11 @@ export default function SidebarContent({
             <motion.div
               key="collapsed"
               initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1, transition: { duration: 0.22, delay: 0.06 } }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                transition: { duration: 0.22, delay: 0.06 },
+              }}
               exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
             >
               <CollapsedRail
@@ -831,7 +989,10 @@ export default function SidebarContent({
             <motion.div
               key="expanded"
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1, transition: { duration: 0.22, delay: 0.06 } }}
+              animate={{
+                opacity: 1,
+                transition: { duration: 0.22, delay: 0.06 },
+              }}
               exit={{ opacity: 0, transition: { duration: 0.15 } }}
               className="flex flex-col gap-0.5 w-full"
             >
@@ -856,7 +1017,9 @@ export default function SidebarContent({
       >
         <DarkModeToggle collapsed={collapsed} />
         <motion.div
-          className={`mt-3 flex ${collapsed ? "justify-center" : "justify-start"}`}
+          className={`mt-3 flex ${
+            collapsed ? "justify-center" : "justify-start"
+          }`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.4 }}

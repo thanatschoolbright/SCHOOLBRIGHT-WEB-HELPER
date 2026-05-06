@@ -4,7 +4,13 @@ import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import "@ant-design/v5-patch-for-react-19";
 import { Button, Drawer, Flex, Grid, Layout, theme } from "antd";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import BreadcrumbComponent from "@components/breadcrump/breadcrumb-component";
 import BackendFooter from "@components/layouts/backend/footer";
@@ -43,24 +49,30 @@ export default function BackendLayout({
   const scrollRef = useRef<number>(0);
 
   // Motion values สำหรับ floating navbar — spring ทำให้ลื่นไหลเหมือนก้อนเมฆ
-  const rawWidth     = useMotionValue(100);   // % ของ container
-  const rawY         = useMotionValue(0);
-  const rawRadius    = useMotionValue(0);
-  const rawBlur      = useMotionValue(12);
+  const rawWidth = useMotionValue(100); // % ของ container
+  const rawY = useMotionValue(0);
+  const rawRadius = useMotionValue(0);
+  const rawBlur = useMotionValue(12);
   const rawShadowOpa = useMotionValue(0.03);
 
   const springCfg = { stiffness: 180, damping: 28, mass: 1 };
-  const width     = useSpring(rawWidth,     springCfg);
-  const y         = useSpring(rawY,         springCfg);
-  const radius    = useSpring(rawRadius,    springCfg);
-  const blur      = useSpring(rawBlur,      springCfg);
+  const width = useSpring(rawWidth, springCfg);
+  const y = useSpring(rawY, springCfg);
+  const radius = useSpring(rawRadius, springCfg);
+  const blur = useSpring(rawBlur, springCfg);
   const shadowOpa = useSpring(rawShadowOpa, springCfg);
 
   // แปลง blur motion value เป็น css string
-  const backdropFilter = useTransform(blur, (v) => `blur(${v}px) saturate(180%)`);
+  const backdropFilter = useTransform(
+    blur,
+    (v) => `blur(${v}px) saturate(180%)`,
+  );
   const boxShadow = useTransform(
     shadowOpa,
-    (v) => `0 8px 40px -8px rgba(0,0,0,${v}), 0 2px 12px -4px rgba(0,0,0,${v * 0.5})`,
+    (v) =>
+      `0 8px 40px -8px rgba(0,0,0,${v}), 0 2px 12px -4px rgba(0,0,0,${
+        v * 0.5
+      })`,
   );
 
   // Initialize sidebar state from localStorage
@@ -228,7 +240,7 @@ export default function BackendLayout({
         >
           <MemoSidebarContent
             collapsed={collapsed}
-            onToggle={handleToggleSidebar}
+            onToggleAction={handleToggleSidebar}
           />
         </Sider>
       )}
@@ -249,7 +261,7 @@ export default function BackendLayout({
         >
           <MemoSidebarContent
             collapsed={false}
-            onMobileClose={closeMobileDrawer}
+            onMobileCloseAction={closeMobileDrawer}
           />
         </Drawer>
       )}
@@ -298,7 +310,12 @@ export default function BackendLayout({
               y: isFloating ? 12 : 0,
               borderRadius: isFloating ? 9999 : 0,
             }}
-            transition={{ type: "spring", stiffness: 180, damping: 28, mass: 1 }}
+            transition={{
+              type: "spring",
+              stiffness: 180,
+              damping: 28,
+              mass: 1,
+            }}
             className={[
               "relative flex items-center overflow-hidden",
               isFloating
@@ -310,7 +327,8 @@ export default function BackendLayout({
             <motion.div
               className="pointer-events-none absolute inset-x-0 top-0 h-px"
               style={{
-                background: "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%)",
+                background:
+                  "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%)",
               }}
               animate={{ opacity: isFloating ? 1 : 0 }}
               transition={{ duration: 0.4 }}
@@ -320,17 +338,28 @@ export default function BackendLayout({
             <motion.div
               className="pointer-events-none absolute inset-0"
               style={{
-                background: "radial-gradient(ellipse at 50% -20%, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 70%)",
+                background:
+                  "radial-gradient(ellipse at 50% -20%, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 70%)",
               }}
               animate={{ opacity: isFloating ? 1 : 0 }}
               transition={{ duration: 0.5 }}
             />
 
-            <Flex align="center" gap="middle" style={{ width: "100%", position: "relative" }}>
+            <Flex
+              align="center"
+              gap="middle"
+              style={{ width: "100%", position: "relative" }}
+            >
               {!isDesktop && (
                 <Button
                   type="text"
-                  icon={mobileDrawerOpen ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
+                  icon={
+                    mobileDrawerOpen ? (
+                      <MenuFoldOutlined />
+                    ) : (
+                      <MenuUnfoldOutlined />
+                    )
+                  }
                   onClick={toggleMobileDrawer}
                   style={{
                     fontSize: 20,
