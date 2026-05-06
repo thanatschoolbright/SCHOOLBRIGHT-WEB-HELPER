@@ -493,6 +493,7 @@ export default function OnlineDeviceDashboard() {
                                 {g.group_id === activeGroupId ? (
                                   <CheckOutlined
                                     style={{ color: "#06C755", fontSize: 12 }}
+                                    
                                   />
                                 ) : (
                                   <div style={{ width: 12 }} />

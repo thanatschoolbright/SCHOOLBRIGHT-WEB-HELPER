@@ -181,7 +181,11 @@ const DeviceGroupBlock = ({
   schoolId: number;
   appName: string;
   devices: DeviceDetail[];
-  onToggleNotify: (schoolId: number, deviceId: string, enabled: boolean) => void;
+  onToggleNotify: (
+    schoolId: number,
+    deviceId: string,
+    enabled: boolean,
+  ) => void;
   togglingDeviceId: string | null;
 }) => {
   const onlineCount = devices.filter((d) => d.is_online).length;
@@ -203,11 +207,17 @@ const DeviceGroupBlock = ({
           {appName}
         </Text>
         <Flex gap={4} style={{ marginLeft: "auto" }}>
-          <Tag color="success" style={{ margin: 0, fontSize: 11, borderRadius: 6 }}>
+          <Tag
+            color="success"
+            style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
+          >
             ออนไลน์ {onlineCount}
           </Tag>
           {offlineCount > 0 && (
-            <Tag color="error" style={{ margin: 0, fontSize: 11, borderRadius: 6 }}>
+            <Tag
+              color="error"
+              style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
+            >
               ออฟไลน์ {offlineCount}
             </Tag>
           )}
@@ -280,7 +290,9 @@ const DeviceGroupBlock = ({
                     {device.notify_enabled ? (
                       <BellFilled style={{ fontSize: 12, color: "#16a34a" }} />
                     ) : (
-                      <BellOutlined style={{ fontSize: 12, color: "rgba(128,128,128,0.5)" }} />
+                      <BellOutlined
+                        style={{ fontSize: 12, color: "rgba(128,128,128,0.5)" }}
+                      />
                     )}
                     <Switch
                       size="small"
@@ -314,7 +326,11 @@ const DeviceGroupBlock = ({
                         .tz(device.online_time)
                         .format("DD/MM/YYYY HH:mm:ss")}
                     >
-                      <Flex align="center" gap={3} style={{ cursor: "default" }}>
+                      <Flex
+                        align="center"
+                        gap={3}
+                        style={{ cursor: "default" }}
+                      >
                         <ClockCircleOutlined
                           style={{
                             fontSize: 10,
@@ -352,40 +368,43 @@ export const SchoolDeviceTab = () => {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedSchool, setSelectedSchool] = useState<SchoolDeviceSummaryItem | null>(null);
+  const [selectedSchool, setSelectedSchool] =
+    useState<SchoolDeviceSummaryItem | null>(null);
   const [togglingDeviceId, setTogglingDeviceId] = useState<string | null>(null);
 
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [sortBy, setSortBy] = useState<SortField>("offline");
+  const [sortBy, setSortBy] = useState<SortField>("online");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
 
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const fetchData = useCallback(
-    async (params: FetchParams) => {
-      setLoading(true);
-      try {
-        const query = new URLSearchParams({
-          search: params.search,
-          status_filter: params.status_filter,
-          sort_by: params.sort_by,
-          sort_order: params.sort_order,
-        });
-        const res = await callApiService.get(
-          `/api/v2/hardware/school-device-summary?${query.toString()}`,
-        );
-        setData(res.data?.data?.items ?? []);
-        setTotal(res.data?.data?.total ?? 0);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [],
-  );
+  const fetchData = useCallback(async (params: FetchParams) => {
+    setLoading(true);
+    try {
+      const query = new URLSearchParams({
+        search: params.search,
+        status_filter: params.status_filter,
+        sort_by: params.sort_by,
+        sort_order: params.sort_order,
+      });
+      const res = await callApiService.get(
+        `/api/v2/hardware/school-device-summary?${query.toString()}`,
+      );
+      setData(res.data?.data?.items ?? []);
+      setTotal(res.data?.data?.total ?? 0);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    void fetchData({ search: searchText, status_filter: statusFilter, sort_by: sortBy, sort_order: sortOrder });
+    void fetchData({
+      search: searchText,
+      status_filter: statusFilter,
+      sort_by: sortBy,
+      sort_order: sortOrder,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter, sortBy, sortOrder]);
 
@@ -394,23 +413,35 @@ export const SchoolDeviceTab = () => {
     setSearchText(value);
     if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
     searchTimerRef.current = setTimeout(() => {
-      void fetchData({ search: value, status_filter: statusFilter, sort_by: sortBy, sort_order: sortOrder });
+      void fetchData({
+        search: value,
+        status_filter: statusFilter,
+        sort_by: sortBy,
+        sort_order: sortOrder,
+      });
     }, 400);
   };
 
   const handleClearFilter = () => {
     setSearchText("");
     setStatusFilter("all");
-    setSortBy("offline");
+    setSortBy("online");
     setSortOrder("desc");
-    void fetchData({ search: "", status_filter: "all", sort_by: "offline", sort_order: "desc" });
+    void fetchData({
+      search: "",
+      status_filter: "all",
+      sort_by: "online",
+      sort_order: "desc",
+    });
   };
 
   // จัดการ sort จาก Table column header
   const handleTableChange = (
     _: unknown,
     __: unknown,
-    sorter: SorterResult<SchoolDeviceSummaryItem> | SorterResult<SchoolDeviceSummaryItem>[],
+    sorter:
+      | SorterResult<SchoolDeviceSummaryItem>
+      | SorterResult<SchoolDeviceSummaryItem>[],
   ) => {
     const s = Array.isArray(sorter) ? sorter[0] : sorter;
     if (!s || !s.columnKey || !s.order) return;
@@ -456,7 +487,9 @@ export const SchoolDeviceTab = () => {
           ? {
               ...prev,
               devices: prev.devices.map((d) =>
-                d.device_id === deviceId ? { ...d, notify_enabled: enabled } : d,
+                d.device_id === deviceId
+                  ? { ...d, notify_enabled: enabled }
+                  : d,
               ),
             }
           : prev,
@@ -480,7 +513,9 @@ export const SchoolDeviceTab = () => {
             return {
               ...school,
               devices: school.devices.map((d) =>
-                d.device_id === deviceId ? { ...d, notify_enabled: !enabled } : d,
+                d.device_id === deviceId
+                  ? { ...d, notify_enabled: !enabled }
+                  : d,
               ),
             };
           });
@@ -490,7 +525,9 @@ export const SchoolDeviceTab = () => {
             ? {
                 ...prev,
                 devices: prev.devices.map((d) =>
-                  d.device_id === deviceId ? { ...d, notify_enabled: !enabled } : d,
+                  d.device_id === deviceId
+                    ? { ...d, notify_enabled: !enabled }
+                    : d,
                 ),
               }
             : prev,
@@ -566,7 +603,10 @@ export const SchoolDeviceTab = () => {
       render: (val: number, record: SchoolDeviceSummaryItem) => (
         <Flex align="center" justify="center" gap={6}>
           <WifiOutlined style={{ color: "#16a34a", fontSize: 13 }} />
-          <Tag color="success" style={{ margin: 0, fontWeight: 600, borderRadius: 8 }}>
+          <Tag
+            color="success"
+            style={{ margin: 0, fontWeight: 600, borderRadius: 8 }}
+          >
             {val} เครื่อง
           </Tag>
           {record.total > 0 && (
@@ -637,13 +677,20 @@ export const SchoolDeviceTab = () => {
   ];
 
   const hasActiveFilter =
-    searchText !== "" || statusFilter !== "all" || sortBy !== "offline" || sortOrder !== "desc";
+    searchText !== "" ||
+    statusFilter !== "all" ||
+    sortBy !== "online" ||
+    sortOrder !== "desc";
 
   return (
     <>
       <Card styles={{ body: { padding: 16 } }} style={{ borderRadius: 16 }}>
         {/* หัว Card */}
-        <Flex align="center" justify="space-between" style={{ marginBottom: 16 }}>
+        <Flex
+          align="center"
+          justify="space-between"
+          style={{ marginBottom: 16 }}
+        >
           <Flex align="center" gap={10}>
             <UnorderedListOutlined style={{ fontSize: "1rem" }} />
             <Text strong style={{ fontSize: 14 }}>
@@ -655,7 +702,12 @@ export const SchoolDeviceTab = () => {
             icon={<ReloadOutlined />}
             loading={loading}
             onClick={() =>
-              fetchData({ search: searchText, status_filter: statusFilter, sort_by: sortBy, sort_order: sortOrder })
+              fetchData({
+                search: searchText,
+                status_filter: statusFilter,
+                sort_by: sortBy,
+                sort_order: sortOrder,
+              })
             }
             style={{ borderRadius: 10 }}
           >
@@ -666,7 +718,10 @@ export const SchoolDeviceTab = () => {
         {/* Summary Cards */}
         <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
           <Col xs={12} sm={6}>
-            <Card size="small" style={{ borderRadius: 10, textAlign: "center" }}>
+            <Card
+              size="small"
+              style={{ borderRadius: 10, textAlign: "center" }}
+            >
               <Text type="secondary" style={{ fontSize: 11 }}>
                 โรงเรียนทั้งหมด
               </Text>
@@ -681,7 +736,10 @@ export const SchoolDeviceTab = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6}>
-            <Card size="small" style={{ borderRadius: 10, textAlign: "center" }}>
+            <Card
+              size="small"
+              style={{ borderRadius: 10, textAlign: "center" }}
+            >
               <Text type="secondary" style={{ fontSize: 11 }}>
                 มีอุปกรณ์ออฟไลน์
               </Text>
@@ -696,7 +754,10 @@ export const SchoolDeviceTab = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6}>
-            <Card size="small" style={{ borderRadius: 10, textAlign: "center" }}>
+            <Card
+              size="small"
+              style={{ borderRadius: 10, textAlign: "center" }}
+            >
               <Text type="secondary" style={{ fontSize: 11 }}>
                 ออนไลน์ทั้งหมด
               </Text>
@@ -711,7 +772,10 @@ export const SchoolDeviceTab = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6}>
-            <Card size="small" style={{ borderRadius: 10, textAlign: "center" }}>
+            <Card
+              size="small"
+              style={{ borderRadius: 10, textAlign: "center" }}
+            >
               <Text type="secondary" style={{ fontSize: 11 }}>
                 ออฟไลน์ทั้งหมด
               </Text>
@@ -730,7 +794,11 @@ export const SchoolDeviceTab = () => {
         {/* Filter Section */}
         <Card
           size="small"
-          style={{ borderRadius: 12, marginBottom: 16, border: "1px solid rgba(128,128,128,0.15)" }}
+          style={{
+            borderRadius: 12,
+            marginBottom: 16,
+            border: "1px solid rgba(128,128,128,0.15)",
+          }}
           styles={{ body: { padding: "12px 16px" } }}
         >
           <Flex align="center" gap={8} style={{ marginBottom: 12 }}>
@@ -741,11 +809,16 @@ export const SchoolDeviceTab = () => {
           </Flex>
           <Row gutter={[12, 12]}>
             <Col xs={24} sm={12}>
-              <Text type="secondary" style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
+              <Text
+                type="secondary"
+                style={{ fontSize: 12, display: "block", marginBottom: 4 }}
+              >
                 ค้นหาโรงเรียน
               </Text>
               <Input
-                prefix={<SearchOutlined style={{ color: "rgba(128,128,128,0.5)" }} />}
+                prefix={
+                  <SearchOutlined style={{ color: "rgba(128,128,128,0.5)" }} />
+                }
                 placeholder="ชื่อโรงเรียน หรือ School ID"
                 value={searchText}
                 onChange={(e) => handleSearchChange(e.target.value)}
@@ -754,7 +827,10 @@ export const SchoolDeviceTab = () => {
               />
             </Col>
             <Col xs={24} sm={12}>
-              <Text type="secondary" style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
+              <Text
+                type="secondary"
+                style={{ fontSize: 12, display: "block", marginBottom: 4 }}
+              >
                 สถานะอุปกรณ์
               </Text>
               <Select
@@ -781,12 +857,16 @@ export const SchoolDeviceTab = () => {
         </Card>
 
         {/* Sort indicator */}
-        {(sortBy !== "offline" || sortOrder !== "desc") && (
+        {(sortBy !== "online" || sortOrder !== "desc") && (
           <Flex align="center" gap={6} style={{ marginBottom: 8 }}>
             {sortOrder === "asc" ? (
-              <SortAscendingOutlined style={{ fontSize: 13, color: "var(--ant-color-primary)" }} />
+              <SortAscendingOutlined
+                style={{ fontSize: 13, color: "var(--ant-color-primary)" }}
+              />
             ) : (
-              <SortDescendingOutlined style={{ fontSize: 13, color: "var(--ant-color-primary)" }} />
+              <SortDescendingOutlined
+                style={{ fontSize: 13, color: "var(--ant-color-primary)" }}
+              />
             )}
             <Text type="secondary" style={{ fontSize: 12 }}>
               เรียงตาม:{" "}
@@ -840,11 +920,17 @@ export const SchoolDeviceTab = () => {
               </Text>
             </Flex>
             <Space size={6}>
-              <Tag color="success" style={{ margin: 0, fontSize: 11, borderRadius: 6 }}>
+              <Tag
+                color="success"
+                style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
+              >
                 ออนไลน์ {selectedSchool?.online} เครื่อง
               </Tag>
               {(selectedSchool?.offline ?? 0) > 0 && (
-                <Tag color="error" style={{ margin: 0, fontSize: 11, borderRadius: 6 }}>
+                <Tag
+                  color="error"
+                  style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
+                >
                   ออฟไลน์ {selectedSchool?.offline} เครื่อง
                 </Tag>
               )}
@@ -854,7 +940,12 @@ export const SchoolDeviceTab = () => {
             </Space>
             {/* Phase 1 Tooltip */}
             <Flex align="center" gap={6} style={{ marginTop: 2 }}>
-              <BellOutlined style={{ fontSize: 11, color: "var(--ant-color-text-tertiary)" }} />
+              <BellOutlined
+                style={{
+                  fontSize: 11,
+                  color: "var(--ant-color-text-tertiary)",
+                }}
+              />
               <Text type="secondary" style={{ fontSize: 11 }}>
                 การแจ้งเตือน LINE (Phase 1)
               </Text>
