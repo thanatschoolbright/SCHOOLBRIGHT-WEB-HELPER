@@ -478,29 +478,37 @@ export default function OnlineDeviceDashboard() {
                             ),
                           },
                         ]
-                      : lineGroups.map((g) => ({
-                          key: `group-${g.group_id}`,
-                          label: (
-                            <Flex align="center" gap={8}>
-                              {g.group_id === activeGroupId ? (
-                                <CheckOutlined
-                                  style={{ color: "#06C755", fontSize: 12 }}
-                                />
-                              ) : (
-                                <div style={{ width: 12 }} />
-                              )}
-                              <span style={{ fontSize: 13 }}>
-                                {g.group_name || g.group_id}
-                              </span>
-                              {g.group_id === activeGroupId && (
-                                <Tag color="green" style={{ fontSize: 10 }}>
-                                  ใช้งานอยู่
-                                </Tag>
-                              )}
-                            </Flex>
-                          ),
-                          onClick: () => handleSelectLineGroup(g.group_id),
-                        }))),
+                      : lineGroups
+                          .filter(
+                            (g, index, self) =>
+                              g.group_id &&
+                              self.findIndex(
+                                (t) => t.group_id === g.group_id,
+                              ) === index,
+                          )
+                          .map((g) => ({
+                            key: `group-${g.group_id}`,
+                            label: (
+                              <Flex align="center" gap={8}>
+                                {g.group_id === activeGroupId ? (
+                                  <CheckOutlined
+                                    style={{ color: "#06C755", fontSize: 12 }}
+                                  />
+                                ) : (
+                                  <div style={{ width: 12 }} />
+                                )}
+                                <span style={{ fontSize: 13 }}>
+                                  {g.group_name || g.group_id}
+                                </span>
+                                {g.group_id === activeGroupId && (
+                                  <Tag color="green" style={{ fontSize: 10 }}>
+                                    ใช้งานอยู่
+                                  </Tag>
+                                )}
+                              </Flex>
+                            ),
+                            onClick: () => handleSelectLineGroup(g.group_id),
+                          }))),
                   ],
                 }}
               >
