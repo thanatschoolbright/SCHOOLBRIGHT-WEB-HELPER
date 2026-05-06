@@ -6,11 +6,14 @@ import {
   BellOutlined,
   CameraOutlined,
   CheckCircleFilled,
+  CheckOutlined,
   ClockCircleOutlined,
   CloseCircleFilled,
+  CloseOutlined,
   CreditCardOutlined,
   DatabaseOutlined,
   DesktopOutlined,
+  EditOutlined,
   EyeOutlined,
   FilterOutlined,
   LaptopOutlined,
@@ -183,19 +186,43 @@ const DeviceGroupBlock = ({
   devices,
   onToggleNotify,
   togglingDeviceId,
+  onUpdateNote,
 }: {
   schoolId: number;
   appName: string;
   devices: DeviceDetail[];
-  onToggleNotify: (
-    schoolId: number,
-    deviceId: string,
-    enabled: boolean,
-  ) => void;
+  onToggleNotify: (schoolId: number, deviceId: string, enabled: boolean) => void;
   togglingDeviceId: string | null;
+  onUpdateNote: (schoolId: number, deviceId: string, note: string | null) => Promise<void>;
 }) => {
   const onlineCount = devices.filter((d) => d.is_online).length;
   const offlineCount = devices.length - onlineCount;
+
+  // state inline edit ต่อ device_id
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
+  const [savingId, setSavingId] = useState<string | null>(null);
+
+  const handleStartEdit = (device: DeviceDetail) => {
+    setEditingId(device.device_id);
+    setEditValue(device.note?.trim() ?? "");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditValue("");
+  };
+
+  const handleSaveNote = async (deviceId: string) => {
+    setSavingId(deviceId);
+    try {
+      await onUpdateNote(schoolId, deviceId, editValue.trim() || null);
+      setEditingId(null);
+      setEditValue("");
+    } finally {
+      setSavingId(null);
+    }
+  };
 
   return (
     <div style={{ marginBottom: 20 }}>
@@ -213,17 +240,11 @@ const DeviceGroupBlock = ({
           {appName}
         </Text>
         <Flex gap={4} style={{ marginLeft: "auto" }}>
-          <Tag
-            color="success"
-            style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
-          >
+          <Tag color="success" style={{ margin: 0, fontSize: 11, borderRadius: 6 }}>
             ออนไลน์ {onlineCount}
           </Tag>
           {offlineCount > 0 && (
-            <Tag
-              color="error"
-              style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
-            >
+            <Tag color="error" style={{ margin: 0, fontSize: 11, borderRadius: 6 }}>
               ออฟไลน์ {offlineCount}
             </Tag>
           )}
@@ -237,11 +258,13 @@ const DeviceGroupBlock = ({
             : null;
           const effectiveOnline = device.is_online;
           const isToggling = togglingDeviceId === device.device_id;
+          const isEditing = editingId === device.device_id;
+          const isSaving = savingId === device.device_id;
 
           return (
             <Flex
               key={`${appName}:${device.device_id}`}
-              align="center"
+              vertical
               style={{
                 padding: "10px 14px",
                 borderRadius: 10,
@@ -255,101 +278,167 @@ const DeviceGroupBlock = ({
                 }`,
               }}
             >
-              <Flex align="center" gap={10} flex={1}>
-                <Badge
-                  status={effectiveOnline ? "success" : "error"}
-                  style={{ marginTop: 1 }}
-                />
-                <Flex vertical gap={1}>
-                  <Text strong style={{ fontSize: 13, lineHeight: 1.3 }}>
-                    {device.note?.trim() || device.device_id}
-                  </Text>
-                  {device.note?.trim() && (
-                    <Text
-                      type="secondary"
-                      style={{ fontSize: 11, fontFamily: "monospace" }}
+              {/* แถวหลัก */}
+              <Flex align="center">
+                <Flex align="center" gap={10} flex={1} style={{ minWidth: 0 }}>
+                  <Badge
+                    status={effectiveOnline ? "success" : "error"}
+                    style={{ marginTop: 1, flexShrink: 0 }}
+                  />
+                  <Flex vertical gap={1} style={{ minWidth: 0 }}>
+                    <Flex align="center" gap={6}>
+                      <Text strong style={{ fontSize: 13, lineHeight: 1.3 }}>
+                        {device.note?.trim() || device.device_id}
+                      </Text>
+                      <Tooltip title="แก้ไขชื่อเล่นเครื่อง">
+                        <EditOutlined
+                          style={{
+                            fontSize: 12,
+                            color: "var(--ant-color-text-quaternary)",
+                            cursor: "pointer",
+                            flexShrink: 0,
+                          }}
+                          onClick={() => handleStartEdit(device)}
+                        />
+                      </Tooltip>
+                    </Flex>
+                    {device.note?.trim() && (
+                      <Text
+                        type="secondary"
+                        style={{ fontSize: 11, fontFamily: "monospace" }}
+                      >
+                        {device.device_id}
+                      </Text>
+                    )}
+                    {device.app_version && device.app_version !== "-" && (
+                      <Text type="secondary" style={{ fontSize: 10 }}>
+                        v{device.app_version}
+                      </Text>
+                    )}
+                    {!effectiveOnline && (
+                      <OfflineReasonBadge reason={device.offline_reason} />
+                    )}
+                  </Flex>
+                </Flex>
+
+                {/* Toggle notification */}
+                <Flex justify="center" style={{ width: 120, flexShrink: 0 }}>
+                  <Tooltip
+                    title={
+                      device.notify_enabled
+                        ? "ปิดการแจ้งเตือน LINE สำหรับเครื่องนี้"
+                        : "เปิดการแจ้งเตือน LINE สำหรับเครื่องนี้"
+                    }
+                  >
+                    <Flex align="center" gap={8}>
+                      {device.notify_enabled ? (
+                        <BellFilled style={{ fontSize: 14, color: "#16a34a" }} />
+                      ) : (
+                        <BellOutlined
+                          style={{ fontSize: 14, color: "rgba(128,128,128,0.5)" }}
+                        />
+                      )}
+                      <Switch
+                        checked={device.notify_enabled}
+                        loading={isToggling}
+                        onChange={(checked) =>
+                          onToggleNotify(schoolId, device.device_id, checked)
+                        }
+                      />
+                    </Flex>
+                  </Tooltip>
+                </Flex>
+
+                {/* สถานะและเวลา */}
+                <Flex vertical align="end" gap={3} style={{ width: 100, flexShrink: 0 }}>
+                  <Tag
+                    color={effectiveOnline ? "success" : "error"}
+                    style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
+                  >
+                    {effectiveOnline ? "ออนไลน์" : "ออฟไลน์"}
+                  </Tag>
+                  {device.is_login && (
+                    <Tag
+                      color="processing"
+                      style={{ margin: 0, fontSize: 10, borderRadius: 6 }}
                     >
-                      {device.device_id}
-                    </Text>
+                      กำลังใช้งาน
+                    </Tag>
                   )}
-                  {device.app_version && device.app_version !== "-" && (
-                    <Text type="secondary" style={{ fontSize: 10 }}>
-                      v{device.app_version}
-                    </Text>
-                  )}
-                  {!effectiveOnline && (
-                    <OfflineReasonBadge reason={device.offline_reason} />
+                  {lastSeen && (
+                    <Tooltip
+                      title={dayjs
+                        .tz(device.online_time)
+                        .format("DD/MM/YYYY HH:mm:ss")}
+                    >
+                      <Flex align="center" gap={3} style={{ cursor: "default" }}>
+                        <ClockCircleOutlined
+                          style={{
+                            fontSize: 10,
+                            color: "var(--ant-color-text-quaternary)",
+                          }}
+                        />
+                        <Text
+                          type="secondary"
+                          style={{ fontSize: 10, whiteSpace: "nowrap" }}
+                        >
+                          {lastSeen}
+                        </Text>
+                      </Flex>
+                    </Tooltip>
                   )}
                 </Flex>
               </Flex>
 
-              {/* คอลัมน์ปุ่มเปิด/ปิด (Toggle) พร้อมการกะระยะที่แน่นอนเพื่อให้ตรงกันทุกแถว */}
-              <Flex justify="center" style={{ width: 120 }}>
-                <Tooltip
-                  title={
-                    device.notify_enabled
-                      ? "ปิดการแจ้งเตือน LINE สำหรับเครื่องนี้"
-                      : "เปิดการแจ้งเตือน LINE สำหรับเครื่องนี้"
-                  }
+              {/* แถว inline edit ชื่อเล่น — แสดงเมื่อกดแก้ไขเท่านั้น */}
+              {isEditing && (
+                <Flex
+                  align="center"
+                  gap={8}
+                  style={{
+                    marginTop: 10,
+                    paddingTop: 10,
+                    borderTop: "1px solid rgba(128,128,128,0.12)",
+                  }}
                 >
-                  <Flex align="center" gap={8}>
-                    {device.notify_enabled ? (
-                      <BellFilled style={{ fontSize: 14, color: "#16a34a" }} />
-                    ) : (
-                      <BellOutlined
-                        style={{ fontSize: 14, color: "rgba(128,128,128,0.5)" }}
-                      />
-                    )}
-                    <Switch
-                      checked={device.notify_enabled}
-                      loading={isToggling}
-                      onChange={(checked) =>
-                        onToggleNotify(schoolId, device.device_id, checked)
-                      }
+                  <EditOutlined
+                    style={{
+                      fontSize: 13,
+                      color: "var(--ant-color-primary)",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <Input
+                    size="small"
+                    placeholder="เช่น เครื่องสแกนหน้า หน้าโรงเรียน เครื่องที่ 1"
+                    value={editValue}
+                    maxLength={200}
+                    autoFocus
+                    onChange={(e) => setEditValue(e.target.value)}
+                    onPressEnter={() => handleSaveNote(device.device_id)}
+                    style={{ borderRadius: 8, fontSize: 12 }}
+                  />
+                  <Tooltip title="บันทึก">
+                    <Button
+                      type="primary"
+                      size="small"
+                      icon={<CheckOutlined />}
+                      loading={isSaving}
+                      onClick={() => handleSaveNote(device.device_id)}
+                      style={{ borderRadius: 8, flexShrink: 0 }}
                     />
-                  </Flex>
-                </Tooltip>
-              </Flex>
-
-              {/* คอลัมน์สถานะและเวลาล่าสุด (Fixed width) */}
-              <Flex vertical align="end" gap={3} style={{ width: 100 }}>
-                <Tag
-                  color={effectiveOnline ? "success" : "error"}
-                  style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
-                >
-                  {effectiveOnline ? "ออนไลน์" : "ออฟไลน์"}
-                </Tag>
-                {device.is_login && (
-                  <Tag
-                    color="processing"
-                    style={{ margin: 0, fontSize: 10, borderRadius: 6 }}
-                  >
-                    กำลังใช้งาน
-                  </Tag>
-                )}
-                {lastSeen && (
-                  <Tooltip
-                    title={dayjs
-                      .tz(device.online_time)
-                      .format("DD/MM/YYYY HH:mm:ss")}
-                  >
-                    <Flex align="center" gap={3} style={{ cursor: "default" }}>
-                      <ClockCircleOutlined
-                        style={{
-                          fontSize: 10,
-                          color: "var(--ant-color-text-quaternary)",
-                        }}
-                      />
-                      <Text
-                        type="secondary"
-                        style={{ fontSize: 10, whiteSpace: "nowrap" }}
-                      >
-                        {lastSeen}
-                      </Text>
-                    </Flex>
                   </Tooltip>
-                )}
-              </Flex>
+                  <Tooltip title="ยกเลิก">
+                    <Button
+                      size="small"
+                      icon={<CloseOutlined />}
+                      disabled={isSaving}
+                      onClick={handleCancelEdit}
+                      style={{ borderRadius: 8, flexShrink: 0 }}
+                    />
+                  </Tooltip>
+                </Flex>
+              )}
             </Flex>
           );
         })}
@@ -920,6 +1009,44 @@ export const SchoolDeviceTab = () => {
     [],
   );
 
+  // อัพเดทชื่อเล่น (Note) ของอุปกรณ์ใน state และส่ง API
+  const handleUpdateNote = useCallback(
+    async (schoolId: number, deviceId: string, note: string | null) => {
+      await callApiService.patch("/api/v2/hardware/school-device/note", {
+        school_id: schoolId,
+        device_id: deviceId,
+        note,
+      });
+
+      const patch = (items: SchoolDeviceSummaryItem[]) =>
+        items.map((school) => {
+          if (school.school_id !== schoolId) return school;
+          return {
+            ...school,
+            devices: school.devices.map((d) =>
+              d.device_id === deviceId ? { ...d, note } : d,
+            ),
+          };
+        });
+
+      setData((prev) => patch(prev));
+      setSelectedSchool((prev) =>
+        prev?.school_id === schoolId
+          ? {
+              ...prev,
+              devices: prev.devices.map((d) =>
+                d.device_id === deviceId ? { ...d, note } : d,
+              ),
+            }
+          : prev,
+      );
+      toast.success(
+        note ? `บันทึกชื่อเล่น "${note}" สำเร็จ` : "ลบชื่อเล่นสำเร็จ",
+      );
+    },
+    [],
+  );
+
   // จัดกลุ่มเครื่องใน Drawer ตาม app_name
   const deviceGroups = selectedSchool
     ? Array.from(
@@ -1399,6 +1526,7 @@ export const SchoolDeviceTab = () => {
               devices={devices}
               onToggleNotify={handleToggleNotify}
               togglingDeviceId={togglingDeviceId}
+              onUpdateNote={handleUpdateNote}
             />
           ))
         )}
