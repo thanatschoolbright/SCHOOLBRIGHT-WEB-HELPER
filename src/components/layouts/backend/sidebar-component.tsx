@@ -630,58 +630,93 @@ function CollapsedRail({
   const { token } = theme.useToken();
 
   const renderPopoverContent = (item: CustomMenuItemType) => {
+    const renderMenuItem = (child: CustomMenuItemType, depth = 0) => {
+      const hasGrandChildren = child.children && child.children.length > 0;
+
+      return (
+        <div key={child.href ?? child.label} className="flex flex-col">
+          <Link
+            href={child.href ?? "#"}
+            onClick={(e) => {
+              if (!child.href) e.preventDefault();
+              else onNavigate(child.href);
+            }}
+            className={`sidebar-popover-child px-3 py-2 rounded-lg text-sm transition-all flex items-center gap-2 group ${
+              currentPathname === child.href
+                ? "bg-primary/10 font-bold"
+                : "hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95"
+            }`}
+            style={{
+              color:
+                currentPathname === child.href
+                  ? token.colorPrimary
+                  : token.colorText,
+              paddingLeft: depth > 0 ? `${depth * 12 + 12}px` : "12px",
+            }}
+          >
+            {child.icon ? (
+              <span
+                className="text-base flex-shrink-0"
+                style={{
+                  color:
+                    currentPathname === child.href
+                      ? token.colorPrimary
+                      : token.colorTextTertiary,
+                }}
+              >
+                {child.icon}
+              </span>
+            ) : depth > 0 ? (
+              <div
+                className={`w-1 h-1 rounded-full flex-shrink-0 ${currentPathname === child.href ? "bg-primary" : "bg-gray-400 opacity-40"}`}
+                style={{
+                  backgroundColor:
+                    currentPathname === child.href
+                      ? token.colorPrimary
+                      : undefined,
+                }}
+              />
+            ) : null}
+            <span className="flex-1 truncate">{child.label}</span>
+            {hasGrandChildren && (
+              <span className="text-[10px] opacity-30">▾</span>
+            )}
+            {(child.news || child.revamp || child.maintenance) && (
+              <div className="flex gap-1 transform scale-75 origin-right">
+                {child.news && <StatusBadge type="new" />}
+                {child.revamp && <StatusBadge type="revamp" />}
+                {child.maintenance && <StatusBadge type="maintenance" />}
+              </div>
+            )}
+          </Link>
+
+          {hasGrandChildren && (
+            <div
+              className="flex flex-col gap-0.5 mt-0.5 border-l ml-6"
+              style={{ borderColor: `${token.colorPrimary}20` }}
+            >
+              {child.children?.map((gc) => renderMenuItem(gc, depth + 1))}
+            </div>
+          )}
+        </div>
+      );
+    };
+
     return (
-      <div className="sidebar-popover-content">
+      <div className="sidebar-popover-content min-w-[220px] max-h-[70vh] overflow-y-auto pr-1">
         <div
-          className="sidebar-popover-title"
-          style={{ color: token.colorPrimary }}
+          className="sidebar-popover-title px-3 py-2 border-b mb-2 sticky top-0 bg-inherit z-10"
+          style={{
+            color: token.colorPrimary,
+            borderColor: `${token.colorBorderSecondary}50`,
+          }}
         >
-          {item.label}
+          <span className="text-sm font-bold opacity-80 uppercase tracking-wider">
+            {item.label}
+          </span>
         </div>
         <div className="sidebar-popover-children flex flex-col gap-1">
-          {item.children?.map((child) => (
-            <Link
-              key={child.href ?? child.label}
-              href={child.href ?? "#"}
-              onClick={(e) => {
-                if (!child.href) e.preventDefault();
-                else onNavigate(child.href);
-              }}
-              className={`sidebar-popover-child px-3 py-2 rounded-lg text-sm transition-all flex items-center gap-2 group ${
-                currentPathname === child.href
-                  ? "bg-primary/10 font-bold"
-                  : "hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95"
-              }`}
-              style={{
-                color:
-                  currentPathname === child.href
-                    ? token.colorPrimary
-                    : token.colorText,
-              }}
-            >
-              {child.icon && (
-                <span
-                  className="text-base"
-                  style={{
-                    color:
-                      currentPathname === child.href
-                        ? token.colorPrimary
-                        : token.colorTextTertiary,
-                  }}
-                >
-                  {child.icon}
-                </span>
-              )}
-              <span className="flex-1">{child.label}</span>
-              {(child.news || child.revamp || child.maintenance) && (
-                <div className="flex gap-1 transform scale-75 origin-right">
-                  {child.news && <StatusBadge type="new" />}
-                  {child.revamp && <StatusBadge type="revamp" />}
-                  {child.maintenance && <StatusBadge type="maintenance" />}
-                </div>
-              )}
-            </Link>
-          ))}
+          {item.children?.map((child) => renderMenuItem(child))}
         </div>
       </div>
     );
