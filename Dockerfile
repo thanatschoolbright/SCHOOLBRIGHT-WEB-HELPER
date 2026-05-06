@@ -42,6 +42,11 @@ RUN groupadd --system --gid 1001 nodejs && \
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# copy cronjob scripts และ node_modules จาก builder (full deps สำหรับรัน .ts โดยตรง)
+COPY --from=builder --chown=nextjs:nodejs /app/cronjobs ./cronjobs
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./tsconfig.json
 
 USER nextjs
 
