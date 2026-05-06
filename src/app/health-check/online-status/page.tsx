@@ -9,6 +9,7 @@ import {
   CheckCircleOutlined,
   CheckOutlined,
   ClockCircleOutlined,
+  ClusterOutlined,
   DesktopOutlined,
   FileExcelOutlined,
   FilterFilled,
@@ -19,8 +20,8 @@ import {
   SettingOutlined,
   SyncOutlined,
   ThunderboltFilled,
-  WifiOutlined,
   WarningOutlined,
+  WifiOutlined,
 } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { StatusModalComponent } from "@components/modal/status-modal-component";
@@ -38,7 +39,6 @@ import {
   Space,
   Tabs,
   Tag,
-  Tooltip,
   Typography,
   theme,
 } from "antd";
@@ -46,7 +46,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
 import relativeTime from "dayjs/plugin/relativeTime";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import DeviceTable from "./_components/device-table";
@@ -95,6 +95,7 @@ const DiscordIcon = () => (
  * หน้าตรวจสอบสถานะอุปกรณ์แบบเรียลไทม์ (Online Status Dashboard)
  */
 export default function OnlineDeviceDashboard() {
+  const router = useRouter();
   const { token } = theme.useToken();
   const { isFetching, deviceList, fetchData } = useOnlineStatusStore();
   const dispatch = useDispatch<AppDispatch>();
@@ -333,328 +334,243 @@ export default function OnlineDeviceDashboard() {
           subTitle="ติดตามสถานะการเชื่อมต่อและการใช้งานของเครื่อง POS แบบเรียลไทม์"
           extra={
             <Space size={12} wrap>
-              {/* ปุ่มส่งรายงาน LINE + Dropdown เลือกกลุ่มจาก DB */}
-              <Flex style={{ height: 44 }}>
-                <Tooltip
-                  title={
-                    activeGroupId
-                      ? `ส่งไปยัง: ${
-                          lineGroups.find((g) => g.group_id === activeGroupId)
-                            ?.group_name ?? activeGroupId
-                        }`
-                      : "กรุณาเลือกกลุ่ม LINE ก่อนส่ง"
-                  }
-                >
-                  <Button
-                    icon={<LineIcon />}
-                    onClick={handleNotifyLine}
-                    loading={isNotifyingLine}
-                    disabled={!activeGroupId}
-                    style={{
-                      height: 44,
-                      padding: "0 16px",
-                      borderRadius: "12px 0 0 12px",
-                      fontWeight: 600,
-                      fontSize: 14,
-                      backgroundColor: !activeGroupId
-                        ? token.colorFillTertiary
-                        : isNotifyingLine
-                        ? token.colorFillTertiary
-                        : "#06C755",
-                      color: !activeGroupId
-                        ? token.colorTextDisabled
-                        : "#FFFFFF",
-                      border: "none",
-                      borderRight: "1px solid rgba(255,255,255,0.25)",
-                      boxShadow: activeGroupId
-                        ? "0 4px 14px 0 rgba(6, 199, 85, 0.35)"
-                        : "none",
-                    }}
-                  >
-                    <span>ส่งรายงานไปยัง LINE</span>
-                    {offlineCount > 0 && activeGroupId && (
-                      <span
-                        style={{
-                          background: "rgba(255,255,255,0.25)",
-                          padding: "1px 7px",
-                          borderRadius: 6,
-                          fontSize: 11,
-                          marginLeft: 4,
-                          border: "1px solid rgba(255,255,255,0.4)",
-                        }}
-                      >
-                        <NotificationOutlined
-                          style={{ fontSize: 10, marginRight: 4 }}
-                        />
-                        {offlineCount} ออฟไลน์
-                      </span>
-                    )}
-                  </Button>
-                </Tooltip>
-                <Dropdown
-                  trigger={["click"]}
-                  menu={{
-                    items: [
-                      {
-                        key: "group-header",
-                        type: "group",
-                        label: (
-                          <Flex align="center" gap={6}>
-                            <SettingOutlined style={{ fontSize: 11 }} />
-                            <span style={{ fontSize: 11 }}>
-                              เลือกกลุ่ม LINE สำหรับส่งรายงาน
+              {/* Dropdown สำหรับ "การดำเนินการรายงาน" (Reporting Actions) */}
+              <Dropdown
+                trigger={["click"]}
+                menu={{
+                  items: [
+                    {
+                      key: "report-header",
+                      type: "group",
+                      label: (
+                        <Flex align="center" gap={6}>
+                          <NotificationOutlined style={{ fontSize: 11 }} />
+                          <span style={{ fontSize: 11 }}>ส่งรายงานสถานะ</span>
+                        </Flex>
+                      ),
+                    },
+                    {
+                      key: "line-report",
+                      label: (
+                        <Flex align="center" justify="space-between" gap={12}>
+                          <Flex align="center" gap={8}>
+                            <div
+                              style={{
+                                color: "#06C755",
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              <LineIcon />
+                            </div>
+                            <span style={{ fontWeight: 500 }}>
+                              ส่งรายงานไปยัง LINE
                             </span>
                           </Flex>
-                        ),
+                          {offlineCount > 0 && activeGroupId && (
+                            <Tag color="error" style={{ margin: 0 }}>
+                              {offlineCount} ออฟไลน์
+                            </Tag>
+                          )}
+                        </Flex>
+                      ),
+                      disabled: !activeGroupId || isNotifyingLine,
+                      onClick: (e) => {
+                        (e as any).domEvent.stopPropagation();
+                        handleNotifyLine();
                       },
-                      ...(lineGroups.length === 0
-                        ? [
-                            {
-                              key: "empty",
-                              disabled: true,
-                              label: (
-                                <span
-                                  style={{
-                                    fontSize: 12,
-                                    color: token.colorTextTertiary,
-                                  }}
-                                >
-                                  ยังไม่มีกลุ่มในระบบ — เพิ่ม Bot เข้ากลุ่มก่อน
-                                </span>
-                              ),
-                            },
-                          ]
-                        : lineGroups.map((g) => ({
-                            key: g.group_id,
+                    },
+                    {
+                      key: "discord-report",
+                      label: (
+                        <Flex align="center" justify="space-between" gap={12}>
+                          <Flex align="center" gap={8}>
+                            <div
+                              style={{
+                                color: "#5865F2",
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              <DiscordIcon />
+                            </div>
+                            <span style={{ fontWeight: 500 }}>
+                              ส่งรายงานไปยัง Discord
+                            </span>
+                          </Flex>
+                          {offlineCount > 0 && (
+                            <Tag color="error" style={{ margin: 0 }}>
+                              {offlineCount} ออฟไลน์
+                            </Tag>
+                          )}
+                        </Flex>
+                      ),
+                      disabled: isNotifying,
+                      onClick: handleNotifyDiscord,
+                    },
+                    {
+                      key: "email-report",
+                      label: (
+                        <Flex align="center" justify="space-between" gap={12}>
+                          <Flex align="center" gap={8}>
+                            <MailOutlined style={{ color: "#ea580c" }} />
+                            <span style={{ fontWeight: 500 }}>
+                              ส่งรายงานทางอีเมล
+                            </span>
+                          </Flex>
+                          {offlineCount > 0 && (
+                            <Tag color="error" style={{ margin: 0 }}>
+                              {offlineCount} ออฟไลน์
+                            </Tag>
+                          )}
+                        </Flex>
+                      ),
+                      disabled: isNotifyingEmail,
+                      onClick: handleNotifyEmail,
+                    },
+                    { type: "divider" },
+                    {
+                      key: "export-header",
+                      type: "group",
+                      label: (
+                        <Flex align="center" gap={6}>
+                          <FileExcelOutlined style={{ fontSize: 11 }} />
+                          <span style={{ fontSize: 11 }}>ส่งออกข้อมูล</span>
+                        </Flex>
+                      ),
+                    },
+                    {
+                      key: "export-excel",
+                      label: (
+                        <Flex align="center" gap={8}>
+                          <FileExcelOutlined style={{ color: "#16a34a" }} />
+                          <span style={{ fontWeight: 500 }}>ส่งออก Excel</span>
+                        </Flex>
+                      ),
+                      disabled: isExportingExcel,
+                      onClick: handleExportExcel,
+                    },
+                    { type: "divider" },
+                    {
+                      key: "settings-header",
+                      type: "group",
+                      label: (
+                        <Flex align="center" gap={6}>
+                          <SettingOutlined style={{ fontSize: 11 }} />
+                          <span style={{ fontSize: 11 }}>การตั้งค่ากลุ่ม</span>
+                        </Flex>
+                      ),
+                    },
+                    ...(lineGroups.length === 0
+                      ? [
+                          {
+                            key: "empty-groups",
+                            disabled: true,
                             label: (
-                              <Flex align="center" gap={8}>
-                                {g.group_id === activeGroupId ? (
-                                  <CheckOutlined
-                                    style={{ color: "#06C755", fontSize: 12 }}
-                                  />
-                                ) : (
-                                  <span
-                                    style={{
-                                      width: 12,
-                                      display: "inline-block",
-                                    }}
-                                  />
-                                )}
-                                <Flex vertical gap={1} flex={1}>
-                                  <span
-                                    style={{ fontSize: 13, fontWeight: 500 }}
-                                  >
-                                    {g.group_name ?? "ไม่ระบุชื่อกลุ่ม"}
-                                  </span>
-                                  <span
-                                    style={{
-                                      fontSize: 10,
-                                      color: token.colorTextTertiary,
-                                      fontFamily: "monospace",
-                                    }}
-                                  >
-                                    {g.group_id}
-                                  </span>
-                                </Flex>
-                                {g.group_id === activeGroupId && (
-                                  <Tag
-                                    color="green"
-                                    style={{ fontSize: 10, margin: 0 }}
-                                  >
-                                    ใช้งานอยู่
-                                  </Tag>
-                                )}
-                              </Flex>
+                              <span
+                                style={{
+                                  fontSize: 12,
+                                  color: token.colorTextTertiary,
+                                }}
+                              >
+                                ยังไม่มีกลุ่มในระบบ
+                              </span>
                             ),
-                            onClick: () => handleSelectLineGroup(g.group_id),
-                          }))),
-                    ],
+                          },
+                        ]
+                      : lineGroups.map((g) => ({
+                          key: `group-${g.group_id}`,
+                          label: (
+                            <Flex align="center" gap={8}>
+                              {g.group_id === activeGroupId ? (
+                                <CheckOutlined
+                                  style={{ color: "#06C755", fontSize: 12 }}
+                                />
+                              ) : (
+                                <div style={{ width: 12 }} />
+                              )}
+                              <span style={{ fontSize: 13 }}>
+                                {g.group_name || g.group_id}
+                              </span>
+                              {g.group_id === activeGroupId && (
+                                <Tag color="green" style={{ fontSize: 10 }}>
+                                  ใช้งานอยู่
+                                </Tag>
+                              )}
+                            </Flex>
+                          ),
+                          onClick: () => handleSelectLineGroup(g.group_id),
+                        }))),
+                  ],
+                }}
+              >
+                <Button
+                  type="primary"
+                  icon={<NotificationOutlined />}
+                  style={{
+                    height: 44,
+                    padding: "0 20px",
+                    borderRadius: 12,
+                    fontWeight: 600,
                   }}
                 >
-                  <Button
-                    style={{
-                      height: 44,
-                      width: 36,
-                      padding: 0,
-                      borderRadius: "0 12px 12px 0",
-                      backgroundColor: activeGroupId
-                        ? "#05b84a"
-                        : token.colorFillTertiary,
-                      color: activeGroupId
-                        ? "#FFFFFF"
-                        : token.colorTextTertiary,
-                      border: "none",
-                      boxShadow: activeGroupId
-                        ? "0 4px 14px 0 rgba(6, 199, 85, 0.35)"
-                        : "none",
-                    }}
-                    icon={
-                      <svg
-                        width="10"
-                        height="10"
-                        viewBox="0 0 10 10"
-                        fill="currentColor"
-                      >
-                        <path d="M5 7L1 3h8z" />
-                      </svg>
-                    }
-                  />
-                </Dropdown>
-              </Flex>
+                  <Space>
+                    การดำเนินการรายงาน
+                    {(isNotifyingLine ||
+                      isNotifying ||
+                      isNotifyingEmail ||
+                      isExportingExcel) && <SyncOutlined spin />}
+                    <span style={{ fontSize: 10 }}>▼</span>
+                  </Space>
+                </Button>
+              </Dropdown>
 
-              {/* ปุ่มแจ้งเตือน Discord แบบตกแต่งพิเศษ */}
-              <Button
-                icon={<DiscordIcon />}
-                onClick={handleNotifyDiscord}
-                loading={isNotifying}
-                className="flex items-center gap-2"
-                style={{
-                  height: 44,
-                  padding: "0 20px",
-                  borderRadius: 12,
-                  fontWeight: 600,
-                  fontSize: 14,
-                  backgroundColor: isNotifying
-                    ? token.colorFillTertiary
-                    : "#5865F2",
-                  color: "#FFFFFF",
-                  border: "none",
-                  boxShadow: "0 4px 14px 0 rgba(88, 101, 242, 0.39)",
-                  transition: "all 0.3s ease",
-                }}
-                onMouseEnter={(e) => {
-                  if (!isNotifying) {
-                    e.currentTarget.style.backgroundColor = "#4752C4";
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                    e.currentTarget.style.boxShadow =
-                      "0 6px 20px rgba(88, 101, 242, 0.45)";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isNotifying) {
-                    e.currentTarget.style.backgroundColor = "#5865F2";
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow =
-                      "0 4px 14px 0 rgba(88, 101, 242, 0.39)";
-                  }
+              {/* ปุ่มทางลัดไปยังหน้าตั้งค่า */}
+              <Dropdown
+                trigger={["click"]}
+                menu={{
+                  items: [
+                    {
+                      key: "line-webhook",
+                      icon: (
+                        <div
+                          style={{
+                            color: "#06C755",
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <LineIcon />
+                        </div>
+                      ),
+                      label: "ทดสอบ LINE Webhook",
+                      onClick: () =>
+                        router.push("/health-check/online-status/line-channel"),
+                    },
+                    {
+                      key: "school-groups",
+                      icon: <ClusterOutlined style={{ color: "#1677ff" }} />,
+                      label: "กลุ่ม LINE รายโรงเรียน",
+                      onClick: () =>
+                        router.push(
+                          "/health-check/online-status/school-line-group",
+                        ),
+                    },
+                  ],
                 }}
               >
-                <span>ส่งรายงานไปยัง Discord</span>
-                {offlineCount > 0 && (
-                  <div
-                    className="flex items-center justify-center"
-                    style={{
-                      background: "rgba(255, 255, 255, 0.2)",
-                      padding: "2px 8px",
-                      borderRadius: 6,
-                      fontSize: 11,
-                      marginLeft: 4,
-                      border: "1px solid rgba(255, 255, 255, 0.4)",
-                    }}
-                  >
-                    <NotificationOutlined
-                      style={{ marginRight: 4, fontSize: 10 }}
-                    />
-                    {offlineCount} ออฟไลน์
-                  </div>
-                )}
-              </Button>
-
-              {/* ปุ่มส่งรายงานทางอีเมล */}
-              <Button
-                icon={<MailOutlined />}
-                onClick={handleNotifyEmail}
-                loading={isNotifyingEmail}
-                style={{
-                  height: 44,
-                  padding: "0 20px",
-                  borderRadius: 12,
-                  fontWeight: 600,
-                  fontSize: 14,
-                  backgroundColor: isNotifyingEmail
-                    ? token.colorFillTertiary
-                    : "#ea580c",
-                  color: "#FFFFFF",
-                  border: "none",
-                  boxShadow: "0 4px 14px 0 rgba(234, 88, 12, 0.35)",
-                  transition: "all 0.3s ease",
-                }}
-                onMouseEnter={(e) => {
-                  if (!isNotifyingEmail) {
-                    e.currentTarget.style.backgroundColor = "#c2410c";
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                    e.currentTarget.style.boxShadow =
-                      "0 6px 20px rgba(234, 88, 12, 0.45)";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isNotifyingEmail) {
-                    e.currentTarget.style.backgroundColor = "#ea580c";
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow =
-                      "0 4px 14px 0 rgba(234, 88, 12, 0.35)";
-                  }
-                }}
-              >
-                <span>ส่งรายงานอีเมล</span>
-                {offlineCount > 0 && (
-                  <div
-                    className="flex items-center justify-center"
-                    style={{
-                      background: "rgba(255, 255, 255, 0.2)",
-                      padding: "2px 8px",
-                      borderRadius: 6,
-                      fontSize: 11,
-                      marginLeft: 4,
-                      border: "1px solid rgba(255, 255, 255, 0.4)",
-                    }}
-                  >
-                    <NotificationOutlined
-                      style={{ marginRight: 4, fontSize: 10 }}
-                    />
-                    {offlineCount} ออฟไลน์
-                  </div>
-                )}
-              </Button>
-
-              {/* ปุ่มส่งออก Excel ตกแต่งสวยงาม */}
-              <Button
-                icon={<FileExcelOutlined />}
-                onClick={handleExportExcel}
-                loading={isExportingExcel}
-                style={{
-                  height: 44,
-                  padding: "0 20px",
-                  borderRadius: 12,
-                  fontWeight: 600,
-                  fontSize: 14,
-                  backgroundColor: isExportingExcel
-                    ? token.colorFillTertiary
-                    : "#16a34a",
-                  color: "#FFFFFF",
-                  border: "none",
-                  boxShadow: "0 4px 14px 0 rgba(22, 163, 74, 0.35)",
-                  transition: "all 0.3s ease",
-                }}
-                onMouseEnter={(e) => {
-                  if (!isExportingExcel) {
-                    e.currentTarget.style.backgroundColor = "#15803d";
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                    e.currentTarget.style.boxShadow =
-                      "0 6px 20px rgba(22, 163, 74, 0.45)";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isExportingExcel) {
-                    e.currentTarget.style.backgroundColor = "#16a34a";
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow =
-                      "0 4px 14px 0 rgba(22, 163, 74, 0.35)";
-                  }
-                }}
-              >
-                <span>ส่งออก Excel</span>
-              </Button>
+                <Button
+                  icon={<SettingOutlined />}
+                  style={{
+                    height: 44,
+                    width: 44,
+                    borderRadius: 12,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                />
+              </Dropdown>
 
               {/* สถานะการอัปเดต */}
               <Space direction="vertical" align="end" size={0}>
@@ -668,92 +584,6 @@ export default function OnlineDeviceDashboard() {
                   อัปเดตเมื่อ: {dayjs().format("HH:mm:ss")}
                 </AntText>
               </Space>
-
-              <Link href="/health-check/online-status/line-channel">
-                <Button
-                  icon={
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      style={{ marginBottom: -2 }}
-                    >
-                      <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314" />
-                    </svg>
-                  }
-                  style={{
-                    height: 44,
-                    padding: "0 18px",
-                    borderRadius: 12,
-                    fontWeight: 600,
-                    fontSize: 14,
-                    background:
-                      "linear-gradient(135deg, #06C755 0%, #05a548 100%)",
-                    color: "#FFFFFF",
-                    border: "none",
-                    boxShadow: "0 4px 14px 0 rgba(6, 199, 85, 0.35)",
-                    transition: "all 0.25s ease",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background =
-                      "linear-gradient(135deg, #05b84a 0%, #048c3e 100%)";
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                    e.currentTarget.style.boxShadow =
-                      "0 6px 20px rgba(6, 199, 85, 0.45)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background =
-                      "linear-gradient(135deg, #06C755 0%, #05a548 100%)";
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow =
-                      "0 4px 14px 0 rgba(6, 199, 85, 0.35)";
-                  }}
-                >
-                  ทดสอบ LINE Webhook
-                </Button>
-              </Link>
-
-              <Link href="/health-check/online-status/school-line-group">
-                <Button
-                  icon={<LineIcon />}
-                  style={{
-                    height: 44,
-                    padding: "0 18px",
-                    borderRadius: 12,
-                    fontWeight: 600,
-                    fontSize: 14,
-                    background:
-                      "linear-gradient(135deg, #1677ff 0%, #0958d9 100%)",
-                    color: "#FFFFFF",
-                    border: "none",
-                    boxShadow: "0 4px 14px 0 rgba(22, 119, 255, 0.35)",
-                    transition: "all 0.25s ease",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background =
-                      "linear-gradient(135deg, #0958d9 0%, #003eb3 100%)";
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                    e.currentTarget.style.boxShadow =
-                      "0 6px 20px rgba(22, 119, 255, 0.45)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background =
-                      "linear-gradient(135deg, #1677ff 0%, #0958d9 100%)";
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow =
-                      "0 4px 14px 0 rgba(22, 119, 255, 0.35)";
-                  }}
-                >
-                  กลุ่ม LINE รายโรงเรียน
-                </Button>
-              </Link>
             </Space>
           }
         />
@@ -867,50 +697,125 @@ export default function OnlineDeviceDashboard() {
           styles={{ body: { padding: "14px 20px" } }}
         >
           <Flex align="center" gap={8} style={{ marginBottom: 10 }}>
-            <InfoCircleOutlined style={{ color: token.colorPrimary, fontSize: 15 }} />
+            <InfoCircleOutlined
+              style={{ color: token.colorPrimary, fontSize: 15 }}
+            />
             <AntText strong style={{ fontSize: 13 }}>
               Logic การตรวจสอบสถานะออฟไลน์
             </AntText>
           </Flex>
           <Flex vertical gap={8}>
             <Flex align="flex-start" gap={10}>
-              <ClockCircleOutlined style={{ color: "#6366f1", fontSize: 13, marginTop: 2, flexShrink: 0 }} />
+              <ClockCircleOutlined
+                style={{
+                  color: "#6366f1",
+                  fontSize: 13,
+                  marginTop: 2,
+                  flexShrink: 0,
+                }}
+              />
               <AntText style={{ fontSize: 12 }}>
-                <AntText strong style={{ fontSize: 12 }}>เงื่อนไขออนไลน์ :</AntText>
-                {" "}เครื่องถือว่าออนไลน์เมื่อ{" "}
-                <code style={{ fontSize: 11, padding: "1px 5px", borderRadius: 4, background: "rgba(99,102,241,0.1)", color: "#6366f1" }}>OnlineTime</code>
-                {" "}ล่าสุดไม่เกิน{" "}
-                <AntText strong style={{ fontSize: 12, color: "#6366f1" }}>10 นาที</AntText>
-                {" "}ที่ผ่านมา
+                <AntText strong style={{ fontSize: 12 }}>
+                  เงื่อนไขออนไลน์ :
+                </AntText>{" "}
+                เครื่องถือว่าออนไลน์เมื่อ{" "}
+                <code
+                  style={{
+                    fontSize: 11,
+                    padding: "1px 5px",
+                    borderRadius: 4,
+                    background: "rgba(99,102,241,0.1)",
+                    color: "#6366f1",
+                  }}
+                >
+                  OnlineTime
+                </code>{" "}
+                ล่าสุดไม่เกิน{" "}
+                <AntText strong style={{ fontSize: 12, color: "#6366f1" }}>
+                  10 นาที
+                </AntText>{" "}
+                ที่ผ่านมา
               </AntText>
             </Flex>
             <Flex align="flex-start" gap={10}>
-              <WarningOutlined style={{ color: "#d97706", fontSize: 13, marginTop: 2, flexShrink: 0 }} />
+              <WarningOutlined
+                style={{
+                  color: "#d97706",
+                  fontSize: 13,
+                  marginTop: 2,
+                  flexShrink: 0,
+                }}
+              />
               <AntText style={{ fontSize: 12 }}>
-                <AntText strong style={{ fontSize: 12 }}>ออฟไลน์ (สาเหตุ: อินเทอร์เน็ต / ตัวเครื่องเสียหาย) :</AntText>
-                {" "}เครื่อง offline แต่{" "}
-                <code style={{ fontSize: 11, padding: "1px 5px", borderRadius: 4, background: "rgba(217,119,6,0.1)", color: "#d97706" }}>Hardware Server /api/application</code>
-                {" "}ตอบกลับ{" "}
-                <AntText strong style={{ fontSize: 12, color: "#d97706" }}>HTTP 200</AntText>
-                {" "}— เซิร์ฟเวอร์ปกติ แต่เครื่องส่งสัญญาณไม่ได้ (อินเทอร์เน็ตโรงเรียน หรือฮาร์ดแวร์เสียหาย)
+                <AntText strong style={{ fontSize: 12 }}>
+                  ออฟไลน์ (สาเหตุ: อินเทอร์เน็ต / ตัวเครื่องเสียหาย) :
+                </AntText>{" "}
+                เครื่อง offline แต่{" "}
+                <code
+                  style={{
+                    fontSize: 11,
+                    padding: "1px 5px",
+                    borderRadius: 4,
+                    background: "rgba(217,119,6,0.1)",
+                    color: "#d97706",
+                  }}
+                >
+                  Hardware Server /api/application
+                </code>{" "}
+                ตอบกลับ{" "}
+                <AntText strong style={{ fontSize: 12, color: "#d97706" }}>
+                  HTTP 200
+                </AntText>{" "}
+                — เซิร์ฟเวอร์ปกติ แต่เครื่องส่งสัญญาณไม่ได้
+                (อินเทอร์เน็ตโรงเรียน หรือฮาร์ดแวร์เสียหาย)
               </AntText>
             </Flex>
             <Flex align="flex-start" gap={10}>
-              <AlertOutlined style={{ color: "#dc2626", fontSize: 13, marginTop: 2, flexShrink: 0 }} />
+              <AlertOutlined
+                style={{
+                  color: "#dc2626",
+                  fontSize: 13,
+                  marginTop: 2,
+                  flexShrink: 0,
+                }}
+              />
               <AntText style={{ fontSize: 12 }}>
-                <AntText strong style={{ fontSize: 12 }}>ออฟไลน์ (สาเหตุ: เซิร์ฟเวอร์เกิดข้อขัดข้อง) :</AntText>
-                {" "}เครื่อง offline และ{" "}
-                <code style={{ fontSize: 11, padding: "1px 5px", borderRadius: 4, background: "rgba(220,38,38,0.1)", color: "#dc2626" }}>Hardware Server /api/application</code>
-                {" "}ตอบกลับ{" "}
-                <AntText strong style={{ fontSize: 12, color: "#dc2626" }}>ไม่ใช่ 200</AntText>
-                {" "}— น่าจะเป็นปัญหาฝั่งเซิร์ฟเวอร์ฮาร์ดแวร์เอง
+                <AntText strong style={{ fontSize: 12 }}>
+                  ออฟไลน์ (สาเหตุ: เซิร์ฟเวอร์เกิดข้อขัดข้อง) :
+                </AntText>{" "}
+                เครื่อง offline และ{" "}
+                <code
+                  style={{
+                    fontSize: 11,
+                    padding: "1px 5px",
+                    borderRadius: 4,
+                    background: "rgba(220,38,38,0.1)",
+                    color: "#dc2626",
+                  }}
+                >
+                  Hardware Server /api/application
+                </code>{" "}
+                ตอบกลับ{" "}
+                <AntText strong style={{ fontSize: 12, color: "#dc2626" }}>
+                  ไม่ใช่ 200
+                </AntText>{" "}
+                — น่าจะเป็นปัญหาฝั่งเซิร์ฟเวอร์ฮาร์ดแวร์เอง
               </AntText>
             </Flex>
             <Flex align="flex-start" gap={10}>
-              <CheckCircleOutlined style={{ color: "#16a34a", fontSize: 13, marginTop: 2, flexShrink: 0 }} />
+              <CheckCircleOutlined
+                style={{
+                  color: "#16a34a",
+                  fontSize: 13,
+                  marginTop: 2,
+                  flexShrink: 0,
+                }}
+              />
               <AntText style={{ fontSize: 12 }}>
-                <AntText strong style={{ fontSize: 12 }}>ออนไลน์ :</AntText>
-                {" "}เครื่องที่ผ่านเงื่อนไขออนไลน์ข้างต้น — ไม่แสดงสาเหตุ
+                <AntText strong style={{ fontSize: 12 }}>
+                  ออนไลน์ :
+                </AntText>{" "}
+                เครื่องที่ผ่านเงื่อนไขออนไลน์ข้างต้น — ไม่แสดงสาเหตุ
               </AntText>
             </Flex>
           </Flex>

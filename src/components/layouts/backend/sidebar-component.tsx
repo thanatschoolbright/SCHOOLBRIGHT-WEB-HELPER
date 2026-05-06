@@ -668,7 +668,11 @@ function CollapsedRail({
               </span>
             ) : depth > 0 ? (
               <div
-                className={`w-1 h-1 rounded-full flex-shrink-0 ${currentPathname === child.href ? "bg-primary" : "bg-gray-400 opacity-40"}`}
+                className={`w-1 h-1 rounded-full flex-shrink-0 ${
+                  currentPathname === child.href
+                    ? "bg-primary"
+                    : "bg-gray-400 opacity-40"
+                }`}
                 style={{
                   backgroundColor:
                     currentPathname === child.href
