@@ -363,16 +363,6 @@ exports.Prisma.LineGroupScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.DeviceMonitorSettingScalarFieldEnum = {
-  id: 'id',
-  school_id: 'school_id',
-  device_id: 'device_id',
-  notify_enabled: 'notify_enabled',
-  updated_by: 'updated_by',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
-};
-
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -421,8 +411,7 @@ exports.Prisma.ModelName = {
   OvertimeStatusLog: 'OvertimeStatusLog',
   ApiLog: 'ApiLog',
   CrmSupportAuthentication: 'CrmSupportAuthentication',
-  LineGroup: 'LineGroup',
-  DeviceMonitorSetting: 'DeviceMonitorSetting'
+  LineGroup: 'LineGroup'
 };
 
 /**

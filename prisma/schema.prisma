@@ -67,6 +67,7 @@ model DeviceDailyStatus {
   Note           String?
   UserLoginID    Int?
   DeviceTypeID   Int?
+  NotifyEnabled  Boolean   @default(true) @map("NotifyEnabled")
 
   @@index([SchoolID, OnlineTime], map: "public_DeviceDailyStatus_INDEX_VV_3735_3734_new")
   @@index([Online, Login], map: "public_DeviceDailyStatus_INDEX_VV_629_628")

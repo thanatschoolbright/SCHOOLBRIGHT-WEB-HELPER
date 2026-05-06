@@ -176,7 +176,8 @@ exports.Prisma.DeviceDailyStatusScalarFieldEnum = {
   AppName: 'AppName',
   Note: 'Note',
   UserLoginID: 'UserLoginID',
-  DeviceTypeID: 'DeviceTypeID'
+  DeviceTypeID: 'DeviceTypeID',
+  NotifyEnabled: 'NotifyEnabled'
 };
 
 exports.Prisma.DeviceTypeScalarFieldEnum = {

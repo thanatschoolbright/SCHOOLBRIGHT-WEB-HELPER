@@ -1263,14 +1263,13 @@ export interface SchoolDeviceStatusResult {
   devices: SchoolDeviceItem[];
 }
 
-// ดึงข้อมูลสถานะเครื่องทุกเครื่องของโรงเรียน พร้อม notify_enabled จาก DeviceMonitorSetting
+// ดึงข้อมูลสถานะเครื่องทุกเครื่องของโรงเรียน พร้อม NotifyEnabled จาก DeviceDailyStatus (Main DB)
 export async function buildSchoolDeviceStatusData(
   schoolId: number,
 ): Promise<SchoolDeviceStatusResult | null> {
-  const { PrismaTimesheet } = await import("@/helpers/prisma-timesheet");
   const now = new Date();
 
-  const [school, devices, notifySettings] = await Promise.all([
+  const [school, devices] = await Promise.all([
     prisma.activeSchoolList.findFirst({
       where: { nCompany: schoolId },
       select: { nCompany: true, sCompany: true },
@@ -1284,20 +1283,13 @@ export async function buildSchoolDeviceStatusData(
         Note: true,
         OnlineTime: true,
         Login: true,
+        NotifyEnabled: true,
       },
       orderBy: { DeviceID: "asc" },
-    }),
-    PrismaTimesheet.deviceMonitorSetting.findMany({
-      where: { school_id: schoolId },
-      select: { device_id: true, notify_enabled: true },
     }),
   ]);
 
   if (!school) return null;
-
-  const notifyMap = new Map<string, boolean>(
-    notifySettings.map((s) => [s.device_id, s.notify_enabled]),
-  );
 
   const hardwareServerOk = await checkHardwareServerHealth();
   const serverOfflineReason = hardwareServerOk ? "device_or_network" : "server_down";
@@ -1323,7 +1315,7 @@ export async function buildSchoolDeviceStatusData(
       is_login: d.Login ?? false,
       online_time: onlineTime ? onlineTime.toISOString() : null,
       offline_reason: isOnline ? null : serverOfflineReason,
-      notify_enabled: notifyMap.get(d.DeviceID ?? "") ?? true,
+      notify_enabled: d.NotifyEnabled,
     };
   });
 
@@ -1381,6 +1373,7 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
       AppName: true,
       AppVersion: true,
       Note: true,
+      NotifyEnabled: true,
     },
     orderBy: { DeviceID: "asc" },
   });
@@ -1422,21 +1415,23 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
       onlineCount++;
     } else {
       offlineCount++;
-      const offlineMinutes =
-        onlineTime !== null
-          ? Math.floor((now.getTime() - onlineTime.getTime()) / (60 * 1000))
-          : null;
-      offlineDevices.push({
-        deviceName: device.Note?.trim() || "ไม่ระบุชื่อเครื่อง",
-        deviceId: device.DeviceID ?? "-",
-        appName: device.AppName ?? "ไม่ระบุแอป",
-        appVersion: device.AppVersion ?? "-",
-        offlineMinutes,
-        lastOnlineAt: onlineTime
-          ? dayjs(onlineTime).format("DD/MM/YYYY HH:mm")
-          : null,
-        offlineReason,
-      });
+      if (device.NotifyEnabled) {
+        const offlineMinutes =
+          onlineTime !== null
+            ? Math.floor((now.getTime() - onlineTime.getTime()) / (60 * 1000))
+            : null;
+        offlineDevices.push({
+          deviceName: device.Note?.trim() || "ไม่ระบุชื่อเครื่อง",
+          deviceId: device.DeviceID ?? "-",
+          appName: device.AppName ?? "ไม่ระบุแอป",
+          appVersion: device.AppVersion ?? "-",
+          offlineMinutes,
+          lastOnlineAt: onlineTime
+            ? dayjs(onlineTime).format("DD/MM/YYYY HH:mm")
+            : null,
+          offlineReason,
+        });
+      }
     }
   }
 

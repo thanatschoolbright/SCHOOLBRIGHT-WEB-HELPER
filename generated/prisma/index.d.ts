@@ -18718,6 +18718,7 @@ export namespace Prisma {
     Note: string | null
     UserLoginID: number | null
     DeviceTypeID: number | null
+    NotifyEnabled: boolean | null
   }
 
   export type DeviceDailyStatusMaxAggregateOutputType = {
@@ -18737,6 +18738,7 @@ export namespace Prisma {
     Note: string | null
     UserLoginID: number | null
     DeviceTypeID: number | null
+    NotifyEnabled: boolean | null
   }
 
   export type DeviceDailyStatusCountAggregateOutputType = {
@@ -18756,6 +18758,7 @@ export namespace Prisma {
     Note: number
     UserLoginID: number
     DeviceTypeID: number
+    NotifyEnabled: number
     _all: number
   }
 
@@ -18789,6 +18792,7 @@ export namespace Prisma {
     Note?: true
     UserLoginID?: true
     DeviceTypeID?: true
+    NotifyEnabled?: true
   }
 
   export type DeviceDailyStatusMaxAggregateInputType = {
@@ -18808,6 +18812,7 @@ export namespace Prisma {
     Note?: true
     UserLoginID?: true
     DeviceTypeID?: true
+    NotifyEnabled?: true
   }
 
   export type DeviceDailyStatusCountAggregateInputType = {
@@ -18827,6 +18832,7 @@ export namespace Prisma {
     Note?: true
     UserLoginID?: true
     DeviceTypeID?: true
+    NotifyEnabled?: true
     _all?: true
   }
 
@@ -18933,6 +18939,7 @@ export namespace Prisma {
     Note: string | null
     UserLoginID: number | null
     DeviceTypeID: number | null
+    NotifyEnabled: boolean
     _count: DeviceDailyStatusCountAggregateOutputType | null
     _avg: DeviceDailyStatusAvgAggregateOutputType | null
     _sum: DeviceDailyStatusSumAggregateOutputType | null
@@ -18971,6 +18978,7 @@ export namespace Prisma {
     Note?: boolean
     UserLoginID?: boolean
     DeviceTypeID?: boolean
+    NotifyEnabled?: boolean
   }, ExtArgs["result"]["deviceDailyStatus"]>
 
   export type DeviceDailyStatusSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -18990,6 +18998,7 @@ export namespace Prisma {
     Note?: boolean
     UserLoginID?: boolean
     DeviceTypeID?: boolean
+    NotifyEnabled?: boolean
   }, ExtArgs["result"]["deviceDailyStatus"]>
 
   export type DeviceDailyStatusSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -19009,6 +19018,7 @@ export namespace Prisma {
     Note?: boolean
     UserLoginID?: boolean
     DeviceTypeID?: boolean
+    NotifyEnabled?: boolean
   }, ExtArgs["result"]["deviceDailyStatus"]>
 
   export type DeviceDailyStatusSelectScalar = {
@@ -19028,9 +19038,10 @@ export namespace Prisma {
     Note?: boolean
     UserLoginID?: boolean
     DeviceTypeID?: boolean
+    NotifyEnabled?: boolean
   }
 
-  export type DeviceDailyStatusOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"DeviceStatusID" | "SchoolID" | "DeviceID" | "Online" | "OnlineTime" | "Login" | "LoginTime" | "LogOut" | "LogoutTime" | "Tstamp" | "BusinessDate" | "AppVersion" | "AppName" | "Note" | "UserLoginID" | "DeviceTypeID", ExtArgs["result"]["deviceDailyStatus"]>
+  export type DeviceDailyStatusOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"DeviceStatusID" | "SchoolID" | "DeviceID" | "Online" | "OnlineTime" | "Login" | "LoginTime" | "LogOut" | "LogoutTime" | "Tstamp" | "BusinessDate" | "AppVersion" | "AppName" | "Note" | "UserLoginID" | "DeviceTypeID" | "NotifyEnabled", ExtArgs["result"]["deviceDailyStatus"]>
 
   export type $DeviceDailyStatusPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "DeviceDailyStatus"
@@ -19052,6 +19063,7 @@ export namespace Prisma {
       Note: string | null
       UserLoginID: number | null
       DeviceTypeID: number | null
+      NotifyEnabled: boolean
     }, ExtArgs["result"]["deviceDailyStatus"]>
     composites: {}
   }
@@ -19491,6 +19503,7 @@ export namespace Prisma {
     readonly Note: FieldRef<"DeviceDailyStatus", 'String'>
     readonly UserLoginID: FieldRef<"DeviceDailyStatus", 'Int'>
     readonly DeviceTypeID: FieldRef<"DeviceDailyStatus", 'Int'>
+    readonly NotifyEnabled: FieldRef<"DeviceDailyStatus", 'Boolean'>
   }
     
 
@@ -210698,7 +210711,8 @@ export namespace Prisma {
     AppName: 'AppName',
     Note: 'Note',
     UserLoginID: 'UserLoginID',
-    DeviceTypeID: 'DeviceTypeID'
+    DeviceTypeID: 'DeviceTypeID',
+    NotifyEnabled: 'NotifyEnabled'
   };
 
   export type DeviceDailyStatusScalarFieldEnum = (typeof DeviceDailyStatusScalarFieldEnum)[keyof typeof DeviceDailyStatusScalarFieldEnum]
@@ -214799,6 +214813,7 @@ export namespace Prisma {
     Note?: StringNullableFilter<"DeviceDailyStatus"> | string | null
     UserLoginID?: IntNullableFilter<"DeviceDailyStatus"> | number | null
     DeviceTypeID?: IntNullableFilter<"DeviceDailyStatus"> | number | null
+    NotifyEnabled?: BoolFilter<"DeviceDailyStatus"> | boolean
   }
 
   export type DeviceDailyStatusOrderByWithRelationInput = {
@@ -214818,6 +214833,7 @@ export namespace Prisma {
     Note?: SortOrderInput | SortOrder
     UserLoginID?: SortOrderInput | SortOrder
     DeviceTypeID?: SortOrderInput | SortOrder
+    NotifyEnabled?: SortOrder
   }
 
   export type DeviceDailyStatusWhereUniqueInput = Prisma.AtLeast<{
@@ -214840,6 +214856,7 @@ export namespace Prisma {
     Note?: StringNullableFilter<"DeviceDailyStatus"> | string | null
     UserLoginID?: IntNullableFilter<"DeviceDailyStatus"> | number | null
     DeviceTypeID?: IntNullableFilter<"DeviceDailyStatus"> | number | null
+    NotifyEnabled?: BoolFilter<"DeviceDailyStatus"> | boolean
   }, "DeviceStatusID">
 
   export type DeviceDailyStatusOrderByWithAggregationInput = {
@@ -214859,6 +214876,7 @@ export namespace Prisma {
     Note?: SortOrderInput | SortOrder
     UserLoginID?: SortOrderInput | SortOrder
     DeviceTypeID?: SortOrderInput | SortOrder
+    NotifyEnabled?: SortOrder
     _count?: DeviceDailyStatusCountOrderByAggregateInput
     _avg?: DeviceDailyStatusAvgOrderByAggregateInput
     _max?: DeviceDailyStatusMaxOrderByAggregateInput
@@ -214886,6 +214904,7 @@ export namespace Prisma {
     Note?: StringNullableWithAggregatesFilter<"DeviceDailyStatus"> | string | null
     UserLoginID?: IntNullableWithAggregatesFilter<"DeviceDailyStatus"> | number | null
     DeviceTypeID?: IntNullableWithAggregatesFilter<"DeviceDailyStatus"> | number | null
+    NotifyEnabled?: BoolWithAggregatesFilter<"DeviceDailyStatus"> | boolean
   }
 
   export type DeviceTypeWhereInput = {
@@ -233727,6 +233746,7 @@ export namespace Prisma {
     Note?: string | null
     UserLoginID?: number | null
     DeviceTypeID?: number | null
+    NotifyEnabled?: boolean
   }
 
   export type DeviceDailyStatusUncheckedCreateInput = {
@@ -233746,6 +233766,7 @@ export namespace Prisma {
     Note?: string | null
     UserLoginID?: number | null
     DeviceTypeID?: number | null
+    NotifyEnabled?: boolean
   }
 
   export type DeviceDailyStatusUpdateInput = {
@@ -233765,6 +233786,7 @@ export namespace Prisma {
     Note?: NullableStringFieldUpdateOperationsInput | string | null
     UserLoginID?: NullableIntFieldUpdateOperationsInput | number | null
     DeviceTypeID?: NullableIntFieldUpdateOperationsInput | number | null
+    NotifyEnabled?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type DeviceDailyStatusUncheckedUpdateInput = {
@@ -233784,6 +233806,7 @@ export namespace Prisma {
     Note?: NullableStringFieldUpdateOperationsInput | string | null
     UserLoginID?: NullableIntFieldUpdateOperationsInput | number | null
     DeviceTypeID?: NullableIntFieldUpdateOperationsInput | number | null
+    NotifyEnabled?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type DeviceDailyStatusCreateManyInput = {
@@ -233803,6 +233826,7 @@ export namespace Prisma {
     Note?: string | null
     UserLoginID?: number | null
     DeviceTypeID?: number | null
+    NotifyEnabled?: boolean
   }
 
   export type DeviceDailyStatusUpdateManyMutationInput = {
@@ -233822,6 +233846,7 @@ export namespace Prisma {
     Note?: NullableStringFieldUpdateOperationsInput | string | null
     UserLoginID?: NullableIntFieldUpdateOperationsInput | number | null
     DeviceTypeID?: NullableIntFieldUpdateOperationsInput | number | null
+    NotifyEnabled?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type DeviceDailyStatusUncheckedUpdateManyInput = {
@@ -233841,6 +233866,7 @@ export namespace Prisma {
     Note?: NullableStringFieldUpdateOperationsInput | string | null
     UserLoginID?: NullableIntFieldUpdateOperationsInput | number | null
     DeviceTypeID?: NullableIntFieldUpdateOperationsInput | number | null
+    NotifyEnabled?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type DeviceTypeCreateInput = {
@@ -256845,6 +256871,7 @@ export namespace Prisma {
     Note?: SortOrder
     UserLoginID?: SortOrder
     DeviceTypeID?: SortOrder
+    NotifyEnabled?: SortOrder
   }
 
   export type DeviceDailyStatusAvgOrderByAggregateInput = {
@@ -256870,6 +256897,7 @@ export namespace Prisma {
     Note?: SortOrder
     UserLoginID?: SortOrder
     DeviceTypeID?: SortOrder
+    NotifyEnabled?: SortOrder
   }
 
   export type DeviceDailyStatusMinOrderByAggregateInput = {
@@ -256889,6 +256917,7 @@ export namespace Prisma {
     Note?: SortOrder
     UserLoginID?: SortOrder
     DeviceTypeID?: SortOrder
+    NotifyEnabled?: SortOrder
   }
 
   export type DeviceDailyStatusSumOrderByAggregateInput = {

@@ -1,5 +1,4 @@
 import { errorResponse, successResponse } from "@/helpers/api/response";
-import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import { API_URL } from "@/services/api-url";
 import prisma from "@helpers/prisma";
 import axios from "axios";
@@ -62,6 +61,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           Online: true,
           OnlineTime: true,
           Login: true,
+          NotifyEnabled: true,
         },
         orderBy: [{ SchoolID: "asc" }, { AppName: "asc" }, { DeviceID: "asc" }],
       }),
@@ -70,16 +70,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       }),
       checkHardwareServerHealth(),
     ]);
-
-    // ดึง notify setting ทั้งหมดจาก timesheet DB แล้วสร้าง Map สำหรับ lookup
-    const schoolIds = [...new Set(allDevices.map((d) => d.SchoolID))];
-    const notifySettings = await PrismaTimesheet.deviceMonitorSetting.findMany({
-      where: { school_id: { in: schoolIds } },
-      select: { school_id: true, device_id: true, notify_enabled: true },
-    });
-    const notifyMap = new Map<string, boolean>(
-      notifySettings.map((s) => [`${s.school_id}:${s.device_id}`, s.notify_enabled]),
-    );
 
     // สาเหตุ offline ระดับโรงเรียน/เครื่อง ขึ้นอยู่กับสถานะ server
     const offlineReason: "server_down" | "device_or_network" = hardwareServerOk
@@ -134,7 +124,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         is_login: device.Login,
         online_time: device.OnlineTime?.toISOString() ?? null,
         offline_reason: isOnline ? null : offlineReason,
-        notify_enabled: notifyMap.get(`${device.SchoolID}:${device.DeviceID}`) ?? true,
+        notify_enabled: device.NotifyEnabled,
       });
     }
 
@@ -158,17 +148,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // เรียงลำดับตาม sort_by / sort_order
     data.sort((a, b) => {
-      let diff = 0;
-      if (sortBy === "school_name") {
-        diff = a.school_name.localeCompare(b.school_name, "th");
-      } else if (sortBy === "online") {
-        diff = a.online - b.online;
-      } else if (sortBy === "total") {
-        diff = a.total - b.total;
-      } else {
-        // default: offline
-        diff = a.offline - b.offline;
-      }
+      const diff =
+        sortBy === "school_name"
+          ? a.school_name.localeCompare(b.school_name, "th")
+          : sortBy === "online"
+          ? a.online - b.online
+          : sortBy === "total"
+          ? a.total - b.total
+          : a.offline - b.offline;
       return sortOrder === "asc" ? diff : -diff;
     });
 
