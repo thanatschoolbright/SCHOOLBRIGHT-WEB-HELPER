@@ -236,7 +236,6 @@ const DeviceGroupBlock = ({
             <Flex
               key={`${appName}:${device.device_id}`}
               align="center"
-              justify="space-between"
               style={{
                 padding: "10px 14px",
                 borderRadius: 10,
@@ -250,7 +249,7 @@ const DeviceGroupBlock = ({
                 }`,
               }}
             >
-              <Flex align="center" gap={10}>
+              <Flex align="center" gap={10} flex={1}>
                 <Badge
                   status={effectiveOnline ? "success" : "error"}
                   style={{ marginTop: 1 }}
@@ -278,7 +277,8 @@ const DeviceGroupBlock = ({
                 </Flex>
               </Flex>
 
-              <Flex align="center" gap={12}>
+              {/* คอลัมน์ปุ่มเปิด/ปิด (Toggle) พร้อมการกะระยะที่แน่นอนเพื่อให้ตรงกันทุกแถว */}
+              <Flex justify="center" style={{ width: 120 }}>
                 <Tooltip
                   title={
                     device.notify_enabled
@@ -286,16 +286,15 @@ const DeviceGroupBlock = ({
                       : "เปิดการแจ้งเตือน LINE สำหรับเครื่องนี้"
                   }
                 >
-                  <Flex align="center" gap={5}>
+                  <Flex align="center" gap={8}>
                     {device.notify_enabled ? (
-                      <BellFilled style={{ fontSize: 12, color: "#16a34a" }} />
+                      <BellFilled style={{ fontSize: 14, color: "#16a34a" }} />
                     ) : (
                       <BellOutlined
-                        style={{ fontSize: 12, color: "rgba(128,128,128,0.5)" }}
+                        style={{ fontSize: 14, color: "rgba(128,128,128,0.5)" }}
                       />
                     )}
                     <Switch
-                      size="small"
                       checked={device.notify_enabled}
                       loading={isToggling}
                       onChange={(checked) =>
@@ -304,49 +303,46 @@ const DeviceGroupBlock = ({
                     />
                   </Flex>
                 </Tooltip>
+              </Flex>
 
-                <Flex vertical align="end" gap={3}>
+              {/* คอลัมน์สถานะและเวลาล่าสุด (Fixed width) */}
+              <Flex vertical align="end" gap={3} style={{ width: 100 }}>
+                <Tag
+                  color={effectiveOnline ? "success" : "error"}
+                  style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
+                >
+                  {effectiveOnline ? "ออนไลน์" : "ออฟไลน์"}
+                </Tag>
+                {device.is_login && (
                   <Tag
-                    color={effectiveOnline ? "success" : "error"}
-                    style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
+                    color="processing"
+                    style={{ margin: 0, fontSize: 10, borderRadius: 6 }}
                   >
-                    {effectiveOnline ? "ออนไลน์" : "ออฟไลน์"}
+                    กำลังใช้งาน
                   </Tag>
-                  {device.is_login && (
-                    <Tag
-                      color="processing"
-                      style={{ margin: 0, fontSize: 10, borderRadius: 6 }}
-                    >
-                      กำลังใช้งาน
-                    </Tag>
-                  )}
-                  {lastSeen && (
-                    <Tooltip
-                      title={dayjs
-                        .tz(device.online_time)
-                        .format("DD/MM/YYYY HH:mm:ss")}
-                    >
-                      <Flex
-                        align="center"
-                        gap={3}
-                        style={{ cursor: "default" }}
+                )}
+                {lastSeen && (
+                  <Tooltip
+                    title={dayjs
+                      .tz(device.online_time)
+                      .format("DD/MM/YYYY HH:mm:ss")}
+                  >
+                    <Flex align="center" gap={3} style={{ cursor: "default" }}>
+                      <ClockCircleOutlined
+                        style={{
+                          fontSize: 10,
+                          color: "var(--ant-color-text-quaternary)",
+                        }}
+                      />
+                      <Text
+                        type="secondary"
+                        style={{ fontSize: 10, whiteSpace: "nowrap" }}
                       >
-                        <ClockCircleOutlined
-                          style={{
-                            fontSize: 10,
-                            color: "var(--ant-color-text-quaternary)",
-                          }}
-                        />
-                        <Text
-                          type="secondary"
-                          style={{ fontSize: 10, whiteSpace: "nowrap" }}
-                        >
-                          {lastSeen}
-                        </Text>
-                      </Flex>
-                    </Tooltip>
-                  )}
-                </Flex>
+                        {lastSeen}
+                      </Text>
+                    </Flex>
+                  </Tooltip>
+                )}
               </Flex>
             </Flex>
           );
@@ -964,8 +960,8 @@ export const SchoolDeviceTab = () => {
             </Flex>
           </Flex>
         }
-        width={680}
-        styles={{ body: { padding: "20px 20px" } }}
+        width={850}
+        styles={{ body: { padding: "20px 24px" } }}
       >
         {deviceGroups.length === 0 ? (
           <Flex
