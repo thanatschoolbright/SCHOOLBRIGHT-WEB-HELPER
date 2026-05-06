@@ -10,10 +10,14 @@ import {
   DatabaseOutlined,
   DesktopOutlined,
   EyeOutlined,
+  FilterOutlined,
   LaptopOutlined,
   MobileOutlined,
   QuestionCircleOutlined,
   ReloadOutlined,
+  SearchOutlined,
+  SortAscendingOutlined,
+  SortDescendingOutlined,
   UnorderedListOutlined,
   WarningOutlined,
   WifiOutlined,
@@ -26,7 +30,9 @@ import {
   Col,
   Drawer,
   Flex,
+  Input,
   Row,
+  Select,
   Space,
   Switch,
   Table,
@@ -34,13 +40,13 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import type { ColumnsType, SorterResult } from "antd/es/table/interface";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 import relativeTime from "dayjs/plugin/relativeTime";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 dayjs.extend(utc);
@@ -55,6 +61,9 @@ const { Text } = Typography;
 // Types
 // ----------------------------------------
 type OfflineReason = "server_down" | "device_or_network" | null;
+type StatusFilter = "all" | "has_offline" | "all_online";
+type SortField = "offline" | "online" | "total" | "school_name";
+type SortOrder = "asc" | "desc";
 
 interface DeviceDetail {
   device_id: string;
@@ -76,6 +85,13 @@ interface SchoolDeviceSummaryItem {
   total: number;
   offline_reason: OfflineReason;
   devices: DeviceDetail[];
+}
+
+interface FetchParams {
+  search: string;
+  status_filter: StatusFilter;
+  sort_by: SortField;
+  sort_order: SortOrder;
 }
 
 // ----------------------------------------
@@ -173,7 +189,6 @@ const DeviceGroupBlock = ({
 
   return (
     <div style={{ marginBottom: 20 }}>
-      {/* App Group Header */}
       <Flex
         align="center"
         gap={10}
@@ -188,24 +203,17 @@ const DeviceGroupBlock = ({
           {appName}
         </Text>
         <Flex gap={4} style={{ marginLeft: "auto" }}>
-          <Tag
-            color="success"
-            style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
-          >
+          <Tag color="success" style={{ margin: 0, fontSize: 11, borderRadius: 6 }}>
             ออนไลน์ {onlineCount}
           </Tag>
           {offlineCount > 0 && (
-            <Tag
-              color="error"
-              style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
-            >
+            <Tag color="error" style={{ margin: 0, fontSize: 11, borderRadius: 6 }}>
               ออฟไลน์ {offlineCount}
             </Tag>
           )}
         </Flex>
       </Flex>
 
-      {/* Device rows */}
       <Flex vertical gap={6}>
         {devices.map((device) => {
           const lastSeen = device.online_time
@@ -232,7 +240,6 @@ const DeviceGroupBlock = ({
                 }`,
               }}
             >
-              {/* ซ้าย: ชื่อเครื่อง + ID */}
               <Flex align="center" gap={10}>
                 <Badge
                   status={effectiveOnline ? "success" : "error"}
@@ -261,9 +268,7 @@ const DeviceGroupBlock = ({
                 </Flex>
               </Flex>
 
-              {/* ขวา: toggle แจ้งเตือน + สถานะ + เวลา */}
               <Flex align="center" gap={12}>
-                {/* Toggle การแจ้งเตือน */}
                 <Tooltip
                   title={
                     device.notify_enabled
@@ -340,30 +345,89 @@ const DeviceGroupBlock = ({
 // ----------------------------------------
 /*
  * Tab แสดงอุปกรณ์จัดกลุ่มตามโรงเรียน พร้อม Drawer ดูสถานะรายเครื่องและตั้งค่าการแจ้งเตือน
+ * Filter/Sort ทำงานที่ API layer — UI ทำหน้าที่เก็บ state และส่ง query params เท่านั้น
  */
 export const SchoolDeviceTab = () => {
   const [data, setData] = useState<SchoolDeviceSummaryItem[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedSchool, setSelectedSchool] =
-    useState<SchoolDeviceSummaryItem | null>(null);
+  const [selectedSchool, setSelectedSchool] = useState<SchoolDeviceSummaryItem | null>(null);
   const [togglingDeviceId, setTogglingDeviceId] = useState<string | null>(null);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await callApiService.get(
-        "/api/v2/hardware/school-device-summary",
-      );
-      setData(res.data?.data?.items ?? []);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const [searchText, setSearchText] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [sortBy, setSortBy] = useState<SortField>("offline");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const fetchData = useCallback(
+    async (params: FetchParams) => {
+      setLoading(true);
+      try {
+        const query = new URLSearchParams({
+          search: params.search,
+          status_filter: params.status_filter,
+          sort_by: params.sort_by,
+          sort_order: params.sort_order,
+        });
+        const res = await callApiService.get(
+          `/api/v2/hardware/school-device-summary?${query.toString()}`,
+        );
+        setData(res.data?.data?.items ?? []);
+        setTotal(res.data?.data?.total ?? 0);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
-    void fetchData();
-  }, [fetchData]);
+    void fetchData({ search: searchText, status_filter: statusFilter, sort_by: sortBy, sort_order: sortOrder });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter, sortBy, sortOrder]);
+
+  // debounce search 400ms
+  const handleSearchChange = (value: string) => {
+    setSearchText(value);
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    searchTimerRef.current = setTimeout(() => {
+      void fetchData({ search: value, status_filter: statusFilter, sort_by: sortBy, sort_order: sortOrder });
+    }, 400);
+  };
+
+  const handleClearFilter = () => {
+    setSearchText("");
+    setStatusFilter("all");
+    setSortBy("offline");
+    setSortOrder("desc");
+    void fetchData({ search: "", status_filter: "all", sort_by: "offline", sort_order: "desc" });
+  };
+
+  // จัดการ sort จาก Table column header
+  const handleTableChange = (
+    _: unknown,
+    __: unknown,
+    sorter: SorterResult<SchoolDeviceSummaryItem> | SorterResult<SchoolDeviceSummaryItem>[],
+  ) => {
+    const s = Array.isArray(sorter) ? sorter[0] : sorter;
+    if (!s || !s.columnKey || !s.order) return;
+
+    const fieldMap: Record<string, SortField> = {
+      offline: "offline",
+      online: "online",
+      total: "total",
+      school: "school_name",
+    };
+    const newSortBy: SortField = fieldMap[s.columnKey as string] ?? "offline";
+    const newSortOrder: SortOrder = s.order === "ascend" ? "asc" : "desc";
+
+    setSortBy(newSortBy);
+    setSortOrder(newSortOrder);
+    // fetchData จะถูกเรียกจาก useEffect ที่ watch sortBy/sortOrder
+  };
 
   const openDrawer = (record: SchoolDeviceSummaryItem) => {
     setSelectedSchool(record);
@@ -375,8 +439,7 @@ export const SchoolDeviceTab = () => {
     async (schoolId: number, deviceId: string, enabled: boolean) => {
       setTogglingDeviceId(deviceId);
 
-      // optimistic update
-      const updateDeviceInList = (items: SchoolDeviceSummaryItem[]) =>
+      const patchDevice = (items: SchoolDeviceSummaryItem[]) =>
         items.map((school) => {
           if (school.school_id !== schoolId) return school;
           return {
@@ -387,9 +450,9 @@ export const SchoolDeviceTab = () => {
           };
         });
 
-      setData((prev) => updateDeviceInList(prev));
+      setData((prev) => patchDevice(prev));
       setSelectedSchool((prev) =>
-        prev && prev.school_id === schoolId
+        prev?.school_id === schoolId
           ? {
               ...prev,
               devices: prev.devices.map((d) =>
@@ -410,9 +473,9 @@ export const SchoolDeviceTab = () => {
             : `ปิดการแจ้งเตือนอุปกรณ์ ${deviceId} สำเร็จ`,
         );
       } catch {
-        // rollback หากเกิดข้อผิดพลาด
-        setData((prev) =>
-          prev.map((school) => {
+        // rollback
+        const rollback = (items: SchoolDeviceSummaryItem[]) =>
+          items.map((school) => {
             if (school.school_id !== schoolId) return school;
             return {
               ...school,
@@ -420,10 +483,10 @@ export const SchoolDeviceTab = () => {
                 d.device_id === deviceId ? { ...d, notify_enabled: !enabled } : d,
               ),
             };
-          }),
-        );
+          });
+        setData((prev) => rollback(prev));
         setSelectedSchool((prev) =>
-          prev && prev.school_id === schoolId
+          prev?.school_id === schoolId
             ? {
                 ...prev,
                 devices: prev.devices.map((d) =>
@@ -467,7 +530,13 @@ export const SchoolDeviceTab = () => {
     {
       title: "โรงเรียน",
       key: "school",
-      sorter: (a, b) => a.school_name.localeCompare(b.school_name),
+      sorter: true,
+      sortOrder:
+        sortBy === "school_name"
+          ? sortOrder === "asc"
+            ? "ascend"
+            : "descend"
+          : null,
       render: (_: unknown, record: SchoolDeviceSummaryItem) => (
         <Flex vertical gap={2}>
           <Text strong style={{ fontSize: 13 }}>
@@ -483,18 +552,21 @@ export const SchoolDeviceTab = () => {
       ),
     },
     {
-      title: "อุปกรณ์ออนไลน์",
+      title: "ออนไลน์",
       dataIndex: "online",
       key: "online",
       align: "center",
-      sorter: (a, b) => a.online - b.online,
+      sorter: true,
+      sortOrder:
+        sortBy === "online"
+          ? sortOrder === "asc"
+            ? "ascend"
+            : "descend"
+          : null,
       render: (val: number, record: SchoolDeviceSummaryItem) => (
         <Flex align="center" justify="center" gap={6}>
           <WifiOutlined style={{ color: "#16a34a", fontSize: 13 }} />
-          <Tag
-            color="success"
-            style={{ margin: 0, fontWeight: 600, borderRadius: 8 }}
-          >
+          <Tag color="success" style={{ margin: 0, fontWeight: 600, borderRadius: 8 }}>
             {val} เครื่อง
           </Tag>
           {record.total > 0 && (
@@ -506,12 +578,17 @@ export const SchoolDeviceTab = () => {
       ),
     },
     {
-      title: "อุปกรณ์ออฟไลน์",
+      title: "ออฟไลน์",
       dataIndex: "offline",
       key: "offline",
       align: "center",
-      sorter: (a, b) => a.offline - b.offline,
-      defaultSortOrder: "descend",
+      sorter: true,
+      sortOrder:
+        sortBy === "offline"
+          ? sortOrder === "asc"
+            ? "ascend"
+            : "descend"
+          : null,
       render: (val: number) => (
         <Flex align="center" justify="center" gap={6}>
           <Tag
@@ -521,6 +598,24 @@ export const SchoolDeviceTab = () => {
             {val} เครื่อง
           </Tag>
         </Flex>
+      ),
+    },
+    {
+      title: "รวม",
+      dataIndex: "total",
+      key: "total",
+      align: "center",
+      sorter: true,
+      sortOrder:
+        sortBy === "total"
+          ? sortOrder === "asc"
+            ? "ascend"
+            : "descend"
+          : null,
+      render: (val: number) => (
+        <Text type="secondary" style={{ fontSize: 13 }}>
+          {val} เครื่อง
+        </Text>
       ),
     },
     {
@@ -535,49 +630,49 @@ export const SchoolDeviceTab = () => {
           onClick={() => openDrawer(record)}
           style={{ borderRadius: 8, height: 32 }}
         >
-          ดูสถานะอุปกรณ์
+          ดูสถานะ
         </Button>
       ),
     },
   ];
 
+  const hasActiveFilter =
+    searchText !== "" || statusFilter !== "all" || sortBy !== "offline" || sortOrder !== "desc";
+
   return (
     <>
       <Card styles={{ body: { padding: 16 } }} style={{ borderRadius: 16 }}>
-        <Flex
-          align="center"
-          justify="space-between"
-          style={{ marginBottom: 16 }}
-        >
+        {/* หัว Card */}
+        <Flex align="center" justify="space-between" style={{ marginBottom: 16 }}>
           <Flex align="center" gap={10}>
             <UnorderedListOutlined style={{ fontSize: "1rem" }} />
             <Text strong style={{ fontSize: 14 }}>
               อุปกรณ์ตามรายชื่อโรงเรียน
             </Text>
-            <Tag style={{ borderRadius: 8 }}>{data.length} โรงเรียน</Tag>
+            <Tag style={{ borderRadius: 8 }}>{total} โรงเรียน</Tag>
           </Flex>
           <Button
             icon={<ReloadOutlined />}
             loading={loading}
-            onClick={fetchData}
+            onClick={() =>
+              fetchData({ search: searchText, status_filter: statusFilter, sort_by: sortBy, sort_order: sortOrder })
+            }
             style={{ borderRadius: 10 }}
           >
             รีเฟรช
           </Button>
         </Flex>
 
+        {/* Summary Cards */}
         <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
           <Col xs={12} sm={6}>
-            <Card
-              size="small"
-              style={{ borderRadius: 10, textAlign: "center" }}
-            >
+            <Card size="small" style={{ borderRadius: 10, textAlign: "center" }}>
               <Text type="secondary" style={{ fontSize: 11 }}>
                 โรงเรียนทั้งหมด
               </Text>
               <div>
                 <Text strong style={{ fontSize: 22 }}>
-                  {data.length}
+                  {total}
                 </Text>
                 <Text type="secondary" style={{ fontSize: 11, marginLeft: 4 }}>
                   แห่ง
@@ -586,10 +681,7 @@ export const SchoolDeviceTab = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6}>
-            <Card
-              size="small"
-              style={{ borderRadius: 10, textAlign: "center" }}
-            >
+            <Card size="small" style={{ borderRadius: 10, textAlign: "center" }}>
               <Text type="secondary" style={{ fontSize: 11 }}>
                 มีอุปกรณ์ออฟไลน์
               </Text>
@@ -604,10 +696,7 @@ export const SchoolDeviceTab = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6}>
-            <Card
-              size="small"
-              style={{ borderRadius: 10, textAlign: "center" }}
-            >
+            <Card size="small" style={{ borderRadius: 10, textAlign: "center" }}>
               <Text type="secondary" style={{ fontSize: 11 }}>
                 ออนไลน์ทั้งหมด
               </Text>
@@ -622,10 +711,7 @@ export const SchoolDeviceTab = () => {
             </Card>
           </Col>
           <Col xs={12} sm={6}>
-            <Card
-              size="small"
-              style={{ borderRadius: 10, textAlign: "center" }}
-            >
+            <Card size="small" style={{ borderRadius: 10, textAlign: "center" }}>
               <Text type="secondary" style={{ fontSize: 11 }}>
                 ออฟไลน์ทั้งหมด
               </Text>
@@ -641,6 +727,83 @@ export const SchoolDeviceTab = () => {
           </Col>
         </Row>
 
+        {/* Filter Section */}
+        <Card
+          size="small"
+          style={{ borderRadius: 12, marginBottom: 16, border: "1px solid rgba(128,128,128,0.15)" }}
+          styles={{ body: { padding: "12px 16px" } }}
+        >
+          <Flex align="center" gap={8} style={{ marginBottom: 12 }}>
+            <FilterOutlined style={{ fontSize: "1rem", fontWeight: 600 }} />
+            <Text strong style={{ fontSize: 13, fontWeight: 600 }}>
+              ตัวกรอง
+            </Text>
+          </Flex>
+          <Row gutter={[12, 12]}>
+            <Col xs={24} sm={12}>
+              <Text type="secondary" style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
+                ค้นหาโรงเรียน
+              </Text>
+              <Input
+                prefix={<SearchOutlined style={{ color: "rgba(128,128,128,0.5)" }} />}
+                placeholder="ชื่อโรงเรียน หรือ School ID"
+                value={searchText}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                allowClear
+                style={{ borderRadius: 8 }}
+              />
+            </Col>
+            <Col xs={24} sm={12}>
+              <Text type="secondary" style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
+                สถานะอุปกรณ์
+              </Text>
+              <Select
+                value={statusFilter}
+                onChange={(val) => setStatusFilter(val)}
+                style={{ width: "100%", borderRadius: 8 }}
+                options={[
+                  { value: "all", label: "ทั้งหมด" },
+                  { value: "has_offline", label: "มีอุปกรณ์ออฟไลน์" },
+                  { value: "all_online", label: "ออนไลน์ทุกเครื่อง" },
+                ]}
+              />
+            </Col>
+          </Row>
+          <Flex justify="end" gap={8} style={{ marginTop: 12 }}>
+            <Button
+              disabled={!hasActiveFilter}
+              onClick={handleClearFilter}
+              style={{ borderRadius: 8 }}
+            >
+              ล้างการค้นหา
+            </Button>
+          </Flex>
+        </Card>
+
+        {/* Sort indicator */}
+        {(sortBy !== "offline" || sortOrder !== "desc") && (
+          <Flex align="center" gap={6} style={{ marginBottom: 8 }}>
+            {sortOrder === "asc" ? (
+              <SortAscendingOutlined style={{ fontSize: 13, color: "var(--ant-color-primary)" }} />
+            ) : (
+              <SortDescendingOutlined style={{ fontSize: 13, color: "var(--ant-color-primary)" }} />
+            )}
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              เรียงตาม:{" "}
+              <Text strong style={{ fontSize: 12 }}>
+                {sortBy === "school_name"
+                  ? "ชื่อโรงเรียน"
+                  : sortBy === "online"
+                  ? "ออนไลน์"
+                  : sortBy === "total"
+                  ? "รวม"
+                  : "ออฟไลน์"}
+              </Text>{" "}
+              ({sortOrder === "asc" ? "น้อยไปมาก" : "มากไปน้อย"})
+            </Text>
+          </Flex>
+        )}
+
         <Table
           rowKey="school_id"
           columns={columns}
@@ -648,9 +811,10 @@ export const SchoolDeviceTab = () => {
           loading={loading}
           size="middle"
           scroll={{ x: 700 }}
+          onChange={handleTableChange}
           pagination={{
             pageSize: 20,
-            showTotal: (total) => `ทั้งหมด ${total} โรงเรียน`,
+            showTotal: (t) => `ทั้งหมด ${t} โรงเรียน`,
             showSizeChanger: false,
           }}
           locale={{ emptyText: "ไม่พบข้อมูลโรงเรียน" }}
@@ -676,17 +840,11 @@ export const SchoolDeviceTab = () => {
               </Text>
             </Flex>
             <Space size={6}>
-              <Tag
-                color="success"
-                style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
-              >
+              <Tag color="success" style={{ margin: 0, fontSize: 11, borderRadius: 6 }}>
                 ออนไลน์ {selectedSchool?.online} เครื่อง
               </Tag>
               {(selectedSchool?.offline ?? 0) > 0 && (
-                <Tag
-                  color="error"
-                  style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
-                >
+                <Tag color="error" style={{ margin: 0, fontSize: 11, borderRadius: 6 }}>
                   ออฟไลน์ {selectedSchool?.offline} เครื่อง
                 </Tag>
               )}

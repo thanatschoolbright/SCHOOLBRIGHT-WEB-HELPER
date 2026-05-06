@@ -95,15 +95,27 @@ API routes are versioned under `src/app/api/`:
 
 URL pattern: `/api/{version}/{domain}/{resource}/{action}`
 
-Within each feature, files are organized by operation:
+Within each feature, files are organized by operation. Two patterns coexist — use the 3-tier pattern for new work:
 
+**Legacy pattern** (older routes):
 ```
-{feature}/create/route.ts              # POST handler
-{feature}/read/route.ts                # GET handler
-{feature}/service/{feature}-service.ts # Business logic & Prisma queries
-{feature}/validation/{feature}-schema.ts # Zod schema
-{feature}/docs/{operation}-spec.md     # Required for create/update routes
+{feature}/create/route.ts
+{feature}/read/route.ts
+{feature}/service/{feature}-service.ts
+{feature}/validation/{feature}-schema.ts
+{feature}/docs/{operation}-spec.md
 ```
+
+**3-tier pattern** (new routes — underscore prefix keeps folders out of Next.js router):
+```
+{feature}/{action}/route.ts                         # Controller: auth check, validate, call service, return response
+{feature}/_service/{feature}-service.ts             # Business logic only — throws Error on rule violations
+{feature}/_repository/{feature}-repository.ts       # Prisma queries only — receives tx when inside a transaction
+{feature}/_validation/{feature}-schema.ts           # Zod schema + exported DTO type (z.infer)
+{feature}/_docs/{operation}-spec.md                 # Required for create/update routes
+```
+
+Flow: `route.ts → _service → _repository → Database`
 
 All files and folders use **kebab-case**. API payload fields (request/response) use **snake_case**. Variables and functions use **camelCase**.
 
@@ -165,12 +177,22 @@ src/app/{domain}/{feature}/
 - **Filter sections**: Heading "ตัวกรอง" uses `<FilterOutlined />` (`fontSize: 1rem, fontWeight: 600`) with `marginBottom: 16px`. Layout is 2 columns per row (`Col`/`Row`). "ค้นหา" and "ล้างการค้นหา" buttons right-aligned with icons.
 - **Tables**: Wrap content in `<Card styles={{ body: { padding: 16 } }}>`. Use `<UnorderedListOutlined />` (1rem) for table headings. Action buttons (bulk actions, export, etc.) go top-right of the table section. Add sort to all sortable columns. Never use `maxWidth` on columns.
 - **Font weight**: Maximum 600.
-- **Dates**: Use `dayjs` for all date manipulation and formatting — it is the project standard.
+- **Dates**: Use `dayjs` for all date manipulation and formatting. Client components that display timestamps must set up timezone at the top of the file:
+  ```ts
+  import dayjs from "dayjs";
+  import "dayjs/locale/th";
+  import relativeTime from "dayjs/plugin/relativeTime";
+  import timezone from "dayjs/plugin/timezone";
+  import utc from "dayjs/plugin/utc";
+  dayjs.extend(utc); dayjs.extend(timezone); dayjs.extend(relativeTime);
+  dayjs.locale("th"); dayjs.tz.setDefault("Asia/Bangkok");
+  ```
 - **Charts**: Use `@ant-design/plots` (preferred) or `react-chartjs-2` / `chart.js` for data visualizations.
 - **Export**: Use `exceljs` for Excel, `jspdf` + `jspdf-autotable` for PDF, `docx` for Word, and `file-saver` to trigger browser downloads.
-- **Naming**: Use full, descriptive identifiers — `requestUserByID` not `req`, `responseOvertimeList` not `res`. Write one Thai-language comment above every function (no emojis in comments).
+- **Naming**: Use full, descriptive identifiers — `requestUserByID` not `req`, `responseOvertimeList` not `res`. Write one Thai-language comment above every function.
+- **Function comments**: Newer code uses `// ✨ คำอธิบาย` (emoji prefix allowed in function-level comments only). Both styles exist; match the style of the file you're editing.
 - **Language**: All UI text must be 100% Thai — no mixing Thai and English words in labels, buttons, or toast messages.
-- **No emojis**: Strictly forbidden in code, comments, strings, and UI. Exception: commit messages use `✨` prefix only.
+- **No emojis in UI/strings**: Strictly forbidden in labels, button text, toast messages, and string literals. Exception: `✨` prefix in commit messages and function-level Thai comments.
 
 ### Authentication
 

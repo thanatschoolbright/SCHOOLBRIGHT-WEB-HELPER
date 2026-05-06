@@ -3,7 +3,7 @@ import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import { API_URL } from "@/services/api-url";
 import prisma from "@helpers/prisma";
 import axios from "axios";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const TEN_MIN_IN_MS = 10 * 60 * 1000;
 
@@ -40,9 +40,15 @@ async function checkHardwareServerHealth(): Promise<boolean> {
   }
 }
 
-// GET handler — ดึงสรุปสถานะอุปกรณ์จัดกลุ่มตามโรงเรียน พร้อมรายละเอียดแต่ละเครื่องและสาเหตุ offline
-export async function GET(): Promise<NextResponse> {
+// GET handler — ดึงสรุปสถานะอุปกรณ์จัดกลุ่มตามโรงเรียน พร้อม filter/sort จาก query params
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
+    const { searchParams } = request.nextUrl;
+    const search = searchParams.get("search")?.trim().toLowerCase() ?? "";
+    const statusFilter = searchParams.get("status_filter") ?? "all"; // all | has_offline | all_online
+    const sortBy = searchParams.get("sort_by") ?? "offline"; // offline | online | total | school_name
+    const sortOrder = searchParams.get("sort_order") ?? "desc"; // asc | desc
+
     const now = new Date();
 
     const [allDevices, allSchools, hardwareServerOk] = await Promise.all([
@@ -93,10 +99,9 @@ export async function GET(): Promise<NextResponse> {
 
     for (const device of allDevices) {
       const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
-      const isOnline =
-        (onlineTime
-          ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
-          : false);
+      const isOnline = onlineTime
+        ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
+        : false;
 
       if (!schoolMap.has(device.SchoolID)) {
         schoolMap.set(device.SchoolID, {
@@ -117,7 +122,6 @@ export async function GET(): Promise<NextResponse> {
         entry.online++;
       } else {
         entry.offline++;
-        // ถ้าโรงเรียนมีเครื่อง offline อย่างน้อย 1 เครื่อง ให้ระบุสาเหตุ
         entry.offline_reason = offlineReason;
       }
 
@@ -134,14 +138,47 @@ export async function GET(): Promise<NextResponse> {
       });
     }
 
-    // เรียงลำดับตาม offline มากสุดก่อน
-    const data = Array.from(schoolMap.values()).sort(
-      (a, b) => b.offline - a.offline || a.school_id - b.school_id,
-    );
+    let data = Array.from(schoolMap.values());
+
+    // กรองตาม search (ชื่อโรงเรียน หรือ school_id)
+    if (search) {
+      data = data.filter(
+        (s) =>
+          s.school_name.toLowerCase().includes(search) ||
+          String(s.school_id).includes(search),
+      );
+    }
+
+    // กรองตาม status
+    if (statusFilter === "has_offline") {
+      data = data.filter((s) => s.offline > 0);
+    } else if (statusFilter === "all_online") {
+      data = data.filter((s) => s.offline === 0);
+    }
+
+    // เรียงลำดับตาม sort_by / sort_order
+    data.sort((a, b) => {
+      let diff = 0;
+      if (sortBy === "school_name") {
+        diff = a.school_name.localeCompare(b.school_name, "th");
+      } else if (sortBy === "online") {
+        diff = a.online - b.online;
+      } else if (sortBy === "total") {
+        diff = a.total - b.total;
+      } else {
+        // default: offline
+        diff = a.offline - b.offline;
+      }
+      return sortOrder === "asc" ? diff : -diff;
+    });
 
     return NextResponse.json(
       successResponse({
-        data: { items: data, hardware_server_ok: hardwareServerOk },
+        data: {
+          items: data,
+          total: data.length,
+          hardware_server_ok: hardwareServerOk,
+        },
         message_th: "ดึงข้อมูลสรุปอุปกรณ์ตามโรงเรียนสำเร็จ",
         message_en: "School device summary fetched successfully",
       }),

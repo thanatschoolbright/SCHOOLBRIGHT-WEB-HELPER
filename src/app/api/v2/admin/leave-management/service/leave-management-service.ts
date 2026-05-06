@@ -1,3 +1,4 @@
+import { API_URL } from "@/services/api-url";
 import axios from "axios";
 import https from "https";
 import {
@@ -16,7 +17,7 @@ export class LeaveManagementService {
    * ดึง Token สำหรับเข้าใช้งาน API พร้อม userId และ schoolId ที่ได้จากการ Login
    */
   private static async getAuthToken() {
-    const apiUrl = "https://apimobiledev.schoolbright.co";
+    const apiUrl = API_URL.PROD_SB_API_URL;
     const loginEndpoint = "/api/login";
     const loginUrl = `${apiUrl}${loginEndpoint}`;
 
