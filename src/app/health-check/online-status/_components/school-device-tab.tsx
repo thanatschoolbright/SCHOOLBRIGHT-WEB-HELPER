@@ -5,14 +5,18 @@ import {
   BellFilled,
   BellOutlined,
   CameraOutlined,
+  CheckCircleFilled,
   ClockCircleOutlined,
+  CloseCircleFilled,
   CreditCardOutlined,
   DatabaseOutlined,
   DesktopOutlined,
   EyeOutlined,
   FilterOutlined,
   LaptopOutlined,
+  LoadingOutlined,
   MobileOutlined,
+  MinusCircleOutlined,
   QuestionCircleOutlined,
   ReloadOutlined,
   SearchOutlined,
@@ -31,6 +35,8 @@ import {
   Drawer,
   Flex,
   Input,
+  Modal,
+  Progress,
   Row,
   Select,
   Space,
@@ -353,6 +359,288 @@ const DeviceGroupBlock = ({
 };
 
 // ----------------------------------------
+// Batch Progress Types
+// ----------------------------------------
+type BatchRowStatus = "waiting" | "processing" | "success" | "error";
+
+interface BatchProgressRow {
+  device_id: string;
+  label: string;
+  status: BatchRowStatus;
+  error?: string;
+}
+
+// ----------------------------------------
+// BatchProgressModal — แสดง delivery tracking ทีละ row
+// ----------------------------------------
+const STEP_LABELS = ["รอดำเนินการ", "กำลังบันทึก", "เสร็จสิ้น"];
+
+const BatchProgressModal = ({
+  open,
+  targetEnabled,
+  rows,
+  onClose,
+}: {
+  open: boolean;
+  targetEnabled: boolean;
+  rows: BatchProgressRow[];
+  onClose: () => void;
+}) => {
+  const doneCount = rows.filter(
+    (r) => r.status === "success" || r.status === "error",
+  ).length;
+  const successCount = rows.filter((r) => r.status === "success").length;
+  const errorCount = rows.filter((r) => r.status === "error").length;
+  const processingCount = rows.filter((r) => r.status === "processing").length;
+  const isAllDone = rows.length > 0 && doneCount === rows.length;
+  const percent =
+    rows.length > 0 ? Math.round((doneCount / rows.length) * 100) : 0;
+
+  const statusIcon = (status: BatchRowStatus) => {
+    if (status === "waiting")
+      return (
+        <MinusCircleOutlined
+          style={{ fontSize: 16, color: "rgba(128,128,128,0.4)" }}
+        />
+      );
+    if (status === "processing")
+      return (
+        <LoadingOutlined
+          style={{ fontSize: 16, color: "var(--ant-color-primary)" }}
+        />
+      );
+    if (status === "success")
+      return (
+        <CheckCircleFilled style={{ fontSize: 16, color: "#16a34a" }} />
+      );
+    return <CloseCircleFilled style={{ fontSize: 16, color: "#dc2626" }} />;
+  };
+
+  const stepIndex = (status: BatchRowStatus) => {
+    if (status === "waiting") return 0;
+    if (status === "processing") return 1;
+    return 2;
+  };
+
+  return (
+    <Modal
+      open={open}
+      title={
+        <Flex align="center" gap={8}>
+          {targetEnabled ? (
+            <BellFilled style={{ color: "#16a34a" }} />
+          ) : (
+            <BellOutlined style={{ color: "rgba(128,128,128,0.5)" }} />
+          )}
+          <Text strong style={{ fontSize: 15 }}>
+            {targetEnabled ? "เปิดการแจ้งเตือนทั้งหมด" : "ปิดการแจ้งเตือนทั้งหมด"}
+          </Text>
+        </Flex>
+      }
+      footer={
+        isAllDone ? (
+          <Flex justify="space-between" align="center">
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              สำเร็จ {successCount} รายการ
+              {errorCount > 0 && (
+                <Text style={{ color: "#dc2626", marginLeft: 8 }}>
+                  ล้มเหลว {errorCount} รายการ
+                </Text>
+              )}
+            </Text>
+            <Button type="primary" onClick={onClose} style={{ borderRadius: 8 }}>
+              ปิด
+            </Button>
+          </Flex>
+        ) : null
+      }
+      closable={isAllDone}
+      onCancel={isAllDone ? onClose : undefined}
+      maskClosable={false}
+      width={620}
+      style={{ top: 60 }}
+    >
+      {/* Progress bar รวม */}
+      <div style={{ marginBottom: 16 }}>
+        <Flex justify="space-between" style={{ marginBottom: 4 }}>
+          <Text style={{ fontSize: 12 }}>
+            {isAllDone
+              ? "ดำเนินการครบทุกรายการแล้ว"
+              : processingCount > 0
+              ? `กำลังดำเนินการ...`
+              : "เตรียมพร้อม"}
+          </Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            {doneCount}/{rows.length} รายการ
+          </Text>
+        </Flex>
+        <Progress
+          percent={percent}
+          status={isAllDone ? (errorCount > 0 ? "exception" : "success") : "active"}
+          strokeColor={
+            isAllDone
+              ? errorCount > 0
+                ? "#dc2626"
+                : "#16a34a"
+              : "var(--ant-color-primary)"
+          }
+          size="small"
+        />
+      </div>
+
+      {/* รายการ row แบบ delivery tracking */}
+      <div
+        style={{
+          maxHeight: 420,
+          overflowY: "auto",
+          display: "flex",
+          flexDirection: "column",
+          gap: 8,
+        }}
+      >
+        {rows.map((row) => {
+          const currentStep = stepIndex(row.status);
+          return (
+            <div
+              key={row.device_id}
+              style={{
+                borderRadius: 10,
+                border: `1px solid ${
+                  row.status === "success"
+                    ? "rgba(22,163,74,0.25)"
+                    : row.status === "error"
+                    ? "rgba(220,38,38,0.25)"
+                    : row.status === "processing"
+                    ? "rgba(22,119,255,0.25)"
+                    : "rgba(128,128,128,0.15)"
+                }`,
+                background:
+                  row.status === "success"
+                    ? "rgba(22,163,74,0.04)"
+                    : row.status === "error"
+                    ? "rgba(220,38,38,0.04)"
+                    : row.status === "processing"
+                    ? "rgba(22,119,255,0.04)"
+                    : "transparent",
+                padding: "10px 14px",
+                transition: "all 0.2s",
+              }}
+            >
+              {/* Row header: icon + ชื่อ */}
+              <Flex align="center" gap={10} style={{ marginBottom: 8 }}>
+                {statusIcon(row.status)}
+                <Flex vertical gap={1} flex={1}>
+                  <Text strong style={{ fontSize: 13 }}>
+                    {row.label}
+                  </Text>
+                  <Text
+                    type="secondary"
+                    style={{ fontSize: 11, fontFamily: "monospace" }}
+                  >
+                    {row.device_id}
+                  </Text>
+                </Flex>
+                {row.status === "error" && row.error && (
+                  <Tooltip title={row.error}>
+                    <Text style={{ fontSize: 11, color: "#dc2626" }}>
+                      ล้มเหลว
+                    </Text>
+                  </Tooltip>
+                )}
+              </Flex>
+
+              {/* Step track: รอ → กำลังบันทึก → เสร็จสิ้น */}
+              <Flex align="center" gap={0}>
+                {STEP_LABELS.map((label, idx) => {
+                  const isPast = currentStep > idx;
+                  const isCurrent = currentStep === idx;
+                  const isError = row.status === "error" && idx === 2;
+                  const dotColor = isError
+                    ? "#dc2626"
+                    : isPast || isCurrent
+                    ? "#16a34a"
+                    : "rgba(128,128,128,0.25)";
+                  const lineColor =
+                    isPast ? "#16a34a" : "rgba(128,128,128,0.2)";
+                  return (
+                    <Flex key={label} align="center" flex={idx < 2 ? 1 : undefined}>
+                      {/* Dot */}
+                      <Flex
+                        align="center"
+                        justify="center"
+                        style={{
+                          width: 18,
+                          height: 18,
+                          borderRadius: "50%",
+                          border: `2px solid ${dotColor}`,
+                          background:
+                            isPast || (isCurrent && row.status !== "waiting")
+                              ? dotColor
+                              : "transparent",
+                          flexShrink: 0,
+                          transition: "all 0.25s",
+                        }}
+                      >
+                        {isCurrent && row.status === "processing" && (
+                          <LoadingOutlined
+                            style={{ fontSize: 9, color: "#fff" }}
+                          />
+                        )}
+                        {isPast && !isError && (
+                          <CheckCircleFilled
+                            style={{ fontSize: 10, color: "#fff" }}
+                          />
+                        )}
+                        {isError && (
+                          <CloseCircleFilled
+                            style={{ fontSize: 10, color: "#fff" }}
+                          />
+                        )}
+                      </Flex>
+                      {/* Label */}
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          color: isCurrent
+                            ? isError
+                              ? "#dc2626"
+                              : "var(--ant-color-primary)"
+                            : isPast
+                            ? "#16a34a"
+                            : "rgba(128,128,128,0.5)",
+                          marginLeft: 4,
+                          whiteSpace: "nowrap",
+                          fontWeight: isCurrent ? 600 : 400,
+                        }}
+                      >
+                        {label}
+                      </Text>
+                      {/* Line connector */}
+                      {idx < 2 && (
+                        <div
+                          style={{
+                            flex: 1,
+                            height: 2,
+                            background: lineColor,
+                            margin: "0 6px",
+                            borderRadius: 1,
+                            transition: "background 0.3s",
+                          }}
+                        />
+                      )}
+                    </Flex>
+                  );
+                })}
+              </Flex>
+            </div>
+          );
+        })}
+      </div>
+    </Modal>
+  );
+};
+
+// ----------------------------------------
 // Main Component
 // ----------------------------------------
 /*
@@ -367,6 +655,11 @@ export const SchoolDeviceTab = () => {
   const [selectedSchool, setSelectedSchool] =
     useState<SchoolDeviceSummaryItem | null>(null);
   const [togglingDeviceId, setTogglingDeviceId] = useState<string | null>(null);
+
+  // Batch toggle state
+  const [batchModalOpen, setBatchModalOpen] = useState(false);
+  const [batchTargetEnabled, setBatchTargetEnabled] = useState(false);
+  const [batchRows, setBatchRows] = useState<BatchProgressRow[]>([]);
 
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -531,6 +824,97 @@ export const SchoolDeviceTab = () => {
         toast.error("ไม่สามารถบันทึกการตั้งค่าได้ กรุณาลองอีกครั้ง");
       } finally {
         setTogglingDeviceId(null);
+      }
+    },
+    [],
+  );
+
+  // เปิด/ปิดการแจ้งเตือนทุกเครื่องในโรงเรียนพร้อมกัน ทีละ 1 เครื่องแบบ sequential tracking
+  const handleBatchToggle = useCallback(
+    async (schoolId: number, devices: DeviceDetail[], enabled: boolean) => {
+      const initialRows: BatchProgressRow[] = devices.map((d) => ({
+        device_id: d.device_id,
+        label: d.note?.trim() || d.device_id,
+        status: "waiting",
+      }));
+      setBatchRows(initialRows);
+      setBatchTargetEnabled(enabled);
+      setBatchModalOpen(true);
+
+      const updatedRows = [...initialRows];
+
+      for (let i = 0; i < devices.length; i++) {
+        const device = devices[i];
+
+        updatedRows[i] = { ...updatedRows[i], status: "processing" };
+        setBatchRows([...updatedRows]);
+
+        try {
+          await callApiService.post(
+            "/api/v1/hardware/machine-monitoring/device-notify-setting/toggle",
+            {
+              school_id: schoolId,
+              device_id: device.device_id,
+              notify_enabled: enabled,
+            },
+          );
+          updatedRows[i] = { ...updatedRows[i], status: "success" };
+        } catch (err: unknown) {
+          const msg =
+            err instanceof Error ? err.message : "ไม่สามารถบันทึกได้";
+          updatedRows[i] = {
+            ...updatedRows[i],
+            status: "error",
+            error: msg,
+          };
+        }
+
+        setBatchRows([...updatedRows]);
+      }
+
+      // อัพเดท state ทั้งหมดหลัง loop จบ (เฉพาะ success)
+      const successIds = new Set(
+        updatedRows
+          .filter((r) => r.status === "success")
+          .map((r) => r.device_id),
+      );
+
+      const patchDevices = (items: SchoolDeviceSummaryItem[]) =>
+        items.map((school) => {
+          if (school.school_id !== schoolId) return school;
+          return {
+            ...school,
+            devices: school.devices.map((d) =>
+              successIds.has(d.device_id)
+                ? { ...d, notify_enabled: enabled }
+                : d,
+            ),
+          };
+        });
+
+      setData((prev) => patchDevices(prev));
+      setSelectedSchool((prev) =>
+        prev?.school_id === schoolId
+          ? {
+              ...prev,
+              devices: prev.devices.map((d) =>
+                successIds.has(d.device_id)
+                  ? { ...d, notify_enabled: enabled }
+                  : d,
+              ),
+            }
+          : prev,
+      );
+
+      const errorCount = updatedRows.filter((r) => r.status === "error").length;
+      if (errorCount === 0) {
+        toast.success(
+          enabled
+            ? "เปิดการแจ้งเตือนทุกเครื่องสำเร็จ"
+            : "ปิดการแจ้งเตือนทุกเครื่องสำเร็จ",
+        );
+      } else {
+        toast.error(`ล้มเหลว ${errorCount} รายการ — ตรวจสอบใน Modal`);
       }
     },
     [],
@@ -934,8 +1318,8 @@ export const SchoolDeviceTab = () => {
                 รวม {selectedSchool?.total} เครื่อง
               </Tag>
             </Space>
-            {/* Phase 1 Tooltip */}
-            <Flex align="center" gap={6} style={{ marginTop: 2 }}>
+            {/* Phase 1 Tooltip + ปุ่ม Batch */}
+            <Flex align="center" gap={8} style={{ marginTop: 4 }}>
               <BellOutlined
                 style={{
                   fontSize: 11,
@@ -957,6 +1341,38 @@ export const SchoolDeviceTab = () => {
                   }}
                 />
               </Tooltip>
+              <div style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
+                <Button
+                  size="small"
+                  icon={<BellFilled />}
+                  style={{ borderRadius: 8, fontSize: 12, color: "#16a34a", borderColor: "#16a34a" }}
+                  onClick={() =>
+                    selectedSchool &&
+                    handleBatchToggle(
+                      selectedSchool.school_id,
+                      selectedSchool.devices,
+                      true,
+                    )
+                  }
+                >
+                  เปิดทั้งหมด
+                </Button>
+                <Button
+                  size="small"
+                  icon={<BellOutlined />}
+                  style={{ borderRadius: 8, fontSize: 12 }}
+                  onClick={() =>
+                    selectedSchool &&
+                    handleBatchToggle(
+                      selectedSchool.school_id,
+                      selectedSchool.devices,
+                      false,
+                    )
+                  }
+                >
+                  ปิดทั้งหมด
+                </Button>
+              </div>
             </Flex>
           </Flex>
         }
@@ -987,6 +1403,13 @@ export const SchoolDeviceTab = () => {
           ))
         )}
       </Drawer>
+
+      <BatchProgressModal
+        open={batchModalOpen}
+        targetEnabled={batchTargetEnabled}
+        rows={batchRows}
+        onClose={() => setBatchModalOpen(false)}
+      />
     </>
   );
 };
