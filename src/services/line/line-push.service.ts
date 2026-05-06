@@ -33,6 +33,7 @@ export async function linePushMessage(
       lineError
         ? `LINE API error ${err.response.status}: ${JSON.stringify(lineError)}`
         : err.message,
+      { cause: err },
     );
   }
 }
@@ -1235,6 +1236,105 @@ function buildAllOnlineBubble(opts: {
         },
       ],
     },
+  };
+}
+
+// ข้อมูล device แต่ละเครื่องสำหรับ cronjob endpoint
+export interface SchoolDeviceItem {
+  device_id: string;
+  app_name: string;
+  app_version: string;
+  note: string | null;
+  is_online: boolean;
+  is_login: boolean;
+  online_time: string | null;
+  offline_reason: "device_or_network" | "server_down" | null;
+  notify_enabled: boolean;
+}
+
+// ผลลัพธ์รวมสถานะเครื่องของโรงเรียนสำหรับ cronjob endpoint
+export interface SchoolDeviceStatusResult {
+  school_id: number;
+  school_name: string;
+  online: number;
+  offline: number;
+  total: number;
+  offline_reason: "device_or_network" | "server_down" | null;
+  devices: SchoolDeviceItem[];
+}
+
+// ดึงข้อมูลสถานะเครื่องทุกเครื่องของโรงเรียน พร้อม notify_enabled จาก DeviceMonitorSetting
+export async function buildSchoolDeviceStatusData(
+  schoolId: number,
+): Promise<SchoolDeviceStatusResult | null> {
+  const { PrismaTimesheet } = await import("@/helpers/prisma-timesheet");
+  const now = new Date();
+
+  const [school, devices, notifySettings] = await Promise.all([
+    prisma.activeSchoolList.findFirst({
+      where: { nCompany: schoolId },
+      select: { nCompany: true, sCompany: true },
+    }),
+    prisma.deviceDailyStatus.findMany({
+      where: { SchoolID: schoolId },
+      select: {
+        DeviceID: true,
+        AppName: true,
+        AppVersion: true,
+        Note: true,
+        OnlineTime: true,
+        Login: true,
+      },
+      orderBy: { DeviceID: "asc" },
+    }),
+    PrismaTimesheet.deviceMonitorSetting.findMany({
+      where: { school_id: schoolId },
+      select: { device_id: true, notify_enabled: true },
+    }),
+  ]);
+
+  if (!school) return null;
+
+  const notifyMap = new Map<string, boolean>(
+    notifySettings.map((s) => [s.device_id, s.notify_enabled]),
+  );
+
+  const hardwareServerOk = await checkHardwareServerHealth();
+  const serverOfflineReason = hardwareServerOk ? "device_or_network" : "server_down";
+
+  let onlineCount = 0;
+  let offlineCount = 0;
+
+  const mappedDevices: SchoolDeviceItem[] = devices.map((d) => {
+    const onlineTime = d.OnlineTime ? new Date(d.OnlineTime) : null;
+    const isOnline = onlineTime
+      ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
+      : false;
+
+    if (isOnline) onlineCount++;
+    else offlineCount++;
+
+    return {
+      device_id: d.DeviceID ?? "-",
+      app_name: d.AppName ?? "ไม่ระบุแอป",
+      app_version: d.AppVersion ?? "-",
+      note: d.Note ?? null,
+      is_online: isOnline,
+      is_login: d.Login ?? false,
+      online_time: onlineTime ? onlineTime.toISOString() : null,
+      offline_reason: isOnline ? null : serverOfflineReason,
+      notify_enabled: notifyMap.get(d.DeviceID ?? "") ?? true,
+    };
+  });
+
+  return {
+    school_id: schoolId,
+    school_name: school.sCompany ?? `โรงเรียน ${schoolId}`,
+    online: onlineCount,
+    offline: offlineCount,
+    total: devices.length,
+    offline_reason: offlineCount > 0 ? serverOfflineReason : null,
+    devices: mappedDevices,
   };
 }
 

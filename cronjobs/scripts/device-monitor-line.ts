@@ -10,6 +10,11 @@ const APP_URL =
   process.env.APP_INTERNAL_URL ?? "http://sb-helper.schoolbright.co";
 const CRON_SECRET = process.env.CRON_SECRET ?? "";
 
+// TEST_SCHOOL_ID=849 จะ bypass quiet hours และส่งเฉพาะโรงเรียนนั้น (ใช้ทดสอบ local)
+const TEST_SCHOOL_ID = process.env.TEST_SCHOOL_ID
+  ? parseInt(process.env.TEST_SCHOOL_ID, 10)
+  : null;
+
 // ✨ ตรวจสอบ Time Condition — ช่วง 18:00-06:00 ไม่ส่งแจ้งเตือน
 function isQuietHours(): boolean {
   const now = new Date();
@@ -62,12 +67,52 @@ async function fetchAndDisplayLineGroups() {
   return groups;
 }
 
-// ✨ ฟังก์ชันหลัก — ดึง LINE Groups แล้วเรียก API ส่งแจ้งเตือน
+// ✨ ส่งรายงานสถานะเครื่องของโรงเรียนเดียวไปยัง LINE Group
+async function sendSchoolReport(
+  schoolId: number,
+  timestamp: string,
+): Promise<boolean> {
+  try {
+    const response = await fetch(
+      `${APP_URL}/api/v2/hardware/school-device/cronjob/${schoolId}`,
+      {
+        method: "GET",
+        headers: { Authorization: `Bearer ${CRON_SECRET}` },
+        signal: AbortSignal.timeout(30_000),
+      },
+    );
+
+    const body = await response.json();
+    console.log(
+      `[${timestamp}] School ${schoolId} — HTTP ${response.status}`,
+    );
+    console.log(
+      `[${timestamp}] School ${schoolId} — Response:`,
+      JSON.stringify(body, null, 2),
+    );
+
+    return response.ok;
+  } catch (error) {
+    console.error(`[${timestamp}] School ${schoolId} — ERROR:`, error);
+    return false;
+  }
+}
+
+// ✨ ฟังก์ชันหลัก — ดึง LINE Groups แล้วส่งรายงานทีละโรงเรียน
 async function main() {
   const timestamp = new Date().toLocaleString("th-TH", {
     timeZone: "Asia/Bangkok",
   });
   console.log(`[${timestamp}] Starting device monitor...`);
+
+  // โหมดทดสอบ — ส่งเฉพาะโรงเรียนที่ระบุ และข้าม quiet hours
+  if (TEST_SCHOOL_ID !== null) {
+    console.log(
+      `[${timestamp}] TEST MODE — school_id=${TEST_SCHOOL_ID}, APP_URL=${APP_URL}`,
+    );
+    const ok = await sendSchoolReport(TEST_SCHOOL_ID, timestamp);
+    process.exit(ok ? 0 : 1);
+  }
 
   if (isQuietHours()) {
     console.log(
@@ -84,32 +129,34 @@ async function main() {
     process.exit(0);
   }
 
-  // เรียก API ส่งแจ้งเตือน
-  try {
-    const response = await fetch(
-      `${APP_URL}/api/v1/hardware/machine-monitoring/channel/line`,
-      {
-        method: "GET",
-        headers: { Authorization: `Bearer ${CRON_SECRET}` },
-        signal: AbortSignal.timeout(10_000),
-      },
-    );
+  // กรองเฉพาะโรงเรียนที่มี SchoolId และ GroupId ที่ใช้งานได้
+  const activeGroups = groups.filter(
+    (g) => g.SchoolId !== null && g.GroupId !== null && g.GroupId.trim() !== "",
+  );
 
-    const body = await response.json();
-    console.log(`[${timestamp}] HTTP Status: ${response.status}`);
-    console.log(`[${timestamp}] Response:`, JSON.stringify(body, null, 2));
+  console.log(
+    `[${timestamp}] Active groups with valid SchoolId+GroupId: ${activeGroups.length}`,
+  );
 
-    if (!response.ok) {
-      console.error(`[${timestamp}] FAILED — status ${response.status}`);
-      process.exit(1);
-    }
+  // ส่งรายงานทีละโรงเรียน
+  let successCount = 0;
+  let failCount = 0;
 
-    console.log(`[${timestamp}] SUCCESS`);
-    process.exit(0);
-  } catch (error) {
-    console.error(`[${timestamp}] ERROR:`, error);
+  for (const group of activeGroups) {
+    const schoolId = group.SchoolId!;
+    const ok = await sendSchoolReport(schoolId, timestamp);
+    if (ok) successCount++;
+    else failCount++;
+  }
+
+  console.log(
+    `[${timestamp}] Done — success: ${successCount}, failed: ${failCount}`,
+  );
+
+  if (failCount > 0) {
     process.exit(1);
   }
+  process.exit(0);
 }
 
 main();
