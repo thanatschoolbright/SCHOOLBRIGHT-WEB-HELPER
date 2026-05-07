@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { App, Button, Modal, Space, Tabs, Typography, theme } from "antd";
+import PermissionLayout from "@/components/layouts/permission-layout";
+import { HeaderBar } from "@/components/typhography/header-bar-component";
 import {
   AuditOutlined,
   LockOutlined,
@@ -10,11 +10,20 @@ import {
   UnlockOutlined,
 } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
-import PermissionLayout from "@/components/layouts/permission-layout";
-import { HeaderBar } from "@/components/typhography/header-bar-component";
-import { RolesTab } from "./_components/roles-tab";
+import {
+  App,
+  Button,
+  Modal,
+  Space,
+  Tabs,
+  theme,
+  Tooltip,
+  Typography,
+} from "antd";
+import { useEffect } from "react";
 import { PermissionsTab } from "./_components/permissions-tab";
 import { RoleFormModal } from "./_components/role-form-modal";
+import { RolesTab } from "./_components/roles-tab";
 import { usePermissionManagementStore } from "./_state/permission-management-store";
 
 const { Text } = Typography;
@@ -52,74 +61,88 @@ export default function PermissionManagementPage() {
   return (
     <PermissionLayout role={["ADMIN"]}>
       <DashboardLayout>
-        {/* Header */}
-        <HeaderBar
-          icon={<SafetyCertificateOutlined />}
-          title="จัดการบทบาทและสิทธิ์ (RBAC)"
-          subTitle="กำหนดโครงสร้างการเข้าถึงตามหลัก Separation of Duties (IPO Standard)"
-          extra={
-            <Space>
-              <Button
-                icon={<AuditOutlined />}
-                onClick={onSeedClick}
-                style={{ borderRadius: 8 }}
-              >
-                Seed IPO
-              </Button>
-              <Button
-                icon={<ReloadOutlined />}
-                loading={isLoading}
-                onClick={fetchData}
-                style={{ borderRadius: 8 }}
-              >
-                รีเฟรช
-              </Button>
-            </Space>
-          }
-        />
+        <div style={{ padding: "8px 24px 24px 24px" }}>
+          {/* Header */}
+          <HeaderBar
+            icon={<SafetyCertificateOutlined />}
+            title="จัดการบทบาทและความปลอดภัย"
+            subTitle="กำหนดระดับการเข้าถึงข้อมูลตามบทบาทหน้าที่ (Role-Based Access Control)"
+            extra={
+              <Space size={12}>
+                <Tooltip title="อัปเดตสิทธิ์พื้นฐานตามมาตรฐานระบบ">
+                  <Button
+                    icon={<AuditOutlined />}
+                    onClick={onSeedClick}
+                    style={{
+                      borderRadius: 10,
+                      height: 40,
+                      fontWeight: 600,
+                    }}
+                  >
+                    ติดตั้งค่าเริ่มต้น
+                  </Button>
+                </Tooltip>
+                <Button
+                  type="primary"
+                  icon={<ReloadOutlined />}
+                  loading={isLoading}
+                  onClick={fetchData}
+                  style={{
+                    borderRadius: 10,
+                    height: 40,
+                    fontWeight: 600,
+                    boxShadow: `0 4px 12px ${token.colorPrimary}40`,
+                  }}
+                >
+                  รีเฟรชข้อมูล
+                </Button>
+              </Space>
+            }
+          />
 
-        {/* Main Tabs */}
-        <Tabs
-          defaultActiveKey="1"
-          size="large"
-          style={{ marginTop: 8 }}
-          tabBarStyle={{
-            background: token.colorBgContainer,
-            borderRadius: "12px 12px 0 0",
-            padding: "0 16px",
-            marginBottom: 0,
-          }}
-          items={[
-            {
-              key: "1",
-              label: (
-                <Space>
-                  <LockOutlined />
-                  <span>จัดการบทบาท (Roles)</span>
-                </Space>
-              ),
-              children: (
-                <div style={{ paddingTop: 16 }}>
-                  <RolesTab />
-                </div>
-              ),
-            },
-            {
-              key: "2",
-              label: (
-                <Space>
-                  <UnlockOutlined />
-                  <span>รายสิทธิ์ (Permissions)</span>
-                </Space>
-              ),
-              children: (
-                <div style={{ paddingTop: 16 }}>
-                  <PermissionsTab />
-                </div>
-              ),
-            },
-          ]}
-        />
+          {/* Main Tabs */}
+          <div style={{ marginTop: 32 }}>
+            <Tabs
+              defaultActiveKey="1"
+              size="large"
+              tabBarStyle={{
+                borderBottom: `2px solid ${token.colorBorderSecondary}`,
+                marginBottom: 0,
+                paddingLeft: 4,
+              }}
+              items={[
+                {
+                  key: "1",
+                  label: (
+                    <Space style={{ padding: "4px 12px" }}>
+                      <LockOutlined style={{ fontSize: 18 }} />
+                      <span style={{ fontWeight: 700 }}>บทบาทหน้าที่</span>
+                    </Space>
+                  ),
+                  children: (
+                    <div style={{ paddingTop: 32 }}>
+                      <RolesTab />
+                    </div>
+                  ),
+                },
+                {
+                  key: "2",
+                  label: (
+                    <Space style={{ padding: "4px 12px" }}>
+                      <UnlockOutlined style={{ fontSize: 18 }} />
+                      <span style={{ fontWeight: 700 }}>รายการสิทธิ์</span>
+                    </Space>
+                  ),
+                  children: (
+                    <div style={{ paddingTop: 32 }}>
+                      <PermissionsTab />
+                    </div>
+                  ),
+                },
+              ]}
+            />
+          </div>
+        </div>
 
         {/* Modal: Create / Edit Role */}
         <RoleFormModal />

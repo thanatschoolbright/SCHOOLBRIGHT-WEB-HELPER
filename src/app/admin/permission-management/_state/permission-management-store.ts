@@ -69,55 +69,67 @@ interface PermissionManagementState {
   handleSeedPermissions: () => Promise<void>;
 }
 
-// เตรียม payload สำหรับ Seed Permissions มาตรฐาน
-const buildSeedPayload = () => {
-  // 1. สิทธิ์มาตรฐาน IPO จาก PERMISSIONS constant
-  const standardPerms = Object.entries(PERMISSIONS).map(([key, value]) => ({
-    p_code: value,
-    name_th: key.replace(/_/g, " ").toLowerCase(),
-    description: `สิทธิ์มาตรฐานระบบ: ${key}`,
-  }));
-
-  // 2. สิทธิ์การเข้าถึงเมนูฝั่ง UI (sidebar)
-  const menuPerms = [
-    // Admin System
-    { p_code: "menu.admin.user_profile", name_th: "เข้าถึงเมนู: ข้อมูลผู้ใช้งาน" },
-    { p_code: "menu.admin.role_management", name_th: "เข้าถึงเมนู: จัดการสิทธิ์" },
-    { p_code: "menu.admin.position_management", name_th: "เข้าถึงเมนู: จัดการตำแหน่ง" },
-    { p_code: "menu.admin.department_management", name_th: "เข้าถึงเมนู: จัดการแผนก" },
-    // Testing
-    { p_code: "menu.testing.load_testing", name_th: "เข้าถึงเมนู: Load Testing" },
-    // Support
-    { p_code: "menu.support.bypass_school", name_th: "เข้าถึงเมนู: Bypass School" },
-    { p_code: "menu.support.test_nfc_card", name_th: "เข้าถึงเมนู: Test NFC Card" },
-    { p_code: "menu.support.cancel_sales", name_th: "เข้าถึงเมนู: Cancel Sales" },
-    // Health Check
-    { p_code: "menu.health_check.server_status", name_th: "เข้าถึงเมนู: Server Status" },
-    { p_code: "menu.health_check.all_server_status", name_th: "เข้าถึงเมนู: All Server Status" },
-    { p_code: "menu.health_check.online_status", name_th: "เข้าถึงเมนู: Online Status" },
-    { p_code: "menu.health_check.version_control", name_th: "เข้าถึงเมนู: Version Control" },
-    { p_code: "menu.health_check.transaction_log", name_th: "เข้าถึงเมนู: Transaction Log" },
-    { p_code: "menu.health_check.heartbeats", name_th: "เข้าถึงเมนู: Heartbeats" },
-    // Mobile App
-    { p_code: "menu.mobile.notification", name_th: "เข้าถึงเมนู: Mobile Notification" },
-    { p_code: "menu.mobile.leave_letter", name_th: "เข้าถึงเมนู: Mobile Leave Letter" },
-    { p_code: "menu.mobile.statistic", name_th: "เข้าถึงเมนู: Mobile Statistics" },
-    { p_code: "menu.mobile.qrcode_health_check", name_th: "เข้าถึงเมนู: QR Health Check" },
-    { p_code: "menu.mobile.check_attendance", name_th: "เข้าถึงเมนู: Check Attendance" },
-    // Timesheet
-    { p_code: "menu.timesheet.project", name_th: "เข้าถึงเมนู: Timesheet Project" },
-    { p_code: "menu.timesheet.entry", name_th: "เข้าถึงเมนู: Timesheet Entry" },
-    { p_code: "menu.timesheet.timeline", name_th: "เข้าถึงเมนู: Timesheet Timeline" },
-    { p_code: "menu.timesheet.all", name_th: "เข้าถึงเมนู: Timesheet All (Admin)" },
-    { p_code: "menu.timesheet.overtime", name_th: "เข้าถึงเมนู: Timesheet Overtime" },
-    // Backlogs
-    { p_code: "menu.backlogs.report", name_th: "เข้าถึงเมนู: Backlogs Report" },
-    // Logger
-    { p_code: "menu.logger.api_logs", name_th: "เข้าถึงเมนู: API Logs" },
-  ].map((m) => ({ ...m, description: "สิทธิ์การเข้าถึงเมนูฝั่ง UI" }));
-
-  return [...standardPerms, ...menuPerms];
+// ชื่อภาษาไทยของแต่ละสิทธิ์ — ตรงกับ PERMISSIONS constant ทุกรายการ
+const PERMISSION_LABELS: Record<string, string> = {
+  // Admin & Core
+  ADMIN_ACCESS: "สิทธิ์ Super Admin (เข้าถึงทั้งระบบ)",
+  ROLE_MANAGE: "จัดการบทบาทและสิทธิ์",
+  USER_MANAGE: "จัดการผู้ใช้งาน",
+  AUDIT_VIEW: "ดูประวัติการตรวจสอบ",
+  // Project
+  PROJECT_READ: "ดูข้อมูลโปรเจกต์",
+  PROJECT_WRITE: "สร้าง/แก้ไขโปรเจกต์",
+  PROJECT_DELETE: "ลบโปรเจกต์",
+  // Timesheet
+  TIMESHEET_READ: "ดูข้อมูล Timesheet",
+  TIMESHEET_WRITE: "บันทึก Timesheet",
+  TIMESHEET_APPROVE: "อนุมัติ Timesheet",
+  TIMESHEET_EXPORT: "ส่งออกข้อมูล Timesheet",
+  // Finance
+  REPORT_VIEW: "ดูรายงานทั้งหมด",
+  FINANCE_READ: "ดูข้อมูลการเงิน",
+  // Menu — Health Check
+  MENU_HEALTH_CHECK: "เมนู: สถานะเซิร์ฟเวอร์",
+  MENU_HEALTH_ALL: "เมนู: สถานะเซิร์ฟเวอร์ทั้งหมด",
+  MENU_HEALTH_ONLINE: "เมนู: ตรวจสอบอุปกรณ์ออนไลน์",
+  MENU_HEALTH_VERSION: "เมนู: Version Control",
+  MENU_HEALTH_LOG: "เมนู: Transaction Log",
+  MENU_HEALTH_HEARTBEAT: "เมนู: Heartbeats",
+  // Menu — Mobile App
+  MENU_MOBILE_NOTI: "เมนู: แจ้งเตือน Mobile App",
+  MENU_MOBILE_LEAVE: "เมนู: ใบลา Mobile App",
+  MENU_MOBILE_STAT: "เมนู: สถิติ Mobile App",
+  MENU_MOBILE_QR: "เมนู: QR Health Check",
+  MENU_MOBILE_ATTENDANCE: "เมนู: ตรวจสอบการเข้างาน Mobile",
+  // Menu — Support
+  MENU_SUPPORT_BYPASS: "เมนู: Bypass School",
+  MENU_SUPPORT_NFC: "เมนู: ทดสอบ NFC Card",
+  MENU_SUPPORT_CANCEL_SALES: "เมนู: ยกเลิกรายการขาย",
+  MENU_SUPPORT_CUSTOMER: "เมนู: จัดการลูกค้า",
+  // Menu — Testing
+  MENU_TESTING_LOAD: "เมนู: Load Testing",
+  // Menu — Timesheet
+  MENU_TIMESHEET_PROJECT: "เมนู: Timesheet โปรเจกต์",
+  MENU_TIMESHEET_ENTRY: "เมนู: บันทึก Timesheet",
+  MENU_TIMESHEET_TIMELINE: "เมนู: Timeline Timesheet",
+  MENU_TIMESHEET_ALL: "เมนู: Timesheet ทั้งทีม (Admin)",
+  MENU_TIMESHEET_OVERTIME: "เมนู: Overtime",
+  MENU_OT_MANAGEMENT: "เมนู: จัดการ OT (Admin)",
+  MENU_ADMIN_LEAVE: "เมนู: จัดการวันลา (Admin)",
+  // Menu — Others
+  MENU_BACKLOGS: "เมนู: Backlogs Report",
+  MENU_LOGGER: "เมนู: API Logs",
 };
+
+// เตรียม payload สำหรับ Seed Permissions — derive จาก PERMISSIONS constant เท่านั้น ไม่มี hardcode ซ้ำ
+const buildSeedPayload = () =>
+  Object.entries(PERMISSIONS).map(([key, p_code]) => ({
+    p_code,
+    name_th: PERMISSION_LABELS[key] ?? key.replace(/_/g, " ").toLowerCase(),
+    description: p_code.startsWith("menu.")
+      ? "สิทธิ์การเข้าถึงเมนูฝั่ง UI"
+      : "สิทธิ์มาตรฐานระบบ",
+  }));
 
 export const usePermissionManagementStore = create<PermissionManagementState>(
   (set, get) => ({

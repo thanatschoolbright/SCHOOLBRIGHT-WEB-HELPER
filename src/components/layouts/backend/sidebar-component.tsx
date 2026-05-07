@@ -641,17 +641,18 @@ function CollapsedRail({
               if (!child.href) e.preventDefault();
               else onNavigate(child.href);
             }}
-            className={`sidebar-popover-child px-3 py-2 rounded-lg text-sm transition-all flex items-center gap-2 group ${
-              currentPathname === child.href
-                ? "bg-primary/10 font-bold"
-                : "hover:bg-gray-100 dark:hover:bg-white/5 active:scale-95"
-            }`}
+            className="sidebar-popover-child flex items-center gap-2 group active:scale-95"
             style={{
               color:
                 currentPathname === child.href
                   ? token.colorPrimary
                   : token.colorText,
-              paddingLeft: depth > 0 ? `${depth * 12 + 12}px` : "12px",
+              background:
+                currentPathname === child.href
+                  ? `${token.colorPrimary}12`
+                  : undefined,
+              fontWeight: currentPathname === child.href ? 700 : 500,
+              paddingLeft: depth > 0 ? `${depth * 12 + 12}px` : "10px",
             }}
           >
             {child.icon ? (
@@ -805,7 +806,7 @@ function CollapsedRail({
               key={item.href ?? item.label}
               content={renderPopoverContent(item)}
               placement="rightTop"
-              overlayClassName="sidebar-collapsed-menu-popover"
+              rootClassName="sidebar-collapsed-menu-popover"
               trigger="hover"
               mouseEnterDelay={0.1}
             >

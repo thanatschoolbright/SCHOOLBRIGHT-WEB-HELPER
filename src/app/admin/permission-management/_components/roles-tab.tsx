@@ -1,46 +1,42 @@
 "use client";
 
+import SummaryCard from "@/components/card/summary-card";
 import {
   DeleteOutlined,
   EditOutlined,
-  LockOutlined,
   PlusOutlined,
-  SafetyCertificateOutlined,
   SearchOutlined,
   TeamOutlined,
-  UserOutlined,
+  UnlockOutlined,
 } from "@ant-design/icons";
 import {
-  Badge,
+  App,
   Button,
   Card,
-  Col,
+  Flex,
   Input,
-  Progress,
-  Row,
   Space,
   Table,
+  Tag,
   Tooltip,
   Typography,
   theme,
 } from "antd";
-import type { ColumnsType } from "antd/es/table";
-import SummaryCard from "@/components/card/summary-card";
+import { useEffect } from "react";
 import {
   Role,
   usePermissionManagementStore,
 } from "../_state/permission-management-store";
+import { RoleFormModal } from "./role-form-modal";
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 /**
- * Tab 1: จัดการบทบาท (Roles)
- * แสดง Summary Cards + Search + ตาราง Roles
+ * Tab 1: กลุ่มบทบาท (Roles) - แสดงรายการและจัดการสรุป
  */
 export const RolesTab = () => {
   const { token } = theme.useToken();
-  // สีม่วง: Ant Design ไม่มี token.colorPurple โดยตรง ใช้ค่าคงที่
-  const PURPLE = "#722ed1";
+  const { modal } = App.useApp();
   const {
     roles,
     permissions,
@@ -49,207 +45,129 @@ export const RolesTab = () => {
     setSearch,
     setModalMode,
     setSelectedRole,
-    setDeleteModalOpen,
+    handleDeleteRole,
+    fetchData,
   } = usePermissionManagementStore();
 
-  // คำนวณ Summary Stats
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // สรุปข้อมูลสำหรับ Summary Cards
   const totalRoles = roles.length;
-  const activeRoles = roles.filter((r) => r.is_active).length;
   const totalPermissions = permissions.length;
-  const totalUsers = roles.reduce(
-    (acc, r) => acc + (r._count?.users || 0),
-    0
-  );
+  const adminRolesCount = roles.filter((r) =>
+    r.role_name.toLowerCase().includes("admin"),
+  ).length;
 
-  // จำนวน permissions สูงสุด (สำหรับ progress bar)
-  const maxPermCount = Math.max(...roles.map((r) => r.permissions.length), 1);
-
-  const columns: ColumnsType<Role> = [
+  const columns = [
     {
-      title: "บทบาท",
+      title: "ชื่อบทบาท (Role Name)",
       dataIndex: "role_name",
-      render: (text, r) => (
-        <Space align="center" size={12}>
-          {/* Icon กลม */}
+      key: "role_name",
+      render: (text: string, record: Role) => (
+        <Space size={12}>
           <div
             style={{
               width: 40,
               height: 40,
-              borderRadius: 12,
-              background: `linear-gradient(135deg, ${token.colorPrimary}20, ${token.colorPrimary}40)`,
+              borderRadius: 10,
+              background: `${token.colorPrimary}15`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              flexShrink: 0,
+              color: token.colorPrimary,
             }}
           >
-            <LockOutlined
-              style={{ color: token.colorPrimary, fontSize: 16 }}
-            />
+            <TeamOutlined style={{ fontSize: 18 }} />
           </div>
-          <Space direction="vertical" size={0}>
-            <Text strong style={{ fontSize: 15, lineHeight: "20px" }}>
+          <div>
+            <Text strong style={{ fontSize: 15 }}>
               {text}
             </Text>
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              {r.description || "ไม่มีคำอธิบาย"}
-            </Text>
-          </Space>
+            <div style={{ fontSize: 12, color: token.colorTextDescription }}>
+              Role ID: {record.id}
+            </div>
+          </div>
         </Space>
       ),
     },
     {
-      title: "สิทธิ์",
-      dataIndex: "permissions",
-      align: "center",
-      width: 200,
-      render: (perms: Role["permissions"]) => {
-        const count = perms?.length || 0;
-        const pct = Math.round((count / maxPermCount) * 100);
+      title: "สิทธิ์ที่ได้รับ (Permissions)",
+      key: "permissions",
+      render: (_: any, record: Role) => {
+        const count = record.permissions?.length || 0;
         return (
-          <Space direction="vertical" size={4} style={{ width: "100%" }}>
-            <Progress
-              percent={pct}
-              showInfo={false}
-              strokeColor={PURPLE}
-              trailColor={token.colorFillTertiary}
-              size="small"
+          <Space size={8}>
+            <UnlockOutlined
+              style={{
+                color:
+                  count > 0 ? token.colorSuccess : token.colorTextQuaternary,
+              }}
             />
-            <div style={{ textAlign: "center" }}>
-              <span
-                style={{
-                  display: "inline-block",
-                  padding: "2px 10px",
-                  borderRadius: 20,
-                  background: `${PURPLE}15`,
-                  color: PURPLE,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  border: `1px solid ${PURPLE}30`,
-                }}
-              >
-                {count} สิทธิ์
-              </span>
-            </div>
+            <Text strong={count > 0} type={count > 0 ? undefined : "secondary"}>
+              {count} รายการ
+            </Text>
           </Space>
         );
       },
-    },
-    {
-      title: "ผู้ใช้งาน",
-      dataIndex: ["_count", "users"],
-      align: "center",
-      width: 120,
-      render: (count: number) => (
-        <Space direction="vertical" size={2}>
-          <UserOutlined
-            style={{ color: token.colorInfo, fontSize: 16 }}
-          />
-          <span
-            style={{
-              display: "inline-block",
-              padding: "2px 10px",
-              borderRadius: 20,
-              background: `${token.colorInfo}15`,
-              color: token.colorInfo,
-              fontSize: 12,
-              fontWeight: 600,
-              border: `1px solid ${token.colorInfo}30`,
-            }}
-          >
-            {count || 0} คน
-          </span>
-        </Space>
-      ),
+      sorter: (a: Role, b: Role) =>
+        (a.permissions?.length || 0) - (b.permissions?.length || 0),
     },
     {
       title: "สถานะ",
-      dataIndex: "is_active",
-      align: "center",
-      width: 130,
-      render: (active: boolean) => (
-        <Space size={6}>
-          {/* Dot animation ถ้า active */}
-          {active && (
-            <span
-              style={{
-                display: "inline-block",
-                width: 8,
-                height: 8,
-                borderRadius: "50%",
-                background: token.colorSuccess,
-                animation: "pulse-dot 1.5s ease-in-out infinite",
-              }}
-            />
-          )}
-          <Badge
-            status={active ? "success" : "error"}
-            text={
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: active ? token.colorSuccess : token.colorError,
-                }}
-              >
-                {active ? "เปิดใช้งาน" : "ปิดใช้งาน"}
-              </Text>
-            }
-          />
-        </Space>
+      key: "status",
+      width: 120,
+      render: (_: any, record: Role) => (
+        <Tag
+          color={
+            record.role_name.toLowerCase().includes("admin") ? "gold" : "blue"
+          }
+          style={{ borderRadius: 6, paddingInline: 10 }}
+        >
+          {record.role_name.toLowerCase().includes("admin")
+            ? "System"
+            : "Custom"}
+        </Tag>
       ),
     },
     {
       title: "จัดการ",
       key: "action",
-      align: "center",
-      width: 120,
-      render: (_, r) => (
-        <Space>
-          <Tooltip title="แก้ไขบทบาท">
+      width: 150,
+      align: "right" as const,
+      render: (_: any, record: Role) => (
+        <Space size={4}>
+          <Tooltip title="แก้ไขสิทธิ์">
             <Button
               type="text"
-              icon={
-                <EditOutlined style={{ color: token.colorWarning }} />
-              }
-              style={{
-                background: `${token.colorWarning}10`,
-                borderRadius: 8,
-              }}
+              icon={<UnlockOutlined />}
               onClick={() => {
-                setSelectedRole(r);
+                setSelectedRole(record);
                 setModalMode("edit");
               }}
+              style={{ color: token.colorSuccess }}
             />
           </Tooltip>
-          <Tooltip
-            title={
-              r._count?.users && r._count.users > 0
-                ? "ไม่สามารถลบได้ (มีผู้ใช้งาน)"
-                : r.role_name === "ADMIN"
-                  ? "ไม่สามารถลบ ADMIN ได้"
-                  : "ลบบทบาท"
-            }
-          >
+          <Tooltip title="แก้ไขข้อมูลพื้นฐาน">
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => {
+                setSelectedRole(record);
+                setModalMode("edit");
+              }}
+              style={{ color: token.colorPrimary }}
+            />
+          </Tooltip>
+          <Tooltip title="ลบ">
             <Button
               type="text"
               danger
               icon={<DeleteOutlined />}
-              disabled={
-                (r._count?.users != null && r._count.users > 0) ||
-                r.role_name === "ADMIN"
-              }
-              style={{
-                background:
-                  (r._count?.users != null && r._count.users > 0) ||
-                  r.role_name === "ADMIN"
-                    ? "transparent"
-                    : `${token.colorError}10`,
-                borderRadius: 8,
-              }}
               onClick={() => {
-                setSelectedRole(r);
-                setDeleteModalOpen(true);
+                setSelectedRole(record);
+                handleDeleteRole();
               }}
             />
           </Tooltip>
@@ -259,122 +177,145 @@ export const RolesTab = () => {
   ];
 
   return (
-    <>
-      {/* pulse animation style */}
-      <style>{`
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <Space direction="vertical" style={{ width: "100%" }} size={32}>
+        {/* Summary Section */}
+        <Flex gap={24} wrap="wrap">
+          <div style={{ flex: "1 1 300px" }}>
+            <SummaryCard
+              title="บทบาททั้งหมด"
+              value={totalRoles}
+              unit="กลุ่ม"
+              icon={
+                <TeamOutlined
+                  style={{
+                    fontSize: 24,
+                    color: token.colorPrimary,
+                    background: `${token.colorPrimary}15`,
+                    padding: 12,
+                    borderRadius: 14,
+                  }}
+                />
+              }
+            />
+          </div>
+          <div style={{ flex: "1 1 300px" }}>
+            <SummaryCard
+              title="บทบาทควบคุม (Admin)"
+              value={adminRolesCount}
+              unit="กลุ่ม"
+              icon={
+                <UnlockOutlined
+                  style={{
+                    fontSize: 24,
+                    color: token.colorWarning,
+                    background: `${token.colorWarning}15`,
+                    padding: 12,
+                    borderRadius: 14,
+                  }}
+                />
+              }
+            />
+          </div>
+          <div style={{ flex: "1 1 300px" }}>
+            <SummaryCard
+              title="สิทธิ์ในระบบทั้งหมด"
+              value={totalPermissions}
+              unit="รายการ"
+              icon={
+                <UnlockOutlined
+                  style={{
+                    fontSize: 24,
+                    color: token.colorSuccess,
+                    background: `${token.colorSuccess}15`,
+                    padding: 12,
+                    borderRadius: 14,
+                  }}
+                />
+              }
+            />
+          </div>
+        </Flex>
+
+        {/* Table Section */}
+        <Card
+          style={{
+            borderRadius: 20,
+            overflow: "hidden",
+            border: `1px solid ${token.colorBorderSecondary}`,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.02)",
+          }}
+          styles={{ body: { padding: "1rem" } }}
+        >
+          <Flex
+            justify="space-between"
+            align="center"
+            style={{ padding: "24px 32px" }}
+          >
+            <Input
+              placeholder="ค้นหาชื่อบทบาท..."
+              prefix={
+                <SearchOutlined style={{ color: token.colorTextQuaternary }} />
+              }
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{ width: 340, borderRadius: 12, height: 44 }}
+              allowClear
+            />
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => {
+                setSelectedRole(null);
+                setModalMode("create");
+              }}
+              style={{
+                height: 44,
+                borderRadius: 12,
+                fontWeight: 700,
+                paddingInline: 24,
+                boxShadow: `0 4px 12px ${token.colorPrimary}30`,
+              }}
+            >
+              เพิ่มกลุ่มบทบาทใหม่
+            </Button>
+          </Flex>
+
+          <Table
+            columns={columns}
+            dataSource={roles.filter((r) =>
+              r.role_name.toLowerCase().includes(search.toLowerCase()),
+            )}
+            loading={isLoading}
+            rowKey="id"
+            pagination={{
+              pageSize: 10,
+              showSizeChanger: true,
+            }}
+            scroll={{ x: 1000 }}
+            style={{ borderRadius: 0 }}
+          />
+        </Card>
+      </Space>
+
+      <RoleFormModal />
+
+      <style jsx global>{`
         @keyframes pulse-dot {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(1.4); }
+          0% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(1.4);
+            opacity: 0.5;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
         }
       `}</style>
-
-      {/* Summary Cards */}
-      <Row gutter={[24, 24]} style={{ marginBottom: 32 }}>
-        <Col xs={24} sm={12} md={6}>
-          <SummaryCard
-            title="บทบาททั้งหมด"
-            value={totalRoles}
-            unit="บทบาท"
-            icon={<LockOutlined />}
-            color={token.colorPrimary}
-            isLoading={isLoading}
-          />
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <SummaryCard
-            title="บทบาทที่เปิดใช้"
-            value={activeRoles}
-            unit="บทบาท"
-            icon={<SafetyCertificateOutlined />}
-            color={token.colorSuccess}
-            isLoading={isLoading}
-          />
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <SummaryCard
-            title="สิทธิ์ทั้งหมด"
-            value={totalPermissions}
-            unit="สิทธิ์"
-            icon={<LockOutlined />}
-            color={PURPLE}
-            isLoading={isLoading}
-          />
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <SummaryCard
-            title="ผู้ใช้งานรวม"
-            value={totalUsers}
-            unit="คน"
-            icon={<TeamOutlined />}
-            color={token.colorInfo}
-            isLoading={isLoading}
-          />
-        </Col>
-      </Row>
-
-      {/* ตาราง Roles */}
-      <Card
-        style={{
-          borderRadius: 16,
-          border: `1px solid ${token.colorBorderSecondary}`,
-        }}
-        styles={{ body: { padding: 24 } }}
-      >
-        {/* Search + ปุ่มสร้าง */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 20,
-            flexWrap: "wrap",
-            gap: 12,
-          }}
-        >
-          <Input
-            prefix={<SearchOutlined style={{ color: token.colorTextTertiary }} />}
-            placeholder="ค้นหาบทบาท..."
-            style={{ width: 300, borderRadius: 8 }}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            allowClear
-          />
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            size="large"
-            style={{ borderRadius: 10 }}
-            onClick={() => {
-              setSelectedRole(null);
-              setModalMode("create");
-            }}
-          >
-            สร้าง Role ใหม่
-          </Button>
-        </div>
-
-        <Table
-          columns={columns}
-          dataSource={roles}
-          loading={isLoading}
-          rowKey="id"
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            showTotal: (total) => `ทั้งหมด ${total} บทบาท`,
-          }}
-          onRow={() => ({
-            style: { cursor: "default" },
-            onMouseEnter: (e) => {
-              (e.currentTarget as HTMLElement).style.backgroundColor =
-                token.colorPrimaryBg;
-            },
-            onMouseLeave: (e) => {
-              (e.currentTarget as HTMLElement).style.backgroundColor = "";
-            },
-          })}
-        />
-      </Card>
-    </>
+    </div>
   );
 };

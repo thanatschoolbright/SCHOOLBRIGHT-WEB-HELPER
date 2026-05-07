@@ -122,144 +122,164 @@ select {
     background: var(--sb-primary) !important;
   }
 
-  /* 🎨 Collapsed Sidebar Popover Styles */
+  /* 🎨 Collapsed Sidebar Popover Styles — Light & Dark */
   .sidebar-collapsed-menu-popover {
     z-index: 1050 !important;
   }
 
+  /* Light mode */
   .sidebar-collapsed-menu-popover .ant-popover-inner {
-    background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+    background: #ffffff !important;
     border-radius: 16px !important;
-    padding: 20px !important;
+    padding: 8px !important;
     box-shadow:
-      0 20px 40px rgba(0, 0, 0, 0.25),
-      0 8px 16px rgba(0, 0, 0, 0.15),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
-    animation: slideInFromLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    min-width: 280px !important;
-    max-width: 320px !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(12px) !important;
+      0 8px 24px rgba(0, 0, 0, 0.08),
+      0 2px 8px rgba(0, 0, 0, 0.04),
+      0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+    animation: slideInFromLeft 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    min-width: 240px !important;
+    max-width: 300px !important;
   }
 
   .sidebar-collapsed-menu-popover .ant-popover-arrow::before {
-    background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background: #ffffff !important;
   }
 
+  /* Dark mode */
+  .dark .sidebar-collapsed-menu-popover .ant-popover-inner {
+    background: #1e293b !important;
+    box-shadow:
+      0 20px 40px rgba(0, 0, 0, 0.4),
+      0 8px 16px rgba(0, 0, 0, 0.25),
+      0 0 0 1px rgba(255, 255, 255, 0.06) !important;
+  }
+
+  .dark .sidebar-collapsed-menu-popover .ant-popover-arrow::before {
+    background: #1e293b !important;
+  }
+
+  /* Popover content wrapper — color flows from Ant Design token via inline styles */
   .sidebar-popover-content {
-    color: white !important;
+    color: inherit;
   }
 
+  /* Popover section title */
   .sidebar-popover-title {
-    font-size: 18px;
+    font-size: 11px;
     font-weight: 700;
-    margin-bottom: 12px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.15);
-    color: #f1f5f9 !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    color: #64748b !important;
+  }
+
+  .dark .sidebar-popover-title {
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    color: #94a3b8 !important;
   }
 
   .sidebar-popover-children {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 2px;
   }
 
+  /* Popover child item — color controlled by inline style (token.colorText) */
   .sidebar-popover-child {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    border-radius: 12px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 16px;
-    font-weight: 600;
-    min-height: 48px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(8px);
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    transition: background 0.15s ease, color 0.15s ease;
+    font-size: 13px;
+    font-weight: 500;
+    background: transparent;
+    border: none;
   }
 
   .sidebar-popover-child:hover {
-    background: linear-gradient(
-      135deg,
-      rgba(59, 130, 246, 0.2),
-      rgba(99, 102, 241, 0.2)
-    ) !important;
-    transform: translateX(6px) scale(1.02);
-    border-color: rgba(255, 255, 255, 0.2) !important;
-    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
+    background: rgba(0, 0, 0, 0.04) !important;
+    transform: translateX(3px);
+  }
+
+  .dark .sidebar-popover-child:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
   }
 
   .sidebar-popover-child-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 8px;
-    background: linear-gradient(
-      135deg,
-      rgba(59, 130, 246, 0.2),
-      rgba(99, 102, 241, 0.2)
-    );
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 20px;
+    height: 20px;
+    opacity: 0.65;
   }
 
   .sidebar-popover-child-text {
     flex: 1;
-    color: #f1f5f9 !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    color: inherit !important;
   }
+
+  /* Tooltip content (non-popover, simple label) */
   .sidebar-tooltip-content {
-    color: white !important;
+    color: var(--text-main) !important;
   }
 
   .sidebar-tooltip-title {
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 700;
-    margin-bottom: 8px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    color: var(--text-main);
+  }
+
+  .dark .sidebar-tooltip-title {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
   }
 
   .sidebar-tooltip-children {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
   }
 
   .sidebar-tooltip-child {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 8px;
+    padding: 5px 8px;
     border-radius: 8px;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 14px;
+    transition: background 0.15s ease;
+    font-size: 13px;
     font-weight: 500;
+    color: var(--text-main);
   }
 
   .sidebar-tooltip-child:hover {
-    background: rgba(255, 255, 255, 0.15) !important;
-    transform: translateX(4px);
+    background: rgba(0, 0, 0, 0.06) !important;
+    transform: translateX(3px);
+  }
+
+  .dark .sidebar-tooltip-child:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
   }
 
   .sidebar-tooltip-child-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
-    opacity: 0.8;
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
   }
 
   .sidebar-tooltip-child-text {
     flex: 1;
-    color: white !important;
+    color: var(--text-main) !important;
   }
 
   /* 🎯 Simple Tooltip for Single Items */
