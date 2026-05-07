@@ -1,49 +1,83 @@
-# Front-end Development Standard (Builder Mode)
+---
+name: Frontend Standard (Builder Mode)
+description: โครงสร้าง Feature-based, Zustand state, Ant Design v5 UI standards — อ้างอิงจาก skill /new-feature และ vercel-react-best-practices ที่ใช้จริง
+type: project
+---
 
-    ## [Goal]
+# Frontend Standard (Builder Mode)
 
-พัฒนาหน้าจอโดยเน้น Logic ที่ครบถ้วน และ UI ที่ถูกต้องตามมาตรฐาน Ant Design V.5 และ Modular Architecture อย่างเคร่งครัด
+## โครงสร้างไฟล์ (Feature-based)
 
-## [Architecture & Directory Structure]
+```
+src/app/{domain}/{feature}/
+├── page.tsx              # Orchestrator — ประกอบ component + layout เท่านั้น
+├── _components/          # UI ย่อย เช่น filter-section.tsx, user-table.tsx
+├── _api/                 # Axios calls — Pure functions เท่านั้น (callApiService wrappers)
+├── _state/               # Zustand store — use-{feature}-store.ts
+└── _stores/              # Alternative location (บางฟีเจอร์เก่าใช้ชื่อนี้)
+```
 
-ต้องแบ่งแยก Component อย่างเป็นระเบียบภายใน Folder ของหน้านั้นๆ (Feature-based) ดังนี้:
+**หมายเหตุ:** `_state/` คือ location มาตรฐานใหม่ (ไม่ใช่ `_stores/`)
 
-- `_components/`: แยก UI ย่อย เช่น `filter-section.tsx`, `user-table.tsx`, `summary-section.tsx`
-- `_api/`: เฉพาะ Axios Instance และ API Methods (Pure Logic เท่านั้น)
-- `_stores/`: ใช้ **Zustand** เท่านั้น สำหรับจัดการ Global/Page State และเรียกใช้ Service (จาก /\_api)
-- `page.tsx`: ทำหน้าที่เป็น Orchestrator สำหรับประกอบ Component และจัด Layout
+## State Management (Zustand)
 
-## [State Management Standards (Zustand)]
+- ข้อมูลที่แชร์ข้าม components → Zustand store ใน `_state/`
+- การเรียก API ทำผ่าน store action หรือ service แล้ว update state ทันที
+- Summary metrics คำนวณจาก raw data ใน store — ห้ามกรองผ่าน UI table
 
-- ห้ามใช้ `useState` สำหรับข้อมูลที่ต้องแชร์ข้าม Components
-- ข้อมูลสรุป (Summary Metrics) ต้องคำนวณจาก Raw Data ใน Store โดยตรง (ห้ามกรองตาม UI Table)
-- การเรียก API (Fetch/Action) ให้ทำผ่าน Store หรือเรียก Service แล้ว Update State ทันที
+```ts
+// pattern ใน store
+export const useFeatureStore = create<FeatureStore>((set, get) => ({
+  data: [],
+  isLoading: false,
+  fetchData: async () => {
+    set({ isLoading: true });
+    try {
+      const res = await getFeatureList();
+      set({ data: res?.data?.data ?? [] });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+}));
+```
 
-## [Component Guidelines]
+## Component Guidelines
 
-1. **Status Modal:** ใช้ Component กลางจาก `src/components/modal/status-modal-component.tsx`
-2. **Page Title:** ใช้ `src/components/typhography/header-bar-component.tsx` เท่านั้น
-3. **Summary Cards:** ใช้ `src/components/card/summary-card.tsx`
-4. **Filter Section:**
-   - หัวข้อ "ตัวกรอง" ใช้ Icon Filter (fontSize: 1rem, fontWeight: 600, marginBottom: 16px)
-   - จัดวาง 2 column ต่อ 1 row (ใช้ Col/Row)
-   - ปุ่ม "ค้นหา" และ "ล้างการค้นหา" วางชิดขวาด้านล่างพร้อม Icon
-5. **Content & Table:**
-   - ใช้ Card ครอบเนื้อหา: `styles={{ body: { padding: 16 } }}` และ Border Color ตาม Token
-   - หัวข้อตารางใช้ `<UnorderedListOutlined />` ขนาด 1rem
-   - ทุก Column ต้องมี Sort และห้ามใช้ maxWidth (ให้ Scale ตามหน้าจอ)
-   - Action Buttons ต้องวางไว้ด้านบนขวาของส่วน Table
-6. **Notification:** ใช้ `toast` จาก `sonner` เท่านั้น
+1. **Status Modal:** `src/components/modal/status-modal-component.tsx` — types: `"success" | "error" | "confirm" | "delete"`
+2. **Page Title:** `src/components/typhography/header-bar-component.tsx` เท่านั้น
+3. **Summary Cards:** `src/components/card/summary-card.tsx` — fetch raw data server-side, คำนวณก่อนส่ง
+4. **Filter Section:** หัวข้อ "ตัวกรอง" + `<FilterOutlined />` (fontSize: 1rem, fontWeight: 600, marginBottom: 16px), 2 col/row, ปุ่มชิดขวา
+5. **Tables:** Card ครอบด้วย mandatory `title` prop, `styles={{ body: { padding: 16 } }}`, ทุก column มี sort, ห้าม maxWidth, action buttons ด้านบนขวา
+6. **Notifications:** `toast` จาก `sonner` เท่านั้น
 
-## [Development Standards]
+## UI Standards
 
-- **API:** ใช้ Axios เท่านั้น
-- **Naming:** ใช้ชื่อเต็ม สื่อความหมาย (เช่น `responseUserList`, `requestUserByID`) พร้อม Comment อธิบายหน้าที่ฟังก์ชัน 1 บรรทัด
-- **Styling:** งดใช้ CSS/Inline-style ให้ใช้ Ant Design (Flex, Space, Row, Col) และรองรับ Light/Dark Mode
-- **Font:** FontWeight สูงสุดไม่เกิน 600
-- **Constraint:** ห้ามลบฟังก์ชันเดิมที่มีอยู่แล้วเด็ดขาด
+- Layout: Ant Design v5 (`Flex`, `Row`, `Col`, `Space`) — ห้าม inline CSS/custom stylesheet
+- Light/Dark mode: ใช้ `theme.useToken()` tokens เสมอ (ห้าม hardcode hex สี)
+- Font weight: สูงสุด 600
+- Dates: `dayjs` + timezone setup (`Asia/Bangkok`) ที่ top ของ client component
+- Charts: `@ant-design/plots` (preferred)
+- Export: `exceljs` (Excel), `jspdf` + `jspdf-autotable` (PDF)
 
-## [Response Format]
+## Naming & Comments
 
-- ตอบกลับเฉพาะ Code ที่จำเป็น
-- แนะนำ Step ถัดไปสั้นๆ เพื่อประหยัด Token
+- Identifiers: เต็มและสื่อความหมาย — `responseUserList` ไม่ใช่ `res`
+- Comment เหนือทุก function: Thai 1 บรรทัด รูปแบบ `// ✨ คำอธิบาย`
+- ภาษา UI: ไทย 100% — ห้ามมีภาษาอังกฤษปนใน labels, buttons, toast
+- ห้าม emoji ใน UI strings — อนุญาตเฉพาะใน function comments
+
+## HTTP Clients (ห้ามสลับ)
+
+- `callApiService` (`@services/axios-instance/sb-helper.axios`) — client → internal `/api/v*/` routes
+- `callBackendAPI` (`@services/api-gateway`) — server-side → external SchoolBright backend
+- ใช้ Axios เท่านั้น (ไม่ใช้ `fetch` ยกเว้นใน logger interceptor)
+
+## RSC-First Approach
+
+- Server Components: push data fetching และ Prisma queries ไปฝั่ง server ให้มากที่สุด
+- `"use client"`: เฉพาะส่วนที่มี interaction (Form, Modal, Button with handlers)
+- Sub-components ใน `_components/` รับ handlers เป็น props
+
+**Why:** ลด client JS bundle, ปรับปรุง performance ตาม Next.js App Router best practices
+**How to apply:** ก่อนเพิ่ม `"use client"` ให้ถามว่า component นี้จำเป็นต้องเป็น client จริงหรือไม่
