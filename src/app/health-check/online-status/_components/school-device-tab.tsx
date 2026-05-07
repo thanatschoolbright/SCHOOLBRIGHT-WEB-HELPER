@@ -18,8 +18,8 @@ import {
   FilterOutlined,
   LaptopOutlined,
   LoadingOutlined,
-  MobileOutlined,
   MinusCircleOutlined,
+  MobileOutlined,
   QuestionCircleOutlined,
   ReloadOutlined,
   SaveOutlined,
@@ -90,6 +90,7 @@ interface DeviceDetail {
   online_time: string | null;
   offline_reason: OfflineReason;
   notify_enabled: boolean;
+  notify_round: 1 | 2 | null;
 }
 
 interface SchoolDeviceSummaryItem {
@@ -207,6 +208,50 @@ const OfflineReasonBadge = ({ reason }: { reason: OfflineReason }) => {
   );
 };
 
+// Tag แสดงรอบการแจ้งเตือนของเครื่องที่ Offline — ค่ามาจาก API เท่านั้น
+const NotifyRoundTag = ({
+  notifyRound,
+  notifyEnabled,
+}: {
+  notifyRound: 1 | 2 | null;
+  notifyEnabled: boolean;
+}) => {
+  if (notifyRound === null) {
+    return (
+      <Tag style={{ margin: 0, fontSize: 10, borderRadius: 6, marginTop: 4 }}>
+        ยังไม่ถึงเกณฑ์
+      </Tag>
+    );
+  }
+  if (!notifyEnabled) {
+    return (
+      <Tooltip
+        title={`Offline อยู่ในครั้งที่ ${notifyRound} แต่ปิดการแจ้งเตือนไว้`}
+      >
+        <Tag
+          style={{
+            margin: 0,
+            fontSize: 10,
+            borderRadius: 6,
+            marginTop: 4,
+            opacity: 0.5,
+          }}
+        >
+          ครั้งที่ {notifyRound}
+        </Tag>
+      </Tooltip>
+    );
+  }
+  return (
+    <Tag
+      color={notifyRound === 1 ? "warning" : "error"}
+      style={{ margin: 0, fontSize: 10, borderRadius: 6, marginTop: 4 }}
+    >
+      {notifyRound === 1 ? "ครั้งที่ 1" : "ครั้งที่ 2"}
+    </Tag>
+  );
+};
+
 // ----------------------------------------
 // Device Group ใน Drawer
 // ----------------------------------------
@@ -221,9 +266,17 @@ const DeviceGroupBlock = ({
   schoolId: number;
   appName: string;
   devices: DeviceDetail[];
-  onToggleNotify: (schoolId: number, deviceId: string, enabled: boolean) => void;
+  onToggleNotify: (
+    schoolId: number,
+    deviceId: string,
+    enabled: boolean,
+  ) => void;
   togglingDeviceId: string | null;
-  onUpdateNote: (schoolId: number, deviceId: string, note: string | null) => Promise<void>;
+  onUpdateNote: (
+    schoolId: number,
+    deviceId: string,
+    note: string | null,
+  ) => Promise<void>;
 }) => {
   const onlineCount = devices.filter((d) => d.is_online).length;
   const offlineCount = devices.length - onlineCount;
@@ -270,11 +323,17 @@ const DeviceGroupBlock = ({
           {appName}
         </Text>
         <Flex gap={4} style={{ marginLeft: "auto" }}>
-          <Tag color="success" style={{ margin: 0, fontSize: 11, borderRadius: 6 }}>
+          <Tag
+            color="success"
+            style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
+          >
             ออนไลน์ {onlineCount}
           </Tag>
           {offlineCount > 0 && (
-            <Tag color="error" style={{ margin: 0, fontSize: 11, borderRadius: 6 }}>
+            <Tag
+              color="error"
+              style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
+            >
               ออฟไลน์ {offlineCount}
             </Tag>
           )}
@@ -346,7 +405,13 @@ const DeviceGroupBlock = ({
                       </Text>
                     )}
                     {!effectiveOnline && (
-                      <OfflineReasonBadge reason={device.offline_reason} />
+                      <>
+                        <OfflineReasonBadge reason={device.offline_reason} />
+                        <NotifyRoundTag
+                          notifyRound={device.notify_round}
+                          notifyEnabled={device.notify_enabled}
+                        />
+                      </>
                     )}
                   </Flex>
                 </Flex>
@@ -362,10 +427,15 @@ const DeviceGroupBlock = ({
                   >
                     <Flex align="center" gap={8}>
                       {device.notify_enabled ? (
-                        <BellFilled style={{ fontSize: 14, color: "#16a34a" }} />
+                        <BellFilled
+                          style={{ fontSize: 14, color: "#16a34a" }}
+                        />
                       ) : (
                         <BellOutlined
-                          style={{ fontSize: 14, color: "rgba(128,128,128,0.5)" }}
+                          style={{
+                            fontSize: 14,
+                            color: "rgba(128,128,128,0.5)",
+                          }}
                         />
                       )}
                       <Switch
@@ -380,7 +450,12 @@ const DeviceGroupBlock = ({
                 </Flex>
 
                 {/* สถานะและเวลา */}
-                <Flex vertical align="end" gap={3} style={{ width: 100, flexShrink: 0 }}>
+                <Flex
+                  vertical
+                  align="end"
+                  gap={3}
+                  style={{ width: 100, flexShrink: 0 }}
+                >
                   <Tag
                     color={effectiveOnline ? "success" : "error"}
                     style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
@@ -401,7 +476,11 @@ const DeviceGroupBlock = ({
                         .tz(device.online_time)
                         .format("DD/MM/YYYY HH:mm:ss")}
                     >
-                      <Flex align="center" gap={3} style={{ cursor: "default" }}>
+                      <Flex
+                        align="center"
+                        gap={3}
+                        style={{ cursor: "default" }}
+                      >
                         <ClockCircleOutlined
                           style={{
                             fontSize: 10,
@@ -529,9 +608,7 @@ const BatchProgressModal = ({
         />
       );
     if (status === "success")
-      return (
-        <CheckCircleFilled style={{ fontSize: 16, color: "#16a34a" }} />
-      );
+      return <CheckCircleFilled style={{ fontSize: 16, color: "#16a34a" }} />;
     return <CloseCircleFilled style={{ fontSize: 16, color: "#dc2626" }} />;
   };
 
@@ -552,7 +629,9 @@ const BatchProgressModal = ({
             <BellOutlined style={{ color: "rgba(128,128,128,0.5)" }} />
           )}
           <Text strong style={{ fontSize: 15 }}>
-            {targetEnabled ? "เปิดการแจ้งเตือนทั้งหมด" : "ปิดการแจ้งเตือนทั้งหมด"}
+            {targetEnabled
+              ? "เปิดการแจ้งเตือนทั้งหมด"
+              : "ปิดการแจ้งเตือนทั้งหมด"}
           </Text>
         </Flex>
       }
@@ -567,7 +646,11 @@ const BatchProgressModal = ({
                 </Text>
               )}
             </Text>
-            <Button type="primary" onClick={onClose} style={{ borderRadius: 8 }}>
+            <Button
+              type="primary"
+              onClick={onClose}
+              style={{ borderRadius: 8 }}
+            >
               ปิด
             </Button>
           </Flex>
@@ -595,7 +678,9 @@ const BatchProgressModal = ({
         </Flex>
         <Progress
           percent={percent}
-          status={isAllDone ? (errorCount > 0 ? "exception" : "success") : "active"}
+          status={
+            isAllDone ? (errorCount > 0 ? "exception" : "success") : "active"
+          }
           strokeColor={
             isAllDone
               ? errorCount > 0
@@ -679,10 +764,15 @@ const BatchProgressModal = ({
                     : isPast || isCurrent
                     ? "#16a34a"
                     : "rgba(128,128,128,0.25)";
-                  const lineColor =
-                    isPast ? "#16a34a" : "rgba(128,128,128,0.2)";
+                  const lineColor = isPast
+                    ? "#16a34a"
+                    : "rgba(128,128,128,0.2)";
                   return (
-                    <Flex key={label} align="center" flex={idx < 2 ? 1 : undefined}>
+                    <Flex
+                      key={label}
+                      align="center"
+                      flex={idx < 2 ? 1 : undefined}
+                    >
                       {/* Dot */}
                       <Flex
                         align="center"
@@ -786,8 +876,12 @@ export const SchoolDeviceTab = () => {
   const [savingWindowId, setSavingWindowId] = useState<number | null>(null);
   const [savingIntervalId, setSavingIntervalId] = useState<number | null>(null);
   // draft edits — keyed by row id
-  const [windowDrafts, setWindowDrafts] = useState<Record<number, Partial<NotifyTimeWindow>>>({});
-  const [intervalDrafts, setIntervalDrafts] = useState<Record<number, Partial<NotifyInterval>>>({});
+  const [windowDrafts, setWindowDrafts] = useState<
+    Record<number, Partial<NotifyTimeWindow>>
+  >({});
+  const [intervalDrafts, setIntervalDrafts] = useState<
+    Record<number, Partial<NotifyInterval>>
+  >({});
   const [helpModalOpen, setHelpModalOpen] = useState(false);
 
   const [searchText, setSearchText] = useState("");
@@ -955,24 +1049,33 @@ export const SchoolDeviceTab = () => {
   );
 
   // เพิ่มรอบการแจ้งเตือนใหม่
-  const handleAddTimeWindow = useCallback(async (schoolId: number) => {
-    try {
-      const res = await callApiService.post(
-        `/api/v2/hardware/device-notify-config?school_id=${schoolId}`,
-        { label: `รอบที่ ${(notifyConfig?.time_windows.length ?? 0) + 1}`, start_hour: 7, start_min: 0, end_hour: 9, end_min: 0 },
-      );
-      const created = res.data?.data;
-      if (created) {
-        setNotifyConfig((prev) => {
-          if (!prev) return prev;
-          return { ...prev, time_windows: [...prev.time_windows, created] };
-        });
+  const handleAddTimeWindow = useCallback(
+    async (schoolId: number) => {
+      try {
+        const res = await callApiService.post(
+          `/api/v2/hardware/device-notify-config?school_id=${schoolId}`,
+          {
+            label: `รอบที่ ${(notifyConfig?.time_windows.length ?? 0) + 1}`,
+            start_hour: 7,
+            start_min: 0,
+            end_hour: 9,
+            end_min: 0,
+          },
+        );
+        const created = res.data?.data;
+        if (created) {
+          setNotifyConfig((prev) => {
+            if (!prev) return prev;
+            return { ...prev, time_windows: [...prev.time_windows, created] };
+          });
+        }
+        toast.success("เพิ่มรอบการแจ้งเตือนสำเร็จ");
+      } catch {
+        toast.error("ไม่สามารถเพิ่มรอบการแจ้งเตือนได้ (สูงสุด 3 รอบ)");
       }
-      toast.success("เพิ่มรอบการแจ้งเตือนสำเร็จ");
-    } catch {
-      toast.error("ไม่สามารถเพิ่มรอบการแจ้งเตือนได้ (สูงสุด 3 รอบ)");
-    }
-  }, [notifyConfig?.time_windows.length]);
+    },
+    [notifyConfig?.time_windows.length],
+  );
 
   // บันทึกการแก้ไขช่วงห่างการแจ้งเตือน
   const handleSaveInterval = useCallback(
@@ -1122,8 +1225,7 @@ export const SchoolDeviceTab = () => {
           );
           updatedRows[i] = { ...updatedRows[i]!, status: "success" };
         } catch (err: unknown) {
-          const msg =
-            err instanceof Error ? err.message : "ไม่สามารถบันทึกได้";
+          const msg = err instanceof Error ? err.message : "ไม่สามารถบันทึกได้";
           updatedRows[i] = {
             ...updatedRows[i]!,
             status: "error",
@@ -1645,9 +1747,18 @@ export const SchoolDeviceTab = () => {
                         .filter((w) => w.is_active)
                         .map(
                           (w) =>
-                            `${String(w.start_hour).padStart(2, "0")}:${String(w.start_min).padStart(2, "0")}–${String(w.end_hour).padStart(2, "0")}:${String(w.end_min).padStart(2, "0")} น. (${w.label})`,
+                            `${String(w.start_hour).padStart(2, "0")}:${String(
+                              w.start_min,
+                            ).padStart(2, "0")}–${String(w.end_hour).padStart(
+                              2,
+                              "0",
+                            )}:${String(w.end_min).padStart(2, "0")} น. (${
+                              w.label
+                            })`,
                         )
-                        .join(", ")} — เฉพาะอุปกรณ์ที่เปิดการแจ้งเตือนไว้เท่านั้น`
+                        .join(
+                          ", ",
+                        )} — เฉพาะอุปกรณ์ที่เปิดการแจ้งเตือนไว้เท่านั้น`
                     : "กำลังโหลดการตั้งค่าช่วงเวลาการแจ้งเตือน..."
                 }
                 placement="bottomLeft"
@@ -1664,7 +1775,12 @@ export const SchoolDeviceTab = () => {
                 <Button
                   size="small"
                   icon={<BellFilled />}
-                  style={{ borderRadius: 8, fontSize: 12, color: "#16a34a", borderColor: "#16a34a" }}
+                  style={{
+                    borderRadius: 8,
+                    fontSize: 12,
+                    color: "#16a34a",
+                    borderColor: "#16a34a",
+                  }}
                   onClick={() =>
                     selectedSchool &&
                     handleBatchToggle(
@@ -1702,7 +1818,11 @@ export const SchoolDeviceTab = () => {
         <Collapse
           size="small"
           ghost
-          style={{ marginBottom: 16, border: "1px solid rgba(128,128,128,0.15)", borderRadius: 10 }}
+          style={{
+            marginBottom: 16,
+            border: "1px solid rgba(128,128,128,0.15)",
+            borderRadius: 10,
+          }}
           items={[
             {
               key: "notify-config",
@@ -1714,7 +1834,11 @@ export const SchoolDeviceTab = () => {
                   </Text>
                   {notifyConfig && (
                     <Tag style={{ margin: 0, fontSize: 11, borderRadius: 6 }}>
-                      {notifyConfig.time_windows.filter((w) => w.is_active).length} รอบที่ใช้งาน
+                      {
+                        notifyConfig.time_windows.filter((w) => w.is_active)
+                          .length
+                      }{" "}
+                      รอบที่ใช้งาน
                     </Tag>
                   )}
                 </Flex>
@@ -1725,10 +1849,15 @@ export const SchoolDeviceTab = () => {
                 </Flex>
               ) : !notifyConfig ? (
                 <Flex vertical gap={8} align="center" style={{ padding: 16 }}>
-                  <Text type="secondary" style={{ fontSize: 12 }}>ไม่สามารถโหลดการตั้งค่าได้</Text>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    ไม่สามารถโหลดการตั้งค่าได้
+                  </Text>
                   <Button
                     size="small"
-                    onClick={() => selectedSchool && void fetchNotifyConfig(selectedSchool.school_id)}
+                    onClick={() =>
+                      selectedSchool &&
+                      void fetchNotifyConfig(selectedSchool.school_id)
+                    }
                   >
                     ลองใหม่
                   </Button>
@@ -1737,7 +1866,11 @@ export const SchoolDeviceTab = () => {
                 <Flex vertical gap={16}>
                   {/* ช่วงเวลาแจ้งเตือน — dynamic สูงสุด 3 รอบ */}
                   <div>
-                    <Flex align="center" justify="space-between" style={{ marginBottom: 8 }}>
+                    <Flex
+                      align="center"
+                      justify="space-between"
+                      style={{ marginBottom: 8 }}
+                    >
                       <Text strong style={{ fontSize: 12 }}>
                         ช่วงเวลาที่อนุญาตให้แจ้งเตือน
                       </Text>
@@ -1747,7 +1880,8 @@ export const SchoolDeviceTab = () => {
                           type="dashed"
                           style={{ fontSize: 11, borderRadius: 6 }}
                           onClick={() =>
-                            selectedSchool && void handleAddTimeWindow(selectedSchool.school_id)
+                            selectedSchool &&
+                            void handleAddTimeWindow(selectedSchool.school_id)
                           }
                         >
                           + เพิ่มรอบ
@@ -1777,7 +1911,12 @@ export const SchoolDeviceTab = () => {
                               <Flex align="center" gap={8}>
                                 <Tag
                                   color="blue"
-                                  style={{ margin: 0, fontSize: 11, borderRadius: 6, flexShrink: 0 }}
+                                  style={{
+                                    margin: 0,
+                                    fontSize: 11,
+                                    borderRadius: 6,
+                                    flexShrink: 0,
+                                  }}
                                 >
                                   รอบ {w.round}
                                 </Tag>
@@ -1788,7 +1927,10 @@ export const SchoolDeviceTab = () => {
                                   onChange={(e) =>
                                     setWindowDrafts((prev) => ({
                                       ...prev,
-                                      [w.id]: { ...prev[w.id], label: e.target.value },
+                                      [w.id]: {
+                                        ...prev[w.id],
+                                        label: e.target.value,
+                                      },
                                     }))
                                   }
                                   style={{ flex: 1, fontSize: 12 }}
@@ -1799,7 +1941,10 @@ export const SchoolDeviceTab = () => {
                                   onChange={(checked) =>
                                     setWindowDrafts((prev) => ({
                                       ...prev,
-                                      [w.id]: { ...prev[w.id], is_active: checked },
+                                      [w.id]: {
+                                        ...prev[w.id],
+                                        is_active: checked,
+                                      },
                                     }))
                                   }
                                 />
@@ -1812,7 +1957,10 @@ export const SchoolDeviceTab = () => {
                                       style={{ borderRadius: 6, flexShrink: 0 }}
                                       onClick={() =>
                                         selectedSchool &&
-                                        void handleDeleteTimeWindow(w.id, selectedSchool.school_id)
+                                        void handleDeleteTimeWindow(
+                                          w.id,
+                                          selectedSchool.school_id,
+                                        )
                                       }
                                     />
                                   </Tooltip>
@@ -1820,7 +1968,9 @@ export const SchoolDeviceTab = () => {
                               </Flex>
                               {/* แถวล่าง: เวลาเริ่ม-สิ้นสุด + ปุ่มบันทึก */}
                               <Flex align="center" gap={6} wrap="wrap">
-                                <Text type="secondary" style={{ fontSize: 11 }}>เริ่ม</Text>
+                                <Text type="secondary" style={{ fontSize: 11 }}>
+                                  เริ่ม
+                                </Text>
                                 <InputNumber
                                   size="small"
                                   min={0}
@@ -1829,7 +1979,10 @@ export const SchoolDeviceTab = () => {
                                   onChange={(val) =>
                                     setWindowDrafts((prev) => ({
                                       ...prev,
-                                      [w.id]: { ...prev[w.id], start_hour: val ?? 0 },
+                                      [w.id]: {
+                                        ...prev[w.id],
+                                        start_hour: val ?? 0,
+                                      },
                                     }))
                                   }
                                   style={{ width: 58 }}
@@ -1843,12 +1996,17 @@ export const SchoolDeviceTab = () => {
                                   onChange={(val) =>
                                     setWindowDrafts((prev) => ({
                                       ...prev,
-                                      [w.id]: { ...prev[w.id], start_min: val ?? 0 },
+                                      [w.id]: {
+                                        ...prev[w.id],
+                                        start_min: val ?? 0,
+                                      },
                                     }))
                                   }
                                   style={{ width: 58 }}
                                 />
-                                <Text type="secondary" style={{ fontSize: 11 }}>ถึง</Text>
+                                <Text type="secondary" style={{ fontSize: 11 }}>
+                                  ถึง
+                                </Text>
                                 <InputNumber
                                   size="small"
                                   min={0}
@@ -1857,7 +2015,10 @@ export const SchoolDeviceTab = () => {
                                   onChange={(val) =>
                                     setWindowDrafts((prev) => ({
                                       ...prev,
-                                      [w.id]: { ...prev[w.id], end_hour: val ?? 0 },
+                                      [w.id]: {
+                                        ...prev[w.id],
+                                        end_hour: val ?? 0,
+                                      },
                                     }))
                                   }
                                   style={{ width: 58 }}
@@ -1871,12 +2032,17 @@ export const SchoolDeviceTab = () => {
                                   onChange={(val) =>
                                     setWindowDrafts((prev) => ({
                                       ...prev,
-                                      [w.id]: { ...prev[w.id], end_min: val ?? 0 },
+                                      [w.id]: {
+                                        ...prev[w.id],
+                                        end_min: val ?? 0,
+                                      },
                                     }))
                                   }
                                   style={{ width: 58 }}
                                 />
-                                <Text type="secondary" style={{ fontSize: 11 }}>น.</Text>
+                                <Text type="secondary" style={{ fontSize: 11 }}>
+                                  น.
+                                </Text>
                                 {hasDraft && (
                                   <Button
                                     type="primary"
@@ -1885,9 +2051,16 @@ export const SchoolDeviceTab = () => {
                                     loading={savingWindowId === w.id}
                                     onClick={() =>
                                       selectedSchool &&
-                                      void handleSaveTimeWindow(w.id, selectedSchool.school_id)
+                                      void handleSaveTimeWindow(
+                                        w.id,
+                                        selectedSchool.school_id,
+                                      )
                                     }
-                                    style={{ borderRadius: 6, fontSize: 11, marginLeft: "auto" }}
+                                    style={{
+                                      borderRadius: 6,
+                                      fontSize: 11,
+                                      marginLeft: "auto",
+                                    }}
                                   >
                                     บันทึก
                                   </Button>
@@ -1902,7 +2075,14 @@ export const SchoolDeviceTab = () => {
 
                   {/* ช่วงห่างการแจ้งเตือน */}
                   <div>
-                    <Text strong style={{ fontSize: 12, display: "block", marginBottom: 8 }}>
+                    <Text
+                      strong
+                      style={{
+                        fontSize: 12,
+                        display: "block",
+                        marginBottom: 8,
+                      }}
+                    >
                       ช่วงห่างการแจ้งเตือน (หลังจากเครื่อง Offline)
                     </Text>
                     <Flex vertical gap={8}>
@@ -1925,11 +2105,18 @@ export const SchoolDeviceTab = () => {
                             <Flex align="center" gap={10} wrap="wrap">
                               <Tag
                                 color={v.round === 1 ? "orange" : "purple"}
-                                style={{ margin: 0, fontSize: 11, borderRadius: 6, flexShrink: 0 }}
+                                style={{
+                                  margin: 0,
+                                  fontSize: 11,
+                                  borderRadius: 6,
+                                  flexShrink: 0,
+                                }}
                               >
                                 {v.round === 1 ? "ครั้งแรก" : "ครั้งถัดไป"}
                               </Tag>
-                              <Text style={{ fontSize: 12 }}>{merged.label}</Text>
+                              <Text style={{ fontSize: 12 }}>
+                                {merged.label}
+                              </Text>
                               <InputNumber
                                 size="small"
                                 min={1}
@@ -1939,19 +2126,29 @@ export const SchoolDeviceTab = () => {
                                 onChange={(val) =>
                                   setIntervalDrafts((prev) => ({
                                     ...prev,
-                                    [v.id]: { ...prev[v.id], interval_minutes: val ?? 1 },
+                                    [v.id]: {
+                                      ...prev[v.id],
+                                      interval_minutes: val ?? 1,
+                                    },
                                   }))
                                 }
                                 style={{ width: 130 }}
                               />
-                              <Flex align="center" gap={6} style={{ marginLeft: "auto" }}>
+                              <Flex
+                                align="center"
+                                gap={6}
+                                style={{ marginLeft: "auto" }}
+                              >
                                 <Switch
                                   size="small"
                                   checked={merged.is_active}
                                   onChange={(checked) =>
                                     setIntervalDrafts((prev) => ({
                                       ...prev,
-                                      [v.id]: { ...prev[v.id], is_active: checked },
+                                      [v.id]: {
+                                        ...prev[v.id],
+                                        is_active: checked,
+                                      },
                                     }))
                                   }
                                 />
@@ -1966,7 +2163,10 @@ export const SchoolDeviceTab = () => {
                                     loading={savingIntervalId === v.id}
                                     onClick={() =>
                                       selectedSchool &&
-                                      void handleSaveInterval(v.id, selectedSchool.school_id)
+                                      void handleSaveInterval(
+                                        v.id,
+                                        selectedSchool.school_id,
+                                      )
                                     }
                                     style={{ borderRadius: 6, fontSize: 11 }}
                                   >
@@ -1982,7 +2182,8 @@ export const SchoolDeviceTab = () => {
                   </div>
 
                   <Text type="secondary" style={{ fontSize: 11 }}>
-                    การตั้งค่านี้มีผลเฉพาะโรงเรียน {selectedSchool?.school_name} เท่านั้น
+                    การตั้งค่านี้มีผลเฉพาะโรงเรียน {selectedSchool?.school_name}{" "}
+                    เท่านั้น
                   </Text>
                 </Flex>
               ),
@@ -2019,9 +2220,7 @@ export const SchoolDeviceTab = () => {
       <Modal
         open={helpModalOpen}
         title="วิธีการทำงานของระบบแจ้งเตือน LINE Bot"
-        footer={
-          <Button onClick={() => setHelpModalOpen(false)}>ปิด</Button>
-        }
+        footer={<Button onClick={() => setHelpModalOpen(false)}>ปิด</Button>}
         onCancel={() => setHelpModalOpen(false)}
         width={720}
         destroyOnClose
@@ -2037,13 +2236,17 @@ export const SchoolDeviceTab = () => {
           ภาพรวมระบบ
         </Typography.Title>
         <Typography.Paragraph style={{ marginBottom: 4 }}>
-          ระบบ Cronjob รันทุก 1 นาที เพื่อตรวจสอบสถานะเครื่องทุกโรงเรียนที่มี LINE Group เชื่อมต่ออยู่
+          ระบบ Cronjob รันทุก 1 นาที เพื่อตรวจสอบสถานะเครื่องทุกโรงเรียนที่มี
+          LINE Group เชื่อมต่ออยู่
         </Typography.Paragraph>
         <Typography.Paragraph style={{ marginBottom: 4 }}>
-          การแจ้งเตือนจะส่งผ่าน LINE เฉพาะในช่วงเวลาที่แต่ละโรงเรียนกำหนดไว้เท่านั้น
+          การแจ้งเตือนจะส่งผ่าน LINE
+          เฉพาะในช่วงเวลาที่แต่ละโรงเรียนกำหนดไว้เท่านั้น
         </Typography.Paragraph>
         <Typography.Paragraph style={{ marginBottom: 0 }}>
-          แต่ละโรงเรียนสามารถตั้งค่าช่วงเวลาและช่วงห่างได้แยกกัน โดยคลิกที่ชื่อโรงเรียนในตาราง แล้วเปิดแถบ "ตั้งค่าการแจ้งเตือน LINE" ใน Drawer
+          แต่ละโรงเรียนสามารถตั้งค่าช่วงเวลาและช่วงห่างได้แยกกัน
+          โดยคลิกที่ชื่อโรงเรียนในตาราง แล้วเปิดแถบ "ตั้งค่าการแจ้งเตือน LINE"
+          ใน Drawer
         </Typography.Paragraph>
 
         <Divider style={{ marginTop: 16, marginBottom: 16 }} />
@@ -2057,13 +2260,21 @@ export const SchoolDeviceTab = () => {
         </Typography.Paragraph>
         <ol style={{ paddingLeft: 20, marginBottom: 0 }}>
           <li style={{ marginBottom: 6 }}>
-            <Typography.Text>LINE Bot เปิดใช้งานอยู่ (ตั้งค่าได้จากปุ่มในหน้านี้)</Typography.Text>
+            <Typography.Text>
+              LINE Bot เปิดใช้งานอยู่ (ตั้งค่าได้จากปุ่มในหน้านี้)
+            </Typography.Text>
           </li>
           <li style={{ marginBottom: 6 }}>
-            <Typography.Text>เวลาปัจจุบันอยู่ในช่วงเวลาที่โรงเรียนกำหนด (ค่า default: 06:00–08:00 และ 15:00–17:00)</Typography.Text>
+            <Typography.Text>
+              เวลาปัจจุบันอยู่ในช่วงเวลาที่โรงเรียนกำหนด (ค่า default:
+              06:00–08:00 และ 15:00–17:00)
+            </Typography.Text>
           </li>
           <li style={{ marginBottom: 0 }}>
-            <Typography.Text>มีเครื่องที่เปิดการแจ้งเตือนไว้ (toggle รายเครื่อง) และ Offline เกินเกณฑ์ที่กำหนด</Typography.Text>
+            <Typography.Text>
+              มีเครื่องที่เปิดการแจ้งเตือนไว้ (toggle รายเครื่อง) และ Offline
+              เกินเกณฑ์ที่กำหนด
+            </Typography.Text>
           </li>
         </ol>
 
@@ -2081,19 +2292,26 @@ export const SchoolDeviceTab = () => {
           columns={[
             { title: "รอบ", dataIndex: "round", key: "round", width: 120 },
             { title: "เงื่อนไข", dataIndex: "condition", key: "condition" },
-            { title: "ตัวอย่าง (ค่า default)", dataIndex: "example", key: "example", width: 240 },
+            {
+              title: "ตัวอย่าง (ค่า default)",
+              dataIndex: "example",
+              key: "example",
+              width: 240,
+            },
           ]}
           dataSource={[
             {
               key: "1",
               round: "รอบแรก",
-              condition: "เครื่อง Offline นานกว่าค่า \"ช่วงห่างรอบแรก\" ที่ตั้งไว้",
+              condition:
+                'เครื่อง Offline นานกว่าค่า "ช่วงห่างรอบแรก" ที่ตั้งไว้',
               example: "Offline ครบ 5 นาที จะแจ้งเตือนครั้งแรก",
             },
             {
               key: "2",
               round: "รอบถัดไป",
-              condition: "Offline นานกว่าค่า \"ช่วงห่างรอบถัดไป\" และตรงกับรอบ cycle ที่คำนวณได้",
+              condition:
+                'Offline นานกว่าค่า "ช่วงห่างรอบถัดไป" และตรงกับรอบ cycle ที่คำนวณได้',
               example: "ทุก 30 นาทีหลังจากนั้น (30, 60, 90, ... นาที)",
             },
           ]}
@@ -2106,14 +2324,19 @@ export const SchoolDeviceTab = () => {
           พฤติกรรมเมื่อเครื่อง Online กลับมาแล้ว Offline ใหม่
         </Typography.Title>
         <Typography.Paragraph style={{ marginBottom: 4 }}>
-          หากเครื่องกลับมา Online แล้ว Offline อีกครั้ง ระบบจะนับเวลา Offline ใหม่จากเวลา ping ล่าสุด
+          หากเครื่องกลับมา Online แล้ว Offline อีกครั้ง ระบบจะนับเวลา Offline
+          ใหม่จากเวลา ping ล่าสุด
         </Typography.Paragraph>
         <Typography.Paragraph style={{ marginBottom: 4 }}>
           หมายความว่าเครื่องจะได้รับการแจ้งเตือนรอบแรกอีกครั้ง ไม่ข้ามไปรอบถัดไป
         </Typography.Paragraph>
         <Typography.Paragraph style={{ marginBottom: 0 }}>
           <Typography.Text type="warning">ข้อจำกัดปัจจุบัน:</Typography.Text>
-          <Typography.Text> หากเครื่อง Offline มานานเกิน 30 นาทีก่อนที่ Cronjob จะรัน อาจข้ามรอบแรกไปได้</Typography.Text>
+          <Typography.Text>
+            {" "}
+            หากเครื่อง Offline มานานเกิน 30 นาทีก่อนที่ Cronjob จะรัน
+            อาจข้ามรอบแรกไปได้
+          </Typography.Text>
         </Typography.Paragraph>
 
         <Divider style={{ marginTop: 16, marginBottom: 16 }} />
@@ -2123,20 +2346,30 @@ export const SchoolDeviceTab = () => {
           ตั้งค่าการแจ้งเตือนของแต่ละโรงเรียน
         </Typography.Title>
         <Typography.Paragraph style={{ marginBottom: 4 }}>
-          คลิกชื่อโรงเรียนในตาราง เพื่อเปิด Drawer แล้วกดแถบ "ตั้งค่าการแจ้งเตือน LINE"
+          คลิกชื่อโรงเรียนในตาราง เพื่อเปิด Drawer แล้วกดแถบ
+          "ตั้งค่าการแจ้งเตือน LINE"
         </Typography.Paragraph>
         <ul style={{ paddingLeft: 20, marginBottom: 0 }}>
           <li style={{ marginBottom: 6 }}>
             <Typography.Text strong>ช่วงเวลา:</Typography.Text>
-            <Typography.Text> กำหนดได้สูงสุด 3 รอบ เปิด/ปิดแต่ละรอบได้อิสระ</Typography.Text>
+            <Typography.Text>
+              {" "}
+              กำหนดได้สูงสุด 3 รอบ เปิด/ปิดแต่ละรอบได้อิสระ
+            </Typography.Text>
           </li>
           <li style={{ marginBottom: 6 }}>
             <Typography.Text strong>ช่วงห่าง:</Typography.Text>
-            <Typography.Text> รอบแรก (จำนวนนาทีหลัง Offline) และรอบถัดไป (cycle ซ้ำ)</Typography.Text>
+            <Typography.Text>
+              {" "}
+              รอบแรก (จำนวนนาทีหลัง Offline) และรอบถัดไป (cycle ซ้ำ)
+            </Typography.Text>
           </li>
           <li style={{ marginBottom: 0 }}>
             <Typography.Text strong>ค่า default ทุกโรงเรียน:</Typography.Text>
-            <Typography.Text> 06:00–08:00 และ 15:00–17:00 ช่วงห่าง 5 นาที / 30 นาที</Typography.Text>
+            <Typography.Text>
+              {" "}
+              06:00–08:00 และ 15:00–17:00 ช่วงห่าง 5 นาที / 30 นาที
+            </Typography.Text>
           </li>
         </ul>
       </Modal>

@@ -1,4 +1,5 @@
 import { errorResponse, successResponse } from "@/helpers/api/response";
+import { PrismaJabjaiMaster } from "@/helpers/prisma/prisma-jabjai-master-single-db";
 import { API_URL } from "@/services/api-url";
 import prisma from "@helpers/prisma";
 import axios from "axios";
@@ -23,7 +24,23 @@ export interface SchoolDeviceSummaryItem {
     online_time: string | null;
     offline_reason: "server_down" | "device_or_network" | null;
     notify_enabled: boolean;
+    notify_round: 1 | 2 | null;
   }[];
+}
+
+// คำนวณรอบการแจ้งเตือน (1 หรือ 2) จากเวลา offline และ config ช่วงห่าง (server-side)
+function computeDeviceNotifyRound(
+  onlineTime: Date | null,
+  nowMs: number,
+  round1Minutes: number,
+  round2Minutes: number,
+): 1 | 2 | null {
+  if (!onlineTime) return null;
+  const offlineMin = (nowMs - onlineTime.getTime()) / 60_000;
+  if (offlineMin < round1Minutes) return null;
+  if (round2Minutes <= 0 || offlineMin < round1Minutes + round2Minutes)
+    return 1;
+  return 2;
 }
 
 // ตรวจสอบสถานะ hardware server โดยยิง GET /api/application แล้วคืน true ถ้าได้ 200
@@ -49,27 +66,51 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const sortOrder = searchParams.get("sort_order") ?? "desc"; // asc | desc
 
     const now = new Date();
+    const nowMs = now.getTime();
 
-    const [allDevices, allSchools, hardwareServerOk] = await Promise.all([
-      prisma.deviceDailyStatus.findMany({
-        select: {
-          SchoolID: true,
-          DeviceID: true,
-          AppName: true,
-          AppVersion: true,
-          Note: true,
-          Online: true,
-          OnlineTime: true,
-          Login: true,
-          NotifyEnabled: true,
-        },
-        orderBy: [{ SchoolID: "asc" }, { AppName: "asc" }, { DeviceID: "asc" }],
-      }),
-      prisma.activeSchoolList.findMany({
-        select: { nCompany: true, sCompany: true },
-      }),
-      checkHardwareServerHealth(),
-    ]);
+    const [allDevices, allSchools, hardwareServerOk, allIntervals] =
+      await Promise.all([
+        prisma.deviceDailyStatus.findMany({
+          select: {
+            SchoolID: true,
+            DeviceID: true,
+            AppName: true,
+            AppVersion: true,
+            Note: true,
+            Online: true,
+            OnlineTime: true,
+            Login: true,
+            NotifyEnabled: true,
+          },
+          orderBy: [
+            { SchoolID: "asc" },
+            { AppName: "asc" },
+            { DeviceID: "asc" },
+          ],
+        }),
+        prisma.activeSchoolList.findMany({
+          select: { nCompany: true, sCompany: true },
+        }),
+        checkHardwareServerHealth(),
+        // ดึง interval config ทุกโรงเรียนจาก jabjai-master เพื่อคำนวณ notify_round ฝั่ง server
+        PrismaJabjaiMaster.deviceNotifyInterval.findMany({
+          where: { is_active: true },
+          select: { school_id: true, round: true, interval_minutes: true },
+        }),
+      ]);
+
+    // สร้าง Map school_id → { round1Minutes, round2Minutes } (default: 5 / 30 นาที)
+    type IntervalConfig = { round1Minutes: number; round2Minutes: number };
+    const intervalMap = new Map<number, IntervalConfig>();
+    for (const iv of allIntervals) {
+      const entry = intervalMap.get(iv.school_id) ?? {
+        round1Minutes: 5,
+        round2Minutes: 30,
+      };
+      if (iv.round === 1) entry.round1Minutes = iv.interval_minutes;
+      else if (iv.round === 2) entry.round2Minutes = iv.interval_minutes;
+      intervalMap.set(iv.school_id, entry);
+    }
 
     // สาเหตุ offline ระดับโรงเรียน/เครื่อง ขึ้นอยู่กับสถานะ server
     const offlineReason: "server_down" | "device_or_network" = hardwareServerOk
@@ -115,6 +156,20 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         entry.offline_reason = offlineReason;
       }
 
+      // คำนวณรอบการแจ้งเตือนฝั่ง server จาก online_time และ interval config ของโรงเรียน
+      const intervalConfig = intervalMap.get(device.SchoolID) ?? {
+        round1Minutes: 5,
+        round2Minutes: 30,
+      };
+      const notifyRound = isOnline
+        ? null
+        : computeDeviceNotifyRound(
+            device.OnlineTime ? new Date(device.OnlineTime) : null,
+            nowMs,
+            intervalConfig.round1Minutes,
+            intervalConfig.round2Minutes,
+          );
+
       entry.devices.push({
         device_id: device.DeviceID,
         app_name: device.AppName ?? "ไม่ระบุแอป",
@@ -125,6 +180,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         online_time: device.OnlineTime?.toISOString() ?? null,
         offline_reason: isOnline ? null : offlineReason,
         notify_enabled: device.NotifyEnabled,
+        notify_round: notifyRound,
       });
     }
 
