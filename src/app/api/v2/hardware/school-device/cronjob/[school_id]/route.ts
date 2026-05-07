@@ -8,22 +8,51 @@ import {
 } from "@services/line/line-push.service";
 import { NextRequest, NextResponse } from "next/server";
 
-// ✨ ตรวจสอบว่าเครื่องใดออฟไลน์นานถึงเกณฑ์แจ้งเตือน ตามช่วงห่างที่กำหนด
+// ✨ ตรวจสอบว่าเครื่องใดออฟไลน์นานถึงเกณฑ์แจ้งเตือน ตามช่วงห่างที่กำหนด — คืน debug log ด้วย
 function hasDeviceReachingNotifyThreshold(
-  devices: Array<{ is_online: boolean; online_time: string | null; notify_enabled: boolean }>,
+  devices: Array<{ is_online: boolean; online_time: string | null; notify_enabled: boolean; device_id?: string; app_name?: string }>,
   intervalRound1Minutes: number,
   intervalRound2Minutes: number,
-): boolean {
+): { result: boolean; notifyRound: 1 | 2 | null; debugLines: string[] } {
   const now = Date.now();
+  const debugLines: string[] = [];
+  let result = false;
+  let notifyRound: 1 | 2 | null = null;
+
   for (const device of devices) {
-    if (device.is_online || !device.notify_enabled || !device.online_time) continue;
+    if (device.is_online) continue;
+
+    const name = device.app_name ?? device.device_id ?? "unknown";
+
+    if (!device.notify_enabled) {
+      debugLines.push(`  [SKIP] ${name} — notify_enabled=false`);
+      continue;
+    }
+    if (!device.online_time) {
+      debugLines.push(`  [SKIP] ${name} — online_time=null (ไม่รู้เวลาออฟไลน์)`);
+      continue;
+    }
+
     const offlineMinutes = (now - new Date(device.online_time).getTime()) / 60_000;
-    // ส่งแจ้งเตือนรอบแรก: ออฟไลน์นาน >= interval รอบ 1 และยังไม่ถึง interval รอบ 2
-    if (offlineMinutes >= intervalRound1Minutes && offlineMinutes < intervalRound2Minutes) return true;
-    // ส่งแจ้งเตือนรอบถัดไป: ออฟไลน์นาน >= interval รอบ 2 และตรงกับช่วง 1 นาทีของ cycle
-    if (offlineMinutes >= intervalRound2Minutes && offlineMinutes % intervalRound2Minutes < 1) return true;
+    const offlineMin = offlineMinutes.toFixed(1);
+
+    if (offlineMinutes >= intervalRound1Minutes && offlineMinutes < intervalRound2Minutes) {
+      debugLines.push(`  [✓ R1] ${name} — offline ${offlineMin} นาที (เกณฑ์รอบแรก: ${intervalRound1Minutes}–${intervalRound2Minutes} นาที)`);
+      result = true;
+      if (notifyRound === null) notifyRound = 1;
+    } else if (offlineMinutes >= intervalRound2Minutes && offlineMinutes % intervalRound2Minutes < 1) {
+      debugLines.push(`  [✓ R2] ${name} — offline ${offlineMin} นาที (ตรง cycle ${intervalRound2Minutes} นาที)`);
+      result = true;
+      if (notifyRound === null) notifyRound = 2;
+    } else if (offlineMinutes < intervalRound1Minutes) {
+      debugLines.push(`  [--]   ${name} — offline ${offlineMin} นาที (ยังไม่ถึงเกณฑ์ ${intervalRound1Minutes} นาที)`);
+    } else {
+      const nextCycle = Math.ceil(offlineMinutes / intervalRound2Minutes) * intervalRound2Minutes;
+      debugLines.push(`  [--]   ${name} — offline ${offlineMin} นาที (รอ cycle ถัดไปที่ ${nextCycle.toFixed(0)} นาที)`);
+    }
   }
-  return false;
+
+  return { result, notifyRound, debugLines };
 }
 
 // GET handler — ดึงสถานะเครื่องทุกเครื่องของโรงเรียน พร้อมส่งรายงานไปยัง LINE Group และคืน response รวม
@@ -89,18 +118,23 @@ export async function GET(
     }
 
     // ถ้า cronjob ส่ง interval มา → ตรวจว่ามีเครื่องถึงเกณฑ์แจ้งเตือนไหม
+    let notifyRound: 1 | 2 | null = null;
     if (useIntervalCheck) {
-      const shouldNotify = hasDeviceReachingNotifyThreshold(
+      const { result: shouldNotify, notifyRound: round, debugLines } = hasDeviceReachingNotifyThreshold(
         deviceData.devices,
         intervalRound1,
         intervalRound2,
       );
+      notifyRound = round;
+      console.log(`[THRESHOLD] school=${schoolIdNum} interval=[${intervalRound1},${intervalRound2}] offline=${deviceData.devices.filter((d) => !d.is_online).length} เครื่อง`);
+      for (const line of debugLines) console.log(`[THRESHOLD]${line}`);
+      console.log(`[THRESHOLD] → shouldNotify=${shouldNotify} notifyRound=${notifyRound}`);
       if (!shouldNotify) {
         return NextResponse.json(
           successResponse({
             message_th: `ไม่มีอุปกรณ์ที่ถึงเกณฑ์การแจ้งเตือน โรงเรียน ${deviceData.school_name}`,
             message_en: "No devices reached notification threshold — skipped",
-            data: { ...deviceData, line: { success: false, group_id: null, skipped: true } },
+            data: { ...deviceData, line: { success: false, group_id: null, skipped: true, notify_round: null } },
           }),
           { status: 200 },
         );
@@ -114,7 +148,7 @@ export async function GET(
       process.env.LINE_MONITORING_GROUP_ID ??
       null;
 
-    let lineResult: { success: boolean; group_id: string | null; skipped?: boolean; error?: string } = {
+    let lineResult: { success: boolean; group_id: string | null; skipped?: boolean; notify_round?: 1 | 2 | null; error?: string } = {
       success: false,
       group_id: null,
     };
@@ -123,7 +157,7 @@ export async function GET(
       try {
         const { messages } = await buildSchoolDeviceReport(schoolIdNum);
         await linePushMessage(groupId, messages);
-        lineResult = { success: true, group_id: groupId };
+        lineResult = { success: true, group_id: groupId, notify_round: notifyRound };
       } catch (lineErr: unknown) {
         lineResult = {
           success: false,
