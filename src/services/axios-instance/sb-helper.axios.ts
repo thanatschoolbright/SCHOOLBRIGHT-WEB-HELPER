@@ -283,8 +283,8 @@ callApiService.interceptors.response.use(
       error,
     });
 
-    // บันทึกลงฐานข้อมูล
-    await saveApiLog(config, error.response, duration, calledBy, error);
+    // บันทึกลงฐานข้อมูล — ปิดไว้ เปิดเฉพาะ route ที่ต้องการเก็บจริง
+    // await saveApiLog(config, error.response, duration, calledBy, error);
 
     return Promise.reject(error);
   },

@@ -1,4 +1,3 @@
-import { ApiLogUtils } from "@/helpers/api-log.utils";
 import { API_URL } from "@/services/api-url";
 import { convertToCurl } from "@helpers/api/convert-to-curl";
 import { callWithLogging } from "@helpers/call-with-logging";
@@ -10,7 +9,6 @@ let cachedData: any = null;
 let lastFetchTime = 0;
 
 export async function GET(request: NextRequest) {
-  const startTime = new Date(); // เริ่มจับเวลา
   const now = Date.now();
 
   // ตรวจสอบ Cache ก่อน
@@ -46,32 +44,10 @@ export async function GET(request: NextRequest) {
     cachedData = result;
     lastFetchTime = now;
 
-    // บันทึก API Log สำเร็จ
-    await ApiLogUtils.logApiRequest(
-      request,
-      {
-        status: response.status,
-        body: result,
-      },
-      startTime,
-    );
-
     return NextResponse.json(result, { status: response.status });
   } catch (error: any) {
     const statusCode = error.response?.status || 500;
     const errorResponse = { message: error.message };
-
-    // บันทึก API Log ผิดพลาด
-    await ApiLogUtils.logApiRequest(
-      request,
-      {
-        status: statusCode,
-        body: errorResponse,
-        errorMessage: error.message,
-      },
-      startTime,
-    );
-
     return NextResponse.json(errorResponse, { status: statusCode });
   }
 }

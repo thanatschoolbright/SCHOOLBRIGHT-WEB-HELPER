@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ApiLogService } from "@/services/backend/api-log/api-log.service";
-import { ApiLogUtils } from "@/helpers/api-log.utils";
 import { ApiResponse, ApiErrorResponse } from "@/types/api-log.types";
 
 /**
@@ -11,19 +10,10 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
-  let logData;
-
   try {
-    //** การทำงาน: ดึงข้อมูลจาก request และสร้าง log data พื้นฐาน */
-    logData = await ApiLogUtils.createLogData(request);
-
-    //** การทำงาน: รอให้ params resolve */
     const resolvedParams = await params;
-
-    //** การทำงาน: ดึง request body */
     const requestBody = await request.json().catch(() => ({}));
-    
-    //** การทำงาน: ตรวจสอบข้อมูลที่จำเป็น */
+
     if (typeof requestBody.isArchived !== "boolean") {
       const errorResponse: ApiErrorResponse = {
         message: "Missing or invalid required field: isArchived (must be boolean)",
@@ -32,24 +22,23 @@ export async function PATCH(
         timestamp: new Date().toISOString(),
         success: false,
       };
-
-      //** การทำงาน: บันทึก log สำหรับ error */
-      const errorLogData = ApiLogUtils.updateLogDataWithResponse(
-        logData,
-        400,
-        ApiLogUtils.sanitizeResponseBody(errorResponse),
-        "Missing or invalid required field: isArchived"
-      );
-      
-      await ApiLogService.createApiLog(errorLogData);
-
       return NextResponse.json(errorResponse, { status: 400 });
     }
 
-    //** การทำงาน: ตรวจสอบและแปลง ID */
-    const logId = BigInt(resolvedParams.id);
-    
-    //** การทำงาน: ตรวจสอบว่า API Log มีอยู่หรือไม่ */
+    let logId: bigint;
+    try {
+      logId = BigInt(resolvedParams.id);
+    } catch {
+      const errorResponse: ApiErrorResponse = {
+        message: "Invalid ID format",
+        error: "Validation Error",
+        statusCode: 400,
+        timestamp: new Date().toISOString(),
+        success: false,
+      };
+      return NextResponse.json(errorResponse, { status: 400 });
+    }
+
     const existingLog = await ApiLogService.getApiLogById(logId);
     if (!existingLog) {
       const errorResponse: ApiErrorResponse = {
@@ -59,28 +48,15 @@ export async function PATCH(
         timestamp: new Date().toISOString(),
         success: false,
       };
-
-      //** การทำงาน: บันทึก log สำหรับ error */
-      const errorLogData = ApiLogUtils.updateLogDataWithResponse(
-        logData,
-        404,
-        ApiLogUtils.sanitizeResponseBody(errorResponse),
-        `API Log with ID ${resolvedParams.id} not found`
-      );
-      
-      await ApiLogService.createApiLog(errorLogData);
-
       return NextResponse.json(errorResponse, { status: 404 });
     }
 
-    //** การทำงาน: อัปเดตสถานะ archive */
     const updatedLog = await ApiLogService.updateArchiveStatus(logId, requestBody.isArchived);
 
-    //** การทำงาน: สร้าง response ที่สำเร็จ */
     const successResponse: ApiResponse = {
       data: {
         ...updatedLog,
-        id: updatedLog.id.toString(), // แปลง BigInt เป็น string สำหรับ JSON
+        id: updatedLog.id.toString(),
       },
       message: `API Log ${requestBody.isArchived ? "archived" : "unarchived"} successfully`,
       success: true,
@@ -88,55 +64,17 @@ export async function PATCH(
       timestamp: new Date().toISOString(),
     };
 
-    //** การทำงาน: บันทึก log สำหรับ API route นี้เอง */
-    const successLogData = ApiLogUtils.updateLogDataWithResponse(
-      logData,
-      200,
-      ApiLogUtils.sanitizeResponseBody(successResponse)
-    );
-    
-    // ไม่ต้องรอให้เสร็จ เพื่อไม่ให้เกิด infinite loop
-    ApiLogService.createApiLog(successLogData).catch(console.error);
-
     return NextResponse.json(successResponse, { status: 200 });
-    
-  } catch (error) {
-    //** การทำงาน: จัดการ error และสร้าง error response */
-    let errorMessage = "Unknown error occurred";
-    let statusCode = 500;
 
-    if (error instanceof Error) {
-      errorMessage = error.message;
-      // ตรวจสอบว่าเป็น BigInt conversion error หรือไม่
-      if (error.message.includes("Cannot convert") || error.message.includes("invalid BigInt")) {
-        errorMessage = "Invalid ID format";
-        statusCode = 400;
-      }
-    }
-    
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
     const errorResponse: ApiErrorResponse = {
       message: "Failed to update archive status",
       error: errorMessage,
-      statusCode,
+      statusCode: 500,
       timestamp: new Date().toISOString(),
       success: false,
     };
-
-    //** การทำงาน: บันทึก error log ถ้า logData มีอยู่ */
-    if (logData) {
-      const errorLogData = ApiLogUtils.updateLogDataWithResponse(
-        logData,
-        statusCode,
-        ApiLogUtils.sanitizeResponseBody(errorResponse),
-        errorMessage
-      );
-      
-      // พยายามบันทึก error log
-      ApiLogService.createApiLog(errorLogData).catch(console.error);
-    }
-
-    console.error("API Log archive update error:", error);
-    
-    return NextResponse.json(errorResponse, { status: statusCode });
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
