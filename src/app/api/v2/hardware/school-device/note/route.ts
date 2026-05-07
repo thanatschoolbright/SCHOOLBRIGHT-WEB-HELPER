@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { errorResponse, successResponse } from "@/helpers/api/response";
 import { validateRequest } from "@/helpers/api/validate.request";
+import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import prisma from "@helpers/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -49,6 +50,21 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
         { status: 404 },
       );
     }
+
+    // บันทึก activity log ลงตาราง api_log (timesheet DB)
+    PrismaTimesheet.apiLog.create({
+      data: {
+        request_time: new Date(),
+        method: "PATCH",
+        endpoint: "/api/v2/hardware/school-device/note",
+        url: "/api/v2/hardware/school-device/note",
+        service_name: "machine-monitoring",
+        request_body: { school_id: data.school_id, device_id: data.device_id, note: noteValue },
+        status_code: 200,
+        is_success: true,
+        called_by: String(session.user.id ?? "unknown"),
+      },
+    }).catch(() => undefined);
 
     return NextResponse.json(
       successResponse({

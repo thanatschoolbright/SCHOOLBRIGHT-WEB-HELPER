@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { errorResponse, successResponse } from "@/helpers/api/response";
 import { validateRequest } from "@/helpers/api/validate.request";
+import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import { NextRequest, NextResponse } from "next/server";
 import { deviceNotifyService } from "../device-notify.service";
 import { ToggleDeviceNotifySchema } from "../device-notify.schema";
@@ -21,6 +22,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const userId = session.user.id ? Number(session.user.id) : null;
     const result = await deviceNotifyService.toggleDeviceNotify(data, userId);
+
+    // บันทึก activity log ลงตาราง api_log (timesheet DB)
+    PrismaTimesheet.apiLog.create({
+      data: {
+        request_time: new Date(),
+        method: "POST",
+        endpoint: "/api/v1/hardware/machine-monitoring/device-notify-setting/toggle",
+        url: "/api/v1/hardware/machine-monitoring/device-notify-setting/toggle",
+        service_name: "machine-monitoring",
+        request_body: { school_id: data.school_id, device_id: data.device_id, notify_enabled: data.notify_enabled },
+        status_code: 200,
+        is_success: true,
+        called_by: String(session.user.id ?? "unknown"),
+      },
+    }).catch(() => undefined);
 
     const actionText = result.notify_enabled ? "เปิด" : "ปิด";
 
