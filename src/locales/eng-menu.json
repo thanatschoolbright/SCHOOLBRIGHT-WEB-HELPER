@@ -34,7 +34,8 @@
       "bypass_school": "Bypass School",
       "test_nfc_card": "NFC Test (Vimal)",
       "cancel_sales": "Cancel Sales > 7 Days",
-      "upload_student_migration": "Upload Student Migration (User Balance)"
+      "upload_student_migration": "Upload Student Migration (User Balance)",
+      "customer_management": "Customer Management"
     }
   },
   "health_check": {

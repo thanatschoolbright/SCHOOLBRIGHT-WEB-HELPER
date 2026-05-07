@@ -216,6 +216,12 @@ export const useSidebarMenu = (): SidebarItem[] => {
             ],
           },
           {
+            label: t("support.children.customer_management"),
+            icon: <TeamOutlined />,
+            href: "/support/general/customer",
+            permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.MENU_SUPPORT_CUSTOMER],
+          },
+          {
             label: t("health_check.title"),
             icon: <CloudServerOutlined />,
             children: [

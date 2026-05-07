@@ -34,7 +34,8 @@
       "bypass_school": "บายพาส",
       "test_nfc_card": "NFC (Vimal)",
       "cancel_sales": "ยกเลิกขาย",
-      "upload_student_migration": "ย้ายยอดเงิน"
+      "upload_student_migration": "ย้ายยอดเงิน",
+      "customer_management": "จัดการลูกค้า"
     }
   },
   "health_check": {

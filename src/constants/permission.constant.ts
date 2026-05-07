@@ -41,6 +41,7 @@ export const PERMISSIONS = {
   MENU_SUPPORT_BYPASS: "menu.support.bypass_school",
   MENU_SUPPORT_NFC: "menu.support.test_nfc_card",
   MENU_SUPPORT_CANCEL_SALES: "menu.support.cancel_sales",
+  MENU_SUPPORT_CUSTOMER: "menu.support.customer_management",
 
   MENU_TESTING_LOAD: "menu.testing.load_testing",
 
