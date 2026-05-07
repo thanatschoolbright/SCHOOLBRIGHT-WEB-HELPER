@@ -125,6 +125,19 @@ export const {
             },
           });
 
+          // บันทึก login log ลง api_log
+          PrismaTimesheet.apiLog.create({
+            data: {
+              request_time: new Date(),
+              method: "POST",
+              endpoint: "AUTH_LOGIN",
+              service_name: "authentication",
+              status_code: 200,
+              is_success: true,
+              called_by: String(databaseUser.id),
+            },
+          }).catch(() => undefined);
+
           // 5. Build User Object for JWT
           const permissions =
             databaseUser.role?.permissions.map(

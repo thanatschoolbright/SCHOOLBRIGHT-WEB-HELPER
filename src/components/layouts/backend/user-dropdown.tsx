@@ -355,8 +355,13 @@ function ProfileDrawer({
     router.push(path);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     toast.info(t("user_dropdown.logging_out"));
+    try {
+      await fetch("/api/v2/admin/user-management/logout", { method: "POST" });
+    } catch {
+      // บันทึก log ล้มเหลวไม่ควรหยุด logout
+    }
     void signOut({ callbackUrl: window.location.origin });
   };
 

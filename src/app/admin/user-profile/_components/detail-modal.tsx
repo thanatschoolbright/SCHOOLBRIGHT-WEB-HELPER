@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  CheckCircleOutlined,
-  CloseCircleOutlined,
   EditOutlined,
   HistoryOutlined,
   InfoCircleOutlined,
+  LoginOutlined,
+  LogoutOutlined,
   ReloadOutlined,
   SafetyCertificateOutlined,
   UserOutlined,
@@ -14,109 +14,51 @@ import {
   Avatar,
   Badge,
   Button,
+  Card,
   Descriptions,
+  Empty,
   Modal,
   Space,
-  Table,
   Tabs,
   Tag,
   theme,
+  Timeline,
   Tooltip,
   Typography,
 } from "antd";
-import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+import "dayjs/locale/th";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-import { GET_API_LOGS } from "@/helpers/api-log.helper";
-import { ApiLogItem, ApiLogPagination } from "@/types/api-log.type";
+import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import { useUserProfileStore } from "../_stores/user-profile-store";
 import { SignatureModal } from "./signature-modal";
 
-// columns สำหรับ Activity Log table
-const activityColumns: ColumnsType<ApiLogItem> = [
-  {
-    title: "เวลา",
-    dataIndex: "requestTime",
-    key: "requestTime",
-    width: 160,
-    render: (v) => (
-      <Typography.Text style={{ fontSize: 12 }}>
-        {dayjs(v).format("DD/MM/YY HH:mm:ss")}
-      </Typography.Text>
-    ),
-  },
-  {
-    title: "Method",
-    dataIndex: "method",
-    key: "method",
-    width: 80,
-    render: (v) => {
-      const colorMap: Record<string, string> = {
-        GET: "green",
-        POST: "blue",
-        PUT: "orange",
-        PATCH: "cyan",
-        DELETE: "red",
-      };
-      return <Tag color={colorMap[v] ?? "default"}>{v ?? "-"}</Tag>;
-    },
-  },
-  {
-    title: "Endpoint",
-    dataIndex: "endpoint",
-    key: "endpoint",
-    ellipsis: true,
-    render: (v) => (
-      <Typography.Text style={{ fontSize: 12 }} copyable={{ text: v }}>
-        {v ?? "-"}
-      </Typography.Text>
-    ),
-  },
-  {
-    title: "Status",
-    dataIndex: "statusCode",
-    key: "statusCode",
-    width: 80,
-    render: (v, record) => (
-      <Space size={4}>
-        {record.isSuccess ? (
-          <CheckCircleOutlined style={{ color: "#52c41a" }} />
-        ) : (
-          <CloseCircleOutlined style={{ color: "#ff4d4f" }} />
-        )}
-        <Tag
-          color={
-            v >= 200 && v < 300 ? "success" : v >= 400 ? "error" : "warning"
-          }
-        >
-          {v ?? "-"}
-        </Tag>
-      </Space>
-    ),
-  },
-  {
-    title: "ใช้เวลา",
-    dataIndex: "durationMs",
-    key: "durationMs",
-    width: 90,
-    render: (v) => (
-      <Typography.Text style={{ fontSize: 12 }}>
-        {v != null ? `${v} ms` : "-"}
-      </Typography.Text>
-    ),
-  },
-  {
-    title: "IP",
-    dataIndex: "ipAddress",
-    key: "ipAddress",
-    width: 120,
-    render: (v) => (
-      <Typography.Text style={{ fontSize: 11 }}>{v ?? "-"}</Typography.Text>
-    ),
-  },
-];
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(relativeTime);
+dayjs.locale("th");
+dayjs.tz.setDefault("Asia/Bangkok");
+
+interface LoginLogItem {
+  id: string;
+  action: "LOGIN" | "LOGOUT";
+  request_time: string;
+  is_success: boolean;
+  ip_address: string | null;
+  user_agent: string | null;
+}
+
+interface LoginLogPagination {
+  page: number;
+  page_size: number;
+  total: number;
+  total_pages: number;
+}
 
 // Tab: ข้อมูลพนักงาน
 const UserInfoTab = () => {
@@ -279,56 +221,72 @@ const UserInfoTab = () => {
   );
 };
 
+// ตรวจสอบชนิด browser จาก user_agent string
+function parseBrowser(ua: string | null): string {
+  if (!ua) return "-";
+  if (ua.includes("Chrome") && !ua.includes("Edg")) return "Chrome";
+  if (ua.includes("Firefox")) return "Firefox";
+  if (ua.includes("Safari") && !ua.includes("Chrome")) return "Safari";
+  if (ua.includes("Edg")) return "Edge";
+  if (ua.includes("OPR") || ua.includes("Opera")) return "Opera";
+  return "Browser";
+}
+
 // Tab: Activity Log
 const ActivityLogTab = () => {
+  const { token } = theme.useToken();
   const { selectedUser } = useUserProfileStore();
-  const [logs, setLogs] = useState<ApiLogItem[]>([]);
+  const [logs, setLogs] = useState<LoginLogItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [pagination, setPagination] = useState<ApiLogPagination>({
+  const [pagination, setPagination] = useState<LoginLogPagination>({
     page: 1,
-    limit: 10,
+    page_size: 20,
     total: 0,
-    totalPages: 0,
+    total_pages: 0,
   });
 
-  // ดึง activity log ของ user คนนี้จาก calledBy = username
   const fetchLogs = useCallback(
     async (page = 1) => {
-      if (!selectedUser?.username) return;
+      if (!selectedUser?.id) return;
       setIsLoading(true);
       try {
-        const res = await GET_API_LOGS({
-          calledBy: selectedUser.id.toString(),
-          page,
-          limit: 10,
-          sortBy: "request_time",
-          sortOrder: "desc",
-        });
-        setLogs(res.data.logs);
+        const res = await axios.get(
+          `/api/v2/admin/user-management/login-log?user_id=${selectedUser.id}&page=${page}&page_size=20`,
+        );
+        setLogs(res.data.data ?? []);
         setPagination(res.data.pagination);
       } catch {
-        // silent — ถ้า log ไม่มีก็แสดง empty
+        // silent
       } finally {
         setIsLoading(false);
       }
     },
-    [selectedUser?.username],
+    [selectedUser?.id],
   );
 
   useEffect(() => {
     fetchLogs(1);
   }, [fetchLogs]);
 
+  const loginCount = logs.filter((l) => l.action === "LOGIN").length;
+  const logoutCount = logs.filter((l) => l.action === "LOGOUT").length;
+
   return (
     <div>
-      <div className="flex justify-between items-center mb-3">
-        <Space>
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4">
+        <Space size={12}>
           <Badge count={pagination.total} overflowCount={9999} color="blue">
-            <Typography.Text strong>ประวัติการใช้งาน API</Typography.Text>
+            <Typography.Text strong style={{ fontSize: 14 }}>
+              ประวัติการเข้า-ออกระบบ
+            </Typography.Text>
           </Badge>
-          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-            (calledBy : {selectedUser?.id ?? "-"})
-          </Typography.Text>
+          <Tag color="green" icon={<LoginOutlined />}>
+            เข้า {loginCount}
+          </Tag>
+          <Tag color="orange" icon={<LogoutOutlined />}>
+            ออก {logoutCount}
+          </Tag>
         </Space>
         <Tooltip title="รีเฟรช">
           <Button
@@ -341,25 +299,103 @@ const ActivityLogTab = () => {
         </Tooltip>
       </div>
 
-      <Table<ApiLogItem>
-        columns={activityColumns}
-        dataSource={logs}
-        rowKey="id"
-        loading={isLoading}
-        size="small"
-        scroll={{ x: 700 }}
-        pagination={{
-          current: pagination.page,
-          pageSize: pagination.limit,
-          total: pagination.total,
-          showTotal: (total) => `ทั้งหมด ${total} รายการ`,
-          onChange: (page) => fetchLogs(page),
-          size: "small",
-        }}
-        rowClassName={(record) =>
-          !record.isSuccess ? "bg-red-50 dark:bg-red-950/20" : ""
-        }
-      />
+      {/* Timeline */}
+      {logs.length === 0 && !isLoading ? (
+        <Empty description="ยังไม่มีประวัติการเข้าสู่ระบบ" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+      ) : (
+        <div style={{ maxHeight: 420, overflowY: "auto", paddingRight: 4 }}>
+          <Timeline
+            mode="left"
+            items={logs.map((log) => {
+              const isLogin = log.action === "LOGIN";
+              const color = isLogin ? "#52c41a" : "#fa8c16";
+              const icon = isLogin ? (
+                <LoginOutlined style={{ color, fontSize: 14 }} />
+              ) : (
+                <LogoutOutlined style={{ color: "#fa8c16", fontSize: 14 }} />
+              );
+
+              const timeStr = dayjs(log.request_time).tz("Asia/Bangkok").format("DD/MM/YYYY HH:mm:ss");
+              const relStr = dayjs(log.request_time).fromNow();
+              const browser = parseBrowser(log.user_agent);
+
+              return {
+                dot: icon,
+                color,
+                label: (
+                  <Tooltip title={timeStr}>
+                    <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                      {relStr}
+                    </Typography.Text>
+                  </Tooltip>
+                ),
+                children: (
+                  <Card
+                    size="small"
+                    styles={{
+                      body: { padding: "8px 12px" },
+                    }}
+                    style={{
+                      borderColor: isLogin ? "#b7eb8f" : "#ffd591",
+                      backgroundColor: isLogin
+                        ? token.colorSuccessBg
+                        : token.colorWarningBg,
+                      marginBottom: 2,
+                    }}
+                  >
+                    <Space direction="vertical" size={2} style={{ width: "100%" }}>
+                      <Space size={6}>
+                        <Tag
+                          color={isLogin ? "success" : "warning"}
+                          style={{ margin: 0, fontWeight: 600, fontSize: 11 }}
+                        >
+                          {isLogin ? "เข้าสู่ระบบ" : "ออกจากระบบ"}
+                        </Tag>
+                        <Typography.Text style={{ fontSize: 12 }}>
+                          {timeStr}
+                        </Typography.Text>
+                      </Space>
+                      <Space size={12}>
+                        {log.ip_address && (
+                          <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                            IP: {log.ip_address}
+                          </Typography.Text>
+                        )}
+                        <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                          {browser}
+                        </Typography.Text>
+                      </Space>
+                    </Space>
+                  </Card>
+                ),
+              };
+            })}
+          />
+        </div>
+      )}
+
+      {/* Pagination */}
+      {pagination.total_pages > 1 && (
+        <div className="flex justify-center gap-2 mt-3">
+          <Button
+            size="small"
+            disabled={pagination.page <= 1}
+            onClick={() => fetchLogs(pagination.page - 1)}
+          >
+            หน้าก่อน
+          </Button>
+          <Typography.Text type="secondary" style={{ fontSize: 12, lineHeight: "24px" }}>
+            {pagination.page} / {pagination.total_pages}
+          </Typography.Text>
+          <Button
+            size="small"
+            disabled={pagination.page >= pagination.total_pages}
+            onClick={() => fetchLogs(pagination.page + 1)}
+          >
+            หน้าถัดไป
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

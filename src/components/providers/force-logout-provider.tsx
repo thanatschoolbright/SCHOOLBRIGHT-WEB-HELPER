@@ -38,6 +38,11 @@ export default function ForceLogoutProvider({
    */
   const performLogout = useCallback(async () => {
     try {
+      await fetch("/api/v2/admin/user-management/logout", { method: "POST" });
+    } catch {
+      // บันทึก log ล้มเหลวไม่ควรหยุด logout
+    }
+    try {
       // ใช้ NextAuth signOut เพื่อทำลาย session ทั้งใน client และ server
       // ใช้ window.location.origin เพื่อป้องกันการเด้งไป localhost:3000
       await signOut({
