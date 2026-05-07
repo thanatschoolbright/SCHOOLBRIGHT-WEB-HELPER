@@ -22,7 +22,9 @@ import {
   MinusCircleOutlined,
   QuestionCircleOutlined,
   ReloadOutlined,
+  SaveOutlined,
   SearchOutlined,
+  SettingOutlined,
   SortAscendingOutlined,
   SortDescendingOutlined,
   UnorderedListOutlined,
@@ -35,14 +37,17 @@ import {
   Button,
   Card,
   Col,
+  Collapse,
   Drawer,
   Flex,
   Input,
+  InputNumber,
   Modal,
   Progress,
   Row,
   Select,
   Space,
+  Spin,
   Switch,
   Table,
   Tag,
@@ -94,6 +99,30 @@ interface SchoolDeviceSummaryItem {
   total: number;
   offline_reason: OfflineReason;
   devices: DeviceDetail[];
+}
+
+interface NotifyTimeWindow {
+  id: number;
+  round: number;
+  label: string;
+  start_hour: number;
+  start_min: number;
+  end_hour: number;
+  end_min: number;
+  is_active: boolean;
+}
+
+interface NotifyInterval {
+  id: number;
+  round: number;
+  label: string;
+  interval_minutes: number;
+  is_active: boolean;
+}
+
+interface NotifyConfig {
+  time_windows: NotifyTimeWindow[];
+  intervals: NotifyInterval[];
 }
 
 interface FetchParams {
@@ -750,6 +779,15 @@ export const SchoolDeviceTab = () => {
   const [batchTargetEnabled, setBatchTargetEnabled] = useState(false);
   const [batchRows, setBatchRows] = useState<BatchProgressRow[]>([]);
 
+  // การตั้งค่าช่วงเวลาและช่วงห่างการแจ้งเตือน (โหลดจาก DB)
+  const [notifyConfig, setNotifyConfig] = useState<NotifyConfig | null>(null);
+  const [notifyConfigLoading, setNotifyConfigLoading] = useState(false);
+  const [savingWindowId, setSavingWindowId] = useState<number | null>(null);
+  const [savingIntervalId, setSavingIntervalId] = useState<number | null>(null);
+  // draft edits — keyed by row id
+  const [windowDrafts, setWindowDrafts] = useState<Record<number, Partial<NotifyTimeWindow>>>({});
+  const [intervalDrafts, setIntervalDrafts] = useState<Record<number, Partial<NotifyInterval>>>({});
+
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [sortBy, setSortBy] = useState<SortField>("online");
@@ -838,9 +876,89 @@ export const SchoolDeviceTab = () => {
     // fetchData จะถูกเรียกจาก useEffect ที่ watch sortBy/sortOrder
   };
 
+  // โหลดการตั้งค่าช่วงเวลาและช่วงห่างการแจ้งเตือนจาก DB
+  const fetchNotifyConfig = useCallback(async () => {
+    setNotifyConfigLoading(true);
+    try {
+      const res = await callApiService.get("/api/v2/hardware/device-notify-config");
+      setNotifyConfig(res.data?.data ?? null);
+      setWindowDrafts({});
+      setIntervalDrafts({});
+    } catch {
+      toast.error("ไม่สามารถโหลดการตั้งค่าการแจ้งเตือนได้");
+    } finally {
+      setNotifyConfigLoading(false);
+    }
+  }, []);
+
+  // บันทึกการแก้ไขช่วงเวลาแจ้งเตือน
+  const handleSaveTimeWindow = useCallback(async (windowId: number) => {
+    const draft = windowDrafts[windowId];
+    if (!draft || Object.keys(draft).length === 0) return;
+    setSavingWindowId(windowId);
+    try {
+      await callApiService.patch(
+        `/api/v2/hardware/device-notify-config/time-windows/${windowId}`,
+        draft,
+      );
+      setNotifyConfig((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          time_windows: prev.time_windows.map((w) =>
+            w.id === windowId ? { ...w, ...draft } : w,
+          ),
+        };
+      });
+      setWindowDrafts((prev) => {
+        const next = { ...prev };
+        delete next[windowId];
+        return next;
+      });
+      toast.success("บันทึกช่วงเวลาแจ้งเตือนสำเร็จ");
+    } catch {
+      toast.error("ไม่สามารถบันทึกช่วงเวลาแจ้งเตือนได้");
+    } finally {
+      setSavingWindowId(null);
+    }
+  }, [windowDrafts]);
+
+  // บันทึกการแก้ไขช่วงห่างการแจ้งเตือน
+  const handleSaveInterval = useCallback(async (intervalId: number) => {
+    const draft = intervalDrafts[intervalId];
+    if (!draft || Object.keys(draft).length === 0) return;
+    setSavingIntervalId(intervalId);
+    try {
+      await callApiService.patch(
+        `/api/v2/hardware/device-notify-config/intervals/${intervalId}`,
+        draft,
+      );
+      setNotifyConfig((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          intervals: prev.intervals.map((v) =>
+            v.id === intervalId ? { ...v, ...draft } : v,
+          ),
+        };
+      });
+      setIntervalDrafts((prev) => {
+        const next = { ...prev };
+        delete next[intervalId];
+        return next;
+      });
+      toast.success("บันทึกช่วงห่างการแจ้งเตือนสำเร็จ");
+    } catch {
+      toast.error("ไม่สามารถบันทึกช่วงห่างการแจ้งเตือนได้");
+    } finally {
+      setSavingIntervalId(null);
+    }
+  }, [intervalDrafts]);
+
   const openDrawer = (record: SchoolDeviceSummaryItem) => {
     setSelectedSchool(record);
     setDrawerOpen(true);
+    void fetchNotifyConfig();
   };
 
   // อัพเดท notify_enabled ของอุปกรณ์ใน state พร้อมส่ง API
@@ -1445,7 +1563,7 @@ export const SchoolDeviceTab = () => {
                 รวม {selectedSchool?.total} เครื่อง
               </Tag>
             </Space>
-            {/* Phase 1 Tooltip + ปุ่ม Batch */}
+            {/* การแจ้งเตือน LINE + ปุ่ม Batch */}
             <Flex align="center" gap={8} style={{ marginTop: 4 }}>
               <BellOutlined
                 style={{
@@ -1454,10 +1572,20 @@ export const SchoolDeviceTab = () => {
                 }}
               />
               <Text type="secondary" style={{ fontSize: 11 }}>
-                การแจ้งเตือน LINE (Phase 1)
+                การแจ้งเตือน LINE
               </Text>
               <Tooltip
-                title="Phase 1: ระบบจะส่งการแจ้งเตือนผ่าน LINE เฉพาะในช่วงเวลา 18:00 - 06:00 น. ตามเวลาประเทศไทย และเฉพาะอุปกรณ์ที่เปิดการแจ้งเตือนไว้เท่านั้น"
+                title={
+                  notifyConfig && notifyConfig.time_windows.length > 0
+                    ? `ส่งแจ้งเตือนในช่วงเวลา: ${notifyConfig.time_windows
+                        .filter((w) => w.is_active)
+                        .map(
+                          (w) =>
+                            `${String(w.start_hour).padStart(2, "0")}:${String(w.start_min).padStart(2, "0")}–${String(w.end_hour).padStart(2, "0")}:${String(w.end_min).padStart(2, "0")} น. (${w.label})`,
+                        )
+                        .join(", ")} — เฉพาะอุปกรณ์ที่เปิดการแจ้งเตือนไว้เท่านั้น`
+                    : "กำลังโหลดการตั้งค่าช่วงเวลาการแจ้งเตือน..."
+                }
                 placement="bottomLeft"
               >
                 <QuestionCircleOutlined
@@ -1506,6 +1634,246 @@ export const SchoolDeviceTab = () => {
         width={850}
         styles={{ body: { padding: "20px 24px" } }}
       >
+        {/* แผงตั้งค่าช่วงเวลาและช่วงห่างการแจ้งเตือน */}
+        <Collapse
+          size="small"
+          ghost
+          style={{ marginBottom: 16, border: "1px solid rgba(128,128,128,0.15)", borderRadius: 10 }}
+          items={[
+            {
+              key: "notify-config",
+              label: (
+                <Flex align="center" gap={8}>
+                  <SettingOutlined style={{ fontSize: 13 }} />
+                  <Text strong style={{ fontSize: 13 }}>
+                    ตั้งค่าการแจ้งเตือน LINE
+                  </Text>
+                  {notifyConfig && (
+                    <Tag style={{ margin: 0, fontSize: 11, borderRadius: 6 }}>
+                      {notifyConfig.time_windows.filter((w) => w.is_active).length} รอบที่ใช้งาน
+                    </Tag>
+                  )}
+                </Flex>
+              ),
+              children: notifyConfigLoading ? (
+                <Flex justify="center" style={{ padding: 16 }}>
+                  <Spin size="small" />
+                </Flex>
+              ) : !notifyConfig ? (
+                <Text type="secondary" style={{ fontSize: 12 }}>ไม่สามารถโหลดการตั้งค่าได้</Text>
+              ) : (
+                <Flex vertical gap={16}>
+                  {/* ช่วงเวลาแจ้งเตือน */}
+                  <div>
+                    <Text strong style={{ fontSize: 12, display: "block", marginBottom: 8 }}>
+                      ช่วงเวลาที่อนุญาตให้แจ้งเตือน
+                    </Text>
+                    <Flex vertical gap={8}>
+                      {notifyConfig.time_windows.map((w) => {
+                        const draft = windowDrafts[w.id] ?? {};
+                        const merged = { ...w, ...draft };
+                        const hasDraft = Object.keys(draft).length > 0;
+                        return (
+                          <Card
+                            key={w.id}
+                            size="small"
+                            style={{
+                              borderRadius: 8,
+                              border: hasDraft
+                                ? "1px solid var(--ant-color-primary)"
+                                : "1px solid rgba(128,128,128,0.15)",
+                            }}
+                            styles={{ body: { padding: "10px 14px" } }}
+                          >
+                            <Flex align="center" gap={10} wrap="wrap">
+                              <Tag
+                                color="blue"
+                                style={{ margin: 0, fontSize: 11, borderRadius: 6, flexShrink: 0 }}
+                              >
+                                รอบ {w.round}
+                              </Tag>
+                              <Text style={{ fontSize: 12, minWidth: 60 }}>{merged.label}</Text>
+                              <Flex align="center" gap={4}>
+                                <InputNumber
+                                  size="small"
+                                  min={0}
+                                  max={23}
+                                  value={merged.start_hour}
+                                  onChange={(val) =>
+                                    setWindowDrafts((prev) => ({
+                                      ...prev,
+                                      [w.id]: { ...prev[w.id], start_hour: val ?? 0 },
+                                    }))
+                                  }
+                                  style={{ width: 60 }}
+                                />
+                                <Text style={{ fontSize: 11 }}>:</Text>
+                                <InputNumber
+                                  size="small"
+                                  min={0}
+                                  max={59}
+                                  value={merged.start_min}
+                                  onChange={(val) =>
+                                    setWindowDrafts((prev) => ({
+                                      ...prev,
+                                      [w.id]: { ...prev[w.id], start_min: val ?? 0 },
+                                    }))
+                                  }
+                                  style={{ width: 60 }}
+                                />
+                                <Text type="secondary" style={{ fontSize: 11 }}>ถึง</Text>
+                                <InputNumber
+                                  size="small"
+                                  min={0}
+                                  max={23}
+                                  value={merged.end_hour}
+                                  onChange={(val) =>
+                                    setWindowDrafts((prev) => ({
+                                      ...prev,
+                                      [w.id]: { ...prev[w.id], end_hour: val ?? 0 },
+                                    }))
+                                  }
+                                  style={{ width: 60 }}
+                                />
+                                <Text style={{ fontSize: 11 }}>:</Text>
+                                <InputNumber
+                                  size="small"
+                                  min={0}
+                                  max={59}
+                                  value={merged.end_min}
+                                  onChange={(val) =>
+                                    setWindowDrafts((prev) => ({
+                                      ...prev,
+                                      [w.id]: { ...prev[w.id], end_min: val ?? 0 },
+                                    }))
+                                  }
+                                  style={{ width: 60 }}
+                                />
+                                <Text type="secondary" style={{ fontSize: 11 }}>น.</Text>
+                              </Flex>
+                              <Flex align="center" gap={6} style={{ marginLeft: "auto" }}>
+                                <Switch
+                                  size="small"
+                                  checked={merged.is_active}
+                                  onChange={(checked) =>
+                                    setWindowDrafts((prev) => ({
+                                      ...prev,
+                                      [w.id]: { ...prev[w.id], is_active: checked },
+                                    }))
+                                  }
+                                />
+                                <Text type="secondary" style={{ fontSize: 11 }}>
+                                  {merged.is_active ? "เปิดใช้งาน" : "ปิดใช้งาน"}
+                                </Text>
+                                {hasDraft && (
+                                  <Button
+                                    type="primary"
+                                    size="small"
+                                    icon={<SaveOutlined />}
+                                    loading={savingWindowId === w.id}
+                                    onClick={() => void handleSaveTimeWindow(w.id)}
+                                    style={{ borderRadius: 6, fontSize: 11 }}
+                                  >
+                                    บันทึก
+                                  </Button>
+                                )}
+                              </Flex>
+                            </Flex>
+                          </Card>
+                        );
+                      })}
+                    </Flex>
+                  </div>
+
+                  {/* ช่วงห่างการแจ้งเตือน */}
+                  <div>
+                    <Text strong style={{ fontSize: 12, display: "block", marginBottom: 8 }}>
+                      ช่วงห่างการแจ้งเตือน (หลังจากเครื่อง Offline)
+                    </Text>
+                    <Flex vertical gap={8}>
+                      {notifyConfig.intervals.map((v) => {
+                        const draft = intervalDrafts[v.id] ?? {};
+                        const merged = { ...v, ...draft };
+                        const hasDraft = Object.keys(draft).length > 0;
+                        return (
+                          <Card
+                            key={v.id}
+                            size="small"
+                            style={{
+                              borderRadius: 8,
+                              border: hasDraft
+                                ? "1px solid var(--ant-color-primary)"
+                                : "1px solid rgba(128,128,128,0.15)",
+                            }}
+                            styles={{ body: { padding: "10px 14px" } }}
+                          >
+                            <Flex align="center" gap={10} wrap="wrap">
+                              <Tag
+                                color={v.round === 1 ? "orange" : "purple"}
+                                style={{ margin: 0, fontSize: 11, borderRadius: 6, flexShrink: 0 }}
+                              >
+                                {v.round === 1 ? "ครั้งแรก" : "ครั้งถัดไป"}
+                              </Tag>
+                              <Text style={{ fontSize: 12 }}>{merged.label}</Text>
+                              <Flex align="center" gap={6}>
+                                <InputNumber
+                                  size="small"
+                                  min={1}
+                                  max={1440}
+                                  value={merged.interval_minutes}
+                                  addonAfter="นาที"
+                                  onChange={(val) =>
+                                    setIntervalDrafts((prev) => ({
+                                      ...prev,
+                                      [v.id]: { ...prev[v.id], interval_minutes: val ?? 1 },
+                                    }))
+                                  }
+                                  style={{ width: 130 }}
+                                />
+                              </Flex>
+                              <Flex align="center" gap={6} style={{ marginLeft: "auto" }}>
+                                <Switch
+                                  size="small"
+                                  checked={merged.is_active}
+                                  onChange={(checked) =>
+                                    setIntervalDrafts((prev) => ({
+                                      ...prev,
+                                      [v.id]: { ...prev[v.id], is_active: checked },
+                                    }))
+                                  }
+                                />
+                                <Text type="secondary" style={{ fontSize: 11 }}>
+                                  {merged.is_active ? "เปิดใช้งาน" : "ปิดใช้งาน"}
+                                </Text>
+                                {hasDraft && (
+                                  <Button
+                                    type="primary"
+                                    size="small"
+                                    icon={<SaveOutlined />}
+                                    loading={savingIntervalId === v.id}
+                                    onClick={() => void handleSaveInterval(v.id)}
+                                    style={{ borderRadius: 6, fontSize: 11 }}
+                                  >
+                                    บันทึก
+                                  </Button>
+                                )}
+                              </Flex>
+                            </Flex>
+                          </Card>
+                        );
+                      })}
+                    </Flex>
+                  </div>
+
+                  <Text type="secondary" style={{ fontSize: 11 }}>
+                    การตั้งค่านี้มีผลกับ Cronjob ทุกโรงเรียน ไม่ใช่เฉพาะโรงเรียนที่เปิดดูอยู่
+                  </Text>
+                </Flex>
+              ),
+            },
+          ]}
+        />
+
         {deviceGroups.length === 0 ? (
           <Flex
             align="center"

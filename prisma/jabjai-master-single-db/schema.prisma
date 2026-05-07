@@ -2046,3 +2046,32 @@ model province {
   GEO_ID           Int
   PROVINCE_NAME_EN String? @db.VarChar(150)
 }
+
+// ช่วงเวลาที่อนุญาตให้ส่งการแจ้งเตือน LINE (กำหนดจาก DB ไม่ hardcode ใน script)
+model DeviceNotifyTimeWindow {
+  id         Int      @id @default(autoincrement())
+  round      Int      @unique // 1 = รอบเช้า, 2 = รอบบ่าย
+  label      String   @db.VarChar(50)
+  start_hour Int      // ชั่วโมงเริ่มต้น (0-23)
+  start_min  Int      @default(0) // นาทีเริ่มต้น (0-59)
+  end_hour   Int      // ชั่วโมงสิ้นสุด (0-23)
+  end_min    Int      @default(0) // นาทีสิ้นสุด (0-59)
+  is_active  Boolean  @default(true)
+  updated_at DateTime @updatedAt
+  updated_by Int?
+
+  @@map("device_notify_time_window")
+}
+
+// ช่วงเวลา (นาที) ที่จะส่งแจ้งเตือนซ้ำหลังจากเครื่อง Offline ตามรอบ
+model DeviceNotifyInterval {
+  id               Int      @id @default(autoincrement())
+  round            Int      @unique // 1 = แจ้งเตือนครั้งแรก, 2 = ครั้งต่อไป
+  label            String   @db.VarChar(50)
+  interval_minutes Int      // จำนวนนาทีหลังจากเครื่อง Offline ที่จะส่งแจ้งเตือน
+  is_active        Boolean  @default(true)
+  updated_at       DateTime @updatedAt
+  updated_by       Int?
+
+  @@map("device_notify_interval")
+}

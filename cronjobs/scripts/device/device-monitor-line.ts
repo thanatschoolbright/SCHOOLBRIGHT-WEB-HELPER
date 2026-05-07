@@ -1,7 +1,8 @@
 /**
  * CronJob Script — ตรวจสอบสถานะ Hardware และส่งแจ้งเตือนผ่าน LINE
  * รันโดย Kubernetes CronJob ทุก 1 นาที (Asia/Bangkok)
- * Time Condition: 18:00–06:00 ระงับการแจ้งเตือน
+ * Time Condition: อ่านจาก DB (DeviceNotifyTimeWindow) — ไม่ hardcode
+ * Interval Condition: อ่านจาก DB (DeviceNotifyInterval) — ไม่ hardcode
  * Bot Condition: เช็กจาก bot_setting.line_bot_enabled ใน Timesheet DB ก่อนทำงานทุกครั้ง
  */
 
@@ -38,14 +39,63 @@ async function isBotEnabled(): Promise<boolean> {
   }
 }
 
-// ✨ ตรวจสอบ Time Condition — ช่วง 18:00-06:00 ไม่ส่งแจ้งเตือน
-function isQuietHours(): boolean {
+interface TimeWindow {
+  round: number;
+  label: string;
+  start_hour: number;
+  start_min: number;
+  end_hour: number;
+  end_min: number;
+  is_active: boolean;
+}
+
+interface NotifyInterval {
+  round: number;
+  label: string;
+  interval_minutes: number;
+  is_active: boolean;
+}
+
+// ✨ ดึงช่วงเวลาแจ้งเตือนและช่วงห่างจาก DB — คืน null ถ้าดึงไม่ได้
+async function fetchNotifyConfig(): Promise<{
+  timeWindows: TimeWindow[];
+  intervals: NotifyInterval[];
+} | null> {
+  try {
+    const [timeWindows, intervals] = await Promise.all([
+      PrismaJabjaiMaster.deviceNotifyTimeWindow.findMany({
+        orderBy: { round: "asc" },
+      }),
+      PrismaJabjaiMaster.deviceNotifyInterval.findMany({
+        orderBy: { round: "asc" },
+      }),
+    ]);
+    return { timeWindows, intervals };
+  } catch (err) {
+    console.error(`[NOTIFY-CONFIG] ไม่สามารถดึงการตั้งค่าการแจ้งเตือนจาก DB ได้`, err);
+    return null;
+  }
+}
+
+// ✨ ตรวจสอบว่าเวลาปัจจุบัน (Bangkok) อยู่ในช่วงเวลาที่อนุญาตให้แจ้งเตือนหรือไม่
+function isWithinNotifyWindow(timeWindows: TimeWindow[]): boolean {
   const now = new Date();
   const bangkokTime = new Date(
     now.toLocaleString("en-US", { timeZone: "Asia/Bangkok" }),
   );
-  const hour = bangkokTime.getHours();
-  return hour >= 18 || hour < 6;
+  const currentHour = bangkokTime.getHours();
+  const currentMin = bangkokTime.getMinutes();
+  const currentTotalMin = currentHour * 60 + currentMin;
+
+  for (const w of timeWindows) {
+    if (!w.is_active) continue;
+    const startTotalMin = w.start_hour * 60 + w.start_min;
+    const endTotalMin = w.end_hour * 60 + w.end_min;
+    if (currentTotalMin >= startTotalMin && currentTotalMin < endTotalMin) {
+      return true;
+    }
+  }
+  return false;
 }
 
 // ✨ ดึงรายชื่อ LINE Group ทั้งหมดจาก tLineGroup และแสดงผลในรูปแบบตาราง
@@ -82,11 +132,20 @@ async function fetchAndDisplayLineGroups() {
   return groups;
 }
 
-// ✨ ส่งรายงานสถานะเครื่องของโรงเรียนเดียวไปยัง LINE Group
-async function sendSchoolReport(schoolId: number, timestamp: string): Promise<boolean> {
+// ✨ ส่งรายงานสถานะเครื่องของโรงเรียนเดียวไปยัง LINE Group พร้อมส่ง interval สำหรับ threshold check
+async function sendSchoolReport(
+  schoolId: number,
+  timestamp: string,
+  intervalRound1: number,
+  intervalRound2: number,
+): Promise<boolean> {
   try {
+    const query = new URLSearchParams({
+      interval_round1: String(intervalRound1),
+      interval_round2: String(intervalRound2),
+    });
     const response = await fetch(
-      `${APP_URL}/api/v2/hardware/school-device/cronjob/${schoolId}`,
+      `${APP_URL}/api/v2/hardware/school-device/cronjob/${schoolId}?${query.toString()}`,
       {
         method: "GET",
         headers: { Authorization: `Bearer ${CRON_SECRET}` },
@@ -102,7 +161,7 @@ async function sendSchoolReport(schoolId: number, timestamp: string): Promise<bo
   }
 }
 
-// ✨ ฟังก์ชันหลัก — เช็กสถานะ Bot ก่อน แล้วดึง LINE Groups และส่งรายงานทีละโรงเรียน
+// ✨ ฟังก์ชันหลัก — เช็กสถานะ Bot, ช่วงเวลา, แล้วส่งรายงานทีละโรงเรียน
 async function main() {
   const timestamp = new Date().toLocaleString("th-TH", { timeZone: "Asia/Bangkok" });
   console.log(`\n${SEP}`);
@@ -124,20 +183,52 @@ async function main() {
   }
   console.log(`[${timestamp}] ✓ Bot Status: เปิดใช้งาน`);
 
-  // โหมดทดสอบ — ส่งเฉพาะโรงเรียนที่ระบุ และข้าม quiet hours
+  // ─── ดึงการตั้งค่าช่วงเวลาและช่วงห่างจาก DB ───
+  const notifyConfig = await fetchNotifyConfig();
+  if (!notifyConfig) {
+    console.log(`[${timestamp}] ⚠ ไม่สามารถดึงการตั้งค่าการแจ้งเตือนได้ — หยุดทำงาน`);
+    await PrismaTimesheet.$disconnect();
+    await PrismaJabjaiMaster.$disconnect();
+    process.exit(1);
+  }
+
+  const { timeWindows, intervals } = notifyConfig;
+  const activeWindows = timeWindows.filter((w) => w.is_active);
+  const windowLabels = activeWindows
+    .map((w) => `${String(w.start_hour).padStart(2, "0")}:${String(w.start_min).padStart(2, "0")}–${String(w.end_hour).padStart(2, "0")}:${String(w.end_min).padStart(2, "0")} (${w.label})`)
+    .join(", ");
+
+  const intervalRound1 = intervals.find((v) => v.round === 1 && v.is_active)?.interval_minutes ?? 5;
+  const intervalRound2 = intervals.find((v) => v.round === 2 && v.is_active)?.interval_minutes ?? 30;
+
+  console.log(`[${timestamp}] ✓ ช่วงเวลาแจ้งเตือน: ${windowLabels || "ไม่มีรอบที่เปิดใช้งาน"}`);
+  console.log(`[${timestamp}] ✓ ช่วงห่าง: รอบแรก ${intervalRound1} นาที, รอบถัดไป ${intervalRound2} นาที`);
+
+  // โหมดทดสอบ — ส่งเฉพาะโรงเรียนที่ระบุ และข้ามการตรวจสอบช่วงเวลา
   if (TEST_SCHOOL_ID !== null) {
     console.log(`[${timestamp}] TEST MODE — school_id=${TEST_SCHOOL_ID}, APP_URL=${APP_URL}`);
-    const ok = await sendSchoolReport(TEST_SCHOOL_ID, timestamp);
+    const ok = await sendSchoolReport(TEST_SCHOOL_ID, timestamp, intervalRound1, intervalRound2);
     await PrismaTimesheet.$disconnect();
+    await PrismaJabjaiMaster.$disconnect();
     process.exit(ok ? 0 : 1);
   }
 
-  // ─── ตรวจสอบ Quiet Hours ───
-  if (isQuietHours()) {
-    console.log(`[${timestamp}] Quiet hours (18:00–06:00) — skipping notification`);
+  // ─── ตรวจสอบช่วงเวลาแจ้งเตือน ───
+  if (activeWindows.length === 0) {
+    console.log(`[${timestamp}] ไม่มีช่วงเวลาแจ้งเตือนที่เปิดใช้งาน — skipping`);
     await PrismaTimesheet.$disconnect();
+    await PrismaJabjaiMaster.$disconnect();
     process.exit(0);
   }
+
+  if (!isWithinNotifyWindow(activeWindows)) {
+    console.log(`[${timestamp}] อยู่นอกช่วงเวลาแจ้งเตือน (${windowLabels}) — skipping`);
+    await PrismaTimesheet.$disconnect();
+    await PrismaJabjaiMaster.$disconnect();
+    process.exit(0);
+  }
+
+  console.log(`[${timestamp}] ✓ อยู่ในช่วงเวลาแจ้งเตือน — เริ่มส่งรายงาน`);
 
   // ─── ดึง LINE Groups และส่งรายงาน ───
   const groups = await fetchAndDisplayLineGroups();
@@ -145,6 +236,7 @@ async function main() {
   if (groups.length === 0) {
     console.log(`[${timestamp}] ไม่พบ LINE Group ในระบบ — skipping`);
     await PrismaTimesheet.$disconnect();
+    await PrismaJabjaiMaster.$disconnect();
     process.exit(0);
   }
 
@@ -159,7 +251,7 @@ async function main() {
 
   for (const group of activeGroups) {
     const schoolId = group.SchoolId!;
-    const ok = await sendSchoolReport(schoolId, timestamp);
+    const ok = await sendSchoolReport(schoolId, timestamp, intervalRound1, intervalRound2);
     if (ok) successCount++;
     else failCount++;
   }
@@ -169,6 +261,7 @@ async function main() {
   console.log(SEP);
 
   await PrismaTimesheet.$disconnect();
+  await PrismaJabjaiMaster.$disconnect();
 
   if (failCount > 0) {
     process.exit(1);

@@ -8,6 +8,24 @@ import {
 } from "@services/line/line-push.service";
 import { NextRequest, NextResponse } from "next/server";
 
+// ✨ ตรวจสอบว่าเครื่องใดออฟไลน์นานถึงเกณฑ์แจ้งเตือน ตามช่วงห่างที่กำหนด
+function hasDeviceReachingNotifyThreshold(
+  devices: Array<{ is_online: boolean; online_time: string | null; notify_enabled: boolean }>,
+  intervalRound1Minutes: number,
+  intervalRound2Minutes: number,
+): boolean {
+  const now = Date.now();
+  for (const device of devices) {
+    if (device.is_online || !device.notify_enabled || !device.online_time) continue;
+    const offlineMinutes = (now - new Date(device.online_time).getTime()) / 60_000;
+    // ส่งแจ้งเตือนรอบแรก: ออฟไลน์นาน >= interval รอบ 1 และยังไม่ถึง interval รอบ 2
+    if (offlineMinutes >= intervalRound1Minutes && offlineMinutes < intervalRound2Minutes) return true;
+    // ส่งแจ้งเตือนรอบถัดไป: ออฟไลน์นาน >= interval รอบ 2 และตรงกับช่วง 1 นาทีของ cycle
+    if (offlineMinutes >= intervalRound2Minutes && offlineMinutes % intervalRound2Minutes < 1) return true;
+  }
+  return false;
+}
+
 // GET handler — ดึงสถานะเครื่องทุกเครื่องของโรงเรียน พร้อมส่งรายงานไปยัง LINE Group และคืน response รวม
 export async function GET(
   request: NextRequest,
@@ -40,6 +58,13 @@ export async function GET(
     );
   }
 
+  const { searchParams } = new URL(request.url);
+
+  // interval_round1 และ interval_round2 ส่งมาจาก cronjob หลังอ่านจาก DB
+  const intervalRound1 = parseFloat(searchParams.get("interval_round1") ?? "0");
+  const intervalRound2 = parseFloat(searchParams.get("interval_round2") ?? "0");
+  const useIntervalCheck = intervalRound1 > 0 && intervalRound2 > 0;
+
   try {
     // ดึงข้อมูลสถานะเครื่องและ LINE group พร้อมกัน
     const [deviceData, schoolLineGroup] = await Promise.all([
@@ -63,15 +88,33 @@ export async function GET(
       );
     }
 
+    // ถ้า cronjob ส่ง interval มา → ตรวจว่ามีเครื่องถึงเกณฑ์แจ้งเตือนไหม
+    if (useIntervalCheck) {
+      const shouldNotify = hasDeviceReachingNotifyThreshold(
+        deviceData.devices,
+        intervalRound1,
+        intervalRound2,
+      );
+      if (!shouldNotify) {
+        return NextResponse.json(
+          successResponse({
+            message_th: `ไม่มีอุปกรณ์ที่ถึงเกณฑ์การแจ้งเตือน โรงเรียน ${deviceData.school_name}`,
+            message_en: "No devices reached notification threshold — skipped",
+            data: { ...deviceData, line: { success: false, group_id: null, skipped: true } },
+          }),
+          { status: 200 },
+        );
+      }
+    }
+
     // ส่ง LINE notification ถ้ามี group ที่กำหนด
-    const { searchParams } = new URL(request.url);
     const groupId =
       schoolLineGroup?.GroupId ??
       searchParams.get("group_id") ??
       process.env.LINE_MONITORING_GROUP_ID ??
       null;
 
-    let lineResult: { success: boolean; group_id: string | null; error?: string } = {
+    let lineResult: { success: boolean; group_id: string | null; skipped?: boolean; error?: string } = {
       success: false,
       group_id: null,
     };

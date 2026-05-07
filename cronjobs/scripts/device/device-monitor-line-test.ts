@@ -6,6 +6,7 @@
  * Run: bun run cronjobs/scripts/device/device-monitor-line-test.ts
  */
 
+import { PrismaJabjaiMaster } from "@/helpers/prisma/prisma-jabjai-master-single-db";
 import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 
 const APP_URL = process.env.APP_INTERNAL_URL ?? "http://localhost:3000";
@@ -60,12 +61,31 @@ async function main() {
     console.log(`[${timestamp}]   → เส้นทาง: ตรวจสอบสถานะอุปกรณ์ → ปุ่มตั้งค่า → เปิด LINE Bot`);
     console.log(SEP);
     await PrismaTimesheet.$disconnect();
+    await PrismaJabjaiMaster.$disconnect();
     process.exit(0);
   }
 
-  // ─── ส่งรายงานไปโรงเรียนทดสอบ ───
+  // ─── ดึง interval จาก DB สำหรับแสดงใน log (test mode ไม่ filter ตาม interval) ───
+  let intervalRound1 = 5;
+  let intervalRound2 = 30;
   try {
-    const url = `${APP_URL}/api/v2/hardware/school-device/cronjob/${TEST_SCHOOL_ID}`;
+    const intervals = await PrismaJabjaiMaster.deviceNotifyInterval.findMany({
+      orderBy: { round: "asc" },
+    });
+    intervalRound1 = intervals.find((v) => v.round === 1 && v.is_active)?.interval_minutes ?? 5;
+    intervalRound2 = intervals.find((v) => v.round === 2 && v.is_active)?.interval_minutes ?? 30;
+    console.log(`[${timestamp}] Interval    : รอบแรก ${intervalRound1} นาที, รอบถัดไป ${intervalRound2} นาที`);
+  } catch {
+    console.log(`[${timestamp}] Interval    : ดึงจาก DB ไม่ได้ — ใช้ค่า default (${intervalRound1}/${intervalRound2} นาที)`);
+  }
+
+  // ─── ส่งรายงานไปโรงเรียนทดสอบ (bypass time window, ส่ง interval เพื่อ test threshold logic) ───
+  try {
+    const query = new URLSearchParams({
+      interval_round1: String(intervalRound1),
+      interval_round2: String(intervalRound2),
+    });
+    const url = `${APP_URL}/api/v2/hardware/school-device/cronjob/${TEST_SCHOOL_ID}?${query.toString()}`;
     console.log(`[${timestamp}] Calling     : GET ${url}`);
 
     const response = await fetch(url, {
@@ -97,14 +117,18 @@ async function main() {
     if (data?.line?.error) {
       console.error(`[${timestamp}] LINE Err    : ${data.line.error}`);
     }
+    const lineSkipped = data?.line?.skipped === true;
+    console.log(`[${timestamp}] LINE        : ${lineSkipped ? "SKIPPED (ไม่มีเครื่องถึงเกณฑ์)" : data?.line?.success ? "SUCCESS" : "FAILED"} — group_id=${data?.line?.group_id ?? "-"}`);
     console.log(`[${timestamp}] SUCCESS`);
     console.log(SEP);
 
     await PrismaTimesheet.$disconnect();
+    await PrismaJabjaiMaster.$disconnect();
     process.exit(0);
   } catch (error) {
     console.error(`[${timestamp}] ERROR:`, error);
     await PrismaTimesheet.$disconnect();
+    await PrismaJabjaiMaster.$disconnect();
     process.exit(1);
   }
 }
