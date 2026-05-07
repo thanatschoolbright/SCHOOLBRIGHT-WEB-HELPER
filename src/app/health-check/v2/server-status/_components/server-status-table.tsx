@@ -179,7 +179,7 @@ const ServerStatusTable: React.FC = () => {
     {
       title: "กลุ่มระบบ",
       dataIndex: "group",
-      width: 200,
+      width: 180,
       sorter: (a, b) => (a.group || "").localeCompare(b.group || ""),
       render: (group: string) => {
         const meta = getModuleMeta(group);
@@ -221,7 +221,7 @@ const ServerStatusTable: React.FC = () => {
     {
       title: "ชื่อระบบ",
       key: "name",
-      width: 240,
+      width: 250,
       sorter: (a, b) => (a.name_th || "").localeCompare(b.name_th || ""),
       render: (_, record) => {
         const isOnline = ["200", "404"].includes(record.status);
@@ -258,6 +258,7 @@ const ServerStatusTable: React.FC = () => {
     {
       title: "Endpoint",
       key: "endpoint",
+      width: 320,
       sorter: (a, b) =>
         (a.request?.url ?? a.service).localeCompare(
           b.request?.url ?? b.service,
@@ -276,7 +277,6 @@ const ServerStatusTable: React.FC = () => {
                     fontFamily: "monospace",
                     color: token.colorPrimary,
                     cursor: "pointer",
-                    maxWidth: 450,
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
