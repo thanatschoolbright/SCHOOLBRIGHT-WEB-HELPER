@@ -71,6 +71,7 @@ interface CustomerStore {
   // ปลดล็อกรายเดียว
   unlockTargetId: number | null;
   isUnlocking: boolean;
+  unlockSuccessData: { school_name: string | null; first_name: string | null; last_name: string | null } | null;
 
   // ปลดล็อกทั้งหมด
   unlockAllConfirmOpen: boolean;
@@ -86,6 +87,7 @@ interface CustomerStore {
   fetchCompanies: () => Promise<void>;
   openUnlockConfirm: (userId: number) => void;
   closeUnlockConfirm: () => void;
+  closeUnlockSuccess: () => void;
   confirmUnlock: () => Promise<void>;
   openUnlockAllConfirm: () => void;
   closeUnlockAllConfirm: () => void;
@@ -103,6 +105,7 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
   companies: [],
   unlockTargetId: null,
   isUnlocking: false,
+  unlockSuccessData: null,
   unlockAllConfirmOpen: false,
   unlockAllProgress: { open: false, unlocked: 0, total: 0, percent: 0, isDone: false },
   activityLogs: [],
@@ -145,14 +148,22 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
   // ปลดล็อกรายเดียว
   openUnlockConfirm: (userId) => set({ unlockTargetId: userId }),
   closeUnlockConfirm: () => set({ unlockTargetId: null }),
+  closeUnlockSuccess: () => set({ unlockSuccessData: null }),
   confirmUnlock: async () => {
-    const { unlockTargetId, fetchCustomers } = get();
+    const { unlockTargetId, customers, fetchCustomers } = get();
     if (!unlockTargetId) return;
+    const target = customers.find((c) => c.sID === unlockTargetId);
     set({ isUnlocking: true });
     try {
-      const res = await POST_UNLOCK_CUSTOMER(unlockTargetId);
-      toast.success(res.message_th ?? "ปลดล็อกสำเร็จ");
-      set({ unlockTargetId: null });
+      await POST_UNLOCK_CUSTOMER(unlockTargetId);
+      set({
+        unlockTargetId: null,
+        unlockSuccessData: {
+          school_name: target?.school_name ?? null,
+          first_name: target?.sName ?? null,
+          last_name: target?.sLastname ?? null,
+        },
+      });
       await fetchCustomers();
     } catch (err: any) {
       toast.error(err?.response?.data?.message_th ?? "ปลดล็อกไม่สำเร็จ");
