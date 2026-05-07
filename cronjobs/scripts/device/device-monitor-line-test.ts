@@ -264,7 +264,8 @@ async function main() {
           console.log(`[${timestamp}]   [--]  ${deviceId.padEnd(25)} ${name.padEnd(20)} offline ${offlineMinStr} นาที (รอ ${(intervalRound1 - offlineMin).toFixed(1)} นาที)`);
         } else {
           const nextCycle = Math.ceil(offlineMin / intervalRound2) * intervalRound2;
-          console.log(`[${timestamp}]   [--]  ${deviceId.padEnd(25)} ${name.padEnd(20)} offline ${offlineMinStr} นาที (รอ cycle ที่ ${nextCycle.toFixed(0)} นาที)`);
+          const waitMin = (nextCycle - offlineMin).toFixed(1);
+          console.log(`[${timestamp}]   [--]  ${deviceId.padEnd(25)} ${name.padEnd(20)} offline ${offlineMinStr} นาที (แจ้งเตือนครั้งถัดไปใน ~${waitMin} นาที)`);
         }
       }
     }
