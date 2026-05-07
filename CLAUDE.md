@@ -93,7 +93,23 @@ API routes are versioned under `src/app/api/`:
 - **`v2/`** — newer routes (admin user/role/department/position management, hardware device status, server status, authentication v2, profile)
 - **`v3/`** — latest authentication endpoint
 
-URL pattern: `/api/{version}/{domain}/{resource}/{action}`
+URL pattern: `/api/{version}/{domain}/{resource}`
+
+**Endpoint naming (new routes only — do not rename existing routes):**
+- Use **HTTP methods** as the verb, not URL segments — `POST /resource` not `/resource/create`
+- Resource names are **kebab-case plural nouns**: `/school-devices`, `/overtime-entries`
+- Sub-resources use hierarchy: `GET /users/[id]/signatures`
+- Non-CRUD actions that don't map cleanly to HTTP methods may use a verb suffix: `POST /resource/toggle`, `POST /resource/seed`
+- ❌ Avoid: `/create`, `/read`, `/update`, `/delete` as URL segments (legacy pattern — exists in older routes)
+
+```
+GET    /api/v2/{domain}/{resources}          # list
+GET    /api/v2/{domain}/{resources}/[id]     # single item
+POST   /api/v2/{domain}/{resources}          # create
+PATCH  /api/v2/{domain}/{resources}/[id]     # update
+DELETE /api/v2/{domain}/{resources}/[id]     # delete
+POST   /api/v2/{domain}/{resources}/toggle   # non-CRUD action
+```
 
 Within each feature, files are organized by operation. Two patterns exist in the codebase — use the **flat pattern** for new work:
 
@@ -108,7 +124,9 @@ Within each feature, files are organized by operation. Two patterns exist in the
 
 **Flat pattern** (new routes — all files in the same feature folder, dot-separated names):
 ```
-{feature}/{action}/route.ts            # Controller: auth check, validate, call service, return response
+{feature}/route.ts                     # Controller for collection-level methods (GET list, POST create)
+{feature}/[id]/route.ts                # Controller for item-level methods (GET one, PATCH, DELETE)
+{feature}/{action}/route.ts            # Controller for non-CRUD actions (toggle, seed, export)
 {feature}/{feature}.service.ts         # Business logic only — throws Error on rule violations
 {feature}/{feature}.repository.ts      # Prisma queries only — receives tx when inside a transaction
 {feature}/{feature}.schema.ts          # Zod schema + exported DTO type (z.infer)
@@ -117,14 +135,16 @@ Within each feature, files are organized by operation. Two patterns exist in the
 
 Flow: `route.ts → .service → .repository → Database`
 
-Example (`device-notify-setting/`):
+Example (`device-notify-settings/`):
 ```
-device-notify-setting/
-├── toggle/route.ts
-├── device-notify.service.ts
-├── device-notify.repository.ts
-├── device-notify.schema.ts
-└── _docs/toggle-spec.md
+device-notify-settings/
+├── route.ts                           # GET (list), POST (create)
+├── [id]/route.ts                      # GET (one), PATCH (update), DELETE
+├── toggle/route.ts                    # POST (non-CRUD action)
+├── device-notify-setting.service.ts
+├── device-notify-setting.repository.ts
+├── device-notify-setting.schema.ts
+└── _docs/create-spec.md
 ```
 
 All files and folders use **kebab-case**. File names within a feature use dot separator: `{feature}.service.ts`, `{feature}.repository.ts`, `{feature}.schema.ts`. API payload fields (request/response) use **snake_case**. Variables and functions use **camelCase**.

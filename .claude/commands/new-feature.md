@@ -39,16 +39,17 @@ src/app/{domain}/{feature}/
 
 ### Backend
 ```
-src/app/api/v1/{domain}/{feature}/
-├── read/
-│   └── route.ts                      # GET handler
-├── create/
-│   └── route.ts                      # POST handler (ถ้าต้องการ)
+src/app/api/v2/{domain}/{features}/   # plural kebab-case noun
+├── route.ts                          # GET (list) / POST (create)
+├── [id]/
+│   └── route.ts                      # GET (one) / PATCH (update) / DELETE
+├── {action}/                         # เฉพาะ non-CRUD action เช่น export, toggle
+│   └── route.ts
 ├── {feature}.service.ts              # Business logic
 ├── {feature}.repository.ts           # Prisma queries
 ├── {feature}.schema.ts               # Zod schema + DTO type
 └── _docs/
-    └── read-spec.md                  # API documentation
+    └── create-spec.md                # API documentation (create/update เท่านั้น)
 ```
 
 ## Pattern มาตรฐานที่ใช้

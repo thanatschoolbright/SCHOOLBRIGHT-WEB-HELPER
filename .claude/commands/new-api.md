@@ -11,12 +11,12 @@
 Claude จะถามข้อมูล:
 
 1. **domain** (เช่น `timesheet`, `backlog`, `hardware`, `mobile`)
-2. **resource** (เช่น `overtime`, `issues`, `device`)
-3. **action** (เช่น `create`, `update-status`, `export`)
-4. **HTTP method**: GET / POST / PATCH / PUT / DELETE
+2. **resource** (เช่น `overtime-entries`, `school-devices`) — kebab-case plural noun
+3. **HTTP method**: GET / POST / PATCH / DELETE
+4. **เป็น collection หรือ item**: collection (`/resource`) หรือ item (`/resource/[id]`) หรือ non-CRUD action (`/resource/toggle`)
 5. **คำอธิบาย API (Thai)** (เช่น `อัปเดตสถานะการทำงานล่วงเวลา`)
-6. **ต้องการ auth check?** (yes/no — ถ้า yes จะใส่ `await auth()`)
-7. **ต้องการ permission check?** (ถ้า yes ระบุ field ที่ check เช่น `role_id`, `user_id`)
+6. **ต้องการ auth check?** (yes/no)
+7. **ต้องการ permission check?** (ถ้า yes ระบุ PERMISSIONS constant)
 8. **ฟิลด์ request** พร้อม type และ optional/required
 9. **ฟิลด์ response** พร้อม type
 10. **ใช้ DB ไหน**: main (`prisma.ts`) / timesheet (`prisma-timesheet.ts`) / none (proxy เท่านั้น)
@@ -25,15 +25,24 @@ Claude จะถามข้อมูล:
 ## ไฟล์ที่จะถูกสร้าง
 
 ```
-src/app/api/v1/{domain}/{resource}/
-├── {action}/
-│   └── route.ts                      # HTTP handler
+src/app/api/v2/{domain}/{resources}/
+├── route.ts                          # GET (list) / POST (create)
+├── [id]/
+│   └── route.ts                      # GET (one) / PATCH (update) / DELETE
+├── {action}/                         # เฉพาะ non-CRUD เท่านั้น เช่น toggle, seed, export
+│   └── route.ts
 ├── {resource}.service.ts             # Business logic
 ├── {resource}.repository.ts          # Prisma queries
 ├── {resource}.schema.ts              # Zod schema + DTO type
 └── _docs/
     └── {action}-spec.md              # API documentation (create/update เท่านั้น)
 ```
+
+**กฎ URL segment:**
+- ✅ `POST /school-devices` (create), `GET /school-devices` (list)
+- ✅ `PATCH /school-devices/[id]` (update), `DELETE /school-devices/[id]`
+- ✅ `POST /school-devices/toggle` (non-CRUD action)
+- ❌ ห้ามใช้ `/create`, `/read`, `/update`, `/delete` เป็น URL segment
 
 ## Template มาตรฐาน
 
