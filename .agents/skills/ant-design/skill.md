@@ -10,7 +10,7 @@
 
 - `_components/`: แยก UI ย่อย เช่น `filter-section.tsx`, `user-table.tsx`, `summary-section.tsx`
 - `_services/`: เฉพาะ Axios Instance และ API Methods (Pure Logic เท่านั้น)
-- `_state/`: ใช้ **Zustand** เท่านั้น สำหรับจัดการ Global/Page State และเรียกใช้ Service
+- `_stores/`: ใช้ **Zustand** เท่านั้น สำหรับจัดการ Global/Page State และเรียกใช้ Service
 - `page.tsx`: ทำหน้าที่เป็น Orchestrator สำหรับประกอบ Component และจัด Layout
 
 ## [State Management Standards (Zustand)]
