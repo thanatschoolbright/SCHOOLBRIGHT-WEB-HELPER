@@ -25,86 +25,92 @@ Claude จะถามข้อมูล:
 ## ไฟล์ที่จะถูกสร้าง
 
 ```
-src/app/api/v1/{domain}/{resource}/{action}/
-├── route.ts                          # HTTP handler
-├── service/
-│   └── {action}-service.ts           # Business logic + Prisma/proxy
-├── validation/
-│   └── {action}-schema.ts            # Zod schema
-└── docs/
-    └── {action}-spec.md              # API documentation
+src/app/api/v1/{domain}/{resource}/
+├── {action}/
+│   └── route.ts                      # HTTP handler
+├── {resource}.service.ts             # Business logic
+├── {resource}.repository.ts          # Prisma queries
+├── {resource}.schema.ts              # Zod schema + DTO type
+└── _docs/
+    └── {action}-spec.md              # API documentation (create/update เท่านั้น)
 ```
 
 ## Template มาตรฐาน
 
 ### route.ts
 ```ts
-import { type NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { auth } from "@/auth";
 import { errorResponse, successResponse } from "@helpers/api/response";
 import { validateRequest } from "@helpers/api/validate.request";
-import { {action}Schema } from "./validation/{action}-schema";
-import { {action}Service } from "./service/{action}-service";
+import { handleError } from "@/helpers/controller/handle-error.params";
+import { {resource}Schema } from "../{resource}.schema";
+import { {action}Service } from "../{resource}.service";
 
 // {Thai description}
 export async function {METHOD}(request: NextRequest) {
   const session = await auth();
-  if (!session) {
-    return errorResponse({
-      message_th: "ไม่มีสิทธิ์เข้าถึง",
-      message_en: "Unauthorized",
-      status: 401,
-    });
+  if (!session?.user) {
+    return NextResponse.json(
+      errorResponse({ status: 401, message_th: "ไม่มีสิทธิ์เข้าถึง", message_en: "Unauthorized" }),
+      { status: 401 }
+    );
   }
 
-  const validation = await validateRequest(request, {action}Schema);
+  const validation = await validateRequest(request, {resource}Schema);
   if ("error" in validation) return validation.error;
 
   try {
     const result = await {action}Service(validation.data);
-    return successResponse({
-      data: result,
-      message_th: "สำเร็จ",
-      message_en: "Success",
-    });
-  } catch (error) {
-    return errorResponse({
-      message_th: "เกิดข้อผิดพลาดภายในระบบ",
-      message_en: "Internal server error",
-      status: 500,
-      error,
-    });
+    return NextResponse.json(
+      successResponse({ data: result, message_th: "สำเร็จ", message_en: "Success" }),
+      { status: 200 }
+    );
+  } catch (err) {
+    return handleError(err, "[{RESOURCE}_{ACTION}_ERROR]");
   }
 }
 ```
 
-### {action}-schema.ts
+### {resource}.schema.ts
 ```ts
 import { z } from "zod";
 
 // schema สำหรับตรวจสอบข้อมูล {Thai description}
-export const {action}Schema = z.object({
+export const {resource}Schema = z.object({
   field_name: z.string().min(1, "กรุณาระบุ field_name"),
   // ... fields in snake_case
 });
 
-export type {Action}Payload = z.infer<typeof {action}Schema>;
+export type {Resource}Payload = z.infer<typeof {resource}Schema>;
 ```
 
-### {action}-service.ts
+### {resource}.repository.ts
 ```ts
-import { callApiGatewayService } from "@services/api-gateway";  // สำหรับ proxy
+import prisma from "@helpers/prisma";                             // main DB
 // หรือ
-import prisma from "@helpers/prisma";                            // สำหรับ main DB
-import prismaTimesheet from "@helpers/prisma-timesheet";        // สำหรับ timesheet DB
+import { PrismaTimesheet } from "@/helpers/prisma-timesheet";    // timesheet DB
 
-// {Thai description of what this service does}
-export async function {action}Service(payload: {Action}Payload) {
-  // business logic here
+// ดึงข้อมูล {Thai description}
+export async function find{Resource}(payload: {Resource}Payload) {
+  return prisma.{model}.findMany({ where: { ... } });
 }
 ```
 
-### docs/{action}-spec.md
+### {resource}.service.ts
+```ts
+import { AppError } from "@/helpers/api/app-error";
+import { find{Resource} } from "./{resource}.repository";
+
+// {Thai description of what this service does}
+export async function {action}Service(payload: {Resource}Payload) {
+  const result = await find{Resource}(payload);
+  if (!result) throw new AppError(404, "ไม่พบข้อมูลที่ระบุ");
+  return result;
+}
+```
+
+### _docs/{action}-spec.md
 ```markdown
 # {Action} API Specification
 
@@ -138,4 +144,4 @@ export async function {action}Service(payload: {Action}Payload) {
 - ไฟล์/โฟลเดอร์ **kebab-case**
 - comment ภาษาไทยบนทุกฟังก์ชัน ห้ามใช้ emoji
 - ถ้าเขียน DB หลาย table ต้องใช้ `$transaction`
-- สร้าง `docs/{action}-spec.md` ทุกครั้งสำหรับ create/update
+- สร้าง `_docs/{action}-spec.md` ทุกครั้งสำหรับ create/update (underscore prefix เสมอ)

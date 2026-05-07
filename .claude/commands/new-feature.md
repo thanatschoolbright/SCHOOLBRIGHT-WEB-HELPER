@@ -31,7 +31,7 @@ src/app/{domain}/{feature}/
 │   ├── summary-section.tsx           # Summary cards row
 │   ├── {feature}-table.tsx           # Ant Design Table พร้อม sort
 │   └── {feature}-modal.tsx           # Status modal (ถ้าต้องการ action)
-├── _state/
+├── _stores/
 │   └── use-{feature}-store.ts        # Zustand store
 └── _api/
     └── {feature}-service.ts          # callApiService wrapper
@@ -44,11 +44,10 @@ src/app/api/v1/{domain}/{feature}/
 │   └── route.ts                      # GET handler
 ├── create/
 │   └── route.ts                      # POST handler (ถ้าต้องการ)
-├── service/
-│   └── {feature}-service.ts          # Business logic + Prisma
-├── validation/
-│   └── {feature}-schema.ts           # Zod schema
-└── docs/
+├── {feature}.service.ts              # Business logic
+├── {feature}.repository.ts           # Prisma queries
+├── {feature}.schema.ts               # Zod schema + DTO type
+└── _docs/
     └── read-spec.md                  # API documentation
 ```
 
@@ -95,19 +94,35 @@ interface {Feature}Store {
 
 ### API route.ts
 ```ts
+import { NextResponse, type NextRequest } from "next/server";
+import { auth } from "@/auth";
+import { errorResponse, successResponse } from "@helpers/api/response";
+import { validateRequest } from "@helpers/api/validate.request";
+import { handleError } from "@/helpers/controller/handle-error.params";
+import { {feature}Schema } from "../{feature}.schema";
+import { {feature}Service } from "../{feature}.service";
+
 // {Thai description of what this endpoint does}
 export async function GET(request: NextRequest) {
   const session = await auth();
-  if (!session) return errorResponse({ message_th: "ไม่มีสิทธิ์เข้าถึง", message_en: "Unauthorized", status: 401 });
+  if (!session?.user) {
+    return NextResponse.json(
+      errorResponse({ status: 401, message_th: "ไม่มีสิทธิ์เข้าถึง", message_en: "Unauthorized" }),
+      { status: 401 }
+    );
+  }
 
   const validation = await validateRequest(request, {feature}Schema);
   if ("error" in validation) return validation.error;
 
   try {
     const result = await {feature}Service(validation.data);
-    return successResponse({ data: result, message_th: "ดึงข้อมูลสำเร็จ", message_en: "Success" });
-  } catch (error) {
-    return errorResponse({ message_th: "เกิดข้อผิดพลาด", message_en: "Internal server error", status: 500 });
+    return NextResponse.json(
+      successResponse({ data: result, message_th: "ดึงข้อมูลสำเร็จ", message_en: "Success" }),
+      { status: 200 }
+    );
+  } catch (err) {
+    return handleError(err, "[{FEATURE}_READ_ERROR]");
   }
 }
 ```
