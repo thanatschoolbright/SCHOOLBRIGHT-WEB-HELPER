@@ -17,6 +17,7 @@ import {
   PlusOutlined,
   SafetyCertificateOutlined,
   SearchOutlined,
+  SendOutlined,
   SettingOutlined,
   SolutionOutlined,
   TeamOutlined,
@@ -186,6 +187,8 @@ export const UserTable = () => {
     bulkResetPassword,
     bulkResetPasswordToPhone,
     exportUserExcel,
+    sendWelcomeEmail,
+    copyLoginInfo,
     users,
   } = useUserProfileStore();
 
@@ -604,6 +607,23 @@ export const UserTable = () => {
               size="small"
               icon={<EditOutlined style={{ color: token.colorWarning }} />}
               onClick={() => router.push(`/admin/user-profile/${r.id}`)}
+            />
+          </Tooltip>
+          <Tooltip title="คัดลอกข้อมูลเข้าสู่ระบบ">
+            <Button
+              type="text"
+              size="small"
+              icon={<CopyOutlined style={{ color: token.colorTextSecondary }} />}
+              onClick={() => copyLoginInfo(r)}
+            />
+          </Tooltip>
+          <Tooltip title={r.email ? "ส่งอีเมลข้อมูลเข้าสู่ระบบ" : "ไม่มีอีเมล"}>
+            <Button
+              type="text"
+              size="small"
+              icon={<SendOutlined style={{ color: r.email ? token.colorInfo : token.colorTextDisabled }} />}
+              onClick={() => sendWelcomeEmail(r)}
+              disabled={!r.email}
             />
           </Tooltip>
           <Tooltip title="ตั้งค่าเริ่มต้นรหัสผ่าน (ใช้เบอร์มือถือ)">

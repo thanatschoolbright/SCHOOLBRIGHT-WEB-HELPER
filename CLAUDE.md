@@ -405,6 +405,20 @@ Business logic lives in `src/services/line/line-push.service.ts`. The legacy `sr
 - Write a Thai-language comment above every function describing its purpose (no emojis in comments).
 - Every Create/Update API route requires a `docs/{operation}-spec.md` documenting purpose, request/response schema, and key business logic notes.
 
+### Email (Nodemailer)
+
+`src/server/mailer.ts` exports a `sendMail(options)` helper backed by Nodemailer. Config reads from env vars: `MAILER_HOST`, `MAILER_PORT`, `MAILER_SECURE`, `MAILER_USER`, `MAILER_PASS`.
+
+API routes under `src/app/api/v1/mailer/`:
+- `POST /api/v1/mailer/welcome-user` — send welcome email to a newly created user
+- `POST /api/v1/mailer/timesheet` — timesheet-related email notifications
+
+Import pattern:
+```ts
+import { sendMail } from "@/server/mailer";
+await sendMail({ to: "...", subject: "...", html: "..." });
+```
+
 ### Cronjob scripts
 
 Standalone Bun scripts in `cronjobs/scripts/` that run against the main Prisma DB. They are deployed as Kubernetes CronJobs on Huawei Cloud (configs in `cronjobs/*.yaml`).
@@ -424,3 +438,13 @@ Scripts import `prisma` directly from `@/helpers/prisma` (main DB only). They ar
 ```
 
 File list categories: `หน้าที่แก้ไข` for `src/app/` pages, `API ที่แก้ไข` for `src/app/api/`, `ไฟล์ที่แก้ไข` for services/helpers/stores. If more than 3 items per category, summarize as `และไฟล์ที่เกี่ยวข้อง`. Use `/commit` to generate this automatically.
+
+## graphify
+
+This project has a graphify knowledge graph at graphify-out/.
+
+Rules:
+- Before answering architecture or codebase questions, read graphify-out/GRAPH_REPORT.md for god nodes and community structure
+- If graphify-out/wiki/index.md exists, navigate it instead of reading raw files
+- For cross-module "how does X relate to Y" questions, prefer `graphify query "<question>"`, `graphify path "<A>" "<B>"`, or `graphify explain "<concept>"` over grep — these traverse the graph's EXTRACTED + INFERRED edges instead of scanning files
+- After modifying code files in this session, run `graphify update .` to keep the graph current (AST-only, no API cost)

@@ -142,5 +142,17 @@ export const requestDeleteSignature = async (
   });
 };
 
+// ส่ง Welcome Email แจ้งข้อมูลการเข้าสู่ระบบให้ User ใหม่
+export const requestSendWelcomeEmail = async (payload: {
+  to_email: string;
+  full_name: string;
+  username: string;
+  phone?: string | null;
+  position?: string | null;
+  department?: string | null;
+}) => {
+  return await axios.post("/api/v1/mailer/welcome-user", payload);
+};
+
 // จำเป็นต้อง import เพราะใช้ React.Key
 import type React from "react";

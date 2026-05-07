@@ -10,6 +10,7 @@ import {
   requestDeleteUserByID,
   requestResetPasswordBulk,
   requestResetPasswordSingle,
+  requestSendWelcomeEmail,
   requestUnlockUserByID,
   responseAllUsers,
   responseDepartments,
@@ -92,6 +93,8 @@ interface UserProfileStore {
   bulkResetPasswordToPhone: () => void;
   bulkUpdateStaffData: (adminId: number | string | undefined) => Promise<void>;
   exportUserExcel: () => void;
+  sendWelcomeEmail: (user: UserProfile) => Promise<void>;
+  copyLoginInfo: (user: UserProfile) => void;
 }
 
 export const useUserProfileStore = create<UserProfileStore>((set, get) => ({
@@ -362,5 +365,77 @@ export const useUserProfileStore = create<UserProfileStore>((set, get) => ({
         }
       },
     });
+  },
+
+  // ส่ง Welcome Email พร้อมข้อมูลการเข้าสู่ระบบให้ User ใหม่
+  sendWelcomeEmail: async (user) => {
+    const { setStatusModal, closeStatusModal } = get();
+
+    if (!user.email) {
+      toast.error("ไม่พบอีเมลของพนักงานคนนี้");
+      return;
+    }
+
+    const fullName = `${user.firstname_th ?? ""} ${user.lastname_th ?? ""}`.trim() || user.username;
+
+    setStatusModal({
+      open: true,
+      type: "confirm",
+      title: "ยืนยันการส่งอีเมลข้อมูลเข้าสู่ระบบ",
+      message: `ระบบจะส่งข้อมูล Username, รหัสผ่านเริ่มต้น และลิงก์เข้าสู่ระบบ ไปยัง ${user.email}\n\nต้องการดำเนินการหรือไม่?`,
+      confirmLabel: "ส่งอีเมล",
+      cancelLabel: "ยกเลิก",
+      onConfirm: async () => {
+        set((state) => ({ statusModal: { ...state.statusModal, loading: true } }));
+        try {
+          await requestSendWelcomeEmail({
+            to_email: user.email!,
+            full_name: fullName,
+            username: user.username,
+            phone: user.phone ?? null,
+            position: user.position_ref?.name_th ?? null,
+            department: user.department?.name_th ?? null,
+          });
+          setStatusModal({
+            open: true,
+            type: "success",
+            title: "ส่งอีเมลสำเร็จ",
+            message: `ส่งข้อมูลการเข้าสู่ระบบไปยัง\n${user.email}\nเรียบร้อยแล้ว`,
+            onConfirm: closeStatusModal,
+          });
+        } catch (err: unknown) {
+          const error = err as { response?: { data?: { message_th?: string } } };
+          toast.error(error?.response?.data?.message_th ?? "ส่งอีเมลไม่สำเร็จ");
+          closeStatusModal();
+        }
+      },
+    });
+  },
+
+  // คัดลอกข้อมูลการเข้าสู่ระบบทั้งหมดไปยังคลิปบอร์ดในรูปแบบ Chat-ready
+  copyLoginInfo: (user) => {
+    const fullName = `${user.firstname_th ?? ""} ${user.lastname_th ?? ""}`.trim() || user.username;
+    const loginUrl = "https://sb-helper.schoolbright.co/auth/v2/signin";
+
+    const lines = [
+      `SB - HELPER`,
+      ``,
+      `ชื่อ : ${fullName}`,
+      user.email ? `อีเมลล์ : ${user.email}` : null,
+      user.phone ? `เบอร์โทร : ${user.phone}` : null,
+      ``,
+      `🔗 : ${loginUrl}`,
+      ``,
+      `** ลง *Timesheet* ทุกวัน`,
+    ]
+      .filter((line) => line !== null)
+      .join("\n");
+
+    if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(lines).then(
+        () => toast.success("คัดลอกข้อมูลเรียบร้อยแล้ว"),
+        () => toast.error("ไม่สามารถคัดลอกข้อมูลได้"),
+      );
+    }
   },
 }));
