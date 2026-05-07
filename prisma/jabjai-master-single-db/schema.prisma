@@ -2081,3 +2081,18 @@ model DeviceNotifyInterval {
   @@index([school_id])
   @@map("device_notify_interval")
 }
+
+// สถานะการแจ้งเตือนรายเครื่อง — ใช้ track ว่า offline รอบนี้ส่งถึงรอบไหนแล้ว
+model DeviceNotifyState {
+  id               Int       @id @default(autoincrement())
+  school_id        Int
+  device_id        String    @db.VarChar(100)
+  offline_since    DateTime? // เวลาที่เริ่ม offline รอบนี้ (null = online อยู่)
+  r1_sent_at       DateTime? // เวลาที่ส่ง R1 ครั้งแรก (null = ยังไม่ส่ง)
+  last_notified_at DateTime? // เวลาที่ส่งแจ้งเตือนล่าสุด
+  updated_at       DateTime  @updatedAt
+
+  @@unique([school_id, device_id])
+  @@index([school_id])
+  @@map("device_notify_state")
+}

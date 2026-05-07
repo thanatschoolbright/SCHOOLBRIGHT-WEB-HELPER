@@ -207,15 +207,12 @@ async function main() {
       console.log(
         `[${timestamp}] LINE         : ⏭ SKIPPED — ไม่มีเครื่องออฟไลน์ถึงเกณฑ์การแจ้งเตือน`,
       );
-      console.log(
-        `[${timestamp}]               (ออฟไลน์ < ${intervalRound1} นาที หรือไม่ตรง cycle ${intervalRound2} นาที)`,
-      );
     } else if (lineSuccess) {
       const round = data?.line?.notify_round as 1 | 2 | null | undefined;
       const roundLabel = round === 1
-        ? `รอบแรก (offline ${intervalRound1}–${intervalRound2} นาที)`
+        ? `รอบแรก (offline ถึงเกณฑ์ ${intervalRound1} นาที)`
         : round === 2
-          ? `รอบถัดไป (offline ≥ ${intervalRound2} นาที, ตรง cycle)`
+          ? `รอบถัดไป (ห่างจากครั้งล่าสุด ${intervalRound2} นาที)`
           : "-";
       console.log(`[${timestamp}] LINE         : ✓ SUCCESS — ส่งแจ้งเตือนสำเร็จ`);
       console.log(`[${timestamp}]               group_id=${data?.line?.group_id ?? "-"}`);
@@ -230,43 +227,17 @@ async function main() {
       }
     }
 
-    // แสดงรายการอุปกรณ์ที่ออฟไลน์ พร้อมสถานะ threshold
+    // แสดงรายการอุปกรณ์ที่ออฟไลน์ (API จัดการ threshold ทั้งหมดแล้ว แสดงเฉพาะข้อมูลดิบ)
     const allDevices = data?.devices ?? [];
     const offlineDevices = allDevices.filter((d: { is_online: boolean }) => !d.is_online);
     if (offlineDevices.length > 0) {
       console.log(`\n[${timestamp}] รายการเครื่องออฟไลน์ (${offlineDevices.length} เครื่อง):`);
-      console.log(`[${timestamp}]   เกณฑ์: รอบแรก ${intervalRound1}–${intervalRound2} นาที | รอบถัดไป ≥${intervalRound2} นาที ตรง cycle`);
       const now = Date.now();
       for (const d of offlineDevices) {
-        const name: string = d.app_name ?? d.device_id ?? "unknown";
-        const deviceId: string = d.device_id ?? "";
-        const notifyEnabled: boolean = d.notify_enabled ?? false;
-        const onlineTime: string | null = d.online_time ?? null;
-
-        if (!notifyEnabled) {
-          console.log(`[${timestamp}]   [ปิด]  ${deviceId.padEnd(25)} ${name.padEnd(20)} แจ้งเตือน=ปิด`);
-          continue;
-        }
-        if (!onlineTime) {
-          console.log(`[${timestamp}]   [?]    ${deviceId.padEnd(25)} ${name.padEnd(20)} ไม่รู้เวลาออฟไลน์`);
-          continue;
-        }
-
-        const offlineMin = (now - new Date(onlineTime).getTime()) / 60_000;
-        const offlineMinStr = offlineMin.toFixed(1);
-
-        if (offlineMin >= intervalRound1 && offlineMin < intervalRound2) {
-          console.log(`[${timestamp}]   [R1✓] ${deviceId.padEnd(25)} ${name.padEnd(20)} offline ${offlineMinStr} นาที → แจ้งเตือน รอบแรก`);
-        } else if (offlineMin >= intervalRound2 && offlineMin % intervalRound2 < 1) {
-          const cycleNo = Math.floor(offlineMin / intervalRound2);
-          console.log(`[${timestamp}]   [R2✓] ${deviceId.padEnd(25)} ${name.padEnd(20)} offline ${offlineMinStr} นาที → แจ้งเตือน รอบถัดไป (cycle ที่ ${cycleNo})`);
-        } else if (offlineMin < intervalRound1) {
-          console.log(`[${timestamp}]   [--]  ${deviceId.padEnd(25)} ${name.padEnd(20)} offline ${offlineMinStr} นาที (รอ ${(intervalRound1 - offlineMin).toFixed(1)} นาที)`);
-        } else {
-          const nextCycle = Math.ceil(offlineMin / intervalRound2) * intervalRound2;
-          const waitMin = (nextCycle - offlineMin).toFixed(1);
-          console.log(`[${timestamp}]   [--]  ${deviceId.padEnd(25)} ${name.padEnd(20)} offline ${offlineMinStr} นาที (แจ้งเตือนครั้งถัดไปใน ~${waitMin} นาที)`);
-        }
+        const offlineMs = d.online_time ? now - new Date(d.online_time).getTime() : null;
+        const offlineMin = offlineMs !== null ? (offlineMs / 60_000).toFixed(1) : "?";
+        const notifyFlag = d.notify_enabled ? "แจ้งเตือน=เปิด" : "แจ้งเตือน=ปิด";
+        console.log(`[${timestamp}]   ${String(d.device_id).padEnd(25)} ${String(d.app_name).padEnd(20)} offline ${offlineMin} นาที  ${notifyFlag}`);
       }
     }
 

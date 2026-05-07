@@ -38,6 +38,7 @@ import {
   Card,
   Col,
   Collapse,
+  Divider,
   Drawer,
   Flex,
   Input,
@@ -787,6 +788,7 @@ export const SchoolDeviceTab = () => {
   // draft edits — keyed by row id
   const [windowDrafts, setWindowDrafts] = useState<Record<number, Partial<NotifyTimeWindow>>>({});
   const [intervalDrafts, setIntervalDrafts] = useState<Record<number, Partial<NotifyInterval>>>({});
+  const [helpModalOpen, setHelpModalOpen] = useState(false);
 
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -1376,21 +1378,30 @@ export const SchoolDeviceTab = () => {
             </Text>
             <Tag style={{ borderRadius: 8 }}>{total} โรงเรียน</Tag>
           </Flex>
-          <Button
-            icon={<ReloadOutlined />}
-            loading={loading}
-            onClick={() =>
-              fetchData({
-                search: searchText,
-                status_filter: statusFilter,
-                sort_by: sortBy,
-                sort_order: sortOrder,
-              })
-            }
-            style={{ borderRadius: 10 }}
-          >
-            รีเฟรช
-          </Button>
+          <Flex gap={8}>
+            <Button
+              icon={<QuestionCircleOutlined />}
+              onClick={() => setHelpModalOpen(true)}
+              style={{ borderRadius: 10 }}
+            >
+              วิธีใช้งาน
+            </Button>
+            <Button
+              icon={<ReloadOutlined />}
+              loading={loading}
+              onClick={() =>
+                fetchData({
+                  search: searchText,
+                  status_filter: statusFilter,
+                  sort_by: sortBy,
+                  sort_order: sortOrder,
+                })
+              }
+              style={{ borderRadius: 10 }}
+            >
+              รีเฟรช
+            </Button>
+          </Flex>
         </Flex>
 
         {/* Summary Cards */}
@@ -2004,6 +2015,131 @@ export const SchoolDeviceTab = () => {
           ))
         )}
       </Drawer>
+
+      <Modal
+        open={helpModalOpen}
+        title="วิธีการทำงานของระบบแจ้งเตือน LINE Bot"
+        footer={
+          <Button onClick={() => setHelpModalOpen(false)}>ปิด</Button>
+        }
+        onCancel={() => setHelpModalOpen(false)}
+        width={720}
+        destroyOnClose
+      >
+        <Typography.Paragraph type="secondary" style={{ marginBottom: 0 }}>
+          ข้อมูลสำหรับ Customer Support และ Admin เพื่อเข้าใจการทำงานของระบบ
+        </Typography.Paragraph>
+
+        <Divider style={{ marginTop: 12, marginBottom: 16 }} />
+
+        {/* Section 1 */}
+        <Typography.Title level={5} style={{ marginTop: 0, marginBottom: 8 }}>
+          ภาพรวมระบบ
+        </Typography.Title>
+        <Typography.Paragraph style={{ marginBottom: 4 }}>
+          ระบบ Cronjob รันทุก 1 นาที เพื่อตรวจสอบสถานะเครื่องทุกโรงเรียนที่มี LINE Group เชื่อมต่ออยู่
+        </Typography.Paragraph>
+        <Typography.Paragraph style={{ marginBottom: 4 }}>
+          การแจ้งเตือนจะส่งผ่าน LINE เฉพาะในช่วงเวลาที่แต่ละโรงเรียนกำหนดไว้เท่านั้น
+        </Typography.Paragraph>
+        <Typography.Paragraph style={{ marginBottom: 0 }}>
+          แต่ละโรงเรียนสามารถตั้งค่าช่วงเวลาและช่วงห่างได้แยกกัน โดยคลิกที่ชื่อโรงเรียนในตาราง แล้วเปิดแถบ "ตั้งค่าการแจ้งเตือน LINE" ใน Drawer
+        </Typography.Paragraph>
+
+        <Divider style={{ marginTop: 16, marginBottom: 16 }} />
+
+        {/* Section 2 */}
+        <Typography.Title level={5} style={{ marginTop: 0, marginBottom: 8 }}>
+          เงื่อนไขที่ต้องครบก่อนส่งแจ้งเตือน
+        </Typography.Title>
+        <Typography.Paragraph style={{ marginBottom: 4 }}>
+          ระบบจะส่งแจ้งเตือนเฉพาะเมื่อครบทั้ง 3 เงื่อนไขพร้อมกัน ได้แก่
+        </Typography.Paragraph>
+        <ol style={{ paddingLeft: 20, marginBottom: 0 }}>
+          <li style={{ marginBottom: 6 }}>
+            <Typography.Text>LINE Bot เปิดใช้งานอยู่ (ตั้งค่าได้จากปุ่มในหน้านี้)</Typography.Text>
+          </li>
+          <li style={{ marginBottom: 6 }}>
+            <Typography.Text>เวลาปัจจุบันอยู่ในช่วงเวลาที่โรงเรียนกำหนด (ค่า default: 06:00–08:00 และ 15:00–17:00)</Typography.Text>
+          </li>
+          <li style={{ marginBottom: 0 }}>
+            <Typography.Text>มีเครื่องที่เปิดการแจ้งเตือนไว้ (toggle รายเครื่อง) และ Offline เกินเกณฑ์ที่กำหนด</Typography.Text>
+          </li>
+        </ol>
+
+        <Divider style={{ marginTop: 16, marginBottom: 16 }} />
+
+        {/* Section 3 */}
+        <Typography.Title level={5} style={{ marginTop: 0, marginBottom: 8 }}>
+          รอบการแจ้งเตือน
+        </Typography.Title>
+        <Table
+          size="small"
+          pagination={false}
+          bordered
+          style={{ marginBottom: 0 }}
+          columns={[
+            { title: "รอบ", dataIndex: "round", key: "round", width: 120 },
+            { title: "เงื่อนไข", dataIndex: "condition", key: "condition" },
+            { title: "ตัวอย่าง (ค่า default)", dataIndex: "example", key: "example", width: 240 },
+          ]}
+          dataSource={[
+            {
+              key: "1",
+              round: "รอบแรก",
+              condition: "เครื่อง Offline นานกว่าค่า \"ช่วงห่างรอบแรก\" ที่ตั้งไว้",
+              example: "Offline ครบ 5 นาที จะแจ้งเตือนครั้งแรก",
+            },
+            {
+              key: "2",
+              round: "รอบถัดไป",
+              condition: "Offline นานกว่าค่า \"ช่วงห่างรอบถัดไป\" และตรงกับรอบ cycle ที่คำนวณได้",
+              example: "ทุก 30 นาทีหลังจากนั้น (30, 60, 90, ... นาที)",
+            },
+          ]}
+        />
+
+        <Divider style={{ marginTop: 16, marginBottom: 16 }} />
+
+        {/* Section 4 */}
+        <Typography.Title level={5} style={{ marginTop: 0, marginBottom: 8 }}>
+          พฤติกรรมเมื่อเครื่อง Online กลับมาแล้ว Offline ใหม่
+        </Typography.Title>
+        <Typography.Paragraph style={{ marginBottom: 4 }}>
+          หากเครื่องกลับมา Online แล้ว Offline อีกครั้ง ระบบจะนับเวลา Offline ใหม่จากเวลา ping ล่าสุด
+        </Typography.Paragraph>
+        <Typography.Paragraph style={{ marginBottom: 4 }}>
+          หมายความว่าเครื่องจะได้รับการแจ้งเตือนรอบแรกอีกครั้ง ไม่ข้ามไปรอบถัดไป
+        </Typography.Paragraph>
+        <Typography.Paragraph style={{ marginBottom: 0 }}>
+          <Typography.Text type="warning">ข้อจำกัดปัจจุบัน:</Typography.Text>
+          <Typography.Text> หากเครื่อง Offline มานานเกิน 30 นาทีก่อนที่ Cronjob จะรัน อาจข้ามรอบแรกไปได้</Typography.Text>
+        </Typography.Paragraph>
+
+        <Divider style={{ marginTop: 16, marginBottom: 16 }} />
+
+        {/* Section 5 */}
+        <Typography.Title level={5} style={{ marginTop: 0, marginBottom: 8 }}>
+          ตั้งค่าการแจ้งเตือนของแต่ละโรงเรียน
+        </Typography.Title>
+        <Typography.Paragraph style={{ marginBottom: 4 }}>
+          คลิกชื่อโรงเรียนในตาราง เพื่อเปิด Drawer แล้วกดแถบ "ตั้งค่าการแจ้งเตือน LINE"
+        </Typography.Paragraph>
+        <ul style={{ paddingLeft: 20, marginBottom: 0 }}>
+          <li style={{ marginBottom: 6 }}>
+            <Typography.Text strong>ช่วงเวลา:</Typography.Text>
+            <Typography.Text> กำหนดได้สูงสุด 3 รอบ เปิด/ปิดแต่ละรอบได้อิสระ</Typography.Text>
+          </li>
+          <li style={{ marginBottom: 6 }}>
+            <Typography.Text strong>ช่วงห่าง:</Typography.Text>
+            <Typography.Text> รอบแรก (จำนวนนาทีหลัง Offline) และรอบถัดไป (cycle ซ้ำ)</Typography.Text>
+          </li>
+          <li style={{ marginBottom: 0 }}>
+            <Typography.Text strong>ค่า default ทุกโรงเรียน:</Typography.Text>
+            <Typography.Text> 06:00–08:00 และ 15:00–17:00 ช่วงห่าง 5 นาที / 30 นาที</Typography.Text>
+          </li>
+        </ul>
+      </Modal>
 
       <BatchProgressModal
         open={batchModalOpen}
