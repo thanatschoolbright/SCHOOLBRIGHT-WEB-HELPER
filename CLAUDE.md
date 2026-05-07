@@ -265,7 +265,19 @@ src/app/{domain}/{feature}/
 - **Page titles**: Use `src/components/typhography/header-bar-component.tsx` only.
 - **Summary cards**: Use `src/components/card/summary-card.tsx` (`title`, `value`, `unit?`, `subtitle?`, `icon?`, `color?`, `tooltip?`, `suffix?`, `isLoading?`). Always fetch raw data server-side and compute aggregates before passing to the component — never filter on the client via table.
 - **Filter sections**: Heading "ตัวกรอง" uses `<FilterOutlined />` (`fontSize: 1rem, fontWeight: 600`) with `marginBottom: 16px`. Layout is 2 columns per row (`Col`/`Row`). "ค้นหา" and "ล้างการค้นหา" buttons right-aligned with icons.
-- **Tables**: Wrap content in `<Card styles={{ body: { padding: 16 } }}>`. Use `<UnorderedListOutlined />` (1rem) for table headings. Action buttons (bulk actions, export, etc.) go top-right of the table section. Add sort to all sortable columns. Never use `maxWidth` on columns.
+- **Tables**: Wrap content in `<Card>` with mandatory `title` prop — every Card must have a title. Standard pattern:
+  ```tsx
+  <Card
+    title={
+      <Typography.Text strong style={{ fontSize: "1rem" }}>
+        <UnorderedListOutlined style={{ marginRight: 8 }} />
+        รายการ...
+      </Typography.Text>
+    }
+    styles={{ body: { padding: 16 } }}
+  >
+  ```
+  Action buttons (bulk actions, export, etc.) go top-right of the table section. Add sort to all sortable columns. Never use `maxWidth` on columns.
 - **Font weight**: Maximum 600.
 - **Dates**: Use `dayjs` for all date manipulation and formatting. Client components that display timestamps must set up timezone at the top of the file:
   ```ts

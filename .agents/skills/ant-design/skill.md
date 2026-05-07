@@ -32,7 +32,18 @@
    - ปุ่ม "ค้นหา" และ "ล้างการค้นหา" วางชิดขวาด้านล่างพร้อม Icon
 5. **Content & Table:**
    - ใช้ Card ครอบเนื้อหา: `styles={{ body: { padding: 16 } }}` และ Border Color ตาม Token
-   - หัวข้อตารางใช้ `<UnorderedListOutlined />` ขนาด 1rem
+   - **ทุก Card ต้องมี `title` prop เสมอ** เพื่อบ่งบอกหัวข้อ — ใช้ pattern นี้:
+     ```tsx
+     <Card
+       title={
+         <Typography.Text strong style={{ fontSize: "1rem" }}>
+           <UnorderedListOutlined style={{ marginRight: 8 }} />
+           รายการ...
+         </Typography.Text>
+       }
+       styles={{ body: { padding: 16 } }}
+     >
+     ```
    - ทุก Column ต้องมี Sort และห้ามใช้ maxWidth (ให้ Scale ตามหน้าจอ)
    - Action Buttons ต้องวางไว้ด้านบนขวาของส่วน Table
 6. **Notification:** ใช้ `toast` จาก `sonner` สำหรับ feedback เบาๆ (error, info) — action สำคัญที่สำเร็จให้ใช้ success modal แทน
