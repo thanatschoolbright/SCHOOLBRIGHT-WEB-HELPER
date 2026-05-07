@@ -505,8 +505,7 @@ export default function CanteenAppManager() {
   );
 
   useEffect(() => {
-    void fetchApplications();
-    void fetchSchools();
+    void Promise.all([fetchApplications(), fetchSchools()]);
   }, [fetchApplications, fetchSchools]);
 
   const handleExportHistory = async () => {
@@ -695,12 +694,14 @@ export default function CanteenAppManager() {
       if (apiResponse?.data?.status === "failed")
         throw new Error("ไม่สามารถลบข้อมูลได้");
 
-      setStatusModal({
+      setStatusModal((prev) => ({
+        ...prev,
         open: true,
         type: "success",
         title: "ลบสำเร็จ",
         message: "ลบข้อมูลเวอร์ชันเรียบร้อยแล้ว",
-      });
+        loading: false,
+      }));
       setDeleteTargetRecord(null);
       if (selectedApplication)
         fetchApplicationVersions(selectedApplication.app_id);
@@ -718,7 +719,7 @@ export default function CanteenAppManager() {
       setCheckUpdateResult(null);
 
       const response = await GET_CHECK_VERSION({
-        app_id: selectedApplication?.app_id || "",
+        app_id: String(selectedApplication?.app_id ?? ""),
         version_name: values.versionName,
         school_id: values.schoolID,
       });
@@ -1157,7 +1158,9 @@ export default function CanteenAppManager() {
                   if (currentFormStep === 1 && versionFormMode === "add")
                     await versionFormInstance.validateFields(["file"]);
                   setCurrentFormStep((step) => step + 1);
-                } catch (error) {}
+                } catch (_) {
+                  // validation error — Ant Design แสดง error ใต้ field อัตโนมัติ ไม่ต้องจัดการเพิ่ม
+                }
               }}
             >
               ถัดไป
@@ -1348,8 +1351,8 @@ export default function CanteenAppManager() {
                     style={{ width: "100%" }}
                     options={schoolOptions}
                     maxTagCount="responsive"
-                    filterOption={(input: string, option: any) =>
-                      (option?.label ?? "")
+                    filterOption={(input, option) =>
+                      ((option?.label as string) ?? "")
                         .toLowerCase()
                         .includes(input.toLowerCase())
                     }
@@ -1597,7 +1600,7 @@ export default function CanteenAppManager() {
                       </Flex>
                     </Space>
                   )}
-                  onSearch={(value) => {
+                  onSearch={() => {
                     // อนุญาตให้พิมพ์ค่าใหม่ได้ หากไม่มีในตัวเลือก
                   }}
                 />

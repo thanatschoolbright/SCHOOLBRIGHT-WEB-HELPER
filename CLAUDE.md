@@ -119,7 +119,7 @@ Within each feature, files are organized by operation. Two patterns exist in the
 {feature}/read/route.ts
 {feature}/service/{feature}-service.ts
 {feature}/validation/{feature}-schema.ts
-{feature}/docs/{operation}-spec.md
+{feature}/docs/{operation}-spec.md     # note: no underscore prefix in legacy routes
 ```
 
 **Flat pattern** (new routes — all files in the same feature folder, dot-separated names):
@@ -230,7 +230,12 @@ Use these in route handlers instead of writing custom logic:
 | `format-date.params.ts` | `formatDate(date)` | Any date → ISO string or `null` |
 | `handle-error.params.ts` | `handleError(err, contextMessage?)` | Centralized catch block — maps `AppError` status codes, returns `NextResponse` |
 
-Input validation uses Zod via `src/helpers/api/validate.request.ts`. Use `validateRequest(request, schema)` in route handlers — it parses the body and returns `{ error: NextResponse }` on failure or `{ data: T }` on success.
+Input validation uses Zod via `src/helpers/api/validate.request.ts`. Use `validateRequest(request, schema)` in route handlers — it parses the body and returns `{ error: NextResponse }` on failure or `{ data: T }` on success:
+```ts
+import { validateRequest } from "@/helpers/api/validate.request";
+const { data, error } = await validateRequest(request, CreateDeviceSchema);
+if (error) return error;
+```
 
 ### State management
 
