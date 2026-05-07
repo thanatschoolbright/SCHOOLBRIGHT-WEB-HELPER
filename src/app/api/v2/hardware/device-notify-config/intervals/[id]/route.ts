@@ -3,10 +3,13 @@ import { errorResponse, successResponse } from "@/helpers/api/response";
 import { handleError } from "@/helpers/controller/handle-error.params";
 import { validateRequest } from "@/helpers/api/validate.request";
 import { NextRequest, NextResponse } from "next/server";
-import { UpdateIntervalSchema } from "../../device-notify-config.schema";
+import {
+  SchoolIdQuerySchema,
+  UpdateIntervalSchema,
+} from "../../device-notify-config.schema";
 import { deviceNotifyConfigService } from "../../device-notify-config.service";
 
-// ✨ PATCH — อัปเดตช่วงห่างการแจ้งเตือนตาม id
+// ✨ PATCH — อัปเดตช่วงห่างการแจ้งเตือนตาม id (?school_id=xxx)
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -28,12 +31,26 @@ export async function PATCH(
     );
   }
 
+  const rawParams = Object.fromEntries(request.nextUrl.searchParams.entries());
+  const parsedQuery = SchoolIdQuerySchema.safeParse(rawParams);
+  if (!parsedQuery.success) {
+    return NextResponse.json(
+      errorResponse({ status: 400, message_th: "กรุณาระบุ school_id ที่ถูกต้อง", message_en: "Invalid school_id" }),
+      { status: 400 },
+    );
+  }
+
   const { data, error } = await validateRequest(request, UpdateIntervalSchema);
   if (error) return error;
 
   try {
     const adminId: number | null = (session.user as { admin_id?: number }).admin_id ?? null;
-    const updated = await deviceNotifyConfigService.updateInterval(recordId, data, adminId);
+    const updated = await deviceNotifyConfigService.updateInterval(
+      recordId,
+      parsedQuery.data.school_id,
+      data,
+      adminId,
+    );
     return NextResponse.json(
       successResponse({
         message_th: "อัปเดตช่วงห่างการแจ้งเตือนสำเร็จ",

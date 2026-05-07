@@ -876,11 +876,13 @@ export const SchoolDeviceTab = () => {
     // fetchData จะถูกเรียกจาก useEffect ที่ watch sortBy/sortOrder
   };
 
-  // โหลดการตั้งค่าช่วงเวลาและช่วงห่างการแจ้งเตือนจาก DB
-  const fetchNotifyConfig = useCallback(async () => {
+  // โหลดการตั้งค่าช่วงเวลาและช่วงห่างการแจ้งเตือนของโรงเรียนจาก DB
+  const fetchNotifyConfig = useCallback(async (schoolId: number) => {
     setNotifyConfigLoading(true);
     try {
-      const res = await callApiService.get("/api/v2/hardware/device-notify-config");
+      const res = await callApiService.get(
+        `/api/v2/hardware/device-notify-config?school_id=${schoolId}`,
+      );
       setNotifyConfig(res.data?.data ?? null);
       setWindowDrafts({});
       setIntervalDrafts({});
@@ -892,73 +894,123 @@ export const SchoolDeviceTab = () => {
   }, []);
 
   // บันทึกการแก้ไขช่วงเวลาแจ้งเตือน
-  const handleSaveTimeWindow = useCallback(async (windowId: number) => {
-    const draft = windowDrafts[windowId];
-    if (!draft || Object.keys(draft).length === 0) return;
-    setSavingWindowId(windowId);
+  const handleSaveTimeWindow = useCallback(
+    async (windowId: number, schoolId: number) => {
+      const draft = windowDrafts[windowId];
+      if (!draft || Object.keys(draft).length === 0) return;
+      setSavingWindowId(windowId);
+      try {
+        await callApiService.patch(
+          `/api/v2/hardware/device-notify-config/time-windows/${windowId}?school_id=${schoolId}`,
+          draft,
+        );
+        setNotifyConfig((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            time_windows: prev.time_windows.map((w) =>
+              w.id === windowId ? { ...w, ...draft } : w,
+            ),
+          };
+        });
+        setWindowDrafts((prev) => {
+          const next = { ...prev };
+          delete next[windowId];
+          return next;
+        });
+        toast.success("บันทึกช่วงเวลาแจ้งเตือนสำเร็จ");
+      } catch {
+        toast.error("ไม่สามารถบันทึกช่วงเวลาแจ้งเตือนได้");
+      } finally {
+        setSavingWindowId(null);
+      }
+    },
+    [windowDrafts],
+  );
+
+  // ลบรอบการแจ้งเตือน
+  const handleDeleteTimeWindow = useCallback(
+    async (windowId: number, schoolId: number) => {
+      try {
+        await callApiService.delete(
+          `/api/v2/hardware/device-notify-config/time-windows/${windowId}?school_id=${schoolId}`,
+        );
+        setNotifyConfig((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            time_windows: prev.time_windows
+              .filter((w) => w.id !== windowId)
+              .map((w, i) => ({ ...w, round: i + 1 })),
+          };
+        });
+        toast.success("ลบรอบการแจ้งเตือนสำเร็จ");
+      } catch {
+        toast.error("ไม่สามารถลบรอบการแจ้งเตือนได้");
+      }
+    },
+    [],
+  );
+
+  // เพิ่มรอบการแจ้งเตือนใหม่
+  const handleAddTimeWindow = useCallback(async (schoolId: number) => {
     try {
-      await callApiService.patch(
-        `/api/v2/hardware/device-notify-config/time-windows/${windowId}`,
-        draft,
+      const res = await callApiService.post(
+        `/api/v2/hardware/device-notify-config?school_id=${schoolId}`,
+        { label: `รอบที่ ${(notifyConfig?.time_windows.length ?? 0) + 1}`, start_hour: 7, start_min: 0, end_hour: 9, end_min: 0 },
       );
-      setNotifyConfig((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          time_windows: prev.time_windows.map((w) =>
-            w.id === windowId ? { ...w, ...draft } : w,
-          ),
-        };
-      });
-      setWindowDrafts((prev) => {
-        const next = { ...prev };
-        delete next[windowId];
-        return next;
-      });
-      toast.success("บันทึกช่วงเวลาแจ้งเตือนสำเร็จ");
+      const created = res.data?.data;
+      if (created) {
+        setNotifyConfig((prev) => {
+          if (!prev) return prev;
+          return { ...prev, time_windows: [...prev.time_windows, created] };
+        });
+      }
+      toast.success("เพิ่มรอบการแจ้งเตือนสำเร็จ");
     } catch {
-      toast.error("ไม่สามารถบันทึกช่วงเวลาแจ้งเตือนได้");
-    } finally {
-      setSavingWindowId(null);
+      toast.error("ไม่สามารถเพิ่มรอบการแจ้งเตือนได้ (สูงสุด 3 รอบ)");
     }
-  }, [windowDrafts]);
+  }, [notifyConfig?.time_windows.length]);
 
   // บันทึกการแก้ไขช่วงห่างการแจ้งเตือน
-  const handleSaveInterval = useCallback(async (intervalId: number) => {
-    const draft = intervalDrafts[intervalId];
-    if (!draft || Object.keys(draft).length === 0) return;
-    setSavingIntervalId(intervalId);
-    try {
-      await callApiService.patch(
-        `/api/v2/hardware/device-notify-config/intervals/${intervalId}`,
-        draft,
-      );
-      setNotifyConfig((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          intervals: prev.intervals.map((v) =>
-            v.id === intervalId ? { ...v, ...draft } : v,
-          ),
-        };
-      });
-      setIntervalDrafts((prev) => {
-        const next = { ...prev };
-        delete next[intervalId];
-        return next;
-      });
-      toast.success("บันทึกช่วงห่างการแจ้งเตือนสำเร็จ");
-    } catch {
-      toast.error("ไม่สามารถบันทึกช่วงห่างการแจ้งเตือนได้");
-    } finally {
-      setSavingIntervalId(null);
-    }
-  }, [intervalDrafts]);
+  const handleSaveInterval = useCallback(
+    async (intervalId: number, schoolId: number) => {
+      const draft = intervalDrafts[intervalId];
+      if (!draft || Object.keys(draft).length === 0) return;
+      setSavingIntervalId(intervalId);
+      try {
+        await callApiService.patch(
+          `/api/v2/hardware/device-notify-config/intervals/${intervalId}?school_id=${schoolId}`,
+          draft,
+        );
+        setNotifyConfig((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            intervals: prev.intervals.map((v) =>
+              v.id === intervalId ? { ...v, ...draft } : v,
+            ),
+          };
+        });
+        setIntervalDrafts((prev) => {
+          const next = { ...prev };
+          delete next[intervalId];
+          return next;
+        });
+        toast.success("บันทึกช่วงห่างการแจ้งเตือนสำเร็จ");
+      } catch {
+        toast.error("ไม่สามารถบันทึกช่วงห่างการแจ้งเตือนได้");
+      } finally {
+        setSavingIntervalId(null);
+      }
+    },
+    [intervalDrafts],
+  );
 
   const openDrawer = (record: SchoolDeviceSummaryItem) => {
     setSelectedSchool(record);
     setDrawerOpen(true);
-    void fetchNotifyConfig();
+    void fetchNotifyConfig(record.school_id);
   };
 
   // อัพเดท notify_enabled ของอุปกรณ์ใน state พร้อมส่ง API
@@ -1660,19 +1712,42 @@ export const SchoolDeviceTab = () => {
                   <Spin size="small" />
                 </Flex>
               ) : !notifyConfig ? (
-                <Text type="secondary" style={{ fontSize: 12 }}>ไม่สามารถโหลดการตั้งค่าได้</Text>
+                <Flex vertical gap={8} align="center" style={{ padding: 16 }}>
+                  <Text type="secondary" style={{ fontSize: 12 }}>ไม่สามารถโหลดการตั้งค่าได้</Text>
+                  <Button
+                    size="small"
+                    onClick={() => selectedSchool && void fetchNotifyConfig(selectedSchool.school_id)}
+                  >
+                    ลองใหม่
+                  </Button>
+                </Flex>
               ) : (
                 <Flex vertical gap={16}>
-                  {/* ช่วงเวลาแจ้งเตือน */}
+                  {/* ช่วงเวลาแจ้งเตือน — dynamic สูงสุด 3 รอบ */}
                   <div>
-                    <Text strong style={{ fontSize: 12, display: "block", marginBottom: 8 }}>
-                      ช่วงเวลาที่อนุญาตให้แจ้งเตือน
-                    </Text>
+                    <Flex align="center" justify="space-between" style={{ marginBottom: 8 }}>
+                      <Text strong style={{ fontSize: 12 }}>
+                        ช่วงเวลาที่อนุญาตให้แจ้งเตือน
+                      </Text>
+                      {notifyConfig.time_windows.length < 3 && (
+                        <Button
+                          size="small"
+                          type="dashed"
+                          style={{ fontSize: 11, borderRadius: 6 }}
+                          onClick={() =>
+                            selectedSchool && void handleAddTimeWindow(selectedSchool.school_id)
+                          }
+                        >
+                          + เพิ่มรอบ
+                        </Button>
+                      )}
+                    </Flex>
                     <Flex vertical gap={8}>
                       {notifyConfig.time_windows.map((w) => {
                         const draft = windowDrafts[w.id] ?? {};
                         const merged = { ...w, ...draft };
                         const hasDraft = Object.keys(draft).length > 0;
+                        const canDelete = notifyConfig.time_windows.length > 1;
                         return (
                           <Card
                             key={w.id}
@@ -1685,15 +1760,55 @@ export const SchoolDeviceTab = () => {
                             }}
                             styles={{ body: { padding: "10px 14px" } }}
                           >
-                            <Flex align="center" gap={10} wrap="wrap">
-                              <Tag
-                                color="blue"
-                                style={{ margin: 0, fontSize: 11, borderRadius: 6, flexShrink: 0 }}
-                              >
-                                รอบ {w.round}
-                              </Tag>
-                              <Text style={{ fontSize: 12, minWidth: 60 }}>{merged.label}</Text>
-                              <Flex align="center" gap={4}>
+                            <Flex vertical gap={8}>
+                              {/* แถวบน: label + tag รอบ + ปุ่มลบ */}
+                              <Flex align="center" gap={8}>
+                                <Tag
+                                  color="blue"
+                                  style={{ margin: 0, fontSize: 11, borderRadius: 6, flexShrink: 0 }}
+                                >
+                                  รอบ {w.round}
+                                </Tag>
+                                <Input
+                                  size="small"
+                                  value={merged.label}
+                                  maxLength={50}
+                                  onChange={(e) =>
+                                    setWindowDrafts((prev) => ({
+                                      ...prev,
+                                      [w.id]: { ...prev[w.id], label: e.target.value },
+                                    }))
+                                  }
+                                  style={{ flex: 1, fontSize: 12 }}
+                                />
+                                <Switch
+                                  size="small"
+                                  checked={merged.is_active}
+                                  onChange={(checked) =>
+                                    setWindowDrafts((prev) => ({
+                                      ...prev,
+                                      [w.id]: { ...prev[w.id], is_active: checked },
+                                    }))
+                                  }
+                                />
+                                {canDelete && (
+                                  <Tooltip title="ลบรอบนี้">
+                                    <Button
+                                      size="small"
+                                      danger
+                                      icon={<CloseOutlined />}
+                                      style={{ borderRadius: 6, flexShrink: 0 }}
+                                      onClick={() =>
+                                        selectedSchool &&
+                                        void handleDeleteTimeWindow(w.id, selectedSchool.school_id)
+                                      }
+                                    />
+                                  </Tooltip>
+                                )}
+                              </Flex>
+                              {/* แถวล่าง: เวลาเริ่ม-สิ้นสุด + ปุ่มบันทึก */}
+                              <Flex align="center" gap={6} wrap="wrap">
+                                <Text type="secondary" style={{ fontSize: 11 }}>เริ่ม</Text>
                                 <InputNumber
                                   size="small"
                                   min={0}
@@ -1705,7 +1820,7 @@ export const SchoolDeviceTab = () => {
                                       [w.id]: { ...prev[w.id], start_hour: val ?? 0 },
                                     }))
                                   }
-                                  style={{ width: 60 }}
+                                  style={{ width: 58 }}
                                 />
                                 <Text style={{ fontSize: 11 }}>:</Text>
                                 <InputNumber
@@ -1719,7 +1834,7 @@ export const SchoolDeviceTab = () => {
                                       [w.id]: { ...prev[w.id], start_min: val ?? 0 },
                                     }))
                                   }
-                                  style={{ width: 60 }}
+                                  style={{ width: 58 }}
                                 />
                                 <Text type="secondary" style={{ fontSize: 11 }}>ถึง</Text>
                                 <InputNumber
@@ -1733,7 +1848,7 @@ export const SchoolDeviceTab = () => {
                                       [w.id]: { ...prev[w.id], end_hour: val ?? 0 },
                                     }))
                                   }
-                                  style={{ width: 60 }}
+                                  style={{ width: 58 }}
                                 />
                                 <Text style={{ fontSize: 11 }}>:</Text>
                                 <InputNumber
@@ -1747,32 +1862,20 @@ export const SchoolDeviceTab = () => {
                                       [w.id]: { ...prev[w.id], end_min: val ?? 0 },
                                     }))
                                   }
-                                  style={{ width: 60 }}
+                                  style={{ width: 58 }}
                                 />
                                 <Text type="secondary" style={{ fontSize: 11 }}>น.</Text>
-                              </Flex>
-                              <Flex align="center" gap={6} style={{ marginLeft: "auto" }}>
-                                <Switch
-                                  size="small"
-                                  checked={merged.is_active}
-                                  onChange={(checked) =>
-                                    setWindowDrafts((prev) => ({
-                                      ...prev,
-                                      [w.id]: { ...prev[w.id], is_active: checked },
-                                    }))
-                                  }
-                                />
-                                <Text type="secondary" style={{ fontSize: 11 }}>
-                                  {merged.is_active ? "เปิดใช้งาน" : "ปิดใช้งาน"}
-                                </Text>
                                 {hasDraft && (
                                   <Button
                                     type="primary"
                                     size="small"
                                     icon={<SaveOutlined />}
                                     loading={savingWindowId === w.id}
-                                    onClick={() => void handleSaveTimeWindow(w.id)}
-                                    style={{ borderRadius: 6, fontSize: 11 }}
+                                    onClick={() =>
+                                      selectedSchool &&
+                                      void handleSaveTimeWindow(w.id, selectedSchool.school_id)
+                                    }
+                                    style={{ borderRadius: 6, fontSize: 11, marginLeft: "auto" }}
                                   >
                                     บันทึก
                                   </Button>
@@ -1815,22 +1918,20 @@ export const SchoolDeviceTab = () => {
                                 {v.round === 1 ? "ครั้งแรก" : "ครั้งถัดไป"}
                               </Tag>
                               <Text style={{ fontSize: 12 }}>{merged.label}</Text>
-                              <Flex align="center" gap={6}>
-                                <InputNumber
-                                  size="small"
-                                  min={1}
-                                  max={1440}
-                                  value={merged.interval_minutes}
-                                  addonAfter="นาที"
-                                  onChange={(val) =>
-                                    setIntervalDrafts((prev) => ({
-                                      ...prev,
-                                      [v.id]: { ...prev[v.id], interval_minutes: val ?? 1 },
-                                    }))
-                                  }
-                                  style={{ width: 130 }}
-                                />
-                              </Flex>
+                              <InputNumber
+                                size="small"
+                                min={1}
+                                max={1440}
+                                value={merged.interval_minutes}
+                                addonAfter="นาที"
+                                onChange={(val) =>
+                                  setIntervalDrafts((prev) => ({
+                                    ...prev,
+                                    [v.id]: { ...prev[v.id], interval_minutes: val ?? 1 },
+                                  }))
+                                }
+                                style={{ width: 130 }}
+                              />
                               <Flex align="center" gap={6} style={{ marginLeft: "auto" }}>
                                 <Switch
                                   size="small"
@@ -1843,7 +1944,7 @@ export const SchoolDeviceTab = () => {
                                   }
                                 />
                                 <Text type="secondary" style={{ fontSize: 11 }}>
-                                  {merged.is_active ? "เปิดใช้งาน" : "ปิดใช้งาน"}
+                                  {merged.is_active ? "เปิด" : "ปิด"}
                                 </Text>
                                 {hasDraft && (
                                   <Button
@@ -1851,7 +1952,10 @@ export const SchoolDeviceTab = () => {
                                     size="small"
                                     icon={<SaveOutlined />}
                                     loading={savingIntervalId === v.id}
-                                    onClick={() => void handleSaveInterval(v.id)}
+                                    onClick={() =>
+                                      selectedSchool &&
+                                      void handleSaveInterval(v.id, selectedSchool.school_id)
+                                    }
                                     style={{ borderRadius: 6, fontSize: 11 }}
                                   >
                                     บันทึก
@@ -1866,7 +1970,7 @@ export const SchoolDeviceTab = () => {
                   </div>
 
                   <Text type="secondary" style={{ fontSize: 11 }}>
-                    การตั้งค่านี้มีผลกับ Cronjob ทุกโรงเรียน ไม่ใช่เฉพาะโรงเรียนที่เปิดดูอยู่
+                    การตั้งค่านี้มีผลเฉพาะโรงเรียน {selectedSchool?.school_name} เท่านั้น
                   </Text>
                 </Flex>
               ),

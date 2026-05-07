@@ -2047,10 +2047,11 @@ model province {
   PROVINCE_NAME_EN String? @db.VarChar(150)
 }
 
-// ช่วงเวลาที่อนุญาตให้ส่งการแจ้งเตือน LINE (กำหนดจาก DB ไม่ hardcode ใน script)
+// ช่วงเวลาที่อนุญาตให้ส่งการแจ้งเตือน LINE แยกตามโรงเรียน (dynamic สูงสุด 3 รอบต่อโรงเรียน)
 model DeviceNotifyTimeWindow {
   id         Int      @id @default(autoincrement())
-  round      Int      @unique // 1 = รอบเช้า, 2 = รอบบ่าย
+  school_id  Int      // รหัสโรงเรียน (อ้างอิง ActiveSchoolList.nCompany)
+  round      Int      // ลำดับรอบ (1-3)
   label      String   @db.VarChar(50)
   start_hour Int      // ชั่วโมงเริ่มต้น (0-23)
   start_min  Int      @default(0) // นาทีเริ่มต้น (0-59)
@@ -2060,18 +2061,23 @@ model DeviceNotifyTimeWindow {
   updated_at DateTime @updatedAt
   updated_by Int?
 
+  @@unique([school_id, round])
+  @@index([school_id])
   @@map("device_notify_time_window")
 }
 
-// ช่วงเวลา (นาที) ที่จะส่งแจ้งเตือนซ้ำหลังจากเครื่อง Offline ตามรอบ
+// ช่วงห่าง (นาที) การแจ้งเตือนหลังเครื่อง Offline แยกตามโรงเรียน (2 รอบ: ครั้งแรก / ครั้งถัดไป)
 model DeviceNotifyInterval {
   id               Int      @id @default(autoincrement())
-  round            Int      @unique // 1 = แจ้งเตือนครั้งแรก, 2 = ครั้งต่อไป
+  school_id        Int      // รหัสโรงเรียน
+  round            Int      // 1 = ครั้งแรก, 2 = ครั้งถัดไป
   label            String   @db.VarChar(50)
   interval_minutes Int      // จำนวนนาทีหลังจากเครื่อง Offline ที่จะส่งแจ้งเตือน
   is_active        Boolean  @default(true)
   updated_at       DateTime @updatedAt
   updated_by       Int?
 
+  @@unique([school_id, round])
+  @@index([school_id])
   @@map("device_notify_interval")
 }
