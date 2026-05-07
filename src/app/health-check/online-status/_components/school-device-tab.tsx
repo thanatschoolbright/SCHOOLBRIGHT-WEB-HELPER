@@ -1103,9 +1103,10 @@ export const SchoolDeviceTab = () => {
       const updatedRows = [...initialRows];
 
       for (let i = 0; i < devices.length; i++) {
-        const device = devices[i];
+        const device = devices[i]!;
+        const currentRow = updatedRows[i]!;
 
-        updatedRows[i] = { ...updatedRows[i], status: "processing" };
+        updatedRows[i] = { ...currentRow, status: "processing" };
         setBatchRows([...updatedRows]);
 
         try {
@@ -1117,12 +1118,12 @@ export const SchoolDeviceTab = () => {
               notify_enabled: enabled,
             },
           );
-          updatedRows[i] = { ...updatedRows[i], status: "success" };
+          updatedRows[i] = { ...updatedRows[i]!, status: "success" };
         } catch (err: unknown) {
           const msg =
             err instanceof Error ? err.message : "ไม่สามารถบันทึกได้";
           updatedRows[i] = {
-            ...updatedRows[i],
+            ...updatedRows[i]!,
             status: "error",
             error: msg,
           };

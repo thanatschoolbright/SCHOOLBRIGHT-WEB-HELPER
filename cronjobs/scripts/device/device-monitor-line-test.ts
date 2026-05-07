@@ -36,57 +36,85 @@ async function main() {
   const timestamp = new Date().toLocaleString("th-TH", { timeZone: "Asia/Bangkok" });
 
   console.log(`\n${SEP}`);
-  console.log(`[${timestamp}] === TEST MODE — school_id=${TEST_SCHOOL_ID} ===`);
+  console.log(`[${timestamp}] === TEST SCRIPT — Device Monitor LINE Bot ===`);
+  console.log(`[${timestamp}] School ID    : ${TEST_SCHOOL_ID} (test school)`);
   console.log(`[${timestamp}] APP_URL      : ${APP_URL}`);
-  console.log(`[${timestamp}] CRON_SECRET  : ${CRON_SECRET ? "SET" : "NOT SET"}`);
+  console.log(`[${timestamp}] CRON_SECRET  : ${CRON_SECRET ? "SET" : "NOT SET ⚠"}`);
   console.log(SEP);
 
-  // ─── ตรวจสอบ Bot Status (ระดับสูงสุด) ───
+  // ─── [1] ตรวจสอบ Bot Status ───
+  console.log(`[${timestamp}] [1/4] ตรวจสอบสถานะ LINE Bot...`);
   const { enabled: botEnabled, updatedBy, updatedAt } = await isBotEnabled();
 
-  console.log(`[${timestamp}] Bot Status   : ${botEnabled ? "✓ เปิดใช้งาน" : "✗ ปิดใช้งาน"}`);
+  console.log(`[${timestamp}]       Bot Status : ${botEnabled ? "✓ เปิดใช้งาน" : "✗ ปิดใช้งาน"}`);
   if (updatedAt) {
-    console.log(`[${timestamp}] Updated At   : ${updatedAt.toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })}`);
+    console.log(`[${timestamp}]       Updated At : ${updatedAt.toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })}`);
   }
   if (updatedBy) {
-    console.log(`[${timestamp}] Updated By   : user_id=${updatedBy}`);
+    console.log(`[${timestamp}]       Updated By : user_id=${updatedBy}`);
   }
 
   if (!botEnabled) {
     console.log(`\n${SEP}`);
-    console.log(`[${timestamp}] ⚠ มีการปิดการใช้งาน LINE Bot ในระบบ`);
-    console.log(`[${timestamp}]   → ระบบจะไม่ทำการ Query ข้อมูลอุปกรณ์`);
-    console.log(`[${timestamp}]   → ระบบจะไม่ส่งการแจ้งเตือนไปยัง LINE แม้ในโหมดทดสอบ`);
-    console.log(`[${timestamp}]   → หากต้องการเปิดใช้งาน กรุณาไปที่หน้า Web Admin`);
-    console.log(`[${timestamp}]   → เส้นทาง: ตรวจสอบสถานะอุปกรณ์ → ปุ่มตั้งค่า → เปิด LINE Bot`);
+    console.log(`[${timestamp}] ✗ LINE Bot ถูกปิดใช้งาน — หยุดทดสอบ`);
+    console.log(`[${timestamp}]   → ไม่ส่งแจ้งเตือนแม้ในโหมดทดสอบ`);
+    console.log(`[${timestamp}]   → เปิดใช้งานได้ที่: ตรวจสอบสถานะอุปกรณ์ → ปุ่มตั้งค่า → เปิด LINE Bot`);
     console.log(SEP);
     await PrismaTimesheet.$disconnect();
     await PrismaJabjaiMaster.$disconnect();
     process.exit(0);
   }
 
-  // ─── ดึง interval จาก DB สำหรับแสดงใน log (test mode ไม่ filter ตาม interval) ───
+  // ─── [2] ดึง Notify Config ของโรงเรียนทดสอบจาก DB ───
+  console.log(`\n[${timestamp}] [2/4] ดึงการตั้งค่าการแจ้งเตือนของโรงเรียน ${TEST_SCHOOL_ID} จาก DB...`);
   let intervalRound1 = 5;
   let intervalRound2 = 30;
+  let timeWindowsLabel = "ใช้ค่า default (06:00–08:00, 15:00–17:00)";
+
   try {
-    const intervals = await PrismaJabjaiMaster.deviceNotifyInterval.findMany({
-      orderBy: { round: "asc" },
-    });
-    intervalRound1 = intervals.find((v) => v.round === 1 && v.is_active)?.interval_minutes ?? 5;
-    intervalRound2 = intervals.find((v) => v.round === 2 && v.is_active)?.interval_minutes ?? 30;
-    console.log(`[${timestamp}] Interval    : รอบแรก ${intervalRound1} นาที, รอบถัดไป ${intervalRound2} นาที`);
-  } catch {
-    console.log(`[${timestamp}] Interval    : ดึงจาก DB ไม่ได้ — ใช้ค่า default (${intervalRound1}/${intervalRound2} นาที)`);
+    const [dbWindows, dbIntervals] = await Promise.all([
+      PrismaJabjaiMaster.deviceNotifyTimeWindow.findMany({
+        where: { school_id: TEST_SCHOOL_ID },
+        orderBy: { round: "asc" },
+      }),
+      PrismaJabjaiMaster.deviceNotifyInterval.findMany({
+        where: { school_id: TEST_SCHOOL_ID },
+        orderBy: { round: "asc" },
+      }),
+    ]);
+
+    if (dbWindows.length > 0) {
+      timeWindowsLabel = dbWindows
+        .map((w) =>
+          `รอบ${w.round}: ${String(w.start_hour).padStart(2, "0")}:${String(w.start_min).padStart(2, "0")}–` +
+          `${String(w.end_hour).padStart(2, "0")}:${String(w.end_min).padStart(2, "0")}` +
+          ` (${w.label})${w.is_active ? "" : " [ปิด]"}`,
+        )
+        .join(", ");
+    }
+    if (dbIntervals.length > 0) {
+      intervalRound1 = dbIntervals.find((v) => v.round === 1 && v.is_active)?.interval_minutes ?? 5;
+      intervalRound2 = dbIntervals.find((v) => v.round === 2 && v.is_active)?.interval_minutes ?? 30;
+    }
+
+    const source = dbWindows.length > 0 ? "จาก DB" : "ค่า default (ยังไม่มีข้อมูลใน DB)";
+    console.log(`[${timestamp}]       แหล่งข้อมูล  : ${source}`);
+    console.log(`[${timestamp}]       ช่วงเวลา     : ${timeWindowsLabel}`);
+    console.log(`[${timestamp}]       ช่วงห่าง     : รอบแรก ${intervalRound1} นาที, รอบถัดไป ${intervalRound2} นาที`);
+    console.log(`[${timestamp}]       หมายเหตุ     : TEST MODE ข้ามการตรวจสอบช่วงเวลา (ส่งทันที)`);
+  } catch (err) {
+    console.error(`[${timestamp}]       ⚠ ดึงจาก DB ไม่ได้ — ใช้ค่า default`, err);
   }
 
-  // ─── ส่งรายงานไปโรงเรียนทดสอบ (bypass time window, ส่ง interval เพื่อ test threshold logic) ───
+  // ─── [3] เรียก API ───
+  console.log(`\n[${timestamp}] [3/4] เรียก Cronjob API...`);
   try {
     const query = new URLSearchParams({
       interval_round1: String(intervalRound1),
       interval_round2: String(intervalRound2),
     });
     const url = `${APP_URL}/api/v2/hardware/school-device/cronjob/${TEST_SCHOOL_ID}?${query.toString()}`;
-    console.log(`[${timestamp}] Calling     : GET ${url}`);
+    console.log(`[${timestamp}]       URL          : GET ${url}`);
 
     const response = await fetch(url, {
       method: "GET",
@@ -95,38 +123,67 @@ async function main() {
     });
 
     const body = await response.json();
-    console.log(`\n${SEP}`);
-    console.log(`[${timestamp}] HTTP Status : ${response.status}`);
+
+    console.log(`[${timestamp}]       HTTP Status  : ${response.status}`);
 
     if (!response.ok) {
-      console.error(`[${timestamp}] FAILED — status ${response.status}`);
-      console.error(`[${timestamp}] Response   :`, JSON.stringify(body, null, 2));
+      console.error(`[${timestamp}] ✗ API ตอบกลับ error`);
+      console.error(`[${timestamp}]   Response:`, JSON.stringify(body, null, 2));
       await PrismaTimesheet.$disconnect();
+      await PrismaJabjaiMaster.$disconnect();
       process.exit(1);
     }
 
+    // ─── [4] แสดงผลลัพธ์ ───
     const data = body?.data;
-    console.log(`[${timestamp}] === SUMMARY ===`);
-    console.log(`[${timestamp}] School      : ${data?.school_name} (${data?.school_id})`);
-    console.log(`[${timestamp}] Total       : ${data?.total} เครื่อง`);
-    console.log(`[${timestamp}] Online      : ${data?.online}`);
-    console.log(`[${timestamp}] Offline     : ${data?.offline}`);
-    console.log(
-      `[${timestamp}] LINE        : ${data?.line?.success ? "SUCCESS" : "FAILED"} — group_id=${data?.line?.group_id}`,
-    );
-    if (data?.line?.error) {
-      console.error(`[${timestamp}] LINE Err    : ${data.line.error}`);
-    }
     const lineSkipped = data?.line?.skipped === true;
-    console.log(`[${timestamp}] LINE        : ${lineSkipped ? "SKIPPED (ไม่มีเครื่องถึงเกณฑ์)" : data?.line?.success ? "SUCCESS" : "FAILED"} — group_id=${data?.line?.group_id ?? "-"}`);
-    console.log(`[${timestamp}] SUCCESS`);
+    const lineSuccess = data?.line?.success === true;
+
+    console.log(`\n[${timestamp}] [4/4] ผลลัพธ์`);
+    console.log(`${SEP}`);
+    console.log(`[${timestamp}] โรงเรียน     : ${data?.school_name ?? "-"} (ID: ${data?.school_id ?? "-"})`);
+    console.log(`[${timestamp}] อุปกรณ์      : ทั้งหมด ${data?.total ?? 0} เครื่อง`);
+    console.log(`[${timestamp}]               ออนไลน์  ${data?.online ?? 0} เครื่อง`);
+    console.log(`[${timestamp}]               ออฟไลน์  ${data?.offline ?? 0} เครื่อง`);
+
+    if (lineSkipped) {
+      console.log(`[${timestamp}] LINE         : ⏭ SKIPPED — ไม่มีเครื่องออฟไลน์ถึงเกณฑ์การแจ้งเตือน`);
+      console.log(`[${timestamp}]               (ออฟไลน์ < ${intervalRound1} นาที หรือไม่ตรง cycle ${intervalRound2} นาที)`);
+    } else if (lineSuccess) {
+      console.log(`[${timestamp}] LINE         : ✓ SUCCESS — ส่งแจ้งเตือนสำเร็จ`);
+      console.log(`[${timestamp}]               group_id=${data?.line?.group_id ?? "-"}`);
+    } else {
+      console.log(`[${timestamp}] LINE         : ✗ FAILED — ส่งไม่สำเร็จ`);
+      console.log(`[${timestamp}]               group_id=${data?.line?.group_id ?? "-"}`);
+      if (data?.line?.error) {
+        console.error(`[${timestamp}]               error: ${data.line.error}`);
+      }
+    }
+
+    // แสดงรายการอุปกรณ์ที่ออฟไลน์
+    const allDevices = (data?.devices ?? []) as Array<{
+      device_id: string; app_name: string; online_time: string | null; notify_enabled: boolean; is_online: boolean;
+    }>;
+    const offlineDevices = allDevices.filter((d) => !d.is_online);
+    if (offlineDevices.length > 0) {
+      console.log(`\n[${timestamp}] รายการเครื่องออฟไลน์ (${offlineDevices.length} เครื่อง):`);
+      const now = Date.now();
+      for (const d of offlineDevices) {
+        const offlineMs = d.online_time ? now - new Date(d.online_time).getTime() : null;
+        const offlineMin = offlineMs !== null ? (offlineMs / 60_000).toFixed(1) : "?";
+        const notifyFlag = d.notify_enabled ? "แจ้งเตือน=เปิด" : "แจ้งเตือน=ปิด";
+        console.log(`[${timestamp}]   ${d.device_id.padEnd(25)} ${d.app_name.padEnd(20)} offline ${offlineMin} นาที  ${notifyFlag}`);
+      }
+    }
+
+    console.log(`\n[${timestamp}] ✓ TEST สำเร็จ`);
     console.log(SEP);
 
     await PrismaTimesheet.$disconnect();
     await PrismaJabjaiMaster.$disconnect();
     process.exit(0);
   } catch (error) {
-    console.error(`[${timestamp}] ERROR:`, error);
+    console.error(`[${timestamp}] ✗ ERROR:`, error);
     await PrismaTimesheet.$disconnect();
     await PrismaJabjaiMaster.$disconnect();
     process.exit(1);
