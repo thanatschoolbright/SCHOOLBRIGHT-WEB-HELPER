@@ -2,7 +2,6 @@
 
 import { LockOutlined, RocketOutlined } from "@ant-design/icons";
 import { Button, Flex, Form, Input, Modal, Space, Typography } from "antd";
-import axios from "axios";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -15,9 +14,10 @@ import { VersionFormModal } from "@/app/hardware/canteen/_components/version-for
 import { VersionHistoryModal } from "@/app/hardware/canteen/_components/version-history-modal";
 import { useCanteenStore } from "@/app/hardware/canteen/_state/use-canteen-store";
 import {
-  POST_CREATE_APPLICATION_VERSION,
-  POST_UPDATE_APPLICATION_VERSION,
-} from "@/app/hardware/canteen/canteen-api.helper";
+  createApplicationVersion,
+  getExportApplicationHistory,
+  updateApplicationVersion,
+} from "@/app/hardware/canteen/_api/canteen.service";
 import {
   buildSchoolOptions,
   validatePassword,
@@ -89,7 +89,7 @@ export default function CanteenAppManager() {
     fetchApplications,
     fetchSchools,
     fetchApplicationVersions,
-    deleteApplicationVersion,
+    deleteVersion,
   } = useCanteenStore();
 
   // --- Password Protection State ---
@@ -249,7 +249,7 @@ export default function CanteenAppManager() {
     if (!deleteTargetRecord) return;
     setStatusModal((prev) => ({ ...prev, loading: true }));
     try {
-      await deleteApplicationVersion(deleteTargetRecord.version_id);
+      await deleteVersion(deleteTargetRecord.version_id);
       setStatusModal((prev) => ({
         ...prev,
         open: true,
@@ -280,13 +280,8 @@ export default function CanteenAppManager() {
     const toastId = toast.loading("กำลังเตรียมข้อมูลส่งออก...");
     try {
       const { app_id: appId, app_name: appName } = selectedApplication;
-      const response = await axios.get(
-        `/api/v1/hardware/canteen/export?appId=${appId}&appName=${encodeURIComponent(
-          appName,
-        )}`,
-        { responseType: "blob", timeout: 10000 },
-      );
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const data = await getExportApplicationHistory(appId, appName);
+      const url = window.URL.createObjectURL(new Blob([data]));
       const link = document.createElement("a");
       link.href = url;
       link.setAttribute(
@@ -347,12 +342,12 @@ export default function CanteenAppManager() {
 
       let apiResponse;
       if (versionFormMode === "add") {
-        apiResponse = await POST_CREATE_APPLICATION_VERSION(submissionFormData);
+        apiResponse = await createApplicationVersion(submissionFormData);
       } else {
         const versionId = formValues.versionID;
         if (!versionId)
           throw new Error("ไม่พบรหัสเวอร์ชัน (Version ID) สำหรับการแก้ไข");
-        apiResponse = await POST_UPDATE_APPLICATION_VERSION(
+        apiResponse = await updateApplicationVersion(
           submissionFormData,
           versionId,
         );

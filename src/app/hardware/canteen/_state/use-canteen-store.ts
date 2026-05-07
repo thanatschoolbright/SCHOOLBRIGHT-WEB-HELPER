@@ -1,13 +1,13 @@
 "use client";
 
-import axios from "axios";
 import { create } from "zustand";
 
 import {
-  DELETE_APPLICATION_VERSION,
-  GET_APPLICATION_LIST,
-  GET_APPLICATION_VERSION_BY_APPID,
-} from "@/app/hardware/canteen/canteen-api.helper";
+  deleteApplicationVersion,
+  getApplicationList,
+  getApplicationVersionByAppID,
+} from "@/app/hardware/canteen/_api/canteen.service";
+import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 import type {
   ApplicationRecord,
   VersionDataset,
@@ -28,7 +28,7 @@ interface CanteenStore {
   fetchApplications: () => Promise<void>;
   fetchSchools: () => Promise<void>;
   fetchApplicationVersions: (appId: string | number) => Promise<void>;
-  deleteApplicationVersion: (versionId: string | number) => Promise<void>;
+  deleteVersion: (versionId: string | number) => Promise<void>;
 }
 
 // ✨ Zustand store สำหรับจัดการ state และ API ของหน้า Canteen App Manager
@@ -47,7 +47,7 @@ export const useCanteenStore = create<CanteenStore>((set, get) => ({
   fetchApplications: async () => {
     set({ isApplicationLoading: true });
     try {
-      const apiResponse = await GET_APPLICATION_LIST();
+      const apiResponse = await getApplicationList();
       set({ applicationList: apiResponse?.data?.data ?? [] });
     } finally {
       set({ isApplicationLoading: false });
@@ -57,7 +57,7 @@ export const useCanteenStore = create<CanteenStore>((set, get) => ({
   // ✨ โหลดรายชื่อโรงเรียนจาก API
   fetchSchools: async () => {
     try {
-      const response = await axios.get("/api/v1/school/get-detail", {
+      const response = await callApiService.get("/api/v1/school/get-detail", {
         timeout: 10000,
       });
       set({ schoolList: response.data?.data?.data ?? [] });
@@ -72,7 +72,7 @@ export const useCanteenStore = create<CanteenStore>((set, get) => ({
       versionDataset: { ...state.versionDataset, loading: true },
     }));
     try {
-      const apiResponse = await GET_APPLICATION_VERSION_BY_APPID(appId);
+      const apiResponse = await getApplicationVersionByAppID(appId);
       set({
         versionDataset: {
           data: apiResponse?.data?.data ?? [],
@@ -88,8 +88,8 @@ export const useCanteenStore = create<CanteenStore>((set, get) => ({
   },
 
   // ✨ ลบเวอร์ชันตาม version_id
-  deleteApplicationVersion: async (versionId) => {
-    const apiResponse = await DELETE_APPLICATION_VERSION(versionId);
+  deleteVersion: async (versionId) => {
+    const apiResponse = await deleteApplicationVersion(versionId);
     if (apiResponse?.data?.status === "failed") {
       throw new Error("ไม่สามารถลบข้อมูลได้");
     }
