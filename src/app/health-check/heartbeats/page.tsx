@@ -53,11 +53,6 @@ import {
 import type { ColumnsType, ColumnType } from "antd/es/table";
 import type { InputRef } from "antd";
 import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import "dayjs/locale/th";
-
-dayjs.extend(relativeTime);
-dayjs.locale("th");
 
 export type HeartbeatRecord = ResponseHeartbeats["data"]["data"][number];
 
@@ -402,7 +397,7 @@ export default function HeartbeatMonitoringPage() {
                 title={dayjs(lastUpdatedTime).format("DD/MM/YYYY HH:mm:ss")}
               >
                 <Typography.Text strong>
-                  {dayjs(lastUpdatedTime).fromNow()}
+                  {dayjs(lastUpdatedTime).locale("th").fromNow()}
                 </Typography.Text>
               </Tooltip>
               <Typography.Text type="secondary" style={{ fontSize: 11 }}>
@@ -587,7 +582,7 @@ export default function HeartbeatMonitoringPage() {
                             type="secondary"
                             style={{ fontSize: 11 }}
                           >
-                            {dayjs(item.LastUpdatedTime).fromNow()}
+                            {dayjs(item.LastUpdatedTime).locale("th").fromNow()}
                           </Typography.Text>
 
                           {isOnline ? (

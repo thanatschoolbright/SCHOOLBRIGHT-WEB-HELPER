@@ -6,15 +6,17 @@ import thTH from "antd/locale/th_TH";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 import buddhistEra from "dayjs/plugin/buddhistEra";
+import relativeTime from "dayjs/plugin/relativeTime";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import React, { useEffect, useMemo, useState } from "react";
 import { FontProvider, useFont } from "../providers/font-provider";
 
-// Initialize configuration
+// Initialize configuration — relativeTime ต้อง extend ที่นี่เพื่อให้ .fromNow() ทำงานได้ทุก component
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(buddhistEra);
+dayjs.extend(relativeTime);
 dayjs.locale("th");
 dayjs.tz.setDefault("Asia/Bangkok");
 

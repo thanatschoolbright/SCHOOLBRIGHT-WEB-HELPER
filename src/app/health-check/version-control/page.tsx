@@ -9,9 +9,6 @@ import { ResponseVersionControl } from "@/stores/type";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import buddhistEra from "dayjs/plugin/buddhistEra";
-import "dayjs/locale/th";
 
 // Ant Design V5
 import {
@@ -50,11 +47,6 @@ import {
   ClockCircleFilled,
   FireFilled,
 } from "@ant-design/icons";
-
-// Setup Dayjs
-dayjs.extend(relativeTime);
-dayjs.extend(buddhistEra);
-dayjs.locale("th");
 
 type SystemGroup = {
   systemName: string;
@@ -399,7 +391,7 @@ export default function VersionControlDashboard() {
                             className="text-[10px]"
                             style={{ color: token.colorTextDescription }}
                           >
-                            {dayjs(item.updated_at).fromNow(true)}
+                            {dayjs(item.updated_at).locale("th").fromNow(true)}
                           </span>
                         </div>
                         <div className="flex items-center gap-2 mt-1">
@@ -580,7 +572,7 @@ const SystemPipelineCard = ({
               color: token.colorTextSecondary,
             }}
           >
-            {dayjs(group.last_updated).fromNow()}
+            {dayjs(group.last_updated).locale("th").fromNow()}
           </Tag>
         </div>
       </div>

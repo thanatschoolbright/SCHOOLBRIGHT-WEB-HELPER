@@ -27,22 +27,12 @@ import {
   Typography,
 } from "antd";
 import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
-import "dayjs/locale/th";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { callApiService as axios } from "@services/axios-instance/sb-helper.axios";
 import { useUserProfileStore } from "../_stores/user-profile-store";
 import { SignatureModal } from "./signature-modal";
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.extend(relativeTime);
-dayjs.locale("th");
-dayjs.tz.setDefault("Asia/Bangkok");
 
 interface LoginLogItem {
   id: string;
@@ -316,7 +306,7 @@ const ActivityLogTab = () => {
               );
 
               const timeStr = dayjs(log.request_time).tz("Asia/Bangkok").format("DD/MM/YYYY HH:mm:ss");
-              const relStr = dayjs(log.request_time).fromNow();
+              const relStr = dayjs(log.request_time).locale("th").fromNow();
               const browser = parseBrowser(log.user_agent);
 
               return {

@@ -12,18 +12,8 @@ import {
   theme,
 } from "antd";
 import dayjs from "dayjs";
-import "dayjs/locale/th";
-import relativeTime from "dayjs/plugin/relativeTime";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
 import { useEffect } from "react";
 import { useCustomerStore } from "../_stores/use-customer-store";
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.extend(relativeTime);
-dayjs.locale("th");
-dayjs.tz.setDefault("Asia/Bangkok");
 
 const ACTION_LABEL: Record<
   string,
@@ -130,7 +120,7 @@ export default function ActivityLogTab() {
               const timeStr = dayjs(log.request_time)
                 .tz("Asia/Bangkok")
                 .format("DD/MM/YYYY HH:mm:ss");
-              const relStr = dayjs(log.request_time).fromNow();
+              const relStr = dayjs(log.request_time).locale("th").fromNow();
               const body = log.request_body ?? {};
 
               return {

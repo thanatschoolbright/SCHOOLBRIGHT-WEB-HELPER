@@ -5,17 +5,7 @@ import { Button, Card, Flex, Tag, Tooltip, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import Table from "antd/es/table";
 import dayjs from "dayjs";
-import "dayjs/locale/th";
-import relativeTime from "dayjs/plugin/relativeTime";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
 import { LockedCustomer, useCustomerStore } from "../_stores/use-customer-store";
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.extend(relativeTime);
-dayjs.locale("th");
-dayjs.tz.setDefault("Asia/Bangkok");
 
 // ตารางแสดงรายชื่อลูกค้าที่ถูกล็อกบัญชี
 export default function CustomerTable() {
@@ -104,7 +94,7 @@ export default function CustomerTable() {
         return (
           <Tooltip title={lockTime.format("DD/MM/YYYY HH:mm:ss")}>
             <Tag color={isExpired ? "default" : "error"}>
-              {isExpired ? "หมดอายุแล้ว" : lockTime.fromNow()}
+              {isExpired ? "หมดอายุแล้ว" : lockTime.locale("th").fromNow()}
             </Tag>
           </Tooltip>
         );
