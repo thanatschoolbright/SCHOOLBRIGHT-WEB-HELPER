@@ -76,6 +76,14 @@ export async function findAllCompanies() {
   });
 }
 
+// ดึงชื่อโรงเรียนตาม company ID
+export async function findCompanyById(companyId: number) {
+  return PrismaJabjaiMaster.tCompany.findUnique({
+    where: { nCompany: companyId },
+    select: { nCompany: true, sCompany: true },
+  });
+}
+
 // ดึงข้อมูล user ตาม ID
 export async function findCustomerById(userId: number) {
   return PrismaJabjaiMaster.tUser.findUnique({

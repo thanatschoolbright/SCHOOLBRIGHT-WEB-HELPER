@@ -1,6 +1,7 @@
 import { AppError } from "@/helpers/api/app-error";
 import {
   findAllLockedUserIds,
+  findCompanyById,
   findCustomerById,
   findLockedCustomers,
   unlockCustomerById,
@@ -38,7 +39,10 @@ export async function unlockCustomer(
     throw new AppError(400, "บัญชีนี้ไม่ได้ถูกล็อกอยู่");
   }
 
-  const updated = await unlockCustomerById(dto.user_id);
+  const [updated, company] = await Promise.all([
+    unlockCustomerById(dto.user_id),
+    user.nCompany ? findCompanyById(user.nCompany) : Promise.resolve(null),
+  ]);
 
   writeActivityLog({
     endpoint: "CUSTOMER_UNLOCK_ONE",
@@ -47,6 +51,7 @@ export async function unlockCustomer(
       user_id: dto.user_id,
       username: user.username,
       school_id: user.nCompany,
+      school_name: company?.sCompany ?? null,
       operator_name: operatorMeta.name,
       operator_employee_code: operatorMeta.employee_code,
     },
@@ -64,7 +69,10 @@ export async function unlockAllCustomers(
   operatorMeta: { name: string; employee_code?: string },
   onProgress: (unlocked: number, total: number) => void,
 ) {
-  const users = await findAllLockedUserIds(dto.company_id);
+  const [users, company] = await Promise.all([
+    findAllLockedUserIds(dto.company_id),
+    dto.company_id ? findCompanyById(dto.company_id) : Promise.resolve(null),
+  ]);
   const total = users.length;
 
   if (total === 0) return { unlocked: 0, total: 0 };
@@ -84,6 +92,7 @@ export async function unlockAllCustomers(
     calledBy,
     requestBody: {
       company_id: dto.company_id ?? null,
+      school_name: company?.sCompany ?? null,
       total_unlocked: unlocked,
       operator_name: operatorMeta.name,
       operator_employee_code: operatorMeta.employee_code,

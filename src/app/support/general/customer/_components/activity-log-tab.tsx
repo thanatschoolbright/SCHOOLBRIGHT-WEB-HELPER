@@ -240,13 +240,17 @@ export default function ActivityLogTab() {
                                       type="secondary"
                                       style={{ fontSize: 11, marginBottom: -2 }}
                                     >
-                                      โรงเรียน ID
+                                      โรงเรียน
                                     </Typography.Text>
                                     <Typography.Text
                                       strong
                                       style={{ fontSize: 13 }}
                                     >
-                                      {body.school_id ?? "-"}
+                                      {body.school_id
+                                        ? body.school_name
+                                          ? `${body.school_name} (${body.school_id})`
+                                          : String(body.school_id)
+                                        : "-"}
                                     </Typography.Text>
                                   </Flex>
                                 </>
@@ -280,13 +284,15 @@ export default function ActivityLogTab() {
                                           marginBottom: -2,
                                         }}
                                       >
-                                        โรงเรียน ID
+                                        โรงเรียน
                                       </Typography.Text>
                                       <Typography.Text
                                         strong
                                         style={{ fontSize: 13 }}
                                       >
-                                        {body.company_id}
+                                        {body.school_name
+                                          ? `${body.school_name} (${body.company_id})`
+                                          : String(body.company_id)}
                                       </Typography.Text>
                                     </Flex>
                                   )}
