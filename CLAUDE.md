@@ -95,9 +95,9 @@ API routes are versioned under `src/app/api/`:
 
 URL pattern: `/api/{version}/{domain}/{resource}/{action}`
 
-Within each feature, files are organized by operation. Two patterns coexist — use the 3-tier pattern for new work:
+Within each feature, files are organized by operation. Two patterns exist in the codebase — use the **flat pattern** for new work:
 
-**Legacy pattern** (older routes):
+**Legacy pattern** (older routes — do not use for new work):
 ```
 {feature}/create/route.ts
 {feature}/read/route.ts
@@ -106,26 +106,96 @@ Within each feature, files are organized by operation. Two patterns coexist — 
 {feature}/docs/{operation}-spec.md
 ```
 
-**3-tier pattern** (new routes — underscore prefix keeps folders out of Next.js router):
+**Flat pattern** (new routes — all files in the same feature folder, dot-separated names):
 ```
-{feature}/{action}/route.ts                         # Controller: auth check, validate, call service, return response
-{feature}/_service/{feature}-service.ts             # Business logic only — throws Error on rule violations
-{feature}/_repository/{feature}-repository.ts       # Prisma queries only — receives tx when inside a transaction
-{feature}/_validation/{feature}-schema.ts           # Zod schema + exported DTO type (z.infer)
-{feature}/_docs/{operation}-spec.md                 # Required for create/update routes
+{feature}/{action}/route.ts            # Controller: auth check, validate, call service, return response
+{feature}/{feature}.service.ts         # Business logic only — throws Error on rule violations
+{feature}/{feature}.repository.ts      # Prisma queries only — receives tx when inside a transaction
+{feature}/{feature}.schema.ts          # Zod schema + exported DTO type (z.infer)
+{feature}/_docs/{operation}-spec.md    # Required for create/update routes (_docs still uses underscore prefix)
 ```
 
-Flow: `route.ts → _service → _repository → Database`
+Flow: `route.ts → .service → .repository → Database`
 
-All files and folders use **kebab-case**. API payload fields (request/response) use **snake_case**. Variables and functions use **camelCase**.
+Example (`device-notify-setting/`):
+```
+device-notify-setting/
+├── toggle/route.ts
+├── device-notify.service.ts
+├── device-notify.repository.ts
+├── device-notify.schema.ts
+└── _docs/toggle-spec.md
+```
 
-**Authentication in API routes**: Use `await auth()` from `@/auth` to verify session. Check `session.user` for `id`, `admin_id`, `role_id`, `role_name`, and `permissions[]`.
+All files and folders use **kebab-case**. File names within a feature use dot separator: `{feature}.service.ts`, `{feature}.repository.ts`, `{feature}.schema.ts`. API payload fields (request/response) use **snake_case**. Variables and functions use **camelCase**.
+
+**Docs workflow (mandatory):**
+- **Before working on any feature** — read `_docs/` in that feature folder first if it exists. Avoids reading all source files, saves tokens.
+- **After completing any create/update** — create or update `_docs/{operation}-spec.md` to reflect current state so the next session can rely on Docs instead of reading code.
+
+**HTTP status codes (mandatory):** Every `NextResponse.json()` must pass the HTTP status as the second argument — without it the client always sees `200 OK`:
+```ts
+return NextResponse.json(errorResponse({ status: 401, ... }), { status: 401 });
+return NextResponse.json(successResponse({ data, ... }), { status: 200 });
+```
+
+**Authentication & permission check:**
+```ts
+const session = await auth();
+if (!session?.user) return NextResponse.json(errorResponse({ status: 401, ... }), { status: 401 });
+
+// When route requires a specific permission:
+const permissions: string[] = (session.user as any).permissions ?? [];
+const isAdmin = (session.user as any).admin_id === 117;
+if (!isAdmin && !permissions.includes(PERMISSIONS.SOME_CODE)) {
+  return NextResponse.json(errorResponse({ status: 403, message_th: "ไม่มีสิทธิ์เข้าถึง", message_en: "Forbidden" }), { status: 403 });
+}
+```
+Use named constants from `src/constants/permission.constant.ts` — never hardcode permission strings.
+
+**AppError — separating business errors from system errors:**  
+Service layer throws `AppError` (with `statusCode`) for rule violations, plain `Error` for unexpected failures. Controller catches both:
+```ts
+// In service:
+import { AppError } from "@/helpers/api/app-error";
+if (!device) throw new AppError(404, "ไม่พบอุปกรณ์ที่ระบุ");
+
+// In controller catch block (manual):
+if (err instanceof AppError) {
+  return NextResponse.json(errorResponse({ status: err.statusCode, message_th: err.message, message_en: err.message }), { status: err.statusCode });
+}
+logger.error("[FEATURE_ACTION_ERROR]", err);
+return NextResponse.json(errorResponse({ status: 500, ... }), { status: 500 });
+
+// Or use the centralized helper (simpler):
+import { handleError } from "@/helpers/controller/handle-error.params";
+catch (err) { return handleError(err, "[FEATURE_ACTION_ERROR]"); }
+```
+
+**Logging:** Use `logger` from `@/helpers/logger.server.ts` — never `console.error` in route handlers (`console.*` is stripped in production). `console.*` is allowed only in cronjob scripts.
+
+**GET query params validation:** Parse `searchParams` through Zod — never manually:
+```ts
+const rawParams = Object.fromEntries(request.nextUrl.searchParams.entries());
+const parsed = QuerySchema.safeParse(rawParams);
+if (!parsed.success) return NextResponse.json(errorResponse({ status: 400, ... }), { status: 400 });
+```
+Use `z.coerce.number()` for numeric query params (they arrive as strings).
+
+**Pagination:** List routes must use `buildPagination` from `@/helpers/controller/build-pagination.params.ts`:
+```ts
+const [items, total] = await Promise.all([
+  prisma.model.findMany({ skip: offset, take: limit, where }),
+  prisma.model.count({ where }),
+]);
+return NextResponse.json(successResponse({ data: items, pagination: buildPagination(offset, limit, total) }), { status: 200 });
+```
+Response: `{ data: T[], pagination: { page, page_size, total, total_pages } }`
 
 **Standard response format**:
 ```json
 { "status": 200, "message_th": "...", "message_en": "...", "data": {} }
 ```
-
 Response helpers: `successResponse` / `errorResponse` from `src/helpers/api/response.ts`.
 
 ### API helper utilities (`src/helpers/controller/`)
@@ -134,13 +204,13 @@ Use these in route handlers instead of writing custom logic:
 
 | File | Function | Purpose |
 |---|---|---|
-| `handle-error.params.ts` | `handleError(err, context?)` | Catches unknown errors → returns `NextResponse` with correct status code + Thai message |
 | `build-pagination.params.ts` | `buildPagination(offset, limit, total)` | Returns `{ page, page_size, total, total_pages }` |
 | `validate.params.ts` | `validateParams(schema, body)` | Zod parse + throws `{ status: 400, validationErrors }` on failure |
 | `safe-parse.params.ts` | `safeParseRequestBody(request)` | `request.json()` with empty-object fallback |
 | `format-date.params.ts` | `formatDate(date)` | Any date → ISO string or `null` |
+| `handle-error.params.ts` | `handleError(err, contextMessage?)` | Centralized catch block — maps `AppError` status codes, returns `NextResponse` |
 
-Input validation uses Zod via `src/helpers/api/validate.request.ts`. Use `validateRequest(request, schema)` in route handlers — it parses the body and returns `{ error: NextResponse }` on failure or `{ data: T }` on success. The `validate.params.ts` / `safe-parse.params.ts` helpers in `helpers/controller/` are lower-level utilities; prefer `validateRequest` at the route layer.
+Input validation uses Zod via `src/helpers/api/validate.request.ts`. Use `validateRequest(request, schema)` in route handlers — it parses the body and returns `{ error: NextResponse }` on failure or `{ data: T }` on success.
 
 ### State management
 
@@ -302,6 +372,18 @@ Business logic lives in `src/services/line/line-push.service.ts`. The legacy `sr
 - Never delete or overwrite existing functions — only extend or add alongside them.
 - Write a Thai-language comment above every function describing its purpose (no emojis in comments).
 - Every Create/Update API route requires a `docs/{operation}-spec.md` documenting purpose, request/response schema, and key business logic notes.
+
+### Cronjob scripts
+
+Standalone Bun scripts in `cronjobs/scripts/` that run against the main Prisma DB. They are deployed as Kubernetes CronJobs on Huawei Cloud (configs in `cronjobs/*.yaml`).
+
+Run a script manually:
+```bash
+bun run cronjobs/scripts/device/device-auto-set-name.ts
+DRY_RUN=true bun run cronjobs/scripts/device/device-auto-set-name.ts  # dry-run mode
+```
+
+Scripts import `prisma` directly from `@/helpers/prisma` (main DB only). They are not Next.js routes — no `NextRequest`, no `auth()`. Each script prints a formatted table to stdout for logging visibility in the pod.
 
 ### Commit message format
 

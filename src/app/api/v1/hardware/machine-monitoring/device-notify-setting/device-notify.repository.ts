@@ -1,5 +1,5 @@
 import prisma from "@/helpers/prisma";
-import type { ToggleDeviceNotifyDTO } from "../_validation/device-notify-schema";
+import type { ToggleDeviceNotifyDTO } from "./device-notify.schema";
 
 // อัพเดท NotifyEnabled ใน DeviceDailyStatus (Main DB) ด้วย school_id + device_id
 async function upsertNotifySetting(dto: ToggleDeviceNotifyDTO, _updatedBy: number | null) {

@@ -2,8 +2,8 @@ import { auth } from "@/auth";
 import { errorResponse, successResponse } from "@/helpers/api/response";
 import { validateRequest } from "@/helpers/api/validate.request";
 import { NextRequest, NextResponse } from "next/server";
-import { deviceNotifyService } from "../_service/device-notify-service";
-import { ToggleDeviceNotifySchema } from "../_validation/device-notify-schema";
+import { deviceNotifyService } from "../device-notify.service";
+import { ToggleDeviceNotifySchema } from "../device-notify.schema";
 
 // เปิด/ปิดการแจ้งเตือนของอุปกรณ์รายเครื่อง
 export async function POST(request: NextRequest): Promise<NextResponse> {
