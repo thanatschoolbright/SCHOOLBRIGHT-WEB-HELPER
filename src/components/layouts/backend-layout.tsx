@@ -21,7 +21,7 @@ import SidebarContent from "@components/layouts/backend/sidebar-component";
  * Constants for Layout configuration
  */
 const SIDEBAR_COLLAPSED_KEY = "sb_sidebar_collapsed";
-const DESKTOP_SIDEBAR_WIDTH = 280;
+const DESKTOP_SIDEBAR_WIDTH = 320;
 const COLLAPSED_SIDEBAR_WIDTH = 88;
 const HEADER_HEIGHT = 80;
 
