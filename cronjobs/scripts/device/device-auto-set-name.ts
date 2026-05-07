@@ -19,10 +19,10 @@ const SEP = "─".repeat(110);
 
 // ✨ mapping AppName (lowercase) → ชื่อ prefix สำหรับตั้งชื่อ
 const APP_NAME_MAP: { match: string; prefix: string }[] = [
-  { match: ".sb canteen",                      prefix: "เครื่องแคนทีน เครื่องที่" },
-  { match: ".sb mini app",                     prefix: "เครื่องมินิแอป เครื่องที่" },
-  { match: "sb facial attendance 5 inches",    prefix: "เครื่องแสกนหน้า (v.2)" },
-  { match: "sb facial attendance 8 inch",      prefix: "เครื่องแสกนหน้า (v.1)" },
+  { match: ".sb canteen", prefix: "เครื่องแคนทีน เครื่องที่" },
+  { match: ".sb mini app", prefix: "เครื่องมินิแอป เครื่องที่" },
+  { match: "sb facial attendance 5 inches", prefix: "เครื่องแสกนหน้า (v.2)" },
+  { match: "sb facial attendance 8 inch", prefix: "เครื่องแสกนหน้า (v.1)" },
 ];
 
 // ✨ หา prefix ที่ตรงกับ AppName — คืน null ถ้าไม่มีในรายการ
@@ -47,7 +47,11 @@ async function main() {
   console.log(`\n${SEP}`);
   console.log(` Device Auto Set Name — ตั้งชื่อเล่นอุปกรณ์อัตโนมัติ`);
   console.log(` เวลาที่รัน : ${timestamp}`);
-  console.log(` โหมด       : ${DRY_RUN ? "DRY RUN (ไม่บันทึกจริง)" : "LIVE (บันทึกจริง)"}`);
+  console.log(
+    ` โหมด       : ${
+      DRY_RUN ? "DRY RUN (ไม่บันทึกจริง)" : "LIVE (บันทึกจริง)"
+    }`,
+  );
   console.log(SEP);
 
   // ─── ดึงเครื่องทั้งหมดที่ Note เป็น null ───
@@ -72,8 +76,12 @@ async function main() {
   const targets = unnamed.filter((d) => resolvePrefix(d.AppName) !== null);
   const skipped = unnamed.length - targets.length;
 
-  console.log(`\n พบเครื่องที่ Note เป็น null ทั้งหมด  : ${unnamed.length} เครื่อง`);
-  console.log(` ตรงกับ mapping และจะตั้งชื่อ         : ${targets.length} เครื่อง`);
+  console.log(
+    `\n พบเครื่องที่ Note เป็น null ทั้งหมด  : ${unnamed.length} เครื่อง`,
+  );
+  console.log(
+    ` ตรงกับ mapping และจะตั้งชื่อ         : ${targets.length} เครื่อง`,
+  );
   console.log(` ไม่มีใน mapping (ข้าม)               : ${skipped} เครื่อง\n`);
 
   if (targets.length === 0) {
@@ -104,7 +112,13 @@ async function main() {
   // counter แยกต่อ (schoolId, prefix) เพื่อนับเลขต่อเนื่องภายในกลุ่มเดียวกัน
   const counterMap = new Map<string, number>();
 
-  const assignments: { id: string; schoolId: number; deviceId: string; appName: string; newNote: string }[] = [];
+  const assignments: {
+    id: string;
+    schoolId: number;
+    deviceId: string;
+    appName: string;
+    newNote: string;
+  }[] = [];
 
   for (const device of targets) {
     const prefix = resolvePrefix(device.AppName)!;
@@ -137,13 +151,19 @@ async function main() {
   // ─── แสดงตารางรายการที่จะตั้งชื่อ ───
   console.log(SEP);
   console.log(
-    ` ${"#".padEnd(5)} ${pad("SchoolID", 10)} ${pad("DeviceID", 22)} ${pad("AppName", 30)} ${"ชื่อที่จะตั้ง"}`,
+    ` ${"#".padEnd(5)} ${pad("SchoolID", 10)} ${pad("DeviceID", 22)} ${pad(
+      "AppName",
+      30,
+    )} ${"ชื่อที่จะตั้ง"}`,
   );
   console.log(SEP);
 
   assignments.forEach((a, i) => {
     console.log(
-      ` ${String(i + 1).padEnd(5)} ${pad(String(a.schoolId), 10)} ${pad(a.deviceId, 22)} ${pad(a.appName, 30)} ${a.newNote}`,
+      ` ${String(i + 1).padEnd(5)} ${pad(String(a.schoolId), 10)} ${pad(
+        a.deviceId,
+        22,
+      )} ${pad(a.appName, 30)} ${a.newNote}`,
     );
   });
 
@@ -164,7 +184,9 @@ async function main() {
   }
 
   if (DRY_RUN) {
-    console.log(`\n [DRY RUN] — จะตั้งชื่อ ${assignments.length} รายการ แต่ยังไม่บันทึกจริง`);
+    console.log(
+      `\n [DRY RUN] — จะตั้งชื่อ ${assignments.length} รายการ แต่ยังไม่บันทึกจริง`,
+    );
     console.log(` รัน script โดยไม่ใส่ DRY_RUN=true เพื่อบันทึกจริง\n`);
     await prisma.$disconnect();
     process.exit(0);
@@ -184,7 +206,9 @@ async function main() {
       });
       successCount++;
     } catch (err) {
-      console.error(` ✗ ล้มเหลว — DeviceStatusID=${a.id} DeviceID=${a.deviceId}: ${err}`);
+      console.error(
+        ` ✗ ล้มเหลว — DeviceStatusID=${a.id} DeviceID=${a.deviceId}: ${err}`,
+      );
       failCount++;
     }
   }
