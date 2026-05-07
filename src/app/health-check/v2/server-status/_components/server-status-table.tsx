@@ -60,11 +60,10 @@ const MethodBadge: React.FC<{ method: string }> = ({ method }) => {
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        fontSize: 11,
-        fontWeight: 700,
-        letterSpacing: "0.08em",
-        padding: "3px 10px",
-        borderRadius: 6,
+        fontSize: 10,
+        fontWeight: 800,
+        padding: "2px 8px",
+        borderRadius: 4,
         background: isPost ? token.colorErrorBg : token.colorSuccessBg,
         color: isPost ? token.colorError : token.colorSuccess,
         border: `1px solid ${
@@ -72,6 +71,8 @@ const MethodBadge: React.FC<{ method: string }> = ({ method }) => {
         }`,
         whiteSpace: "nowrap",
         fontFamily: "monospace",
+        textTransform: "uppercase",
+        boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
       }}
     >
       {method}
@@ -265,9 +266,9 @@ const ServerStatusTable: React.FC = () => {
         const method = record.request?.method || "GET";
         const endpointUrl = record.request?.url ?? record.service;
         return (
-          <Flex vertical gap={8}>
+          <Flex align="center" gap={12}>
             <MethodBadge method={method} />
-            <Flex align="center" gap={8}>
+            <Flex align="center" gap={8} className="flex-1 min-w-0">
               <Tooltip title={endpointUrl}>
                 <Text
                   style={{
@@ -275,7 +276,7 @@ const ServerStatusTable: React.FC = () => {
                     fontFamily: "monospace",
                     color: token.colorPrimary,
                     cursor: "pointer",
-                    maxWidth: 380,
+                    maxWidth: 450,
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
@@ -298,8 +299,7 @@ const ServerStatusTable: React.FC = () => {
                   style={{
                     padding: "0 4px",
                     height: 24,
-                    color: token.colorTextTertiary,
-                    flexShrink: 0,
+                    color: token.colorTextQuaternary,
                   }}
                   onClick={() => {
                     navigator.clipboard.writeText(endpointUrl);
