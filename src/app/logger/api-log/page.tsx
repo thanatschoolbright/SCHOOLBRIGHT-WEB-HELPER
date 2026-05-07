@@ -1,11 +1,25 @@
 "use client";
 
-import { useEffect } from "react";
-import { Card, Button, Space, Typography, Breadcrumb } from "antd";
-import { PlusOutlined, ReloadOutlined, HomeOutlined } from "@ant-design/icons";
+import { useEffect, useState } from "react";
+import {
+  Button,
+  Card,
+  Flex,
+  Modal,
+  Progress,
+  Space,
+  Typography,
+} from "antd";
+import {
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+  PlusOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 import { useAppSelector } from "@/stores/store";
+import { useHasPermission } from "@/hooks/use-has-permission";
 import {
   setLoading,
   setLogs,
@@ -20,10 +34,12 @@ import {
   removeLog,
 } from "@/stores/api-log.reducer";
 import {
+  DELETE_PURGE_LOGS,
   GET_API_LOGS,
   POST_CREATE_API_LOG,
   DELETE_API_LOG,
   PATCH_ARCHIVE_STATUS,
+  PurgeMode,
 } from "@/helpers/api-log.helper";
 import {
   ApiLogFormData,
@@ -35,12 +51,40 @@ import ApiLogTable from "@/components/api-log/api-log-table";
 import ApiLogModal from "@/components/api-log/api-log-modal";
 import DashboardLayout from "@/components/layouts/backend-layout";
 
-const { Title } = Typography;
+const { Text: AntText } = Typography;
+
+const PURGE_LABELS: Record<PurgeMode, string> = {
+  "30d": "ลบ Log เกิน 30 วัน",
+  "90d": "ลบ Log เกิน 90 วัน",
+  all: "ลบ Log ทั้งหมด",
+};
+
+const PURGE_DESCRIPTIONS: Record<PurgeMode, string> = {
+  "30d": "ระบบจะลบ API Log ทุกรายการที่บันทึกมาเกิน 30 วัน การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+  "90d": "ระบบจะลบ API Log ทุกรายการที่บันทึกมาเกิน 90 วัน การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+  all: "ระบบจะลบ API Log ทั้งหมดในฐานข้อมูล การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+};
 
 //** หน้าจัดการ API Logs */
 export default function ApiLogPage() {
   const dispatch = useDispatch();
   const apiLogState = useAppSelector((state) => state.apiLog);
+  const { isAdmin } = useHasPermission();
+
+  // สถานะ Confirm Modal (ก่อนลบ)
+  const [confirmModal, setConfirmModal] = useState<{ open: boolean; mode: PurgeMode | null }>({
+    open: false,
+    mode: null,
+  });
+
+  // สถานะ Progress Modal (ระหว่างลบ)
+  const [progressModal, setProgressModal] = useState<{
+    open: boolean;
+    percent: number;
+    deleted: number;
+    total: number;
+    isDone: boolean;
+  }>({ open: false, percent: 0, deleted: 0, total: 0, isDone: false });
 
   //** โหลดข้อมูลเมื่อเริ่มต้น */
   useEffect(() => {
@@ -236,41 +280,101 @@ export default function ApiLogPage() {
     dispatch(setModalVisible(false));
   };
 
+  // ✨ เปิด Confirm Modal ก่อนลบ Bulk
+  const handlePurge = (mode: PurgeMode) => {
+    if (!isAdmin) {
+      toast.error("เฉพาะ Admin เท่านั้นที่สามารถลบ Log ได้");
+      return;
+    }
+    setConfirmModal({ open: true, mode });
+  };
+
+  // ✨ ยืนยันการลบ — เปิด Progress Modal แล้วเริ่ม SSE stream
+  const handleConfirmPurge = async () => {
+    const mode = confirmModal.mode;
+    if (!mode) return;
+    setConfirmModal({ open: false, mode: null });
+    setProgressModal({ open: true, percent: 0, deleted: 0, total: 0, isDone: false });
+
+    try {
+      await DELETE_PURGE_LOGS(mode, (event) => {
+        if (event.type === "start") {
+          setProgressModal((prev) => ({ ...prev, total: event.total ?? 0, percent: 0 }));
+        } else if (event.type === "progress") {
+          setProgressModal((prev) => ({
+            ...prev,
+            deleted: event.deleted ?? prev.deleted,
+            total: event.total ?? prev.total,
+            percent: event.percent ?? prev.percent,
+          }));
+        } else if (event.type === "done") {
+          setProgressModal((prev) => ({
+            ...prev,
+            deleted: event.deleted ?? prev.deleted,
+            percent: 100,
+            isDone: true,
+          }));
+          toast.success(`ลบ API Log สำเร็จ ${event.deleted?.toLocaleString() ?? 0} รายการ`);
+          void handleLoadData();
+        }
+      });
+    } catch (err: any) {
+      setProgressModal((prev) => ({ ...prev, isDone: true }));
+      toast.error(err?.message ?? "เกิดข้อผิดพลาดในการลบ Log");
+    }
+  };
+
   return (
     <DashboardLayout>
       <div style={{ padding: "24px" }}>
         {/* Header */}
-        <div
-          style={{
-            marginBottom: "24px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Title level={2} style={{ margin: 0 }}>
-            API Log Management
-          </Title>
-          <Space>
+        <Flex justify="space-between" align="center" style={{ marginBottom: 24 }}>
+          <AntText strong style={{ fontSize: 22 }}>
+            จัดการ API Log
+          </AntText>
+          <Space wrap>
+            {/* ปุ่มลบ Bulk — แสดงเฉพาะ Admin */}
+            {isAdmin && (
+              <>
+                <Button
+                  danger
+                  icon={<DeleteOutlined />}
+                  onClick={() => handlePurge("30d")}
+                >
+                  ลบ Log เกิน 30 วัน
+                </Button>
+                <Button
+                  danger
+                  icon={<DeleteOutlined />}
+                  onClick={() => handlePurge("90d")}
+                >
+                  ลบ Log เกิน 90 วัน
+                </Button>
+                <Button
+                  danger
+                  type="primary"
+                  icon={<DeleteOutlined />}
+                  onClick={() => handlePurge("all")}
+                >
+                  ลบ Log ทั้งหมด
+                </Button>
+              </>
+            )}
             <Button
               icon={<ReloadOutlined />}
               onClick={() => handleLoadData()}
               loading={apiLogState.loading}
             >
-              Refresh
+              รีเฟรช
             </Button>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={handleCreate}
-            >
-              Create Log
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+              สร้าง Log
             </Button>
           </Space>
-        </div>
+        </Flex>
 
         {/* Filter Card */}
-        <Card title="Filters" style={{ marginBottom: "24px" }} size="small">
+        <Card title="ตัวกรอง" style={{ marginBottom: 24 }} size="small">
           <ApiLogFilter
             loading={apiLogState.loading}
             filters={apiLogState.filters}
@@ -294,7 +398,7 @@ export default function ApiLogPage() {
           />
         </Card>
 
-        {/* Modal */}
+        {/* Modal สร้าง/แก้ไข Log */}
         <ApiLogModal
           visible={apiLogState.modalVisible}
           mode={apiLogState.modalMode}
@@ -303,6 +407,91 @@ export default function ApiLogPage() {
           onCancel={handleModalCancel}
           onSubmit={handleModalSubmit}
         />
+
+        {/* Confirm Modal ก่อนลบ Bulk */}
+        <Modal
+          open={confirmModal.open}
+          title={
+            <Flex align="center" gap={8}>
+              <ExclamationCircleOutlined style={{ color: "#dc2626", fontSize: 18 }} />
+              <AntText strong style={{ fontSize: 16 }}>
+                {confirmModal.mode ? PURGE_LABELS[confirmModal.mode] : ""}
+              </AntText>
+            </Flex>
+          }
+          onCancel={() => setConfirmModal({ open: false, mode: null })}
+          footer={
+            <Flex justify="end" gap={8}>
+              <Button onClick={() => setConfirmModal({ open: false, mode: null })}>
+                ยกเลิก
+              </Button>
+              <Button
+                danger
+                type="primary"
+                icon={<DeleteOutlined />}
+                onClick={handleConfirmPurge}
+              >
+                ยืนยันการลบ
+              </Button>
+            </Flex>
+          }
+          width={460}
+        >
+          <Flex vertical gap={12} style={{ padding: "8px 0" }}>
+            <AntText style={{ fontSize: 14 }}>
+              {confirmModal.mode ? PURGE_DESCRIPTIONS[confirmModal.mode] : ""}
+            </AntText>
+            <AntText type="danger" style={{ fontSize: 13 }}>
+              ⚠ การดำเนินการนี้ไม่สามารถย้อนกลับได้
+            </AntText>
+          </Flex>
+        </Modal>
+
+        {/* Progress Modal ระหว่างลบ */}
+        <Modal
+          open={progressModal.open}
+          title={
+            <Flex align="center" gap={8}>
+              <DeleteOutlined style={{ color: progressModal.isDone ? "#16a34a" : "#dc2626", fontSize: 16 }} />
+              <AntText strong style={{ fontSize: 15 }}>
+                {progressModal.isDone ? "ลบ Log สำเร็จ" : "กำลังลบ API Log..."}
+              </AntText>
+            </Flex>
+          }
+          closable={progressModal.isDone}
+          maskClosable={false}
+          onCancel={() => setProgressModal((prev) => ({ ...prev, open: false }))}
+          footer={
+            progressModal.isDone ? (
+              <Flex justify="end">
+                <Button
+                  type="primary"
+                  onClick={() => setProgressModal((prev) => ({ ...prev, open: false }))}
+                >
+                  ปิด
+                </Button>
+              </Flex>
+            ) : null
+          }
+          width={440}
+        >
+          <Flex vertical gap={16} style={{ padding: "12px 0" }}>
+            <Progress
+              percent={progressModal.percent}
+              status={progressModal.isDone ? "success" : "active"}
+              strokeColor={progressModal.isDone ? "#16a34a" : { from: "#6366f1", to: "#2563eb" }}
+              format={(pct) => `${pct}%`}
+            />
+            <Flex justify="space-between">
+              <AntText type="secondary" style={{ fontSize: 13 }}>
+                {progressModal.isDone ? "ลบเสร็จสิ้น" : "กำลังดำเนินการ..."}
+              </AntText>
+              <AntText style={{ fontSize: 13 }}>
+                {progressModal.deleted.toLocaleString()} / {progressModal.total.toLocaleString()} รายการ
+              </AntText>
+            </Flex>
+          </Flex>
+        </Modal>
       </div>
     </DashboardLayout>
   );

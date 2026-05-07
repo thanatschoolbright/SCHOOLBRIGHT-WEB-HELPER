@@ -79,3 +79,62 @@ export const PATCH_ARCHIVE_STATUS = async (id: string, isArchived: boolean) => {
   });
   return response.data;
 };
+
+export type PurgeMode = "30d" | "90d" | "all";
+
+export interface PurgeProgressEvent {
+  type: "start" | "progress" | "done" | "error";
+  total?: number;
+  deleted?: number;
+  percent?: number;
+  message?: string;
+}
+
+// ✨ ลบ API Log แบบ Bulk ผ่าน SSE Stream — รับ callback onProgress เพื่ออัปเดต UI เป็น %
+export const DELETE_PURGE_LOGS = (
+  mode: PurgeMode,
+  onProgress: (event: PurgeProgressEvent) => void,
+): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    fetch(`${API_BASE_URL}/purge`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mode }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          reject(new Error(`HTTP ${response.status}`));
+          return;
+        }
+        const reader = response.body!.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        const pump = (): Promise<void> =>
+          reader.read().then(({ done, value }) => {
+            if (done) {
+              resolve();
+              return;
+            }
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n\n");
+            buffer = lines.pop() ?? "";
+            for (const line of lines) {
+              const dataLine = line.replace(/^data: /, "").trim();
+              if (!dataLine) continue;
+              try {
+                const event: PurgeProgressEvent = JSON.parse(dataLine);
+                onProgress(event);
+                if (event.type === "error") reject(new Error(event.message));
+              } catch {
+                // ignore malformed SSE lines
+              }
+            }
+            return pump();
+          });
+
+        pump().catch(reject);
+      })
+      .catch(reject);
+  });
+};
