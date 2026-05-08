@@ -1,4 +1,5 @@
 import prisma from "@helpers/prisma";
+import { PrismaJabjaiMaster } from "@/helpers/prisma/prisma-jabjai-master-single-db";
 import axios from "axios";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
@@ -1335,6 +1336,96 @@ export async function buildSchoolDeviceStatusData(
     offline_reason: offlineCount > 0 ? serverOfflineReason : null,
     devices: mappedDevices,
   };
+}
+
+// ✨ ตรวจสอบและอัปเดต state การแจ้งเตือนรายเครื่องใน DeviceNotifyState — คืนว่าควรส่ง LINE ไหมและรอบที่เท่าไหร่
+export async function checkAndUpdateNotifyState(
+  schoolId: number,
+  devices: Array<{ is_online: boolean; online_time: string | null; notify_enabled: boolean; device_id?: string; app_name?: string }>,
+  intervalRound1Minutes: number,
+  intervalRound2Minutes: number,
+): Promise<{ result: boolean; notifyRound: 1 | 2 | null; debugLines: string[] }> {
+  const now = new Date();
+  const nowMs = now.getTime();
+  const debugLines: string[] = [];
+  let result = false;
+  let notifyRound: 1 | 2 | null = null;
+
+  const existingStates = await PrismaJabjaiMaster.deviceNotifyState.findMany({
+    where: { school_id: schoolId },
+  });
+  const stateMap = new Map(existingStates.map((s) => [s.device_id, s]));
+
+  for (const device of devices) {
+    const deviceId = device.device_id ?? "unknown";
+    const name = device.app_name ?? deviceId;
+
+    if (device.is_online) {
+      const existing = stateMap.get(deviceId);
+      if (existing?.offline_since !== null) {
+        await PrismaJabjaiMaster.deviceNotifyState.upsert({
+          where: { school_id_device_id: { school_id: schoolId, device_id: deviceId } },
+          create: { school_id: schoolId, device_id: deviceId, offline_since: null, r1_sent_at: null, last_notified_at: null },
+          update: { offline_since: null, r1_sent_at: null, last_notified_at: null },
+        });
+      }
+      continue;
+    }
+
+    if (!device.notify_enabled) {
+      debugLines.push(`  [SKIP] ${name} — notify_enabled=false`);
+      continue;
+    }
+
+    let state = stateMap.get(deviceId);
+
+    if (!state || state.offline_since === null) {
+      const offlineSince = device.online_time ? new Date(device.online_time) : now;
+      const upserted = await PrismaJabjaiMaster.deviceNotifyState.upsert({
+        where: { school_id_device_id: { school_id: schoolId, device_id: deviceId } },
+        create: { school_id: schoolId, device_id: deviceId, offline_since: offlineSince, r1_sent_at: null, last_notified_at: null },
+        update: { offline_since: offlineSince },
+      });
+      state = upserted;
+      stateMap.set(deviceId, upserted);
+    }
+
+    const offlineSinceMs = state.offline_since!.getTime();
+    const offlineMin = (nowMs - offlineSinceMs) / 60_000;
+    const offlineMinStr = offlineMin.toFixed(1);
+
+    if (state.r1_sent_at === null) {
+      if (offlineMin >= intervalRound1Minutes) {
+        debugLines.push(`  [✓ R1] ${name} — offline ${offlineMinStr} นาที → แจ้งเตือนรอบแรก`);
+        await PrismaJabjaiMaster.deviceNotifyState.update({
+          where: { school_id_device_id: { school_id: schoolId, device_id: deviceId } },
+          data: { r1_sent_at: now, last_notified_at: now },
+        });
+        result = true;
+        if (notifyRound === null) notifyRound = 1;
+      } else {
+        debugLines.push(`  [--]  ${name} — offline ${offlineMinStr} นาที (รออีก ${(intervalRound1Minutes - offlineMin).toFixed(1)} นาทีถึงจะส่ง R1)`);
+      }
+    } else {
+      const lastMs = state.last_notified_at!.getTime();
+      const minutesSinceLast = (nowMs - lastMs) / 60_000;
+      if (minutesSinceLast >= intervalRound2Minutes) {
+        const cycleNo = Math.floor((nowMs - state.r1_sent_at!.getTime()) / 60_000 / intervalRound2Minutes);
+        debugLines.push(`  [✓ R2] ${name} — offline ${offlineMinStr} นาที → แจ้งเตือนซ้ำ (ห่างจากครั้งล่าสุด ${minutesSinceLast.toFixed(1)} นาที, cycle ที่ ${cycleNo})`);
+        await PrismaJabjaiMaster.deviceNotifyState.update({
+          where: { school_id_device_id: { school_id: schoolId, device_id: deviceId } },
+          data: { last_notified_at: now },
+        });
+        result = true;
+        if (notifyRound === null) notifyRound = 2;
+      } else {
+        const waitMin = (intervalRound2Minutes - minutesSinceLast).toFixed(1);
+        debugLines.push(`  [--]  ${name} — offline ${offlineMinStr} นาที (แจ้งเตือนครั้งถัดไปใน ~${waitMin} นาที)`);
+      }
+    }
+  }
+
+  return { result, notifyRound, debugLines };
 }
 
 // สูงสุด 9 bubble เครื่องออฟไลน์ + 1 summary = 10 (ขีดจำกัด carousel)

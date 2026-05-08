@@ -314,8 +314,8 @@ Two Prisma instances (singleton pattern, global cached in dev):
 | Helper | DB | Schema | Models |
 |---|---|---|---|
 | `src/helpers/prisma.ts` | SQL Server (main) | `prisma/schema.prisma` | 400+ models — school, canteen, hardware, device, sales |
-| `src/helpers/prisma-timesheet.ts` | PostgreSQL (timesheet) | `prisma/timesheet/schema.prisma` | User, Department, Position, Role, Permission, RolePermission, Project, Feature, ProjectAssignee, ProjectStatus, Group, TimesheetEntry, Overtime, OvertimeDescription, OvertimeStatusLog, ApiLog, CrmSupportAuthentication, LineGroup |
-| `src/helpers/prisma/prisma-jabjai-master-single-db.ts` | SQL Server (jabjai-master) | `prisma/jabjai-master-single-db/schema.prisma` | School/group master data (used by machine-monitoring LINE channel and LINE group routes) |
+| `src/helpers/prisma-timesheet.ts` | PostgreSQL (timesheet) | `prisma/timesheet/schema.prisma` | User, Department, Position, Role, Permission, RolePermission, Project, Feature, ProjectAssignee, ProjectStatus, Group, TimesheetEntry, Overtime, OvertimeDescription, OvertimeStatusLog, ApiLog, CrmSupportAuthentication, LineGroup, BotSetting |
+| `src/helpers/prisma/prisma-jabjai-master-single-db.ts` | SQL Server (jabjai-master) | `prisma/jabjai-master-single-db/schema.prisma` | School/group master data + device notify config (`tLineGroup`, `DeviceNotifyTimeWindow`, `DeviceNotifyInterval`, `DeviceNotifyState`) |
 
 **Import pattern — สำคัญมาก, สามแบบนี้ต่างกัน:**
 ```ts
@@ -432,9 +432,15 @@ Run a script manually:
 ```bash
 bun run cronjobs/scripts/device/device-auto-set-name.ts
 DRY_RUN=true bun run cronjobs/scripts/device/device-auto-set-name.ts  # dry-run mode
+
+# device-monitor-line — requires bun dev running first (calls internal API over HTTP)
+APP_INTERNAL_URL=http://localhost:3000 TEST_SCHOOL_ID=849 bun run cronjobs/scripts/device/device-monitor-line.ts   # test mode: single school, skips quiet-hours check
+APP_INTERNAL_URL=http://localhost:3000 bun run cronjobs/scripts/device/device-monitor-line-test.ts                # verbose 4-step debug
 ```
 
-Scripts import `prisma` directly from `@/helpers/prisma` (main DB only). They are not Next.js routes — no `NextRequest`, no `auth()`. Each script prints a formatted table to stdout for logging visibility in the pod.
+Scripts import `prisma` directly from `@/helpers/prisma` (main DB only) **except** `device-monitor-line.ts` which also imports `PrismaTimesheet` (bot_setting) and `PrismaJabjaiMaster` (LINE groups). They are not Next.js routes — no `NextRequest`, no `auth()`. Each script prints a formatted table to stdout for logging visibility in the pod.
+
+Cronjob YAML configs are partial specs (only `spec:` block) — apply to Kubernetes via Huawei Cloud CCE console, not `kubectl apply` directly.
 
 ### Commit message format
 
