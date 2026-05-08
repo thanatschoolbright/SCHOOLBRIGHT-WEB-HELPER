@@ -19,6 +19,7 @@ import {
   MailOutlined,
   NotificationOutlined,
   PoweroffOutlined,
+  RobotOutlined,
   SettingOutlined,
   SyncOutlined,
   ThunderboltFilled,
@@ -55,7 +56,7 @@ import { useHasPermission } from "@hooks/use-has-permission";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import ActivityLogTab from "./_components/activity-log-tab";
+import ActivityLogTab, { BotRunLogSection } from "./_components/activity-log-tab";
 import DeviceTable from "./_components/device-table";
 import FilterSection from "./_components/filter-section";
 import { SchoolDeviceTab } from "./_components/school-device-tab";
@@ -1085,6 +1086,16 @@ export default function OnlineDeviceDashboard() {
                 </Flex>
               ),
               children: <ActivityLogTab />,
+            },
+            {
+              key: "bot-log",
+              label: (
+                <Flex align="center" gap={6}>
+                  <RobotOutlined />
+                  <span>ประวัติ Bot</span>
+                </Flex>
+              ),
+              children: <BotRunLogSection />,
             },
           ]}
         />

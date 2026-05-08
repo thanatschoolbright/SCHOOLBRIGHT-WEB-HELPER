@@ -1835,7 +1835,7 @@ export const SchoolDeviceTab = () => {
                     <Flex
                       align="center"
                       justify="space-between"
-                      style={{ marginBottom: 8 }}
+                      style={{ marginBottom: 12 }}
                     >
                       <Text strong style={{ fontSize: 12 }}>
                         ช่วงเวลาที่อนุญาตให้แจ้งเตือน
@@ -1854,7 +1854,7 @@ export const SchoolDeviceTab = () => {
                         </Button>
                       )}
                     </Flex>
-                    <Flex vertical gap={8}>
+                    <Flex vertical gap={10}>
                       {notifyConfig.time_windows.map((w) => {
                         const draft = windowDrafts[w.id] ?? {};
                         const merged = { ...w, ...draft };
@@ -1865,22 +1865,24 @@ export const SchoolDeviceTab = () => {
                             key={w.id}
                             size="small"
                             style={{
-                              borderRadius: 8,
+                              borderRadius: 12,
                               border: hasDraft
                                 ? "1px solid var(--ant-color-primary)"
-                                : "1px solid rgba(128,128,128,0.15)",
+                                : "1px solid rgba(128,128,128,0.1)",
+                              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
                             }}
-                            styles={{ body: { padding: "10px 14px" } }}
+                            styles={{ body: { padding: "12px 16px" } }}
                           >
-                            <Flex vertical gap={8}>
-                              {/* แถวบน: label + tag รอบ + ปุ่มลบ */}
-                              <Flex align="center" gap={8}>
+                            <Flex vertical gap={12}>
+                              {/* แถวบน: label + tag รอบ + ปุ่มลบ + status */}
+                              <Flex align="center" gap={10}>
                                 <Tag
                                   color="blue"
                                   style={{
                                     margin: 0,
-                                    fontSize: 11,
-                                    borderRadius: 6,
+                                    fontSize: 10,
+                                    borderRadius: 4,
+                                    fontWeight: 600,
                                     flexShrink: 0,
                                   }}
                                 >
@@ -1888,6 +1890,7 @@ export const SchoolDeviceTab = () => {
                                 </Tag>
                                 <Input
                                   size="small"
+                                  variant="filled"
                                   value={merged.label}
                                   maxLength={50}
                                   onChange={(e) =>
@@ -1899,27 +1902,44 @@ export const SchoolDeviceTab = () => {
                                       },
                                     }))
                                   }
-                                  style={{ flex: 1, fontSize: 12 }}
+                                  style={{
+                                    flex: 1,
+                                    fontSize: 12,
+                                    borderRadius: 4,
+                                  }}
                                 />
-                                <Switch
-                                  size="small"
-                                  checked={merged.is_active}
-                                  onChange={(checked) =>
-                                    setWindowDrafts((prev) => ({
-                                      ...prev,
-                                      [w.id]: {
-                                        ...prev[w.id],
-                                        is_active: checked,
-                                      },
-                                    }))
-                                  }
-                                />
+                                <Flex align="center" gap={6}>
+                                  <Switch
+                                    size="small"
+                                    checked={merged.is_active}
+                                    onChange={(checked) =>
+                                      setWindowDrafts((prev) => ({
+                                        ...prev,
+                                        [w.id]: {
+                                          ...prev[w.id],
+                                          is_active: checked,
+                                        },
+                                      }))
+                                    }
+                                  />
+                                  <Text
+                                    type="secondary"
+                                    style={{ fontSize: 10, minWidth: 20 }}
+                                  >
+                                    {merged.is_active ? "เปิด" : "ปิด"}
+                                  </Text>
+                                </Flex>
                                 {canDelete && (
                                   <Tooltip title="ลบรอบนี้">
                                     <Button
                                       size="small"
+                                      type="text"
                                       danger
-                                      icon={<CloseOutlined />}
+                                      icon={
+                                        <CloseOutlined
+                                          style={{ fontSize: 12 }}
+                                        />
+                                      }
                                       style={{ borderRadius: 6, flexShrink: 0 }}
                                       onClick={() =>
                                         selectedSchool &&
@@ -1932,83 +1952,127 @@ export const SchoolDeviceTab = () => {
                                   </Tooltip>
                                 )}
                               </Flex>
+
                               {/* แถวล่าง: เวลาเริ่ม-สิ้นสุด + ปุ่มบันทึก */}
-                              <Flex align="center" gap={6} wrap="wrap">
-                                <Text type="secondary" style={{ fontSize: 11 }}>
-                                  เริ่ม
-                                </Text>
-                                <InputNumber
-                                  size="small"
-                                  min={0}
-                                  max={23}
-                                  value={merged.start_hour}
-                                  onChange={(val) =>
-                                    setWindowDrafts((prev) => ({
-                                      ...prev,
-                                      [w.id]: {
-                                        ...prev[w.id],
-                                        start_hour: val ?? 0,
-                                      },
-                                    }))
-                                  }
-                                  style={{ width: 58 }}
-                                />
-                                <Text style={{ fontSize: 11 }}>:</Text>
-                                <InputNumber
-                                  size="small"
-                                  min={0}
-                                  max={59}
-                                  value={merged.start_min}
-                                  onChange={(val) =>
-                                    setWindowDrafts((prev) => ({
-                                      ...prev,
-                                      [w.id]: {
-                                        ...prev[w.id],
-                                        start_min: val ?? 0,
-                                      },
-                                    }))
-                                  }
-                                  style={{ width: 58 }}
-                                />
-                                <Text type="secondary" style={{ fontSize: 11 }}>
-                                  ถึง
-                                </Text>
-                                <InputNumber
-                                  size="small"
-                                  min={0}
-                                  max={23}
-                                  value={merged.end_hour}
-                                  onChange={(val) =>
-                                    setWindowDrafts((prev) => ({
-                                      ...prev,
-                                      [w.id]: {
-                                        ...prev[w.id],
-                                        end_hour: val ?? 0,
-                                      },
-                                    }))
-                                  }
-                                  style={{ width: 58 }}
-                                />
-                                <Text style={{ fontSize: 11 }}>:</Text>
-                                <InputNumber
-                                  size="small"
-                                  min={0}
-                                  max={59}
-                                  value={merged.end_min}
-                                  onChange={(val) =>
-                                    setWindowDrafts((prev) => ({
-                                      ...prev,
-                                      [w.id]: {
-                                        ...prev[w.id],
-                                        end_min: val ?? 0,
-                                      },
-                                    }))
-                                  }
-                                  style={{ width: 58 }}
-                                />
-                                <Text type="secondary" style={{ fontSize: 11 }}>
-                                  น.
-                                </Text>
+                              <Flex
+                                align="center"
+                                justify="space-between"
+                                gap={8}
+                              >
+                                <Flex
+                                  align="center"
+                                  gap={8}
+                                  style={{
+                                    background: "rgba(128,128,128,0.05)",
+                                    padding: "4px 12px",
+                                    borderRadius: 8,
+                                    border: "1px solid rgba(128,128,128,0.05)",
+                                  }}
+                                >
+                                  <Flex align="center" gap={4}>
+                                    <Text
+                                      type="secondary"
+                                      style={{ fontSize: 11 }}
+                                    >
+                                      เริ่ม
+                                    </Text>
+                                    <InputNumber
+                                      size="small"
+                                      min={0}
+                                      max={23}
+                                      controls={false}
+                                      value={merged.start_hour}
+                                      onChange={(val) =>
+                                        setWindowDrafts((prev) => ({
+                                          ...prev,
+                                          [w.id]: {
+                                            ...prev[w.id],
+                                            start_hour: val ?? 0,
+                                          },
+                                        }))
+                                      }
+                                      style={{ width: 40, textAlign: "center" }}
+                                    />
+                                    <Text style={{ fontSize: 11 }}>:</Text>
+                                    <InputNumber
+                                      size="small"
+                                      min={0}
+                                      max={59}
+                                      controls={false}
+                                      value={merged.start_min}
+                                      onChange={(val) =>
+                                        setWindowDrafts((prev) => ({
+                                          ...prev,
+                                          [w.id]: {
+                                            ...prev[w.id],
+                                            start_min: val ?? 0,
+                                          },
+                                        }))
+                                      }
+                                      style={{ width: 40, textAlign: "center" }}
+                                    />
+                                  </Flex>
+
+                                  <div
+                                    style={{
+                                      width: 12,
+                                      height: 1,
+                                      background: "rgba(128,128,128,0.3)",
+                                      margin: "0 4px",
+                                    }}
+                                  />
+
+                                  <Flex align="center" gap={4}>
+                                    <Text
+                                      type="secondary"
+                                      style={{ fontSize: 11 }}
+                                    >
+                                      ถึง
+                                    </Text>
+                                    <InputNumber
+                                      size="small"
+                                      min={0}
+                                      max={23}
+                                      controls={false}
+                                      value={merged.end_hour}
+                                      onChange={(val) =>
+                                        setWindowDrafts((prev) => ({
+                                          ...prev,
+                                          [w.id]: {
+                                            ...prev[w.id],
+                                            end_hour: val ?? 0,
+                                          },
+                                        }))
+                                      }
+                                      style={{ width: 40, textAlign: "center" }}
+                                    />
+                                    <Text style={{ fontSize: 11 }}>:</Text>
+                                    <InputNumber
+                                      size="small"
+                                      min={0}
+                                      max={59}
+                                      controls={false}
+                                      value={merged.end_min}
+                                      onChange={(val) =>
+                                        setWindowDrafts((prev) => ({
+                                          ...prev,
+                                          [w.id]: {
+                                            ...prev[w.id],
+                                            end_min: val ?? 0,
+                                          },
+                                        }))
+                                      }
+                                      style={{ width: 40, textAlign: "center" }}
+                                    />
+                                    <Text
+                                      type="secondary"
+                                      style={{ fontSize: 11, marginLeft: 2 }}
+                                    >
+                                      น.
+                                    </Text>
+                                  </Flex>
+                                </Flex>
+
                                 {hasDraft && (
                                   <Button
                                     type="primary"
@@ -2025,7 +2089,6 @@ export const SchoolDeviceTab = () => {
                                     style={{
                                       borderRadius: 6,
                                       fontSize: 11,
-                                      marginLeft: "auto",
                                     }}
                                   >
                                     บันทึก

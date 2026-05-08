@@ -58,7 +58,7 @@ interface BotRunLogItem {
 }
 
 // ✨ Section แสดงประวัติการทำงานของ Bot (cronjob)
-function BotRunLogSection() {
+export function BotRunLogSection() {
   const [logs, setLogs] = useState<BotRunLogItem[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -368,8 +368,6 @@ export default function ActivityLogTab() {
 
   return (
     <div>
-      <BotRunLogSection />
-
       {/* Filter Section */}
       <Card
         size="small"
