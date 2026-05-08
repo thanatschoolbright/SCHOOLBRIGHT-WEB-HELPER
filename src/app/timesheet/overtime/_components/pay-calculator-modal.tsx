@@ -15,6 +15,7 @@ import {
   InputNumber,
   Modal,
   Row,
+  Space,
   Statistic,
   Typography,
 } from "antd";
