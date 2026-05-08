@@ -542,24 +542,33 @@ export default function ActivityLogTab() {
   ];
 
   return (
-    <div>
+    <Space direction="vertical" size={24} style={{ width: "100%" }}>
+      {/* Bot Run Log Section */}
+      <BotRunLogSection />
+
       {/* Filter Section */}
       <Card
-        size="small"
-        style={{ borderRadius: 14, marginBottom: 16 }}
-        styles={{ body: { padding: "16px 20px" } }}
+        style={{
+          borderRadius: 12,
+          border: "1px solid rgba(128,128,128,0.15)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+        }}
+        styles={{ body: { padding: "20px 24px" } }}
       >
         <Flex align="center" gap={8} style={{ marginBottom: 16 }}>
-          <FilterOutlined style={{ fontSize: "1rem", fontWeight: 600 }} />
-          <AntText strong style={{ fontSize: 14, fontWeight: 600 }}>
+          <FilterOutlined
+            style={{ fontSize: "1rem", fontWeight: 600, color: "#6366f1" }}
+          />
+          <AntText strong style={{ fontSize: "1rem", fontWeight: 600 }}>
             ตัวกรอง
           </AntText>
         </Flex>
-        <Row gutter={[16, 12]}>
-          <Col xs={24} sm={12}>
+
+        <Row gutter={[24, 16]}>
+          <Col xs={24} sm={12} lg={8}>
             <AntText
               type="secondary"
-              style={{ fontSize: 12, display: "block", marginBottom: 4 }}
+              style={{ fontSize: 13, display: "block", marginBottom: 6 }}
             >
               ประเภทการกระทำ
             </AntText>
@@ -567,6 +576,7 @@ export default function ActivityLogTab() {
               value={filterAction}
               onChange={(val) => setFilterAction(val)}
               style={{ width: "100%" }}
+              placeholder="เลือกประเภท"
               options={[
                 { label: "ทุกประเภท", value: "all" },
                 { label: "เปลี่ยนชื่อเครื่อง", value: "rename" },
@@ -574,15 +584,16 @@ export default function ActivityLogTab() {
               ]}
             />
           </Col>
-          <Col xs={24} sm={12}>
+
+          <Col xs={24} sm={12} lg={8}>
             <AntText
               type="secondary"
-              style={{ fontSize: 12, display: "block", marginBottom: 4 }}
+              style={{ fontSize: 13, display: "block", marginBottom: 6 }}
             >
               ค้นหา (รหัสเครื่อง / User ID)
             </AntText>
             <Input
-              placeholder="พิมพ์รหัสเครื่องหรือ User ID"
+              placeholder="รหัสเครื่องหรือ User ID..."
               value={filterKeyword}
               onChange={(e) => setFilterKeyword(e.target.value)}
               onPressEnter={handleSearch}
@@ -590,10 +601,11 @@ export default function ActivityLogTab() {
               allowClear
             />
           </Col>
-          <Col xs={24} sm={12}>
+
+          <Col xs={24} sm={12} lg={8}>
             <AntText
               type="secondary"
-              style={{ fontSize: 12, display: "block", marginBottom: 4 }}
+              style={{ fontSize: 13, display: "block", marginBottom: 6 }}
             >
               ช่วงวันที่
             </AntText>
@@ -610,44 +622,67 @@ export default function ActivityLogTab() {
               placeholder={["วันเริ่มต้น", "วันสิ้นสุด"]}
             />
           </Col>
-          <Col xs={24} sm={12}>
-            <AntText
-              style={{
-                fontSize: 12,
-                display: "block",
-                marginBottom: 4,
-                color: "transparent",
-              }}
-            >
-              .
-            </AntText>
-            <Flex gap={8} justify="flex-end">
+
+          <Col xs={24}>
+            <Flex gap={12} justify="flex-end" style={{ marginTop: 8 }}>
+              <Button
+                icon={<ClearOutlined />}
+                onClick={handleReset}
+                style={{ borderRadius: 8 }}
+              >
+                ล้างการค้นหา
+              </Button>
               <Button
                 icon={<SearchOutlined />}
                 type="primary"
                 onClick={handleSearch}
+                style={{
+                  borderRadius: 8,
+                  paddingLeft: 24,
+                  paddingRight: 24,
+                  fontWeight: 600,
+                  background: "#6366f1",
+                }}
               >
                 ค้นหา
-              </Button>
-              <Button icon={<ClearOutlined />} onClick={handleReset}>
-                ล้างการค้นหา
               </Button>
             </Flex>
           </Col>
         </Row>
       </Card>
 
-      {/* Table */}
-      <Card styles={{ body: { padding: 16 } }}>
-        <Flex align="center" gap={8} style={{ marginBottom: 16 }}>
-          <UnorderedListOutlined style={{ fontSize: "1rem" }} />
-          <AntText strong style={{ fontSize: 14 }}>
-            ประวัติการกระทำ
+      {/* Table Section */}
+      <Card
+        style={{
+          borderRadius: 12,
+          border: "1px solid rgba(128,128,128,0.15)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+        }}
+        styles={{ body: { padding: 0 } }}
+        title={
+          <Flex align="center" gap={8} style={{ padding: "4px 0" }}>
+            <UnorderedListOutlined
+              style={{ fontSize: "1.1rem", color: "#6366f1" }}
+            />
+            <Flex align="baseline" gap={8}>
+              <AntText strong style={{ fontSize: "1rem" }}>
+                ประวัติการกระทำ
+              </AntText>
+              <AntText type="secondary" style={{ fontSize: 13 }}>
+                แสดงรายการบันทึกการใช้งานระบบ
+              </AntText>
+            </Flex>
+          </Flex>
+        }
+        extra={
+          <AntText
+            type="secondary"
+            style={{ fontSize: 13, fontWeight: 500, marginRight: 8 }}
+          >
+            ทั้งหมด {pagination.total.toLocaleString()} รายการ
           </AntText>
-          <AntText type="secondary" style={{ fontSize: 12 }}>
-            ({pagination.total.toLocaleString()} รายการ)
-          </AntText>
-        </Flex>
+        }
+      >
         <Table
           rowKey="id"
           dataSource={logs}
@@ -661,12 +696,13 @@ export default function ActivityLogTab() {
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "50"],
             showTotal: (total) => `ทั้งหมด ${total.toLocaleString()} รายการ`,
+            style: { paddingRight: 16 },
           }}
-          size="small"
-          scroll={{ x: 800 }}
-          locale={{ emptyText: "ไม่พบประวัติการกระทำ" }}
+          size="middle"
+          scroll={{ x: 1000 }}
+          locale={{ emptyText: "ไม่พบข้อมูลประวัติการกระทำ" }}
         />
       </Card>
-    </div>
+    </Space>
   );
 }

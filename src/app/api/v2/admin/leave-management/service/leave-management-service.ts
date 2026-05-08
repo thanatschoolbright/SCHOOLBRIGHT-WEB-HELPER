@@ -50,7 +50,7 @@ export class LeaveManagementService {
   ) {
     const { userid, schoolid } = params;
     const apiUrl = "https://apimobiledev.schoolbright.co";
-    const endpoint = `/api/LeaveLetterList`;
+    const endpoint = `/api/v1/internal/leave-letter`;
 
     const auth = await this.getAuthToken();
 
