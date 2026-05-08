@@ -4,11 +4,15 @@ import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 import {
   BellOutlined,
   CheckCircleOutlined,
+  CheckOutlined,
   ClearOutlined,
   ClockCircleOutlined,
   CloseCircleOutlined,
+  CloseOutlined,
   EditOutlined,
   FilterOutlined,
+  ForwardOutlined,
+  ReloadOutlined,
   RobotOutlined,
   SearchOutlined,
   UnorderedListOutlined,
@@ -68,8 +72,13 @@ export function BotRunLogSection() {
   const fetchBotLogs = useCallback(async (page = 1, size = 20) => {
     setIsLoading(true);
     try {
-      const params = new URLSearchParams({ page: String(page), page_size: String(size) });
-      const res = await callApiService.get(`/api/v2/hardware/bot-run-log?${params.toString()}`);
+      const params = new URLSearchParams({
+        page: String(page),
+        page_size: String(size),
+      });
+      const res = await callApiService.get(
+        `/api/v2/hardware/bot-run-log?${params.toString()}`,
+      );
       setLogs(res.data?.data ?? []);
       setTotal(res.data?.pagination?.total ?? 0);
     } catch {
@@ -85,63 +94,151 @@ export function BotRunLogSection() {
 
   const columns: ColumnsType<BotRunLogItem> = [
     {
-      title: "สถานะ",
+      title: "สถานะการทำงาน",
       dataIndex: "is_success",
       key: "is_success",
-      width: 100,
-      render: (isSuccess: boolean) =>
-        isSuccess ? (
-          <Tag icon={<CheckCircleOutlined />} color="success">สำเร็จ</Tag>
-        ) : (
-          <Tag icon={<CloseCircleOutlined />} color="error">มีข้อผิดพลาด</Tag>
-        ),
-    },
-    {
-      title: "ส่งสำเร็จ",
-      dataIndex: "success",
-      key: "success",
-      width: 100,
-      render: (v: number) => <AntText style={{ fontSize: 13, color: "#16a34a", fontWeight: 600 }}>{v}</AntText>,
-    },
-    {
-      title: "ล้มเหลว",
-      dataIndex: "failed",
-      key: "failed",
-      width: 100,
-      render: (v: number) => (
-        <AntText style={{ fontSize: 13, color: v > 0 ? "#dc2626" : undefined, fontWeight: v > 0 ? 600 : 400 }}>
-          {v}
-        </AntText>
+      width: 140,
+      render: (isSuccess: boolean) => (
+        <Tag
+          icon={isSuccess ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+          color={isSuccess ? "success" : "error"}
+          style={{
+            borderRadius: 6,
+            padding: "2px 8px",
+            fontSize: 12,
+            fontWeight: 500,
+          }}
+        >
+          {isSuccess ? "ดำเนินการสำเร็จ" : "พบข้อผิดพลาด"}
+        </Tag>
       ),
     },
     {
-      title: "ข้าม",
-      dataIndex: "skipped",
-      key: "skipped",
-      width: 100,
-      render: (v: number) => <AntText type="secondary" style={{ fontSize: 13 }}>{v}</AntText>,
+      title: "สรุปผลการส่ง (กลุ่ม LINE)",
+      key: "result_summary",
+      width: 320,
+      render: (_, record) => (
+        <Flex align="center" gap={12}>
+          <Tooltip title={`ส่งสำเร็จ ${record.success} กลุ่ม`}>
+            <Flex
+              align="center"
+              gap={6}
+              style={{
+                background: "rgba(22, 163, 74, 0.05)",
+                padding: "2px 10px",
+                borderRadius: 20,
+                border: "1px solid rgba(22, 163, 74, 0.1)",
+              }}
+            >
+              <CheckOutlined style={{ color: "#16a34a", fontSize: 10 }} />
+              <AntText
+                style={{ fontSize: 13, color: "#16a34a", fontWeight: 700 }}
+              >
+                {record.success.toLocaleString()}
+              </AntText>
+            </Flex>
+          </Tooltip>
+
+          <Tooltip title={`ส่งล้มเหลว ${record.failed} กลุ่ม`}>
+            <Flex
+              align="center"
+              gap={6}
+              style={{
+                background:
+                  record.failed > 0 ? "rgba(220, 38, 38, 0.05)" : "transparent",
+                padding: "2px 10px",
+                borderRadius: 20,
+                border:
+                  record.failed > 0
+                    ? "1px solid rgba(220, 38, 38, 0.1)"
+                    : "1px solid transparent",
+              }}
+            >
+              <CloseOutlined
+                style={{
+                  color: record.failed > 0 ? "#dc2626" : "#cbd5e1",
+                  fontSize: 10,
+                }}
+              />
+              <AntText
+                style={{
+                  fontSize: 13,
+                  color: record.failed > 0 ? "#dc2626" : "#94a3b8",
+                  fontWeight: record.failed > 0 ? 700 : 400,
+                }}
+              >
+                {record.failed.toLocaleString()}
+              </AntText>
+            </Flex>
+          </Tooltip>
+
+          <Tooltip title={`ข้าม ${record.skipped} กลุ่ม (ปิดแจ้งเตือน)`}>
+            <Flex
+              align="center"
+              gap={6}
+              style={{
+                background: "rgba(148, 163, 184, 0.05)",
+                padding: "2px 10px",
+                borderRadius: 20,
+                border: "1px solid rgba(148, 163, 184, 0.1)",
+              }}
+            >
+              <ForwardOutlined style={{ color: "#64748b", fontSize: 10 }} />
+              <AntText
+                type="secondary"
+                style={{ fontSize: 13, fontWeight: 500 }}
+              >
+                {record.skipped.toLocaleString()}
+              </AntText>
+            </Flex>
+          </Tooltip>
+        </Flex>
+      ),
     },
     {
-      title: "ใช้เวลา",
+      title: "ระยะเวลา",
       dataIndex: "duration_ms",
       key: "duration_ms",
-      width: 110,
-      render: (ms: number | null) =>
-        ms !== null ? (
-          <AntText style={{ fontSize: 13 }}>{(ms / 1000).toFixed(1)} วิ</AntText>
-        ) : (
-          <AntText type="secondary">—</AntText>
-        ),
+      width: 120,
+      align: "center",
+      render: (ms: number | null) => (
+        <Flex vertical align="center" style={{ minWidth: 80 }}>
+          {ms !== null ? (
+            <>
+              <AntText
+                style={{ fontSize: 13, fontWeight: 600, color: "#475569" }}
+              >
+                {(ms / 1000).toFixed(2)}
+              </AntText>
+              <AntText type="secondary" style={{ fontSize: 10, marginTop: -2 }}>
+                วินาที
+              </AntText>
+            </>
+          ) : (
+            <AntText type="secondary">—</AntText>
+          )}
+        </Flex>
+      ),
     },
     {
-      title: "เวลา",
+      title: "เวลาที่ทำงาน",
       dataIndex: "run_at",
       key: "run_at",
+      width: 180,
       render: (runAt: string) => (
-        <Tooltip title={dayjs(runAt).tz("Asia/Bangkok").format("DD/MM/YYYY HH:mm:ss")}>
-          <Flex align="center" gap={6}>
-            <ClockCircleOutlined style={{ fontSize: 12, color: "#94a3b8" }} />
-            <AntText style={{ fontSize: 13 }}>{dayjs(runAt).tz("Asia/Bangkok").fromNow()}</AntText>
+        <Tooltip
+          title={dayjs(runAt).tz("Asia/Bangkok").format("DD/MM/YYYY HH:mm:ss")}
+        >
+          <Flex vertical gap={2}>
+            <Flex align="center" gap={6}>
+              <ClockCircleOutlined style={{ fontSize: 12, color: "#6366f1" }} />
+              <AntText style={{ fontSize: 13, fontWeight: 500 }}>
+                {dayjs(runAt).tz("Asia/Bangkok").fromNow()}
+              </AntText>
+            </Flex>
+            <AntText type="secondary" style={{ fontSize: 11, marginLeft: 18 }}>
+              {dayjs(runAt).tz("Asia/Bangkok").format("HH:mm:ss")}
+            </AntText>
           </Flex>
         </Tooltip>
       ),
@@ -150,17 +247,50 @@ export function BotRunLogSection() {
 
   return (
     <Card
-      styles={{ body: { padding: 16 } }}
-      style={{ marginBottom: 16 }}
+      styles={{ body: { padding: 0 } }}
+      style={{
+        marginBottom: 24,
+        borderRadius: 12,
+        overflow: "hidden",
+        border: "1px solid rgba(128,128,128,0.15)",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+      }}
       title={
-        <Typography.Text strong style={{ fontSize: "1rem" }}>
-          <RobotOutlined style={{ marginRight: 8 }} />
-          ประวัติการทำงานของ Bot
-        </Typography.Text>
+        <Flex align="center" gap={12} style={{ padding: "4px 0" }}>
+          <div
+            style={{
+              background: "#6366f1",
+              padding: 8,
+              borderRadius: 8,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 2px 4px rgba(99, 102, 241, 0.2)",
+            }}
+          >
+            <RobotOutlined style={{ fontSize: "1.2rem", color: "#fff" }} />
+          </div>
+          <Flex vertical>
+            <Typography.Text
+              strong
+              style={{ fontSize: "1rem", lineHeight: 1.2 }}
+            >
+              ประวัติการทำงานของ Bot
+            </Typography.Text>
+            <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+              บันทึกการทำงานของระบบแจ้งเตือนอัตโนมัติ (Automated Reports)
+            </Typography.Text>
+          </Flex>
+        </Flex>
       }
       extra={
-        <Button size="small" onClick={() => void fetchBotLogs(currentPage, pageSize)} loading={isLoading}>
-          รีเฟรช
+        <Button
+          icon={<ReloadOutlined />}
+          onClick={() => void fetchBotLogs(currentPage, pageSize)}
+          loading={isLoading}
+          style={{ borderRadius: 8 }}
+        >
+          รีเฟรชข้อมูล
         </Button>
       }
     >
@@ -169,7 +299,7 @@ export function BotRunLogSection() {
         dataSource={logs}
         columns={columns}
         loading={isLoading}
-        size="small"
+        size="middle"
         pagination={{
           current: currentPage,
           pageSize,
@@ -177,10 +307,14 @@ export function BotRunLogSection() {
           showSizeChanger: true,
           pageSizeOptions: ["10", "20", "50"],
           showTotal: (t) => `ทั้งหมด ${t.toLocaleString()} รายการ`,
-          onChange: (page, size) => { setCurrentPage(page); setPageSize(size); },
+          onChange: (page, size) => {
+            setCurrentPage(page);
+            setPageSize(size);
+          },
+          style: { paddingRight: 16 },
         }}
         locale={{ emptyText: "ยังไม่มีประวัติการทำงานของ Bot" }}
-        scroll={{ x: 600 }}
+        scroll={{ x: 800 }}
       />
     </Card>
   );
@@ -210,39 +344,63 @@ interface Pagination {
 // ✨ ตาราง Log บันทึกการกระทำของ User ในหน้า Online Status
 export default function ActivityLogTab() {
   const [logs, setLogs] = useState<ActivityLogItem[]>([]);
-  const [pagination, setPagination] = useState<Pagination>({ page: 1, page_size: 20, total: 0, total_pages: 0 });
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    page_size: 20,
+    total: 0,
+    total_pages: 0,
+  });
   const [isLoading, setIsLoading] = useState(false);
 
-  const [filterAction, setFilterAction] = useState<"all" | "rename" | "notify">("all");
+  const [filterAction, setFilterAction] = useState<"all" | "rename" | "notify">(
+    "all",
+  );
   const [filterKeyword, setFilterKeyword] = useState("");
-  const [filterDateRange, setFilterDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null]>([null, null]);
+  const [filterDateRange, setFilterDateRange] = useState<
+    [dayjs.Dayjs | null, dayjs.Dayjs | null]
+  >([null, null]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
   // ✨ โหลดข้อมูล log จาก API
-  const fetchLogs = useCallback(async (page = 1, size = 20) => {
-    setIsLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: String(page),
-        page_size: String(size),
-        action: filterAction,
-      });
-      if (filterKeyword.trim()) params.set("keyword", filterKeyword.trim());
-      if (filterDateRange[0]) params.set("date_from", filterDateRange[0].startOf("day").toISOString());
-      if (filterDateRange[1]) params.set("date_to", filterDateRange[1].endOf("day").toISOString());
+  const fetchLogs = useCallback(
+    async (page = 1, size = 20) => {
+      setIsLoading(true);
+      try {
+        const params = new URLSearchParams({
+          page: String(page),
+          page_size: String(size),
+          action: filterAction,
+        });
+        if (filterKeyword.trim()) params.set("keyword", filterKeyword.trim());
+        if (filterDateRange[0])
+          params.set(
+            "date_from",
+            filterDateRange[0].startOf("day").toISOString(),
+          );
+        if (filterDateRange[1])
+          params.set("date_to", filterDateRange[1].endOf("day").toISOString());
 
-      const res = await callApiService.get(
-        `/api/v1/hardware/machine-monitoring/device-activity-log?${params.toString()}`,
-      );
-      setLogs(res.data?.data ?? []);
-      setPagination(res.data?.pagination ?? { page: 1, page_size: 20, total: 0, total_pages: 0 });
-    } catch {
-      setLogs([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [filterAction, filterKeyword, filterDateRange]);
+        const res = await callApiService.get(
+          `/api/v1/hardware/machine-monitoring/device-activity-log?${params.toString()}`,
+        );
+        setLogs(res.data?.data ?? []);
+        setPagination(
+          res.data?.pagination ?? {
+            page: 1,
+            page_size: 20,
+            total: 0,
+            total_pages: 0,
+          },
+        );
+      } catch {
+        setLogs([]);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [filterAction, filterKeyword, filterDateRange],
+  );
 
   useEffect(() => {
     void fetchLogs(currentPage, pageSize);
@@ -277,7 +435,10 @@ export default function ActivityLogTab() {
       render: (type: string, record) => (
         <Flex align="center" gap={8}>
           {type === "notify" ? (
-            <Tag icon={<BellOutlined />} color={record.value ? "green" : "default"}>
+            <Tag
+              icon={<BellOutlined />}
+              color={record.value ? "green" : "default"}
+            >
               {record.action_label}
             </Tag>
           ) : (
@@ -293,7 +454,9 @@ export default function ActivityLogTab() {
       dataIndex: "device_id",
       key: "device_id",
       render: (deviceId: string | null) => (
-        <AntText style={{ fontSize: 13, fontFamily: "monospace" }}>{deviceId ?? "—"}</AntText>
+        <AntText style={{ fontSize: 13, fontFamily: "monospace" }}>
+          {deviceId ?? "—"}
+        </AntText>
       ),
     },
     {
@@ -324,7 +487,11 @@ export default function ActivityLogTab() {
         }
         return (
           <AntText style={{ fontSize: 13 }}>
-            {value !== null && value !== "" ? `"${value}"` : <AntText type="secondary">ล้างชื่อ</AntText>}
+            {value !== null && value !== "" ? (
+              `"${value}"`
+            ) : (
+              <AntText type="secondary">ล้างชื่อ</AntText>
+            )}
           </AntText>
         );
       },
@@ -335,7 +502,9 @@ export default function ActivityLogTab() {
       width: 200,
       render: (_: unknown, record: ActivityLogItem) => (
         <Flex align="center" gap={6}>
-          <UserOutlined style={{ fontSize: 12, color: "#6366f1", flexShrink: 0 }} />
+          <UserOutlined
+            style={{ fontSize: 12, color: "#6366f1", flexShrink: 0 }}
+          />
           <Flex vertical gap={0}>
             <AntText style={{ fontSize: 13, lineHeight: 1.4 }}>
               {record.user_fullname ?? `User #${record.called_by}`}
@@ -356,10 +525,16 @@ export default function ActivityLogTab() {
       width: 180,
       sorter: true,
       render: (createdAt: string) => (
-        <Tooltip title={dayjs(createdAt).tz("Asia/Bangkok").format("DD/MM/YYYY HH:mm:ss")}>
+        <Tooltip
+          title={dayjs(createdAt)
+            .tz("Asia/Bangkok")
+            .format("DD/MM/YYYY HH:mm:ss")}
+        >
           <Flex align="center" gap={6}>
             <ClockCircleOutlined style={{ fontSize: 12, color: "#94a3b8" }} />
-            <AntText style={{ fontSize: 13 }}>{dayjs(createdAt).tz("Asia/Bangkok").fromNow()}</AntText>
+            <AntText style={{ fontSize: 13 }}>
+              {dayjs(createdAt).tz("Asia/Bangkok").fromNow()}
+            </AntText>
           </Flex>
         </Tooltip>
       ),
@@ -382,7 +557,10 @@ export default function ActivityLogTab() {
         </Flex>
         <Row gutter={[16, 12]}>
           <Col xs={24} sm={12}>
-            <AntText type="secondary" style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
+            <AntText
+              type="secondary"
+              style={{ fontSize: 12, display: "block", marginBottom: 4 }}
+            >
               ประเภทการกระทำ
             </AntText>
             <Select
@@ -397,7 +575,10 @@ export default function ActivityLogTab() {
             />
           </Col>
           <Col xs={24} sm={12}>
-            <AntText type="secondary" style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
+            <AntText
+              type="secondary"
+              style={{ fontSize: 12, display: "block", marginBottom: 4 }}
+            >
               ค้นหา (รหัสเครื่อง / User ID)
             </AntText>
             <Input
@@ -410,21 +591,42 @@ export default function ActivityLogTab() {
             />
           </Col>
           <Col xs={24} sm={12}>
-            <AntText type="secondary" style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
+            <AntText
+              type="secondary"
+              style={{ fontSize: 12, display: "block", marginBottom: 4 }}
+            >
               ช่วงวันที่
             </AntText>
             <RangePicker
               style={{ width: "100%" }}
               value={filterDateRange}
-              onChange={(dates) => setFilterDateRange([dates?.[0] as dayjs.Dayjs ?? null, dates?.[1] as dayjs.Dayjs ?? null])}
+              onChange={(dates) =>
+                setFilterDateRange([
+                  (dates?.[0] as dayjs.Dayjs) ?? null,
+                  (dates?.[1] as dayjs.Dayjs) ?? null,
+                ])
+              }
               format="DD/MM/YYYY"
               placeholder={["วันเริ่มต้น", "วันสิ้นสุด"]}
             />
           </Col>
           <Col xs={24} sm={12}>
-            <AntText style={{ fontSize: 12, display: "block", marginBottom: 4, color: "transparent" }}>.</AntText>
+            <AntText
+              style={{
+                fontSize: 12,
+                display: "block",
+                marginBottom: 4,
+                color: "transparent",
+              }}
+            >
+              .
+            </AntText>
             <Flex gap={8} justify="flex-end">
-              <Button icon={<SearchOutlined />} type="primary" onClick={handleSearch}>
+              <Button
+                icon={<SearchOutlined />}
+                type="primary"
+                onClick={handleSearch}
+              >
                 ค้นหา
               </Button>
               <Button icon={<ClearOutlined />} onClick={handleReset}>
