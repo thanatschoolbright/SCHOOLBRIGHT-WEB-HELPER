@@ -352,19 +352,28 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.15 }}
                   >
-                    <p className="text-[12px] text-slate-500 mb-2 m-0">
-                      โปรดพิมพ์{" "}
-                      <code className="text-red-600 bg-red-50 px-1.5 py-0.5 rounded font-mono text-[11px]">
-                        Delete
-                      </code>{" "}
-                      เพื่อยืนยัน
-                    </p>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-[12px] text-slate-500 dark:text-slate-400 m-0">
+                        โปรดพิมพ์{" "}
+                        <code className="text-red-600 bg-red-50 dark:bg-red-900/20 px-1.5 py-0.5 rounded font-mono text-[11px]">
+                          Delete
+                        </code>{" "}
+                        เพื่อยืนยัน
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setConfirmInput("Delete")}
+                        className="text-[11px] font-medium text-blue-600 dark:text-blue-400 hover:underline bg-transparent border-none p-0 cursor-pointer"
+                      >
+                        เติมให้อัตโนมัติ
+                      </button>
+                    </div>
                     <div
                       className={`flex items-center gap-2 py-2.5 px-0 border-b transition-colors duration-200
                         ${
                           confirmInput === "Delete"
                             ? "border-red-500"
-                            : "border-slate-200 focus-within:border-slate-700"
+                            : "border-slate-200 dark:border-slate-700 focus-within:border-slate-700 dark:focus-within:border-slate-500"
                         }`}
                     >
                       <input
@@ -375,7 +384,7 @@ export const StatusModalComponent: React.FC<StatusModalComponentProps> = ({
                         onKeyDown={(e) => {
                           if (e.key === "Enter") handleConfirm();
                         }}
-                        className="flex-1 bg-transparent outline-none text-[14px] text-slate-800 placeholder-slate-300 font-medium"
+                        className="flex-1 bg-transparent outline-none text-[14px] text-slate-800 dark:text-slate-200 placeholder-slate-300 dark:placeholder-slate-600 font-medium"
                         autoFocus
                       />
                     </div>
