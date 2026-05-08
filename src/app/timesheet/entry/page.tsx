@@ -1,10 +1,6 @@
 "use client";
 
 import { Form, Space, Tag } from "antd";
-import dayjs from "dayjs";
-import "dayjs/locale/th";
-import buddhistEra from "dayjs/plugin/buddhistEra";
-import isBetween from "dayjs/plugin/isBetween";
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -33,10 +29,6 @@ import { PageHeader } from "./_components/page-header";
 import { StatsGrid } from "./_components/stats-grid";
 import { TimesheetTable } from "./_components/timesheet-table";
 import { useTimesheetStore } from "./_state/use-timesheet-store";
-
-dayjs.extend(isBetween);
-dayjs.extend(buddhistEra);
-dayjs.locale("th");
 
 // ==========================================
 // 1. HELPER COMPONENTS (Now Imported)
@@ -68,14 +60,10 @@ export default function TimesheetEntryPage() {
     pageSize,
     projects,
     subProjects,
-    monthlySummary,
-    monthlyStats,
-    summaryLoading,
     actionLoading,
     fetchEntries,
     fetchProjects,
     fetchSubProjects,
-    fetchMonthlySummary,
     saveTimesheet,
     deleteTimesheet,
     setPagination,
@@ -87,8 +75,6 @@ export default function TimesheetEntryPage() {
   // Local State
   const [guideModalOpen, setGuideModalOpen] = useState(false);
   const [myWorkModalOpen, setMyWorkModalOpen] = useState(false);
-  const [selected_summary_date, set_selected_summary_date] =
-    useState<dayjs.Dayjs>(dayjs());
 
   const [statusModal, setStatusModal] = useState<{
     open: boolean;
@@ -123,13 +109,6 @@ export default function TimesheetEntryPage() {
       fetchEntries(admin_id);
     }
   }, [admin_id, fetchEntries, currentPage, pageSize]);
-
-  useEffect(() => {
-    if (admin_id) {
-      // ใช้ fetchMonthlySummary เพียงอย่างเดียวเพื่อข้อมูลสรุปรายเดือนที่ถูกต้อง
-      fetchMonthlySummary(admin_id, selected_summary_date);
-    }
-  }, [admin_id, fetchMonthlySummary, selected_summary_date]);
 
   const closeModal = useCallback(() => {
     dispatch(setModalType(null));
@@ -212,7 +191,6 @@ export default function TimesheetEntryPage() {
         if (success && isMountedRef.current) {
           closeModal();
           fetchEntries(admin_id);
-          fetchMonthlySummary(admin_id, selected_summary_date);
           rankBoardRef.current?.refetch();
           setStatusModal({
             open: true,
@@ -242,8 +220,6 @@ export default function TimesheetEntryPage() {
       closeModal,
       admin_id,
       fetchEntries,
-      fetchMonthlySummary,
-      selected_summary_date,
     ],
   );
 
@@ -257,7 +233,6 @@ export default function TimesheetEntryPage() {
       if (success && isMountedRef.current) {
         closeModal();
         fetchEntries(admin_id);
-        fetchMonthlySummary(admin_id, selected_summary_date);
         rankBoardRef.current?.refetch();
         setStatusModal({
           open: true,
@@ -281,8 +256,6 @@ export default function TimesheetEntryPage() {
     closeModal,
     admin_id,
     fetchEntries,
-    fetchMonthlySummary,
-    selected_summary_date,
   ]);
 
   const handlePageChange = useCallback(
@@ -304,7 +277,6 @@ export default function TimesheetEntryPage() {
             <PageHeader
               admin_name={admin_name}
               admin_id={admin_id}
-              monthly_summary={monthlySummary as any}
               on_add_click={openCreateForm}
               on_guide_click={() => {
                 setGuideModalOpen(true);
@@ -316,12 +288,7 @@ export default function TimesheetEntryPage() {
             <StatsGrid
               admin_id={admin_id}
               rank_board_ref={rankBoardRef}
-              monthly_summary={monthlySummary as any}
               loading={loading}
-              monthly_summary_loading={summaryLoading}
-              monthly_stats={monthlyStats}
-              selected_date={selected_summary_date}
-              on_date_change={set_selected_summary_date}
             />
 
             <motion.div

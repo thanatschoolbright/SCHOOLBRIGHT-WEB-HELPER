@@ -5,20 +5,10 @@ import isBetween from "dayjs/plugin/isBetween";
 import { toast } from "sonner";
 
 import type { TimesheetEntry } from "@/stores/type";
-import type { DailySummaryItem } from "@components/card/daily-card";
 
 dayjs.extend(isBetween);
 
 const DAILY_TARGET_HOURS = 8;
-const WEEKDAY_LABELS = [
-  "จันทร์",
-  "อังคาร",
-  "พุธ",
-  "พฤหัสบดี",
-  "ศุกร์",
-  "เสาร์",
-  "อาทิตย์",
-];
 
 type TopUsage = {
   name: string;
@@ -71,76 +61,6 @@ export const useDailySummary = (entries: TimesheetEntry[]) => {
 };
 
 /**
- * Hook สำหรับจัดการข้อมูลสรุปรายสัปดาห์
- */
-export const useWeeklySummary = (dailySummary: any[]): DailySummaryItem[] => {
-  return useMemo(() => {
-    if (!dailySummary.length) return [];
-
-    const summaryLookup = new Map(
-      dailySummary.map((item) => [item.dateKey, item]),
-    );
-
-    //** คำนวณวันจันทร์ของสัปดาห์ปัจจุบัน */
-    const today = dayjs();
-    const offsetToMonday = (today.day() + 6) % 7;
-    const monday = today.clone().startOf("day").subtract(offsetToMonday, "day");
-
-    return WEEKDAY_LABELS.map((label, index) => {
-      const day = monday.clone().add(index, "day");
-      const key = day.format("YYYY-MM-DD");
-      const summary = summaryLookup.get(key);
-
-      return {
-        label,
-        dateKey: key,
-        displayDate: day.format("DD/MM/YYYY"),
-        totalHours: summary?.totalHours ?? 0,
-        percent: summary?.percent ?? 0,
-        isCompleted: summary?.isCompleted ?? false,
-      };
-    });
-  }, [dailySummary]);
-};
-
-/**
- * Hook สำหรับจัดการข้อมูลสรุปรายเดือน
- */
-export const useMonthlySummary = (dailySummary: any[]): DailySummaryItem[] => {
-  return useMemo(() => {
-    if (!dailySummary.length) return [];
-
-    const summaryLookup = new Map(
-      dailySummary.map((item) => [item.dateKey, item]),
-    );
-
-    //** คำนวณวันแรกของเดือนปัจจุบัน */
-    const startOfMonth = dayjs().startOf("month");
-    const endOfMonth = dayjs().endOf("month");
-    const daysInMonth = endOfMonth.date();
-
-    const monthlyData: DailySummaryItem[] = [];
-
-    for (let i = 0; i < daysInMonth; i++) {
-      const day = startOfMonth.clone().add(i, "day");
-      const key = day.format("YYYY-MM-DD");
-      const summary = summaryLookup.get(key);
-
-      monthlyData.push({
-        label: day.format("DD"),
-        dateKey: key,
-        displayDate: day.format("DD/MM/YYYY"),
-        totalHours: summary?.totalHours ?? 0,
-        percent: summary?.percent ?? 0,
-        isCompleted: summary?.isCompleted ?? false,
-      });
-    }
-
-    return monthlyData;
-  }, [dailySummary]);
-};
-
-/**
  * Hook สำหรับคำนวณการใช้งานสูงสุด
  */
 export const useTopUsage = (entries: TimesheetEntry[]) => {
@@ -167,53 +87,6 @@ export const useTopUsage = (entries: TimesheetEntry[]) => {
   );
 
   return { topProjectUsage, topFeatureUsage };
-};
-
-/**
- * Hook สำหรับจัดการข้อมูลสรุปรายเดือน ผ่าน API (Server-side calculation)
- * @param userId - ID พนักงาน
- * @param month - เดือนปัจจุบัน
- * @param year - ปีปัจจุบัน
- */
-export const useMonthlySummaryAPI = (
-  userId?: number,
-  month?: number,
-  year?: number,
-) => {
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-
-  const fetchSummary = useCallback(async () => {
-    if (!userId) return;
-    setLoading(true);
-    try {
-      const response = await axios.post(
-        "/api/v1/timesheet/calculate-summary-month",
-        {
-          user_id: userId,
-          month: month || dayjs().month() + 1,
-          year: year || dayjs().year(),
-        },
-      );
-      setData(response.data?.data);
-    } catch (error) {
-      console.error("fetchMonthlySummary error:", error);
-      setData(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [userId, month, year]);
-
-  useEffect(() => {
-    fetchSummary();
-  }, [fetchSummary]);
-
-  return {
-    monthlySummary: (data?.monthlySummary as DailySummaryItem[]) || [],
-    stats: data?.stats || null,
-    loading,
-    refetch: fetchSummary,
-  };
 };
 
 /**

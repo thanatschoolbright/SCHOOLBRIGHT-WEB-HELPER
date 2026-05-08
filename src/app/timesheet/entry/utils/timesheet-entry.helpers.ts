@@ -92,31 +92,6 @@ export const calculateDailySummary = (entries: TimesheetEntry[]) => {
   }));
 };
 
-export const calculateWeeklySummary = (dailySummaries: any[]) => {
-  const weeklyMap = new Map<string, any>();
-
-  dailySummaries.forEach((daily) => {
-    const weekStart = dayjs(daily.date).startOf("week").format("YYYY-MM-DD");
-    const weekEnd = dayjs(daily.date).endOf("week").format("YYYY-MM-DD");
-    const weekKey = `${weekStart}_${weekEnd}`;
-
-    const existing = weeklyMap.get(weekKey);
-    if (existing) {
-      existing.totalHours += daily.totalHours;
-      existing.dailySummaries.push(daily);
-    } else {
-      weeklyMap.set(weekKey, {
-        weekStart,
-        weekEnd,
-        totalHours: daily.totalHours,
-        dailySummaries: [daily],
-      });
-    }
-  });
-
-  return Array.from(weeklyMap.values());
-};
-
 export const calculateTopUsage = (entries: TimesheetEntry[]) => {
   const projectMap = new Map<string, number>();
   const featureMap = new Map<string, number>();

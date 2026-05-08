@@ -69,41 +69,4 @@ export const timesheetApi = {
     return response.data;
   },
 
-  /**
-   * ดึงข้อมูลสรุปรายสัปดาห์ (Request)
-   * @param start_date วันเริ่มต้น (YYYY-MM-DD)
-   * @param end_date วันสิ้นสุด (YYYY-MM-DD)
-   */
-  requestWeeklySummary: async (start_date: string, end_date: string) => {
-    const response = await axios.post(
-      `/api/v1/timesheet/entry/check/summary/`,
-      {
-        start_date,
-        end_date,
-      },
-    );
-    return response.data;
-  },
-
-  /**
-   * ดึงข้อมูลสรุปรายเดือน (Request)
-   * @param user_id ID ของผู้ใช้งาน
-   * @param month เดือนที่ต้องการ (1-12)
-   * @param year ปีที่ต้องการ (ค.ศ.)
-   */
-  requestCalculateMonthlySummary: async (
-    user_id: number,
-    month: number,
-    year: number,
-  ) => {
-    const response = await axios.post(
-      `/api/v1/timesheet/calculate-summary-month`,
-      {
-        user_id,
-        month,
-        year,
-      },
-    );
-    return response.data;
-  },
 };

@@ -41,9 +41,9 @@
   "health_check": {
     "title": "เช็กสถานะ",
     "children": {
-      "server_status": "สถานะเซิร์ฟ",
+      "server_status": "สถานะ Mobile API",
       "version_control": "เวอร์ชันระบบ",
-      "all_server_status": "รายงานรวม",
+      "all_server_status": "สถานะเซิฟเวอร์",
       "check_device_status": "ตรวจสอบสถานะอุปกรณ์",
       "offline_sync_status": "ซิงก์ออฟไลน์",
       "transaction_log": "ประวัติธุรกรรม",
