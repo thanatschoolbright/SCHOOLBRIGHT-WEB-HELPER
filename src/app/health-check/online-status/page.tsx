@@ -13,7 +13,6 @@ import {
   DeleteOutlined,
   DesktopOutlined,
   FileExcelOutlined,
-  FilterFilled,
   GlobalOutlined,
   InfoCircleOutlined,
   MailOutlined,
@@ -29,13 +28,11 @@ import {
 import DashboardLayout from "@components/layouts/backend-layout";
 import { StatusModalComponent } from "@components/modal/status-modal-component";
 import { HeaderBar } from "@components/typhography/header-bar-component";
-import { CallAPI as fetchSchoolList } from "@stores/actions/support/call-get-school-list-detail";
-import { AppDispatch, useAppSelector } from "@stores/store";
+
 import {
   Button,
   Card,
   Col,
-  Collapse,
   Dropdown,
   Flex,
   Modal,
@@ -55,17 +52,15 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { useHasPermission } from "@hooks/use-has-permission";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+
 import ActivityLogTab, { BotRunLogSection } from "./_components/activity-log-tab";
-import DeviceTable from "./_components/device-table";
-import FilterSection from "./_components/filter-section";
 import { SchoolDeviceTab } from "./_components/school-device-tab";
 import {
   DashboardSummary,
   LineGroup,
   onlineStatusService,
 } from "./_services/online-status-service";
-import { useOnlineStatusStore } from "./_state/online-status-store";
+
 
 dayjs.extend(relativeTime);
 dayjs.extend(buddhistEra);
@@ -105,11 +100,6 @@ const DiscordIcon = () => (
 export default function OnlineDeviceDashboard() {
   const router = useRouter();
   const { token } = theme.useToken();
-  const { isFetching, deviceList, fetchData } = useOnlineStatusStore();
-  const dispatch = useDispatch<AppDispatch>();
-  const schoolListState = useAppSelector(
-    (state) => state.callGetSchoolListDetail,
-  );
   const { isAdmin } = useHasPermission();
 
   const [statusModal, setStatusModal] = useState<{
@@ -236,18 +226,9 @@ export default function OnlineDeviceDashboard() {
   };
 
   useEffect(() => {
-    fetchData(1, 20);
     void loadDashboard();
     void loadLineGroups();
     void loadBotSetting();
-
-    // โหลดรายชื่อโรงเรียนเข้า Redux เพื่อให้ FilterSection ใช้งาน Dropdown ได้
-    const hasSchoolData =
-      Array.isArray(schoolListState.response?.data?.data) &&
-      schoolListState.response.data.data.length > 0;
-    if (!hasSchoolData && !schoolListState.loading) {
-      void dispatch(fetchSchoolList());
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -444,21 +425,6 @@ export default function OnlineDeviceDashboard() {
       });
     }
   };
-
-  const collapseItems = [
-    {
-      key: "1",
-      label: (
-        <Flex align="center" gap={8}>
-          <FilterFilled style={{ color: token.colorPrimary }} />
-          <AntText strong style={{ fontSize: 14 }}>
-            ตัวกรองข้อมูลขั้นสูง
-          </AntText>
-        </Flex>
-      ),
-      children: <FilterSection deviceList={deviceList} />,
-    },
-  ];
 
   return (
     <DashboardLayout>
@@ -797,11 +763,8 @@ export default function OnlineDeviceDashboard() {
 
               {/* สถานะการอัปเดต */}
               <Space direction="vertical" align="end" size={0}>
-                <Tag
-                  icon={<SyncOutlined spin={isFetching} />}
-                  color={isFetching ? "processing" : "default"}
-                >
-                  {isFetching ? "กำลังอัปเดตข้อมูล..." : "ข้อมูลล่าสุด"}
+                <Tag icon={<SyncOutlined />} color="default">
+                  ข้อมูลล่าสุด
                 </Tag>
                 <AntText type="secondary" style={{ fontSize: 11 }}>
                   อัปเดตเมื่อ: {dayjs().format("HH:mm:ss")}
@@ -1045,33 +1008,10 @@ export default function OnlineDeviceDashboard() {
         </Card>
 
         <Tabs
-          defaultActiveKey="devices"
+          defaultActiveKey="by-school"
           size="large"
           style={{ marginTop: 8 }}
           items={[
-            {
-              key: "devices",
-              label: "ดูอุปกรณ์ทั้งหมด",
-              children: (
-                <>
-                  <div style={{ marginBottom: 24 }}>
-                    <Collapse
-                      defaultActiveKey={["1"]}
-                      ghost
-                      expandIconPosition="end"
-                      items={collapseItems}
-                      destroyOnHidden={false}
-                      style={{
-                        background: token.colorBgContainer,
-                        borderRadius: 16,
-                        border: "none",
-                      }}
-                    />
-                  </div>
-                  <DeviceTable />
-                </>
-              ),
-            },
             {
               key: "by-school",
               label: "ดูอุปกรณ์ตามรายชื่อโรงเรียน",
