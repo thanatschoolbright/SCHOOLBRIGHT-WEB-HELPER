@@ -25,7 +25,7 @@ import {
   Typography,
 } from "antd";
 import dayjs from "dayjs";
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 interface PageHeaderProps {
