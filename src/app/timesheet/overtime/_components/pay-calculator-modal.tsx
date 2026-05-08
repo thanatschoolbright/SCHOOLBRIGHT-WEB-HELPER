@@ -130,17 +130,20 @@ const PayCalculatorModal: React.FC<PayCalculatorModalProps> = ({
           <Col span={12}>
             <Flex vertical gap={4}>
               <Text strong>จำนวนชั่วโมง OT</Text>
-              <InputNumber
-                value={otHours}
-                onChange={(v) => setOtHours(v)}
-                min={0.5}
-                max={744}
-                step={0.5}
-                placeholder="จำนวนชั่วโมง"
-                style={{ width: "100%" }}
-                size="large"
-                addonAfter="ชม."
-              />
+              <Space.Compact style={{ width: "100%" }} size="large">
+                <InputNumber
+                  value={otHours}
+                  onChange={(v) => setOtHours(v)}
+                  min={0.5}
+                  max={744}
+                  step={0.5}
+                  placeholder="จำนวนชั่วโมง"
+                  style={{ width: "100%" }}
+                />
+                <Button disabled style={{ color: "inherit" }}>
+                  ชม.
+                </Button>
+              </Space.Compact>
             </Flex>
           </Col>
         </Row>
@@ -164,7 +167,11 @@ const PayCalculatorModal: React.FC<PayCalculatorModalProps> = ({
                     title="อัตรา OT (x1.5) ต่อชั่วโมง"
                     value={formatBaht(result.otHourlyRate)}
                     suffix="บาท"
-                    valueStyle={{ fontSize: 16, fontWeight: 600, color: "#fa8c16" }}
+                    valueStyle={{
+                      fontSize: 16,
+                      fontWeight: 600,
+                      color: "#fa8c16",
+                    }}
                   />
                 </Col>
               </Row>

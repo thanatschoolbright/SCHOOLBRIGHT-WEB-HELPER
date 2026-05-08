@@ -2164,23 +2164,26 @@ export const SchoolDeviceTab = () => {
                               </Flex>
 
                               <Flex align="center" gap={12}>
-                                <InputNumber
-                                  size="small"
-                                  min={1}
-                                  max={1440}
-                                  value={merged.interval_minutes}
-                                  addonAfter="นาที"
-                                  onChange={(val) =>
-                                    setIntervalDrafts((prev) => ({
-                                      ...prev,
-                                      [v.id]: {
-                                        ...prev[v.id],
-                                        interval_minutes: val ?? 1,
-                                      },
-                                    }))
-                                  }
-                                  style={{ width: 120 }}
-                                />
+                                <Space.Compact size="small">
+                                  <InputNumber
+                                    min={1}
+                                    max={1440}
+                                    value={merged.interval_minutes}
+                                    onChange={(val) =>
+                                      setIntervalDrafts((prev) => ({
+                                        ...prev,
+                                        [v.id]: {
+                                          ...prev[v.id],
+                                          interval_minutes: val ?? 1,
+                                        },
+                                      }))
+                                    }
+                                    style={{ width: 80 }}
+                                  />
+                                  <Button disabled style={{ color: "inherit" }}>
+                                    นาที
+                                  </Button>
+                                </Space.Compact>
 
                                 <Flex
                                   align="center"

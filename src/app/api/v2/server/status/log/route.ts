@@ -97,9 +97,12 @@ export async function GET(request: NextRequest) {
       PrismaTimesheet.apiLog.count({ where }),
     ]);
 
+    // แปลง BigInt id เป็น string เพื่อให้ JSON.stringify รองรับได้
+    const serializedLogs = logs.map((log) => ({ ...log, id: log.id.toString() }));
+
     return NextResponse.json(
       successResponse({
-        data: logs,
+        data: serializedLogs,
         pagination: buildPagination(offset, page_size, total),
         message_th: "ดึงข้อมูล log สำเร็จ",
         message_en: "Logs fetched successfully",
