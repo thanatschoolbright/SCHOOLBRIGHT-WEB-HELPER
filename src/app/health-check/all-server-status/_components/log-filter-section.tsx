@@ -13,6 +13,7 @@ import {
   theme,
   DatePicker,
   InputNumber,
+  Space,
 } from "antd";
 import { FilterOutlined, SearchOutlined, ClearOutlined } from "@ant-design/icons";
 import { LogFilters } from "../_state/server-status.state";
@@ -77,13 +78,17 @@ const LogFilterSection: React.FC<LogFilterSectionProps> = ({ onSearch, onReset, 
           </Col>
           <Col xs={24} md={8}>
             <Form.Item name="days" label="ย้อนหลัง (วัน)">
-              <InputNumber
-                min={1}
-                max={30}
-                style={{ width: "100%" }}
-                placeholder="จำนวนวันย้อนหลัง (สูงสุด 30 วัน)"
-                addonAfter="วัน"
-              />
+              <Space.Compact style={{ width: "100%" }}>
+                <InputNumber
+                  min={1}
+                  max={30}
+                  style={{ width: "calc(100% - 60px)" }}
+                  placeholder="จำนวนวันย้อนหลัง (สูงสุด 30 วัน)"
+                />
+                <Button disabled style={{ width: 60, color: token.colorTextDisabled }}>
+                  วัน
+                </Button>
+              </Space.Compact>
             </Form.Item>
           </Col>
           <Col xs={24} md={8}>
