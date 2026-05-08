@@ -64,7 +64,6 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
 
   return (
     <Card
-      variant="outlined"
       styles={{ body: { padding: 16 } }}
       style={{
         marginBottom: 24,
@@ -73,8 +72,8 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
       }}
     >
       <Flex align="center" gap={8} style={{ marginBottom: 16 }}>
-        <FilterOutlined style={{ fontSize: "1rem", fontWeight: 600 }} />
-        <Text strong style={{ fontSize: "1rem" }}>
+        <FilterOutlined style={{ fontSize: "1rem" }} />
+        <Text strong style={{ fontSize: "1rem", fontWeight: 600 }}>
           ตัวกรอง
         </Text>
       </Flex>

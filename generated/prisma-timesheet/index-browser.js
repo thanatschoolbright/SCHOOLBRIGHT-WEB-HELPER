@@ -373,6 +373,22 @@ exports.Prisma.BotSettingScalarFieldEnum = {
   created_at: 'created_at'
 };
 
+exports.Prisma.ServerStatusDailySummaryScalarFieldEnum = {
+  id: 'id',
+  summary_date: 'summary_date',
+  server_key: 'server_key',
+  server_name_th: 'server_name_th',
+  total_checks: 'total_checks',
+  online_count: 'online_count',
+  offline_count: 'offline_count',
+  uptime_percent: 'uptime_percent',
+  avg_response_time_ms: 'avg_response_time_ms',
+  min_response_time_ms: 'min_response_time_ms',
+  max_response_time_ms: 'max_response_time_ms',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -422,7 +438,8 @@ exports.Prisma.ModelName = {
   ApiLog: 'ApiLog',
   CrmSupportAuthentication: 'CrmSupportAuthentication',
   LineGroup: 'LineGroup',
-  BotSetting: 'BotSetting'
+  BotSetting: 'BotSetting',
+  ServerStatusDailySummary: 'ServerStatusDailySummary'
 };
 
 /**

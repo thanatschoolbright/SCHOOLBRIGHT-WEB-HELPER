@@ -55,3 +55,32 @@ export const requestServerStatusLogSummary = async (params: {
     const response = await axios.get("/api/v2/server/status/log/summary", { params });
     return response.data;
 };
+
+/**
+ * สรุปข้อมูล log เป็นรายวัน (aggregate ลง server_status_daily_summary)
+ * @param target_date - วันที่ต้องการสรุป YYYY-MM-DD (ถ้าไม่ส่งจะสรุปทุกวันที่ยังไม่ได้สรุป)
+ */
+export const requestAggregateServerStatusLog = async (target_date?: string) => {
+    const response = await axios.post("/api/v2/server/status/log/aggregate", { target_date });
+    return response.data;
+};
+
+/**
+ * ลบ log การตรวจสอบสถานะ Server เฉพาะวันก่อนหน้า (ไม่แตะ log วันนี้)
+ */
+export const requestDeleteOldServerStatusLog = async () => {
+    const response = await axios.delete("/api/v2/server/status/log/delete");
+    return response.data;
+};
+
+/**
+ * ดึงข้อมูลสรุป Uptime/Downtime รายวันสำหรับแสดงผล Graph
+ * @param params - จำนวนวัน และ server_key (ถ้าต้องการ filter)
+ */
+export const requestServerStatusDailySummary = async (params: {
+    days?: number;
+    server_key?: string;
+}) => {
+    const response = await axios.get("/api/v2/server/status/daily-summary", { params });
+    return response.data;
+};

@@ -5,6 +5,9 @@ import {
   requestNotifyDiscord,
   requestServerStatusLogs,
   requestServerStatusLogSummary,
+  requestAggregateServerStatusLog,
+  requestDeleteOldServerStatusLog,
+  requestServerStatusDailySummary,
 } from "../_api/server-status.api";
 import { toast } from "sonner";
 
@@ -75,6 +78,18 @@ export interface LogFilters {
   days?: number;
 }
 
+export interface DailySummaryServer {
+  server_key: string;
+  server_name_th: string;
+  data: Array<{
+    date: string;
+    uptime_percent: number;
+    online_count: number;
+    offline_count: number;
+    avg_response_time_ms: number;
+  }>;
+}
+
 interface ServerStatusState {
   // Data — Real-time status
   servers: ServerStatus[];
@@ -89,6 +104,12 @@ interface ServerStatusState {
   isLoadingLogs: boolean;
   isLoadingSummary: boolean;
   logFilters: LogFilters;
+
+  // Data — Daily Summary (Graph)
+  dailySummary: DailySummaryServer[];
+  isLoadingDailySummary: boolean;
+  isAggregating: boolean;
+  isDeletingLogs: boolean;
 
   // Computed (Calculated from raw data)
   getStats: () => { online: number; offline: number; avgResponseTime: number };
@@ -105,6 +126,11 @@ interface ServerStatusState {
   fetchLogSummary: () => Promise<void>;
   setLogFilters: (filters: LogFilters) => void;
   resetLogFilters: () => void;
+
+  // Actions — Daily Summary
+  fetchDailySummary: (days?: number) => Promise<void>;
+  aggregateLogs: () => Promise<{ success: boolean; processed_dates: number; rows_created: number }>;
+  deleteOldLogs: () => Promise<{ success: boolean; deleted_count: number }>;
 }
 
 const DEFAULT_LOG_FILTERS: LogFilters = { days: 7 };
@@ -123,6 +149,12 @@ export const useServerStatusStore = create<ServerStatusState>((set, get) => ({
   isLoadingLogs: false,
   isLoadingSummary: false,
   logFilters: DEFAULT_LOG_FILTERS,
+
+  // Initial Data — Daily Summary
+  dailySummary: [],
+  isLoadingDailySummary: false,
+  isAggregating: false,
+  isDeletingLogs: false,
 
   // Computed
   getStats: () => {
@@ -248,5 +280,53 @@ export const useServerStatusStore = create<ServerStatusState>((set, get) => ({
   // ✨ รีเซ็ต filter ของ log tab กลับค่าเริ่มต้น
   resetLogFilters: () => {
     set({ logFilters: DEFAULT_LOG_FILTERS });
+  },
+
+  // ✨ ดึงข้อมูลสรุป Uptime/Downtime รายวันสำหรับแสดงผล Graph
+  fetchDailySummary: async (days = 30) => {
+    set({ isLoadingDailySummary: true });
+    try {
+      const response = await requestServerStatusDailySummary({ days });
+      set({ dailySummary: response.data ?? [] });
+    } catch (error: any) {
+      toast.error("ไม่สามารถดึงข้อมูล Daily Summary ได้: " + error.message);
+    } finally {
+      set({ isLoadingDailySummary: false });
+    }
+  },
+
+  // ✨ สรุปข้อมูล log เป็นรายวัน (aggregate ลง server_status_daily_summary)
+  aggregateLogs: async () => {
+    set({ isAggregating: true });
+    try {
+      const response = await requestAggregateServerStatusLog();
+      return {
+        success: true,
+        processed_dates: response.data?.processed_dates ?? 0,
+        rows_created: response.data?.rows_created ?? 0,
+      };
+    } catch (error: any) {
+      toast.error("ไม่สามารถสรุปข้อมูล log ได้: " + error.message);
+      return { success: false, processed_dates: 0, rows_created: 0 };
+    } finally {
+      set({ isAggregating: false });
+    }
+  },
+
+  // ✨ ลบ log เก่า (เฉพาะวันก่อนหน้า ไม่แตะ log วันนี้)
+  deleteOldLogs: async () => {
+    set({ isDeletingLogs: true });
+    try {
+      const response = await requestDeleteOldServerStatusLog();
+      return {
+        success: true,
+        deleted_count: response.data?.deleted_count ?? 0,
+      };
+    } catch (error: any) {
+      toast.error("ไม่สามารถลบ log ได้: " + error.message);
+      return { success: false, deleted_count: 0 };
+    } finally {
+      set({ isDeletingLogs: false });
+    }
   },
 }));

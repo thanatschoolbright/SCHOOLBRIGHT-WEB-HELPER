@@ -25,6 +25,8 @@ import LogSummarySection from "./_components/log-summary-section";
 import LogFilterSection from "./_components/log-filter-section";
 import LogServerUptimeTable from "./_components/log-server-uptime-table";
 import LogEntriesTable from "./_components/log-entries-table";
+import LogDailySummaryChart from "./_components/log-daily-summary-chart";
+import LogManagementPanel from "./_components/log-management-panel";
 
 // Global State
 import { useServerStatusStore, ServerStatus } from "./_state/server-status.state";
@@ -182,6 +184,12 @@ export default function ServerStatusPage() {
       ),
       children: (
         <Space direction="vertical" size={24} style={{ width: "100%" }}>
+          {/* จัดการ LOG — สรุปรายวัน + ลบ log เก่า */}
+          <LogManagementPanel />
+
+          {/* Graph Uptime รายวัน (จาก Daily Summary) */}
+          <LogDailySummaryChart />
+
           {/* Log Filter */}
           <LogFilterSection
             form={logFilterForm}

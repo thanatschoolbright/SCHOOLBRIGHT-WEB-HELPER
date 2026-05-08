@@ -633,19 +633,18 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
 
   return (
     <Card
-      variant="outlined"
       title={
-        <Flex align="center" gap={16}>
+        <Flex align="center" gap={12}>
           {viewMode === "table" ? (
             <UnorderedListOutlined style={{ fontSize: "1rem" }} />
           ) : (
             <CalendarOutlined style={{ fontSize: "1rem" }} />
           )}
-          <Typography.Title level={5} style={{ margin: 0 }}>
+          <Typography.Text strong style={{ fontSize: "1rem", fontWeight: 600 }}>
             {viewMode === "table"
               ? t("timesheet_entry_page.timesheet_log", "รายการลงเวลา")
               : t("timesheet_entry_page.calendar_view", "มุมมองปฏิทิน")}
-          </Typography.Title>
+          </Typography.Text>
         </Flex>
       }
       styles={{ body: { padding: 16 } }}
@@ -748,18 +747,16 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
           <TimesheetActions
             loading={actionLoading}
             refreshLoading={loading}
-            onRefresh={onRefresh}
             onAdd={onAdd}
+            onRefresh={onRefresh}
           />
         </Space>
       }
       style={{
-        margin: "24px 0",
         borderRadius: 24,
         overflow: "hidden",
         border: `1px solid ${token.colorBorderSecondary}`,
-        boxShadow: "0 8px 32px rgba(0,0,0,0.06)",
-        background: token.colorBgContainer,
+        boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
       }}
     >
       {/* Calendar View */}
@@ -768,66 +765,71 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
       )}
 
       {/* Table View */}
-      {viewMode === "table" && <div style={{ padding: token.paddingLG }}>
-        <Table<TimesheetEntry>
-          rowKey={(r) => String(r.id || Math.random())}
-          columns={filteredColumns}
-          dataSource={entries}
-          loading={loading}
-          scroll={{ x: 1000 }}
-          locale={{
-            emptyText: (
-              <Empty
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                description={
-                  <Flex
-                    vertical
-                    gap={8}
-                    align="center"
-                    style={{ padding: "32px 0" }}
-                  >
-                    <Typography.Text strong style={{ fontSize: 16 }}>
-                      {t(
-                        "timesheet_entry_page.no_entries",
-                        "ยังไม่มีบันทึกเวลาทำงาน",
-                      )}
-                    </Typography.Text>
-                    <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-                      คลิกปุ่ม "เพิ่มรายการ" เพื่อเริ่มบันทึกงานแรกของคุณ
-                    </Typography.Text>
-                    <Button
-                      type="primary"
-                      onClick={onAdd}
-                      icon={<PlusOutlined />}
-                      style={{ marginTop: 12, borderRadius: 8 }}
+      {viewMode === "table" && (
+        <div style={{ padding: token.paddingLG }}>
+          <Table<TimesheetEntry>
+            rowKey={(r) => String(r.id || Math.random())}
+            columns={filteredColumns}
+            dataSource={entries}
+            loading={loading}
+            scroll={{ x: 1000 }}
+            locale={{
+              emptyText: (
+                <Empty
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  description={
+                    <Flex
+                      vertical
+                      gap={8}
+                      align="center"
+                      style={{ padding: "32px 0" }}
                     >
-                      {t(
-                        "timesheet_entry_page.add_first_entry",
-                        "เพิ่มรายการแรก",
-                      )}
-                    </Button>
-                  </Flex>
-                }
-              />
-            ),
-          }}
-          pagination={{
-            current: currentPage,
-            pageSize,
-            total: totalItems,
-            onChange: onPageChange,
-            showTotal: (total) => `ทั้งหมด ${total} รายการ`,
-            showSizeChanger: true,
-            position: ["bottomCenter"],
-          }}
-          onRow={(r) => ({
-            onClick: () => {
-              onRowClick(r);
-            },
-            style: { cursor: "pointer" },
-          })}
-        />
-      </div>}
+                      <Typography.Text strong style={{ fontSize: 16 }}>
+                        {t(
+                          "timesheet_entry_page.no_entries",
+                          "ยังไม่มีบันทึกเวลาทำงาน",
+                        )}
+                      </Typography.Text>
+                      <Typography.Text
+                        type="secondary"
+                        style={{ fontSize: 13 }}
+                      >
+                        คลิกปุ่ม "เพิ่มรายการ" เพื่อเริ่มบันทึกงานแรกของคุณ
+                      </Typography.Text>
+                      <Button
+                        type="primary"
+                        onClick={onAdd}
+                        icon={<PlusOutlined />}
+                        style={{ marginTop: 12, borderRadius: 8 }}
+                      >
+                        {t(
+                          "timesheet_entry_page.add_first_entry",
+                          "เพิ่มรายการแรก",
+                        )}
+                      </Button>
+                    </Flex>
+                  }
+                />
+              ),
+            }}
+            pagination={{
+              current: currentPage,
+              pageSize,
+              total: totalItems,
+              onChange: onPageChange,
+              showTotal: (total) => `ทั้งหมด ${total} รายการ`,
+              showSizeChanger: true,
+              position: ["bottomCenter"],
+            }}
+            onRow={(r) => ({
+              onClick: () => {
+                onRowClick(r);
+              },
+              style: { cursor: "pointer" },
+            })}
+          />
+        </div>
+      )}
     </Card>
   );
 };

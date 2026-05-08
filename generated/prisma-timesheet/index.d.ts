@@ -108,6 +108,11 @@ export type LineGroup = $Result.DefaultSelection<Prisma.$LineGroupPayload>
  * 
  */
 export type BotSetting = $Result.DefaultSelection<Prisma.$BotSettingPayload>
+/**
+ * Model ServerStatusDailySummary
+ * 
+ */
+export type ServerStatusDailySummary = $Result.DefaultSelection<Prisma.$ServerStatusDailySummaryPayload>
 
 /**
  * Enums
@@ -433,6 +438,16 @@ export class PrismaClient<
     * ```
     */
   get botSetting(): Prisma.BotSettingDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.serverStatusDailySummary`: Exposes CRUD operations for the **ServerStatusDailySummary** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ServerStatusDailySummaries
+    * const serverStatusDailySummaries = await prisma.serverStatusDailySummary.findMany()
+    * ```
+    */
+  get serverStatusDailySummary(): Prisma.ServerStatusDailySummaryDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -892,7 +907,8 @@ export namespace Prisma {
     ApiLog: 'ApiLog',
     CrmSupportAuthentication: 'CrmSupportAuthentication',
     LineGroup: 'LineGroup',
-    BotSetting: 'BotSetting'
+    BotSetting: 'BotSetting',
+    ServerStatusDailySummary: 'ServerStatusDailySummary'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -911,7 +927,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "position" | "department" | "user" | "role" | "permission" | "rolePermission" | "group" | "projectStatus" | "project" | "feature" | "projectAssignee" | "timesheetEntry" | "overtime" | "overtimeDescription" | "overtimeStatusLog" | "apiLog" | "crmSupportAuthentication" | "lineGroup" | "botSetting"
+      modelProps: "position" | "department" | "user" | "role" | "permission" | "rolePermission" | "group" | "projectStatus" | "project" | "feature" | "projectAssignee" | "timesheetEntry" | "overtime" | "overtimeDescription" | "overtimeStatusLog" | "apiLog" | "crmSupportAuthentication" | "lineGroup" | "botSetting" | "serverStatusDailySummary"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2321,6 +2337,80 @@ export namespace Prisma {
           }
         }
       }
+      ServerStatusDailySummary: {
+        payload: Prisma.$ServerStatusDailySummaryPayload<ExtArgs>
+        fields: Prisma.ServerStatusDailySummaryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ServerStatusDailySummaryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServerStatusDailySummaryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ServerStatusDailySummaryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServerStatusDailySummaryPayload>
+          }
+          findFirst: {
+            args: Prisma.ServerStatusDailySummaryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServerStatusDailySummaryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ServerStatusDailySummaryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServerStatusDailySummaryPayload>
+          }
+          findMany: {
+            args: Prisma.ServerStatusDailySummaryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServerStatusDailySummaryPayload>[]
+          }
+          create: {
+            args: Prisma.ServerStatusDailySummaryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServerStatusDailySummaryPayload>
+          }
+          createMany: {
+            args: Prisma.ServerStatusDailySummaryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ServerStatusDailySummaryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServerStatusDailySummaryPayload>[]
+          }
+          delete: {
+            args: Prisma.ServerStatusDailySummaryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServerStatusDailySummaryPayload>
+          }
+          update: {
+            args: Prisma.ServerStatusDailySummaryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServerStatusDailySummaryPayload>
+          }
+          deleteMany: {
+            args: Prisma.ServerStatusDailySummaryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ServerStatusDailySummaryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ServerStatusDailySummaryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServerStatusDailySummaryPayload>[]
+          }
+          upsert: {
+            args: Prisma.ServerStatusDailySummaryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServerStatusDailySummaryPayload>
+          }
+          aggregate: {
+            args: Prisma.ServerStatusDailySummaryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateServerStatusDailySummary>
+          }
+          groupBy: {
+            args: Prisma.ServerStatusDailySummaryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ServerStatusDailySummaryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ServerStatusDailySummaryCountArgs<ExtArgs>
+            result: $Utils.Optional<ServerStatusDailySummaryCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2436,6 +2526,7 @@ export namespace Prisma {
     crmSupportAuthentication?: CrmSupportAuthenticationOmit
     lineGroup?: LineGroupOmit
     botSetting?: BotSettingOmit
+    serverStatusDailySummary?: ServerStatusDailySummaryOmit
   }
 
   /* Types for Logging */
@@ -25444,6 +25535,1167 @@ export namespace Prisma {
 
 
   /**
+   * Model ServerStatusDailySummary
+   */
+
+  export type AggregateServerStatusDailySummary = {
+    _count: ServerStatusDailySummaryCountAggregateOutputType | null
+    _avg: ServerStatusDailySummaryAvgAggregateOutputType | null
+    _sum: ServerStatusDailySummarySumAggregateOutputType | null
+    _min: ServerStatusDailySummaryMinAggregateOutputType | null
+    _max: ServerStatusDailySummaryMaxAggregateOutputType | null
+  }
+
+  export type ServerStatusDailySummaryAvgAggregateOutputType = {
+    id: number | null
+    total_checks: number | null
+    online_count: number | null
+    offline_count: number | null
+    uptime_percent: number | null
+    avg_response_time_ms: number | null
+    min_response_time_ms: number | null
+    max_response_time_ms: number | null
+  }
+
+  export type ServerStatusDailySummarySumAggregateOutputType = {
+    id: number | null
+    total_checks: number | null
+    online_count: number | null
+    offline_count: number | null
+    uptime_percent: number | null
+    avg_response_time_ms: number | null
+    min_response_time_ms: number | null
+    max_response_time_ms: number | null
+  }
+
+  export type ServerStatusDailySummaryMinAggregateOutputType = {
+    id: number | null
+    summary_date: Date | null
+    server_key: string | null
+    server_name_th: string | null
+    total_checks: number | null
+    online_count: number | null
+    offline_count: number | null
+    uptime_percent: number | null
+    avg_response_time_ms: number | null
+    min_response_time_ms: number | null
+    max_response_time_ms: number | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type ServerStatusDailySummaryMaxAggregateOutputType = {
+    id: number | null
+    summary_date: Date | null
+    server_key: string | null
+    server_name_th: string | null
+    total_checks: number | null
+    online_count: number | null
+    offline_count: number | null
+    uptime_percent: number | null
+    avg_response_time_ms: number | null
+    min_response_time_ms: number | null
+    max_response_time_ms: number | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type ServerStatusDailySummaryCountAggregateOutputType = {
+    id: number
+    summary_date: number
+    server_key: number
+    server_name_th: number
+    total_checks: number
+    online_count: number
+    offline_count: number
+    uptime_percent: number
+    avg_response_time_ms: number
+    min_response_time_ms: number
+    max_response_time_ms: number
+    created_at: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type ServerStatusDailySummaryAvgAggregateInputType = {
+    id?: true
+    total_checks?: true
+    online_count?: true
+    offline_count?: true
+    uptime_percent?: true
+    avg_response_time_ms?: true
+    min_response_time_ms?: true
+    max_response_time_ms?: true
+  }
+
+  export type ServerStatusDailySummarySumAggregateInputType = {
+    id?: true
+    total_checks?: true
+    online_count?: true
+    offline_count?: true
+    uptime_percent?: true
+    avg_response_time_ms?: true
+    min_response_time_ms?: true
+    max_response_time_ms?: true
+  }
+
+  export type ServerStatusDailySummaryMinAggregateInputType = {
+    id?: true
+    summary_date?: true
+    server_key?: true
+    server_name_th?: true
+    total_checks?: true
+    online_count?: true
+    offline_count?: true
+    uptime_percent?: true
+    avg_response_time_ms?: true
+    min_response_time_ms?: true
+    max_response_time_ms?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type ServerStatusDailySummaryMaxAggregateInputType = {
+    id?: true
+    summary_date?: true
+    server_key?: true
+    server_name_th?: true
+    total_checks?: true
+    online_count?: true
+    offline_count?: true
+    uptime_percent?: true
+    avg_response_time_ms?: true
+    min_response_time_ms?: true
+    max_response_time_ms?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type ServerStatusDailySummaryCountAggregateInputType = {
+    id?: true
+    summary_date?: true
+    server_key?: true
+    server_name_th?: true
+    total_checks?: true
+    online_count?: true
+    offline_count?: true
+    uptime_percent?: true
+    avg_response_time_ms?: true
+    min_response_time_ms?: true
+    max_response_time_ms?: true
+    created_at?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type ServerStatusDailySummaryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ServerStatusDailySummary to aggregate.
+     */
+    where?: ServerStatusDailySummaryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ServerStatusDailySummaries to fetch.
+     */
+    orderBy?: ServerStatusDailySummaryOrderByWithRelationInput | ServerStatusDailySummaryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ServerStatusDailySummaryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ServerStatusDailySummaries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ServerStatusDailySummaries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ServerStatusDailySummaries
+    **/
+    _count?: true | ServerStatusDailySummaryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ServerStatusDailySummaryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ServerStatusDailySummarySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ServerStatusDailySummaryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ServerStatusDailySummaryMaxAggregateInputType
+  }
+
+  export type GetServerStatusDailySummaryAggregateType<T extends ServerStatusDailySummaryAggregateArgs> = {
+        [P in keyof T & keyof AggregateServerStatusDailySummary]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateServerStatusDailySummary[P]>
+      : GetScalarType<T[P], AggregateServerStatusDailySummary[P]>
+  }
+
+
+
+
+  export type ServerStatusDailySummaryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ServerStatusDailySummaryWhereInput
+    orderBy?: ServerStatusDailySummaryOrderByWithAggregationInput | ServerStatusDailySummaryOrderByWithAggregationInput[]
+    by: ServerStatusDailySummaryScalarFieldEnum[] | ServerStatusDailySummaryScalarFieldEnum
+    having?: ServerStatusDailySummaryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ServerStatusDailySummaryCountAggregateInputType | true
+    _avg?: ServerStatusDailySummaryAvgAggregateInputType
+    _sum?: ServerStatusDailySummarySumAggregateInputType
+    _min?: ServerStatusDailySummaryMinAggregateInputType
+    _max?: ServerStatusDailySummaryMaxAggregateInputType
+  }
+
+  export type ServerStatusDailySummaryGroupByOutputType = {
+    id: number
+    summary_date: Date
+    server_key: string
+    server_name_th: string
+    total_checks: number
+    online_count: number
+    offline_count: number
+    uptime_percent: number
+    avg_response_time_ms: number
+    min_response_time_ms: number | null
+    max_response_time_ms: number | null
+    created_at: Date
+    updated_at: Date
+    _count: ServerStatusDailySummaryCountAggregateOutputType | null
+    _avg: ServerStatusDailySummaryAvgAggregateOutputType | null
+    _sum: ServerStatusDailySummarySumAggregateOutputType | null
+    _min: ServerStatusDailySummaryMinAggregateOutputType | null
+    _max: ServerStatusDailySummaryMaxAggregateOutputType | null
+  }
+
+  type GetServerStatusDailySummaryGroupByPayload<T extends ServerStatusDailySummaryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ServerStatusDailySummaryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ServerStatusDailySummaryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ServerStatusDailySummaryGroupByOutputType[P]>
+            : GetScalarType<T[P], ServerStatusDailySummaryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ServerStatusDailySummarySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    summary_date?: boolean
+    server_key?: boolean
+    server_name_th?: boolean
+    total_checks?: boolean
+    online_count?: boolean
+    offline_count?: boolean
+    uptime_percent?: boolean
+    avg_response_time_ms?: boolean
+    min_response_time_ms?: boolean
+    max_response_time_ms?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["serverStatusDailySummary"]>
+
+  export type ServerStatusDailySummarySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    summary_date?: boolean
+    server_key?: boolean
+    server_name_th?: boolean
+    total_checks?: boolean
+    online_count?: boolean
+    offline_count?: boolean
+    uptime_percent?: boolean
+    avg_response_time_ms?: boolean
+    min_response_time_ms?: boolean
+    max_response_time_ms?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["serverStatusDailySummary"]>
+
+  export type ServerStatusDailySummarySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    summary_date?: boolean
+    server_key?: boolean
+    server_name_th?: boolean
+    total_checks?: boolean
+    online_count?: boolean
+    offline_count?: boolean
+    uptime_percent?: boolean
+    avg_response_time_ms?: boolean
+    min_response_time_ms?: boolean
+    max_response_time_ms?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["serverStatusDailySummary"]>
+
+  export type ServerStatusDailySummarySelectScalar = {
+    id?: boolean
+    summary_date?: boolean
+    server_key?: boolean
+    server_name_th?: boolean
+    total_checks?: boolean
+    online_count?: boolean
+    offline_count?: boolean
+    uptime_percent?: boolean
+    avg_response_time_ms?: boolean
+    min_response_time_ms?: boolean
+    max_response_time_ms?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }
+
+  export type ServerStatusDailySummaryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "summary_date" | "server_key" | "server_name_th" | "total_checks" | "online_count" | "offline_count" | "uptime_percent" | "avg_response_time_ms" | "min_response_time_ms" | "max_response_time_ms" | "created_at" | "updated_at", ExtArgs["result"]["serverStatusDailySummary"]>
+
+  export type $ServerStatusDailySummaryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ServerStatusDailySummary"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      summary_date: Date
+      server_key: string
+      server_name_th: string
+      total_checks: number
+      online_count: number
+      offline_count: number
+      uptime_percent: number
+      avg_response_time_ms: number
+      min_response_time_ms: number | null
+      max_response_time_ms: number | null
+      created_at: Date
+      updated_at: Date
+    }, ExtArgs["result"]["serverStatusDailySummary"]>
+    composites: {}
+  }
+
+  type ServerStatusDailySummaryGetPayload<S extends boolean | null | undefined | ServerStatusDailySummaryDefaultArgs> = $Result.GetResult<Prisma.$ServerStatusDailySummaryPayload, S>
+
+  type ServerStatusDailySummaryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ServerStatusDailySummaryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ServerStatusDailySummaryCountAggregateInputType | true
+    }
+
+  export interface ServerStatusDailySummaryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ServerStatusDailySummary'], meta: { name: 'ServerStatusDailySummary' } }
+    /**
+     * Find zero or one ServerStatusDailySummary that matches the filter.
+     * @param {ServerStatusDailySummaryFindUniqueArgs} args - Arguments to find a ServerStatusDailySummary
+     * @example
+     * // Get one ServerStatusDailySummary
+     * const serverStatusDailySummary = await prisma.serverStatusDailySummary.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ServerStatusDailySummaryFindUniqueArgs>(args: SelectSubset<T, ServerStatusDailySummaryFindUniqueArgs<ExtArgs>>): Prisma__ServerStatusDailySummaryClient<$Result.GetResult<Prisma.$ServerStatusDailySummaryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ServerStatusDailySummary that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ServerStatusDailySummaryFindUniqueOrThrowArgs} args - Arguments to find a ServerStatusDailySummary
+     * @example
+     * // Get one ServerStatusDailySummary
+     * const serverStatusDailySummary = await prisma.serverStatusDailySummary.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ServerStatusDailySummaryFindUniqueOrThrowArgs>(args: SelectSubset<T, ServerStatusDailySummaryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ServerStatusDailySummaryClient<$Result.GetResult<Prisma.$ServerStatusDailySummaryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ServerStatusDailySummary that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServerStatusDailySummaryFindFirstArgs} args - Arguments to find a ServerStatusDailySummary
+     * @example
+     * // Get one ServerStatusDailySummary
+     * const serverStatusDailySummary = await prisma.serverStatusDailySummary.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ServerStatusDailySummaryFindFirstArgs>(args?: SelectSubset<T, ServerStatusDailySummaryFindFirstArgs<ExtArgs>>): Prisma__ServerStatusDailySummaryClient<$Result.GetResult<Prisma.$ServerStatusDailySummaryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ServerStatusDailySummary that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServerStatusDailySummaryFindFirstOrThrowArgs} args - Arguments to find a ServerStatusDailySummary
+     * @example
+     * // Get one ServerStatusDailySummary
+     * const serverStatusDailySummary = await prisma.serverStatusDailySummary.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ServerStatusDailySummaryFindFirstOrThrowArgs>(args?: SelectSubset<T, ServerStatusDailySummaryFindFirstOrThrowArgs<ExtArgs>>): Prisma__ServerStatusDailySummaryClient<$Result.GetResult<Prisma.$ServerStatusDailySummaryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ServerStatusDailySummaries that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServerStatusDailySummaryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ServerStatusDailySummaries
+     * const serverStatusDailySummaries = await prisma.serverStatusDailySummary.findMany()
+     * 
+     * // Get first 10 ServerStatusDailySummaries
+     * const serverStatusDailySummaries = await prisma.serverStatusDailySummary.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const serverStatusDailySummaryWithIdOnly = await prisma.serverStatusDailySummary.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ServerStatusDailySummaryFindManyArgs>(args?: SelectSubset<T, ServerStatusDailySummaryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServerStatusDailySummaryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ServerStatusDailySummary.
+     * @param {ServerStatusDailySummaryCreateArgs} args - Arguments to create a ServerStatusDailySummary.
+     * @example
+     * // Create one ServerStatusDailySummary
+     * const ServerStatusDailySummary = await prisma.serverStatusDailySummary.create({
+     *   data: {
+     *     // ... data to create a ServerStatusDailySummary
+     *   }
+     * })
+     * 
+     */
+    create<T extends ServerStatusDailySummaryCreateArgs>(args: SelectSubset<T, ServerStatusDailySummaryCreateArgs<ExtArgs>>): Prisma__ServerStatusDailySummaryClient<$Result.GetResult<Prisma.$ServerStatusDailySummaryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ServerStatusDailySummaries.
+     * @param {ServerStatusDailySummaryCreateManyArgs} args - Arguments to create many ServerStatusDailySummaries.
+     * @example
+     * // Create many ServerStatusDailySummaries
+     * const serverStatusDailySummary = await prisma.serverStatusDailySummary.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ServerStatusDailySummaryCreateManyArgs>(args?: SelectSubset<T, ServerStatusDailySummaryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ServerStatusDailySummaries and returns the data saved in the database.
+     * @param {ServerStatusDailySummaryCreateManyAndReturnArgs} args - Arguments to create many ServerStatusDailySummaries.
+     * @example
+     * // Create many ServerStatusDailySummaries
+     * const serverStatusDailySummary = await prisma.serverStatusDailySummary.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ServerStatusDailySummaries and only return the `id`
+     * const serverStatusDailySummaryWithIdOnly = await prisma.serverStatusDailySummary.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ServerStatusDailySummaryCreateManyAndReturnArgs>(args?: SelectSubset<T, ServerStatusDailySummaryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServerStatusDailySummaryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ServerStatusDailySummary.
+     * @param {ServerStatusDailySummaryDeleteArgs} args - Arguments to delete one ServerStatusDailySummary.
+     * @example
+     * // Delete one ServerStatusDailySummary
+     * const ServerStatusDailySummary = await prisma.serverStatusDailySummary.delete({
+     *   where: {
+     *     // ... filter to delete one ServerStatusDailySummary
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ServerStatusDailySummaryDeleteArgs>(args: SelectSubset<T, ServerStatusDailySummaryDeleteArgs<ExtArgs>>): Prisma__ServerStatusDailySummaryClient<$Result.GetResult<Prisma.$ServerStatusDailySummaryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ServerStatusDailySummary.
+     * @param {ServerStatusDailySummaryUpdateArgs} args - Arguments to update one ServerStatusDailySummary.
+     * @example
+     * // Update one ServerStatusDailySummary
+     * const serverStatusDailySummary = await prisma.serverStatusDailySummary.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ServerStatusDailySummaryUpdateArgs>(args: SelectSubset<T, ServerStatusDailySummaryUpdateArgs<ExtArgs>>): Prisma__ServerStatusDailySummaryClient<$Result.GetResult<Prisma.$ServerStatusDailySummaryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ServerStatusDailySummaries.
+     * @param {ServerStatusDailySummaryDeleteManyArgs} args - Arguments to filter ServerStatusDailySummaries to delete.
+     * @example
+     * // Delete a few ServerStatusDailySummaries
+     * const { count } = await prisma.serverStatusDailySummary.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ServerStatusDailySummaryDeleteManyArgs>(args?: SelectSubset<T, ServerStatusDailySummaryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ServerStatusDailySummaries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServerStatusDailySummaryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ServerStatusDailySummaries
+     * const serverStatusDailySummary = await prisma.serverStatusDailySummary.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ServerStatusDailySummaryUpdateManyArgs>(args: SelectSubset<T, ServerStatusDailySummaryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ServerStatusDailySummaries and returns the data updated in the database.
+     * @param {ServerStatusDailySummaryUpdateManyAndReturnArgs} args - Arguments to update many ServerStatusDailySummaries.
+     * @example
+     * // Update many ServerStatusDailySummaries
+     * const serverStatusDailySummary = await prisma.serverStatusDailySummary.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ServerStatusDailySummaries and only return the `id`
+     * const serverStatusDailySummaryWithIdOnly = await prisma.serverStatusDailySummary.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ServerStatusDailySummaryUpdateManyAndReturnArgs>(args: SelectSubset<T, ServerStatusDailySummaryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServerStatusDailySummaryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ServerStatusDailySummary.
+     * @param {ServerStatusDailySummaryUpsertArgs} args - Arguments to update or create a ServerStatusDailySummary.
+     * @example
+     * // Update or create a ServerStatusDailySummary
+     * const serverStatusDailySummary = await prisma.serverStatusDailySummary.upsert({
+     *   create: {
+     *     // ... data to create a ServerStatusDailySummary
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ServerStatusDailySummary we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ServerStatusDailySummaryUpsertArgs>(args: SelectSubset<T, ServerStatusDailySummaryUpsertArgs<ExtArgs>>): Prisma__ServerStatusDailySummaryClient<$Result.GetResult<Prisma.$ServerStatusDailySummaryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ServerStatusDailySummaries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServerStatusDailySummaryCountArgs} args - Arguments to filter ServerStatusDailySummaries to count.
+     * @example
+     * // Count the number of ServerStatusDailySummaries
+     * const count = await prisma.serverStatusDailySummary.count({
+     *   where: {
+     *     // ... the filter for the ServerStatusDailySummaries we want to count
+     *   }
+     * })
+    **/
+    count<T extends ServerStatusDailySummaryCountArgs>(
+      args?: Subset<T, ServerStatusDailySummaryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ServerStatusDailySummaryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ServerStatusDailySummary.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServerStatusDailySummaryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ServerStatusDailySummaryAggregateArgs>(args: Subset<T, ServerStatusDailySummaryAggregateArgs>): Prisma.PrismaPromise<GetServerStatusDailySummaryAggregateType<T>>
+
+    /**
+     * Group by ServerStatusDailySummary.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServerStatusDailySummaryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ServerStatusDailySummaryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ServerStatusDailySummaryGroupByArgs['orderBy'] }
+        : { orderBy?: ServerStatusDailySummaryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ServerStatusDailySummaryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetServerStatusDailySummaryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ServerStatusDailySummary model
+   */
+  readonly fields: ServerStatusDailySummaryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ServerStatusDailySummary.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ServerStatusDailySummaryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ServerStatusDailySummary model
+   */
+  interface ServerStatusDailySummaryFieldRefs {
+    readonly id: FieldRef<"ServerStatusDailySummary", 'Int'>
+    readonly summary_date: FieldRef<"ServerStatusDailySummary", 'DateTime'>
+    readonly server_key: FieldRef<"ServerStatusDailySummary", 'String'>
+    readonly server_name_th: FieldRef<"ServerStatusDailySummary", 'String'>
+    readonly total_checks: FieldRef<"ServerStatusDailySummary", 'Int'>
+    readonly online_count: FieldRef<"ServerStatusDailySummary", 'Int'>
+    readonly offline_count: FieldRef<"ServerStatusDailySummary", 'Int'>
+    readonly uptime_percent: FieldRef<"ServerStatusDailySummary", 'Float'>
+    readonly avg_response_time_ms: FieldRef<"ServerStatusDailySummary", 'Float'>
+    readonly min_response_time_ms: FieldRef<"ServerStatusDailySummary", 'Float'>
+    readonly max_response_time_ms: FieldRef<"ServerStatusDailySummary", 'Float'>
+    readonly created_at: FieldRef<"ServerStatusDailySummary", 'DateTime'>
+    readonly updated_at: FieldRef<"ServerStatusDailySummary", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ServerStatusDailySummary findUnique
+   */
+  export type ServerStatusDailySummaryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServerStatusDailySummary
+     */
+    select?: ServerStatusDailySummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServerStatusDailySummary
+     */
+    omit?: ServerStatusDailySummaryOmit<ExtArgs> | null
+    /**
+     * Filter, which ServerStatusDailySummary to fetch.
+     */
+    where: ServerStatusDailySummaryWhereUniqueInput
+  }
+
+  /**
+   * ServerStatusDailySummary findUniqueOrThrow
+   */
+  export type ServerStatusDailySummaryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServerStatusDailySummary
+     */
+    select?: ServerStatusDailySummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServerStatusDailySummary
+     */
+    omit?: ServerStatusDailySummaryOmit<ExtArgs> | null
+    /**
+     * Filter, which ServerStatusDailySummary to fetch.
+     */
+    where: ServerStatusDailySummaryWhereUniqueInput
+  }
+
+  /**
+   * ServerStatusDailySummary findFirst
+   */
+  export type ServerStatusDailySummaryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServerStatusDailySummary
+     */
+    select?: ServerStatusDailySummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServerStatusDailySummary
+     */
+    omit?: ServerStatusDailySummaryOmit<ExtArgs> | null
+    /**
+     * Filter, which ServerStatusDailySummary to fetch.
+     */
+    where?: ServerStatusDailySummaryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ServerStatusDailySummaries to fetch.
+     */
+    orderBy?: ServerStatusDailySummaryOrderByWithRelationInput | ServerStatusDailySummaryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ServerStatusDailySummaries.
+     */
+    cursor?: ServerStatusDailySummaryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ServerStatusDailySummaries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ServerStatusDailySummaries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ServerStatusDailySummaries.
+     */
+    distinct?: ServerStatusDailySummaryScalarFieldEnum | ServerStatusDailySummaryScalarFieldEnum[]
+  }
+
+  /**
+   * ServerStatusDailySummary findFirstOrThrow
+   */
+  export type ServerStatusDailySummaryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServerStatusDailySummary
+     */
+    select?: ServerStatusDailySummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServerStatusDailySummary
+     */
+    omit?: ServerStatusDailySummaryOmit<ExtArgs> | null
+    /**
+     * Filter, which ServerStatusDailySummary to fetch.
+     */
+    where?: ServerStatusDailySummaryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ServerStatusDailySummaries to fetch.
+     */
+    orderBy?: ServerStatusDailySummaryOrderByWithRelationInput | ServerStatusDailySummaryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ServerStatusDailySummaries.
+     */
+    cursor?: ServerStatusDailySummaryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ServerStatusDailySummaries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ServerStatusDailySummaries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ServerStatusDailySummaries.
+     */
+    distinct?: ServerStatusDailySummaryScalarFieldEnum | ServerStatusDailySummaryScalarFieldEnum[]
+  }
+
+  /**
+   * ServerStatusDailySummary findMany
+   */
+  export type ServerStatusDailySummaryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServerStatusDailySummary
+     */
+    select?: ServerStatusDailySummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServerStatusDailySummary
+     */
+    omit?: ServerStatusDailySummaryOmit<ExtArgs> | null
+    /**
+     * Filter, which ServerStatusDailySummaries to fetch.
+     */
+    where?: ServerStatusDailySummaryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ServerStatusDailySummaries to fetch.
+     */
+    orderBy?: ServerStatusDailySummaryOrderByWithRelationInput | ServerStatusDailySummaryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ServerStatusDailySummaries.
+     */
+    cursor?: ServerStatusDailySummaryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ServerStatusDailySummaries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ServerStatusDailySummaries.
+     */
+    skip?: number
+    distinct?: ServerStatusDailySummaryScalarFieldEnum | ServerStatusDailySummaryScalarFieldEnum[]
+  }
+
+  /**
+   * ServerStatusDailySummary create
+   */
+  export type ServerStatusDailySummaryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServerStatusDailySummary
+     */
+    select?: ServerStatusDailySummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServerStatusDailySummary
+     */
+    omit?: ServerStatusDailySummaryOmit<ExtArgs> | null
+    /**
+     * The data needed to create a ServerStatusDailySummary.
+     */
+    data: XOR<ServerStatusDailySummaryCreateInput, ServerStatusDailySummaryUncheckedCreateInput>
+  }
+
+  /**
+   * ServerStatusDailySummary createMany
+   */
+  export type ServerStatusDailySummaryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ServerStatusDailySummaries.
+     */
+    data: ServerStatusDailySummaryCreateManyInput | ServerStatusDailySummaryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ServerStatusDailySummary createManyAndReturn
+   */
+  export type ServerStatusDailySummaryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServerStatusDailySummary
+     */
+    select?: ServerStatusDailySummarySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServerStatusDailySummary
+     */
+    omit?: ServerStatusDailySummaryOmit<ExtArgs> | null
+    /**
+     * The data used to create many ServerStatusDailySummaries.
+     */
+    data: ServerStatusDailySummaryCreateManyInput | ServerStatusDailySummaryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ServerStatusDailySummary update
+   */
+  export type ServerStatusDailySummaryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServerStatusDailySummary
+     */
+    select?: ServerStatusDailySummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServerStatusDailySummary
+     */
+    omit?: ServerStatusDailySummaryOmit<ExtArgs> | null
+    /**
+     * The data needed to update a ServerStatusDailySummary.
+     */
+    data: XOR<ServerStatusDailySummaryUpdateInput, ServerStatusDailySummaryUncheckedUpdateInput>
+    /**
+     * Choose, which ServerStatusDailySummary to update.
+     */
+    where: ServerStatusDailySummaryWhereUniqueInput
+  }
+
+  /**
+   * ServerStatusDailySummary updateMany
+   */
+  export type ServerStatusDailySummaryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ServerStatusDailySummaries.
+     */
+    data: XOR<ServerStatusDailySummaryUpdateManyMutationInput, ServerStatusDailySummaryUncheckedUpdateManyInput>
+    /**
+     * Filter which ServerStatusDailySummaries to update
+     */
+    where?: ServerStatusDailySummaryWhereInput
+    /**
+     * Limit how many ServerStatusDailySummaries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ServerStatusDailySummary updateManyAndReturn
+   */
+  export type ServerStatusDailySummaryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServerStatusDailySummary
+     */
+    select?: ServerStatusDailySummarySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServerStatusDailySummary
+     */
+    omit?: ServerStatusDailySummaryOmit<ExtArgs> | null
+    /**
+     * The data used to update ServerStatusDailySummaries.
+     */
+    data: XOR<ServerStatusDailySummaryUpdateManyMutationInput, ServerStatusDailySummaryUncheckedUpdateManyInput>
+    /**
+     * Filter which ServerStatusDailySummaries to update
+     */
+    where?: ServerStatusDailySummaryWhereInput
+    /**
+     * Limit how many ServerStatusDailySummaries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ServerStatusDailySummary upsert
+   */
+  export type ServerStatusDailySummaryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServerStatusDailySummary
+     */
+    select?: ServerStatusDailySummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServerStatusDailySummary
+     */
+    omit?: ServerStatusDailySummaryOmit<ExtArgs> | null
+    /**
+     * The filter to search for the ServerStatusDailySummary to update in case it exists.
+     */
+    where: ServerStatusDailySummaryWhereUniqueInput
+    /**
+     * In case the ServerStatusDailySummary found by the `where` argument doesn't exist, create a new ServerStatusDailySummary with this data.
+     */
+    create: XOR<ServerStatusDailySummaryCreateInput, ServerStatusDailySummaryUncheckedCreateInput>
+    /**
+     * In case the ServerStatusDailySummary was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ServerStatusDailySummaryUpdateInput, ServerStatusDailySummaryUncheckedUpdateInput>
+  }
+
+  /**
+   * ServerStatusDailySummary delete
+   */
+  export type ServerStatusDailySummaryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServerStatusDailySummary
+     */
+    select?: ServerStatusDailySummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServerStatusDailySummary
+     */
+    omit?: ServerStatusDailySummaryOmit<ExtArgs> | null
+    /**
+     * Filter which ServerStatusDailySummary to delete.
+     */
+    where: ServerStatusDailySummaryWhereUniqueInput
+  }
+
+  /**
+   * ServerStatusDailySummary deleteMany
+   */
+  export type ServerStatusDailySummaryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ServerStatusDailySummaries to delete
+     */
+    where?: ServerStatusDailySummaryWhereInput
+    /**
+     * Limit how many ServerStatusDailySummaries to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ServerStatusDailySummary without action
+   */
+  export type ServerStatusDailySummaryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServerStatusDailySummary
+     */
+    select?: ServerStatusDailySummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServerStatusDailySummary
+     */
+    omit?: ServerStatusDailySummaryOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -25764,6 +27016,25 @@ export namespace Prisma {
   };
 
   export type BotSettingScalarFieldEnum = (typeof BotSettingScalarFieldEnum)[keyof typeof BotSettingScalarFieldEnum]
+
+
+  export const ServerStatusDailySummaryScalarFieldEnum: {
+    id: 'id',
+    summary_date: 'summary_date',
+    server_key: 'server_key',
+    server_name_th: 'server_name_th',
+    total_checks: 'total_checks',
+    online_count: 'online_count',
+    offline_count: 'offline_count',
+    uptime_percent: 'uptime_percent',
+    avg_response_time_ms: 'avg_response_time_ms',
+    min_response_time_ms: 'min_response_time_ms',
+    max_response_time_ms: 'max_response_time_ms',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+  };
+
+  export type ServerStatusDailySummaryScalarFieldEnum = (typeof ServerStatusDailySummaryScalarFieldEnum)[keyof typeof ServerStatusDailySummaryScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -27563,6 +28834,101 @@ export namespace Prisma {
     created_at?: DateTimeWithAggregatesFilter<"BotSetting"> | Date | string
   }
 
+  export type ServerStatusDailySummaryWhereInput = {
+    AND?: ServerStatusDailySummaryWhereInput | ServerStatusDailySummaryWhereInput[]
+    OR?: ServerStatusDailySummaryWhereInput[]
+    NOT?: ServerStatusDailySummaryWhereInput | ServerStatusDailySummaryWhereInput[]
+    id?: IntFilter<"ServerStatusDailySummary"> | number
+    summary_date?: DateTimeFilter<"ServerStatusDailySummary"> | Date | string
+    server_key?: StringFilter<"ServerStatusDailySummary"> | string
+    server_name_th?: StringFilter<"ServerStatusDailySummary"> | string
+    total_checks?: IntFilter<"ServerStatusDailySummary"> | number
+    online_count?: IntFilter<"ServerStatusDailySummary"> | number
+    offline_count?: IntFilter<"ServerStatusDailySummary"> | number
+    uptime_percent?: FloatFilter<"ServerStatusDailySummary"> | number
+    avg_response_time_ms?: FloatFilter<"ServerStatusDailySummary"> | number
+    min_response_time_ms?: FloatNullableFilter<"ServerStatusDailySummary"> | number | null
+    max_response_time_ms?: FloatNullableFilter<"ServerStatusDailySummary"> | number | null
+    created_at?: DateTimeFilter<"ServerStatusDailySummary"> | Date | string
+    updated_at?: DateTimeFilter<"ServerStatusDailySummary"> | Date | string
+  }
+
+  export type ServerStatusDailySummaryOrderByWithRelationInput = {
+    id?: SortOrder
+    summary_date?: SortOrder
+    server_key?: SortOrder
+    server_name_th?: SortOrder
+    total_checks?: SortOrder
+    online_count?: SortOrder
+    offline_count?: SortOrder
+    uptime_percent?: SortOrder
+    avg_response_time_ms?: SortOrder
+    min_response_time_ms?: SortOrderInput | SortOrder
+    max_response_time_ms?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type ServerStatusDailySummaryWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    summary_date_server_key?: ServerStatusDailySummarySummary_dateServer_keyCompoundUniqueInput
+    AND?: ServerStatusDailySummaryWhereInput | ServerStatusDailySummaryWhereInput[]
+    OR?: ServerStatusDailySummaryWhereInput[]
+    NOT?: ServerStatusDailySummaryWhereInput | ServerStatusDailySummaryWhereInput[]
+    summary_date?: DateTimeFilter<"ServerStatusDailySummary"> | Date | string
+    server_key?: StringFilter<"ServerStatusDailySummary"> | string
+    server_name_th?: StringFilter<"ServerStatusDailySummary"> | string
+    total_checks?: IntFilter<"ServerStatusDailySummary"> | number
+    online_count?: IntFilter<"ServerStatusDailySummary"> | number
+    offline_count?: IntFilter<"ServerStatusDailySummary"> | number
+    uptime_percent?: FloatFilter<"ServerStatusDailySummary"> | number
+    avg_response_time_ms?: FloatFilter<"ServerStatusDailySummary"> | number
+    min_response_time_ms?: FloatNullableFilter<"ServerStatusDailySummary"> | number | null
+    max_response_time_ms?: FloatNullableFilter<"ServerStatusDailySummary"> | number | null
+    created_at?: DateTimeFilter<"ServerStatusDailySummary"> | Date | string
+    updated_at?: DateTimeFilter<"ServerStatusDailySummary"> | Date | string
+  }, "id" | "summary_date_server_key">
+
+  export type ServerStatusDailySummaryOrderByWithAggregationInput = {
+    id?: SortOrder
+    summary_date?: SortOrder
+    server_key?: SortOrder
+    server_name_th?: SortOrder
+    total_checks?: SortOrder
+    online_count?: SortOrder
+    offline_count?: SortOrder
+    uptime_percent?: SortOrder
+    avg_response_time_ms?: SortOrder
+    min_response_time_ms?: SortOrderInput | SortOrder
+    max_response_time_ms?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    _count?: ServerStatusDailySummaryCountOrderByAggregateInput
+    _avg?: ServerStatusDailySummaryAvgOrderByAggregateInput
+    _max?: ServerStatusDailySummaryMaxOrderByAggregateInput
+    _min?: ServerStatusDailySummaryMinOrderByAggregateInput
+    _sum?: ServerStatusDailySummarySumOrderByAggregateInput
+  }
+
+  export type ServerStatusDailySummaryScalarWhereWithAggregatesInput = {
+    AND?: ServerStatusDailySummaryScalarWhereWithAggregatesInput | ServerStatusDailySummaryScalarWhereWithAggregatesInput[]
+    OR?: ServerStatusDailySummaryScalarWhereWithAggregatesInput[]
+    NOT?: ServerStatusDailySummaryScalarWhereWithAggregatesInput | ServerStatusDailySummaryScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"ServerStatusDailySummary"> | number
+    summary_date?: DateTimeWithAggregatesFilter<"ServerStatusDailySummary"> | Date | string
+    server_key?: StringWithAggregatesFilter<"ServerStatusDailySummary"> | string
+    server_name_th?: StringWithAggregatesFilter<"ServerStatusDailySummary"> | string
+    total_checks?: IntWithAggregatesFilter<"ServerStatusDailySummary"> | number
+    online_count?: IntWithAggregatesFilter<"ServerStatusDailySummary"> | number
+    offline_count?: IntWithAggregatesFilter<"ServerStatusDailySummary"> | number
+    uptime_percent?: FloatWithAggregatesFilter<"ServerStatusDailySummary"> | number
+    avg_response_time_ms?: FloatWithAggregatesFilter<"ServerStatusDailySummary"> | number
+    min_response_time_ms?: FloatNullableWithAggregatesFilter<"ServerStatusDailySummary"> | number | null
+    max_response_time_ms?: FloatNullableWithAggregatesFilter<"ServerStatusDailySummary"> | number | null
+    created_at?: DateTimeWithAggregatesFilter<"ServerStatusDailySummary"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"ServerStatusDailySummary"> | Date | string
+  }
+
   export type PositionCreateInput = {
     name_th: string
     name_en?: string | null
@@ -29327,6 +30693,115 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ServerStatusDailySummaryCreateInput = {
+    summary_date: Date | string
+    server_key: string
+    server_name_th: string
+    total_checks?: number
+    online_count?: number
+    offline_count?: number
+    uptime_percent: number
+    avg_response_time_ms: number
+    min_response_time_ms?: number | null
+    max_response_time_ms?: number | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type ServerStatusDailySummaryUncheckedCreateInput = {
+    id?: number
+    summary_date: Date | string
+    server_key: string
+    server_name_th: string
+    total_checks?: number
+    online_count?: number
+    offline_count?: number
+    uptime_percent: number
+    avg_response_time_ms: number
+    min_response_time_ms?: number | null
+    max_response_time_ms?: number | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type ServerStatusDailySummaryUpdateInput = {
+    summary_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    server_key?: StringFieldUpdateOperationsInput | string
+    server_name_th?: StringFieldUpdateOperationsInput | string
+    total_checks?: IntFieldUpdateOperationsInput | number
+    online_count?: IntFieldUpdateOperationsInput | number
+    offline_count?: IntFieldUpdateOperationsInput | number
+    uptime_percent?: FloatFieldUpdateOperationsInput | number
+    avg_response_time_ms?: FloatFieldUpdateOperationsInput | number
+    min_response_time_ms?: NullableFloatFieldUpdateOperationsInput | number | null
+    max_response_time_ms?: NullableFloatFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ServerStatusDailySummaryUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    summary_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    server_key?: StringFieldUpdateOperationsInput | string
+    server_name_th?: StringFieldUpdateOperationsInput | string
+    total_checks?: IntFieldUpdateOperationsInput | number
+    online_count?: IntFieldUpdateOperationsInput | number
+    offline_count?: IntFieldUpdateOperationsInput | number
+    uptime_percent?: FloatFieldUpdateOperationsInput | number
+    avg_response_time_ms?: FloatFieldUpdateOperationsInput | number
+    min_response_time_ms?: NullableFloatFieldUpdateOperationsInput | number | null
+    max_response_time_ms?: NullableFloatFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ServerStatusDailySummaryCreateManyInput = {
+    id?: number
+    summary_date: Date | string
+    server_key: string
+    server_name_th: string
+    total_checks?: number
+    online_count?: number
+    offline_count?: number
+    uptime_percent: number
+    avg_response_time_ms: number
+    min_response_time_ms?: number | null
+    max_response_time_ms?: number | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type ServerStatusDailySummaryUpdateManyMutationInput = {
+    summary_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    server_key?: StringFieldUpdateOperationsInput | string
+    server_name_th?: StringFieldUpdateOperationsInput | string
+    total_checks?: IntFieldUpdateOperationsInput | number
+    online_count?: IntFieldUpdateOperationsInput | number
+    offline_count?: IntFieldUpdateOperationsInput | number
+    uptime_percent?: FloatFieldUpdateOperationsInput | number
+    avg_response_time_ms?: FloatFieldUpdateOperationsInput | number
+    min_response_time_ms?: NullableFloatFieldUpdateOperationsInput | number | null
+    max_response_time_ms?: NullableFloatFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ServerStatusDailySummaryUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    summary_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    server_key?: StringFieldUpdateOperationsInput | string
+    server_name_th?: StringFieldUpdateOperationsInput | string
+    total_checks?: IntFieldUpdateOperationsInput | number
+    online_count?: IntFieldUpdateOperationsInput | number
+    offline_count?: IntFieldUpdateOperationsInput | number
+    uptime_percent?: FloatFieldUpdateOperationsInput | number
+    avg_response_time_ms?: FloatFieldUpdateOperationsInput | number
+    min_response_time_ms?: NullableFloatFieldUpdateOperationsInput | number | null
+    max_response_time_ms?: NullableFloatFieldUpdateOperationsInput | number | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -30798,6 +32273,135 @@ export namespace Prisma {
     updated_by?: SortOrder
   }
 
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type ServerStatusDailySummarySummary_dateServer_keyCompoundUniqueInput = {
+    summary_date: Date | string
+    server_key: string
+  }
+
+  export type ServerStatusDailySummaryCountOrderByAggregateInput = {
+    id?: SortOrder
+    summary_date?: SortOrder
+    server_key?: SortOrder
+    server_name_th?: SortOrder
+    total_checks?: SortOrder
+    online_count?: SortOrder
+    offline_count?: SortOrder
+    uptime_percent?: SortOrder
+    avg_response_time_ms?: SortOrder
+    min_response_time_ms?: SortOrder
+    max_response_time_ms?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type ServerStatusDailySummaryAvgOrderByAggregateInput = {
+    id?: SortOrder
+    total_checks?: SortOrder
+    online_count?: SortOrder
+    offline_count?: SortOrder
+    uptime_percent?: SortOrder
+    avg_response_time_ms?: SortOrder
+    min_response_time_ms?: SortOrder
+    max_response_time_ms?: SortOrder
+  }
+
+  export type ServerStatusDailySummaryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    summary_date?: SortOrder
+    server_key?: SortOrder
+    server_name_th?: SortOrder
+    total_checks?: SortOrder
+    online_count?: SortOrder
+    offline_count?: SortOrder
+    uptime_percent?: SortOrder
+    avg_response_time_ms?: SortOrder
+    min_response_time_ms?: SortOrder
+    max_response_time_ms?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type ServerStatusDailySummaryMinOrderByAggregateInput = {
+    id?: SortOrder
+    summary_date?: SortOrder
+    server_key?: SortOrder
+    server_name_th?: SortOrder
+    total_checks?: SortOrder
+    online_count?: SortOrder
+    offline_count?: SortOrder
+    uptime_percent?: SortOrder
+    avg_response_time_ms?: SortOrder
+    min_response_time_ms?: SortOrder
+    max_response_time_ms?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type ServerStatusDailySummarySumOrderByAggregateInput = {
+    id?: SortOrder
+    total_checks?: SortOrder
+    online_count?: SortOrder
+    offline_count?: SortOrder
+    uptime_percent?: SortOrder
+    avg_response_time_ms?: SortOrder
+    min_response_time_ms?: SortOrder
+    max_response_time_ms?: SortOrder
+  }
+
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
   export type UserCreateNestedManyWithoutPosition_refInput = {
     create?: XOR<UserCreateWithoutPosition_refInput, UserUncheckedCreateWithoutPosition_refInput> | UserCreateWithoutPosition_refInput[] | UserUncheckedCreateWithoutPosition_refInput[]
     connectOrCreate?: UserCreateOrConnectWithoutPosition_refInput | UserCreateOrConnectWithoutPosition_refInput[]
@@ -31832,6 +33436,22 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCrmSupportAuthenticationsInput, UserUpdateWithoutCrmSupportAuthenticationsInput>, UserUncheckedUpdateWithoutCrmSupportAuthenticationsInput>
   }
 
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type NestedIntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -32152,6 +33772,38 @@ export namespace Prisma {
     _sum?: NestedBigIntFilter<$PrismaModel>
     _min?: NestedBigIntFilter<$PrismaModel>
     _max?: NestedBigIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type UserCreateWithoutPosition_refInput = {

@@ -1,6 +1,10 @@
 "use client";
 
 import { Form, Space, Tag } from "antd";
+import dayjs from "dayjs";
+import "dayjs/locale/th";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -8,9 +12,9 @@ import { useDispatch } from "react-redux";
 
 import PermissionLayout from "@/components/layouts/permission-layout";
 import DashboardLayout from "@components/layouts/backend-layout";
-import { DeleteConfirmationModal } from "@components/modal/delete-confirmation-modal";
-import StatusModal from "@components/modal/status-modal";
+import { StatusModalComponent } from "@components/modal/status-modal-component";
 import { DetailModal } from "@components/timesheet/detail-modal";
+import { HeaderBar } from "@components/typhography/header-bar-component";
 
 import {
   setActiveRecord,
@@ -19,6 +23,7 @@ import {
 } from "@stores/reducers/timesheet/timesheet-reducer";
 import { useAppSelector } from "@stores/store";
 
+import { BookOutlined } from "@ant-design/icons";
 import { STATUS_OPTIONS } from "@constants/timesheet.constants";
 import { CreateModalForm } from "./_components/create-modal-form";
 import { FilterSection } from "./_components/filter-section";
@@ -29,6 +34,12 @@ import { PageHeader } from "./_components/page-header";
 import { StatsGrid } from "./_components/stats-grid";
 import { TimesheetTable } from "./_components/timesheet-table";
 import { useTimesheetStore } from "./_state/use-timesheet-store";
+
+// ✨ ตั้งค่า timezone และภาษาไทยสำหรับระบบ Timesheet
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.locale("th");
+dayjs.tz.setDefault("Asia/Bangkok");
 
 // ==========================================
 // 1. HELPER COMPONENTS (Now Imported)
@@ -76,12 +87,14 @@ export default function TimesheetEntryPage() {
   const [guideModalOpen, setGuideModalOpen] = useState(false);
   const [myWorkModalOpen, setMyWorkModalOpen] = useState(false);
 
+  // ✨ จัดการสถานะของ Modal แจ้งเตือน (Status Modal)
   const [statusModal, setStatusModal] = useState<{
     open: boolean;
-    type: "success" | "error";
+    type: "success" | "error" | "confirm" | "delete";
     title: string;
     message: string;
     errorDetails?: any;
+    onConfirm?: () => void;
   }>({
     open: false,
     type: "success",
@@ -157,14 +170,59 @@ export default function TimesheetEntryPage() {
     [dispatch],
   );
 
+  const handleDeleteTimesheet = useCallback(async () => {
+    if (!timesheetRedux.activeRecord?.id || !admin_id) return;
+    try {
+      const success = await deleteTimesheet(
+        [Number(timesheetRedux.activeRecord.id)],
+        Number(admin_id),
+      );
+      if (success && isMountedRef.current) {
+        closeModal();
+        fetchEntries(admin_id);
+        rankBoardRef.current?.refetch();
+        setStatusModal({
+          open: true,
+          type: "success",
+          title: "ลบข้อมูลสำเร็จ",
+          message: "ข้อมูล Timesheet ถูกลบออกจากระบบแล้ว",
+        });
+      }
+    } catch (error: any) {
+      setStatusModal({
+        open: true,
+        type: "error",
+        title: "เกิดข้อผิดพลาดในการลบ",
+        message: error.message || "ไม่สามารถลบข้อมูลได้ กรุณาลองใหม่อีกครั้ง",
+        errorDetails: error,
+      });
+    }
+  }, [
+    deleteTimesheet,
+    timesheetRedux.activeRecord,
+    closeModal,
+    admin_id,
+    fetchEntries,
+  ]);
+
+  // ✨ ฟังก์ชันเปิด Modal ยืนยันการลบ
   const openDeleteModal = useCallback(
     (record: any) => {
       dispatch(setActiveRecord(record));
-      dispatch(setModalType("delete"));
+      setStatusModal({
+        open: true,
+        type: "delete",
+        title: "ยืนยันการลบข้อมูล",
+        message: `คุณต้องการลบข้อมูล Timesheet ของวันที่ ${dayjs(
+          record.date,
+        ).format("DD/MM/YYYY")} ใช่หรือไม่?`,
+        onConfirm: handleDeleteTimesheet,
+      });
     },
-    [dispatch],
+    [dispatch, handleDeleteTimesheet],
   );
 
+  // ✨ ฟังก์ชันจัดการหลังจากปิด Modal ฟอร์ม
   const handleSubmitTimesheet = useCallback(
     async (values: any) => {
       try {
@@ -213,50 +271,8 @@ export default function TimesheetEntryPage() {
         }
       }
     },
-    [
-      form,
-      saveTimesheet,
-      timesheetRedux,
-      closeModal,
-      admin_id,
-      fetchEntries,
-    ],
+    [form, saveTimesheet, timesheetRedux, closeModal, admin_id, fetchEntries],
   );
-
-  const handleDeleteTimesheet = useCallback(async () => {
-    if (!timesheetRedux.activeRecord?.id || !admin_id) return;
-    try {
-      const success = await deleteTimesheet(
-        [Number(timesheetRedux.activeRecord.id)],
-        Number(admin_id),
-      );
-      if (success && isMountedRef.current) {
-        closeModal();
-        fetchEntries(admin_id);
-        rankBoardRef.current?.refetch();
-        setStatusModal({
-          open: true,
-          type: "success",
-          title: "ลบข้อมูลสำเร็จ",
-          message: "ข้อมูล Timesheet ถูกลบออกจากระบบแล้ว",
-        });
-      }
-    } catch (error: any) {
-      setStatusModal({
-        open: true,
-        type: "error",
-        title: "เกิดข้อผิดพลาดในการลบ",
-        message: error.message || "ไม่สามารถลบข้อมูลได้ กรุณาลองใหม่อีกครั้ง",
-        errorDetails: error,
-      });
-    }
-  }, [
-    deleteTimesheet,
-    timesheetRedux.activeRecord,
-    closeModal,
-    admin_id,
-    fetchEntries,
-  ]);
 
   const handlePageChange = useCallback(
     (page: number, size?: number) => {
@@ -274,6 +290,12 @@ export default function TimesheetEntryPage() {
           transition={{ duration: 0.5 }}
         >
           <Space direction="vertical" size={32} style={{ width: "100%" }}>
+            <HeaderBar
+              icon={<BookOutlined />}
+              title="บันทึกเวลาทำงาน"
+              subTitle="จัดการและติดตามการใช้เวลาทำงานของคุณในแต่ละวัน"
+            />
+
             <PageHeader
               admin_name={admin_name}
               admin_id={admin_id}
@@ -369,13 +391,6 @@ export default function TimesheetEntryPage() {
             onCancel={closeModal}
             record={timesheetRedux.activeRecord}
           />
-          <DeleteConfirmationModal
-            open={timesheetRedux.modalType === "delete"}
-            onCancel={closeModal}
-            onConfirm={handleDeleteTimesheet}
-            selectedCount={1}
-            loading={actionLoading}
-          />
           <MyWorkModal
             open={myWorkModalOpen}
             onCancel={() => {
@@ -390,12 +405,14 @@ export default function TimesheetEntryPage() {
             }}
           />
 
-          <StatusModal
+          <StatusModalComponent
             open={statusModal.open}
             type={statusModal.type}
             title={statusModal.title}
             message={statusModal.message}
             errorDetails={statusModal.errorDetails}
+            onConfirm={statusModal.onConfirm}
+            loading={actionLoading}
             onClose={() => {
               setStatusModal((prev) => ({ ...prev, open: false }));
             }}

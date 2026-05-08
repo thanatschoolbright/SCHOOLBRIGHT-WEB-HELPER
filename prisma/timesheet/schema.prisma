@@ -362,3 +362,25 @@ model BotSetting {
   @@map("bot_setting")
 }
 
+// สรุปสถานะ Uptime/Downtime รายวัน ต่อ 1 Server ต่อ 1 วัน (1 row = 1 server/day)
+model ServerStatusDailySummary {
+  id                    Int       @id @default(autoincrement()) @map("id")
+  summary_date          DateTime  @map("summary_date") @timesheet.Date
+  server_key            String    @map("server_key") @timesheet.VarChar(100)
+  server_name_th        String    @map("server_name_th") @timesheet.VarChar(255)
+  total_checks          Int       @default(0) @map("total_checks")
+  online_count          Int       @default(0) @map("online_count")
+  offline_count         Int       @default(0) @map("offline_count")
+  uptime_percent        Float     @map("uptime_percent")
+  avg_response_time_ms  Float     @map("avg_response_time_ms")
+  min_response_time_ms  Float?    @map("min_response_time_ms")
+  max_response_time_ms  Float?    @map("max_response_time_ms")
+  created_at            DateTime  @default(now()) @map("created_at")
+  updated_at            DateTime  @updatedAt @map("updated_at")
+
+  @@unique([summary_date, server_key])
+  @@index([summary_date])
+  @@index([server_key])
+  @@map("server_status_daily_summary")
+}
+
