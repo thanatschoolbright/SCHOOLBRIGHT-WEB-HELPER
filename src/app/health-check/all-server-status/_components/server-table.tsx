@@ -22,12 +22,22 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
+import CustomParseFormat from "dayjs/plugin/customParseFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import React from "react";
 import {
   ServerStatus,
   useServerStatusStore,
 } from "../_state/server-status.state";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(relativeTime);
+dayjs.extend(CustomParseFormat);
+dayjs.locale("th");
+dayjs.tz.setDefault("Asia/Bangkok");
 
 dayjs.extend(relativeTime);
 dayjs.locale("th");
@@ -178,18 +188,31 @@ const ServerTable: React.FC<ServerTableProps> = ({
       dataIndex: "timestamp",
       key: "timestamp",
       width: 200,
-      render: (ts: string) => (
-        <Tooltip title={dayjs(ts).format("DD/MM/YYYY HH:mm:ss")}>
-          <Space size={6}>
-            <HistoryOutlined
-              style={{ fontSize: 13, color: token.colorTextDescription }}
-            />
-            <Typography.Text style={{ fontSize: 13 }}>
-              {dayjs(ts).fromNow()}
-            </Typography.Text>
-          </Space>
-        </Tooltip>
-      ),
+      render: (ts: string) => {
+        // ✨ จัดการเรื่องรูปแบบวันที่ (พยายาม parse แบบ DD/MM/YYYY ก่อน ถ้าไม่ได้ให้ตกกลับไป default)
+        // และจัดการเรื่องปี พ.ศ. (BE) เป็น ค.ศ. (AD)
+        let date = dayjs(ts, "DD/MM/YYYY HH:mm:ss");
+        if (!date.isValid()) {
+          date = dayjs(ts);
+        }
+
+        if (date.year() > 2500) {
+          date = date.subtract(543, "year");
+        }
+
+        return (
+          <Tooltip title={date.tz().format("DD/MM/YYYY HH:mm:ss")}>
+            <Space size={6}>
+              <HistoryOutlined
+                style={{ fontSize: 13, color: token.colorTextDescription }}
+              />
+              <Typography.Text style={{ fontSize: 13 }}>
+                {date.tz().fromNow()}
+              </Typography.Text>
+            </Space>
+          </Tooltip>
+        );
+      },
       sorter: (a: ServerStatus, b: ServerStatus) =>
         new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
     },

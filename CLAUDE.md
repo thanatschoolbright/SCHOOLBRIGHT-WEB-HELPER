@@ -63,7 +63,7 @@ Project-specific scaffolding commands in `.claude/commands/`:
 
 ## Architecture
 
-This is a **Next.js 16.2 / React 19 (App Router) back-office admin tool** for SchoolBright, covering system health monitoring, hardware integration (canteen/facial recognition/gates), mobile app management, HR timesheets, and project backlog tracking.
+This is a **Next.js 16.2.6 / React 19 / TypeScript 5 (App Router) back-office admin tool** for SchoolBright, covering system health monitoring, hardware integration (canteen/facial recognition/gates), mobile app management, HR timesheets, and project backlog tracking. Key library versions: Ant Design 5.27, Zod 4, Zustand 5, Axios 1.14, next-auth 5 (beta).
 
 ### Feature areas under `src/app/`
 
@@ -81,9 +81,10 @@ This is a **Next.js 16.2 / React 19 (App Router) back-office admin tool** for Sc
 | `logger/` | API log viewer (wraps `/api/v1/logger/*`) |
 | `backend/` | Internal server-to-server utilities |
 | `profile/` | User profile and password change |
-| `ant/` | Ant Design theme token API (serves theme config to client) |
+| `ant/` | Serves Ant Design theme tokens to client via `/api/ant` — used by the theme provider to hydrate CSS variables |
 | `api-spec/` | Interactive Swagger UI at `/api-spec` |
 | `docs/` | Static documentation pages |
+| `pages/` | Legacy Next.js Pages Router remnant — do not add new pages here |
 
 ### API route conventions
 
@@ -200,7 +201,7 @@ const rawParams = Object.fromEntries(request.nextUrl.searchParams.entries());
 const parsed = QuerySchema.safeParse(rawParams);
 if (!parsed.success) return NextResponse.json(errorResponse({ status: 400, ... }), { status: 400 });
 ```
-Use `z.coerce.number()` for numeric query params (they arrive as strings).
+Use `z.coerce.number()` for numeric query params (they arrive as strings). Note: the project uses **Zod v4** — use `z.string().min(1)` not `.nonempty()`, and `z.string().trim()` chains differently. Some older files still use v3-style APIs; match the file you're editing but prefer v4 syntax in new code.
 
 **Pagination:** List routes must use `buildPagination` from `@/helpers/controller/build-pagination.params.ts`:
 ```ts
