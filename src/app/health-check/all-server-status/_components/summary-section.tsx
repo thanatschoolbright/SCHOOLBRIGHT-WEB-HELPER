@@ -24,7 +24,6 @@ const SummarySection: React.FC = () => {
           subtitle="เซิร์ฟเวอร์ที่พร้อมให้บริการ"
           icon={<CheckCircleOutlined />}
           color={token.colorSuccess}
-          percent={stats.online > 0 ? 100 : 0}
           isLoading={isLoading}
         />
       </Col>
@@ -35,7 +34,6 @@ const SummarySection: React.FC = () => {
           subtitle="เซิร์ฟเวอร์ที่ขัดข้อง"
           icon={<CloseCircleOutlined />}
           color={token.colorError}
-          percent={stats.offline > 0 ? 100 : 0}
           isLoading={isLoading}
         />
       </Col>

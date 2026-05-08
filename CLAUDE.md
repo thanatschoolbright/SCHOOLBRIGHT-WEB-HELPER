@@ -63,7 +63,7 @@ Project-specific scaffolding commands in `.claude/commands/`:
 
 ## Architecture
 
-This is a **Next.js 16 / React 19 (App Router) back-office admin tool** for SchoolBright, covering system health monitoring, hardware integration (canteen/facial recognition/gates), mobile app management, HR timesheets, and project backlog tracking.
+This is a **Next.js 15.5 / React 19 (App Router) back-office admin tool** for SchoolBright, covering system health monitoring, hardware integration (canteen/facial recognition/gates), mobile app management, HR timesheets, and project backlog tracking.
 
 ### Feature areas under `src/app/`
 

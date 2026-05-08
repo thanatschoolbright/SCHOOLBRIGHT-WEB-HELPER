@@ -1,22 +1,30 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
-import { Button, Flex, Form, Space } from "antd";
-import { 
-  SafetyCertificateOutlined, 
-  MailOutlined, 
-  DiscordOutlined 
+import { useEffect, useState, useMemo } from "react";
+import { Button, Flex, Form, Space, Tabs } from "antd";
+import {
+  SafetyCertificateOutlined,
+  MailOutlined,
+  DiscordOutlined,
+  UnorderedListOutlined,
+  HistoryOutlined,
 } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { HeaderBar } from "@components/typhography/header-bar-component";
 import { StatusModalComponent } from "@components/modal/status-modal-component";
 
-// Feature-based sub-components
+// Feature-based sub-components — แท็บ Real-time Status
 import SummarySection from "./_components/summary-section";
 import FilterSection from "./_components/filter-section";
 import ServerTable from "./_components/server-table";
 import DetailsModal from "./_components/details-modal";
 import EditModal from "./_components/edit-modal";
+
+// Feature-based sub-components — แท็บ LOG
+import LogSummarySection from "./_components/log-summary-section";
+import LogFilterSection from "./_components/log-filter-section";
+import LogServerUptimeTable from "./_components/log-server-uptime-table";
+import LogEntriesTable from "./_components/log-entries-table";
 
 // Global State
 import { useServerStatusStore, ServerStatus } from "./_state/server-status.state";
@@ -30,28 +38,44 @@ import { useServerStatusStore, ServerStatus } from "./_state/server-status.state
 export default function ServerStatusPage() {
   // --- Hooks ---
   const [filterForm] = Form.useForm();
-  const { 
-    servers, 
-    fetchServers, 
-    isSendingEmail, 
-    isNotifyingDiscord, 
-    sendEmailReport, 
-    notifyDiscord 
+  const [logFilterForm] = Form.useForm();
+  const {
+    servers,
+    fetchServers,
+    isSendingEmail,
+    isNotifyingDiscord,
+    sendEmailReport,
+    notifyDiscord,
+    fetchLogs,
+    fetchLogSummary,
+    setLogFilters,
+    resetLogFilters,
   } = useServerStatusStore();
 
   // --- Local States for Modals ---
   const [selectedServer, setSelectedServer] = useState<ServerStatus | null>(null);
   const [detailsVisible, setDetailsVisible] = useState(false);
   const [editVisible, setEditVisible] = useState(false);
-  
-  // State สำหรับการกรองข้อมูลในตาราง
+
+  // State สำหรับการกรองข้อมูลในตาราง Real-time
   const [filters, setFilters] = useState({ name: "", status: "all" });
+
+  // State สำหรับ active tab
+  const [activeTab, setActiveTab] = useState("status");
 
   // --- Effects ---
   useEffect(() => {
     /** ดึงข้อมูลสถานะเซิร์ฟเวอร์เริ่มต้น */
     fetchServers();
   }, [fetchServers]);
+
+  // ✨ โหลดข้อมูล Log เมื่อเปิดแท็บ LOG ครั้งแรก
+  useEffect(() => {
+    if (activeTab === "log") {
+      fetchLogSummary();
+      fetchLogs(1);
+    }
+  }, [activeTab, fetchLogSummary, fetchLogs]);
 
   // --- Memos ---
   /** กรองข้อมูลเซิร์ฟเวอร์สำหรับแสดงผลในตารางเท่านั้น (Raw data ยังอยู่ใน Store) */
@@ -66,8 +90,8 @@ export default function ServerStatusPage() {
     });
   }, [servers, filters]);
 
-  // --- Handlers ---
-  
+  // --- Handlers — Real-time tab ---
+
   /** ฟังก์ชันจัดการการค้นหาข้อมูล */
   const handleFilterUpdate = (values: { name?: string; status?: string }) => {
     setFilters({
@@ -100,6 +124,84 @@ export default function ServerStatusPage() {
     setEditVisible(false);
   };
 
+  // --- Handlers — Log tab ---
+
+  /** ฟังก์ชันค้นหา Log ตาม filter */
+  const handleLogSearch = (values: any) => {
+    setLogFilters(values);
+    fetchLogSummary();
+    fetchLogs(1);
+  };
+
+  /** ฟังก์ชันล้าง filter ของ Log tab */
+  const handleLogReset = () => {
+    logFilterForm.resetFields();
+    resetLogFilters();
+    fetchLogSummary();
+    fetchLogs(1);
+  };
+
+  // --- Tab definitions ---
+  const tabItems = [
+    {
+      key: "status",
+      label: (
+        <Space>
+          <UnorderedListOutlined />
+          สถานะ Real-time
+        </Space>
+      ),
+      children: (
+        <Space direction="vertical" size={24} style={{ width: "100%" }}>
+          {/* Summary Section - ดึงค่าจาก Store อัตโนมัติ */}
+          <SummarySection />
+
+          {/* Filter Section */}
+          <FilterSection
+            form={filterForm}
+            onSearch={handleFilterUpdate}
+            onReset={handleFilterReset}
+          />
+
+          {/* Table & Content Section */}
+          <ServerTable
+            data={filteredServers}
+            onViewDetails={handleOpenDetails}
+            onEditDescription={handleOpenEdit}
+          />
+        </Space>
+      ),
+    },
+    {
+      key: "log",
+      label: (
+        <Space>
+          <HistoryOutlined />
+          LOG
+        </Space>
+      ),
+      children: (
+        <Space direction="vertical" size={24} style={{ width: "100%" }}>
+          {/* Log Filter */}
+          <LogFilterSection
+            form={logFilterForm}
+            onSearch={handleLogSearch}
+            onReset={handleLogReset}
+          />
+
+          {/* Summary Cards — Uptime/Downtime */}
+          <LogSummarySection />
+
+          {/* Per-Server Uptime Table */}
+          <LogServerUptimeTable />
+
+          {/* Raw Log Entries */}
+          <LogEntriesTable />
+        </Space>
+      ),
+    },
+  ];
+
   return (
     <DashboardLayout>
       {/* 1. Header Section */}
@@ -131,46 +233,33 @@ export default function ServerStatusPage() {
         }
       />
 
-      <Space direction="vertical" size={24} style={{ width: "100%" }}>
-        {/* 2. Summary Section - ดึงค่าจาก Store อัตโนมัติ */}
-        <SummarySection />
-
-        {/* 3. Filter Section */}
-        <FilterSection 
-          form={filterForm} 
-          onSearch={handleFilterUpdate} 
-          onReset={handleFilterReset} 
-        />
-
-        {/* 4. Table & Content Section */}
-        <ServerTable 
-          data={filteredServers} 
-          onViewDetails={handleOpenDetails} 
-          onEditDescription={handleOpenEdit} 
-        />
-      </Space>
+      {/* 2. Main Tabs */}
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        items={tabItems}
+        style={{ marginTop: 8 }}
+      />
 
       {/* --- Modals --- */}
-      
-      <DetailsModal 
-        server={selectedServer} 
-        open={detailsVisible} 
-        onClose={handleCloseModals} 
+      <DetailsModal
+        server={selectedServer}
+        open={detailsVisible}
+        onClose={handleCloseModals}
       />
 
-      <EditModal 
-        server={selectedServer} 
-        open={editVisible} 
-        onClose={handleCloseModals} 
+      <EditModal
+        server={selectedServer}
+        open={editVisible}
+        onClose={handleCloseModals}
       />
 
-      {/* พื้นที่สำหรับ Status Modal กลาง หากจำเป็นต้องใช้งานในอนาคต */}
-      <StatusModalComponent 
-        open={false} 
-        type="success" 
-        title="" 
-        message="" 
-        onClose={() => {}} 
+      <StatusModalComponent
+        open={false}
+        type="success"
+        title=""
+        message=""
+        onClose={() => {}}
       />
     </DashboardLayout>
   );

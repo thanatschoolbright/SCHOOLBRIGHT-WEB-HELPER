@@ -1,14 +1,36 @@
-import React from "react";
-import { Card, Table, Tag, Space, Button, Tooltip, Typography, theme } from "antd";
-import { 
-  UnorderedListOutlined, 
-  EditOutlined, 
-  EyeOutlined, 
-  CheckCircleOutlined, 
-  CloseCircleOutlined, 
-  ClockCircleOutlined
+import {
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  CloseCircleOutlined,
+  EditOutlined,
+  EyeOutlined,
+  GlobalOutlined,
+  HistoryOutlined,
+  UnorderedListOutlined,
 } from "@ant-design/icons";
-import { ServerStatus, useServerStatusStore } from "../_state/server-status.state";
+import {
+  Badge,
+  Button,
+  Card,
+  Flex,
+  Space,
+  Table,
+  Tag,
+  Tooltip,
+  Typography,
+  theme,
+} from "antd";
+import dayjs from "dayjs";
+import "dayjs/locale/th";
+import relativeTime from "dayjs/plugin/relativeTime";
+import React from "react";
+import {
+  ServerStatus,
+  useServerStatusStore,
+} from "../_state/server-status.state";
+
+dayjs.extend(relativeTime);
+dayjs.locale("th");
 
 interface ServerTableProps {
   data: ServerStatus[];
@@ -18,94 +40,185 @@ interface ServerTableProps {
 
 /**
  * ตารางแสดงรายการเซิร์ฟเวอร์ (Server Table)
- * ออกแบบตามมาตรฐาน Modular UI พร้อมปุ่มดำเนินการทางด้านขวาบน
+ * ออกแบบตามมาตรฐาน Modular UI พร้อมการตกแต่งที่ทันสมัยและสมดุล
  */
-const ServerTable: React.FC<ServerTableProps> = ({ data, onViewDetails, onEditDescription }) => {
+const ServerTable: React.FC<ServerTableProps> = ({
+  data,
+  onViewDetails,
+  onEditDescription,
+}) => {
   const { token } = theme.useToken();
   const { isLoading } = useServerStatusStore();
 
   const columns = [
     {
-      title: "ชื่อเซิร์ฟเวอร์ / ระบบ",
+      title: "เซิร์ฟเวอร์ และ ระบบงาน",
       key: "name",
       render: (_: any, record: ServerStatus) => (
-        <Space direction="vertical" size={0}>
-          <Typography.Text strong style={{ fontWeight: 600 }}>
-            {record.server_name_th || record.server_name || "-"}
-          </Typography.Text>
-          <Typography.Text type="secondary" style={{ fontSize: "12px" }}>
-            {record.endpoint || "-"}
-          </Typography.Text>
-        </Space>
+        <Flex align="center" gap={12}>
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background:
+                record.status === "Online"
+                  ? "rgba(34, 197, 94, 0.1)"
+                  : "rgba(239, 68, 68, 0.1)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: `1px solid ${
+                record.status === "Online"
+                  ? "rgba(34, 197, 94, 0.2)"
+                  : "rgba(239, 68, 68, 0.2)"
+              }`,
+            }}
+          >
+            <GlobalOutlined
+              style={{
+                color: record.status === "Online" ? "#22c55e" : "#ef4444",
+                fontSize: 16,
+              }}
+            />
+          </div>
+          <Space direction="vertical" size={0}>
+            <Typography.Text strong style={{ fontSize: 14, fontWeight: 600 }}>
+              {record.server_name_th || record.server_name || "-"}
+            </Typography.Text>
+            <Typography.Text
+              type="secondary"
+              style={{
+                fontSize: 12,
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <AntLink copyable={{ text: record.endpoint }}>
+                {record.endpoint || "-"}
+              </AntLink>
+            </Typography.Text>
+          </Space>
+        </Flex>
       ),
       sorter: (a: ServerStatus, b: ServerStatus) =>
         (a.server_name_th || a.server_name || "").localeCompare(
-          b.server_name_th || b.server_name || ""
+          b.server_name_th || b.server_name || "",
         ),
     },
     {
       title: "สถานะ",
       key: "status",
-      width: 150,
+      width: 140,
       render: (_: any, record: ServerStatus) => {
         const isOnline = record.status === "Online";
         return (
-          <Tag
-            color={isOnline ? "success" : "error"}
-            icon={isOnline ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
-            style={{ borderRadius: 12, padding: "2px 10px" }}
-          >
-            {isOnline ? "ทำงานปกติ" : "หยุดทำงาน"}
-          </Tag>
+          <Badge
+            status={isOnline ? "processing" : "error"}
+            text={
+              <Tag
+                color={isOnline ? "success" : "error"}
+                icon={
+                  isOnline ? <CheckCircleOutlined /> : <CloseCircleOutlined />
+                }
+                style={{
+                  borderRadius: 20,
+                  padding: "2px 12px",
+                  border: "none",
+                  fontWeight: 500,
+                }}
+              >
+                {isOnline ? "Online" : "Offline"}
+              </Tag>
+            }
+          />
         );
       },
-      sorter: (a: ServerStatus, b: ServerStatus) => a.status.localeCompare(b.status),
+      sorter: (a: ServerStatus, b: ServerStatus) =>
+        a.status.localeCompare(b.status),
     },
     {
-      title: "ความเร็วตอบสนอง",
+      title: "การตอบสนอง",
       dataIndex: "response_time",
       key: "response_time",
-      width: 180,
+      width: 160,
       render: (time: number) => {
-        const color = time < 1 ? "success" : time < 2 ? "warning" : "error";
+        const color = time < 1 ? "#22c55e" : time < 2 ? "#eab308" : "#ef4444";
+        const bg =
+          time < 1
+            ? "rgba(34, 197, 94, 0.05)"
+            : time < 2
+            ? "rgba(234, 179, 8, 0.05)"
+            : "rgba(239, 68, 68, 0.05)";
         return (
-          <Tag color={color} icon={<ClockCircleOutlined />}>
-            {time.toFixed(3)} ms
-          </Tag>
+          <Flex
+            align="center"
+            gap={8}
+            style={{
+              background: bg,
+              padding: "4px 10px",
+              borderRadius: 8,
+              width: "fit-content",
+            }}
+          >
+            <ClockCircleOutlined style={{ color, fontSize: 12 }} />
+            <Typography.Text style={{ color, fontWeight: 700, fontSize: 13 }}>
+              {time.toFixed(3)}{" "}
+              <small style={{ fontWeight: 400, opacity: 0.8 }}>ms</small>
+            </Typography.Text>
+          </Flex>
         );
       },
-      sorter: (a: ServerStatus, b: ServerStatus) => (a.response_time || 0) - (b.response_time || 0),
+      sorter: (a: ServerStatus, b: ServerStatus) =>
+        (a.response_time || 0) - (b.response_time || 0),
     },
     {
       title: "ตรวจสอบล่าสุด",
       dataIndex: "timestamp",
       key: "timestamp",
       width: 200,
+      render: (ts: string) => (
+        <Tooltip title={dayjs(ts).format("DD/MM/YYYY HH:mm:ss")}>
+          <Space size={6}>
+            <HistoryOutlined
+              style={{ fontSize: 13, color: token.colorTextDescription }}
+            />
+            <Typography.Text style={{ fontSize: 13 }}>
+              {dayjs(ts).fromNow()}
+            </Typography.Text>
+          </Space>
+        </Tooltip>
+      ),
       sorter: (a: ServerStatus, b: ServerStatus) =>
         new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
     },
     {
-      title: "จัดการ",
+      title: "ดำเนินการ",
       key: "actions",
       align: "right" as const,
-      width: 150,
+      width: 140,
       render: (_: any, record: ServerStatus) => (
         <Space>
           <Tooltip title="แก้ไขหมายเหตุ">
             <Button
-              size="small"
-              icon={<EditOutlined />}
+              type="text"
+              shape="circle"
+              icon={
+                <EditOutlined style={{ color: token.colorTextDescription }} />
+              }
               onClick={() => onEditDescription(record)}
             />
           </Tooltip>
           <Button
-            size="small"
+            size="middle"
             type="primary"
             ghost
             icon={<EyeOutlined />}
             onClick={() => onViewDetails(record)}
+            style={{ borderRadius: 8 }}
           >
-            ดูข้อมูลลึก
+            ดูรายละเอียด
           </Button>
         </Space>
       ),
@@ -114,30 +227,68 @@ const ServerTable: React.FC<ServerTableProps> = ({ data, onViewDetails, onEditDe
 
   return (
     <Card
-      styles={{ body: { padding: 16 } }}
+      styles={{ body: { padding: 0 } }}
       style={{
-        borderRadius: 16,
+        borderRadius: 12,
         overflow: "hidden",
-        border: `1px solid ${token.colorBorderSecondary}`,
+        border: `1px solid rgba(128,128,128,0.15)`,
+        boxShadow: "0 4px 12px rgba(0,0,0,0.03)",
       }}
       title={
-        <Space>
-          <UnorderedListOutlined style={{ color: token.colorPrimary, fontSize: "1rem" }} />
-          <Typography.Text style={{ fontSize: "1rem", fontWeight: 600 }}>
-            รายการเซิร์ฟเวอร์
-          </Typography.Text>
-        </Space>
+        <Flex align="center" gap={12} style={{ padding: "8px 0" }}>
+          <div
+            style={{
+              background: token.colorPrimary,
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: `0 2px 6px ${token.colorPrimary}40`,
+            }}
+          >
+            <UnorderedListOutlined style={{ color: "#fff", fontSize: 16 }} />
+          </div>
+          <Space direction="vertical" size={0}>
+            <Typography.Text style={{ fontSize: 16, fontWeight: 700 }}>
+              รายการเซิร์ฟเวอร์
+            </Typography.Text>
+            <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+              ตรวจสอบสถานะการทำงานและความเร็วของระบบทั้งหมด
+            </Typography.Text>
+          </Space>
+        </Flex>
+      }
+      extra={
+        <Typography.Text
+          type="secondary"
+          style={{ fontSize: 13, fontWeight: 500 }}
+        >
+          ทั้งหมด {data.length.toLocaleString()} เครื่อง
+        </Typography.Text>
       }
     >
       <Table
         columns={columns}
         dataSource={data}
         loading={isLoading}
-        rowKey={(record) => `${record.server_name_th}-${record.timestamp}`}
-        pagination={{ pageSize: 10, showSizeChanger: true }}
+        rowKey={(record) => `${record.server_name}-${record.timestamp}`}
+        pagination={{
+          pageSize: 10,
+          showSizeChanger: true,
+          style: { padding: "0px" },
+        }}
+        style={{
+          padding: "1rem",
+        }}
+        size="middle"
+        scroll={{ x: 1000 }}
       />
     </Card>
   );
 };
+
+const AntLink = Typography.Link;
 
 export default ServerTable;

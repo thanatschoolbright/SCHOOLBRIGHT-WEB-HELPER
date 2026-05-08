@@ -1,4 +1,5 @@
 import { convertToThaiDateDDMMYYY } from "@/helpers/convert-time-zone-to-thai";
+import { PrismaTimesheet } from "@/helpers/prisma-timesheet";
 import { API_URL } from "@/services/api-url";
 import axios, { AxiosError, type AxiosResponse } from "axios";
 import dayjs from "dayjs";
@@ -558,5 +559,46 @@ export async function executeServerStatusChecks(): Promise<{
     }),
   );
 
-  return { timestamp, results: results as ServerResultInfo[] };
+  const finalResults = results as ServerResultInfo[];
+
+  // ✨ บันทึก log ลง Timesheet DB แบบ fire-and-forget (ไม่ block response)
+  saveServerStatusLogs(new Date(), finalResults).catch((err) =>
+    console.error("[SERVER_STATUS_LOG_SAVE_ERROR]", String(err))
+  );
+
+  return { timestamp, results: finalResults };
+}
+
+// ✨ บันทึกผลการตรวจสอบ Server ทุกตัวลงตาราง api_log ใน Timesheet DB
+async function saveServerStatusLogs(
+  checkedAt: Date,
+  results: ServerResultInfo[]
+): Promise<void> {
+  // ลบ log เก่าเกิน 30 วัน
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - 30);
+  await PrismaTimesheet.apiLog.deleteMany({
+    where: {
+      service_name: "SERVER_STATUS_MONITOR",
+      request_time: { lt: cutoffDate },
+    },
+  });
+
+  const insertData = results.map((r) => ({
+    request_time: checkedAt,
+    response_time: new Date(),
+    duration_ms: Math.round(r.response_time * 1000),
+    method: "GET",
+    status_code: r.status_code,
+    url: r.url,
+    endpoint: r.endpoint,
+    service_name: "SERVER_STATUS_MONITOR",
+    called_by: r.status,           // "Online" | "Offline"
+    trace_id: r.server,            // server key เช่น "SERVER_PROD_SBAPI"
+    is_success: r.status === "Online",
+    error_message: r.message ?? null,
+    response_body: { server_name_th: r.server_name_th, environment: r.environment } as any,
+  }));
+
+  await PrismaTimesheet.apiLog.createMany({ data: insertData });
 }
