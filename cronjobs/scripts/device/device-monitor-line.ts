@@ -218,6 +218,10 @@ async function sendSchoolReport(
     }
 
     const { messages } = await buildSchoolDeviceReport(schoolId);
+    if (messages.length === 0) {
+      console.log(`[${timestamp}] School ${schoolId} — no devices to report, skipped`);
+      return true;
+    }
     await linePushMessage(groupId, messages);
     console.log(`[${timestamp}] School ${schoolId} — LINE sent (round=${notifyRound})`);
     return true;

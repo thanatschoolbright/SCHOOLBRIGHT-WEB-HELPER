@@ -1535,6 +1535,17 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
 
   const total = filteredDevices.length;
 
+  // กรณีไม่มีอุปกรณ์ที่ต้องตรวจสอบ — ไม่ส่ง LINE
+  if (total === 0) {
+    return {
+      messages: [],
+      schoolName,
+      total: 0,
+      online: 0,
+      offline: 0,
+    };
+  }
+
   // กรณีทุกเครื่องออนไลน์ — ส่ง bubble เดียว
   if (offlineDevices.length === 0) {
     return {

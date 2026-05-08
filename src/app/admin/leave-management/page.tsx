@@ -5,20 +5,12 @@ import { HeaderBar } from "@/components/typhography/header-bar-component";
 import { CalendarOutlined, ReloadOutlined } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
 import { Button, Space } from "antd";
-import { useEffect } from "react";
 import { LeaveFilter } from "./_components/leave-filter";
 import { LeaveTable } from "./_components/leave-table";
 import { useLeaveManagementStore } from "./_state/leave-management-store";
 
 export default function LeaveManagementPage() {
   const { fetchData, isLoading, filters } = useLeaveManagementStore();
-
-  // auto-fetch เมื่อ user_id เปลี่ยน (เลือกจาก Dropdown แล้ว)
-  useEffect(() => {
-    if (filters.user_id) {
-      fetchData();
-    }
-  }, [filters.user_id, fetchData]);
 
   return (
     <PermissionLayout role={["ADMIN"]}>
@@ -33,6 +25,7 @@ export default function LeaveManagementPage() {
               <Button
                 icon={<ReloadOutlined />}
                 loading={isLoading}
+                disabled={!filters.user_id}
                 onClick={() => fetchData()}
               >
                 รีเฟรช

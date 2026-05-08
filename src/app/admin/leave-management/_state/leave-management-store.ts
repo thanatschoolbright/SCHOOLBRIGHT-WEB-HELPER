@@ -320,6 +320,7 @@ export const useLeaveManagementStore = create<LeaveManagementState>(
       await get().fetchData();
     },
 
+    // ล้าง filter ทั้งหมดและเคลียร์ผลลัพธ์ — ไม่ fetch ใหม่ รอให้เลือก user แล้วกดค้นหา
     resetFilters: () => {
       set({
         filters: {
@@ -329,8 +330,14 @@ export const useLeaveManagementStore = create<LeaveManagementState>(
           date_range: undefined,
           school_id: undefined,
         },
+        leaves: [],
+        pagination: {
+          total: 0,
+          current_page: 1,
+          per_page: 50,
+          total_pages: 0,
+        },
       });
-      get().fetchData();
     },
   }),
 );
