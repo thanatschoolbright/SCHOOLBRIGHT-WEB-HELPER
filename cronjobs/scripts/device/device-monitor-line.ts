@@ -23,7 +23,7 @@ const TEST_SCHOOL_ID = process.env.TEST_SCHOOL_ID
 
 const SEP = "─".repeat(70);
 
-console.log(`[CONFIG] TEST_SCHOOL_ID=${TEST_SCHOOL_ID ?? "(ทุกโรงเรียน)"}`);
+console.log(`[CONFIG] TEST_SCHOOL_ID=${TEST_SCHOOL_ID ?? "(all schools)"}`);
 
 // ✨ เช็กสถานะเปิด/ปิด Bot จาก Timesheet DB — คืน true ถ้าเปิดใช้งาน
 async function isBotEnabled(): Promise<boolean> {
@@ -158,10 +158,7 @@ async function fetchAndDisplayLineGroups() {
     },
   });
 
-  console.log(`\n${SEP}`);
-  console.log(` LINE Groups ที่พบทั้งหมด: ${groups.length} กลุ่ม`);
-  console.log(SEP);
-  console.log(`${SEP}\n`);
+  console.log(`LINE groups found: ${groups.length}`);
   return groups;
 }
 
@@ -210,28 +207,19 @@ async function sendSchoolReport(
       intervalRound2,
     );
 
-    console.log(
-      `[THRESHOLD] school=${schoolId} interval=[${intervalRound1},${intervalRound2}] offline=${
-        deviceData.devices.filter((d) => !d.is_online).length
-      } เครื่อง`,
-    );
+    const offlineCount = deviceData.devices.filter((d) => !d.is_online).length;
+    console.log(`[THRESHOLD] school=${schoolId} interval=[${intervalRound1},${intervalRound2}] offline=${offlineCount}`);
     for (const line of debugLines) console.log(`[THRESHOLD]${line}`);
-    console.log(
-      `[THRESHOLD] → shouldNotify=${shouldNotify} notifyRound=${notifyRound}`,
-    );
+    console.log(`[THRESHOLD] result=shouldNotify:${shouldNotify} round:${notifyRound ?? "-"}`);
 
     if (!shouldNotify) {
-      console.log(
-        `[${timestamp}] School ${schoolId} — ไม่มีเครื่องถึงเกณฑ์ skipped`,
-      );
+      console.log(`[${timestamp}] School ${schoolId} — no threshold reached, skipped`);
       return true;
     }
 
     const { messages } = await buildSchoolDeviceReport(schoolId);
     await linePushMessage(groupId, messages);
-    console.log(
-      `[${timestamp}] School ${schoolId} — ส่ง LINE สำเร็จ (round=${notifyRound})`,
-    );
+    console.log(`[${timestamp}] School ${schoolId} — LINE sent (round=${notifyRound})`);
     return true;
   } catch (err) {
     console.error(`[${timestamp}] School ${schoolId} — ERROR:`, err);
@@ -248,44 +236,26 @@ async function main() {
   console.log(`[${timestamp}] Device Monitor LINE Bot — Starting`);
   console.log(SEP);
 
-  // ─── ตรวจสอบ Bot Status (ระดับสูงสุด) ───
   const botEnabled = await isBotEnabled();
   if (!botEnabled) {
-    console.log(`\n${SEP}`);
-    console.log(`[${timestamp}] ⚠ มีการปิดการใช้งาน LINE Bot ในระบบ`);
-    console.log(`[${timestamp}]   → ระบบจะไม่ทำการ Query ข้อมูลอุปกรณ์`);
-    console.log(`[${timestamp}]   → ระบบจะไม่ส่งการแจ้งเตือนไปยัง LINE`);
-    console.log(
-      `[${timestamp}]   → หากต้องการเปิดใช้งาน กรุณาไปที่หน้า Web Admin`,
-    );
-    console.log(
-      `[${timestamp}]   → เส้นทาง: ตรวจสอบสถานะอุปกรณ์ → ปุ่มตั้งค่า → เปิด LINE Bot`,
-    );
-    console.log(SEP);
+    console.log(`[${timestamp}] Bot disabled — exit`);
     await PrismaTimesheet.$disconnect();
     process.exit(0);
   }
-  console.log(`[${timestamp}] ✓ Bot Status: เปิดใช้งาน`);
+  console.log(`[${timestamp}] Bot status: enabled`);
 
-  // ─── ดึงการตั้งค่าช่วงเวลาและช่วงห่างของทุกโรงเรียนจาก DB ───
   const allConfigs = await fetchAllSchoolConfigs();
   if (!allConfigs) {
-    console.log(
-      `[${timestamp}] ⚠ ไม่สามารถดึงการตั้งค่าการแจ้งเตือนได้ — ใช้ค่า default`,
-    );
+    console.log(`[${timestamp}] WARN: failed to load notify config — using defaults`);
   }
   const windowsBySchool = allConfigs?.windowsBySchool ?? new Map();
   const intervalsBySchool = allConfigs?.intervalsBySchool ?? new Map();
+  console.log(`[${timestamp}] Notify config loaded (${windowsBySchool.size} schools with custom settings)`);
 
-  console.log(
-    `[${timestamp}] ✓ โหลดการตั้งค่าสำเร็จ (${windowsBySchool.size} โรงเรียนมีการตั้งค่าเฉพาะ)`,
-  );
-
-  // ─── ดึง LINE Groups ───
   const groups = await fetchAndDisplayLineGroups();
 
   if (groups.length === 0) {
-    console.log(`[${timestamp}] ไม่พบ LINE Group ในระบบ — skipping`);
+    console.log(`[${timestamp}] No LINE groups found — exit`);
     await PrismaTimesheet.$disconnect();
     await PrismaJabjaiMaster.$disconnect();
     process.exit(0);
@@ -295,9 +265,7 @@ async function main() {
     (g) => g.SchoolId !== null && g.GroupId !== null && g.GroupId.trim() !== "",
   );
 
-  console.log(
-    `[${timestamp}] Active groups with valid SchoolId+GroupId: ${activeGroups.length}`,
-  );
+  console.log(`[${timestamp}] Active groups: ${activeGroups.length}`);
 
   // โหมดทดสอบ — ส่งเฉพาะโรงเรียนที่ระบุ และข้ามการตรวจสอบช่วงเวลา
   if (TEST_SCHOOL_ID !== null) {
@@ -309,18 +277,10 @@ async function main() {
     const group = activeGroups.find((g) => g.SchoolId === TEST_SCHOOL_ID);
     const groupId =
       group?.GroupId ?? process.env.LINE_MONITORING_GROUP_ID ?? null;
-    console.log(
-      `[${timestamp}] TEST MODE — school_id=${TEST_SCHOOL_ID}, group_id=${
-        groupId ?? "(ไม่พบ)"
-      }`,
-    );
-    console.log(
-      `[${timestamp}] Interval: รอบแรก ${intervalRound1} นาที, รอบถัดไป ${intervalRound2} นาที`,
-    );
+    console.log(`[${timestamp}] TEST MODE — school_id=${TEST_SCHOOL_ID}, group_id=${groupId ?? "(not found)"}`);
+    console.log(`[${timestamp}] Interval: R1=${intervalRound1} min, R2=${intervalRound2} min`);
     if (!groupId) {
-      console.error(
-        `[${timestamp}] ไม่พบ GroupId สำหรับโรงเรียน ${TEST_SCHOOL_ID}`,
-      );
+      console.error(`[${timestamp}] No GroupId for school ${TEST_SCHOOL_ID} — exit`);
       await PrismaTimesheet.$disconnect();
       await PrismaJabjaiMaster.$disconnect();
       process.exit(1);
@@ -342,30 +302,16 @@ async function main() {
   let skippedCount = 0;
 
   for (const group of activeGroups) {
-    const schoolId = group.SchoolId!;
-    const groupId = group.GroupId!;
+    if (!group.SchoolId || !group.GroupId) continue;
+    const schoolId = group.SchoolId;
+    const groupId = group.GroupId;
     const { timeWindows, intervalRound1, intervalRound2 } = getSchoolConfig(
       schoolId,
       windowsBySchool,
       intervalsBySchool,
     );
 
-    // ─── ตรวจสอบช่วงเวลาแจ้งเตือนของโรงเรียนนี้ ───
     if (!isWithinNotifyWindow(timeWindows)) {
-      const windowLabels =
-        timeWindows
-          .filter((w) => w.is_active)
-          .map(
-            (w) =>
-              `${String(w.start_hour).padStart(2, "0")}:${String(
-                w.start_min,
-              ).padStart(2, "0")}–${String(w.end_hour).padStart(
-                2,
-                "0",
-              )}:${String(w.end_min).padStart(2, "0")}`,
-          )
-          .join(", ") || "ไม่มีรอบที่เปิดใช้งาน";
-
       skippedCount++;
       continue;
     }
@@ -382,9 +328,7 @@ async function main() {
   }
 
   console.log(`\n${SEP}`);
-  console.log(
-    `[${timestamp}] Done — success: ${successCount}, failed: ${failCount}, skipped: ${skippedCount}`,
-  );
+  console.log(`[${timestamp}] Done — success=${successCount} failed=${failCount} skipped=${skippedCount}`);
   console.log(SEP);
 
   await PrismaTimesheet.$disconnect();

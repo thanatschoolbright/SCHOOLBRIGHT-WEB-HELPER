@@ -1372,10 +1372,7 @@ export async function checkAndUpdateNotifyState(
       continue;
     }
 
-    if (!device.notify_enabled) {
-      debugLines.push(`  [SKIP] ${name} — notify_enabled=false`);
-      continue;
-    }
+    if (!device.notify_enabled) continue;
 
     let state = stateMap.get(deviceId);
 
@@ -1396,7 +1393,7 @@ export async function checkAndUpdateNotifyState(
 
     if (state.r1_sent_at === null) {
       if (offlineMin >= intervalRound1Minutes) {
-        debugLines.push(`  [✓ R1] ${name} — offline ${offlineMinStr} นาที → แจ้งเตือนรอบแรก`);
+        debugLines.push(`  [NOTIFY R1] ${name} — offline ${offlineMinStr} min`);
         await PrismaJabjaiMaster.deviceNotifyState.update({
           where: { school_id_device_id: { school_id: schoolId, device_id: deviceId } },
           data: { r1_sent_at: now, last_notified_at: now },
@@ -1404,14 +1401,14 @@ export async function checkAndUpdateNotifyState(
         result = true;
         if (notifyRound === null) notifyRound = 1;
       } else {
-        debugLines.push(`  [--]  ${name} — offline ${offlineMinStr} นาที (รออีก ${(intervalRound1Minutes - offlineMin).toFixed(1)} นาทีถึงจะส่ง R1)`);
+        debugLines.push(`  [WAIT  R1] ${name} — offline ${offlineMinStr} min, wait ${(intervalRound1Minutes - offlineMin).toFixed(1)} min`);
       }
     } else {
       const lastMs = state.last_notified_at!.getTime();
       const minutesSinceLast = (nowMs - lastMs) / 60_000;
       if (minutesSinceLast >= intervalRound2Minutes) {
         const cycleNo = Math.floor((nowMs - state.r1_sent_at!.getTime()) / 60_000 / intervalRound2Minutes);
-        debugLines.push(`  [✓ R2] ${name} — offline ${offlineMinStr} นาที → แจ้งเตือนซ้ำ (ห่างจากครั้งล่าสุด ${minutesSinceLast.toFixed(1)} นาที, cycle ที่ ${cycleNo})`);
+        debugLines.push(`  [NOTIFY R2] ${name} — offline ${offlineMinStr} min, cycle #${cycleNo}`);
         await PrismaJabjaiMaster.deviceNotifyState.update({
           where: { school_id_device_id: { school_id: schoolId, device_id: deviceId } },
           data: { last_notified_at: now },
@@ -1420,7 +1417,7 @@ export async function checkAndUpdateNotifyState(
         if (notifyRound === null) notifyRound = 2;
       } else {
         const waitMin = (intervalRound2Minutes - minutesSinceLast).toFixed(1);
-        debugLines.push(`  [--]  ${name} — offline ${offlineMinStr} นาที (แจ้งเตือนครั้งถัดไปใน ~${waitMin} นาที)`);
+        debugLines.push(`  [WAIT  R2] ${name} — offline ${offlineMinStr} min, next in ~${waitMin} min`);
       }
     }
   }
