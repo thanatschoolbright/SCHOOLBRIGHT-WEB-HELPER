@@ -218,7 +218,7 @@ export default function CreateUserPage() {
               <Col xs={24} lg={8}>
                 <Card
                   className="text-center"
-                  bordered={false}
+                  variant="outlined"
                   style={{ borderRadius: 16 }}
                 >
                   <Title level={5}>รูปโปรไฟล์</Title>
