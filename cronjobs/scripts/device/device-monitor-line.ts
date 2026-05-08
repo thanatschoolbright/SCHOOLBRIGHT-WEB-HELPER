@@ -229,6 +229,7 @@ async function sendSchoolReport(
 
 // ✨ ฟังก์ชันหลัก — เช็กสถานะ Bot, ช่วงเวลา, แล้วส่งรายงานทีละโรงเรียน
 async function main() {
+  const runStartTime = new Date();
   const timestamp = new Date().toLocaleString("th-TH", {
     timeZone: "Asia/Bangkok",
   });
@@ -330,6 +331,33 @@ async function main() {
   console.log(`\n${SEP}`);
   console.log(`[${timestamp}] Done — success=${successCount} failed=${failCount} skipped=${skippedCount}`);
   console.log(SEP);
+
+  // ✨ บันทึกสรุปผลการทำงานของ Bot ลง api_log เพื่อดูประวัติบนหน้า Web
+  try {
+    const runEndTime = new Date();
+    await PrismaTimesheet.apiLog.create({
+      data: {
+        request_time: runStartTime,
+        response_time: runEndTime,
+        duration_ms: runEndTime.getTime() - runStartTime.getTime(),
+        method: "CRON",
+        status_code: failCount > 0 ? 500 : 200,
+        endpoint: "cronjob/device-monitor-line",
+        service_name: "cronjob",
+        is_success: failCount === 0,
+        called_by: "cronjob",
+        response_body: {
+          success: successCount,
+          failed: failCount,
+          skipped: skippedCount,
+          total_active_groups: successCount + failCount + skippedCount,
+        },
+      },
+    });
+    console.log(`[${timestamp}] Bot run log saved to api_log`);
+  } catch (err) {
+    console.error(`[${timestamp}] Failed to write bot run log:`, err);
+  }
 
   await PrismaTimesheet.$disconnect();
   await PrismaJabjaiMaster.$disconnect();

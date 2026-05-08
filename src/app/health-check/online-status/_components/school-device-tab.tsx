@@ -2046,12 +2046,12 @@ export const SchoolDeviceTab = () => {
                       style={{
                         fontSize: 12,
                         display: "block",
-                        marginBottom: 8,
+                        marginBottom: 12,
                       }}
                     >
                       ช่วงห่างการแจ้งเตือน (หลังจากเครื่อง Offline)
                     </Text>
-                    <Flex vertical gap={8}>
+                    <Flex vertical gap={10}>
                       {notifyConfig.intervals.map((v) => {
                         const draft = intervalDrafts[v.id] ?? {};
                         const merged = { ...v, ...draft };
@@ -2061,66 +2061,98 @@ export const SchoolDeviceTab = () => {
                             key={v.id}
                             size="small"
                             style={{
-                              borderRadius: 8,
+                              borderRadius: 12,
                               border: hasDraft
                                 ? "1px solid var(--ant-color-primary)"
-                                : "1px solid rgba(128,128,128,0.15)",
+                                : "1px solid rgba(128,128,128,0.1)",
+                              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
                             }}
-                            styles={{ body: { padding: "10px 14px" } }}
+                            styles={{ body: { padding: "12px 16px" } }}
                           >
-                            <Flex align="center" gap={10} wrap="wrap">
-                              <Tag
-                                color={v.round === 1 ? "orange" : "purple"}
-                                style={{
-                                  margin: 0,
-                                  fontSize: 11,
-                                  borderRadius: 6,
-                                  flexShrink: 0,
-                                }}
-                              >
-                                {v.round === 1 ? "ครั้งแรก" : "ครั้งถัดไป"}
-                              </Tag>
-                              <Text style={{ fontSize: 12 }}>
-                                {merged.label}
-                              </Text>
-                              <InputNumber
-                                size="small"
-                                min={1}
-                                max={1440}
-                                value={merged.interval_minutes}
-                                addonAfter="นาที"
-                                onChange={(val) =>
-                                  setIntervalDrafts((prev) => ({
-                                    ...prev,
-                                    [v.id]: {
-                                      ...prev[v.id],
-                                      interval_minutes: val ?? 1,
-                                    },
-                                  }))
-                                }
-                                style={{ width: 130 }}
-                              />
+                            <Flex align="center" gap={12}>
                               <Flex
-                                align="center"
-                                gap={6}
-                                style={{ marginLeft: "auto" }}
+                                vertical
+                                gap={4}
+                                style={{ flex: 1, minWidth: 0 }}
                               >
-                                <Switch
+                                <Flex align="center" gap={8}>
+                                  <Tag
+                                    color={v.round === 1 ? "orange" : "purple"}
+                                    style={{
+                                      margin: 0,
+                                      fontSize: 10,
+                                      borderRadius: 4,
+                                      fontWeight: 600,
+                                      textTransform: "uppercase",
+                                    }}
+                                  >
+                                    {v.round === 1 ? "ครั้งแรก" : "ครั้งถัดไป"}
+                                  </Tag>
+                                  <Text
+                                    ellipsis
+                                    style={{ fontSize: 13, fontWeight: 500 }}
+                                  >
+                                    {merged.label}
+                                  </Text>
+                                </Flex>
+                                <Text type="secondary" style={{ fontSize: 11 }}>
+                                  แจ้งเตือนอัตโนมัติเมื่อครบกำหนด
+                                </Text>
+                              </Flex>
+
+                              <Flex align="center" gap={12}>
+                                <InputNumber
                                   size="small"
-                                  checked={merged.is_active}
-                                  onChange={(checked) =>
+                                  min={1}
+                                  max={1440}
+                                  value={merged.interval_minutes}
+                                  addonAfter="นาที"
+                                  onChange={(val) =>
                                     setIntervalDrafts((prev) => ({
                                       ...prev,
                                       [v.id]: {
                                         ...prev[v.id],
-                                        is_active: checked,
+                                        interval_minutes: val ?? 1,
                                       },
                                     }))
                                   }
+                                  style={{ width: 120 }}
                                 />
-                                <Text type="secondary" style={{ fontSize: 11 }}>
-                                  {merged.is_active ? "เปิด" : "ปิด"}
-                                </Text>
+
+                                <Flex
+                                  align="center"
+                                  gap={8}
+                                  style={{
+                                    paddingLeft: 12,
+                                    borderLeft:
+                                      "1px solid rgba(128,128,128,0.15)",
+                                  }}
+                                >
+                                  <Switch
+                                    size="small"
+                                    checked={merged.is_active}
+                                    onChange={(checked) =>
+                                      setIntervalDrafts((prev) => ({
+                                        ...prev,
+                                        [v.id]: {
+                                          ...prev[v.id],
+                                          is_active: checked,
+                                        },
+                                      }))
+                                    }
+                                  />
+                                  <Text
+                                    type="secondary"
+                                    style={{
+                                      fontSize: 11,
+                                      minWidth: 24,
+                                      textAlign: "right",
+                                    }}
+                                  >
+                                    {merged.is_active ? "เปิด" : "ปิด"}
+                                  </Text>
+                                </Flex>
+
                                 {hasDraft && (
                                   <Button
                                     type="primary"

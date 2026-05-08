@@ -3,10 +3,13 @@
 import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 import {
   BellOutlined,
+  CheckCircleOutlined,
   ClearOutlined,
   ClockCircleOutlined,
+  CloseCircleOutlined,
   EditOutlined,
   FilterOutlined,
+  RobotOutlined,
   SearchOutlined,
   UnorderedListOutlined,
   UserOutlined,
@@ -42,6 +45,146 @@ dayjs.tz.setDefault("Asia/Bangkok");
 
 const { Text: AntText } = Typography;
 const { RangePicker } = DatePicker;
+
+interface BotRunLogItem {
+  id: string;
+  run_at: string;
+  duration_ms: number | null;
+  is_success: boolean;
+  success: number;
+  failed: number;
+  skipped: number;
+  total_active_groups: number;
+}
+
+// ✨ Section แสดงประวัติการทำงานของ Bot (cronjob)
+function BotRunLogSection() {
+  const [logs, setLogs] = useState<BotRunLogItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+
+  const fetchBotLogs = useCallback(async (page = 1, size = 20) => {
+    setIsLoading(true);
+    try {
+      const params = new URLSearchParams({ page: String(page), page_size: String(size) });
+      const res = await callApiService.get(`/api/v2/hardware/bot-run-log?${params.toString()}`);
+      setLogs(res.data?.data ?? []);
+      setTotal(res.data?.pagination?.total ?? 0);
+    } catch {
+      setLogs([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void fetchBotLogs(currentPage, pageSize);
+  }, [fetchBotLogs, currentPage, pageSize]);
+
+  const columns: ColumnsType<BotRunLogItem> = [
+    {
+      title: "สถานะ",
+      dataIndex: "is_success",
+      key: "is_success",
+      width: 100,
+      render: (isSuccess: boolean) =>
+        isSuccess ? (
+          <Tag icon={<CheckCircleOutlined />} color="success">สำเร็จ</Tag>
+        ) : (
+          <Tag icon={<CloseCircleOutlined />} color="error">มีข้อผิดพลาด</Tag>
+        ),
+    },
+    {
+      title: "ส่งสำเร็จ",
+      dataIndex: "success",
+      key: "success",
+      width: 100,
+      render: (v: number) => <AntText style={{ fontSize: 13, color: "#16a34a", fontWeight: 600 }}>{v}</AntText>,
+    },
+    {
+      title: "ล้มเหลว",
+      dataIndex: "failed",
+      key: "failed",
+      width: 100,
+      render: (v: number) => (
+        <AntText style={{ fontSize: 13, color: v > 0 ? "#dc2626" : undefined, fontWeight: v > 0 ? 600 : 400 }}>
+          {v}
+        </AntText>
+      ),
+    },
+    {
+      title: "ข้าม",
+      dataIndex: "skipped",
+      key: "skipped",
+      width: 100,
+      render: (v: number) => <AntText type="secondary" style={{ fontSize: 13 }}>{v}</AntText>,
+    },
+    {
+      title: "ใช้เวลา",
+      dataIndex: "duration_ms",
+      key: "duration_ms",
+      width: 110,
+      render: (ms: number | null) =>
+        ms !== null ? (
+          <AntText style={{ fontSize: 13 }}>{(ms / 1000).toFixed(1)} วิ</AntText>
+        ) : (
+          <AntText type="secondary">—</AntText>
+        ),
+    },
+    {
+      title: "เวลา",
+      dataIndex: "run_at",
+      key: "run_at",
+      render: (runAt: string) => (
+        <Tooltip title={dayjs(runAt).tz("Asia/Bangkok").format("DD/MM/YYYY HH:mm:ss")}>
+          <Flex align="center" gap={6}>
+            <ClockCircleOutlined style={{ fontSize: 12, color: "#94a3b8" }} />
+            <AntText style={{ fontSize: 13 }}>{dayjs(runAt).tz("Asia/Bangkok").fromNow()}</AntText>
+          </Flex>
+        </Tooltip>
+      ),
+    },
+  ];
+
+  return (
+    <Card
+      styles={{ body: { padding: 16 } }}
+      style={{ marginBottom: 16 }}
+      title={
+        <Typography.Text strong style={{ fontSize: "1rem" }}>
+          <RobotOutlined style={{ marginRight: 8 }} />
+          ประวัติการทำงานของ Bot
+        </Typography.Text>
+      }
+      extra={
+        <Button size="small" onClick={() => void fetchBotLogs(currentPage, pageSize)} loading={isLoading}>
+          รีเฟรช
+        </Button>
+      }
+    >
+      <Table
+        rowKey="id"
+        dataSource={logs}
+        columns={columns}
+        loading={isLoading}
+        size="small"
+        pagination={{
+          current: currentPage,
+          pageSize,
+          total,
+          showSizeChanger: true,
+          pageSizeOptions: ["10", "20", "50"],
+          showTotal: (t) => `ทั้งหมด ${t.toLocaleString()} รายการ`,
+          onChange: (page, size) => { setCurrentPage(page); setPageSize(size); },
+        }}
+        locale={{ emptyText: "ยังไม่มีประวัติการทำงานของ Bot" }}
+        scroll={{ x: 600 }}
+      />
+    </Card>
+  );
+}
 
 interface ActivityLogItem {
   id: string;
@@ -225,6 +368,8 @@ export default function ActivityLogTab() {
 
   return (
     <div>
+      <BotRunLogSection />
+
       {/* Filter Section */}
       <Card
         size="small"
