@@ -11,11 +11,14 @@ import { LeaveTable } from "./_components/leave-table";
 import { useLeaveManagementStore } from "./_state/leave-management-store";
 
 export default function LeaveManagementPage() {
-  const { fetchData, isLoading } = useLeaveManagementStore();
+  const { fetchData, isLoading, filters } = useLeaveManagementStore();
 
+  // auto-fetch เมื่อ user_id เปลี่ยน (เลือกจาก Dropdown แล้ว)
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (filters.user_id) {
+      fetchData();
+    }
+  }, [filters.user_id, fetchData]);
 
   return (
     <PermissionLayout role={["ADMIN"]}>

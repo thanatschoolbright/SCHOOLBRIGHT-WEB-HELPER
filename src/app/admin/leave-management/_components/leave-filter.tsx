@@ -4,6 +4,7 @@ import {
   ClearOutlined,
   FilterOutlined,
   SearchOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -11,18 +12,32 @@ import {
   Col,
   DatePicker,
   Flex,
-  Input,
   Row,
+  Select,
   Typography,
 } from "antd";
+import { useEffect } from "react";
 import { useLeaveManagementStore } from "../_state/leave-management-store";
 
 const { RangePicker } = DatePicker;
 const { Text } = Typography;
 
 export const LeaveFilter = () => {
-  const { filters, setFilter, resetFilters, fetchData, isLoading } =
-    useLeaveManagementStore();
+  const {
+    filters,
+    setFilter,
+    resetFilters,
+    fetchData,
+    isLoading,
+    schoolUsers,
+    isLoadingUsers,
+    fetchSchoolUsers,
+  } = useLeaveManagementStore();
+
+  // โหลดรายชื่อผู้ใช้งานครั้งแรก
+  useEffect(() => {
+    fetchSchoolUsers();
+  }, [fetchSchoolUsers]);
 
   return (
     <Card
@@ -47,16 +62,26 @@ export const LeaveFilter = () => {
             type="secondary"
             style={{ fontSize: 13, display: "block", marginBottom: 6 }}
           >
-            ค้นหาชื่อหรือรหัส
+            ผู้ใช้งาน
           </Text>
-          <Input
-            placeholder="ค้นชื่อ-นามสกุล หรือ รหัสนักเรียน"
-            prefix={<SearchOutlined style={{ color: "#94a3b8" }} />}
-            value={filters.search}
-            onChange={(e) => setFilter("search", e.target.value)}
-            onPressEnter={() => fetchData()}
+          <Select
+            showSearch
             allowClear
+            placeholder="เลือกผู้ใช้งานเพื่อดูรายการลา"
             style={{ width: "100%" }}
+            loading={isLoadingUsers}
+            value={filters.user_id ?? undefined}
+            onChange={(value) => setFilter("user_id", value)}
+            filterOption={(input, option) =>
+              String(option?.label ?? "")
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
+            suffixIcon={<UserOutlined />}
+            options={schoolUsers.map((u) => ({
+              value: u.UserID,
+              label: `${u.BarCode ?? ""} ${u.Name ?? ""} ${u.LastName ?? ""}`.trim() || u.username || String(u.UserID),
+            }))}
           />
         </Col>
 
@@ -98,6 +123,7 @@ export const LeaveFilter = () => {
               icon={<SearchOutlined />}
               onClick={() => fetchData()}
               loading={isLoading}
+              disabled={!filters.user_id}
               style={{
                 borderRadius: 8,
                 paddingLeft: 24,

@@ -63,7 +63,7 @@ Project-specific scaffolding commands in `.claude/commands/`:
 
 ## Architecture
 
-This is a **Next.js 16 (App Router) back-office admin tool** for SchoolBright, covering system health monitoring, hardware integration (canteen/facial recognition/gates), mobile app management, HR timesheets, and project backlog tracking.
+This is a **Next.js 16 / React 19 (App Router) back-office admin tool** for SchoolBright, covering system health monitoring, hardware integration (canteen/facial recognition/gates), mobile app management, HR timesheets, and project backlog tracking.
 
 ### Feature areas under `src/app/`
 
@@ -309,7 +309,7 @@ The session JWT carries: `id`, `admin_id`, `username`, `employee_code`, `role_id
 
 ### Databases
 
-Two Prisma instances (singleton pattern, global cached in dev):
+Three Prisma instances (singleton pattern, global cached in dev):
 
 | Helper | DB | Schema | Models |
 |---|---|---|---|
@@ -456,6 +456,5 @@ This project has a graphify knowledge graph at graphify-out/.
 
 Rules:
 - Before answering architecture or codebase questions, read graphify-out/GRAPH_REPORT.md for god nodes and community structure
-- If graphify-out/wiki/index.md exists, navigate it instead of reading raw files
 - For cross-module "how does X relate to Y" questions, prefer `graphify query "<question>"`, `graphify path "<A>" "<B>"`, or `graphify explain "<concept>"` over grep — these traverse the graph's EXTRACTED + INFERRED edges instead of scanning files
 - After modifying code files in this session, run `graphify update .` to keep the graph current (AST-only, no API cost)

@@ -1,3 +1,4 @@
+import { callApiService } from "@/services/axios-instance/sb-helper.axios";
 import { toast } from "sonner";
 import { create } from "zustand";
 import {
@@ -6,6 +7,14 @@ import {
 } from "../_api/leave-management-api";
 
 // --- Types ---
+export interface SchoolUser {
+  UserID: number;
+  Name: string;
+  LastName: string;
+  BarCode?: string;
+  username?: string;
+}
+
 export interface LeaveItem {
   id: number;
   // letter_id คือ leaveLetterId จาก API ใช้ส่งไปใน confirmLeave
@@ -46,6 +55,10 @@ interface LeaveManagementState {
   pagination: Pagination;
   isLoading: boolean;
 
+  // User dropdown
+  schoolUsers: SchoolUser[];
+  isLoadingUsers: boolean;
+
   // Batch selection
   selectedRowKeys: number[];
   isApproving: boolean;
@@ -58,13 +71,14 @@ interface LeaveManagementState {
   filters: {
     page: number;
     limit: number;
-    search?: string;
+    user_id?: string | number;
     date_range?: [string, string];
     school_id?: string | number;
   };
 
   // Actions
   fetchData: () => Promise<void>;
+  fetchSchoolUsers: () => Promise<void>;
   setFilter: (
     key: string,
     value: string | number | [string, string] | undefined,
@@ -88,6 +102,8 @@ export const useLeaveManagementStore = create<LeaveManagementState>(
       total_pages: 0,
     },
     isLoading: false,
+    schoolUsers: [],
+    isLoadingUsers: false,
     selectedRowKeys: [],
     isApproving: false,
     showProgressModal: false,
@@ -96,9 +112,28 @@ export const useLeaveManagementStore = create<LeaveManagementState>(
     filters: {
       page: 1,
       limit: 50,
-      search: undefined,
+      user_id: undefined,
       date_range: undefined,
       school_id: undefined,
+    },
+
+    // ดึงรายชื่อผู้ใช้งานจาก school_id=39 สำหรับ Dropdown
+    fetchSchoolUsers: async () => {
+      set({ isLoadingUsers: true });
+      try {
+        const res = await callApiService.get("/api/v1/school/get-user", {
+          params: { school_id: 39 },
+        });
+        const raw = res.data?.data ?? res.data ?? {};
+        const list: SchoolUser[] = Array.isArray(raw)
+          ? raw
+          : Object.values(raw);
+        set({ schoolUsers: list });
+      } catch {
+        toast.error("ไม่สามารถโหลดรายชื่อผู้ใช้งานได้");
+      } finally {
+        set({ isLoadingUsers: false });
+      }
     },
 
     // Actions
@@ -107,9 +142,8 @@ export const useLeaveManagementStore = create<LeaveManagementState>(
       set({ isLoading: true });
 
       try {
-        // ใช้ 1233762 เป็นค่า default ID ถ้าไม่มีการระบุ search
-        const targetId = filters.search || "1233762";
-        const formattedUserId = `${targetId}/${filters.page}`;
+        const targetId = filters.user_id || "";
+        const formattedUserId = targetId ? `${targetId}/${filters.page}` : `/${filters.page}`;
 
         const response = await responseLeaveList({
           userid: formattedUserId,
@@ -291,7 +325,7 @@ export const useLeaveManagementStore = create<LeaveManagementState>(
         filters: {
           page: 1,
           limit: 50,
-          search: undefined,
+          user_id: undefined,
           date_range: undefined,
           school_id: undefined,
         },
