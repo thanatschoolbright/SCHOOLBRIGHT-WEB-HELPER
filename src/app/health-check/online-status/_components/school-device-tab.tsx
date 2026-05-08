@@ -278,9 +278,6 @@ const DeviceGroupBlock = ({
     note: string | null,
   ) => Promise<void>;
 }) => {
-  const onlineCount = devices.filter((d) => d.is_online).length;
-  const offlineCount = devices.length - onlineCount;
-
   // state inline edit ต่อ device_id
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
@@ -308,38 +305,7 @@ const DeviceGroupBlock = ({
   };
 
   return (
-    <div style={{ marginBottom: 20 }}>
-      <Flex
-        align="center"
-        gap={10}
-        style={{
-          marginBottom: 8,
-          paddingBottom: 8,
-          borderBottom: "1px solid rgba(128,128,128,0.15)",
-        }}
-      >
-        <span style={{ fontSize: 18 }}>{getAppIcon(appName)}</span>
-        <Text strong style={{ fontSize: 14 }}>
-          {appName}
-        </Text>
-        <Flex gap={4} style={{ marginLeft: "auto" }}>
-          <Tag
-            color="success"
-            style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
-          >
-            ออนไลน์ {onlineCount}
-          </Tag>
-          {offlineCount > 0 && (
-            <Tag
-              color="error"
-              style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
-            >
-              ออฟไลน์ {offlineCount}
-            </Tag>
-          )}
-        </Flex>
-      </Flex>
-
+    <div>
       <Flex vertical gap={6}>
         {devices.map((device) => {
           const lastSeen = device.online_time
@@ -2203,17 +2169,56 @@ export const SchoolDeviceTab = () => {
             <Text type="secondary">ไม่พบข้อมูลอุปกรณ์</Text>
           </Flex>
         ) : (
-          deviceGroups.map(([appName, devices]) => (
-            <DeviceGroupBlock
-              key={appName}
-              schoolId={selectedSchool!.school_id}
-              appName={appName}
-              devices={devices}
-              onToggleNotify={handleToggleNotify}
-              togglingDeviceId={togglingDeviceId}
-              onUpdateNote={handleUpdateNote}
-            />
-          ))
+          <Collapse
+            size="small"
+            ghost
+            defaultActiveKey={deviceGroups.map(([appName]) => appName)}
+            style={{
+              border: "1px solid rgba(128,128,128,0.15)",
+              borderRadius: 10,
+            }}
+            items={deviceGroups.map(([appName, devices]) => {
+              const onlineCount = devices.filter((d) => d.is_online).length;
+              const offlineCount = devices.length - onlineCount;
+              return {
+                key: appName,
+                label: (
+                  <Flex align="center" gap={8}>
+                    <span style={{ fontSize: 15 }}>{getAppIcon(appName)}</span>
+                    <Text strong style={{ fontSize: 13 }}>
+                      {appName}
+                    </Text>
+                    <Flex gap={4} style={{ marginLeft: "auto" }}>
+                      <Tag
+                        color="success"
+                        style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
+                      >
+                        ออนไลน์ {onlineCount}
+                      </Tag>
+                      {offlineCount > 0 && (
+                        <Tag
+                          color="error"
+                          style={{ margin: 0, fontSize: 11, borderRadius: 6 }}
+                        >
+                          ออฟไลน์ {offlineCount}
+                        </Tag>
+                      )}
+                    </Flex>
+                  </Flex>
+                ),
+                children: (
+                  <DeviceGroupBlock
+                    schoolId={selectedSchool!.school_id}
+                    appName={appName}
+                    devices={devices}
+                    onToggleNotify={handleToggleNotify}
+                    togglingDeviceId={togglingDeviceId}
+                    onUpdateNote={handleUpdateNote}
+                  />
+                ),
+              };
+            })}
+          />
         )}
       </Drawer>
 
