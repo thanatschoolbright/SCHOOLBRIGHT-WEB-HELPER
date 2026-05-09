@@ -1,23 +1,27 @@
 "use client";
 
-import React from "react";
 import {
-  Card,
-  Form,
-  Row,
-  Col,
-  Select,
+  ClearOutlined,
+  FilterOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import {
   Button,
+  Card,
+  Col,
+  DatePicker,
   Flex,
+  Form,
+  InputNumber,
+  Row,
+  Select,
+  Space,
   Typography,
   theme,
-  DatePicker,
-  InputNumber,
-  Space,
 } from "antd";
-import { FilterOutlined, SearchOutlined, ClearOutlined } from "@ant-design/icons";
-import { LogFilters } from "../_state/server-status.state";
 import dayjs from "dayjs";
+import React from "react";
+import { LogFilters } from "../_state/server-status.state";
 
 interface LogFilterSectionProps {
   onSearch: (values: LogFilters) => void;
@@ -29,14 +33,18 @@ interface LogFilterSectionProps {
  * ส่วนตัวกรองข้อมูล Log (Log Filter Section)
  * กรองตาม Server, สถานะ, ช่วงวันที่ หรือจำนวนวันย้อนหลัง
  */
-const LogFilterSection: React.FC<LogFilterSectionProps> = ({ onSearch, onReset, form }) => {
+const LogFilterSection: React.FC<LogFilterSectionProps> = ({
+  onSearch,
+  onReset,
+  form,
+}) => {
   const { token } = theme.useToken();
 
   // ✨ แปลงค่า form เป็น LogFilters ก่อนส่งออกไป
   const handleFinish = (values: any) => {
     const filters: LogFilters = {
       status: values.status ?? undefined,
-      days: values.date_range ? undefined : (values.days ?? 7),
+      days: values.date_range ? undefined : values.days ?? 7,
       date_from: values.date_range?.[0]
         ? dayjs(values.date_range[0]).format("YYYY-MM-DD")
         : undefined,
@@ -56,13 +64,20 @@ const LogFilterSection: React.FC<LogFilterSectionProps> = ({ onSearch, onReset, 
       }}
     >
       <Flex align="center" gap={12} style={{ marginBottom: 16 }}>
-        <FilterOutlined style={{ color: token.colorPrimary, fontSize: "1rem" }} />
+        <FilterOutlined
+          style={{ color: token.colorPrimary, fontSize: "1rem" }}
+        />
         <Typography.Text style={{ fontWeight: 600, fontSize: "1rem" }}>
           ตัวกรอง
         </Typography.Text>
       </Flex>
 
-      <Form form={form} layout="vertical" onFinish={handleFinish} initialValues={{ days: 7 }}>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleFinish}
+        initialValues={{ days: 7 }}
+      >
         <Row gutter={16}>
           <Col xs={24} md={8}>
             <Form.Item name="status" label="สถานะการทำงาน">
@@ -85,7 +100,10 @@ const LogFilterSection: React.FC<LogFilterSectionProps> = ({ onSearch, onReset, 
                   style={{ width: "calc(100% - 60px)" }}
                   placeholder="จำนวนวันย้อนหลัง (สูงสุด 30 วัน)"
                 />
-                <Button disabled style={{ width: 60, color: token.colorTextDisabled }}>
+                <Button
+                  disabled
+                  style={{ width: 60, color: token.colorTextDisabled }}
+                >
                   วัน
                 </Button>
               </Space.Compact>
