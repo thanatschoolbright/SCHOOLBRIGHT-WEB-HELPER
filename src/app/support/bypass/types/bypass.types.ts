@@ -19,6 +19,9 @@ export type SchoolDetail = {
   Grade?: string;
   SchoolGroup?: string;
   school_data_type?: string;
+  // ข้อมูลสถานะจาก TCompany (JabjaiMasterSingleDB)
+  db_active?: boolean | null;     // Active = เปิดการใช้งานระบบ
+  db_is_active?: boolean | null;  // isActive = เปิดการเข้าสู่ระบบ
 };
 
 export type Environment = {

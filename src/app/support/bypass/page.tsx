@@ -11,6 +11,7 @@ import {
   FilterOutlined,
   LoginOutlined,
   SearchOutlined,
+  SettingOutlined,
   StarFilled,
   TeamOutlined,
   ThunderboltOutlined,
@@ -42,9 +43,10 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import BypassSelectionModal from "./components/bypass-selection-modal.component";
+import SchoolStatusModal from "./components/school-status-modal.component";
 import { useBypassPageData } from "./hooks/bypass.data";
 import type { SchoolDetail } from "./types/bypass.types";
-import { calculateStatistics } from "./utils/bypass.helpers";
+import { calculateStatistics, filterSchools } from "./utils/bypass.helpers";
 import { calculateProvinceStatistics } from "./utils/province-stats.helpers";
 import { calculateSaleStatistics } from "./utils/sale-stats.helpers";
 
@@ -109,6 +111,32 @@ export default function BypassPage(): JSX.Element {
     open: false,
     school: null,
   });
+  const [schoolStatusModalState, setSchoolStatusModalState] = useState<{
+    open: boolean;
+    school: SchoolDetail | null;
+  }>({
+    open: false,
+    school: null,
+  });
+  // สถานะ Active/isActive ที่อัปเดตผ่าน UI (override ค่าจาก Redux)
+  const [schoolStatusOverrides, setSchoolStatusOverrides] = useState<
+    Record<number, { active: boolean | null; isActive: boolean | null }>
+  >({});
+
+  // merge schoolStatusOverrides เข้ากับ schoolDetails ทั้งหมดก่อน filter
+  // เพื่อให้ filter "สถานะโรงเรียน" เห็นค่าล่าสุดที่ user เพิ่งปรับผ่าน UI
+  const filteredSchoolsWithOverrides = useMemo(() => {
+    const mergedDetails = bypassState.schoolDetails.map((school) => {
+      const override = schoolStatusOverrides[Number(school.school_id)];
+      if (!override) return school;
+      return {
+        ...school,
+        db_active: override.active,
+        db_is_active: override.isActive,
+      };
+    });
+    return filterSchools(mergedDetails, bypassState.filters);
+  }, [bypassState.schoolDetails, bypassState.filters, schoolStatusOverrides]);
 
   const overallBypassStatistics = useMemo(
     () => calculateStatistics(bypassState.schoolDetails ?? []),
@@ -424,6 +452,55 @@ export default function BypassPage(): JSX.Element {
         },
       },
       {
+        title: "สถานะโรงเรียน",
+        key: "school_status",
+        width: 200,
+        align: "center",
+        render: (_: unknown, record: SchoolDetail) => {
+          const schoolId = Number(record.school_id);
+          const override = schoolStatusOverrides[schoolId];
+          const active = override !== undefined ? override.active : record.db_active;
+          const isActive = override !== undefined ? override.isActive : (
+            record.db_is_active ?? (record.isActive === "active" ? true : record.isActive === "inactive" ? false : null)
+          );
+          return (
+            <Flex vertical gap={4} align="center">
+              <Flex gap={4}>
+                <Tag
+                  color={active ? "success" : "default"}
+                  style={{ margin: 0, fontSize: 11 }}
+                >
+                  {active ? "ระบบ: เปิด" : "ระบบ: ปิด"}
+                </Tag>
+                <Tag
+                  color={isActive ? "success" : "error"}
+                  style={{ margin: 0, fontSize: 11 }}
+                >
+                  {isActive ? "Login: เปิด" : "Login: ปิด"}
+                </Tag>
+              </Flex>
+              <Button
+                size="small"
+                icon={<SettingOutlined />}
+                onClick={() => {
+                  setSchoolStatusModalState({
+                    open: true,
+                    school: {
+                      ...record,
+                      db_active: active ?? undefined,
+                      db_is_active: isActive ?? undefined,
+                    },
+                  });
+                }}
+                style={{ fontSize: 11 }}
+              >
+                ปรับสถานะ
+              </Button>
+            </Flex>
+          );
+        },
+      },
+      {
         title: translate("bypass_page.col_copy"),
         key: "copy",
         width: 80,
@@ -469,7 +546,7 @@ export default function BypassPage(): JSX.Element {
         ),
       },
     ],
-    [token, translate],
+    [token, translate, schoolStatusOverrides],
   );
 
   return (
@@ -773,7 +850,7 @@ export default function BypassPage(): JSX.Element {
                         {translate("bypass_page.table_title")}
                       </Text>
                       <Text type="secondary" style={{ fontSize: 12 }}>
-                        พบข้อมูลทั้งหมด {bypassState.filteredSchools.length}{" "}
+                        พบข้อมูลทั้งหมด {filteredSchoolsWithOverrides.length}{" "}
                         รายการ
                       </Text>
                     </Flex>
@@ -814,7 +891,7 @@ export default function BypassPage(): JSX.Element {
                 <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800">
                   <Table<SchoolDetail>
                     columns={columns}
-                    dataSource={bypassState.filteredSchools}
+                    dataSource={filteredSchoolsWithOverrides}
                     loading={bypassState.loading}
                     rowKey={(schoolRecord) => String(schoolRecord.school_id)}
                     pagination={{
@@ -825,7 +902,7 @@ export default function BypassPage(): JSX.Element {
                           total: totalCount,
                         }),
                     }}
-                    scroll={{ x: 2000 }}
+                    scroll={{ x: 2200 }}
                     onChange={bypassHandlers.handleTableChange}
                   />
                 </div>
@@ -863,6 +940,18 @@ export default function BypassPage(): JSX.Element {
               );
               setBypassSelectionModalState({ open: false, school: null });
             }
+          }}
+        />
+
+        <SchoolStatusModal
+          open={schoolStatusModalState.open}
+          school={schoolStatusModalState.school}
+          onClose={() => setSchoolStatusModalState({ open: false, school: null })}
+          onSuccess={(schoolId, active, isActive) => {
+            setSchoolStatusOverrides((prev) => ({
+              ...prev,
+              [schoolId]: { active, isActive },
+            }));
           }}
         />
       </motion.div>

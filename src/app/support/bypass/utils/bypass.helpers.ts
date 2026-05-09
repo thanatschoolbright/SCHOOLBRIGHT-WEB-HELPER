@@ -129,7 +129,13 @@ export const filterSchools = (
     }
 
     if (filters.status) {
-      const effectiveStatus = school.isActive || "active";
+      // ใช้ db_is_active ก่อน (ค่าล่าสุดจาก UI) ถ้าไม่มีค่อย fallback ไป isActive (string จาก external API)
+      let effectiveStatus: string;
+      if (school.db_is_active !== undefined && school.db_is_active !== null) {
+        effectiveStatus = school.db_is_active ? "active" : "inactive";
+      } else {
+        effectiveStatus = school.isActive || "active";
+      }
       if (effectiveStatus !== filters.status) return false;
     }
     if (filters.schoolGroup && school.school_group !== filters.schoolGroup)
