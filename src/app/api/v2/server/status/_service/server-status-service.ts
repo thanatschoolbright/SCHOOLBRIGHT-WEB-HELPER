@@ -16,8 +16,7 @@ dayjs.locale("th");
 
 // ✨ การตั้งค่า Discord Webhook สำหรับส่งแจ้งเตือนสถานะระบบ
 const DISCORD_CONFIG = {
-  WEBHOOK_URL:
-    process.env.WEBHOOK_DISCORD_DAILY_MONITOR_ALL_SERVER_ECS ?? "",
+  WEBHOOK_URL: process.env.WEBHOOK_DISCORD_DAILY_MONITOR_ALL_SERVER_ECS ?? "",
   ALERT_USER_ID: "<@1344189022561636445>",
   BOT_NAME: "SB System Monitor V2",
   AVATAR_URL:
@@ -27,15 +26,15 @@ const DISCORD_CONFIG = {
 // ✨ ธีมสีและรูปภาพสำหรับ Discord Embed ตามสถานะรวมของระบบ
 const THEMES = {
   HEALTHY: {
-    color: 0x00d26a,    // สีเขียวสด ✅
+    color: 0x00d26a, // สีเขียวสด ✅
     banner: "https://img2.pic.in.th/pic/Google-Gemini.th.jpg",
   },
   DEGRADED: {
-    color: 0xf5a623,    // สีส้ม ⚠️ (บางตัว offline)
+    color: 0xf5a623, // สีส้ม ⚠️ (บางตัว offline)
     banner: "https://img5.pic.in.th/file/secure-sv1/Bad_job.md.jpg",
   },
   CRITICAL: {
-    color: 0xff3b47,    // สีแดงสด 🚨 (หลายตัว offline)
+    color: 0xff3b47, // สีแดงสด 🚨 (หลายตัว offline)
     banner: "https://img5.pic.in.th/file/secure-sv1/Bad_job.md.jpg",
   },
 };
@@ -80,12 +79,18 @@ const getHealthBar = (percentage: number): string => {
 };
 
 // ✨ แปลง severity level เป็น emoji และ label สำหรับแสดงความเร็ว response
-const getSeverityLabel = (level: ServerResultInfo["response_time_severity_level"]): string => {
+const getSeverityLabel = (
+  level: ServerResultInfo["response_time_severity_level"],
+): string => {
   switch (level) {
-    case "low":    return "🚀 เร็วมาก";
-    case "medium": return "⚡ ปกติ";
-    case "high":   return "🐢 ช้า";
-    case "error":  return "💀 ไม่ตอบสนอง";
+    case "low":
+      return "🚀 เร็วมาก";
+    case "medium":
+      return "⚡ ปกติ";
+    case "high":
+      return "🐢 ช้า";
+    case "error":
+      return "💀 ไม่ตอบสนอง";
   }
 };
 
@@ -101,62 +106,91 @@ const analyzeResults = (results: ServerResultInfo[]) => {
     passed.length === 0
       ? 0
       : Number(
-          (passed.reduce((sum, r) => sum + r.response_time, 0) / passed.length).toFixed(3),
+          (
+            passed.reduce((sum, r) => sum + r.response_time, 0) / passed.length
+          ).toFixed(3),
         );
 
-  const fastServers  = passed.filter((r) => r.response_time_severity_level === "low").length;
-  const slowServers  = passed.filter((r) => r.response_time_severity_level === "high").length;
+  const fastServers = passed.filter(
+    (r) => r.response_time_severity_level === "low",
+  ).length;
+  const slowServers = passed.filter(
+    (r) => r.response_time_severity_level === "high",
+  ).length;
 
-  return { total, passed, failed, healthScore, avgResponseTime, fastServers, slowServers };
+  return {
+    total,
+    passed,
+    failed,
+    healthScore,
+    avgResponseTime,
+    fastServers,
+    slowServers,
+  };
 };
 
 // ✨ เลือก theme ตามระดับความรุนแรงของปัญหาที่พบ
 const selectTheme = (stats: ReturnType<typeof analyzeResults>) => {
-  if (stats.failed.length === 0)                        return THEMES.HEALTHY;
-  if (stats.failed.length <= stats.total * 0.3)         return THEMES.DEGRADED;
+  if (stats.failed.length === 0) return THEMES.HEALTHY;
+  if (stats.failed.length <= stats.total * 0.3) return THEMES.DEGRADED;
   return THEMES.CRITICAL;
 };
 
-// ✨ สร้าง embed หลัก (Dashboard Overview) แสดงสรุปสถานะระบบทั้งหมด
+// ✨ สร้าง embed หลัก (Dashboard Overview) แสดงสรุปสถานะระบบ — ถูกเรียกเฉพาะเมื่อมี server ที่มีปัญหา
 const buildOverviewEmbed = (
   stats: ReturnType<typeof analyzeResults>,
   theme: typeof THEMES.HEALTHY,
 ): Record<string, unknown> => {
   const now = dayjs();
-  const isCritical = stats.failed.length > 0;
 
-  const statusHeadline = stats.healthScore === 100
-    ? "## ✅ ระบบทั้งหมดออนไลน์และพร้อมใช้งาน"
-    : stats.healthScore >= 70
-    ? "## ⚠️ ระบบบางส่วนมีปัญหา กรุณาตรวจสอบ"
-    : "## 🚨 ระบบหลายตัวขัดข้อง — ต้องการการแก้ไขด่วน";
+  // headline จำแนกตามความรุนแรง: เกิน 30% offline = critical, ไม่เกิน = degraded
+  const statusHeadline =
+    stats.healthScore >= 70
+      ? "## ⚠️ ระบบบางส่วนมีปัญหา — กรุณาตรวจสอบโดยเร็ว"
+      : "## 🚨 ระบบหลายตัวขัดข้อง — ต้องการการแก้ไขด่วนทันที";
+
+  // รายชื่อ server ที่มีปัญหาแบบย่อสำหรับ overview
+  const failedSummary = stats.failed
+    .map(
+      (r) => `🔴 \`${r.server_name_th}\`  (HTTP \`${String(r.status_code)}\`)`,
+    )
+    .join("\n");
 
   return {
     author: {
       name: "SchoolBright Infrastructure Monitor",
       icon_url: DISCORD_CONFIG.AVATAR_URL,
     },
-    title: "📡  Server Health Report",
+    title: "📡  Server Health Report — พบปัญหาระบบ",
     description: [
       statusHeadline,
       "",
-      `> 📅  **${now.format("dddd")}ที่** ${now.format("D MMMM YYYY")}  |  ⏰  \`${now.format("HH:mm:ss")} น.\``,
+      `> 📅  **${now.format("dddd")}ที่** ${now.format(
+        "D MMMM YYYY",
+      )}  |  ⏰  \`${now.format("HH:mm:ss")} น.\``,
       "",
       "### 📊 สรุปภาพรวม",
       getHealthBar(stats.healthScore),
       "",
       `**🖥️  Server ทั้งหมด**  →  \`${String(stats.total)}\` ระบบ`,
       `**🟢  Online**  →  \`${String(stats.passed.length)}\` ระบบ` +
-        (stats.fastServers > 0 ? `  *(🚀 เร็ว ${String(stats.fastServers)} ตัว)*` : ""),
+        (stats.fastServers > 0
+          ? `  *(🚀 เร็ว ${String(stats.fastServers)} ตัว)*`
+          : ""),
       `**🔴  Offline**  →  \`${String(stats.failed.length)}\` ระบบ` +
-        (stats.slowServers > 0 ? `  *(🐢 ช้า ${String(stats.slowServers)} ตัว)*` : ""),
+        (stats.slowServers > 0
+          ? `  *(🐢 ช้า ${String(stats.slowServers)} ตัว)*`
+          : ""),
       `**⏱️  Avg Response**  →  \`${String(stats.avgResponseTime)}s\``,
+      "",
+      "### 🔴 ระบบที่มีปัญหา",
+      failedSummary,
     ].join("\n"),
     color: theme.color,
     thumbnail: { url: DISCORD_CONFIG.AVATAR_URL },
-    image: isCritical ? { url: theme.banner } : undefined,
+    image: { url: theme.banner },
     footer: {
-      text: `SchoolBright Automated Monitor  •  ตรวจสอบทุก Server พร้อมกัน`,
+      text: `SchoolBright Automated Monitor  •  แจ้งเตือนอัตโนมัติเมื่อพบความผิดปกติ`,
       icon_url: DISCORD_CONFIG.AVATAR_URL,
     },
     timestamp: new Date().toISOString(),
@@ -179,7 +213,9 @@ const buildServerGridEmbed = (
     return {
       name: `${statusDot}  ${item.server_name_th}`,
       value: [
-        `> **สถานะ:**  ${isOnline ? "**Online**" : "~~Offline~~"}  \`HTTP ${String(item.status_code)}\``,
+        `> **สถานะ:**  ${
+          isOnline ? "**Online**" : "~~Offline~~"
+        }  \`HTTP ${String(item.status_code)}\``,
         `> **ความเร็ว:**  ${responseDisplay}`,
         `> **Endpoint:**  \`${item.endpoint || "/"}\``,
       ].join("\n"),
@@ -188,7 +224,8 @@ const buildServerGridEmbed = (
   });
 
   return {
-    title: embedIndex === 0 ? "🖥️  รายละเอียดสถานะ Server แต่ละระบบ" : "🖥️  (ต่อ)",
+    title:
+      embedIndex === 0 ? "🖥️  รายละเอียดสถานะ Server แต่ละระบบ" : "🖥️  (ต่อ)",
     color: 0x2b2d31,
     fields,
   };
@@ -212,7 +249,9 @@ const buildCriticalEmbed = (
   }));
 
   return {
-    title: `🛑  พบ ${String(failedItems.length)} ระบบที่ไม่ตอบสนอง — ต้องการการดำเนินการทันที`,
+    title: `🛑  พบ ${String(
+      failedItems.length,
+    )} ระบบที่ไม่ตอบสนอง — ต้องการการดำเนินการทันที`,
     description:
       "รายการด้านล่างคือระบบที่ตรวจพบว่า **ไม่ออนไลน์** หรือ **ตอบสนองผิดปกติ**\nกรุณาตรวจสอบ Log และสถานะ Container/VM โดยด่วน",
     color: 0xff3b47,
@@ -233,45 +272,52 @@ const chunkArray = <T>(arr: T[], size: number): T[][] => {
   return chunks;
 };
 
-// ✨ รวมทุก embed เข้าด้วยกันและสร้าง Discord webhook payload ฉบับสมบูรณ์
+// ✨ รวมทุก embed เข้าด้วยกันและสร้าง Discord webhook payload เฉพาะกรณีมีปัญหา
+// หมายเหตุ: ฟังก์ชันนี้จะถูกเรียกเฉพาะเมื่อ stats.failed.length > 0 เท่านั้น
 const buildDiscordPayload = (
   stats: ReturnType<typeof analyzeResults>,
   results: ServerResultInfo[],
 ): Record<string, unknown> => {
   const theme = selectTheme(stats);
-  const isCritical = stats.failed.length > 0;
 
-  // embed 1: Overview dashboard
+  // embed 1: Overview dashboard (แสดงสถานะรวมและ health bar)
   const overviewEmbed = buildOverviewEmbed(stats, theme);
 
-  // embed 2..N: Server grid (max 9 inline fields per embed เพื่อให้แสดงเป็น 3 คอลัมน์)
+  // embed 2..N: Server grid เฉพาะ server ที่มีปัญหา + server ปกติ (max 9 ต่อ embed)
   const serverChunks = chunkArray(results, 9);
   const serverEmbeds = serverChunks.map((chunk, idx) =>
     buildServerGridEmbed(chunk, idx),
   );
 
-  // embed สุดท้าย (เฉพาะกรณีมี offline): Critical alert
-  const criticalEmbed = isCritical
-    ? buildCriticalEmbed(stats.failed)
-    : null;
+  // embed สุดท้าย: Critical alert รายละเอียด server ที่ offline
+  const criticalEmbed = buildCriticalEmbed(stats.failed);
 
   // Discord รับสูงสุด 10 embeds ต่อ 1 message
   const embeds: Record<string, unknown>[] = [
     overviewEmbed,
     ...serverEmbeds,
-    ...(criticalEmbed ? [criticalEmbed] : []),
+    criticalEmbed,
   ].slice(0, 10);
 
-  const content = isCritical
-    ? [
-        `## 🔔 แจ้งเตือนระบบขัดข้อง — ${DISCORD_CONFIG.ALERT_USER_ID}`,
-        `พบ **${String(stats.failed.length)}** จาก **${String(stats.total)}** ระบบที่ไม่ตอบสนอง`,
-        `เวลาที่ตรวจพบ: \`${dayjs().format("HH:mm:ss น.")}\` — กรุณาตรวจสอบทันที 🚨`,
-      ].join("\n")
-    : [
-        `## 📋 รายงานสถานะประจำรอบ — \`${dayjs().format("HH:mm น.")}\``,
-        `✅ ระบบทั้งหมด **${String(stats.total)}** ตัวทำงานปกติ  |  Avg \`${String(stats.avgResponseTime)}s\``,
-      ].join("\n");
+  // เนื้อหาหลักระบุปัญหาชัดเจน: เกิดอะไร ที่ไหน กี่ระบบ
+  const failedNames = stats.failed
+    .map((r) => `\`${r.server_name_th}\``)
+    .join(", ");
+
+  const content = [
+    `## 🚨 แจ้งเตือนระบบขัดข้อง — ${DISCORD_CONFIG.ALERT_USER_ID}`,
+    ``,
+    `**พบ ${String(stats.failed.length)} จาก ${String(
+      stats.total,
+    )} ระบบที่ไม่ตอบสนอง**`,
+    `> ระบบที่มีปัญหา: ${failedNames}`,
+    `> เวลาที่ตรวจพบ: \`${dayjs().format("HH:mm:ss น. — D MMM YYYY")}\``,
+    `> สุขภาพระบบโดยรวม: \`${String(stats.healthScore)}%\`  (ปกติ ${String(
+      stats.passed.length,
+    )}/${String(stats.total)} ระบบ)`,
+    ``,
+    `ดูรายละเอียดด้านล่าง และตรวจสอบ AWS ECS / PM2 / Docker logs โดยด่วน 🔴`,
+  ].join("\n");
 
   return {
     username: DISCORD_CONFIG.BOT_NAME,
@@ -281,16 +327,30 @@ const buildDiscordPayload = (
   };
 };
 
-// ✨ ส่งรายงานสถานะระบบไปยัง Discord Webhook พร้อม embed ครบชุด
+// ✨ ส่งแจ้งเตือนไปยัง Discord Webhook เฉพาะเมื่อพบ server ที่มีปัญหาเท่านั้น
+// หากทุกระบบทำงานปกติ ฟังก์ชันจะ skip โดยไม่ส่งข้อความใดๆ
 export async function sendDiscordNotification(
   results: ServerResultInfo[],
 ): Promise<void> {
   if (!DISCORD_CONFIG.WEBHOOK_URL) {
-    console.error("[SB Monitor] Discord Webhook URL is missing — skipping notification");
+    console.error(
+      "[SB Monitor] Discord Webhook URL is missing — skipping notification",
+    );
     return;
   }
 
   const stats = analyzeResults(results);
+
+  // ไม่ส่งแจ้งเตือนหากทุกระบบทำงานปกติ
+  if (stats.failed.length === 0) {
+    console.info(
+      `[SB Monitor] All ${String(stats.total)} servers healthy (${String(
+        stats.healthScore,
+      )}%) — no notification sent`,
+    );
+    return;
+  }
+
   const payload = buildDiscordPayload(stats, results);
 
   try {
@@ -298,7 +358,11 @@ export async function sendDiscordNotification(
       headers: { "Content-Type": "application/json" },
     });
     console.info(
-      `[SB Monitor] Discord notification sent — Health: ${String(stats.healthScore)}% | Online: ${String(stats.passed.length)}/${String(stats.total)}`,
+      `[SB Monitor] Alert sent — ${String(
+        stats.failed.length,
+      )} offline | Health: ${String(stats.healthScore)}% | Online: ${String(
+        stats.passed.length,
+      )}/${String(stats.total)}`,
     );
   } catch (error: unknown) {
     console.error(
@@ -531,18 +595,22 @@ export async function executeServerStatusChecks(): Promise<{
           status_code: response.status,
           status: responseStatus(response.status),
           response_time: result.response_time,
-          response_time_severity_level: severityLevel(true, result.response_time),
+          response_time_severity_level: severityLevel(
+            true,
+            result.response_time,
+          ),
         };
       }
 
       const error = result.error as AxiosError | Error;
       const isAxiosError = axios.isAxiosError(error);
-      const isTimeout = isAxiosError && (error as AxiosError).code === "ECONNABORTED";
+      const isTimeout =
+        isAxiosError && (error as AxiosError).code === "ECONNABORTED";
       const statusCode = isTimeout
         ? 0
         : isAxiosError
-          ? ((error as AxiosError).response?.status ?? 500)
-          : 500;
+        ? (error as AxiosError).response?.status ?? 500
+        : 500;
 
       return {
         ...target.info,
@@ -554,7 +622,10 @@ export async function executeServerStatusChecks(): Promise<{
             : (error as AxiosError).message
           : (error as Error).message,
         response_time: result.response_time,
-        response_time_severity_level: severityLevel(false, result.response_time),
+        response_time_severity_level: severityLevel(
+          false,
+          result.response_time,
+        ),
       };
     }),
   );
@@ -563,7 +634,7 @@ export async function executeServerStatusChecks(): Promise<{
 
   // ✨ บันทึก log ลง Timesheet DB แบบ fire-and-forget (ไม่ block response)
   saveServerStatusLogs(new Date(), finalResults).catch((err) =>
-    console.error("[SERVER_STATUS_LOG_SAVE_ERROR]", String(err))
+    console.error("[SERVER_STATUS_LOG_SAVE_ERROR]", String(err)),
   );
 
   return { timestamp, results: finalResults };
@@ -572,7 +643,7 @@ export async function executeServerStatusChecks(): Promise<{
 // ✨ บันทึกผลการตรวจสอบ Server ทุกตัวลงตาราง api_log ใน Timesheet DB
 async function saveServerStatusLogs(
   checkedAt: Date,
-  results: ServerResultInfo[]
+  results: ServerResultInfo[],
 ): Promise<void> {
   // ลบ log เก่าเกิน 30 วัน
   const cutoffDate = new Date();
@@ -593,11 +664,14 @@ async function saveServerStatusLogs(
     url: r.url,
     endpoint: r.endpoint,
     service_name: "SERVER_STATUS_MONITOR",
-    called_by: r.status,           // "Online" | "Offline"
-    trace_id: r.server,            // server key เช่น "SERVER_PROD_SBAPI"
+    called_by: r.status, // "Online" | "Offline"
+    trace_id: r.server, // server key เช่น "SERVER_PROD_SBAPI"
     is_success: r.status === "Online",
     error_message: r.message ?? null,
-    response_body: { server_name_th: r.server_name_th, environment: r.environment } as any,
+    response_body: {
+      server_name_th: r.server_name_th,
+      environment: r.environment,
+    } as any,
   }));
 
   await PrismaTimesheet.apiLog.createMany({ data: insertData });
