@@ -1,35 +1,35 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { Button, Flex, Form, Space, Tabs } from "antd";
 import {
-  SafetyCertificateOutlined,
-  MailOutlined,
   DiscordOutlined,
-  UnorderedListOutlined,
   HistoryOutlined,
+  MailOutlined,
+  SafetyCertificateOutlined,
+  UnorderedListOutlined,
 } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
-import { HeaderBar } from "@components/typhography/header-bar-component";
 import { StatusModalComponent } from "@components/modal/status-modal-component";
+import { HeaderBar } from "@components/typhography/header-bar-component";
+import { Button, Flex, Form, Space, Tabs } from "antd";
+import { useEffect, useMemo, useState } from "react";
 
 // Feature-based sub-components — แท็บ Real-time Status
-import SummarySection from "./_components/summary-section";
-import FilterSection from "./_components/filter-section";
-import ServerTable from "./_components/server-table";
 import DetailsModal from "./_components/details-modal";
 import EditModal from "./_components/edit-modal";
+import FilterSection from "./_components/filter-section";
+import ServerTable from "./_components/server-table";
+import SummarySection from "./_components/summary-section";
 
 // Feature-based sub-components — แท็บ LOG
-import LogSummarySection from "./_components/log-summary-section";
-import LogFilterSection from "./_components/log-filter-section";
-import LogServerUptimeTable from "./_components/log-server-uptime-table";
-import LogEntriesTable from "./_components/log-entries-table";
 import LogDailySummaryChart from "./_components/log-daily-summary-chart";
 import LogManagementPanel from "./_components/log-management-panel";
+import LogSummarySection from "./_components/log-summary-section";
 
 // Global State
-import { useServerStatusStore, ServerStatus } from "./_state/server-status.state";
+import {
+  ServerStatus,
+  useServerStatusStore,
+} from "./_state/server-status.state";
 
 /**
  * หน้าจอระบบตรวจสอบสถานะเซิร์ฟเวอร์ (Server Status Monitoring)
@@ -48,14 +48,13 @@ export default function ServerStatusPage() {
     isNotifyingDiscord,
     sendEmailReport,
     notifyDiscord,
-    fetchLogs,
     fetchLogSummary,
-    setLogFilters,
-    resetLogFilters,
   } = useServerStatusStore();
 
   // --- Local States for Modals ---
-  const [selectedServer, setSelectedServer] = useState<ServerStatus | null>(null);
+  const [selectedServer, setSelectedServer] = useState<ServerStatus | null>(
+    null,
+  );
   const [detailsVisible, setDetailsVisible] = useState(false);
   const [editVisible, setEditVisible] = useState(false);
 
@@ -75,9 +74,8 @@ export default function ServerStatusPage() {
   useEffect(() => {
     if (activeTab === "log") {
       fetchLogSummary();
-      fetchLogs(1);
     }
-  }, [activeTab, fetchLogSummary, fetchLogs]);
+  }, [activeTab, fetchLogSummary]);
 
   // --- Memos ---
   /** กรองข้อมูลเซิร์ฟเวอร์สำหรับแสดงผลในตารางเท่านั้น (Raw data ยังอยู่ใน Store) */
@@ -190,21 +188,8 @@ export default function ServerStatusPage() {
           {/* Graph Uptime รายวัน (จาก Daily Summary) */}
           <LogDailySummaryChart />
 
-          {/* Log Filter */}
-          <LogFilterSection
-            form={logFilterForm}
-            onSearch={handleLogSearch}
-            onReset={handleLogReset}
-          />
-
           {/* Summary Cards — Uptime/Downtime */}
           <LogSummarySection />
-
-          {/* Per-Server Uptime Table */}
-          <LogServerUptimeTable />
-
-          {/* Raw Log Entries */}
-          <LogEntriesTable />
         </Space>
       ),
     },
