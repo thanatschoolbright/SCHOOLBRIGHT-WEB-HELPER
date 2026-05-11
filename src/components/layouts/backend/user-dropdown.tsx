@@ -123,15 +123,21 @@ const generateAvatarUrl = (userProfile: UserProfile): string => {
       !realImage.startsWith("http") &&
       !realImage.startsWith("data:")
     ) {
-      const cleanPath = realImage.startsWith("/") ? realImage.substring(1) : realImage;
+      const cleanPath = realImage.startsWith("/")
+        ? realImage.substring(1)
+        : realImage;
       return `${HUAWEI_STORAGE.OBS_BUCKET_URL}/${cleanPath}`;
     }
     return realImage;
   }
-  const seed = `${userProfile.firstname_en ?? userProfile.firstname ?? "User"}_${
-    userProfile.lastname_en ?? userProfile.lastname ?? ""
-  }_${String(userProfile.admin_id ?? "0")}`;
-  return `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(seed)}&backgroundColor=e0e7ff,d1d5db,f3f4f6`;
+  const seed = `${
+    userProfile.firstname_en ?? userProfile.firstname ?? "User"
+  }_${userProfile.lastname_en ?? userProfile.lastname ?? ""}_${String(
+    userProfile.admin_id ?? "0",
+  )}`;
+  return `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(
+    seed,
+  )}&backgroundColor=e0e7ff,d1d5db,f3f4f6`;
 };
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -174,7 +180,10 @@ function RankCard({ rankData }: { rankData: UserRankDetails | null }) {
   const rankLetter = rankData?.rankLetter?.toUpperCase() ?? "F";
   const cfg = getRankCfg(rankLetter);
 
-  const completionPercent = Math.min(Math.round(rankData?.completion_rate ?? 0), 100);
+  const completionPercent = Math.min(
+    Math.round(rankData?.completion_rate ?? 0),
+    100,
+  );
   const totalHours = String(rankData?.total_hours ?? 0);
   const rawScore =
     typeof rankData?.discipline_score === "object"
@@ -225,7 +234,10 @@ function RankCard({ rankData }: { rankData: UserRankDetails | null }) {
             <span className="text-[10px] font-bold uppercase tracking-wide opacity-60">
               {t("user_dropdown.ranking_progress")}
             </span>
-            <span className="text-[10px] font-black" style={{ color: cfg.color }}>
+            <span
+              className="text-[10px] font-black"
+              style={{ color: cfg.color }}
+            >
               {completionPercent}%
             </span>
           </div>
@@ -246,7 +258,10 @@ function RankCard({ rankData }: { rankData: UserRankDetails | null }) {
         {[
           { label: t("user_dropdown.work_hours"), value: `${totalHours}h` },
           { label: t("user_dropdown.discipline"), value: disciplineScore },
-          { label: t("user_dropdown.leaderboard"), value: `#${rankData?.rank ?? "-"}` },
+          {
+            label: t("user_dropdown.leaderboard"),
+            value: `#${rankData?.rank ?? "-"}`,
+          },
         ].map((stat, i, arr) => (
           <div key={stat.label} className="flex items-center flex-1">
             <div className="flex flex-col items-center flex-1 gap-0.5">
@@ -285,7 +300,11 @@ function MenuButton({
       type="button"
       custom={index}
       initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0, transition: { delay: index * 0.05, duration: 0.2 } }}
+      animate={{
+        opacity: 1,
+        x: 0,
+        transition: { delay: index * 0.05, duration: 0.2 },
+      }}
       whileHover={{ x: 4 }}
       whileTap={{ scale: 0.97 }}
       onClick={onClick}
@@ -295,10 +314,16 @@ function MenuButton({
           : "border-transparent hover:bg-black/5 dark:hover:bg-white/8 bg-black/[0.03] dark:bg-white/5 text-inherit"
       }`}
     >
-      <span className={`text-base flex-shrink-0 ${danger ? "text-red-500" : "opacity-60"}`}>
+      <span
+        className={`text-base flex-shrink-0 ${
+          danger ? "text-red-500" : "opacity-60"
+        }`}
+      >
         {icon}
       </span>
-      <span className="flex-1 text-[13.5px] font-semibold leading-none">{label}</span>
+      <span className="flex-1 text-[13.5px] font-semibold leading-none">
+        {label}
+      </span>
       {badge && (
         <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-emerald-500 text-white uppercase tracking-wide">
           {badge}
@@ -334,7 +359,9 @@ function ProfileDrawer({
   const isDark = token.colorBgBase !== "#FFFFFF";
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // ปิดเมื่อกด ESC
   useEffect(() => {
@@ -347,7 +374,9 @@ function ProfileDrawer({
   // ล็อค scroll เมื่อเปิด
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [open]);
 
   const navigate = (path: string) => {
@@ -362,7 +391,7 @@ function ProfileDrawer({
     } catch {
       // บันทึก log ล้มเหลวไม่ควรหยุด logout
     }
-    void signOut({ callbackUrl: window.location.origin });
+    void signOut({ redirectTo: "/" });
   };
 
   if (!mounted) return null;
@@ -397,7 +426,10 @@ function ProfileDrawer({
               className="flex items-center justify-between px-6 py-4 border-b flex-shrink-0"
               style={{ borderColor: token.colorBorderSecondary }}
             >
-              <span className="text-sm font-bold tracking-wide" style={{ color: token.colorTextSecondary }}>
+              <span
+                className="text-sm font-bold tracking-wide"
+                style={{ color: token.colorTextSecondary }}
+              >
                 {t("user_dropdown.personal_info")}
               </span>
               <motion.button
@@ -406,7 +438,10 @@ function ProfileDrawer({
                 whileTap={{ scale: 0.9 }}
                 onClick={onClose}
                 className="w-8 h-8 rounded-xl flex items-center justify-center text-base cursor-pointer border-0 outline-none"
-                style={{ background: token.colorFillTertiary, color: token.colorTextSecondary }}
+                style={{
+                  background: token.colorFillTertiary,
+                  color: token.colorTextSecondary,
+                }}
               >
                 ✕
               </motion.button>
@@ -415,7 +450,6 @@ function ProfileDrawer({
             {/* Scrollable Body */}
             <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
               <div className="px-6 py-6 flex flex-col gap-6">
-
                 {/* Avatar + Name */}
                 <motion.div
                   initial={{ opacity: 0, y: 12 }}
@@ -428,7 +462,11 @@ function ProfileDrawer({
                       : `linear-gradient(180deg, ${cfg.color}10 0%, transparent 100%)`,
                   }}
                 >
-                  <Avatar userProfile={userProfile} rankLetter={rankLetter} size={110} />
+                  <Avatar
+                    userProfile={userProfile}
+                    rankLetter={rankLetter}
+                    size={110}
+                  />
                   <div className="flex flex-col items-center mt-5 gap-2">
                     <span
                       className="text-xl font-black leading-snug text-center"
@@ -440,7 +478,8 @@ function ProfileDrawer({
                       className="text-[11px] font-bold px-4 py-1 rounded-full"
                       style={{ background: `${cfg.color}22`, color: cfg.color }}
                     >
-                      {userProfile.position_name ?? t("user_dropdown.default_position")}
+                      {userProfile.position_name ??
+                        t("user_dropdown.default_position")}
                     </span>
                   </div>
                 </motion.div>
@@ -469,12 +508,23 @@ function ProfileDrawer({
                         onClick={() => onChangeLang(lang)}
                         className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer border-0 outline-none"
                         style={{
-                          background: currentLang === lang ? token.colorBgContainer : "transparent",
-                          color: currentLang === lang ? token.colorPrimary : token.colorTextSecondary,
-                          boxShadow: currentLang === lang ? token.boxShadowSecondary : "none",
+                          background:
+                            currentLang === lang
+                              ? token.colorBgContainer
+                              : "transparent",
+                          color:
+                            currentLang === lang
+                              ? token.colorPrimary
+                              : token.colorTextSecondary,
+                          boxShadow:
+                            currentLang === lang
+                              ? token.boxShadowSecondary
+                              : "none",
                         }}
                       >
-                        {lang === "th" ? t("user_dropdown.lang_th_label") : t("user_dropdown.lang_en_label")}
+                        {lang === "th"
+                          ? t("user_dropdown.lang_th_label")
+                          : t("user_dropdown.lang_en_label")}
                       </motion.button>
                     ))}
                   </div>
@@ -498,7 +548,10 @@ function ProfileDrawer({
                 </div>
 
                 {/* Divider */}
-                <div className="h-px w-full" style={{ background: token.colorBorderSecondary }} />
+                <div
+                  className="h-px w-full"
+                  style={{ background: token.colorBorderSecondary }}
+                />
 
                 {/* Logout */}
                 <MenuButton
@@ -514,7 +567,7 @@ function ProfileDrawer({
         </>
       )}
     </AnimatePresence>,
-    document.body
+    document.body,
   );
 }
 
@@ -525,7 +578,8 @@ export default function UserProfileDropdown(): React.JSX.Element {
   const { token } = theme.useToken();
 
   const AUTH_REDUX = useAppSelector((state) => state.callAdminLogin);
-  const userProfile = (AUTH_REDUX.response.data?.user_data ?? {}) as UserProfile;
+  const userProfile = (AUTH_REDUX.response.data?.user_data ??
+    {}) as UserProfile;
 
   const [currentLang, setCurrentLang] = useState<string>(i18n.language);
   const [rankData, setRankData] = useState<UserRankDetails | null>(null);
@@ -536,9 +590,16 @@ export default function UserProfileDropdown(): React.JSX.Element {
     if (!adminId) return;
     const load = async () => {
       try {
-        const res = (await fetchUserRank(String(adminId))) as UserRankDetails | null;
-        if (res) saveUserRankToMemory(res as unknown as import("@/helpers/user-rank.helper").UserRankData);
-        setRankData(res ?? (getUserRankFromStorage() as UserRankDetails | null));
+        const res = (await fetchUserRank(
+          String(adminId),
+        )) as UserRankDetails | null;
+        if (res)
+          saveUserRankToMemory(
+            res as unknown as import("@/helpers/user-rank.helper").UserRankData,
+          );
+        setRankData(
+          res ?? (getUserRankFromStorage() as UserRankDetails | null),
+        );
       } catch {
         setRankData(getUserRankFromStorage() as UserRankDetails | null);
       }
@@ -581,7 +642,7 @@ export default function UserProfileDropdown(): React.JSX.Element {
           variants={{
             idle: { opacity: 0, boxShadow: `0 0 0 0px ${cfg.color}44` },
             hover: { opacity: 1, boxShadow: `0 0 0 3px ${cfg.color}33` },
-            open:  { opacity: 1, boxShadow: `0 0 0 3px ${cfg.color}55` },
+            open: { opacity: 1, boxShadow: `0 0 0 3px ${cfg.color}55` },
           }}
           transition={{ duration: 0.22, ease: "easeOut" }}
         />
@@ -594,9 +655,9 @@ export default function UserProfileDropdown(): React.JSX.Element {
             className="text-[14px] font-bold leading-none"
             style={{ color: token.colorText }}
             variants={{
-              idle:  { opacity: 0.85 },
+              idle: { opacity: 0.85 },
               hover: { opacity: 1 },
-              open:  { opacity: 1 },
+              open: { opacity: 1 },
             }}
           >
             {userProfile.firstname} {userProfile.lastname}
