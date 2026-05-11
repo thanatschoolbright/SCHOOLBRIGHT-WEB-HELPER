@@ -151,15 +151,35 @@ const LogDailySummaryChart: React.FC = () => {
             : [],
       },
     ],
+    theme:
+      token.mode === "dark" || token.colorBgContainer === "#141414"
+        ? "dark"
+        : "light",
     legend: {
       color: {
         position: "bottom",
+        layout: {
+          justifyContent: "center",
+          wrap: true,
+        },
+      },
+    },
+    label: {
+      text: "server",
+      selector: "last",
+      position: "right",
+      style: {
+        dx: 10,
+        dy: -5,
+        fontSize: 10,
+        fontWeight: "bold",
+        fill: token.colorTextDescription,
       },
     },
     style: {
       lineWidth: 2,
     },
-    height: isFullscreen ? 750 : 450,
+    height: isFullscreen ? 850 : 600,
   };
 
   const columns = [
@@ -263,7 +283,7 @@ const LogDailySummaryChart: React.FC = () => {
         <Flex
           justify="center"
           align="center"
-          style={{ height: isFullscreen ? 750 : 450 }}
+          style={{ height: isFullscreen ? 850 : 600 }}
         >
           <Spin size="large" tip="กำลังดึงข้อมูลสรุปรายวัน..." />
         </Flex>
@@ -271,7 +291,7 @@ const LogDailySummaryChart: React.FC = () => {
         <Flex
           justify="center"
           align="center"
-          style={{ height: isFullscreen ? 750 : 450 }}
+          style={{ height: isFullscreen ? 850 : 600 }}
         >
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
