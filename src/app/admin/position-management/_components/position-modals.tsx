@@ -68,7 +68,7 @@ export const PositionModals = () => {
         title={modalMode === "create" ? "เพิ่มตำแหน่งใหม่" : "แก้ไขตำแหน่ง"}
         onCancel={() => setModalMode(null)}
         footer={null}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={form} layout="vertical" onFinish={submitPosition}>
           <Form.Item
@@ -179,16 +179,16 @@ export const PositionModals = () => {
                 </Button>,
               ]
             : genStep === "summary"
-              ? [
-                  <Button
-                    key="close"
-                    type="primary"
-                    onClick={() => setAutoGenModalOpen(false)}
-                  >
-                    ปิดหน้าต่าง
-                  </Button>,
-                ]
-              : null
+            ? [
+                <Button
+                  key="close"
+                  type="primary"
+                  onClick={() => setAutoGenModalOpen(false)}
+                >
+                  ปิดหน้าต่าง
+                </Button>,
+              ]
+            : null
         }
       >
         {genStep === "generating" && (
@@ -318,12 +318,12 @@ export const PositionModals = () => {
                     item.execStatus === "pending"
                       ? "wait"
                       : item.execStatus === "success"
-                        ? "finish"
-                        : item.execStatus === "error"
-                          ? "error"
-                          : item.execStatus === "skipped"
-                            ? "process"
-                            : "wait",
+                      ? "finish"
+                      : item.execStatus === "error"
+                      ? "error"
+                      : item.execStatus === "skipped"
+                      ? "process"
+                      : "wait",
                   icon:
                     item.execStatus === "pending" &&
                     idx === currentExecutionIndex ? (

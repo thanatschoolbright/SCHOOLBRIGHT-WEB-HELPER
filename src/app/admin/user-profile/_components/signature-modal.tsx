@@ -56,7 +56,9 @@ export function SignatureModal({
   userName,
   onClose,
 }: SignatureModalProps) {
-  const [currentSignatureUrl, setCurrentSignatureUrl] = useState<string | null>(null);
+  const [currentSignatureUrl, setCurrentSignatureUrl] = useState<string | null>(
+    null,
+  );
   const [isFetching, setIsFetching] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
@@ -180,12 +182,15 @@ export function SignatureModal({
         width={560}
         footer={null}
         centered
-        destroyOnClose
+        destroyOnHidden
       >
         <Flex vertical gap={24} className="py-2">
           {/* ลายเซ็นปัจจุบัน */}
           <div>
-            <Typography.Text strong style={{ display: "block", marginBottom: 12 }}>
+            <Typography.Text
+              strong
+              style={{ display: "block", marginBottom: 12 }}
+            >
               ลายเซ็นที่บันทึกไว้
             </Typography.Text>
 
@@ -227,7 +232,9 @@ export function SignatureModal({
                 }}
               >
                 <Space direction="vertical" align="center">
-                  <FileImageOutlined style={{ fontSize: 24, color: "#bfbfbf" }} />
+                  <FileImageOutlined
+                    style={{ fontSize: 24, color: "#bfbfbf" }}
+                  />
                   <Typography.Text type="secondary" style={{ fontSize: 12 }}>
                     ยังไม่มีลายเซ็นที่บันทึกไว้
                   </Typography.Text>
@@ -238,7 +245,10 @@ export function SignatureModal({
 
           {/* อัปโหลดลายเซ็นใหม่ */}
           <div>
-            <Typography.Text strong style={{ display: "block", marginBottom: 12 }}>
+            <Typography.Text
+              strong
+              style={{ display: "block", marginBottom: 12 }}
+            >
               {currentSignatureUrl ? "เปลี่ยนลายเซ็น" : "อัปโหลดลายเซ็น"}
             </Typography.Text>
 
@@ -253,7 +263,12 @@ export function SignatureModal({
               maxCount={1}
               showUploadList={false}
             >
-              <Flex vertical align="center" gap={8} style={{ padding: "16px 0" }}>
+              <Flex
+                vertical
+                align="center"
+                gap={8}
+                style={{ padding: "16px 0" }}
+              >
                 <InboxOutlined style={{ fontSize: 36, color: "#1677ff" }} />
                 <Typography.Text>คลิกหรือลากไฟล์มาวางที่นี่</Typography.Text>
                 <Typography.Text type="secondary" style={{ fontSize: 12 }}>

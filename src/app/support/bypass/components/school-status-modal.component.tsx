@@ -25,7 +25,11 @@ interface SchoolStatusModalProps {
   open: boolean;
   school: SchoolDetail | null;
   onClose: () => void;
-  onSuccess: (schoolId: number, active: boolean | null, isActive: boolean | null) => void;
+  onSuccess: (
+    schoolId: number,
+    active: boolean | null,
+    isActive: boolean | null,
+  ) => void;
 }
 
 // ✨ Modal ปรับสถานะโรงเรียน: Active (เปิดใช้งานระบบ) และ isActive (เปิดเข้าสู่ระบบ)
@@ -43,7 +47,7 @@ const SchoolStatusModal: React.FC<SchoolStatusModalProps> = ({
   useEffect(() => {
     if (school && open) {
       setActiveValue(school.db_active ?? false);
-      setIsActiveValue(school.db_is_active ?? (school.isActive === "active"));
+      setIsActiveValue(school.db_is_active ?? school.isActive === "active");
     }
   }, [school, open]);
 
@@ -86,7 +90,7 @@ const SchoolStatusModal: React.FC<SchoolStatusModalProps> = ({
       confirmLoading={loading}
       okButtonProps={{ danger: false }}
       width={480}
-      destroyOnClose
+      destroyOnHidden
     >
       <Flex vertical gap={20} style={{ paddingTop: 8 }}>
         {/* ข้อมูลโรงเรียน */}
@@ -121,14 +125,22 @@ const SchoolStatusModal: React.FC<SchoolStatusModalProps> = ({
           style={{
             padding: "12px 16px",
             borderRadius: 10,
-            border: `1px solid ${activeValue ? "rgba(22,163,74,0.3)" : "rgba(220,38,38,0.2)"}`,
-            background: activeValue ? "rgba(22,163,74,0.04)" : "rgba(220,38,38,0.03)",
+            border: `1px solid ${
+              activeValue ? "rgba(22,163,74,0.3)" : "rgba(220,38,38,0.2)"
+            }`,
+            background: activeValue
+              ? "rgba(22,163,74,0.04)"
+              : "rgba(220,38,38,0.03)",
           }}
         >
           <Flex vertical gap={2}>
             <Flex align="center" gap={6}>
-              <SettingOutlined style={{ color: activeValue ? "#16a34a" : "#94a3b8" }} />
-              <Typography.Text strong>เปิดการใช้งานระบบ (Active)</Typography.Text>
+              <SettingOutlined
+                style={{ color: activeValue ? "#16a34a" : "#94a3b8" }}
+              />
+              <Typography.Text strong>
+                เปิดการใช้งานระบบ (Active)
+              </Typography.Text>
             </Flex>
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
               ควบคุมการเข้าถึงฟีเจอร์ต่าง ๆ ของระบบโรงเรียน
@@ -136,11 +148,19 @@ const SchoolStatusModal: React.FC<SchoolStatusModalProps> = ({
           </Flex>
           <Flex align="center" gap={8}>
             {activeValue ? (
-              <Tag icon={<CheckCircleOutlined />} color="success" style={{ margin: 0 }}>
+              <Tag
+                icon={<CheckCircleOutlined />}
+                color="success"
+                style={{ margin: 0 }}
+              >
                 เปิด
               </Tag>
             ) : (
-              <Tag icon={<CloseCircleOutlined />} color="error" style={{ margin: 0 }}>
+              <Tag
+                icon={<CloseCircleOutlined />}
+                color="error"
+                style={{ margin: 0 }}
+              >
                 ปิด
               </Tag>
             )}
@@ -160,8 +180,12 @@ const SchoolStatusModal: React.FC<SchoolStatusModalProps> = ({
           style={{
             padding: "12px 16px",
             borderRadius: 10,
-            border: `1px solid ${isActiveValue ? "rgba(22,163,74,0.3)" : "rgba(220,38,38,0.2)"}`,
-            background: isActiveValue ? "rgba(22,163,74,0.04)" : "rgba(220,38,38,0.03)",
+            border: `1px solid ${
+              isActiveValue ? "rgba(22,163,74,0.3)" : "rgba(220,38,38,0.2)"
+            }`,
+            background: isActiveValue
+              ? "rgba(22,163,74,0.04)"
+              : "rgba(220,38,38,0.03)",
           }}
         >
           <Flex vertical gap={2}>
@@ -171,7 +195,9 @@ const SchoolStatusModal: React.FC<SchoolStatusModalProps> = ({
               ) : (
                 <LockOutlined style={{ color: "#94a3b8" }} />
               )}
-              <Typography.Text strong>เปิดการเข้าสู่ระบบ (isActive)</Typography.Text>
+              <Typography.Text strong>
+                เปิดการเข้าสู่ระบบ (isActive)
+              </Typography.Text>
             </Flex>
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
               ควบคุมสิทธิ์การ Login เข้าสู่ระบบของโรงเรียน
@@ -179,7 +205,11 @@ const SchoolStatusModal: React.FC<SchoolStatusModalProps> = ({
           </Flex>
           <Flex align="center" gap={8}>
             {isActiveValue ? (
-              <Tag icon={<UnlockOutlined />} color="success" style={{ margin: 0 }}>
+              <Tag
+                icon={<UnlockOutlined />}
+                color="success"
+                style={{ margin: 0 }}
+              >
                 เปิด
               </Tag>
             ) : (

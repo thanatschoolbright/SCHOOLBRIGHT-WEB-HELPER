@@ -2326,7 +2326,7 @@ export const SchoolDeviceTab = () => {
         footer={<Button onClick={() => setHelpModalOpen(false)}>ปิด</Button>}
         onCancel={() => setHelpModalOpen(false)}
         width={720}
-        destroyOnClose
+        destroyOnHidden
       >
         <Typography.Paragraph type="secondary" style={{ marginBottom: 0 }}>
           ข้อมูลสำหรับ Customer Support และ Admin เพื่อเข้าใจการทำงานของระบบ

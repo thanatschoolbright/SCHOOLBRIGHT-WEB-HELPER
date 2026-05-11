@@ -75,7 +75,7 @@ export const QuickReassignModal = () => {
         },
         body: { padding: "20px 24px" },
       }}
-      destroyOnClose
+      destroyOnHidden
     >
       {/* ข้อมูล Issue */}
       <Row
