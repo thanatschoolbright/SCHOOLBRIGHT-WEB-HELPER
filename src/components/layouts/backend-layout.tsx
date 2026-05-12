@@ -283,7 +283,7 @@ export default function BackendLayout({
           style={{
             padding: 0,
             height: HEADER_HEIGHT,
-            position: "sticky",
+            position: "relative",
             top: 0,
             zIndex: 90,
             width: "100%",

@@ -179,77 +179,81 @@ export default function ThemeCustomizer() {
 
   return (
     <>
-      {/* Trigger Button — ปรับให้ลอยเหนือกราวด์และขยับเข้ามาจากขอบนิดหน่อยเพื่อให้รับกับความโค้งของ layout */}
-      <div className="fixed top-1/2 -translate-y-1/2 right-1.5 sm:right-2 z-[1100]">
-        {/* NEW badge */}
-        <motion.div
-          className="absolute -top-3 -left-5 z-10 pointer-events-none"
-          initial={{ opacity: 0, scale: 0.6, y: 4 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{
-            delay: 1.2,
-            duration: 0.35,
-            type: "spring",
-            stiffness: 400,
-          }}
-        >
-          <motion.span
-            className="flex items-center px-1.5 py-0.5 rounded-md text-[9px] font-black tracking-widest text-white uppercase select-none"
-            style={{ background: "#ef4444", letterSpacing: "0.1em" }}
-            animate={{ scale: [1, 1.12, 1] }}
-            transition={{
-              duration: 1.6,
-              repeat: Infinity,
-              repeatDelay: 2.5,
-              ease: "easeInOut",
-            }}
-          >
-            NEW
-          </motion.span>
-        </motion.div>
+      {/* Trigger Button — render ผ่าน portal เพื่อหนี parent ที่มี will-change/transform */}
+      {mounted &&
+        createPortal(
+          <div className="fixed top-1/2 -translate-y-1/2 right-1.5 sm:right-2 z-[1100]">
+            {/* NEW badge */}
+            <motion.div
+              className="absolute -top-3 -left-5 z-10 pointer-events-none"
+              initial={{ opacity: 0, scale: 0.6, y: 4 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{
+                delay: 1.2,
+                duration: 0.35,
+                type: "spring",
+                stiffness: 400,
+              }}
+            >
+              <motion.span
+                className="flex items-center px-1.5 py-0.5 rounded-md text-[9px] font-black tracking-widest text-white uppercase select-none"
+                style={{ background: "#ef4444", letterSpacing: "0.1em" }}
+                animate={{ scale: [1, 1.12, 1] }}
+                transition={{
+                  duration: 1.6,
+                  repeat: Infinity,
+                  repeatDelay: 2.5,
+                  ease: "easeInOut",
+                }}
+              >
+                NEW
+              </motion.span>
+            </motion.div>
 
-        {/* Ping ring รอบปุ่ม */}
-        <motion.span
-          className="absolute inset-0 rounded-l-xl pointer-events-none"
-          style={{ background: "#f97316" }}
-          animate={{ opacity: [0.5, 0], scale: [1, 1.25] }}
-          transition={{
-            duration: 1.8,
-            repeat: Infinity,
-            repeatDelay: 1.5,
-            ease: "easeOut",
-          }}
-        />
+            {/* Ping ring รอบปุ่ม */}
+            <motion.span
+              className="absolute inset-0 rounded-l-xl pointer-events-none"
+              style={{ background: "#f97316" }}
+              animate={{ opacity: [0.5, 0], scale: [1, 1.25] }}
+              transition={{
+                duration: 1.8,
+                repeat: Infinity,
+                repeatDelay: 1.5,
+                ease: "easeOut",
+              }}
+            />
 
-        <motion.button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="relative flex items-center justify-center w-11 h-11 rounded-xl sm:rounded-2xl text-white border-none cursor-pointer outline-none shadow-lg shadow-orange-500/20"
-          style={{ background: "#f97316" }}
-          animate={{ x: [0, -3, 0] }}
-          transition={{
-            duration: 2.5,
-            repeat: Infinity,
-            repeatDelay: 3,
-            ease: "easeInOut",
-          }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.93 }}
-          title="ปรับแต่งเว็บไซต์"
-        >
-          <motion.span
-            animate={{ rotate: [0, 18, -18, 0] }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              repeatDelay: 4,
-              ease: "easeInOut",
-            }}
-          >
-            <IconSettings />
-          </motion.span>
-        </motion.button>
-      </div>
+            <motion.button
+              type="button"
+              onClick={() => setOpen(true)}
+              className="relative flex items-center justify-center w-11 h-11 rounded-xl sm:rounded-2xl text-white border-none cursor-pointer outline-none shadow-lg shadow-orange-500/20"
+              style={{ background: "#f97316" }}
+              animate={{ x: [0, -3, 0] }}
+              transition={{
+                duration: 2.5,
+                repeat: Infinity,
+                repeatDelay: 3,
+                ease: "easeInOut",
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.93 }}
+              title="ปรับแต่งเว็บไซต์"
+            >
+              <motion.span
+                animate={{ rotate: [0, 18, -18, 0] }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  repeatDelay: 4,
+                  ease: "easeInOut",
+                }}
+              >
+                <IconSettings />
+              </motion.span>
+            </motion.button>
+          </div>,
+          document.body,
+        )}
 
       {mounted &&
         createPortal(
