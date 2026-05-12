@@ -15,12 +15,15 @@ import { useAppSelector } from "@/stores/store";
 import {
   BarChartOutlined,
   DollarOutlined,
+  DownOutlined,
   FileExcelOutlined,
   ReloadOutlined,
+  SettingOutlined,
   SolutionOutlined,
+  ToolOutlined,
 } from "@ant-design/icons";
 import DashboardLayout from "@components/layouts/backend-layout";
-import { Button, Flex, Space } from "antd";
+import { Button, Dropdown, Flex, Space } from "antd";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -1082,39 +1085,61 @@ export default function AdminOvertimeManagementPage() {
             title="จัดการการทำงานล่วงเวลา (ผู้ดูแลระบบ)"
             subTitle="อนุมัติ ปฏิเสธ และติดตามคำขอ OT ของพนักงานทุกคน"
             extra={
-              <Space>
-                <Button
-                  icon={<DollarOutlined />}
-                  size="large"
-                  onClick={() => setIsMarkPaidVisible(true)}
+              <Space size="small">
+                {/* กลุ่ม: รายงาน & ส่งออก */}
+                <Dropdown
+                  menu={{
+                    items: [
+                      {
+                        key: "export-excel",
+                        icon: <FileExcelOutlined />,
+                        label: "ส่งออก Excel",
+                        onClick: () => setIsExportVisible(true),
+                      },
+                      {
+                        key: "analytics",
+                        icon: <BarChartOutlined />,
+                        label: "วิเคราะห์สถิติ",
+                        onClick: () => setIsAnalyticsVisible(true),
+                      },
+                    ],
+                  }}
                 >
-                  ทำเครื่องหมายจ่ายแล้ว
-                </Button>
-                <Button
-                  icon={<FileExcelOutlined />}
-                  size="large"
-                  onClick={() => setIsExportVisible(true)}
+                  <Button size="middle" icon={<BarChartOutlined />}>
+                    รายงาน <DownOutlined style={{ fontSize: "0.7rem" }} />
+                  </Button>
+                </Dropdown>
+
+                {/* กลุ่ม: การดำเนินการ */}
+                <Dropdown
+                  menu={{
+                    items: [
+                      {
+                        key: "mark-paid",
+                        icon: <DollarOutlined />,
+                        label: "ทำเครื่องหมายจ่ายแล้ว",
+                        onClick: () => setIsMarkPaidVisible(true),
+                      },
+                      { type: "divider" },
+                      {
+                        key: "fix-date",
+                        icon: <ToolOutlined />,
+                        label: "แก้ไขวันที่ผิด",
+                        danger: true,
+                        onClick: () => setIsFixDateVisible(true),
+                      },
+                    ],
+                  }}
                 >
-                  Export Excel
-                </Button>
-                <Button
-                  icon={<BarChartOutlined />}
-                  size="large"
-                  onClick={() => setIsAnalyticsVisible(true)}
-                >
-                  วิเคราะห์สถิติ
-                </Button>
-                <Button
-                  icon={<SolutionOutlined />}
-                  size="large"
-                  onClick={() => setIsFixDateVisible(true)}
-                  danger
-                >
-                  แก้ไขวันที่ผิด
-                </Button>
+                  <Button size="middle" icon={<SettingOutlined />}>
+                    การดำเนินการ <DownOutlined style={{ fontSize: "0.7rem" }} />
+                  </Button>
+                </Dropdown>
+
+                {/* ปุ่มรีเฟรช */}
                 <Button
                   icon={<ReloadOutlined />}
-                  size="large"
+                  size="middle"
                   onClick={() => loadOvertimeData({ page: 1 })}
                 >
                   รีเฟรช
