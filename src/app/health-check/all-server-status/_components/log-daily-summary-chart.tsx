@@ -9,7 +9,6 @@ import {
   LineChartOutlined,
   ThunderboltOutlined,
 } from "@ant-design/icons";
-import { Line } from "@ant-design/plots";
 import {
   Badge,
   Button,
@@ -22,15 +21,54 @@ import {
   Spin,
   Table,
   Tag,
-  Typography,
   theme,
+  Typography,
 } from "antd";
+import {
+  CategoryScale,
+  Chart as ChartJS,
+  Title as ChartTitle,
+  Tooltip as ChartTooltip,
+  Filler,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
+} from "chart.js";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 import React, { useEffect, useMemo, useState } from "react";
+import { Line } from "react-chartjs-2";
 import { useServerStatusStore } from "../_state/server-status.state";
 
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ChartTitle,
+  ChartTooltip,
+  Legend,
+  Filler,
+);
+
 dayjs.locale("th");
+
+// ชุดสีสำหรับแต่ละ Server — ใช้ที่ระดับ module เพื่อหลีกเลี่ยง re-creation
+const CHART_COLORS = [
+  "#3b82f6",
+  "#f59e0b",
+  "#10b981",
+  "#ef4444",
+  "#8b5cf6",
+  "#f97316",
+  "#06b6d4",
+  "#ec4899",
+  "#84cc16",
+  "#6366f1",
+  "#14b8a6",
+  "#f43f5e",
+];
 
 // ✨ Graph แสดง Uptime % รายวันของทุก Server และตารางสรุป
 const LogDailySummaryChart: React.FC = () => {
@@ -45,20 +83,138 @@ const LogDailySummaryChart: React.FC = () => {
     fetchDailySummary(days);
   }, [days, fetchDailySummary]);
 
-  // แปลงข้อมูลเป็น format ที่ @ant-design/plots ต้องการ
-  const chartData = useMemo(
-    () =>
-      dailySummary.flatMap((server) =>
-        server.data.map((point) => ({
-          date: dayjs(point.date).format("DD/MM"),
-          server: server.server_name_th,
-          uptime: parseFloat(point.uptime_percent.toFixed(2)),
-          offline_count: point.offline_count,
-          date_full: point.date,
-          avg_response_time: point.avg_response_time_ms,
-        })),
-      ),
-    [dailySummary],
+  // สร้าง datasets สำหรับ react-chartjs-2 พร้อม lookup สำหรับ tooltip
+  const { chartBuilderData, rawLookup } = useMemo(() => {
+    // รวบรวมวันที่ทั้งหมดและเรียงลำดับ
+    const allDates = [
+      ...new Set(dailySummary.flatMap((s) => s.data.map((d) => d.date))),
+    ].sort();
+    const labels = allDates.map((d) => dayjs(d).format("DD/MM"));
+
+    // lookup: serverName -> dateLabel -> { offline_count, avg_response_time_ms }
+    const lookup: Record<
+      string,
+      Record<string, { offline_count: number; avg_response_time_ms: number }>
+    > = {};
+
+    // เรียงลำดับ Server ตามชื่อจากน้อยไปมาก (ก-ฮ, A-Z)
+    const sortedServers = [...dailySummary].sort((a, b) =>
+      a.server_name_th.localeCompare(b.server_name_th, "th"),
+    );
+
+    const datasets = sortedServers.map((server, idx) => {
+      const dateMap: Record<string, number> = {};
+      const rawMap: Record<
+        string,
+        { offline_count: number; avg_response_time_ms: number }
+      > = {};
+
+      server.data.forEach((d) => {
+        const label = dayjs(d.date).format("DD/MM");
+        dateMap[label] = parseFloat(d.uptime_percent.toFixed(2));
+        rawMap[label] = {
+          offline_count: d.offline_count,
+          avg_response_time_ms: d.avg_response_time_ms,
+        };
+      });
+
+      lookup[server.server_name_th] = rawMap;
+
+      const color = CHART_COLORS[idx % CHART_COLORS.length];
+      return {
+        label: server.server_name_th,
+        data: labels.map((lbl) => dateMap[lbl] ?? null),
+        borderColor: color,
+        backgroundColor: color + "33",
+        borderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        tension: 0.3,
+        spanGaps: true,
+      };
+    });
+
+    // เส้นประเป้าหมาย 99%
+    datasets.push({
+      label: "เป้าหมาย 99%",
+      data: labels.map(() => 99),
+      borderColor: "#16a34a",
+      backgroundColor: "transparent",
+      borderWidth: 1.5,
+      // @ts-expect-error chart.js รองรับ borderDash บน dataset
+      borderDash: [6, 3],
+      pointRadius: 0,
+      pointHoverRadius: 0,
+      tension: 0,
+      spanGaps: true,
+    });
+
+    return { chartBuilderData: { labels, datasets }, rawLookup: lookup };
+  }, [dailySummary]);
+
+  // ตัวเลือกกราฟ — ปรับสีตาม token เพื่อรองรับ Dark Mode
+  const chartOptions = useMemo(
+    () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index" as const, intersect: false },
+      plugins: {
+        legend: {
+          position: "bottom" as const,
+          labels: {
+            color: token.colorText,
+            boxWidth: 12,
+            padding: 16,
+            font: { size: 11 },
+          },
+        },
+        tooltip: {
+          callbacks: {
+            title: (items: { label: string }[]) =>
+              `วันที่ ${items[0]?.label ?? ""}`,
+            label: (context: {
+              dataset: { label?: string };
+              label: string;
+              parsed: { y: number | null };
+            }) => {
+              if (context.dataset.label === "เป้าหมาย 99%") return undefined;
+              const serverName = context.dataset.label ?? "";
+              const dateLabel = context.label;
+              const uptime = context.parsed.y;
+              const raw = rawLookup[serverName]?.[dateLabel];
+              const lines: string[] = [
+                `  ${serverName}`,
+                `  Uptime: ${uptime?.toFixed(2) ?? "-"}%`,
+              ];
+              if (raw) {
+                lines.push(`  Offline: ${raw.offline_count} ครั้ง`);
+                lines.push(`  Avg Response: ${raw.avg_response_time_ms} ms`);
+              }
+              return lines;
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: { color: token.colorText, font: { size: 11 } },
+          grid: { color: token.colorBorderSecondary },
+          border: { color: token.colorBorder },
+        },
+        y: {
+          min: 0,
+          max: 100,
+          ticks: {
+            color: token.colorText,
+            font: { size: 11 },
+            callback: (v: string | number) => `${v}%`,
+          },
+          grid: { color: token.colorBorderSecondary },
+          border: { color: token.colorBorder },
+        },
+      },
+    }),
+    [token, rawLookup],
   );
 
   // สรุปข้อมูลสำหรับตาราง
@@ -93,94 +249,6 @@ const LogDailySummaryChart: React.FC = () => {
       })
       .sort((a, b) => a.avg_uptime - b.avg_uptime);
   }, [dailySummary]);
-
-  const config = {
-    data: chartData,
-    xField: "date",
-    yField: "uptime",
-    colorField: "server",
-    smooth: true,
-    point: {
-      shapeField: "circle",
-      sizeField: 4,
-    },
-    tooltip: {
-      title: (d: any) => `วันที่ ${d.date}`,
-      items: [
-        {
-          field: "uptime",
-          name: "Uptime",
-          valueFormatter: (v: number) => `${v.toFixed(2)}%`,
-        },
-        {
-          field: "offline_count",
-          name: "Offline",
-          valueFormatter: (v: number) => `${v} ครั้ง`,
-        },
-        {
-          field: "avg_response_time",
-          name: "Avg Response",
-          valueFormatter: (v: number) => `${v} ms`,
-        },
-      ],
-    },
-    yAxis: {
-      min: 0,
-      max: 100,
-      label: {
-        formatter: (v: string) => `${v}%`,
-      },
-      grid: {
-        line: {
-          style: { stroke: token.colorBorderSecondary, lineDash: [4, 4] },
-        },
-      },
-    },
-    annotations: [
-      {
-        type: "line",
-        xField: "date",
-        yField: "uptime",
-        style: { stroke: "#16a34a", lineDash: [6, 3], lineWidth: 1 },
-        data:
-          chartData.length > 0
-            ? [
-                { date: chartData[0]?.date, uptime: 99 },
-                { date: chartData[chartData.length - 1]?.date, uptime: 99 },
-              ]
-            : [],
-      },
-    ],
-    theme:
-      token.mode === "dark" || token.colorBgContainer === "#141414"
-        ? "dark"
-        : "light",
-    legend: {
-      color: {
-        position: "bottom",
-        layout: {
-          justifyContent: "center",
-          wrap: true,
-        },
-      },
-    },
-    label: {
-      text: "server",
-      selector: "last",
-      position: "right",
-      style: {
-        dx: 10,
-        dy: -5,
-        fontSize: 10,
-        fontWeight: "bold",
-        fill: token.colorTextDescription,
-      },
-    },
-    style: {
-      lineWidth: 2,
-    },
-    height: isFullscreen ? 850 : 600,
-  };
 
   const columns = [
     {
@@ -287,7 +355,7 @@ const LogDailySummaryChart: React.FC = () => {
         >
           <Spin size="large" tip="กำลังดึงข้อมูลสรุปรายวัน..." />
         </Flex>
-      ) : chartData.length === 0 ? (
+      ) : chartBuilderData.labels.length === 0 ? (
         <Flex
           justify="center"
           align="center"
@@ -310,7 +378,11 @@ const LogDailySummaryChart: React.FC = () => {
         </Flex>
       ) : (
         <>
-          <Line {...config} />
+          <div
+            style={{ height: isFullscreen ? 850 : 600, position: "relative" }}
+          >
+            <Line data={chartBuilderData} options={chartOptions} />
+          </div>
 
           <Card
             title={
