@@ -59,6 +59,25 @@ export async function GET(
     const { messages, schoolName, total, online, offline } =
       await buildSchoolDeviceReport(schoolIdNum);
 
+    // ✨ ถ้าทุกเครื่อง online — ไม่ส่งแจ้งเตือนเข้า LINE เด็ดขาด
+    if (messages.length === 0) {
+      return NextResponse.json(
+        successResponse({
+          status: 200,
+          message_th: `${schoolName} ระบบปกติ (ออนไลน์ 100%) จึงไม่มีการส่งแจ้งเตือน`,
+          message_en: "System normal (100% online). No notification sent.",
+          data: {
+            school_id: schoolIdNum,
+            school_name: schoolName,
+            total_devices: total,
+            online_devices: online,
+            offline_devices: offline,
+          },
+        }),
+        { status: 200 },
+      );
+    }
+
     await linePushMessage(groupId, messages);
 
     return NextResponse.json(

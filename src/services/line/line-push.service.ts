@@ -1609,16 +1609,10 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
     };
   }
 
-  // กรณีทุกเครื่องออนไลน์ — ส่ง bubble เดียว
+  // กรณีทุกเครื่องออนไลน์ — ไม่ส่งแจ้งเตือนเข้า LINE เด็ดขาด
   if (offlineDevices.length === 0) {
     return {
-      messages: [
-        {
-          type: "flex",
-          altText: `[SchoolBright] ${schoolName} · ทุกเครื่องออนไลน์ปกติ (${total} เครื่อง)`,
-          contents: buildAllOnlineBubble({ schoolName, total, reportTime }),
-        },
-      ],
+      messages: [],
       schoolName,
       total,
       online: onlineCount,
