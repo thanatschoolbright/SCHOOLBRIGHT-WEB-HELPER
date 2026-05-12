@@ -183,37 +183,9 @@ export default function ThemeCustomizer() {
       {mounted &&
         createPortal(
           <div className="fixed top-1/2 -translate-y-1/2 right-1.5 sm:right-2 z-[1100]">
-            {/* NEW badge */}
-            <motion.div
-              className="absolute -top-3 -left-5 z-10 pointer-events-none"
-              initial={{ opacity: 0, scale: 0.6, y: 4 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{
-                delay: 1.2,
-                duration: 0.35,
-                type: "spring",
-                stiffness: 400,
-              }}
-            >
-              <motion.span
-                className="flex items-center px-1.5 py-0.5 rounded-md text-[9px] font-black tracking-widest text-white uppercase select-none"
-                style={{ background: "#ef4444", letterSpacing: "0.1em" }}
-                animate={{ scale: [1, 1.12, 1] }}
-                transition={{
-                  duration: 1.6,
-                  repeat: Infinity,
-                  repeatDelay: 2.5,
-                  ease: "easeInOut",
-                }}
-              >
-                NEW
-              </motion.span>
-            </motion.div>
-
             {/* Ping ring รอบปุ่ม */}
             <motion.span
               className="absolute inset-0 rounded-l-xl pointer-events-none"
-              style={{ background: "#f97316" }}
               animate={{ opacity: [0.5, 0], scale: [1, 1.25] }}
               transition={{
                 duration: 1.8,
