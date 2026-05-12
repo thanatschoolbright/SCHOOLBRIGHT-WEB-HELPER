@@ -54,6 +54,18 @@ export async function GET(request: NextRequest) {
 
   try {
     const messages = await buildDeviceStatusReport();
+
+    // ✨ ถ้า messages เป็น array ว่าง (offline = 0) จะไม่ส่งอะไรและคืน success
+    if (messages.length === 0) {
+      return NextResponse.json(
+        successResponse({
+          message_th: "ระบบปกติ (ออนไลน์ 100%) จึงไม่มีการส่งแจ้งเตือน",
+          message_en: "System normal (100% online). No notification sent.",
+        }),
+        { status: 200 },
+      );
+    }
+
     await linePushMessage(groupId, messages);
 
     return NextResponse.json(

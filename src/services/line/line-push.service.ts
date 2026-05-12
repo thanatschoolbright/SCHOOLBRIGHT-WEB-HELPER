@@ -1,5 +1,5 @@
-import prisma from "@helpers/prisma";
 import { PrismaJabjaiMaster } from "@/helpers/prisma/prisma-jabjai-master-single-db";
+import prisma from "@helpers/prisma";
 import axios from "axios";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
@@ -529,10 +529,13 @@ const TEN_MIN_IN_MS = 10 * 60 * 1000;
 async function checkHardwareServerHealth(): Promise<boolean> {
   try {
     const { API_URL } = await import("@/services/api-url");
-    const res = await axios.get(`${API_URL.PROD_HARDWARE_API_URL}/api/application`, {
-      timeout: 8000,
-      validateStatus: () => true,
-    });
+    const res = await axios.get(
+      `${API_URL.PROD_HARDWARE_API_URL}/api/application`,
+      {
+        timeout: 8000,
+        validateStatus: () => true,
+      },
+    );
     return res.status === 200;
   } catch {
     return false;
@@ -584,10 +587,9 @@ export async function buildDeviceStatusReport(): Promise<object[]> {
 
   for (const device of allDevices) {
     const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
-    const isOnlineDynamic =
-      (onlineTime
-        ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
-        : false);
+    const isOnlineDynamic = onlineTime
+      ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
+      : false;
 
     if (isOnlineDynamic) online++;
     else {
@@ -625,6 +627,11 @@ export async function buildDeviceStatusReport(): Promise<object[]> {
 
   const total = allDevices.length;
   const onlineRate = total === 0 ? 0 : Math.round((online / total) * 100);
+
+  // ✨ ถ้าออฟไลน์เป็น 0 (ระบบปกติ) จะไม่ส่งแจ้งเตือน
+  if (offline === 0) {
+    return [];
+  }
 
   const appGroups = Array.from(groupMap.entries())
     .map(([key, g]) => {
@@ -730,10 +737,9 @@ export async function buildSchoolStatusReport(
 
   for (const device of allDevices) {
     const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
-    const isOnline =
-      (onlineTime
-        ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
-        : false);
+    const isOnline = onlineTime
+      ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
+      : false;
 
     const entry = schoolMap.get(device.SchoolID);
     if (!entry) continue;
@@ -1000,13 +1006,21 @@ function buildOfflineDeviceBubble(opts: {
   lastOnlineAt: string | null;
   offlineReason: "device_or_network" | "server_down";
 }): object {
-  const { index, deviceName, deviceId, appName, appVersion, offlineDuration, lastOnlineAt, offlineReason } = opts;
+  const {
+    index,
+    deviceName,
+    deviceId,
+    appName,
+    appVersion,
+    offlineDuration,
+    lastOnlineAt,
+    offlineReason,
+  } = opts;
   const reasonText =
     offlineReason === "server_down"
       ? "เซิร์ฟเวอร์เกิดข้อขัดข้อง"
       : "อินเทอร์เน็ต / ตัวเครื่องเสียหาย";
-  const reasonColor =
-    offlineReason === "server_down" ? "#dc2626" : "#d97706";
+  const reasonColor = offlineReason === "server_down" ? "#dc2626" : "#d97706";
 
   return {
     type: "bubble",
@@ -1300,7 +1314,9 @@ export async function buildSchoolDeviceStatusData(
   if (!school) return null;
 
   const hardwareServerOk = await checkHardwareServerHealth();
-  const serverOfflineReason = hardwareServerOk ? "device_or_network" : "server_down";
+  const serverOfflineReason = hardwareServerOk
+    ? "device_or_network"
+    : "server_down";
 
   let onlineCount = 0;
   let offlineCount = 0;
@@ -1341,10 +1357,20 @@ export async function buildSchoolDeviceStatusData(
 // ✨ ตรวจสอบและอัปเดต state การแจ้งเตือนรายเครื่องใน DeviceNotifyState — คืนว่าควรส่ง LINE ไหมและรอบที่เท่าไหร่
 export async function checkAndUpdateNotifyState(
   schoolId: number,
-  devices: Array<{ is_online: boolean; online_time: string | null; notify_enabled: boolean; device_id?: string; app_name?: string }>,
+  devices: Array<{
+    is_online: boolean;
+    online_time: string | null;
+    notify_enabled: boolean;
+    device_id?: string;
+    app_name?: string;
+  }>,
   intervalRound1Minutes: number,
   intervalRound2Minutes: number,
-): Promise<{ result: boolean; notifyRound: 1 | 2 | null; debugLines: string[] }> {
+): Promise<{
+  result: boolean;
+  notifyRound: 1 | 2 | null;
+  debugLines: string[];
+}> {
   const now = new Date();
   const nowMs = now.getTime();
   const debugLines: string[] = [];
@@ -1364,9 +1390,21 @@ export async function checkAndUpdateNotifyState(
       const existing = stateMap.get(deviceId);
       if (existing?.offline_since !== null) {
         await PrismaJabjaiMaster.deviceNotifyState.upsert({
-          where: { school_id_device_id: { school_id: schoolId, device_id: deviceId } },
-          create: { school_id: schoolId, device_id: deviceId, offline_since: null, r1_sent_at: null, last_notified_at: null },
-          update: { offline_since: null, r1_sent_at: null, last_notified_at: null },
+          where: {
+            school_id_device_id: { school_id: schoolId, device_id: deviceId },
+          },
+          create: {
+            school_id: schoolId,
+            device_id: deviceId,
+            offline_since: null,
+            r1_sent_at: null,
+            last_notified_at: null,
+          },
+          update: {
+            offline_since: null,
+            r1_sent_at: null,
+            last_notified_at: null,
+          },
         });
       }
       continue;
@@ -1377,10 +1415,20 @@ export async function checkAndUpdateNotifyState(
     let state = stateMap.get(deviceId);
 
     if (!state || state.offline_since === null) {
-      const offlineSince = device.online_time ? new Date(device.online_time) : now;
+      const offlineSince = device.online_time
+        ? new Date(device.online_time)
+        : now;
       const upserted = await PrismaJabjaiMaster.deviceNotifyState.upsert({
-        where: { school_id_device_id: { school_id: schoolId, device_id: deviceId } },
-        create: { school_id: schoolId, device_id: deviceId, offline_since: offlineSince, r1_sent_at: null, last_notified_at: null },
+        where: {
+          school_id_device_id: { school_id: schoolId, device_id: deviceId },
+        },
+        create: {
+          school_id: schoolId,
+          device_id: deviceId,
+          offline_since: offlineSince,
+          r1_sent_at: null,
+          last_notified_at: null,
+        },
         update: { offline_since: offlineSince },
       });
       state = upserted;
@@ -1395,29 +1443,45 @@ export async function checkAndUpdateNotifyState(
       if (offlineMin >= intervalRound1Minutes) {
         debugLines.push(`  [NOTIFY R1] ${name} — offline ${offlineMinStr} min`);
         await PrismaJabjaiMaster.deviceNotifyState.update({
-          where: { school_id_device_id: { school_id: schoolId, device_id: deviceId } },
+          where: {
+            school_id_device_id: { school_id: schoolId, device_id: deviceId },
+          },
           data: { r1_sent_at: now, last_notified_at: now },
         });
         result = true;
         if (notifyRound === null) notifyRound = 1;
       } else {
-        debugLines.push(`  [WAIT  R1] ${name} — offline ${offlineMinStr} min, wait ${(intervalRound1Minutes - offlineMin).toFixed(1)} min`);
+        debugLines.push(
+          `  [WAIT  R1] ${name} — offline ${offlineMinStr} min, wait ${(
+            intervalRound1Minutes - offlineMin
+          ).toFixed(1)} min`,
+        );
       }
     } else {
       const lastMs = state.last_notified_at!.getTime();
       const minutesSinceLast = (nowMs - lastMs) / 60_000;
       if (minutesSinceLast >= intervalRound2Minutes) {
-        const cycleNo = Math.floor((nowMs - state.r1_sent_at!.getTime()) / 60_000 / intervalRound2Minutes);
-        debugLines.push(`  [NOTIFY R2] ${name} — offline ${offlineMinStr} min, cycle #${cycleNo}`);
+        const cycleNo = Math.floor(
+          (nowMs - state.r1_sent_at!.getTime()) /
+            60_000 /
+            intervalRound2Minutes,
+        );
+        debugLines.push(
+          `  [NOTIFY R2] ${name} — offline ${offlineMinStr} min, cycle #${cycleNo}`,
+        );
         await PrismaJabjaiMaster.deviceNotifyState.update({
-          where: { school_id_device_id: { school_id: schoolId, device_id: deviceId } },
+          where: {
+            school_id_device_id: { school_id: schoolId, device_id: deviceId },
+          },
           data: { last_notified_at: now },
         });
         result = true;
         if (notifyRound === null) notifyRound = 2;
       } else {
         const waitMin = (intervalRound2Minutes - minutesSinceLast).toFixed(1);
-        debugLines.push(`  [WAIT  R2] ${name} — offline ${offlineMinStr} min, next in ~${waitMin} min`);
+        debugLines.push(
+          `  [WAIT  R2] ${name} — offline ${offlineMinStr} min, next in ~${waitMin} min`,
+        );
       }
     }
   }
@@ -1502,10 +1566,9 @@ export async function buildSchoolDeviceReport(schoolId: number): Promise<{
 
   for (const device of filteredDevices) {
     const onlineTime = device.OnlineTime ? new Date(device.OnlineTime) : null;
-    const isOnline =
-      (onlineTime
-        ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
-        : false);
+    const isOnline = onlineTime
+      ? now.getTime() - onlineTime.getTime() <= TEN_MIN_IN_MS
+      : false;
 
     if (device.NotifyEnabled) notifyCount++;
 
