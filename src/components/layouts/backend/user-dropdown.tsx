@@ -391,7 +391,8 @@ function ProfileDrawer({
     } catch {
       // บันทึก log ล้มเหลวไม่ควรหยุด logout
     }
-    void signOut({ redirectTo: "/" });
+    await signOut({ redirect: false });
+    window.location.href = "https://sb-helper.schoolbright.co";
   };
 
   if (!mounted) return null;
