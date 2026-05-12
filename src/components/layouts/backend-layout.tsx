@@ -3,12 +3,7 @@
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import "@ant-design/v5-patch-for-react-19";
 import { Button, Drawer, Flex, Grid, Layout, theme } from "antd";
-import React, {
-  Suspense,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { Suspense, useCallback, useEffect, useState } from "react";
 
 import BreadcrumbComponent from "@components/breadcrump/breadcrumb-component";
 import BackendFooter from "@components/layouts/backend/footer";
@@ -212,23 +207,17 @@ export default function BackendLayout({
           minWidth: 0,
         }}
       >
-        {/* Sticky Header */}
+        {/* Header */}
         <Header
           style={{
             padding: 0,
             height: HEADER_HEIGHT,
-            position: "sticky",
-            top: 0,
-            zIndex: 90,
+            position: "relative",
             width: "100%",
-            background: "rgba(255,255,255,0.6)",
-            backdropFilter: "blur(12px) saturate(180%)",
-            WebkitBackdropFilter: "blur(12px) saturate(180%)",
-            borderBottom: "1px solid rgba(0,0,0,0.06)",
+            background: "transparent",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            boxShadow: "0 2px 12px -4px rgba(0,0,0,0.06)",
           }}
         >
           <Flex
