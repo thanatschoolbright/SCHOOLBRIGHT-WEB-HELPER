@@ -81,13 +81,16 @@ const AdminOtFilter: React.FC<AdminOtFilterProps> = ({
   };
 
   return (
-    <Card styles={{ body: { padding: 16 } }}>
-      <Flex vertical gap={12}>
+    <Card
+      title={
         <Flex align="center" gap={8}>
           <FilterOutlined style={{ fontSize: "1rem" }} />
           <Text strong>ตัวกรองและค้นหา</Text>
         </Flex>
-
+      }
+      styles={{ body: { padding: 16 } }}
+    >
+      <Flex vertical gap={12}>
         <Row gutter={[16, 12]}>
           <Col span={12}>
             <Flex vertical gap={4}>
@@ -146,10 +149,7 @@ const AdminOtFilter: React.FC<AdminOtFilterProps> = ({
               <RangePicker
                 value={
                   filterDateRange
-                    ? [
-                        dayjs(filterDateRange[0]),
-                        dayjs(filterDateRange[1]),
-                      ]
+                    ? [dayjs(filterDateRange[0]), dayjs(filterDateRange[1])]
                     : null
                 }
                 onChange={(dates) => {

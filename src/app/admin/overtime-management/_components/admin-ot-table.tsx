@@ -143,7 +143,10 @@ const AdminOtTable: React.FC<AdminOtTableProps> = ({
         render: (_: any, record: any) => {
           const dept = record.requester_department || "-";
           return (
-            <Text style={{ fontSize: 12 }} type={dept === "-" ? "secondary" : undefined}>
+            <Text
+              style={{ fontSize: 12 }}
+              type={dept === "-" ? "secondary" : undefined}
+            >
               {dept}
             </Text>
           );
@@ -291,8 +294,8 @@ const AdminOtTable: React.FC<AdminOtTableProps> = ({
   );
 
   return (
-    <Card styles={{ body: { padding: 16 } }}>
-      <Flex vertical gap={12}>
+    <Card
+      title={
         <Flex align="center" gap={8}>
           <UnorderedListOutlined style={{ fontSize: "1rem" }} />
           <Text strong>รายการคำขอ OT ทั้งหมด</Text>
@@ -303,7 +306,10 @@ const AdminOtTable: React.FC<AdminOtTableProps> = ({
             <Tag color="blue">เลือกแล้ว {selectedKeys.length} รายการ</Tag>
           )}
         </Flex>
-
+      }
+      styles={{ body: { padding: 16 } }}
+    >
+      <Flex vertical gap={12}>
         <Table
           dataSource={dataSource}
           columns={columns}
@@ -339,8 +345,10 @@ const AdminOtTable: React.FC<AdminOtTableProps> = ({
                         {d.date
                           ? dayjs(d.date).format("DD/MM/YYYY")
                           : d.startDate
-                            ? `${dayjs(d.startDate).format("DD/MM/YYYY")} – ${dayjs(d.endDate).format("DD/MM/YYYY")}`
-                            : ""}
+                          ? `${dayjs(d.startDate).format(
+                              "DD/MM/YYYY",
+                            )} – ${dayjs(d.endDate).format("DD/MM/YYYY")}`
+                          : ""}
                       </Text>
                       <Text style={{ fontSize: 12 }}>
                         {d.duration} ชม. — {d.description || "-"}

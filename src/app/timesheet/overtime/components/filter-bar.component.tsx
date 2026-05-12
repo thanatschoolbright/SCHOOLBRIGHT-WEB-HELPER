@@ -55,7 +55,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
   return (
     <Card
-      bordered={false}
+      title={
+        <Space>
+          <FilterOutlined style={{ color: token.colorPrimary, fontSize: 18 }} />
+          <Text strong style={{ fontSize: 16, fontWeight: 600 }}>
+            {translate("overtime.filterBar.title")}
+          </Text>
+        </Space>
+      }
       style={{
         borderRadius: 16,
         marginBottom: 24,
@@ -63,13 +70,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       }}
       styles={{ body: { padding: 24 } }}
     >
-      <Space style={{ marginBottom: 20 }}>
-        <FilterOutlined style={{ color: token.colorPrimary, fontSize: 18 }} />
-        <Text strong style={{ fontSize: 16, fontWeight: 600 }}>
-          ตัวกรองและค้นหาข้อมูล
-        </Text>
-      </Space>
-
       <Row gutter={[24, 16]}>
         <Col xs={24} md={12}>
           <div className="flex flex-col gap-2">
