@@ -649,7 +649,13 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
       }
       styles={{ body: { padding: 16 } }}
       extra={
-        <Space size={12}>
+        <Space
+          size={12}
+          wrap
+          style={{
+            padding: "0.5rem",
+          }}
+        >
           {/* Toggle Table / Calendar View */}
           <Segmented
             value={viewMode}
@@ -735,7 +741,7 @@ export const TimesheetTable: React.FC<TimesheetTableProps> = ({
             <Tooltip title={t("columnSetting", "ตั้งค่าคอลัมน์")}>
               <Button
                 icon={<SettingOutlined />}
-                size="large"
+                size="small"
                 style={{
                   borderRadius: 12,
                   border: `1px solid ${token.colorBorderSecondary}`,

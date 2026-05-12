@@ -1,29 +1,27 @@
 "use client";
 
-import React, { useCallback, useMemo, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
-import i18next from "i18next";
+import React, { useCallback, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
 
-import { Button, Input, InputRef, Space, Table, Tag, Typography } from "antd";
-import type { ColumnsType, ColumnType, TableProps } from "antd/es/table";
 import {
   CopyOutlined,
   EditOutlined,
   EyeOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
+import { Button, Input, InputRef, Space, Table, Tag, Typography } from "antd";
+import type { ColumnsType, ColumnType, TableProps } from "antd/es/table";
 
+import { TimesheetEntry } from "@/stores/type";
 import { TableActions } from "@components/button/table-actions";
-import { STATUS_OPTIONS } from "@constants/timesheet.constants";
 import {
   openModal,
   setPagination,
   setSelectedRowKeys,
 } from "@stores/reducers/timesheet-slice";
 import { AppDispatch, RootState } from "@stores/store";
-import { TimesheetEntry } from "@/stores/type";
 
 //** ค่าคงที่ */
 const DATE_FORMAT = "DD/MM/YYYY";
@@ -143,7 +141,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({ onRefresh }) => {
         },
       },
     }),
-    []
+    [],
   );
 
   //** การทำงาน: กำหนดคอลัมน์ของตาราง */
@@ -158,7 +156,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({ onRefresh }) => {
         render: (v) => dayjs(v).format(DATE_FORMAT),
         ...getColumnSearchProps(
           "date",
-          t("timesheet_components.date", "วันที่")
+          t("timesheet_components.date", "วันที่"),
         ),
       },
       {
@@ -167,7 +165,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({ onRefresh }) => {
         sorter: (a, b) => a.project_name.localeCompare(b.project_name),
         ...getColumnSearchProps(
           "project_name",
-          t("timesheet_components.project_name", "ชื่อโปรเจ็ค")
+          t("timesheet_components.project_name", "ชื่อโปรเจ็ค"),
         ),
       },
       {
@@ -178,7 +176,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({ onRefresh }) => {
           (a.feature_name ?? "").localeCompare(b.feature_name ?? ""),
         ...getColumnSearchProps(
           "feature_name",
-          t("timesheet_components.feature_name", "ชื่อฟีเจอร์")
+          t("timesheet_components.feature_name", "ชื่อฟีเจอร์"),
         ),
       },
       {
@@ -188,13 +186,13 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({ onRefresh }) => {
         render: (value: string) => {
           const label = t(
             `timesheet_components.status_${value.toLowerCase()}`,
-            { defaultValue: value }
+            { defaultValue: value },
           );
           return <Tag color={statusColorMap[value] ?? "default"}>{label}</Tag>;
         },
         ...getColumnSearchProps(
           "status",
-          t("timesheet_components.status", "สถานะ")
+          t("timesheet_components.status", "สถานะ"),
         ),
       },
       {
@@ -205,7 +203,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({ onRefresh }) => {
         render: (v) => <Typography.Text>{v || 0}</Typography.Text>,
         ...getColumnSearchProps(
           "hours",
-          t("timesheet_components.hours_label", "ชั่วโมง")
+          t("timesheet_components.hours_label", "ชั่วโมง"),
         ),
       },
       {
@@ -216,7 +214,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({ onRefresh }) => {
           (a.description ?? "").localeCompare(b.description ?? ""),
         ...getColumnSearchProps(
           "description",
-          t("timesheet_components.description", "คำอธิบาย")
+          t("timesheet_components.description", "คำอธิบาย"),
         ),
       },
       {
@@ -245,7 +243,7 @@ const TimesheetTable: React.FC<TimesheetTableProps> = ({ onRefresh }) => {
         ),
       },
     ],
-    [getColumnSearchProps, t]
+    [getColumnSearchProps, t],
   );
 
   const rowSelection: TableProps<TimesheetEntry>["rowSelection"] = {
