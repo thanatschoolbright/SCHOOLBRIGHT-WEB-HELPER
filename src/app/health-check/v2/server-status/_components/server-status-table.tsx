@@ -436,9 +436,9 @@ const ServerStatusTable: React.FC = () => {
           loading={isFetchingStatus}
           size="large"
           pagination={{
-            pageSize: 15,
+            defaultPageSize: 50,
             showSizeChanger: true,
-            pageSizeOptions: ["10", "15", "25", "50"],
+            pageSizeOptions: ["15", "25", "50", "100"],
             showTotal: (total) => `ทั้งหมด ${total} รายการ`,
             style: { padding: "16px 24px", margin: 0 },
           }}
