@@ -348,92 +348,40 @@ const ServerStatusTable: React.FC = () => {
 
   return (
     <Card
+      title={
+        <Flex justify="space-between" align="center">
+          <Flex align="center" gap={14}>
+            <Flex gap={"middle"} align="center">
+              <UnorderedListOutlined />
+              <Text
+                strong
+                style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.2 }}
+              >
+                รายการประเมินสถานะระบบ
+              </Text>
+            </Flex>
+          </Flex>
+
+          <Flex>
+            <Text style={{ fontSize: 12, color: token.colorTextTertiary }}>
+              แสดง {stats.total} / {serverHealthData.length} รายการ
+            </Text>
+          </Flex>
+        </Flex>
+      }
       variant="outlined"
       styles={{ body: { padding: 0 } }}
-      style={{
-        borderRadius: 16,
-        border: `1px solid ${token.colorBorderSecondary}`,
-        overflow: "hidden",
-      }}
     >
       {/* Card Header */}
       <Flex
-        justify="space-between"
+        justify="flex-end"
         align="center"
         style={{
           padding: "20px 24px",
           borderBottom: `1px solid ${token.colorBorderSecondary}`,
         }}
       >
-        <Flex align="center" gap={14}>
-          <span
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 12,
-              background: `${token.colorPrimary}15`,
-              color: token.colorPrimary,
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 18,
-            }}
-          >
-            <UnorderedListOutlined />
-          </span>
-          <Flex vertical gap={2}>
-            <Text
-              strong
-              style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.2 }}
-            >
-              รายการประเมินสถานะระบบ
-            </Text>
-            <Text style={{ fontSize: 12, color: token.colorTextTertiary }}>
-              แสดง {stats.total} / {serverHealthData.length} รายการ
-            </Text>
-          </Flex>
-          {/* Live pill stats */}
-          <Flex gap={8} style={{ marginLeft: 8 }}>
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                fontSize: 13,
-                fontWeight: 700,
-                padding: "4px 12px",
-                borderRadius: 20,
-                background: token.colorSuccessBg,
-                color: token.colorSuccess,
-                border: `1px solid ${token.colorSuccessBorder}`,
-              }}
-            >
-              <CheckCircleFilled style={{ fontSize: 12 }} />
-              {stats.online} Online
-            </span>
-            {stats.error > 0 && (
-              <span
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  fontSize: 13,
-                  fontWeight: 700,
-                  padding: "4px 12px",
-                  borderRadius: 20,
-                  background: token.colorErrorBg,
-                  color: token.colorError,
-                  border: `1px solid ${token.colorErrorBorder}`,
-                }}
-              >
-                <CloseCircleFilled style={{ fontSize: 12 }} />
-                {stats.error} Error
-              </span>
-            )}
-          </Flex>
-        </Flex>
-
-        <Space size={10}>
+        <Space size={10} align="center">
           <Tooltip title="ส่งออกรายงาน Excel">
             <Button
               icon={<FileExcelOutlined />}
