@@ -21,14 +21,11 @@ import {
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
+import { motion } from "framer-motion";
 import React, { useState } from "react";
-import {
-  TLineGroupItem,
-  sendTestLineReport,
-} from "../_api/school-line-group-service";
+import { TLineGroupItem } from "../_api/school-line-group-service";
 import { useSchoolLineGroupStore } from "../_state/use-school-line-group-store";
 import { BatchSendModal } from "./batch-send-modal";
-import { motion } from "framer-motion";
 
 const { Text } = Typography;
 
@@ -74,39 +71,11 @@ export const SchoolLineGroupTable = () => {
   );
 
   /**
-   * ส่ง LINE ทดสอบไปยังโรงเรียนที่เลือก
+   * ส่ง LINE ทดสอบไปยังโรงเรียนที่เลือก (แบบมี Preview)
    */
   const handleSendLine = async (record: TLineGroupItem) => {
     if (!record.SchoolId) return;
-
-    setSendingId(record.LineGroupId);
-    try {
-      const data = await sendTestLineReport(record.SchoolId);
-      if ((data?.status ?? data?.status_code) === 200) {
-        const schoolLabel = record.school_name_th
-          ? `${record.school_name_th} (${record.SchoolId})`
-          : data.data?.school_name ?? `โรงเรียน ${record.SchoolId}`;
-        setStatusModal({
-          open: true,
-          type: "success",
-          title: "ส่งรายงานสำเร็จ",
-          message: `ส่งรายงานสถานะเครื่องของ${schoolLabel} ไปยัง LINE สำเร็จ`,
-        });
-      } else {
-        throw new Error(data?.message_th ?? "ส่งไม่สำเร็จ");
-      }
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "เกิดข้อผิดพลาด";
-      setStatusModal({
-        open: true,
-        type: "error",
-        title: "ส่งรายงานไม่สำเร็จ",
-        message: "ไม่สามารถส่งรายงานไปยัง LINE ได้ กรุณาตรวจสอบการเชื่อมต่อ",
-        errorDetails: msg,
-      });
-    } finally {
-      setSendingId(null);
-    }
+    useSchoolLineGroupStore.getState().openPreview(record);
   };
 
   /**

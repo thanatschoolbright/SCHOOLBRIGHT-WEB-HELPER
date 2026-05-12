@@ -7,13 +7,14 @@ import { HeaderBar } from "@components/typhography/header-bar-component";
 import { Flex } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
+import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { FilterSection } from "./_components/filter-section";
+import { LinePreviewModal } from "./_components/line-preview-modal";
 import { SchoolLineGroupModal } from "./_components/school-line-group-modal";
 import { SchoolLineGroupTable } from "./_components/school-line-group-table";
 import { SummarySection } from "./_components/summary-section";
 import { useSchoolLineGroupStore } from "./_state/use-school-line-group-store";
-import { motion } from "framer-motion";
 
 dayjs.locale("th");
 
@@ -43,7 +44,7 @@ export default function SchoolLineGroupPage() {
 
   return (
     <DashboardLayout>
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
@@ -58,7 +59,7 @@ export default function SchoolLineGroupPage() {
         <Flex vertical gap={32} style={{ marginTop: 32 }}>
           {/* ส่วนสรุปข้อมูล */}
           <SummarySection />
-          
+
           {/* ส่วนตัวกรองและตารางข้อมูล */}
           <Flex vertical gap={32}>
             <FilterSection />
@@ -68,6 +69,9 @@ export default function SchoolLineGroupPage() {
 
         {/* Modal สำหรับ Create/Update */}
         <SchoolLineGroupModal />
+
+        {/* Modal สำหรับ Preview LINE */}
+        <LinePreviewModal />
 
         {/* Modal สำหรับแสดงสถานะและยืนยันการลบ */}
         <StatusModalComponent

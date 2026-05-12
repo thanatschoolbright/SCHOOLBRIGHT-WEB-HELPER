@@ -24,7 +24,7 @@ dayjs.tz.setDefault("Asia/Bangkok");
  * Design Constants for 2026 Aesthetics
  */
 const BRAND_COLORS = {
-  primary: "#FF8C00", // School Bright Orange
+  primary: "#F97316", // Sunset Orange
   success: "#10B981", // Emerald
   warning: "#F59E0B", // Amber
   error: "#EF4444", // Rose
@@ -43,13 +43,13 @@ const FONTS = {
 
 const SYSTEM_PALETTE = {
   light: {
-    bgLayout: "#F8FAFC",
+    bgLayout: "#FFF7ED",
     bgContainer: "#FFFFFF",
     bgElevated: "#FFFFFF",
-    textMain: "#0F172A",
-    textSub: "#64748B",
-    border: "#F1F5F9",
-    borderSecondary: "#F8FAFC",
+    textMain: "#1C0F00",
+    textSub: "#7C5A3A",
+    border: "#FDE8D0",
+    borderSecondary: "#FFF7ED",
   },
   dark: {
     bgLayout: "#0F172A", // Slate 900 (Brighter than previous Slate 950)
@@ -135,7 +135,7 @@ const getModernTheme = (
         paddingInlineLG: 32,
         borderRadius: 999, // Perfect Capsule Shape
         defaultShadow: "0 2px 0 rgba(0, 0, 0, 0.02)",
-        primaryShadow: "0 4px 12px rgba(255, 140, 0, 0.25)",
+        primaryShadow: "0 4px 12px rgba(249, 115, 22, 0.25)",
         contentFontSize: 14,
         paddingBlock: 8,
       },
@@ -282,18 +282,18 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                  ═══════════════════ */
               .ant-card {
                 background: #ffffff !important;
-                border: 1px solid #e2e8f0 !important;
+                border: 1px solid #fde8d0 !important;
                 box-shadow: none !important;
                 transition: all 0.3s ease !important;
               }
               .ant-card:hover {
-                border-color: #cbd5e1 !important;
+                border-color: #fdba74 !important;
               }
 
               /* Card Header — Light */
               .ant-card .ant-card-head {
-                background: #f8fafc !important;
-                border-bottom: 1px solid #e2e8f0 !important;
+                background: #fff7ed !important;
+                border-bottom: 1px solid #fde8d0 !important;
                 padding-inline: 24px !important;
                 min-height: 52px !important;
               }
@@ -309,11 +309,11 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
 
               /* Card Actions — Light */
               .ant-card .ant-card-actions {
-                background: #f8fafc !important;
-                border-top: 1px solid #e2e8f0 !important;
+                background: #fff7ed !important;
+                border-top: 1px solid #fde8d0 !important;
               }
               .ant-card .ant-card-actions > li > span:hover {
-                color: #ff8c00 !important;
+                color: #f97316 !important;
               }
 
               /* ══════════════════
@@ -372,8 +372,8 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
 
               /* Smooth selection color */
               ::selection {
-                background: rgba(255, 140, 0, 0.2);
-                color: #ff8c00;
+                background: rgba(249, 115, 22, 0.2);
+                color: #f97316;
               }
 
               /* ══════════════════════════════
@@ -437,8 +437,8 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                 background-color: transparent !important;
               }
               .ant-timeline .ant-timeline-item-head-blue {
-                border-color: #ff8c00 !important;
-                color: #ff8c00 !important;
+                border-color: #f97316 !important;
+                color: #f97316 !important;
               }
 
               /* ══════════════════════════════

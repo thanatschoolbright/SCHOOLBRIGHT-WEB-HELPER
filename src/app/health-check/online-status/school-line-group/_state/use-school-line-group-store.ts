@@ -2,10 +2,12 @@ import { create } from "zustand";
 import {
   SchoolOption,
   TLineGroupItem,
+  fetchSchoolOptions as apiFetchSchoolOptions,
   createSchoolLineGroup,
   deleteSchoolLineGroup,
   fetchSchoolLineGroups,
-  fetchSchoolOptions as apiFetchSchoolOptions,
+  fetchTestLinePreview,
+  sendTestLineReport,
   updateSchoolLineGroup,
 } from "../_api/school-line-group-service";
 
@@ -24,6 +26,7 @@ interface SchoolLineGroupState {
   };
   filterSchoolId: number | undefined;
   sendingId: number | null;
+  sendProgress: number;
   deleteId: number | null;
   statusModal: {
     open: boolean;
@@ -31,6 +34,13 @@ interface SchoolLineGroupState {
     title: string;
     message: string;
     errorDetails?: unknown;
+  };
+
+  // Preview State
+  previewModal: {
+    open: boolean;
+    data: any | null;
+    loading: boolean;
   };
 
   // CRUD State
@@ -42,6 +52,7 @@ interface SchoolLineGroupState {
   fetchSchoolOptions: () => Promise<void>;
   setFilterSchoolId: (id: number | undefined) => void;
   setSendingId: (id: number | null) => void;
+  setSendProgress: (p: number) => void;
   setDeleteId: (id: number | null) => void;
   setStatusModal: (modal: {
     open: boolean;
@@ -51,6 +62,11 @@ interface SchoolLineGroupState {
     errorDetails?: unknown;
   }) => void;
   closeModal: () => void;
+
+  // Preview Actions
+  openPreview: (item: TLineGroupItem) => Promise<void>;
+  closePreview: () => void;
+  confirmSend: () => Promise<void>;
 
   // CRUD Actions
   openCreateModal: () => void;
@@ -81,6 +97,7 @@ export const useSchoolLineGroupStore = create<SchoolLineGroupState>(
     },
     filterSchoolId: undefined,
     sendingId: null,
+    sendProgress: 0,
     deleteId: null,
     statusModal: {
       open: false,
@@ -88,6 +105,13 @@ export const useSchoolLineGroupStore = create<SchoolLineGroupState>(
       title: "",
       message: "",
       errorDetails: undefined,
+    },
+
+    // Preview State
+    previewModal: {
+      open: false,
+      data: null,
+      loading: false,
     },
 
     isModalOpen: false,
@@ -109,6 +133,7 @@ export const useSchoolLineGroupStore = create<SchoolLineGroupState>(
 
     setFilterSchoolId: (id) => set({ filterSchoolId: id }),
     setSendingId: (id) => set({ sendingId: id }),
+    setSendProgress: (p) => set({ sendProgress: p }),
     /**
      * ตั้งค่าข้อมูล Modal สถานะ
      */
@@ -126,6 +151,103 @@ export const useSchoolLineGroupStore = create<SchoolLineGroupState>(
     setDeleteId: (id: number | null) => set({ deleteId: id }),
     closeModal: () =>
       set((state) => ({ statusModal: { ...state.statusModal, open: false } })),
+
+    // Preview Actions
+    openPreview: async (item) => {
+      set({
+        previewModal: { open: true, data: null, loading: true },
+        sendingId: item.SchoolId,
+      });
+      try {
+        const res = await fetchTestLinePreview(item.SchoolId);
+        // ✨ เข้าถึง res.data.data เพราะ successResponse คืนค่า { status, data, ... }
+        set((state) => ({
+          previewModal: {
+            ...state.previewModal,
+            data: res.data,
+            loading: false,
+          },
+        }));
+      } catch (error: any) {
+        set({
+          previewModal: { open: false, data: null, loading: false },
+          statusModal: {
+            open: true,
+            type: "error",
+            title: "เกิดข้อผิดพลาด",
+            message:
+              error?.response?.data?.message_th ||
+              "ไม่สามารถดึงข้อมูล Preview ได้",
+            errorDetails: error?.response?.data || error,
+          },
+        });
+      }
+    },
+
+    closePreview: () =>
+      set({
+        previewModal: { open: false, data: null, loading: false },
+        sendingId: null,
+      }),
+
+    confirmSend: async () => {
+      const schoolId = get().sendingId;
+      if (!schoolId) return;
+
+      // ✨ จำลอง Progress
+      set({
+        previewModal: { ...get().previewModal, open: false },
+        sendProgress: 1,
+      });
+
+      const interval = setInterval(() => {
+        set((state) => {
+          if (state.sendProgress >= 90) {
+            clearInterval(interval);
+            return state;
+          }
+          return {
+            sendProgress:
+              state.sendProgress + Math.floor(Math.random() * 15) + 5,
+          };
+        });
+      }, 200);
+
+      try {
+        await sendTestLineReport(schoolId);
+        clearInterval(interval);
+        set({ sendProgress: 100 });
+
+        // หน่วงเวลาเล็กน้อยให้เห็น 100%
+        setTimeout(() => {
+          set({
+            sendProgress: 0,
+            sendingId: null,
+            statusModal: {
+              open: true,
+              type: "success",
+              title: "ส่งข้อมูลสำเร็จ",
+              message: "ส่งรายงานสถานะเครื่องไปยัง LINE เรียบร้อยแล้ว",
+            },
+          });
+        }, 500);
+      } catch (error: any) {
+        clearInterval(interval);
+        set({
+          sendProgress: 0,
+          sendingId: null,
+          statusModal: {
+            open: true,
+            type: "error",
+            title: "เกิดข้อผิดพลาด",
+            message:
+              error?.response?.data?.message_th ||
+              "ไม่สามารถส่งข้อมูลไปยัง LINE ได้",
+            errorDetails: error,
+          },
+        });
+      }
+    },
 
     openCreateModal: () =>
       set({ isModalOpen: true, modalMode: "create", editItem: null }),

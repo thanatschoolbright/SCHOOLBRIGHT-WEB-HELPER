@@ -95,6 +95,16 @@ export const deleteSchoolLineGroup = async (line_group_id: number) => {
 };
 
 /**
+ * ดึง Preview รายงานสถานะเครื่องของโรงเรียน (โดยไม่ส่งจริง)
+ */
+export const fetchTestLinePreview = async (school_id: number) => {
+  const res = await callApiService.get(
+    `/api/v1/hardware/machine-monitoring/channel/line/${school_id}/preview`,
+  );
+  return res.data;
+};
+
+/**
  * ดึงรายชื่อโรงเรียนทั้งหมดสำหรับใช้ใน Dropdown
  */
 export const fetchSchoolOptions = async (): Promise<SchoolOption[]> => {
@@ -102,7 +112,9 @@ export const fetchSchoolOptions = async (): Promise<SchoolOption[]> => {
   const rawList: any[] = res.data?.data?.data ?? [];
   return rawList.map((item: any) => ({
     value: item.school_id ?? item.SchoolID ?? 0,
-    label: `[${item.school_id ?? item.SchoolID}] ${item.SchoolName ?? item.company_name ?? ""}`,
+    label: `[${item.school_id ?? item.SchoolID}] ${
+      item.SchoolName ?? item.company_name ?? ""
+    }`,
   }));
 };
 
