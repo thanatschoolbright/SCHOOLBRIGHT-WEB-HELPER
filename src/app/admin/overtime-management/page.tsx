@@ -139,23 +139,40 @@ export default function AdminOvertimeManagementPage() {
       userId?: string | null;
       dateRange?: [string, string] | null;
     }) => {
+      // อ่านค่า filter ปัจจุบันจาก store เพื่อคงสภาพตัวกรองไว้เมื่อเปลี่ยนหน้าหรือ refresh
+      const storeState = useAdminOvertimeStore.getState();
+
       const page = params?.page ?? 1;
       const pageSize = params?.pageSize ?? pagination.pageSize;
 
+      // ใช้ค่าจาก params ถ้ามี มิฉะนั้นใช้ค่าจาก store (เพื่อไม่ให้ filter หายเมื่อ refresh)
+      const effectiveStatus =
+        "status" in (params ?? {}) ? params!.status : storeState.filterStatus;
+      const effectiveUserId =
+        "userId" in (params ?? {}) ? params!.userId : storeState.filterUserId;
+      const effectiveDateRange =
+        "dateRange" in (params ?? {})
+          ? params!.dateRange
+          : storeState.filterDateRange;
+      const effectiveSearchText =
+        "searchText" in (params ?? {})
+          ? params!.searchText
+          : storeState.filterSearchText || undefined;
+
       setIsLoading(true);
       try {
-        const body: any = {
+        const body: Record<string, unknown> = {
           limit: pageSize,
           offset: (page - 1) * pageSize,
         };
 
-        if (params?.status) body.status = params.status;
-        if (params?.userId) body.request_id = params.userId;
-        if (params?.dateRange) {
-          body.from = params.dateRange[0];
-          body.to = params.dateRange[1];
+        if (effectiveStatus) body.status = effectiveStatus;
+        if (effectiveUserId) body.request_id = effectiveUserId;
+        if (effectiveDateRange) {
+          body.from = effectiveDateRange[0];
+          body.to = effectiveDateRange[1];
         }
-        if (params?.searchText) body.search = params.searchText;
+        if (effectiveSearchText) body.search = effectiveSearchText;
 
         const res = await callApiService.post(
           "/api/v1/timesheet/overtime/read",
@@ -636,13 +653,23 @@ export default function AdminOvertimeManagementPage() {
                     }</td>
                     <td>${
                       descriptionItem.start_date
-                        ? `<div class="ot-time-cell"><span class="ot-time-date">${formatDateThai(descriptionItem.start_date)}</span><span class="ot-time-hour">${dayjs(descriptionItem.start_date).format("HH:00")}</span></div>`
+                        ? `<div class="ot-time-cell"><span class="ot-time-date">${formatDateThai(
+                            descriptionItem.start_date,
+                          )}</span><span class="ot-time-hour">${dayjs(
+                            descriptionItem.start_date,
+                          ).format("HH:00")}</span></div>`
                         : "-"
                     }</td>
                     <td>${(() => {
                       if (!descriptionItem.end_date) return "-";
-                      const endAdjusted = dayjs(descriptionItem.end_date).add(1, "hour").startOf("hour");
-                      return `<div class="ot-time-cell"><span class="ot-time-date">${formatDateThai(endAdjusted.toISOString())}</span><span class="ot-time-hour">${endAdjusted.format("HH:00")}</span></div>`;
+                      const endAdjusted = dayjs(descriptionItem.end_date)
+                        .add(1, "hour")
+                        .startOf("hour");
+                      return `<div class="ot-time-cell"><span class="ot-time-date">${formatDateThai(
+                        endAdjusted.toISOString(),
+                      )}</span><span class="ot-time-hour">${endAdjusted.format(
+                        "HH:00",
+                      )}</span></div>`;
                     })()}</td>
                     <td style="font-weight:600">${formatDurationToDecimal(
                       diffMinutes,
@@ -747,12 +774,20 @@ export default function AdminOvertimeManagementPage() {
                       }</td>
                       <td>${
                         descriptionItem.start_date
-                          ? `<div class="ot-time-cell"><span class="ot-time-date">${formatDateThai(descriptionItem.start_date)}</span><span class="ot-time-hour">${dayjs(descriptionItem.start_date).format("HH:mm")}</span></div>`
+                          ? `<div class="ot-time-cell"><span class="ot-time-date">${formatDateThai(
+                              descriptionItem.start_date,
+                            )}</span><span class="ot-time-hour">${dayjs(
+                              descriptionItem.start_date,
+                            ).format("HH:mm")}</span></div>`
                           : "-"
                       }</td>
                       <td>${
                         descriptionItem.end_date
-                          ? `<div class="ot-time-cell"><span class="ot-time-date">${formatDateThai(descriptionItem.end_date)}</span><span class="ot-time-hour">${dayjs(descriptionItem.end_date).format("HH:mm")}</span></div>`
+                          ? `<div class="ot-time-cell"><span class="ot-time-date">${formatDateThai(
+                              descriptionItem.end_date,
+                            )}</span><span class="ot-time-hour">${dayjs(
+                              descriptionItem.end_date,
+                            ).format("HH:mm")}</span></div>`
                           : "-"
                       }</td>
                       <td style="font-weight:600">${formatDurationToDecimal(
