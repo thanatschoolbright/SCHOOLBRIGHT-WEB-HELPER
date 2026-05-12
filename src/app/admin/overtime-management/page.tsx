@@ -15,7 +15,6 @@ import { useAppSelector } from "@/stores/store";
 import {
   BarChartOutlined,
   DollarOutlined,
-  DownOutlined,
   FileExcelOutlined,
   ReloadOutlined,
   SettingOutlined,
@@ -1105,9 +1104,7 @@ export default function AdminOvertimeManagementPage() {
                     ],
                   }}
                 >
-                  <Button size="middle" icon={<BarChartOutlined />}>
-                    รายงาน <DownOutlined style={{ fontSize: "0.7rem" }} />
-                  </Button>
+                  <Button size="middle" icon={<BarChartOutlined />} />
                 </Dropdown>
 
                 {/* กลุ่ม: การดำเนินการ */}
@@ -1131,9 +1128,7 @@ export default function AdminOvertimeManagementPage() {
                     ],
                   }}
                 >
-                  <Button size="middle" icon={<SettingOutlined />}>
-                    การดำเนินการ <DownOutlined style={{ fontSize: "0.7rem" }} />
-                  </Button>
+                  <Button size="middle" icon={<SettingOutlined />} />
                 </Dropdown>
 
                 {/* ปุ่มรีเฟรช */}
@@ -1141,9 +1136,7 @@ export default function AdminOvertimeManagementPage() {
                   icon={<ReloadOutlined />}
                   size="middle"
                   onClick={() => loadOvertimeData({ page: 1 })}
-                >
-                  รีเฟรช
-                </Button>
+                />
               </Space>
             }
           />
