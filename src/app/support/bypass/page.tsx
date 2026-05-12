@@ -459,10 +459,17 @@ export default function BypassPage(): JSX.Element {
         render: (_: unknown, record: SchoolDetail) => {
           const schoolId = Number(record.school_id);
           const override = schoolStatusOverrides[schoolId];
-          const active = override !== undefined ? override.active : record.db_active;
-          const isActive = override !== undefined ? override.isActive : (
-            record.db_is_active ?? (record.isActive === "active" ? true : record.isActive === "inactive" ? false : null)
-          );
+          const active =
+            override !== undefined ? override.active : record.db_active;
+          const isActive =
+            override !== undefined
+              ? override.isActive
+              : record.db_is_active ??
+                (record.isActive === "active"
+                  ? true
+                  : record.isActive === "inactive"
+                  ? false
+                  : null);
           return (
             <Flex vertical gap={4} align="center">
               <Flex gap={4}>
@@ -634,18 +641,19 @@ export default function BypassPage(): JSX.Element {
           </motion.div>
 
           <Card
-            styles={{ body: { padding: 24 } }}
-            className="border-none shadow-sm overflow-hidden relative"
-          >
-            <div className="absolute top-0 left-0 w-1 h-full bg-orange-500/50" />
-            <Flex vertical gap={24}>
+            title={
               <Flex align="center" gap={8}>
                 <FilterOutlined style={{ fontSize: "1rem" }} />
                 <Text strong style={{ fontSize: 14 }}>
                   {translate("bypass_page.filter_title")}
                 </Text>
               </Flex>
-
+            }
+            style={{ body: { padding: 24 } }}
+            className="border-none shadow-sm overflow-hidden relative"
+          >
+            <div className="absolute top-0 left-0 w-1 h-full bg-orange-500/50" />
+            <Flex vertical gap={24}>
               <Row gutter={[16, 12]}>
                 {/* Dropdown ค้นหาโรงเรียน — full width */}
                 <Col xs={24}>
@@ -831,6 +839,28 @@ export default function BypassPage(): JSX.Element {
             transition={{ delay: 0.4 }}
           >
             <Card
+              title={
+                <Flex
+                  align="center"
+                  gap={"middle"}
+                  style={{
+                    padding: "0.5rem",
+                  }}
+                >
+                  <div className="p-2 rounded-xl bg-orange-500/10 text-orange-500">
+                    <UnorderedListOutlined style={{ fontSize: "1.2rem" }} />
+                  </div>
+                  <Flex vertical gap={2}>
+                    <Text strong style={{ fontSize: 16, margin: 0 }}>
+                      {translate("bypass_page.table_title")}
+                    </Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      พบข้อมูลทั้งหมด {filteredSchoolsWithOverrides.length}{" "}
+                      รายการ
+                    </Text>
+                  </Flex>
+                </Flex>
+              }
               variant="borderless"
               styles={{ body: { padding: 16 } }}
               className="group"
@@ -841,21 +871,6 @@ export default function BypassPage(): JSX.Element {
             >
               <Flex vertical gap={16}>
                 <Flex justify="space-between" align="center">
-                  <Flex align="center" gap={12}>
-                    <div className="p-2 rounded-xl bg-orange-500/10 text-orange-500">
-                      <UnorderedListOutlined style={{ fontSize: "1.2rem" }} />
-                    </div>
-                    <Flex vertical gap={2}>
-                      <Text strong style={{ fontSize: 16, margin: 0 }}>
-                        {translate("bypass_page.table_title")}
-                      </Text>
-                      <Text type="secondary" style={{ fontSize: 12 }}>
-                        พบข้อมูลทั้งหมด {filteredSchoolsWithOverrides.length}{" "}
-                        รายการ
-                      </Text>
-                    </Flex>
-                  </Flex>
-
                   <Flex gap={8}>
                     <Button
                       onClick={() => {
@@ -946,7 +961,9 @@ export default function BypassPage(): JSX.Element {
         <SchoolStatusModal
           open={schoolStatusModalState.open}
           school={schoolStatusModalState.school}
-          onClose={() => setSchoolStatusModalState({ open: false, school: null })}
+          onClose={() =>
+            setSchoolStatusModalState({ open: false, school: null })
+          }
           onSuccess={(schoolId, active, isActive) => {
             setSchoolStatusOverrides((prev) => ({
               ...prev,
