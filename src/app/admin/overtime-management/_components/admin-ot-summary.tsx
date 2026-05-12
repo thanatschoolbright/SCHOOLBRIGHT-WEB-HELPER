@@ -46,7 +46,8 @@ const AdminOtSummary: React.FC = () => {
 
   return (
     <Row gutter={[16, 16]}>
-      <Col xs={24} sm={12} lg={4}>
+      {/* Row 1 — สถานะคำขอ */}
+      <Col xs={24} sm={12} lg={8}>
         <SummaryCard
           title="คำขอทั้งหมด"
           value={totalRecords}
@@ -54,7 +55,7 @@ const AdminOtSummary: React.FC = () => {
           isLoading={isLoading}
         />
       </Col>
-      <Col xs={24} sm={12} lg={4}>
+      <Col xs={24} sm={12} lg={8}>
         <SummaryCard
           title="รออนุมัติ"
           value={stats.pending}
@@ -63,7 +64,7 @@ const AdminOtSummary: React.FC = () => {
           color={stats.pending > 0 ? "warning" : undefined}
         />
       </Col>
-      <Col xs={24} sm={12} lg={4}>
+      <Col xs={24} sm={12} lg={8}>
         <SummaryCard
           title="อนุมัติแล้ว"
           value={stats.approved}
@@ -72,7 +73,9 @@ const AdminOtSummary: React.FC = () => {
           color="success"
         />
       </Col>
-      <Col xs={24} sm={12} lg={4}>
+
+      {/* Row 2 — ข้อมูลเพิ่มเติม */}
+      <Col xs={24} sm={12} lg={8}>
         <SummaryCard
           title="ปฏิเสธ"
           value={stats.rejected}
@@ -81,7 +84,7 @@ const AdminOtSummary: React.FC = () => {
           color={stats.rejected > 0 ? "error" : undefined}
         />
       </Col>
-      <Col xs={24} sm={12} lg={4}>
+      <Col xs={24} sm={12} lg={8}>
         <SummaryCard
           title="ชั่วโมง OT รวม"
           value={`${stats.approvedHours.toFixed(1)} ชม.`}
@@ -89,7 +92,7 @@ const AdminOtSummary: React.FC = () => {
           isLoading={isLoading}
         />
       </Col>
-      <Col xs={24} sm={12} lg={4}>
+      <Col xs={24} sm={12} lg={8}>
         <SummaryCard
           title="พนักงานที่ขอ OT"
           value={`${stats.uniqueUsers} คน`}
