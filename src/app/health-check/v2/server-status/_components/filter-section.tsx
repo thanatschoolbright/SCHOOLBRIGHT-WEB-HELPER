@@ -5,7 +5,17 @@ import {
   FilterOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import { Button, Col, Flex, Input, Row, Select, Space, Typography, theme } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Flex,
+  Input,
+  Row,
+  Select,
+  Typography,
+  theme,
+} from "antd";
 import React, { useMemo } from "react";
 import { useServerStatusStore } from "../_state/server-status-store";
 
@@ -57,22 +67,16 @@ const FilterSection: React.FC = () => {
   ];
 
   return (
-    <div
-      style={{
-        marginBottom: 24,
-        padding: "24px",
-        background: token.colorBgContainer,
-        borderRadius: 12,
-        border: `1px solid ${token.colorBorderSecondary}`,
-      }}
+    <Card
+      title={
+        <Flex gap={"small"}>
+          <FilterOutlined style={{ fontSize: "1rem" }} />
+          <Text strong style={{ fontSize: "1rem", fontWeight: 600 }}>
+            ตัวกรองข้อมูลสถานะ
+          </Text>
+        </Flex>
+      }
     >
-      <Space align="center" style={{ marginBottom: 16 }}>
-        <FilterOutlined style={{ fontSize: "1rem", color: "#1677ff" }} />
-        <Text strong style={{ fontSize: "1rem", fontWeight: 600 }}>
-          ตัวกรองข้อมูลสถานะ
-        </Text>
-      </Space>
-
       <Row gutter={[24, 16]}>
         <Col xs={24} md={12}>
           <Text type="secondary" style={{ display: "block", marginBottom: 8 }}>
@@ -148,7 +152,7 @@ const FilterSection: React.FC = () => {
           </Flex>
         </Col>
       </Row>
-    </div>
+    </Card>
   );
 };
 
