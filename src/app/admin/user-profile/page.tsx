@@ -11,15 +11,7 @@ import {
   TeamOutlined,
 } from "@ant-design/icons";
 
-import {
-  Button,
-  Col,
-  Modal,
-  Row,
-  Space,
-  theme,
-  Typography,
-} from "antd";
+import { Button, Col, Modal, Row, Space, theme, Typography } from "antd";
 import { useEffect } from "react";
 
 import SummaryCard from "@/components/card/summary-card";
@@ -114,24 +106,18 @@ export default function UserManagementPage() {
                 onClick={fetchInitialData}
                 icon={<ReloadOutlined />}
                 shape="round"
-              >
-                รีเฟรช
-              </Button>
+              ></Button>
               <Button
                 type="primary"
                 icon={<CloudSyncOutlined />}
                 onClick={() => setSyncModalOpen(true)}
                 shape="round"
-              >
-                ซิงค์ข้อมูลชุดเก่า
-              </Button>
+              ></Button>
               <Button
                 icon={<SolutionOutlined />}
                 onClick={() => setRoleDrawerOpen(true)}
                 shape="round"
-              >
-                จัดการบทบาท
-              </Button>
+              ></Button>
             </Space>
           }
         />
