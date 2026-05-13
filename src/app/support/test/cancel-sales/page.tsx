@@ -18,7 +18,6 @@ import { callApiService as axios } from "@services/axios-instance/sb-helper.axio
 import type { SelectProps } from "antd";
 import {
   Alert,
-  Badge,
   Button,
   Card,
   Col,
@@ -47,6 +46,7 @@ import {
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 
+import { HeaderBar } from "@/components/typhography/header-bar-component";
 import { CallAPI } from "@/stores/actions/call-cancel-sales";
 import { CallAPI as GET_SCHOOL_LIST } from "@/stores/actions/support/call-get-school-list-detail";
 import AiChatWidget, {
@@ -55,7 +55,6 @@ import AiChatWidget, {
 import DashboardLayout from "@components/layouts/backend-layout";
 import { AppDispatch, useAppSelector } from "@stores/store";
 import { CancelSalesState, ResponseUserList } from "@stores/type";
-import { HeaderBar } from "@/components/typhography/header-bar-component";
 
 interface CancellationLog {
   endpoint: string;
@@ -75,23 +74,24 @@ interface CancellationLog {
   timestamp: number;
 }
 
-interface ExtractedCancellationInfo extends Partial<
-  Pick<
-    CancellationExtraction,
-    | "schoolId"
-    | "schoolName"
-    | "schoolNameEN"
-    | "buyerName"
-    | "buyerLastName"
-    | "buyerUserId"
-    | "buyerIdentifier"
-    | "sellerName"
-    | "sellerLastName"
-    | "sellerUserId"
-    | "sellerIdentifier"
-    | "sSellId"
-  >
-> {}
+interface ExtractedCancellationInfo
+  extends Partial<
+    Pick<
+      CancellationExtraction,
+      | "schoolId"
+      | "schoolName"
+      | "schoolNameEN"
+      | "buyerName"
+      | "buyerLastName"
+      | "buyerUserId"
+      | "buyerIdentifier"
+      | "sellerName"
+      | "sellerLastName"
+      | "sellerUserId"
+      | "sellerIdentifier"
+      | "sSellId"
+    >
+  > {}
 
 interface DropdownOption {
   label: string;
@@ -845,6 +845,7 @@ export default function Page() {
                                     placeholder="ระบุรหัสผู้ซื้อ"
                                     size="large"
                                     options={userList}
+                                    optionFilterProp="label"
                                     disabled={!selectedSchoolId}
                                     loading={isFetchingUsers}
                                   />
@@ -872,6 +873,7 @@ export default function Page() {
                                     placeholder="ระบุรหัสผู้ขาย"
                                     size="large"
                                     options={userList}
+                                    optionFilterProp="label"
                                     disabled={!selectedSchoolId}
                                     loading={isFetchingUsers}
                                   />
