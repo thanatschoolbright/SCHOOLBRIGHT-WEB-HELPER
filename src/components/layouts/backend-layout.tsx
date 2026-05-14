@@ -76,76 +76,17 @@ export default function BackendLayout({
       className="min-h-screen relative"
       style={{
         background: token.colorBgLayout,
-        transition: "background 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
         overflow: "visible",
       }}
     >
       <style jsx global>{`
-        @keyframes blob-float {
-          0%,
-          100% {
-            transform: translate(0, 0) scale(1);
-          }
-          33% {
-            transform: translate(40px, -60px) scale(1.15);
-          }
-          66% {
-            transform: translate(-30px, 40px) scale(0.95);
-          }
-        }
         .modern-glass {
-          background: rgba(255, 255, 255, 0.5) !important;
-          backdrop-filter: blur(12px) saturate(180%);
-          -webkit-backdrop-filter: blur(12px) saturate(180%);
-        }
-        .dark .modern-glass {
-          background: rgba(28, 28, 30, 0.25) !important;
+          background: var(--bg-container) !important;
         }
         .layout-transition {
-          transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
-        }
-        .background-blobs {
-          position: fixed;
-          inset: 0;
-          pointer-events: none;
-          z-index: 0;
-          overflow: hidden;
-        }
-        .blob {
-          position: absolute;
-          border-radius: 50%;
-          filter: blur(120px);
-          opacity: 0.15;
-          animation: blob-float 20s infinite alternate ease-in-out;
+          transition: none !important;
         }
       `}</style>
-
-      {/* Decorative Background Elements */}
-      <div className="background-blobs">
-        <div
-          className="blob"
-          style={{
-            top: "-10%",
-            right: "-5%",
-            width: "50vw",
-            height: "50vw",
-            background: token.colorPrimary,
-            animationDuration: "25s",
-          }}
-        />
-        <div
-          className="blob"
-          style={{
-            bottom: "-10%",
-            left: "-5%",
-            width: "45vw",
-            height: "45vw",
-            background: token.colorSuccess,
-            animationDelay: "-7s",
-            animationDuration: "30s",
-          }}
-        />
-      </div>
 
       {/* Sidebar for Desktop */}
       {isDesktop && (
