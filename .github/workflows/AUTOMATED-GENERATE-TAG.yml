@@ -26,7 +26,7 @@ jobs:
     timeout-minutes: 5
 
     env:
-      SYSTEM_NAME: schoolbright-sb-web-helper
+      SYSTEM_NAME: sb-web-helper
       META_REPO: Jabjai-Corporation/meta-version
       TARGET_FILE: meta-version/version-control.tag.json
 
@@ -69,7 +69,7 @@ jobs:
 
           # 2. ใช้ jq อ่านไฟล์เก่า (TARGET_FILE) และไฟล์ใหม่ (raw_releases.json) มา Merge กัน
           # --slurpfile จะอ่านไฟล์ raw_releases.json เข้ามาเป็นตัวแปร $new_releases (อยู่ในรูป array of array)
-          
+
           jq -c \
             --arg system "${{ env.SYSTEM_NAME }}" \
             --arg update_time "$(date -Iseconds)" \
@@ -82,7 +82,7 @@ jobs:
             # ส่วนที่ 2: แปลงข้อมูลใหม่จาก raw_releases (index 0 เพราะ slurpfile ห่อมาชั้นนึง)
             ($new_releases[0] | map({
               system: $system,
-              tag: (.tag_name | sub("^v"; "")), 
+              tag: (.tag_name | sub("^v"; "")),
               title: (.name // (.tag_name | sub("^v"; ""))),
               release_date: .published_at,
               type: (if .prerelease then "beta" else "production" end),

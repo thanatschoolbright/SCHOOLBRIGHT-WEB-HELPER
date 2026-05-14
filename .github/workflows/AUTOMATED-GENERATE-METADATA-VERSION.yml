@@ -25,7 +25,7 @@ jobs:
     timeout-minutes: 5 # ป้องกัน job ค้างนานเกินจำเป็น
 
     env:
-      SYSTEM_NAME: schoolbright-sb-web-helper
+      SYSTEM_NAME: sb-web-helper
       META_REPO: Jabjai-Corporation/meta-version
       VERSION_FILE_PATH: meta-version/system.version.json
 
@@ -55,10 +55,10 @@ jobs:
           # Commit Info
           echo "message=$(git log -1 --pretty=%s)" >> $GITHUB_OUTPUT
           echo "author=$(git log -1 --pretty=format:'%an')" >> $GITHUB_OUTPUT
-          
+
           # Time
           echo "time=$(date -Iseconds)" >> $GITHUB_OUTPUT
-          
+
           # Build SHA
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
@@ -72,7 +72,7 @@ jobs:
         id: envmap
         run: |
           FULL_BRANCH="${GITHUB_REF#refs/heads/}"
-          
+
           if [[ "$FULL_BRANCH" == "release/production" ]]; then
             ENV="production"
           elif [[ "$FULL_BRANCH" == "release/beta" ]]; then
@@ -80,7 +80,7 @@ jobs:
           else
             ENV="development"
           fi
-          
+
           echo "env=$ENV" >> $GITHUB_OUTPUT
           echo "branch=$FULL_BRANCH" >> $GITHUB_OUTPUT
 
@@ -92,7 +92,7 @@ jobs:
         shell: bash
         run: |
           FILE="${{ env.VERSION_FILE_PATH }}"
-          
+
           # Ensure file exists
           if [ ! -f "$FILE" ]; then echo "[]" > "$FILE"; fi
 
@@ -126,7 +126,7 @@ jobs:
             --arg sys "${{ env.SYSTEM_NAME }}" \
             'map(select(.environment != $env or .system != $sys)) + [$new]' \
             "$FILE" > "${FILE}.tmp" && mv "${FILE}.tmp" "$FILE"
-          
+
           # Validation: Check if JSON is valid before committing
           if jq -e . "$FILE" >/dev/null 2>&1; then
             echo "✅ JSON is valid."
@@ -144,20 +144,20 @@ jobs:
           cd meta-version
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           git add system.version.json
-          
+
           # Check if there are changes
           if git diff --staged --quiet; then
             echo "status=no_changes" >> $GITHUB_OUTPUT
             echo "⚠️ No changes detected in version file."
           else
             git commit -m "CI: Update ${{ steps.envmap.outputs.env }} metadata for ${{ env.SYSTEM_NAME }}"
-            
+
             # Enterprise Safety: Pull Rebase to prevent conflicts with other concurrent runners
             git pull --rebase origin main
             git push origin main
-            
+
             echo "status=success" >> $GITHUB_OUTPUT
           fi
 
@@ -178,7 +178,7 @@ jobs:
           echo "👤 Deployed By  : ${{ steps.meta.outputs.author }}"
           echo "🕒 Timestamp    : ${{ steps.meta.outputs.time }}"
           echo "--------------------------------------------------------"
-          
+
           if [[ "${{ steps.deploy.outputs.status }}" == "success" ]]; then
              echo "✅ STATUS       : SUCCESS (Metadata Updated)"
           elif [[ "${{ steps.deploy.outputs.status }}" == "no_changes" ]]; then
