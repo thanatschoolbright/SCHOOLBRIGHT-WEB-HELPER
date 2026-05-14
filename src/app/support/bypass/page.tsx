@@ -66,8 +66,17 @@ const generateAvatarColor = (
   tokenMap: Record<string, string>,
 ): string => {
   const keys = [
-    "red6", "volcano6", "orange6", "gold6", "lime6",
-    "green6", "cyan6", "blue6", "geekblue6", "purple6", "magenta6",
+    "red6",
+    "volcano6",
+    "orange6",
+    "gold6",
+    "lime6",
+    "green6",
+    "cyan6",
+    "blue6",
+    "geekblue6",
+    "purple6",
+    "magenta6",
   ];
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
@@ -100,7 +109,11 @@ export default function BypassPage(): JSX.Element {
     const merged = bypassState.schoolDetails.map((school) => {
       const override = schoolStatusOverrides[Number(school.school_id)];
       if (!override) return school;
-      return { ...school, db_active: override.active, db_is_active: override.isActive };
+      return {
+        ...school,
+        db_active: override.active,
+        db_is_active: override.isActive,
+      };
     });
     return filterSchools(merged, bypassState.filters);
   }, [bypassState.schoolDetails, bypassState.filters, schoolStatusOverrides]);
@@ -129,7 +142,11 @@ export default function BypassPage(): JSX.Element {
         align: "center",
         sorter: (a, b) => Number(a.school_id) - Number(b.school_id),
         render: (id) => (
-          <Tag color="geekblue" bordered={false} style={{ margin: 0, fontWeight: 600 }}>
+          <Tag
+            color="geekblue"
+            bordered={false}
+            style={{ margin: 0, fontWeight: 600 }}
+          >
             {id}
           </Tag>
         ),
@@ -138,7 +155,8 @@ export default function BypassPage(): JSX.Element {
         title: translate("bypass_page.col_institution"),
         key: "school",
         width: 300,
-        sorter: (a, b) => (a.company_name ?? "").localeCompare(b.company_name ?? ""),
+        sorter: (a, b) =>
+          (a.company_name ?? "").localeCompare(b.company_name ?? ""),
         render: (_, record) => (
           <Flex align="center" gap={12}>
             <Avatar
@@ -159,7 +177,8 @@ export default function BypassPage(): JSX.Element {
                 {record.company_name}
               </Text>
               <Text type="secondary" style={{ fontSize: 11 }}>
-                {translate("bypass_page.col_school_code")}: {record.school_code || "-"}
+                {translate("bypass_page.col_school_code")}:{" "}
+                {record.school_code || "-"}
               </Text>
             </Flex>
           </Flex>
@@ -179,10 +198,15 @@ export default function BypassPage(): JSX.Element {
         title: translate("bypass_page.col_type_level"),
         key: "type_class",
         width: 160,
-        sorter: (a, b) => (a.school_type ?? "").localeCompare(b.school_type ?? ""),
+        sorter: (a, b) =>
+          (a.school_type ?? "").localeCompare(b.school_type ?? ""),
         render: (_, record) => (
           <Flex vertical gap={4}>
-            <Tag color="cyan" bordered={false} style={{ margin: 0, fontSize: 11, width: "fit-content" }}>
+            <Tag
+              color="cyan"
+              bordered={false}
+              style={{ margin: 0, fontSize: 11, width: "fit-content" }}
+            >
               {record.school_type || translate("bypass_page.not_specified")}
             </Tag>
             <Text type="secondary" style={{ fontSize: 11 }}>
@@ -199,11 +223,15 @@ export default function BypassPage(): JSX.Element {
         render: (_, record) => (
           <Flex vertical gap={6}>
             <Flex align="center" gap={6}>
-              <UserOutlined style={{ fontSize: 11, color: token.colorWarning }} />
+              <UserOutlined
+                style={{ fontSize: 11, color: token.colorWarning }}
+              />
               <Text style={{ fontSize: 12 }}>{record.sale_name || "-"}</Text>
             </Flex>
             <Flex align="center" gap={6}>
-              <CustomerServiceOutlined style={{ fontSize: 11, color: token.colorSuccess }} />
+              <CustomerServiceOutlined
+                style={{ fontSize: 11, color: token.colorSuccess }}
+              />
               <Text style={{ fontSize: 12 }}>{record.support_name || "-"}</Text>
             </Flex>
           </Flex>
@@ -215,7 +243,8 @@ export default function BypassPage(): JSX.Element {
         key: "school_data_type",
         width: 120,
         align: "center",
-        sorter: (a, b) => (a.school_data_type ?? "").localeCompare(b.school_data_type ?? ""),
+        sorter: (a, b) =>
+          (a.school_data_type ?? "").localeCompare(b.school_data_type ?? ""),
         render: (type) => (
           <Tag bordered style={{ margin: 0, fontSize: 11 }}>
             {type || "-"}
@@ -228,7 +257,8 @@ export default function BypassPage(): JSX.Element {
         key: "active_date",
         width: 130,
         align: "center",
-        sorter: (a, b) => (a.active_date ?? "").localeCompare(b.active_date ?? ""),
+        sorter: (a, b) =>
+          (a.active_date ?? "").localeCompare(b.active_date ?? ""),
         render: (activeDate: string | undefined) => {
           if (!activeDate) return <Text type="secondary">-</Text>;
           const days = Math.floor(
@@ -237,9 +267,15 @@ export default function BypassPage(): JSX.Element {
           const isNew = !Number.isNaN(days) && days <= 30;
           return (
             <Flex vertical align="center" gap={4}>
-              <Text style={{ fontSize: 12, fontFamily: "monospace" }}>{activeDate}</Text>
+              <Text style={{ fontSize: 12, fontFamily: "monospace" }}>
+                {activeDate}
+              </Text>
               {isNew && (
-                <Tag color="green" bordered={false} style={{ margin: 0, fontSize: 10 }}>
+                <Tag
+                  color="green"
+                  bordered={false}
+                  style={{ margin: 0, fontSize: 10 }}
+                >
                   {translate("bypass_page.badge_new_school")}
                 </Tag>
               )}
@@ -253,7 +289,8 @@ export default function BypassPage(): JSX.Element {
         key: "school_grade",
         width: 90,
         align: "center",
-        sorter: (a, b) => (a.school_grade ?? "").localeCompare(b.school_grade ?? ""),
+        sorter: (a, b) =>
+          (a.school_grade ?? "").localeCompare(b.school_grade ?? ""),
         render: (grade) => (
           <Flex vertical align="center" gap={2}>
             <StarFilled style={{ color: "#faad14", fontSize: 16 }} />
@@ -269,14 +306,23 @@ export default function BypassPage(): JSX.Element {
         key: "student_count",
         width: 130,
         align: "right",
-        sorter: (a, b) => Number(a.student_count || 0) - Number(b.student_count || 0),
+        sorter: (a, b) =>
+          Number(a.student_count || 0) - Number(b.student_count || 0),
         render: (count) => {
           const n = Number(count || 0);
           const tier =
-            n >= 2000 ? { label: "XL", color: (token as unknown as Record<string, string>)["purple6"] ?? "#722ed1" } :
-            n >= 1000 ? { label: "L",  color: token.colorInfo } :
-            n >= 500  ? { label: "M",  color: token.colorSuccess } :
-                        { label: "S",  color: token.colorTextTertiary };
+            n >= 2000
+              ? {
+                  label: "XL",
+                  color:
+                    (token as unknown as Record<string, string>)["purple6"] ??
+                    "#722ed1",
+                }
+              : n >= 1000
+              ? { label: "L", color: token.colorInfo }
+              : n >= 500
+              ? { label: "M", color: token.colorSuccess }
+              : { label: "S", color: token.colorTextTertiary };
           return (
             <Flex vertical align="flex-end" gap={4}>
               <Text strong style={{ fontSize: 13, fontFamily: "monospace" }}>
@@ -304,7 +350,8 @@ export default function BypassPage(): JSX.Element {
         key: "isActive",
         width: 110,
         align: "center",
-        sorter: (a, b) => (a.isActive ?? "active").localeCompare(b.isActive ?? "active"),
+        sorter: (a, b) =>
+          (a.isActive ?? "active").localeCompare(b.isActive ?? "active"),
         render: (status) => {
           const inactive = status === "inactive";
           return (
@@ -327,19 +374,30 @@ export default function BypassPage(): JSX.Element {
         render: (_: unknown, record: SchoolDetail) => {
           const schoolId = Number(record.school_id);
           const override = schoolStatusOverrides[schoolId];
-          const active = override !== undefined ? override.active : record.db_active;
+          const active =
+            override !== undefined ? override.active : record.db_active;
           const isActive =
             override !== undefined
               ? override.isActive
               : record.db_is_active ??
-                (record.isActive === "active" ? true : record.isActive === "inactive" ? false : null);
+                (record.isActive === "active"
+                  ? true
+                  : record.isActive === "inactive"
+                  ? false
+                  : null);
           return (
             <Flex vertical gap={6} align="center">
               <Flex gap={4}>
-                <Tag color={active ? "success" : "default"} style={{ margin: 0, fontSize: 11 }}>
+                <Tag
+                  color={active ? "success" : "default"}
+                  style={{ margin: 0, fontSize: 11 }}
+                >
                   {active ? "ระบบ: เปิด" : "ระบบ: ปิด"}
                 </Tag>
-                <Tag color={isActive ? "success" : "error"} style={{ margin: 0, fontSize: 11 }}>
+                <Tag
+                  color={isActive ? "success" : "error"}
+                  style={{ margin: 0, fontSize: 11 }}
+                >
                   {isActive ? "Login: เปิด" : "Login: ปิด"}
                 </Tag>
               </Flex>
@@ -377,10 +435,14 @@ export default function BypassPage(): JSX.Element {
               size="small"
               icon={<CopyOutlined />}
               onClick={() => {
-                const text = `[${record.school_id}] ${record.company_name ?? ""} · ${record.province ?? ""}`.trim();
-                void navigator.clipboard.writeText(text).then(() =>
-                  toast.success(translate("bypass_page.copy_success")),
-                );
+                const text = `[${record.school_id}] ${
+                  record.company_name ?? ""
+                } · ${record.province ?? ""}`.trim();
+                void navigator.clipboard
+                  .writeText(text)
+                  .then(() =>
+                    toast.success(translate("bypass_page.copy_success")),
+                  );
               }}
             />
           </Tooltip>
@@ -451,7 +513,10 @@ export default function BypassPage(): JSX.Element {
               value={stats.totalStudents.toLocaleString()}
               subtitle={translate("bypass_page.stats_total_students_desc")}
               icon={<TeamOutlined />}
-              color={(token as unknown as Record<string, string>)["purple6"] ?? "#722ed1"}
+              color={
+                (token as unknown as Record<string, string>)["purple6"] ??
+                "#722ed1"
+              }
             />
           </Col>
         </Row>
@@ -479,9 +544,12 @@ export default function BypassPage(): JSX.Element {
                   allowClear
                   options={bypassState.filterOptions.schools}
                   value={bypassState.filters.school}
-                  onChange={(v) => bypassHandlers.handleFilterChange("school", v)}
+                  onChange={(v) =>
+                    bypassHandlers.handleFilterChange("school", v)
+                  }
                   filterOption={(input, option) =>
-                    !!option && option.label.toLowerCase().includes(input.toLowerCase())
+                    !!option &&
+                    option.label.toLowerCase().includes(input.toLowerCase())
                   }
                   notFoundContent="ไม่พบโรงเรียน"
                   loading={bypassState.loading}
@@ -496,7 +564,12 @@ export default function BypassPage(): JSX.Element {
                     placeholder={translate("bypass_page.placeholder_search")}
                     prefix={<SearchOutlined style={{ opacity: 0.4 }} />}
                     value={bypassState.filters.search}
-                    onChange={(e) => bypassHandlers.handleFilterChange("search", e.target.value)}
+                    onChange={(e) =>
+                      bypassHandlers.handleFilterChange(
+                        "search",
+                        e.target.value,
+                      )
+                    }
                     allowClear
                   />
                   <Select
@@ -505,7 +578,9 @@ export default function BypassPage(): JSX.Element {
                     placeholder={translate("bypass_page.placeholder_group")}
                     options={bypassState.filterOptions.schoolGroups}
                     value={bypassState.filters.schoolGroup}
-                    onChange={(v) => bypassHandlers.handleFilterChange("schoolGroup", v)}
+                    onChange={(v) =>
+                      bypassHandlers.handleFilterChange("schoolGroup", v)
+                    }
                     allowClear
                   />
                 </Flex>
@@ -518,11 +593,15 @@ export default function BypassPage(): JSX.Element {
                       <Select
                         style={{ width: "100%" }}
                         size="large"
-                        placeholder={translate("bypass_page.placeholder_province")}
+                        placeholder={translate(
+                          "bypass_page.placeholder_province",
+                        )}
                         showSearch
                         options={bypassState.filterOptions.provinces}
                         value={bypassState.filters.province}
-                        onChange={(v) => bypassHandlers.handleFilterChange("province", v)}
+                        onChange={(v) =>
+                          bypassHandlers.handleFilterChange("province", v)
+                        }
                         allowClear
                       />
                     </Col>
@@ -533,7 +612,9 @@ export default function BypassPage(): JSX.Element {
                         placeholder={translate("bypass_page.placeholder_grade")}
                         options={bypassState.filterOptions.grades}
                         value={bypassState.filters.grade}
-                        onChange={(v) => bypassHandlers.handleFilterChange("grade", v)}
+                        onChange={(v) =>
+                          bypassHandlers.handleFilterChange("grade", v)
+                        }
                         allowClear
                       />
                     </Col>
@@ -543,11 +624,19 @@ export default function BypassPage(): JSX.Element {
                     size="large"
                     placeholder={translate("bypass_page.placeholder_status")}
                     value={bypassState.filters.status}
-                    onChange={(v) => bypassHandlers.handleFilterChange("status", v)}
+                    onChange={(v) =>
+                      bypassHandlers.handleFilterChange("status", v)
+                    }
                     allowClear
                     options={[
-                      { label: translate("bypass_page.status_active"), value: "active" },
-                      { label: translate("bypass_page.status_inactive"), value: "inactive" },
+                      {
+                        label: translate("bypass_page.status_active"),
+                        value: "active",
+                      },
+                      {
+                        label: translate("bypass_page.status_inactive"),
+                        value: "inactive",
+                      },
                     ]}
                   />
                 </Flex>
@@ -586,7 +675,12 @@ export default function BypassPage(): JSX.Element {
             </Flex>
           }
           extra={
-            <Flex gap={8}>
+            <Flex
+              gap={8}
+              style={{
+                padding: "0.5rem",
+              }}
+            >
               <Button
                 icon={<TrophyOutlined />}
                 onClick={() => setShowProvinceRanking(true)}
