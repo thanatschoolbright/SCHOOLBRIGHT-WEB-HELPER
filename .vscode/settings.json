@@ -1,6 +1,9 @@
 {
-    "cSpell.words": [
-        "นาที"
-    ],
-    "CodeGPT.apiKey": "Ollama"
+  "cSpell.words": ["นาที"],
+  "CodeGPT.apiKey": "Ollama",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "javascript.preferences.importModuleSpecifier": "non-relative"
 }

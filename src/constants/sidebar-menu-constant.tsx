@@ -134,7 +134,6 @@ export const useSidebarMenu = (): SidebarItem[] => {
                 label: t("admin_system.children.role_management"),
                 href: "/admin/permission-management",
                 icon: <LockOutlined />,
-                news: true,
                 permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.ROLE_MANAGE],
               },
               {
@@ -162,7 +161,6 @@ export const useSidebarMenu = (): SidebarItem[] => {
                 label: t("admin_system.children.ot_management"),
                 href: "/admin/overtime-management",
                 icon: <SolutionOutlined />,
-                news: true,
                 permission: [
                   PERMISSIONS.ADMIN_ACCESS,
                   PERMISSIONS.MENU_OT_MANAGEMENT,
@@ -179,7 +177,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
                 label: t("admin_system.children.api_spec"),
                 href: "/admin/api-spec-management",
                 icon: <KeyOutlined />,
-                news: true,
+
                 permission: PERMISSIONS.ADMIN_ACCESS,
               },
             ],
@@ -219,7 +217,10 @@ export const useSidebarMenu = (): SidebarItem[] => {
             label: t("support.children.customer_management"),
             icon: <TeamOutlined />,
             href: "/support/general/customer",
-            permission: [PERMISSIONS.ADMIN_ACCESS, PERMISSIONS.MENU_SUPPORT_CUSTOMER],
+            permission: [
+              PERMISSIONS.ADMIN_ACCESS,
+              PERMISSIONS.MENU_SUPPORT_CUSTOMER,
+            ],
           },
           {
             label: t("health_check.title"),
@@ -266,7 +267,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
                 label: t("backlogs.children.dashboard"),
                 href: "/backlogs/report/dashboard",
                 icon: <DashboardOutlined />,
-                news: true,
+
                 permission: PERMISSIONS.MENU_BACKLOGS,
               },
               {
@@ -285,7 +286,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
                 label: t("mobile_app.children.mobile_notification"),
                 href: "/mobile/notification",
                 icon: <BellOutlined />,
-                news: true,
+
                 permission: PERMISSIONS.MENU_MOBILE_NOTI,
               },
               {
@@ -369,7 +370,6 @@ export const useSidebarMenu = (): SidebarItem[] => {
                 label: t("api_docs.children.spec"),
                 href: "/api-spec",
                 icon: <SearchOutlined />,
-                news: true,
               },
               {
                 label: t("api_docs.children.raw"),
@@ -405,7 +405,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
             label: t("timesheet_system.children.timeline"),
             href: "/timesheet/all/report/timeline",
             icon: <ScheduleOutlined />,
-            news: true,
+
             permission: PERMISSIONS.MENU_TIMESHEET_TIMELINE,
           },
           {
@@ -430,7 +430,7 @@ export const useSidebarMenu = (): SidebarItem[] => {
             label: t("timesheet_system.children.migrate_person"),
             href: "/timesheet/all/report/migrate-person",
             icon: <CloudSyncOutlined />,
-            news: true,
+
             permission: PERMISSIONS.TIMESHEET_WRITE,
           },
         ],
