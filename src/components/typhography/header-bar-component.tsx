@@ -63,8 +63,8 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
         vertical
         style={{
           marginBottom: token.marginLG,
-          paddingBottom: isMobile ? 16 : 20,
-          borderBottom: `1.5px solid ${token.colorBorderSecondary}`,
+          paddingBottom: isMobile ? 12 : 16,
+          borderBottom: `1px solid ${token.colorBorderSecondary}`,
         }}
       >
         <Flex
@@ -81,8 +81,8 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
                 icon={<ArrowLeftOutlined style={{ fontSize: 14 }} />}
                 onClick={() => router.back()}
                 style={{
-                  backgroundColor: token.colorFillSecondary,
-                  border: `1px solid ${token.colorBorderSecondary}`,
+                  backgroundColor: "transparent",
+                  border: `1px solid ${token.colorBorder}`,
                   width: isMobile ? 36 : 40,
                   height: isMobile ? 36 : 40,
                   flexShrink: 0,
@@ -99,16 +99,6 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
                   flexShrink: 0,
                 }}
               >
-                {/* Glow ring */}
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: -3,
-                    borderRadius: 16,
-                    background: `linear-gradient(135deg, ${token.colorPrimary}40, ${token.colorPrimary}15)`,
-                    filter: "blur(6px)",
-                  }}
-                />
                 <Avatar
                   shape="square"
                   size={iconSize}
@@ -119,17 +109,16 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        color: "#fff",
+                        color: token.colorPrimary,
                       }}
                     >
                       {icon}
                     </span>
                   }
                   style={{
-                    background: `linear-gradient(135deg, ${token.colorPrimary}, ${token.colorPrimary}cc)`,
-                    borderRadius: 14,
-                    boxShadow: `0 4px 16px -2px ${token.colorPrimary}50`,
-                    border: `1.5px solid ${token.colorPrimary}30`,
+                    background: token.colorFillAlter,
+                    borderRadius: 12,
+                    border: `1px solid ${token.colorBorder}`,
                     position: "relative",
                     zIndex: 1,
                   }}
@@ -142,26 +131,17 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
                   level={isMobile ? 4 : 3}
                   ellipsis
                   style={{
-                    fontWeight: 800,
+                    fontWeight: 700,
                     lineHeight: 1.25,
-                    letterSpacing: "-0.02em",
+                    letterSpacing: "-0.01em",
                     margin: 0,
+                    color: token.colorText,
                   }}
                 >
                   {title}
                 </Title>
                 {subTitle && (
                   <Flex align="center" gap={6}>
-                    <span
-                      style={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: "50%",
-                        backgroundColor: token.colorPrimary,
-                        flexShrink: 0,
-                        opacity: 0.7,
-                      }}
-                    />
                     <Text
                       type="secondary"
                       ellipsis
