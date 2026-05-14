@@ -24,11 +24,11 @@ dayjs.tz.setDefault("Asia/Bangkok");
  * Design Constants for 2026 Aesthetics
  */
 const BRAND_COLORS = {
-  primary: "#1677FF", // Modern Blue (Trust & Clean)
-  success: "#52C41A", // Standard Success
-  warning: "#FAAD14", // Standard Warning
-  error: "#FF4D4F", // Standard Error
-  info: "#1677FF",
+  primary: "#F97316", // Sunset Orange
+  success: "#10B981", // Emerald
+  warning: "#F59E0B", // Amber
+  error: "#EF4444", // Rose
+  info: "#3B82F6", // Blue
 };
 
 const FONTS = {

@@ -5,5 +5,10 @@
     "source.organizeImports": "explicit"
   },
   "typescript.preferences.importModuleSpecifier": "non-relative",
-  "javascript.preferences.importModuleSpecifier": "non-relative"
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+  "apc.font.family": "Google Sans, Sukhumvit Set, system-ui",
+  "apc.list.fontSize": 13,
+  "apc.electron": {
+    "titleBarStyle": "hidden"
+  }
 }
