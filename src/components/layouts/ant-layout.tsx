@@ -118,9 +118,9 @@ const getModernTheme = (
 
       fontFamily: FONTS[font] || FONTS["google-sans"],
       fontSize: 15,
-      borderRadius: 16,
-      borderRadiusLG: 24,
-      borderRadiusSM: 10,
+      borderRadius: 10,
+      borderRadiusLG: 16,
+      borderRadiusSM: 6,
 
       controlHeight: 46,
       fontWeightStrong: 700,
@@ -133,7 +133,7 @@ const getModernTheme = (
         controlOutline: "none",
         fontWeight: 600,
         paddingInlineLG: 32,
-        borderRadius: 999, // Perfect Capsule Shape
+        borderRadius: 12, // Reduced from capsule to rounded rectangle
         defaultShadow: "0 2px 0 rgba(0, 0, 0, 0.02)",
         primaryShadow: "0 4px 12px rgba(249, 115, 22, 0.25)",
         contentFontSize: 14,
@@ -152,7 +152,7 @@ const getModernTheme = (
         headerBg: isDark ? "#1E293B" : "#F1F5F9",
         headerColor: palette.textMain,
         headerSplitColor: "transparent",
-        headerBorderRadius: 16,
+        headerBorderRadius: 12,
         padding: 16,
         colorBgContainer: palette.bgContainer,
       },
@@ -170,7 +170,7 @@ const getModernTheme = (
         footerBg: isDark ? "#1E293B" : "#FFFFFF",
         titleColor: isDark ? "#F8FAFC" : "#0F172A",
         titleFontSize: 16,
-        borderRadiusLG: 24,
+        borderRadiusLG: 16,
       },
 
       Menu: {
@@ -468,7 +468,7 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
               }
               .ant-table-wrapper .ant-table-container {
                 border: 1px solid var(--table-border) !important;
-                border-radius: 16px !important;
+                border-radius: 12px !important;
                 overflow: hidden;
                 background: var(--modal-bg) !important;
               }
@@ -506,7 +506,7 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
 
               /* Content shell */
               .ant-modal-content {
-                border-radius: 24px !important;
+                border-radius: 16px !important;
                 overflow: hidden !important;
                 padding: 0 !important;
                 background: var(--modal-bg) !important;
@@ -635,7 +635,7 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
               }
               .ant-drawer-content {
                 background: var(--modal-bg) !important;
-                border-radius: 24px !important;
+                border-radius: 16px !important;
                 border: 1px solid var(--border) !important;
                 box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.2) !important;
                 overflow: hidden !important;
