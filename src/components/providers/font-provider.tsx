@@ -7,7 +7,8 @@ export type FontFamily =
   | "sukhumvit"
   | "anuphan"
   | "kanit"
-  | "line-seed";
+  | "line-seed"
+  | "sarabun";
 
 // CSS variable ของแต่ละ font
 export const FONT_CSS_VAR: Record<FontFamily, string> = {
@@ -16,6 +17,7 @@ export const FONT_CSS_VAR: Record<FontFamily, string> = {
   "anuphan": "var(--font-anuphan), sans-serif",
   "kanit": "var(--font-kanit), sans-serif",
   "line-seed": "var(--font-line-seed), sans-serif",
+  "sarabun": "var(--font-sarabun), sans-serif",
 };
 
 const VALID_FONTS: FontFamily[] = [
@@ -24,6 +26,7 @@ const VALID_FONTS: FontFamily[] = [
   "anuphan",
   "kanit",
   "line-seed",
+  "sarabun",
 ];
 
 interface FontContextType {

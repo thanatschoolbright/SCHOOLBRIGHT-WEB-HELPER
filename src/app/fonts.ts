@@ -133,6 +133,93 @@ export const kanitFont = localFont({
   display: "swap",
 });
 
+export const sarabunFont = localFont({
+  src: [
+    {
+      path: "../../public/fonts/sarabun/Sarabun-Thin.ttf",
+      weight: "100",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/sarabun/Sarabun-ThinItalic.ttf",
+      weight: "100",
+      style: "italic",
+    },
+    {
+      path: "../../public/fonts/sarabun/Sarabun-ExtraLight.ttf",
+      weight: "200",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/sarabun/Sarabun-ExtraLightItalic.ttf",
+      weight: "200",
+      style: "italic",
+    },
+    {
+      path: "../../public/fonts/sarabun/Sarabun-Light.ttf",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/sarabun/Sarabun-LightItalic.ttf",
+      weight: "300",
+      style: "italic",
+    },
+    {
+      path: "../../public/fonts/sarabun/Sarabun-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/sarabun/Sarabun-Italic.ttf",
+      weight: "400",
+      style: "italic",
+    },
+    {
+      path: "../../public/fonts/sarabun/Sarabun-Medium.ttf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/sarabun/Sarabun-MediumItalic.ttf",
+      weight: "500",
+      style: "italic",
+    },
+    {
+      path: "../../public/fonts/sarabun/Sarabun-SemiBold.ttf",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/sarabun/Sarabun-SemiBoldItalic.ttf",
+      weight: "600",
+      style: "italic",
+    },
+    {
+      path: "../../public/fonts/sarabun/Sarabun-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/sarabun/Sarabun-BoldItalic.ttf",
+      weight: "700",
+      style: "italic",
+    },
+    {
+      path: "../../public/fonts/sarabun/Sarabun-ExtraBold.ttf",
+      weight: "800",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/sarabun/Sarabun-ExtraBoldItalic.ttf",
+      weight: "800",
+      style: "italic",
+    },
+  ],
+  variable: "--font-sarabun",
+  display: "swap",
+});
+
 export const lineSeedFont = localFont({
   src: [
     {

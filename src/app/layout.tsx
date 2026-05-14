@@ -12,6 +12,7 @@ import {
   googleSansFont,
   kanitFont,
   lineSeedFont,
+  sarabunFont,
   sukhumvitFont,
 } from "./fonts";
 export { metadata, viewport } from "./metadata";
@@ -54,7 +55,7 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className={`${googleSansFont.variable} ${sukhumvitFont.variable} ${anuphanFont.variable} ${kanitFont.variable} ${lineSeedFont.variable} font-sans antialiased text-slate-900 dark:text-slate-50 min-h-screen bg-slate-50 dark:bg-[#0a0a0a] relative`}
+        className={`${googleSansFont.variable} ${sukhumvitFont.variable} ${anuphanFont.variable} ${kanitFont.variable} ${lineSeedFont.variable} ${sarabunFont.variable} font-sans antialiased text-slate-900 dark:text-slate-50 min-h-screen bg-slate-50 dark:bg-[#0a0a0a] relative`}
       >
         {/* Abstract Premium Background Shapes */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">

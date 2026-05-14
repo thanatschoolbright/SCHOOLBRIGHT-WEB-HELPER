@@ -79,6 +79,14 @@ const FONT_OPTIONS: {
     sampleEn: "AaBbCc 123",
     sampleTh: "สวัสดีครับ",
   },
+  {
+    value: "sarabun",
+    label: "Sarabun",
+    labelThai: "สารบรรณ",
+    desc: "Elegant · Thai Official",
+    sampleEn: "AaBbCc 123",
+    sampleTh: "สวัสดีครับ",
+  },
 ];
 
 // SVG Icons
