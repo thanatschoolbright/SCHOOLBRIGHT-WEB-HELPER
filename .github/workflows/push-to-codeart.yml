@@ -1,0 +1,34 @@
+name: Push to CodeArt
+
+on:
+  push:
+    branches:
+      - "release/development"
+
+concurrency:
+  group: mirror-to-codeart-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mirror-repository:
+    name: Sync GitHub to CodeArt
+    runs-on: ubuntu-latest
+
+    env:
+      TARGET_REPO_URL: ${{ vars.CODEART_REPOSITORY_URL }}
+
+    steps:
+      - name: Checkout Source Code (Full History)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to Huawei CodeArt
+        env:
+          CODEART_USERNAME: ${{ secrets.CODEART_USERNAME }}
+          CODEART_PASSWORD: ${{ secrets.CODEART_PASSWORD }}
+        run: |
+          ENCODED_USER=$(python3 -c "import urllib.parse; print(urllib.parse.quote('${CODEART_USERNAME}', safe=''))")
+          git remote add codeart "https://${ENCODED_USER}:${CODEART_PASSWORD}@${TARGET_REPO_URL#https://}"
+          git push codeart HEAD:refs/heads/${{ github.ref_name }} --force
+          git push codeart --tags --force
