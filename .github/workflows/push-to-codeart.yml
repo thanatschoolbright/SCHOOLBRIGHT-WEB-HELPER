@@ -3,7 +3,7 @@ name: Push to CodeArt
 on:
   push:
     branches:
-      - "release/development"
+      - "release/production"
 
 concurrency:
   group: mirror-to-codeart-${{ github.ref }}
