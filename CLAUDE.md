@@ -304,9 +304,15 @@ src/app/{domain}/{feature}/
 
 ### Authentication
 
-NextAuth v5 with a Credentials provider (`src/auth.ts`). Supports login by email, employee code, or username (case-insensitive). Passwords are verified with bcryptjs (with plain-text fallback for legacy accounts). Account lockout: 5 failed attempts → 15-minute lockout with auto-unlock.
+NextAuth v5 with a Credentials provider. Auth is split across two files intentionally — Edge runtime cannot run `bcryptjs`:
+- `src/auth.config.ts` — Edge-safe config (JWT strategy, sign-in page `/auth/v2/signin`, `authorized` callback). Imported by middleware if re-enabled.
+- `src/auth.ts` — Full config including `bcryptjs` password verification. All route handlers use `auth()` from here.
 
-The session JWT carries: `id`, `admin_id`, `username`, `employee_code`, `role_id`, `role_name`, `permissions[]`, Thai/English names, position, department, phone, email, profile image, employment status, and last-login timestamp.
+**Middleware is disabled** (`src/middleware.ts.disabled`) — route-level `auth()` calls are the only auth enforcement. If you re-enable the middleware, import from `auth.config.ts`, not `auth.ts`.
+
+Login supports email, employee code, or username (case-insensitive). Account lockout: 5 failed attempts → 15-minute lockout with auto-unlock. Plain-text password fallback exists for legacy accounts.
+
+The session JWT carries: `id`, `admin_id`, `username`, `employee_code`, `role_id`, `role_name`, `permissions[]`, Thai/English names, position, department, phone, email, profile image, employment status, and last-login timestamp. Sessions expire after 24 hours.
 
 ### Databases
 
@@ -403,6 +409,7 @@ Business logic lives in `src/services/line/line-push.service.ts`. The legacy `sr
 
 ### Notable constraints
 
+- Build output is `standalone` — deployed as a Docker image on Huawei Cloud CCE (Kubernetes). Do not assume a traditional Node.js host.
 - Console logs are stripped in production builds (except `error`/`warn`), configured in `next.config.mjs`.
 - Server Actions body size limit is **5mb** (`experimental.serverActions.bodySizeLimit`).
 - File uploads go to Huawei OBS (`esdk-obs-nodejs`); image remote pattern is configured in `next.config.mjs` and restricts image optimization to OBS domain.
