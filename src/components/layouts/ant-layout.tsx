@@ -24,11 +24,11 @@ dayjs.tz.setDefault("Asia/Bangkok");
  * Design Constants for 2026 Aesthetics
  */
 const BRAND_COLORS = {
-  primary: "#F97316", // Sunset Orange
-  success: "#10B981", // Emerald
-  warning: "#F59E0B", // Amber
-  error: "#EF4444", // Rose
-  info: "#3B82F6", // Blue
+  primary: "#1677FF", // Modern Blue (Trust & Clean)
+  success: "#52C41A", // Standard Success
+  warning: "#FAAD14", // Standard Warning
+  error: "#FF4D4F", // Standard Error
+  info: "#1677FF",
 };
 
 const FONTS = {
@@ -43,21 +43,21 @@ const FONTS = {
 
 const SYSTEM_PALETTE = {
   light: {
-    bgLayout: "#FFF7ED",
+    bgLayout: "#F8FAFC", // Cool Slate background (Clean)
     bgContainer: "#FFFFFF",
     bgElevated: "#FFFFFF",
-    textMain: "#1C0F00",
-    textSub: "#7C5A3A",
-    border: "#FDE8D0",
-    borderSecondary: "#FFF7ED",
+    textMain: "#1E293B", // Dark Slate (Better readability)
+    textSub: "#64748B",
+    border: "#E2E8F0", // Slate 200 (Subtle & Modern)
+    borderSecondary: "#F1F5F9",
   },
   dark: {
-    bgLayout: "#0F172A", // Slate 900 (Brighter than previous Slate 950)
-    bgContainer: "#1E293B", // Slate 800
-    bgElevated: "#334155", // Slate 700
-    textMain: "#FFFFFF", // Max contrast pure white
-    textSub: "#CBD5E1", // Brighter secondary text (Slate 300)
-    border: "#334155", // More visible border (Slate 700)
+    bgLayout: "#0F172A",
+    bgContainer: "#1E293B",
+    bgElevated: "#1E293B",
+    textMain: "#F8FAFC",
+    textSub: "#94A3B8",
+    border: "#334155",
     borderSecondary: "#1E293B",
   },
 };
@@ -135,7 +135,7 @@ const getModernTheme = (
         paddingInlineLG: 32,
         borderRadius: 12, // Reduced from capsule to rounded rectangle
         defaultShadow: "0 2px 0 rgba(0, 0, 0, 0.02)",
-        primaryShadow: "0 4px 12px rgba(249, 115, 22, 0.25)",
+        primaryShadow: "0 4px 12px rgba(22, 119, 255, 0.15)",
         contentFontSize: 14,
         paddingBlock: 8,
       },
@@ -282,26 +282,27 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
                  ═══════════════════ */
               .ant-card {
                 background: #ffffff !important;
-                border: 1px solid #fde8d0 !important;
-                box-shadow: none !important;
+                border: 1px solid #e2e8f0 !important;
+                box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
                 transition: all 0.3s ease !important;
               }
               .ant-card:hover {
-                border-color: #fdba74 !important;
+                border-color: #cbd5e1 !important;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
               }
 
               /* Card Header — Light */
               .ant-card .ant-card-head {
-                background: #fff7ed !important;
-                border-bottom: 1px solid #fde8d0 !important;
+                background: #ffffff !important;
+                border-bottom: 1px solid #f1f5f9 !important;
                 padding-inline: 24px !important;
                 min-height: 52px !important;
               }
               .ant-card .ant-card-head-title {
-                font-weight: 700 !important;
+                font-weight: 600 !important;
                 font-size: 15px !important;
                 letter-spacing: -0.01em !important;
-                color: #0f172a !important;
+                color: #1e293b !important;
               }
               .ant-card .ant-card-extra {
                 color: #64748b !important;
@@ -309,11 +310,11 @@ function ThemeInner({ children }: { children: React.ReactNode }) {
 
               /* Card Actions — Light */
               .ant-card .ant-card-actions {
-                background: #fff7ed !important;
-                border-top: 1px solid #fde8d0 !important;
+                background: #f8fafc !important;
+                border-top: 1px solid #f1f5f9 !important;
               }
               .ant-card .ant-card-actions > li > span:hover {
-                color: #f97316 !important;
+                color: #1677ff !important;
               }
 
               /* ══════════════════
