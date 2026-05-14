@@ -2,18 +2,12 @@
 
 import {
   ApiOutlined,
-  BellOutlined,
-  BugOutlined,
   CheckCircleFilled,
   CloseCircleFilled,
-  CloudServerOutlined,
   CopyOutlined,
   EyeOutlined,
   FileExcelOutlined,
-  IdcardOutlined,
-  LoginOutlined,
   ReloadOutlined,
-  ScanOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import {
@@ -36,19 +30,16 @@ import { useServerStatusStore } from "../_state/server-status-store";
 
 const { Text } = Typography;
 
-// ── Module meta ────────────────────────────────────────────────────────────
-const MODULE_META: Record<string, { icon: React.ReactNode; color: string }> = {
-  "login-system": { icon: <LoginOutlined />, color: "#6366f1" },
-  "user-system": { icon: <IdcardOutlined />, color: "#0ea5e9" },
-  "notification-system": { icon: <BellOutlined />, color: "#f59e0b" },
-  "attendance-system": { icon: <ScanOutlined />, color: "#10b981" },
-  "leave-system": { icon: <BugOutlined />, color: "#ef4444" },
-  "school-system": { icon: <CloudServerOutlined />, color: "#8b5cf6" },
-  "server-system": { icon: <CloudServerOutlined />, color: "#64748b" },
+// ✨ แปลง group key เป็น label ภาษาไทยที่อ่านง่าย
+const GROUP_LABEL: Record<string, string> = {
+  "login-system": "ระบบเข้าสู่ระบบ",
+  "user-system": "ระบบผู้ใช้",
+  "notification-system": "ระบบแจ้งเตือน",
+  "attendance-system": "ระบบเช็คชื่อ",
+  "leave-system": "ระบบลา",
+  "school-system": "ระบบโรงเรียน",
+  "server-system": "ระบบเซิร์ฟเวอร์",
 };
-
-const getModuleMeta = (group: string) =>
-  MODULE_META[group] ?? { icon: <ApiOutlined />, color: "#64748b" };
 
 // ── HTTP Method badge ─────────────────────────────────────────────────────
 const MethodBadge: React.FC<{ method: string }> = ({ method }) => {
@@ -179,41 +170,19 @@ const ServerStatusTable: React.FC = () => {
     {
       title: "กลุ่มระบบ",
       dataIndex: "group",
-      width: 240,
+      width: 200,
       sorter: (a, b) => (a.group || "").localeCompare(b.group || ""),
       render: (group: string) => {
-        const meta = getModuleMeta(group);
+        const label = GROUP_LABEL[group] ?? group ?? "อื่นๆ";
         return (
-          <Flex align="center" gap={12}>
-            <span
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 12,
-                background: `${meta.color}18`,
-                color: meta.color,
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 18,
-                flexShrink: 0,
-                border: `1.5px solid ${meta.color}30`,
-              }}
-            >
-              {meta.icon}
-            </span>
-            <Text
-              style={{
-                fontSize: 13,
-                fontWeight: 700,
-                color: meta.color,
-                textTransform: "uppercase",
-                letterSpacing: "0.04em",
-                lineHeight: 1.3,
-              }}
-            >
-              {(group || "other").replace(/-/g, "\n")}
-            </Text>
+          <Flex align="center" gap={8}>
+            <ApiOutlined style={{ fontSize: 13, color: token.colorTextTertiary }} />
+            <Flex vertical gap={1}>
+              <Text style={{ fontSize: 13, fontWeight: 600 }}>{label}</Text>
+              <Text type="secondary" style={{ fontSize: 11, fontFamily: "monospace" }}>
+                {group || "other"}
+              </Text>
+            </Flex>
           </Flex>
         );
       },

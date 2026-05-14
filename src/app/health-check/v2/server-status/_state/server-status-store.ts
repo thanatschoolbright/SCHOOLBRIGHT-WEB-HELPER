@@ -21,6 +21,7 @@ interface ServerStatusState {
   isFetchingStatus: boolean;
   isSendingDiscord: boolean;
   isExporting: boolean;
+  fetchProgress: number; // 0–100 simulated progress ระหว่างโหลด
   exportStep: number;
   isExportSuccess: boolean;
   isExportModalOpen: boolean;
@@ -60,6 +61,7 @@ export const useServerStatusStore = create<ServerStatusState>((set, get) => ({
   isFetchingStatus: false,
   isSendingDiscord: false,
   isExporting: false,
+  fetchProgress: 0,
   exportStep: 0,
   isExportSuccess: false,
   isExportModalOpen: false,
@@ -87,29 +89,54 @@ export const useServerStatusStore = create<ServerStatusState>((set, get) => ({
    */
   fetchServerStatus: async (mode = "normal") => {
     const isDiscord = mode === "discord";
-    if (isDiscord) set({ isSendingDiscord: true });
-    else set({ isFetchingStatus: true });
+    if (isDiscord) {
+      set({ isSendingDiscord: true });
+    } else {
+      set({ isFetchingStatus: true, fetchProgress: 0 });
+
+      // ✨ simulate progress แบบ exponential-decay หยุดที่ 92 รอ API จริง
+      const timer = setInterval(() => {
+        set((state) => {
+          if (state.fetchProgress >= 92) return state;
+          const gap = 92 - state.fetchProgress;
+          return { fetchProgress: Math.min(92, state.fetchProgress + Math.max(0.5, gap * 0.05)) };
+        });
+      }, 250);
+
+      try {
+        const response = await requestServerStatus(mode);
+        clearInterval(timer);
+        set({ fetchProgress: 100 });
+        if (response.data && Array.isArray(response.data)) {
+          set({ serverHealthData: response.data, lastFetchTimestamp: new Date() });
+          toast.success("อัปเดตสถานะล่าสุดเรียบร้อย");
+        }
+      } catch (error: any) {
+        clearInterval(timer);
+        set({ fetchProgress: 0 });
+        console.error(error);
+        toast.error("เกิดข้อผิดพลาดในการดึงข้อมูล", {
+          description: error?.response?.data?.message_th || "ไม่สามารถเชื่อมต่อกับ Server ได้",
+        });
+      } finally {
+        set({ isFetchingStatus: false });
+      }
+      return;
+    }
 
     try {
       const response = await requestServerStatus(mode);
       if (response.data && Array.isArray(response.data)) {
-        set({
-          serverHealthData: response.data,
-          lastFetchTimestamp: new Date(),
-        });
-
-        if (isDiscord) toast.success("ส่งรายงานเข้า Discord เรียบร้อยแล้ว");
-        else toast.success("อัปเดตสถานะล่าสุดเรียบร้อย");
+        set({ serverHealthData: response.data, lastFetchTimestamp: new Date() });
+        toast.success("ส่งรายงานเข้า Discord เรียบร้อยแล้ว");
       }
     } catch (error: any) {
       console.error(error);
       toast.error("เกิดข้อผิดพลาดในการดึงข้อมูล", {
-        description:
-          error?.response?.data?.message_th ||
-          "ไม่สามารถเชื่อมต่อกับ Server ได้",
+        description: error?.response?.data?.message_th || "ไม่สามารถเชื่อมต่อกับ Server ได้",
       });
     } finally {
-      set({ isFetchingStatus: false, isSendingDiscord: false });
+      set({ isSendingDiscord: false });
     }
   },
 
