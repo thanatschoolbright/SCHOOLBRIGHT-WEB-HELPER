@@ -1,11 +1,7 @@
-/// <reference lib="webworker" />
-
 const CACHE_NAME = "sb-web-helper-v2"; // อัปเดต Version เมื่อมีการเปลี่ยน Logic หลัก
 
-declare const self: ServiceWorkerGlobalScope;
-
 // --- Helper Functions ---
-const logError = (message: string, error?: unknown) => {
+const logError = (message, error) => {
   console.error(`[SW Error]: ${message}`, error);
 };
 
@@ -51,7 +47,7 @@ self.addEventListener("fetch", (event) => {
     fetch(request)
       .then((response) => {
         // จัดเก็บเฉพาะความสำเร็จ (Status 200 OK)
-        if (response && response.status === 200 && response.type === 'basic') {
+        if (response && response.status === 200 && response.type === "basic") {
           const responseToCache = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(request, responseToCache);
@@ -68,7 +64,7 @@ self.addEventListener("fetch", (event) => {
 
         // กรณีไม่มีทั้ง Network และ Cache
         logError(`Network failed and no cache available for: ${url.pathname}`, error);
-        
+
         return new Response("Offline - Resource not available", {
           status: 503,
           headers: { "Content-Type": "text/plain" },

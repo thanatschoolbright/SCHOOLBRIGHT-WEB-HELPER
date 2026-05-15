@@ -15,6 +15,7 @@ bun start
 
 # Code quality
 bun lint          # ESLint
+bun tailwind      # Compile Tailwind CSS (config/tailwind.config.ts)
 
 # Misc
 bun bun-benchmark # Build benchmark via benchmark-build.sh
@@ -91,8 +92,8 @@ This is a **Next.js 16.2.6 / React 19 / TypeScript 5 (App Router) back-office ad
 API routes are versioned under `src/app/api/`:
 
 - **`v1/`** — primary internal routes (timesheet, backlog, hardware, mobile, health-check, admin, support, ai, integrations/discord, logger, mailer, load-test, school, proxy, application/line, etc.)
-- **`v2/`** — newer routes (admin user/role/department/position management, hardware device status, server status, authentication v2, profile)
-- **`v3/`** — latest authentication endpoint
+- **`v2/`** — newer routes (admin user/role/department/position management, hardware device status, server status, authentication v2, profile, support)
+- **`v3/`** — latest authentication endpoint (`v3/authentication/`)
 
 URL pattern: `/api/{version}/{domain}/{resource}`
 

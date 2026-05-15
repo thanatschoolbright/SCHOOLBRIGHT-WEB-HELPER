@@ -18,7 +18,7 @@ jobs:
       TARGET_REPO_URL: ${{ vars.CODEART_REPOSITORY_URL }}
 
     steps:
-      - name: Checkout Source Code (Full History)
+      - name: Checkout Source Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
