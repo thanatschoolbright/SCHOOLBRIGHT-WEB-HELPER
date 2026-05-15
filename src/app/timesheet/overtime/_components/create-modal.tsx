@@ -227,7 +227,8 @@ const UploadFieldItem = ({ name, label, required, form }: any) => {
     // จำกัดให้เหลือรูปเดียว
     const latestFile = newFileList.slice(-1);
     setFileList(latestFile);
-    form.setFieldValue(name, latestFile);
+    // เก็บเฉพาะ originFileObj เพื่อป้องกัน circular reference ใน UploadFile wrapper
+    form.setFieldValue(name, latestFile[0]?.originFileObj ?? null);
   };
 
   return (
