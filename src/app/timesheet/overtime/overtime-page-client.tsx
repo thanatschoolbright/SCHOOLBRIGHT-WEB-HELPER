@@ -517,12 +517,14 @@ const OvertimeManagementPage = ({ hrEmail }: { hrEmail?: string }) => {
       const currentOperatingUserToken = await requestCurrentLocalUserID();
 
       // 1. ตรวจสอบความถูกต้องของไฟล์รูปภาพก่อนดำเนินธุรกรรม
+      // แปลง UploadFile | null ให้เป็น array เพื่อให้ spread ได้ถูกต้อง
+      const toFileArray = (f: any): any[] => (f ? [f] : []);
       const allFiles = [
-        ...(formSubmissionPayload.proof_checkin || []),
-        ...(formSubmissionPayload.proof_checkout || []),
-        ...(formSubmissionPayload.proof_work_1 || []),
-        ...(formSubmissionPayload.proof_work_2 || []),
-        ...(formSubmissionPayload.signature_file || []),
+        ...toFileArray(formSubmissionPayload.proof_checkin),
+        ...toFileArray(formSubmissionPayload.proof_checkout),
+        ...toFileArray(formSubmissionPayload.proof_work_1),
+        ...toFileArray(formSubmissionPayload.proof_work_2),
+        ...toFileArray(formSubmissionPayload.signature_file),
       ];
       if (!validateImageFiles(allFiles)) {
         setIsSubmissionLoading(false);
@@ -632,17 +634,18 @@ const OvertimeManagementPage = ({ hrEmail }: { hrEmail?: string }) => {
 
         if (firstId) {
           // 4. ทยอยอัปโหลดไฟล์รูปภาพหลักฐานและลายเซ็น (Global Context)
+          // ทุก proof_* และ signature_file เป็น UploadFile | null (ไม่ใช่ array)
           const uploadJobs = [
-            { key: "image_1", files: formSubmissionPayload.proof_checkin },
-            { key: "image_2", files: formSubmissionPayload.proof_checkout },
-            { key: "image_3", files: formSubmissionPayload.proof_work_1 },
-            { key: "image_4", files: formSubmissionPayload.proof_work_2 },
-            { key: "signature_1", files: formSubmissionPayload.signature_file },
+            { key: "image_1", file: formSubmissionPayload.proof_checkin },
+            { key: "image_2", file: formSubmissionPayload.proof_checkout },
+            { key: "image_3", file: formSubmissionPayload.proof_work_1 },
+            { key: "image_4", file: formSubmissionPayload.proof_work_2 },
+            { key: "signature_1", file: formSubmissionPayload.signature_file },
           ];
 
           for (const job of uploadJobs) {
-            if (job.files?.[0]) {
-              await uploadBinaryImage(job.files[0], firstId, job.key);
+            if (job.file) {
+              await uploadBinaryImage(job.file, firstId, job.key);
             }
           }
 
@@ -650,7 +653,7 @@ const OvertimeManagementPage = ({ hrEmail }: { hrEmail?: string }) => {
           if (
             formSubmissionPayload.signature_mode === "default" &&
             formSubmissionPayload.signature_default_url &&
-            !formSubmissionPayload.signature_file?.[0]
+            !formSubmissionPayload.signature_file
           ) {
             try {
               const signatureUrl =

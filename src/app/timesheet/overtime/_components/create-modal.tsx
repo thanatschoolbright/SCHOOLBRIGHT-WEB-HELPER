@@ -227,8 +227,8 @@ const UploadFieldItem = ({ name, label, required, form }: any) => {
     // จำกัดให้เหลือรูปเดียว
     const latestFile = newFileList.slice(-1);
     setFileList(latestFile);
-    // เก็บเฉพาะ originFileObj เพื่อป้องกัน circular reference ใน UploadFile wrapper
-    form.setFieldValue(name, latestFile[0]?.originFileObj ?? null);
+    // เก็บ UploadFile wrapper (plain object) แทน raw File เพื่อป้องกัน circular reference warning ของ AntD Form
+    form.setFieldValue(name, latestFile[0] ?? null);
   };
 
   return (
@@ -277,7 +277,8 @@ const SignatureUploadField = ({ form }: { form: any }) => {
   const handleChange = ({ fileList: newList }: any) => {
     const latest = newList.slice(-1);
     setFileList(latest);
-    form.setFieldValue("signature_file", latest);
+    // เก็บ UploadFile ตัวเดียว (ไม่ใช่ array) เพื่อให้สอดคล้องกับ proof_* fields
+    form.setFieldValue("signature_file", latest[0] ?? null);
   };
 
   return (
