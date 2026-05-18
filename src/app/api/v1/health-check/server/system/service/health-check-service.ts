@@ -17,6 +17,7 @@ import { checkSubmitLeaveService } from "../helper/mobile/leave-system/check-sub
 import { checkLoginService } from "../helper/mobile/login-system/login.service";
 import { checkRefreshTokenService } from "../helper/mobile/login-system/refresh-token.service";
 import { checkBannerService } from "../helper/mobile/notification-system/banner.service";
+import { checkGeneralUnreadCountService } from "../helper/mobile/notification-system/general-unread-count.service";
 import { checkNotificationUnreadCountService } from "../helper/mobile/notification-system/notification-system-unread-count.service";
 import { checkNotificationTodayService } from "../helper/mobile/notification-system/notification-today.service";
 import { checkNotificationService } from "../helper/mobile/notification-system/notification.service";
@@ -324,6 +325,7 @@ export const executeHealthChecksService = async (): Promise<
     checkBroadcastHistoryService(freshToken),
     checkNotificationTodayService(freshToken),
     checkNotificationUnreadCountService(freshToken),
+    checkGeneralUnreadCountService(freshToken),
     checkNotificationService(freshToken),
     checkBannerService(freshToken),
     checkSystemBannerService(freshToken),
