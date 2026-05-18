@@ -19,6 +19,7 @@ import { checkBannerService } from "../helper/mobile/notification-system/banner.
 import { checkNotificationUnreadCountService } from "../helper/mobile/notification-system/notification-system-unread-count.service";
 import { checkNotificationTodayService } from "../helper/mobile/notification-system/notification-today.service";
 import { checkNotificationService } from "../helper/mobile/notification-system/notification.service";
+import { checkSystemBannerService } from "../helper/mobile/notification-system/system-banner.service";
 import { checkSystemNotificationService } from "../helper/mobile/notification-system/system-notification.service";
 import { checkGetSchoolListService } from "../helper/mobile/school-system/get-school-list.service";
 import { checkSystemApiUrlsService } from "../helper/mobile/server-system/api-url-check.service";
@@ -322,6 +323,7 @@ export const executeHealthChecksService = async (): Promise<
     checkNotificationUnreadCountService(freshToken),
     checkNotificationService(freshToken),
     checkBannerService(freshToken),
+    checkSystemBannerService(freshToken),
     checkSystemNotificationService(freshToken),
     checkFlagPoleAttendanceService(freshToken),
     checkFlagPoleScanService(freshToken),
