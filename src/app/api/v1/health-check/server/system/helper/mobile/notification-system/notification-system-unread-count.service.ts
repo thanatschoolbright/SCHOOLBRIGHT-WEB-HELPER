@@ -39,17 +39,22 @@ export async function checkNotificationUnreadCountService(
     curl: curlCommand,
     request: UNREAD_COUNT_CONFIG,
     status: "unknown",
-    response: undefined,
+    response: null,
+    response_time_ms: 0,
   };
 
+  const startTime = performance.now();
   try {
     const res = await axios(UNREAD_COUNT_CONFIG);
+    const response_time_ms = Math.round(performance.now() - startTime);
     return {
       ...baseResult,
       status: String(res.status),
       response: res.data,
+      response_time_ms,
     };
   } catch (error: any) {
+    const response_time_ms = Math.round(performance.now() - startTime);
     console.error(
       "[HealthCheck] Notification Unread Count Error:",
       error.message,
@@ -58,6 +63,7 @@ export async function checkNotificationUnreadCountService(
       ...baseResult,
       status: String(error.response?.status || 500),
       response: error.response?.data || error.message || "Unknown Error",
+      response_time_ms,
     };
   }
 }

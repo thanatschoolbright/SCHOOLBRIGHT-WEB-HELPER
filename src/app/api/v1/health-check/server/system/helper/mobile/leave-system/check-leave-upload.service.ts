@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_URL } from "@/services/api-url";
 import { HealthCheckResult } from "../../health-check.type";
-import { generateCurlCommand } from "../../generate-curl.helper";
+// generateCurlCommand ไม่รองรับ multipart/form-data จึงสร้าง curl command แบบ manual แทน
 
 export async function checkLeaveUploadService(
   accessToken?: string
@@ -51,18 +51,23 @@ export async function checkLeaveUploadService(
     },
   };
 
+  const startTime = performance.now();
   try {
     const res = await axios(UPLOAD_CONFIG);
+    const response_time_ms = Math.round(performance.now() - startTime);
     return {
       ...baseResult,
       status: String(res.status),
       response: res.data || "Uploaded Successfully",
+      response_time_ms,
     };
   } catch (error: any) {
+    const response_time_ms = Math.round(performance.now() - startTime);
     return {
       ...baseResult,
       status: String(error.response?.status || 500),
       response: error.response?.data || error.message || "Unknown Error",
+      response_time_ms,
     };
   }
 }

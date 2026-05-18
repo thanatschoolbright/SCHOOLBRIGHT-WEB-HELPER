@@ -37,18 +37,23 @@ export async function checkProfileService(
     request: PROFILE_CONFIG,
   };
 
+  const startTime = performance.now();
   try {
     const res = await axios(PROFILE_CONFIG);
+    const response_time_ms = Math.round(performance.now() - startTime);
     return {
       ...baseResult,
       status: String(res.status),
       response: res.data,
+      response_time_ms,
     };
   } catch (error: any) {
+    const response_time_ms = Math.round(performance.now() - startTime);
     return {
       ...baseResult,
       status: String(error.response?.status || 500),
       response: error.response?.data || error.message || "Unknown Error",
+      response_time_ms,
     };
   }
 }

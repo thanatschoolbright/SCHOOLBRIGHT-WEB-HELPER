@@ -22,6 +22,7 @@ export interface ServerStatusData {
     data?: any;
   };
   response: any;
+  response_time_ms: number;
 }
 
 /**

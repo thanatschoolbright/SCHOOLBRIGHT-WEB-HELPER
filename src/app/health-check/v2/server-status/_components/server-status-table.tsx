@@ -8,6 +8,7 @@ import {
   EyeOutlined,
   FileExcelOutlined,
   ReloadOutlined,
+  ThunderboltOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import {
@@ -68,6 +69,46 @@ const MethodBadge: React.FC<{ method: string }> = ({ method }) => {
     >
       {method}
     </span>
+  );
+};
+
+// ── Response time cell ────────────────────────────────────────────────────
+const ResponseTimeCell: React.FC<{ ms: number }> = ({ ms }) => {
+  const { token } = theme.useToken();
+
+  // แบ่ง severity: ดี < 300ms, ปานกลาง < 1000ms, ช้า >= 1000ms
+  const color =
+    ms < 300 ? token.colorSuccess : ms < 1000 ? token.colorWarning : token.colorError;
+  const bg =
+    ms < 300 ? token.colorSuccessBg : ms < 1000 ? token.colorWarningBg : token.colorErrorBg;
+  const border =
+    ms < 300 ? token.colorSuccessBorder : ms < 1000 ? token.colorWarningBorder : token.colorErrorBorder;
+  const label = ms < 300 ? "เร็ว" : ms < 1000 ? "ปานกลาง" : "ช้า";
+
+  return (
+    <Flex align="center" gap={8}>
+      <ThunderboltOutlined style={{ color, fontSize: 13 }} />
+      <Flex vertical gap={1}>
+        <Text style={{ fontFamily: "monospace", fontWeight: 600, fontSize: 13 }}>
+          {ms.toLocaleString()} ms
+        </Text>
+        <span
+          style={{
+            display: "inline-block",
+            fontSize: 10,
+            fontWeight: 700,
+            padding: "1px 7px",
+            borderRadius: 10,
+            background: bg,
+            color,
+            border: `1px solid ${border}`,
+            lineHeight: "16px",
+          }}
+        >
+          {label}
+        </span>
+      </Flex>
+    </Flex>
   );
 };
 
@@ -287,6 +328,13 @@ const ServerStatusTable: React.FC = () => {
       width: 200,
       sorter: (a, b) => (a.status || "").localeCompare(b.status || ""),
       render: (code: string) => <StatusCell code={code} />,
+    },
+    {
+      title: "Response Time",
+      dataIndex: "response_time_ms",
+      width: 160,
+      sorter: (a, b) => (a.response_time_ms ?? 0) - (b.response_time_ms ?? 0),
+      render: (ms: number) => <ResponseTimeCell ms={ms ?? 0} />,
     },
     {
       title: "ตรวจสอบ",

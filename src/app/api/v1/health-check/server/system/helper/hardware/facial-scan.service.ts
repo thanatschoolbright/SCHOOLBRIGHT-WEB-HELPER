@@ -27,6 +27,7 @@ export async function checkFacialScanService(): Promise<HealthCheckResult> {
 
   const baseResult = {
     module: "facial-scan",
+    group: "server-system",
     name_th: "ระบบสแกนใบหน้า (Hardware)",
     name_en: "Facial Scan Service",
     service: domain,
@@ -34,18 +35,23 @@ export async function checkFacialScanService(): Promise<HealthCheckResult> {
     request: { ...FACIAL_SCAN_CONFIG, body: FACIAL_SCAN_CONFIG.data },
   };
 
+  const startTime = performance.now();
   try {
     const res = await axios(FACIAL_SCAN_CONFIG);
+    const response_time_ms = Math.round(performance.now() - startTime);
     return {
       ...baseResult,
       status: String(res.status),
       response: res.data,
+      response_time_ms,
     };
   } catch (error: any) {
+    const response_time_ms = Math.round(performance.now() - startTime);
     return {
       ...baseResult,
       status: String(error.response?.status || 500),
       response: error.response?.data || error.message || "Unknown Error",
+      response_time_ms,
     };
   }
 }

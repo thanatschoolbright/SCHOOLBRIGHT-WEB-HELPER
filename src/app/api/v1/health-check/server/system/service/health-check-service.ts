@@ -22,6 +22,7 @@ import { checkSystemNotificationService } from "../helper/mobile/notification-sy
 import { checkGetSchoolListService } from "../helper/mobile/school-system/get-school-list.service";
 import { checkSystemApiUrlsService } from "../helper/mobile/server-system/api-url-check.service";
 import { checkServerStatusService } from "../helper/mobile/server-system/server-status.service";
+import { checkPermissionService } from "../helper/mobile/user-system/check-permission.service";
 import { checkProfileService } from "../helper/mobile/user-system/check-profile.service";
 import { checkEmailVerificationService } from "../helper/mobile/user-system/check-verify-email.service";
 import { checkVerificationService } from "../helper/mobile/user-system/verification.service";
@@ -30,8 +31,7 @@ dayjs.locale("th");
 
 // ── Config ─────────────────────────────────────────────────────────────────
 const DISCORD_CONFIG = {
-  WEBHOOK_URL:
-    process.env.WEBHOOK_DISCORD_DAILY_MONITOR_SERVER ?? "",
+  WEBHOOK_URL: process.env.WEBHOOK_DISCORD_DAILY_MONITOR_SERVER ?? "",
   ALERT_USER_ID: "<@1344189022561636445>",
   BOT_NAME: "SB System Monitor",
   AVATAR_URL:
@@ -138,7 +138,8 @@ const MODULE_EMOJI: Record<string, string> = {
 const buildGroupResultFields = (stats: AnalyzeResultOutput): DiscordField[] => {
   return Object.entries(stats.groupedResults).map(([groupKey, data]) => {
     const groupEmoji = MODULE_EMOJI[groupKey] ?? MODULE_EMOJI.other;
-    const groupName = GROUP_LABELS[groupKey] ?? GROUP_LABELS.other;
+    const groupName =
+      GROUP_LABELS[groupKey] ?? GROUP_LABELS.other ?? "ระบบอื่นๆ";
     const statusIcon = data.failed === 0 ? "🟢" : "🔴";
 
     const lines = data.items.map((item, idx) => {
@@ -235,7 +236,8 @@ const buildDiscordPayload = (stats: AnalyzeResultOutput): DiscordPayload => {
   if (isCritical) {
     Object.entries(stats.groupedResults).forEach(([groupKey, data]) => {
       if (data.failed === 0) return;
-      const groupName = GROUP_LABELS[groupKey] ?? GROUP_LABELS.other;
+      const groupName =
+        GROUP_LABELS[groupKey] ?? GROUP_LABELS.other ?? "ระบบอื่นๆ";
       const failedItems = data.items.filter(
         (item) => !["200", "404"].includes(item.status),
       );
@@ -315,6 +317,7 @@ export const executeHealthChecksService = async (): Promise<
     checkServerStatusService(),
     checkFacialScanService(),
     checkGetSchoolListService(),
+    checkPermissionService(freshToken),
     checkProfileService(freshToken),
     checkRefreshTokenService(freshToken),
     checkEmailVerificationService(freshToken),

@@ -3,7 +3,7 @@ export interface HealthCheckRequest {
   method: string;
   params?: Record<string, string>;
   headers?: Record<string, string>;
-  body?: Record<string, unknown>;
+  body?: Record<string, unknown> | string;
 }
 
 export interface HealthCheckResult {
@@ -16,4 +16,5 @@ export interface HealthCheckResult {
   request: HealthCheckRequest;
   response: Record<string, unknown> | null;
   group: string;
+  response_time_ms: number;
 }
