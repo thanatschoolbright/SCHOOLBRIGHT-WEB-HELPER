@@ -43,4 +43,5 @@ next-env.d.ts
 /.idea
 /generated
 /generated
-/cronjobs
+/cronjobs/yaml
+
