@@ -13,7 +13,7 @@ export default function LeaveManagementPage() {
   const { fetchData, isLoading, filters } = useLeaveManagementStore();
 
   return (
-    <PermissionLayout role={["ADMIN"]}>
+    <PermissionLayout>
       <DashboardLayout>
         {/* Header */}
         <HeaderBar
