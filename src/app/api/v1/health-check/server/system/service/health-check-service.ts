@@ -15,6 +15,7 @@ import { checkStudentLeaveTypeService } from "../helper/mobile/leave-system/chec
 import { checkSubmitLeaveService } from "../helper/mobile/leave-system/check-submit-leave.service";
 import { checkLoginService } from "../helper/mobile/login-system/login.service";
 import { checkRefreshTokenService } from "../helper/mobile/login-system/refresh-token.service";
+import { checkBannerService } from "../helper/mobile/notification-system/banner.service";
 import { checkNotificationUnreadCountService } from "../helper/mobile/notification-system/notification-system-unread-count.service";
 import { checkNotificationTodayService } from "../helper/mobile/notification-system/notification-today.service";
 import { checkNotificationService } from "../helper/mobile/notification-system/notification.service";
@@ -311,6 +312,7 @@ export const executeHealthChecksService = async (): Promise<
     checkNotificationTodayService(freshToken),
     checkNotificationUnreadCountService(freshToken),
     checkNotificationService(freshToken),
+    checkBannerService(freshToken),
     checkSystemNotificationService(freshToken),
     checkFlagPoleAttendanceService(freshToken),
     checkFlagPoleScanService(freshToken),
