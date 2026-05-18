@@ -255,6 +255,9 @@ const LogDailySummaryChart: React.FC = () => {
       title: "ชื่อ Server",
       dataIndex: "server_name",
       key: "server_name",
+      sorter: (a: { server_name: string }, b: { server_name: string }) =>
+        a.server_name.localeCompare(b.server_name, "th"),
+      defaultSortOrder: "ascend" as const,
       render: (text: string) => (
         <Flex align="center" gap={8}>
           <Badge status="processing" color={token.colorPrimary} />
