@@ -18,7 +18,8 @@
       "system_log": "ประวัติระบบ",
       "ot_management": "จัดการ OT (แอดมิน)",
       "system_management": "จัดการระบบ",
-      "api_spec": "API Spec"
+      "api_spec": "API Spec",
+      "bot_management": "จัดการบอท"
     }
   },
   "testing": {

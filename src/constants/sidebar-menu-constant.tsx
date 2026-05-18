@@ -36,6 +36,7 @@ import {
   ProjectOutlined,
   QrcodeOutlined,
   ReadOutlined,
+  RobotOutlined,
   RocketOutlined,
   ScheduleOutlined,
   SearchOutlined,
@@ -177,7 +178,12 @@ export const useSidebarMenu = (): SidebarItem[] => {
                 label: t("admin_system.children.api_spec"),
                 href: "/admin/api-spec-management",
                 icon: <KeyOutlined />,
-
+                permission: PERMISSIONS.ADMIN_ACCESS,
+              },
+              {
+                label: t("admin_system.children.bot_management"),
+                href: "/admin/bot-management",
+                icon: <RobotOutlined />,
                 permission: PERMISSIONS.ADMIN_ACCESS,
               },
             ],

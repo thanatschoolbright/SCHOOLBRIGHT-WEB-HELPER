@@ -5,6 +5,7 @@ import { checkFacialScanService } from "../helper/hardware/facial-scan.service";
 import { HealthCheckResult } from "../helper/health-check.type";
 import { checkFlagPoleScanService } from "../helper/mobile/attendance-system/attendance-scan.service";
 import { checkFlagPoleAttendanceService } from "../helper/mobile/attendance-system/attendance-student.service";
+import { checkBroadcastHistoryService } from "../helper/mobile/broadcast-system/history.service";
 import { checkAmphurService } from "../helper/mobile/leave-system/check-amphur.service";
 import { checkDistrictService } from "../helper/mobile/leave-system/check-district.service";
 import { checkFindClassroomService } from "../helper/mobile/leave-system/check-find-classroom.service";
@@ -24,6 +25,7 @@ import { checkSystemNotificationService } from "../helper/mobile/notification-sy
 import { checkGetSchoolListService } from "../helper/mobile/school-system/get-school-list.service";
 import { checkSystemApiUrlsService } from "../helper/mobile/server-system/api-url-check.service";
 import { checkServerStatusService } from "../helper/mobile/server-system/server-status.service";
+import { checkServerStatusV2Service } from "../helper/mobile/server-system/server-status.v2.service";
 import { checkPermissionService } from "../helper/mobile/user-system/check-permission.service";
 import { checkProfileService } from "../helper/mobile/user-system/check-profile.service";
 import { checkEmailVerificationService } from "../helper/mobile/user-system/check-verify-email.service";
@@ -319,6 +321,7 @@ export const executeHealthChecksService = async (): Promise<
 
   const otherServicesResults = await Promise.all([
     checkVerificationService(freshToken),
+    checkBroadcastHistoryService(freshToken),
     checkNotificationTodayService(freshToken),
     checkNotificationUnreadCountService(freshToken),
     checkNotificationService(freshToken),
@@ -328,6 +331,7 @@ export const executeHealthChecksService = async (): Promise<
     checkFlagPoleAttendanceService(freshToken),
     checkFlagPoleScanService(freshToken),
     checkServerStatusService(),
+    checkServerStatusV2Service(freshToken),
     checkFacialScanService(),
     checkGetSchoolListService(),
     checkPermissionService(freshToken),

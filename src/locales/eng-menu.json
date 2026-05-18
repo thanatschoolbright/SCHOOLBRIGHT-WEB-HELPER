@@ -18,7 +18,8 @@
       "system_log": "System Logs",
       "ot_management": "OT Management (Admin)",
       "system_management": "System Management",
-      "api_spec": "API Spec"
+      "api_spec": "API Spec",
+      "bot_management": "Bot Management"
     }
   },
   "testing": {
