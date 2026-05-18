@@ -271,7 +271,7 @@ const buildDiscordPayload = (stats: AnalyzeResultOutput): DiscordPayload => {
   };
 };
 
-// 📣 ส่ง Webhook แจ้งผลการตรวจสอบไปยัง Discord Channel
+// 📣 ส่ง Webhook แจ้งผลการตรวจสอบไปยัง Discord Channel — ส่งเฉพาะเมื่อมี API ล้มเหลวเท่านั้น
 export const sendDiscordNotificationService = async (
   results: HealthCheckResult[],
 ): Promise<void> => {
@@ -281,6 +281,15 @@ export const sendDiscordNotificationService = async (
   }
 
   const stats = analyzeHealthResults(results);
+
+  // ถ้าทุก API ทำงานปกติ — log แล้วออก ไม่ยิง Webhook
+  if (stats.failed.length === 0) {
+    console.log(
+      `✅ [health-check-service] ระบบปกติทั้งหมด ${stats.total} รายการ — ไม่ส่ง Discord`,
+    );
+    return;
+  }
+
   const payload = buildDiscordPayload(stats);
 
   try {
