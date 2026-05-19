@@ -220,9 +220,9 @@ Response: `{ data: T[], pagination: { page, page_size, total, total_pages } }`
 ```
 Response helpers: `successResponse` / `errorResponse` from `src/helpers/api/response.ts`.
 
-### API helper utilities (`src/helpers/controller/`)
+### API helper utilities
 
-Use these in route handlers instead of writing custom logic:
+**`src/helpers/controller/`** — use in route handlers:
 
 | File | Function | Purpose |
 |---|---|---|
@@ -231,6 +231,16 @@ Use these in route handlers instead of writing custom logic:
 | `safe-parse.params.ts` | `safeParseRequestBody(request)` | `request.json()` with empty-object fallback |
 | `format-date.params.ts` | `formatDate(date)` | Any date → ISO string or `null` |
 | `handle-error.params.ts` | `handleError(err, contextMessage?)` | Centralized catch block — maps `AppError` status codes, returns `NextResponse` |
+
+**`src/helpers/api/`** — shared API utilities:
+
+| File | Purpose |
+|---|---|
+| `app-error.ts` | `AppError` class — business-rule errors with `statusCode` |
+| `response.ts` | `successResponse` / `errorResponse` — standard JSON envelope |
+| `validate.request.ts` | `validateRequest(request, schema)` — parse body + return typed `{ data, error }` |
+| `api.log.ts` | `apiLog` — structured console logger for server scripts (not route handlers; use `logger.server.ts` there) |
+| `convert-to-curl.ts` | `convertToCurl(config)` — converts Axios config to a cURL string for debug logging |
 
 Input validation uses Zod via `src/helpers/api/validate.request.ts`. Use `validateRequest(request, schema)` in route handlers — it parses the body and returns `{ error: NextResponse }` on failure or `{ data: T }` on success:
 ```ts
@@ -350,9 +360,12 @@ Use `$transaction` when writing to multiple tables. Never mix models across inst
 | `src/services/axios-instance/sb-helper.axios.ts` | `callApiService` — Axios instance for client→internal Next.js API routes; logs every request to `/api/v1/logger/create` |
 | `src/services/api-url.tsx` | Centralized `API_URL` constants (reads from `NEXT_PUBLIC_*` env vars) |
 | `src/services/canteen-api.ts` | Hardware canteen device API |
+| `src/services/huawei-bucket-storage.service.ts` | `HuaweiBucketStorageService` — upload/delete files on Huawei OBS; OBS keys stay server-side, client calls this service which delegates to `/api/*` |
 | `src/services/line/line-push.service.ts` | LINE Messaging API — push/broadcast messages, cron device-status reports, webhook event handling |
 | `src/helpers/logger.server.ts` | Winston server-side logging |
 | `src/helpers/api-log.helper.ts` | Request/response logging middleware |
+| `src/helpers/call-with-logging.ts` | `callWithLogging(config, logMeta?)` — Axios wrapper that emits structured color logs via `apiLog`; use in server-side scripts/services that call external URLs directly |
+| `src/helpers/bulk-pdf-download.helper.ts` | `bulkPdfDownloadService` — renders HTML elements to canvas then to PDF via `jspdf`; handles Thai text (which `jspdf` text mode cannot render) |
 
 **Two distinct HTTP clients — do not mix them:**
 - `callApiService` (from `@services/axios-instance/sb-helper.axios`) — for client components calling `/api/v*/*` routes within this app
@@ -370,6 +383,10 @@ can(["CODE_A", "CODE_B"])     // OR logic
 ```
 - `isAdmin` is `true` when `session.user.admin_id === 117` — bypasses all permission checks.
 - Use named constants from `src/constants/permission.constant.ts` (`PERMISSIONS.MENU_HEALTH_CHECK`, etc.) — pattern is `{module}.{resource}.{action}`.
+
+**Other hooks in `src/hooks/`:**
+- `use-auth.ts` — returns the current session user object (wraps `useSession` from next-auth)
+- `use-dark-mode.ts` — returns `isDark` boolean and a toggle; syncs with `next-themes`
 
 **API routes:**
 ```ts

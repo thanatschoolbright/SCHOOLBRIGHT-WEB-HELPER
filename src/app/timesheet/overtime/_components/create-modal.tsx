@@ -697,7 +697,6 @@ const CreateModal: React.FC<CreateModalProps> = ({
             >
               <Select
                 options={userOptions}
-                disabled
                 showSearch
                 placeholder="ระบุชื่อผู้มอบหมายงาน..."
                 optionFilterProp="label"
